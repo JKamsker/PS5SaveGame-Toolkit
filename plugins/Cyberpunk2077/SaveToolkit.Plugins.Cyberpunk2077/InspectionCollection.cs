@@ -5,107 +5,64 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.Cyberpunk2077;
 
-/// <summary>Query the complete model, materializing view cells only for the requested page.</summary>
-internal sealed class InspectionCollection<T>(
-    QueryableCollection metadata,
-    IReadOnlyList<T> items,
-    Func<T, string> key,
-    IReadOnlyDictionary<string, Func<T, string>> values,
-    Func<T, TableRow> row,
-    Func<T, string>? extraSearch = null,
-    Func<T, bool>? isEmpty = null)
+/// <summary>Plugin projections and compatibility policy around the shared full-model query engine.</summary>
+internal sealed class InspectionCollection<T>
 {
-    // Native row identities are stable for this collection's lifetime. Only this order is
-    // cached: values, filters and empty-row predicates can change after edit/undo.
-    private readonly Lazy<T[]> _keyOrder = new(() => items.OrderBy(key, StringComparer.Ordinal).ToArray());
+    private readonly InMemoryCollection<Entry> _collection;
+    private readonly IReadOnlyDictionary<string, Func<T, string>> _values;
 
-    public QueryableCollection Metadata { get; } = metadata;
+    public InspectionCollection(QueryableCollection metadata, IReadOnlyList<T> items, Func<T, string> key,
+        IReadOnlyDictionary<string, Func<T, string>> values, Func<T, TableRow> row,
+        Func<T, string>? extraSearch = null, Func<T, bool>? isEmpty = null)
+    {
+        _values = values;
+        // Only native identities are cached. Text, numeric values and empty predicates stay live.
+        var entries = new Lazy<Entry[]>(() => items.Select(item => new Entry(item, key(item))).ToArray());
+        var columns = metadata.Columns.Select(column => new InMemoryColumn<Entry>(column.Key)
+        {
+            SearchText = entry => values[column.Key](entry.Item),
+            FilterText = entry => values[column.Key](entry.Item),
+            Comparer = Comparer<Entry>.Create((left, right) => Compare(values[column.Key](left.Item),
+                values[column.Key](right.Item), column.Spec is IntegerSpec or NullableSpec { Inner: IntegerSpec })),
+        }).ToArray();
+        _collection = new(metadata, () => entries.Value, entry => entry.Key, columns, entry => row(entry.Item), new()
+        {
+            ExtraSearchText = extraSearch is null ? null : entry => extraSearch(entry.Item),
+            // Empty markers without presentation metadata never hide rows in this plugin.
+            IsEmpty = metadata.EmptyRows is not null && isEmpty is not null ? entry => isEmpty(entry.Item) : null,
+        });
+    }
 
-    public QueryableTableNode View() => new(Metadata.Id, Metadata.Title, Metadata.Columns, Metadata.TotalCount)
-        { Description = Metadata.Description, EmptyRows = Metadata.EmptyRows };
+    public QueryableCollection Metadata => _collection.Metadata;
+    public QueryableTableNode View() => Metadata.ToTableNode();
 
     public QueryableCollectionPage Query(QueryableCollectionQuery query)
     {
+        // Preserve plugin diagnostics and validation precedence; the SDK validates again before querying.
         ArgumentNullException.ThrowIfNull(query);
         if (query.Cursor is not null)
-        {
             throw new ArgumentException("This collection uses offset paging.", nameof(query));
-        }
-
         if (query.Text?.Length > QueryableCollectionLimits.MaxQueryLength ||
             query.Filters.Count > QueryableCollectionLimits.MaxFilterCount ||
             query.Filters.Any(pair => pair.Key.Length > QueryableCollectionLimits.MaxFilterLength || pair.Value.Length > QueryableCollectionLimits.MaxFilterLength))
-        {
             throw new ArgumentException("Collection query exceeds the supported bounds.", nameof(query));
-        }
-
         foreach (var filter in query.Filters.Keys)
         {
-            if (!values.ContainsKey(filter))
-            {
+            if (!_values.ContainsKey(filter))
                 throw new ArgumentException($"Unknown filter column '{filter}'.", nameof(query));
-            }
         }
-
-        var sort = query.SortColumn;
-        if (sort is not null && !values.ContainsKey(sort))
-        {
+        if (query.SortColumn is { } sort && !_values.ContainsKey(sort))
             throw new ArgumentException($"Unknown sort column '{sort}'.", nameof(query));
-        }
-
-        var offset = Math.Max(0, query.Offset);
-        var limit = Math.Clamp(query.Limit, 1, QueryableCollectionLimits.MaxPageSize);
-        var includeEmpty = query.IncludeEmpty ?? Metadata.EmptyRows?.HideByDefault != true;
-        var hideEmpty = !includeEmpty && Metadata.EmptyRows is not null && isEmpty is not null;
-        if (sort is null && string.IsNullOrEmpty(query.Text) && query.Filters.Count == 0 && !hideEmpty)
-        {
-            var index = _keyOrder.Value;
-            var page = new TableRow[Math.Min(limit, Math.Max(0, index.Length - offset))];
-            for (var i = 0; i < page.Length; i++)
-                page[i] = row(index[query.Descending ? index.Length - 1 - offset - i : offset + i]);
-            return new QueryableCollectionPage(Metadata.Id, Metadata.Columns, page, items.Count, items.Count, offset, limit);
-        }
-
-        IEnumerable<T> matches = sort is null
-            ? query.Descending ? _keyOrder.Value.Reverse() : _keyOrder.Value
-            : items;
-        if (!string.IsNullOrEmpty(query.Text))
-        {
-            matches = matches.Where(item => values.Values.Any(get => get(item).Contains(query.Text, StringComparison.OrdinalIgnoreCase)) ||
-                extraSearch?.Invoke(item).Contains(query.Text, StringComparison.OrdinalIgnoreCase) == true);
-        }
-
-        if (query.Filters.Count > 0)
-            matches = matches.Where(item => query.Filters.All(filter =>
-                string.Equals(values[filter.Key](item), filter.Value, StringComparison.OrdinalIgnoreCase)));
-        var filtered = matches.ToArray();
-        var hiddenEmptyCount = 0;
-        if (hideEmpty)
-        {
-            hiddenEmptyCount = filtered.Count(isEmpty!);
-            filtered = filtered.Where(item => !isEmpty!(item)).ToArray();
-        }
-
-        IEnumerable<T> ordered = filtered;
-        if (sort is not null)
-        {
-            var numeric = Metadata.Columns.Single(column => column.Key == sort).Spec is IntegerSpec or NullableSpec { Inner: IntegerSpec };
-            IComparer<string> comparer = numeric ? NumericComparer.Instance : StringComparer.OrdinalIgnoreCase;
-            ordered = (query.Descending ? filtered.OrderByDescending(values[sort], comparer) : filtered.OrderBy(values[sort], comparer))
-                .ThenBy(key, StringComparer.Ordinal);
-        }
-
-        return new QueryableCollectionPage(Metadata.Id, Metadata.Columns, ordered.Skip(offset).Take(limit).Select(row).ToArray(),
-            items.Count, filtered.Length, offset, limit) { HiddenEmptyCount = hiddenEmptyCount };
+        return _collection.Query(query);
     }
 
-    private sealed class NumericComparer : IComparer<string>
-    {
-        public static NumericComparer Instance { get; } = new();
+    // Integer columns compare exact Int128 values, retaining ordinal fallback for absent/non-numeric text.
+    // Text columns remain ordinal case-insensitive. The SDK supplies ascending native-key tie breaks.
+    private static int Compare(string left, string right, bool numeric) => numeric
+        ? Int128.TryParse(left, NumberStyles.Integer, CultureInfo.InvariantCulture, out var x) &&
+          Int128.TryParse(right, NumberStyles.Integer, CultureInfo.InvariantCulture, out var y)
+            ? x.CompareTo(y) : StringComparer.Ordinal.Compare(left, right)
+        : StringComparer.OrdinalIgnoreCase.Compare(left, right);
 
-        public int Compare(string? x, string? y) =>
-            Int128.TryParse(x, NumberStyles.Integer, CultureInfo.InvariantCulture, out var left) &&
-            Int128.TryParse(y, NumberStyles.Integer, CultureInfo.InvariantCulture, out var right)
-                ? left.CompareTo(right) : StringComparer.Ordinal.Compare(x, y);
-    }
+    private sealed record Entry(T Item, string Key);
 }
