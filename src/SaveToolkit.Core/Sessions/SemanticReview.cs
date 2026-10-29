@@ -261,10 +261,11 @@ internal sealed class SemanticReview
         Action<FieldNode> index, Action<string> expandedLazy, long revision, CancellationToken cancellationToken)
     {
         var previous = _original;
+        var hadBaseline = previous is not null;
         try
         {
             EnsureOriginal(openOriginal, cancellationToken);
-            if ((!_originalMetadataAttempted || _originalRetryIds.Count > 0)
+            if (hadBaseline && (!_originalMetadataAttempted || _originalRetryIds.Count > 0)
                 && _originalMetadataAvailable != false && _original is { } baseline)
             {
                 var metadata = SemanticOriginalMetadata.Enrich(openOriginal, baseline, _maxBytes,
