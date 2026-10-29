@@ -41,11 +41,11 @@ public sealed class ImportedQuantityTests
         var scope = new ActionScope();
         var plan = document.PlanAction(ActionId, NoParameters, scope);
         Assert.Empty(plan.Errors);
-        Assert.Equal(3, plan.Changes.Count); // Two writes, plus the exposed raw alias.
+        Assert.Equal(2, plan.Changes.Count); // Two canonical writes shared by every projection.
         Assert.Contains(plan.Changes, change => change.ValueId == quantities[0].Path &&
             change.OldValue.AsInt32() == 2 && change.NewValue.AsInt32() == 10 && !change.Derived);
         Assert.Contains(plan.Changes, change => change.ValueId == quantities[4].Path && change.NewValue.AsInt32() == int.MaxValue);
-        Assert.Contains(plan.Changes, change => change.ValueId == raw.ValueId && change.Derived);
+        Assert.Contains(plan.Changes, change => change.ValueId == raw.ValueId && !change.Derived);
         Assert.All(plan.Changes.Where(change => !change.Derived), change => Assert.Contains("raw item ID 0x", change.Label, StringComparison.Ordinal));
         Assert.Equal(5, plan.SkippedRows.Count);
         Assert.Contains(plan.SkippedRows, row => row.Reason.Contains("above", StringComparison.Ordinal));
@@ -64,7 +64,7 @@ public sealed class ImportedQuantityTests
     }
 
     [Fact]
-    public void InvalidSelectionsAndParametersRejectAtomicallyAndUnloadedBindingsRemainGuarded()
+    public void InvalidSelectionsAndParametersRejectAtomicallyWhileUnloadedScopesResolveBindings()
     {
         var original = SyntheticInventory.Create(251);
         using var document = new PragmataDocument("data000.bin", original);
@@ -72,7 +72,7 @@ public sealed class ImportedQuantityTests
         var key = QuantityActions.RowKey(document.Layout.Items[1]);
         foreach (var scope in new[]
         {
-            new ActionScope(), new ActionScope([key]), new ActionScope([key, key]), new ActionScope(["unknown"]),
+            new ActionScope([key, key]), new ActionScope(["unknown"]),
             new ActionScope { QueryScope = new ActionQueryScope(InventoryCollections.CollectionId, new(), 0) },
             new ActionScope([key]) { QueryScope = new ActionQueryScope("evidence", new(), 0) },
         })
@@ -80,6 +80,13 @@ public sealed class ImportedQuantityTests
             var plan = document.PlanAction(ActionId, NoParameters, scope);
             Assert.NotEmpty(plan.Errors);
             Assert.False(document.ApplyActionPlan(ActionId, NoParameters, scope, plan).Succeeded);
+        }
+        foreach (var scope in new[] { new ActionScope(), new ActionScope([key]) })
+        {
+            var plan = document.PlanAction(ActionId, NoParameters, scope);
+            Assert.Empty(plan.Errors);
+            Assert.Empty(plan.Changes); // Already at the imported baseline; no pages needed.
+            Assert.NotEmpty(plan.SkippedRows);
         }
         var empty = document.PlanAction(ActionId, NoParameters, new ActionScope([]));
         Assert.Empty(empty.Errors);

@@ -12,17 +12,17 @@ using SaveToolkit.Sdk.Collections;
 
 namespace SaveToolkit.Plugins.Pragmata;
 
-internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IActionPlanningDocument
+internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IActionPlanningDocument, IFieldMetadataDocument
 {
     internal const string EditWarning = "Not validated on console. The game may reject or overwrite the edited save. " +
         "Experimental. Game limits and side effects are unverified. " +
         "CityHash64 and Murmur3 are repaired; the RSA trailer is preserved but cannot be validated or regenerated.";
     private const int MaximumStringPreviewBytes = 2048;
     private const int MaximumStructPreviewBytes = 64;
-    private const long MicrosecondsPerSecond = 1_000_000;
+    internal const long MicrosecondsPerSecond = 1_000_000;
     private readonly string _relativePath;
     private readonly DsssContainer _container;
-    private readonly Dictionary<string, SaveNode> _bindings = new(StringComparer.Ordinal);
+    private readonly PragmataBindings _bindings;
     private readonly PragmataViews _views;
     private readonly QuantityActions _quantityActions;
     private byte[] _plaintext;
@@ -48,6 +48,7 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
         _plaintext = _container.Plaintext.ToArray();
         Layout = new SaveLayout(_plaintext);
         Bounds = new ObservedEditBounds(Layout, _plaintext);
+        _bindings = new PragmataBindings(this);
         References = new ReferenceReadouts(this, references ?? IReferenceContext.Empty);
         Evidence = new EvidenceCollections(this);
         InventoryRows = new InventoryCollections(this);
@@ -59,8 +60,10 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
     public ViewNode BuildView() => _views.Build();
     public IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _views.Expand(lazyId);
     public FieldValue GetValue(string valueId) => References.GetValue(valueId) ??
-        Read(_bindings.TryGetValue(valueId, out var node) ? node :
+        Read(_bindings.Find(valueId) ??
             throw new KeyNotFoundException($"Unknown Pragmata value '{valueId}'."));
+
+    public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds) => _bindings.Resolve(valueIds);
 
     public AssetContent? GetAsset(string assetId) => References.GetAsset(assetId);
 
@@ -77,21 +80,16 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
 
     internal string PreviewOrValue(SaveNode node) => node.IsPrimitive ? Read(node).ToString() : Preview(node);
     internal string Fingerprint(SaveNode node) => "opaque-sha256:" + Convert.ToHexStringLower(SHA256.HashData(_plaintext.AsSpan(node.Offset, node.Size)));
-    internal bool HasPrimaryBinding(SaveNode node) => _bindings.ContainsKey(node.Path);
+    internal bool HasPrimaryBinding(SaveNode node) => _bindings.HasPrimary(node);
+    internal bool IsQuantity(SaveNode node) => _bindings.IsQuantity(node);
 
     internal double HoursPlayed(SaveNode header) => (double)Read(header.Find(KnownHashes.Playtime)!).AsUInt64() /
         (MicrosecondsPerSecond * TimeSpan.SecondsPerHour);
 
     internal FieldNode Field(SaveNode node, bool raw = false)
     {
-        var id = raw ? $"raw/{node.Path}" : node.Path;
-        _bindings[id] = node;
-        var spec = Bounds.Spec(node);
-        if (IsTimer(node) && spec is IntegerSpec timer)
-            spec = timer with { Format = IntegerFormat.Duration, UnitsPerSecond = MicrosecondsPerSecond, Unit = "µs" };
-        else if (spec is IntegerSpec integer && HashNames.All.TryGetValue(node.Hash, out var name) && name.EndsWith("Hash", StringComparison.Ordinal))
-            spec = integer with { Format = IntegerFormat.Hex };
-        return new FieldNode(id, HashNames.Label(node.Hash), spec, Read(node))
+        var id = _bindings.Register(node, raw);
+        return new FieldNode(id, HashNames.Label(node.Hash), _bindings.Spec(node), Read(node))
         {
             Confidence = HashNames.All.ContainsKey(node.Hash) ? Confidence.Inferred : Confidence.Unknown,
             Description = $"{node.Path} · {FieldTags.ShortName(node.Type)} @0x{node.Offset:x} · {References.IdentifierSource(node.Hash)} " +
@@ -108,10 +106,12 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
             var resolved = References.Resolve(edit.ValueId, edit.Value);
             if (resolved?.Error is { } referenceError) return EditOutcome.Rejected(edit.ValueId, referenceError);
             var value = resolved?.Value ?? edit.Value;
-            var node = resolved?.Node ?? _bindings.GetValueOrDefault(edit.ValueId);
+            var node = resolved?.Node ?? _bindings.Find(edit.ValueId);
             if (node is null)
                 return EditOutcome.Rejected(edit.ValueId, "Unknown field; expand its section first.");
             if (!node.IsPrimitive) return EditOutcome.Rejected(edit.ValueId, "Field is read-only.");
+            if (_bindings.IsDerived(edit.ValueId, node))
+                return EditOutcome.Rejected(edit.ValueId, "Quantity alias is read-only; edit its canonical quantity field.");
             if (Bounds.Validate(node, value) is { } error)
                 return EditOutcome.Rejected(edit.ValueId, error);
             value = node.Type == FieldTags.Float32 ? FieldValue.Of((double)(float)value.AsDouble()) : value;
@@ -146,8 +146,7 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
     }
 
     internal IReadOnlyList<ValueChange> ChangesFor(IReadOnlyDictionary<SaveNode, FieldValue> proposed) =>
-        _bindings.Where(b => proposed.TryGetValue(b.Value, out var next) && Read(b.Value) != next)
-            .Select(b => new ValueChange(b.Key, Read(b.Value), proposed[b.Value]))
+        _bindings.Changes(proposed)
             .Concat(References.Changes(proposed)).ToArray();
 
     public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
@@ -170,6 +169,6 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
         return [new FileOutput(_relativePath, output)];
     }
 
-    private bool IsTimer(SaveNode node) => node == Layout.Header?.Find(KnownHashes.Playtime) || Layout.Timers.Contains(node);
+    internal bool IsTimer(SaveNode node) => node == Layout.Header?.Find(KnownHashes.Playtime) || Layout.Timers.Contains(node);
     public void Dispose() { }
 }

@@ -24,6 +24,7 @@ internal sealed class ReferenceReadouts
     private readonly SchemaReadouts _schema;
     private readonly Dictionary<string, FieldValue> _readOnly = new(StringComparer.Ordinal);
     private readonly Dictionary<string, (SaveNode Node, bool Reference)> _bindings = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, FieldMetadata> _metadata = new(StringComparer.Ordinal);
 
     public ReferenceReadouts(PragmataDocument document, IReferenceContext context)
     {
@@ -47,6 +48,7 @@ internal sealed class ReferenceReadouts
         return record is not null && record.Name == HashNames.All.GetValueOrDefault(hash) ? record.AttributionText : HashNames.Provenance(hash);
     }
     public string SchemaDescription(SaveNode node) => _schema.Describe(node, _document);
+    public FieldMetadata? Metadata(string id) => _metadata.GetValueOrDefault(id);
     public ResolvedEdit? Resolve(string id, FieldValue value)
     {
         if (_readOnly.ContainsKey(id)) return new ResolvedEdit(null, value, "Reference evidence is browse-only.");
@@ -86,8 +88,14 @@ internal sealed class ReferenceReadouts
         var record = Item(raw);
         var id = $"inspect/item/{node.Path}";
         _bindings[id] = (node, true);
+        if (!_metadata.TryGetValue(id, out var metadata))
+        {
+            metadata = new FieldMetadata(id, HashNames.Label(node.Hash),
+                new ReferenceSpec(ItemsCatalog) { AllowCustom = true, Assess = candidate => AssessItem(node, candidate.Key) });
+            _metadata.Add(id, metadata);
+        }
         return new FieldNode(id, record?.Name ?? $"Unmapped item 0x{raw:x8}",
-            new ReferenceSpec(ItemsCatalog) { AllowCustom = true, Assess = candidate => AssessItem(node, candidate.Key) },
+            metadata.Spec,
             FieldValue.Of(raw.ToString(CultureInfo.InvariantCulture)))
         {
             Confidence = record is null || record.Attributes.GetValueOrDefault("confidence") == "Unknown" ? Confidence.Unknown : Confidence.Inferred,
@@ -100,9 +108,12 @@ internal sealed class ReferenceReadouts
 
     public FieldNode Primitive(SaveNode node)
     {
+        if (_document.IsQuantity(node)) return _document.Field(node);
         var id = $"inspect/value/{node.Path}";
         _bindings[id] = (node, false);
-        return new FieldNode(id, HashNames.Label(node.Hash), _document.Bounds.Spec(node), _document.Read(node))
+        var metadata = new FieldMetadata(id, HashNames.Label(node.Hash), _document.Bounds.Spec(node));
+        _metadata[id] = metadata;
+        return new FieldNode(id, metadata.Label, metadata.Spec, _document.Read(node))
         {
             Confidence = Confidence.Unknown,
             Description = $"{node.Path} · {FieldTags.ShortName(node.Type)} @0x{node.Offset:x}. Identifier: {IdentifierSource(node.Hash)} " +

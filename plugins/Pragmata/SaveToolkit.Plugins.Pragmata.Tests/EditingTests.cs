@@ -97,15 +97,18 @@ public sealed class EditingTests
     }
 
     [Fact]
-    public void BulkEditsOfUnexposedQuantitiesAreRejectedInsteadOfLosingUndo()
+    public void BulkEditsOfUnexposedQuantitiesResolveCanonicalBindingsWithoutChangingBytes()
     {
         var file = SampleEvidenceTests.Files().Single(f => f.FileName == "data000.bin");
         using var document = new PragmataDocument(file.RelativePath, file.ReadAllBytes());
+        Assert.All(document.Layout.Items, item => Assert.False(document.HasPrimaryBinding(item.Find(KnownHashes.Quantity)!)));
         foreach (var quantity in new[] { 1L, 2L })
         {
             var plan = document.PlanAction(PragmataViews.QuantityAction,
                 new Dictionary<string, FieldValue> { ["quantity"] = FieldValue.Of(quantity) }, new ActionScope());
-            Assert.NotEmpty(plan.Errors);
+            Assert.Empty(plan.Errors);
+            Assert.All(document.Layout.Items, item => Assert.True(document.HasPrimaryBinding(item.Find(KnownHashes.Quantity)!)));
+            Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
         }
         _ = document.BuildView();
         Assert.Empty(document.PlanAction(PragmataViews.QuantityAction,

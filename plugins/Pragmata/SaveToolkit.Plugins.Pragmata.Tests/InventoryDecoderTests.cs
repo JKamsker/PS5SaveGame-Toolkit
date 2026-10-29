@@ -44,8 +44,8 @@ public sealed class InventoryDecoderTests
         var after = decoder.Decode(File(document.Serialize().Single().Content.ToArray()), new());
         var diff = SemanticDiffer.Compare(before, after);
         Assert.False(diff.InputTruncated);
-        Assert.Equal(2, diff.Total); // Primary control and its Raw alias.
-        Assert.Equal([quantity.Path, $"raw/{quantity.Path}"], diff.Changes.Select(change => change.Path).Order(StringComparer.Ordinal));
+        Assert.Equal(1, diff.Total); // Raw and F8 share the canonical quantity identity.
+        Assert.Equal(quantity.Path, Assert.Single(diff.Changes).Path);
         Assert.All(diff.Changes, change =>
         {
             Assert.Equal((250 % 11).ToString(CultureInfo.InvariantCulture), change.Before);

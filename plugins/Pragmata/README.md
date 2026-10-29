@@ -137,9 +137,11 @@ lost before import; re-importing edited bytes establishes a new baseline.
 
 Duplicate current or opening inventory IDs reject the whole restore preview, as do
 duplicate/unknown row keys, non-inventory or unresolved query scopes and unexpected
-parameters. The unloaded-primary-binding guard remains: explicit/document scopes
-must already expose their quantity controls, while bounded F8 whole-query resolution
-publishes every matching row before planning and honors exclusions. Empty selections
+parameters. SDK-02 resolves selected canonical quantity bindings before planning,
+so explicit/document scopes work without opening Inventory, Raw or evidence pages.
+The unloaded-page guard is removed: migration tests prove unloaded edits and exact
+one-step undo/redo across 251 rows. A binding-success invariant remains. Bounded F8
+whole-query resolution still honors exclusions. Empty selections
 and zero-match/fully excluded queries stay empty. The format has no verified
 per-record lock flag to reinterpret; unknown gameplay fields and dependencies remain
 untouched. Unmapped player-facing names do not disqualify known quantity storage;
@@ -231,9 +233,19 @@ most 200 entries; very large arrays use recursive range sections. String/struct
 previews are bounded without altering their stored bytes.
 
 Primary value IDs are exact paths, e.g.
-`7c416083/7c018857[6]/3185b7a5[5]/d18b252d`. Raw controls prefix that path with
-`raw/`, avoiding duplicate IDs across views. Both aliases share one primitive;
-changes report every exposed alias. Contradictory alias edits reject atomically.
+`7c416083/7c018857[6]/3185b7a5[5]/d18b252d`. Inventory, Raw and evidence quantity
+controls reuse that canonical ID and the exact same spec. For 250 changed quantities
+in a 251-row F8 inventory, semantic review now lists **250 entries, down from 500**
+(250 canonical + 250 raw), with **0 duplicate entries, down from 250**. Individual
+revert addresses the same quantity from either projection.
+
+SDK-02 also resolves explicitly requested legacy `raw/<quantity path>` and
+`inspect/value/<quantity path>` IDs as read-only `Derived` aliases, backed by the
+canonical quantity. They have no independent setter and are not rendered as separate
+controls. Changes report every registered alias; Core replays writable primaries only.
+Other primitive projections retain their existing IDs and writable behavior, with
+metadata for already exposed bindings so history remains valid after view rebuilds.
+Contradictory edits to the same primitive still reject atomically.
 
 Restoring a primitive's imported semantic value also restores its original stored
 bytes. This preserves accepted noncanonical nonzero boolean bytes and signed
@@ -367,6 +379,19 @@ the system-file no-op remains covered. Existing allocation bounds, including
 `IdentityAllocationTests`, are unchanged and pass. The API build passed with
 **0 warnings, 0 errors**. No console acceptance is claimed; #31 remains open.
 
+SDK-02 adoption validation, **2026-10-29**: **309 plugin tests passed, 0 failed,
+0 skipped** with samples (10 new metadata/history migration cases). Conformance,
+mutation fuzz (200 cases), restore-imported-quantities, all-sample no-op round trips,
+independent edited-output golden hashes and all unchanged allocation limits pass.
+The API Release build has **0 warnings, 0 errors**; all **27 documentation checks**
+pass against `main`. The 251-row review regression changes 250 quantities and now
+reports 250 entries instead of 500. Unloaded explicit/document planning and direct
+edits, exact undo/redo and derived-alias replay tests justify removing the page-load
+guard. Scratch, TEMP, TMP and TMPDIR were under
+`D:/Temp/saveeditor/test-scratch/adopt-sdk02-pragmata`; samples stayed in the external
+artifact directory. `DOTNET_TieredCompilation=0` and `DOTNET_PROCESSOR_COUNT=1`
+stabilized allocation measurements without changing their limits.
+
 ```powershell
 $scratch = 'D:/Temp/saveeditor/test-scratch/feat-coverage-pragmata'
 New-Item -ItemType Directory -Force -Path $scratch | Out-Null
@@ -393,6 +418,9 @@ Additional coverage includes:
 - Existing item-ID and family writes with plaintext-byte isolation and reopen/
   reversal checks, F6 selection/preflight/stale-plan handling, and F8 query scopes
   with exclusions, complete paging, deterministic sorting and cache invalidation.
+- SDK-02 targeted metadata, canonical quantity projections, read-only legacy aliases,
+  one-entry semantic review, unloaded explicit/document planning and direct edits,
+  imported-quantity restoration, exact byte undo/redo and unchanged allocation budgets.
 - Pinned reference hashes, attribution, enum matching, user-pack overrides,
   browse-only inspection/history, map/graph bounds and missing-pack fallbacks.
 - Production canonical decoder discovery, bounded shared view traversal, complete
@@ -447,14 +475,23 @@ are inapplicable: strings use counted UTF-16LE and integrity uses CityHash64/Mur
 
 ## SDK requests
 
-Field metadata publication remains a proposal in
-[`F13-FIELD-SPEC-PUBLISHING.md`](../../docs/plans/F13-FIELD-SPEC-PUBLISHING.md),
-not an implemented capability. Unknown action IDs already replay in Core undo;
-that alone does not classify primary/derived aliases, bind setters, or guarantee
-complete semantic review. The unloaded-quantity guard remains. F8 all-matching
-query resolution safely publishes ordinary fields/specs for every selected row
-before F6 planning; 251-row tests cover apply/reopen, semantic review, byte-only
-quantity deltas and one-step undo/redo. No shared change is needed for that path.
+SDK-02 is adopted from `360144f`, following the
+[Pragmata opt-in plan](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489058706)
+and the [SDK-02 contract](../../docs/PLUGIN_GUIDE.md#field-metadata-without-rendering-a-page-sdk-02).
+`PragmataDocument` implements `IFieldMetadataDocument`; requests of at most 200 IDs
+resolve against the current fixed-size layout without rendering, expanding or querying
+pages. The quantity lookup is lazy and document-local; the writer changes bytes only,
+never replaces parsed nodes. Shared pure spec construction keeps metadata and views
+in agreement. Existing reference aliases retain stable eligibility delegates.
+
+Quantity planning establishes selected canonical setters before calculating effects,
+including unloaded explicit/document scopes and restore-imported-quantities. The
+unloaded-page guard is removed after exact-byte migration tests; resolver success
+remains checked. Raw/F8/evidence quantity views reuse canonical IDs, eliminating the
+250 extra review entries in the 251-row regression. F8 all-matching selection,
+exclusions, stale-plan rejection and one undo unit remain covered. No SDK change is
+needed. This adoption does not claim targeted review beyond Core's bounded traversal
+or new canonicalization of non-quantity reference projections.
 
 F12 request resolved by [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32):
 `PragmataPlugin` implements the SDK's optional `ISaveDecoderProvider` and publishes

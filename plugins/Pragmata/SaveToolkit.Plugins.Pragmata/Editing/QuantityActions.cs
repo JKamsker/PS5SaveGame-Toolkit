@@ -38,8 +38,12 @@ internal sealed class QuantityActions(PragmataDocument document)
         if (keys.Distinct(StringComparer.Ordinal).Count() != keys.Count || keys.Any(key => !inventory.ContainsKey(key)))
             return Reject("Selection contains duplicate or unknown inventory row keys.");
         var selected = keys.Select(key => inventory[key]).ToArray();
+        foreach (var ids in selected.Select(item => item.Find(KnownHashes.Quantity)!)
+            .Where(quantity => !document.HasPrimaryBinding(quantity)).Select(quantity => quantity.Path)
+            .Chunk(PragmataBindings.MaximumMetadataBatchSize))
+            _ = document.ResolveFieldMetadata(ids);
         if (selected.Any(item => !document.HasPrimaryBinding(item.Find(KnownHashes.Quantity)!)))
-            return Reject("Expand the selected inventory quantity pages before previewing, so every edit can be undone.");
+            return Reject("Selected quantity metadata could not establish canonical bindings for undo.");
         var proposed = new Dictionary<SaveNode, FieldValue>(selected.Length);
         var skipped = new List<SkippedActionRow>();
         foreach (var item in selected)
@@ -82,7 +86,7 @@ internal sealed class QuantityActions(PragmataDocument document)
     public EditOutcome Apply(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
         ActionPlans.ApplyScalar(plan, () => Plan(actionId, parameters, scope),
             new FieldError(actionId, "Quantity preview changed; preview the action again."),
-            prepareBindings: _ => { }, // Planning retains the primary-binding guard; F8 publishes specs before planning.
+            prepareBindings: _ => { }, // Fresh planning resolves canonical setters without rendering pages.
             selectEdits: fresh => fresh.Changes.Where(change => !change.Derived)
                 .Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray(),
             applyEdits: document.ApplyEdits, warningPolicy: ActionPlanWarningPolicy.UsePlan);

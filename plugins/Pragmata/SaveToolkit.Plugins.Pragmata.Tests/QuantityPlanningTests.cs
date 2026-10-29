@@ -108,7 +108,7 @@ public sealed class QuantityPlanningTests
     }
 
     [Fact]
-    public void PreviewIncludesRawAliasesAndFrameworkUndoRestoresBothViews()
+    public void PreviewUsesOneCanonicalQuantityAndFrameworkUndoRestoresBothViews()
     {
         var file = (DiskSaveFile)SampleEvidenceTests.Files().Single(file => file.FileName == "data000.bin");
         using var document = new PragmataDocument(file.RelativePath, file.ReadAllBytes());
@@ -122,14 +122,15 @@ public sealed class QuantityPlanningTests
             var section = nodes.OfType<SectionNode>().Single(section => section.LazyId!.StartsWith($"tree/{ancestor.Path}/", StringComparison.Ordinal));
             nodes = session.Expand(section.LazyId!);
         }
-        var raw = nodes.OfType<FieldNode>().Single(field => field.ValueId == $"raw/{target.Path}");
+        var raw = nodes.OfType<FieldNode>().Single(field => field.ValueId == target.Path);
         var item = document.Layout.Items.Single(item => item.Find(KnownHashes.Quantity) == target);
         var preview = session.PlanAction(PragmataViews.QuantityAction,
             new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("17") },
             new ActionScope([QuantityActions.RowKey(item)]));
         Assert.NotNull(preview.PlanId);
-        Assert.Equal(2, preview.Plan.Changes.Count);
-        Assert.Equal(raw.ValueId, Assert.Single(preview.Plan.Changes, change => change.Derived).ValueId);
+        var change = Assert.Single(preview.Plan.Changes);
+        Assert.False(change.Derived);
+        Assert.Equal(raw.ValueId, change.ValueId);
         Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
         Assert.Equal(17, document.GetValue(raw.ValueId).AsInt32());
         Assert.True(session.Undo().Ok);

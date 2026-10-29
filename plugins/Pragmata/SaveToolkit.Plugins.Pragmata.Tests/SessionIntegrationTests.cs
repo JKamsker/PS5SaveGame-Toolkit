@@ -66,10 +66,10 @@ public sealed class SessionIntegrationTests
             var section = nodes.OfType<SectionNode>().Single(s => s.LazyId!.StartsWith($"tree/{ancestor.Path}/", StringComparison.Ordinal));
             nodes = session.Expand(section.LazyId!);
         }
-        var raw = nodes.OfType<FieldNode>().Single(f => f.ValueId == $"raw/{target.Path}");
+        var raw = nodes.OfType<FieldNode>().Single(f => f.ValueId == target.Path);
         var result = session.ApplyEdits([new IncomingEdit(raw.ValueId, JsonSerializer.SerializeToElement("9999"))]);
         Assert.True(result.Ok);
-        Assert.Equal(2, result.Changes.Count);
+        Assert.Single(result.Changes);
         var modified = session.Serialize().Single().Content.ToArray();
         Assert.True(session.Undo().Ok);
         Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());

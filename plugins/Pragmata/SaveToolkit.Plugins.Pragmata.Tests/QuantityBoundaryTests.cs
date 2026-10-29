@@ -45,8 +45,8 @@ public sealed class QuantityBoundaryTests
         {
             (Id: quantities[1].Path, Old: negativeSource, New: target, Derived: false),
             (Id: quantities[2].Path, Old: sources[2], New: target, Derived: false),
-            (Id: raw.ValueId, Old: negativeSource, New: target, Derived: true),
         }.OrderBy(change => change.Id, StringComparer.Ordinal).ToArray();
+        Assert.Equal(quantities[1].Path, raw.ValueId);
         Assert.Equal(expected, preview.Plan.Changes.Select(change =>
             (change.ValueId, change.OldValue.AsInt32(), change.NewValue.AsInt32(), change.Derived))
             .OrderBy(change => change.ValueId, StringComparer.Ordinal));
