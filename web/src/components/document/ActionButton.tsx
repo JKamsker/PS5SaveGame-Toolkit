@@ -38,7 +38,7 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
     setValues(Object.fromEntries(parameters.map((p) => [p.valueId, p.value])));
     setErrors({});
   }
-  const { busy, run: submit } = useAsyncTask(node);
+  const { busy, run: submit } = useAsyncTask(node.actionId);
   const { dialog, heading, trigger, openDialog, closeDialog, onClose, focusHeading, requestFocus } = useActionDialog(busy);
   const invalid = parameters.some(parameter => Boolean(errors[parameter.valueId]));
   const needsDialog = parameters.length > 0 || Boolean(node.confirm);
@@ -46,16 +46,16 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
   const run = () => submit(async isCurrent => {
     if (invalid) return;
     focusHeading();
-      const result = await runAction(node.actionId, values);
-      if (!isCurrent()) return;
-      if (result.ok) {
-        closeDialog();
-        setErrors({});
-      } else {
-        setErrors(result.stale ? { [node.actionId]: "The document changed. Review the parameters and try again." }
-          : Object.fromEntries(result.errors.map((e) => [e.valueId, e.message])));
-        requestFocus("error");
-      }
+    const result = await runAction(node.actionId, values);
+    if (!isCurrent()) return;
+    if (result.ok) {
+      closeDialog();
+      setErrors({});
+    } else {
+      setErrors(result.stale ? { [node.actionId]: "The document changed. Review the parameters and try again." }
+        : Object.fromEntries(result.errors.map((e) => [e.valueId, e.message])));
+      requestFocus("error");
+    }
   });
 
   return (

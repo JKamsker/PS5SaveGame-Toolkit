@@ -19,7 +19,7 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
   })), [node.parameters]);
   const [values, setValues] = useState<Record<string, FieldValue>>(() => Object.fromEntries(parameters.map(p => [p.valueId, p.value])));
   const [preview, setPreview] = useState<ActionPreview | null>(null);
-  const { busy, run: submit } = useAsyncTask(node);
+  const { busy, run: submit } = useAsyncTask(node.actionId);
   const { dialog, heading, trigger, openDialog, closeDialog, onClose, focusHeading, requestFocus } = useActionDialog(busy);
   const [error, setError] = useState("");
   const [parameterErrors, setParameterErrors] = useState<Record<string, string | undefined>>({});

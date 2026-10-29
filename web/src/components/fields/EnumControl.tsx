@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FieldSpec } from "../../api/protocol";
 import type { FieldControlProps } from "./FieldControl";
 
@@ -8,7 +8,12 @@ export function EnumControl({ id, spec, value, onCommit, compact, labelledBy, de
   const current = value === null ? "" : String(value);
   const [draft, setDraft] = useState(current);
   const [query, setQuery] = useState("");
-  useEffect(() => { setDraft(current); }, [current]);
+  const previousValue = useRef(current);
+  useEffect(() => {
+    const previous = previousValue.current;
+    previousValue.current = current;
+    setDraft(draft => draft === previous ? current : draft);
+  }, [current]);
   const known = spec.options.some((o) => o.value === current);
   const selected = spec.options.find((o) => o.value === current);
   const className = compact ? "input input--compact" : "input";

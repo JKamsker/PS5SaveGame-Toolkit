@@ -4,6 +4,7 @@ import { api, ApiError } from "../../../api/client";
 import type { ReferenceCandidate, ReferenceCandidatePage } from "../../../api/protocol";
 import { DocumentContext, DocumentStore } from "../../../state/documentStore";
 import { ReferencePicker } from "./ReferencePicker";
+import { deferred } from "../../../test/deferred";
 
 const potion: ReferenceCandidate = { rawId: "1001", label: "Potion",
   eligibility: { available: true, eligible: true, selectable: true, reasons: [] } };
@@ -37,6 +38,41 @@ function setup() {
 async function advanceSearch(milliseconds = 180) {
   await act(async () => { await vi.advanceTimersByTimeAsync(milliseconds); });
 }
+
+it("ignores an older successful search after the newest query finishes", async () => {
+  const old = deferred<ReferenceCandidatePage>();
+  vi.mocked(api.referenceCandidates).mockReturnValueOnce(old.promise).mockResolvedValueOnce({ ...page, items: [{ ...potion, rawId: "2002", label: "Ether" }] });
+  setup();
+  await advanceSearch();
+  fireEvent.change(screen.getByRole("combobox", { name: "Search" }), { target: { value: "ether" } });
+  await advanceSearch();
+  expect(screen.getByRole("option", { name: /Ether/ })).toBeTruthy();
+  await act(async () => { old.resolve(page); await old.promise; });
+  expect(screen.queryByRole("option", { name: /Potion/ })).toBeNull();
+  expect(screen.getByRole("option", { name: /Ether/ })).toBeTruthy();
+});
+
+it("guards repeated reference-choice commits before busy state renders", async () => {
+  const { onCommit, onClose } = setup();
+  const pending = deferred<boolean>(); onCommit.mockReturnValue(pending.promise);
+  await advanceSearch();
+  fireEvent.click(screen.getByRole("option", { name: /Potion/ }));
+  act(() => { const use = screen.getByRole("button", { name: "Use selected item" }); fireEvent.click(use); fireEvent.click(use); });
+  expect(onCommit).toHaveBeenCalledExactlyOnceWith("1001");
+  await act(async () => { pending.resolve(true); await pending.promise; });
+  expect(onClose).toHaveBeenCalledOnce();
+});
+
+it("does not close the picker after its pending choice completes on an unmounted document", async () => {
+  const { onCommit, onClose, unmount } = setup();
+  const pending = deferred<boolean>(); onCommit.mockReturnValue(pending.promise);
+  await advanceSearch();
+  fireEvent.click(screen.getByRole("option", { name: /Potion/ }));
+  fireEvent.click(screen.getByRole("button", { name: "Use selected item" }));
+  unmount();
+  await act(async () => { pending.resolve(true); await pending.promise; });
+  expect(onClose).not.toHaveBeenCalled();
+});
 
 it("retries candidate reads without losing raw-ID or search drafts", async () => {
   vi.mocked(api.referenceCandidates).mockRejectedValueOnce(new ApiError("Candidates unavailable", 503));

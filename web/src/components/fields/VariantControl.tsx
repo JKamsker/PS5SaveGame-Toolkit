@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import type { FieldSpec, FieldValue } from "../../api/protocol";
 import { parseDraft } from "../../lib/values";
 import type { FieldControlProps } from "./FieldControl";
+import { useValueCommit } from "./useValueCommit";
 
 type Props = FieldControlProps & { renderInner: (props: FieldControlProps) => ReactNode };
 
@@ -32,18 +33,19 @@ function initialValue(spec: FieldSpec): FieldValue | undefined {
 export function NullableControl(props: Props & { spec: Extract<FieldSpec, { kind: "nullable" }> }) {
   const { id, spec, value, onCommit, labelledBy, describedBy, renderInner, onLocalError } = props;
   const remembered = useRef<FieldValue | undefined>(value === null ? undefined : value);
+  const { busy, commit } = useValueCommit(id, onCommit);
   useEffect(() => { if (value !== null) remembered.current = value; }, [value]);
   return (
-    <div className="variant-control">
+    <div className="variant-control" inert={busy}>
       <span id={`${id}-type-label`} className="visually-hidden">Null or value</span>
-      <select id={id} className="input" aria-label={labelledBy ? undefined : "Null or value"}
+      <select id={id} className="input" disabled={busy} aria-label={labelledBy ? undefined : "Null or value"}
         aria-labelledby={labelledBy ? `${labelledBy} ${id}-type-label` : undefined}
         aria-describedby={describedBy} aria-invalid={props.invalid || undefined}
         value={value === null ? "null" : "value"} onChange={(e) => {
           onLocalError?.(undefined);
           const next = e.target.value === "null" ? null : remembered.current ?? initialValue(spec.inner);
           if (next === undefined) onLocalError?.("This type has no valid initial value.");
-          else void onCommit(next);
+          else void commit(next);
         }}>
         <option value="null">null</option>
         <option value="value" disabled={spec.inner.readOnly}>Value</option>
@@ -59,11 +61,12 @@ export function UnionControl(props: Props & { spec: Extract<FieldSpec, { kind: "
   const option = spec.options.find((o) => o.id === union?.type);
   // Keep each type's last value while switching; never parse one type as another implicitly.
   const remembered = useRef(new Map<string, FieldValue>());
+  const { busy, commit } = useValueCommit(id, onCommit);
   useEffect(() => { if (union) remembered.current.set(union.type, union.value); }, [union]);
   return (
-    <div className="variant-control">
+    <div className="variant-control" inert={busy}>
       <span id={`${id}-type-label`} className="visually-hidden">Value type</span>
-      <select id={id} className="input" aria-label={labelledBy ? undefined : "Value type"}
+      <select id={id} className="input" disabled={busy} aria-label={labelledBy ? undefined : "Value type"}
         aria-labelledby={labelledBy ? `${labelledBy} ${id}-type-label` : undefined}
         aria-describedby={describedBy} aria-invalid={props.invalid || undefined}
         value={union?.type ?? ""} onChange={(e) => {
@@ -72,7 +75,7 @@ export function UnionControl(props: Props & { spec: Extract<FieldSpec, { kind: "
           const next = remembered.current.get(selected.id) ?? initialValue(selected.spec);
           onLocalError?.(undefined);
           if (next === undefined) onLocalError?.("This type has no valid initial value.");
-          else void onCommit({ kind: "union", type: selected.id, value: next });
+          else void commit({ kind: "union", type: selected.id, value: next });
         }}>
         {!option && <option value={union?.type ?? ""}>{union?.type ?? "Select type"}</option>}
         {spec.options.map((o) => <option key={o.id} value={o.id} disabled={o.spec.readOnly}>{o.label}</option>)}

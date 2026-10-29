@@ -9,12 +9,13 @@ export function useAsyncTask(key?: unknown) {
     return () => { lifetime.active = false; };
   }, [lifetime]);
 
-  const run = async (task: (isCurrent: () => boolean) => Promise<void>) => {
+  const run = async (task: (isCurrent: () => boolean) => Promise<void> | void) => {
     if (!lifetime.active || lifetime.pending) return;
     lifetime.pending = true;
     setPending(lifetime);
     try {
-      await task(() => lifetime.active);
+      const result = task(() => lifetime.active);
+      if (result) await result;
     } finally {
       lifetime.pending = false;
       if (lifetime.active) setPending(null);

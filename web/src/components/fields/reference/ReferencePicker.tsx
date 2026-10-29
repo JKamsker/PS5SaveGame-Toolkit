@@ -34,6 +34,7 @@ export function ReferencePicker({ valueId, actionId, value, current, browseOnly 
   const [reload, setReload] = useState(0);
   const lookupSequence = useRef(0);
   const lookupPending = useRef(false);
+  const selectionPending = useRef(false);
   const mounted = useRef(true);
   const items = page?.items ?? [];
   const preview = rawCandidate ?? items[active] ?? current;
@@ -72,29 +73,37 @@ export function ReferencePicker({ valueId, actionId, value, current, browseOnly 
   }, [workspaceId, documentId, valueId, actionId, revision, structureVersion, q, category, sortBy, descending, offset, reload]);
 
   const refreshChoices = async () => {
+    if (selectionPending.current || lookupPending.current) return;
+    selectionPending.current = true;
     setBusy(true);
     try {
       await refresh();
+      if (!mounted.current) return;
       setReload(previous => previous + 1);
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "Could not refresh choices. Try again.");
+      if (mounted.current) setError(failure instanceof Error ? failure.message : "Could not refresh choices. Try again.");
     } finally {
+      selectionPending.current = false;
       if (mounted.current) setBusy(false);
     }
   };
 
   const choose = async () => {
-    if (browseOnly || !preview?.eligibility.selectable || busy || loading || needsRefresh) return;
+    if (browseOnly || !preview?.eligibility.selectable || busy || loading || needsRefresh || selectionPending.current || lookupPending.current) return;
+    selectionPending.current = true;
     // Retain the intended ID even if stale recovery replaces the candidate page.
     setRawId(preview.rawId);
     setBusy(true);
     setError(undefined);
     try {
-      if (preview.rawId === String(value) || await onCommit(preview.rawId)) onClose();
+      const accepted = preview.rawId === String(value) || await onCommit(preview.rawId);
+      if (!mounted.current) return;
+      if (accepted) onClose();
       else setError("The server rejected this selection. Choose another item or refresh the document.");
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "Could not save the selection.");
+      if (mounted.current) setError(failure instanceof Error ? failure.message : "Could not save the selection.");
     } finally {
+      selectionPending.current = false;
       if (mounted.current) setBusy(false);
     }
   };

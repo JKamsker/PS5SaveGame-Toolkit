@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 type FocusTarget = "heading" | "parameters" | "error" | "trigger";
 const controls = "input:not(:disabled), select:not(:disabled), textarea:not(:disabled), button:not(:disabled)";
@@ -10,7 +10,7 @@ export function useActionDialog(busy: boolean) {
   const trigger = useRef<HTMLButtonElement>(null);
   const [focusTarget, requestFocus] = useState<FocusTarget | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (busy || !focusTarget) return;
     if (!dialog.current) {
       requestFocus(null);

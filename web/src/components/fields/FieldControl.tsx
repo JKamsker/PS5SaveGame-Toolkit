@@ -4,7 +4,7 @@ import { displayValue, parseDraft, sameValue, toDraft } from "../../lib/values";
 import { EnumControl } from "./EnumControl";
 import { NullableControl, UnionControl } from "./VariantControl";
 import { ReferenceControl } from "./reference/ReferenceControl";
-import { useAsyncTask } from "../ui/useAsyncTask";
+import { useValueCommit } from "./useValueCommit";
 
 export interface FieldControlProps {
   id: string;
@@ -51,7 +51,7 @@ export function FieldControl(props: FieldControlProps) {
 
 function BoolControl({ id, value, onCommit, labelledBy, describedBy, invalid }: FieldControlProps) {
   const checked = value === true;
-  const { busy, run } = useAsyncTask(id);
+  const { busy, commit } = useValueCommit(id, onCommit);
   return (
     <button
       id={id}
@@ -63,15 +63,15 @@ function BoolControl({ id, value, onCommit, labelledBy, describedBy, invalid }: 
       aria-invalid={invalid || undefined}
       className="switch"
       disabled={busy}
-      onClick={() => void run(async () => { await onCommit(!checked); })}
+      onClick={() => void commit(!checked)}
     />
   );
 }
 
 function FlagsControl({ id, spec, value, onCommit, labelledBy, describedBy, invalid }: FieldControlProps & { spec: Extract<FieldSpec, { kind: "flags" }> }) {
   const bits = value === null ? 0n : BigInt(String(value));
-  const { busy, run } = useAsyncTask(id);
-  const toggle = (bit: number) => void run(async () => { await onCommit((bits ^ (1n << BigInt(bit))).toString()); });
+  const { busy, commit } = useValueCommit(id, onCommit);
+  const toggle = (bit: number) => void commit((bits ^ (1n << BigInt(bit))).toString());
   return (
     <div className="flags" id={id} role="group" aria-labelledby={labelledBy} aria-describedby={describedBy} aria-invalid={invalid || undefined}>
       {spec.bits.map((b) => (
