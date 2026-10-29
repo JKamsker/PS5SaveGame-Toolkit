@@ -3,8 +3,11 @@ using System.Buffers.Binary;
 namespace SaveToolkit.Testing;
 
 /// <summary>A reproducible, bounded mutation of one original file (never a previous mutation).</summary>
+/// <param name="Content">New caller-owned mutable bytes; the original input is never changed.</param>
+/// <param name="Description">Mutation coordinates suitable for a metadata-only reproducer.</param>
 public sealed record SaveMutation(byte[] Content, string Description)
 {
+    /// <summary>Default deterministic seed used when conformance configuration supplies none.</summary>
     public const uint DefaultSeed = 0x40C0FFEE;
     private const int MutationKinds = 6;
     private const int MaxInsertedBytes = 16;
@@ -13,6 +16,9 @@ public sealed record SaveMutation(byte[] Content, string Description)
     private const int HeaderWindow = 128;
 
     /// <summary>Zero-based indices are independent; changing the run length cannot change a reproducer.</summary>
+    /// <remarks>Inserts at most 256 bytes, deletes at most 32, or changes/truncates existing bytes.
+    /// Calls may run concurrently when the original span is not mutated by another caller.</remarks>
+    /// <exception cref="ArgumentOutOfRangeException">The mutation index is negative.</exception>
     public static SaveMutation Create(ReadOnlySpan<byte> original, uint seed, int index)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(index);

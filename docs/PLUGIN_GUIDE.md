@@ -834,6 +834,8 @@ eager or queryable table cell receives that table's selection. A sibling action 
 scope, even when its label mentions selected rows. The view protocol cannot declare which table
 a sibling action intends to target: eager tables have no stable table ID and `ActionNode` has no
 table association. Labels, ID prefixes and sibling proximity cannot establish that relationship.
+Placement alone also does not declare selection support: addressed container/index operations can
+intentionally reject row scopes, as GenericJson's structural actions do.
 Likewise, a plan's value IDs do not identify row ownership. Legitimate derived effects may live
 outside the selected row, and a restore plan on an untouched sample may contain no changes.
 
@@ -1073,6 +1075,11 @@ Per-document field-aware API (only previously published fields/parameters are qu
 
 - `GET .../reference-fields/candidates?valueId=...&q=...&category=...&sortBy=Name&descending=false&offset=0&limit=30&revision=0`
 - `GET .../reference-fields/record?valueId=...&rawId=...&revision=0`
+- `POST .../reference-fields/records` with `{pairs:[{fieldId,recordKey,actionId?}],revision?}`
+
+The batched record route accepts at most 256 pairs, retains order and duplicates, and evaluates
+each field's own catalog/eligibility policy. Missing fields return per-pair 404 results; stale
+revisions reject the entire batch. See [the batch API contract](API.md#post-apiworkspacesworkspaceiddocumentsdocumentidreference-fieldsrecords).
 
 For action parameters also pass `actionId`. Paging clamps offset to zero and limit to 1–200.
 Candidate pages include the view revision. Pass it with subsequent queries/edits; stale queries return

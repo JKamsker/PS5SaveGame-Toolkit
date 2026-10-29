@@ -12,6 +12,7 @@ public abstract partial class PluginConformanceTests<TPlugin>
     /// <summary>Deterministic mutations per selected real file and per synthetic seed.</summary>
     protected virtual int MutationFuzzCount => 200;
 
+    /// <summary>Deterministic default seed, overridden only by an explicit run configuration.</summary>
     protected virtual uint MutationFuzzSeed => SaveMutation.DefaultSeed;
 
     /// <summary>Independent of exhaustive sample overrides used by other conformance tests.</summary>
@@ -34,6 +35,7 @@ public abstract partial class PluginConformanceTests<TPlugin>
     protected virtual long MutationFuzzAllocationBudget(ISaveFile file) =>
         Math.Min(1024L * 1024 * 1024, 64L * 1024 * 1024 + 32 * file.Length);
 
+    /// <summary>Exercises deterministic malformed inputs in an isolated worker with explicit work limits.</summary>
     [Fact]
     public async Task MutationFuzz()
     {
