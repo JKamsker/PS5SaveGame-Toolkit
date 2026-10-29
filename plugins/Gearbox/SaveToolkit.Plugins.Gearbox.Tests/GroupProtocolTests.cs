@@ -13,10 +13,10 @@ public sealed class GroupProtocolTests
 {
     private static readonly Dictionary<string, FieldValue> Empty = [];
 
-    // Captured against the private member mapper before adopting SDK-04. Synthetic data only.
+    // Refreshed for #40 legacy-field evidence and write warnings; still pins plans and export bytes.
     [Theory]
-    [InlineData(false, "07CADF9C05CA74AFEEF05D495B9F0BDDDE4C2C237E4E5A869921030057C1CEF5")]
-    [InlineData(true, "C9BAE4BE585835EA1F3C518BFBD558238763DDBF0C50C253CFF5DDF02B3B22D5")]
+    [InlineData(false, "F6230C01C08B3ECE9D19A6121304C245CFD4B1D33AC04916D8E3B845386FA80B")]
+    [InlineData(true, "D0427AB8DC32351377832EED070C3FAD6BC27C59C3ADF26B85B5306F409CDF2B")]
     public void ViewsPlansAndExport_RetainPreAdapterFingerprint(bool wonderlands, string expected)
     {
         using var group = Open(wonderlands);
@@ -42,8 +42,8 @@ public sealed class GroupProtocolTests
     }
 
     [Theory]
-    [InlineData("PPSA01463", "754A3F4DDE9882B8AD16D995190AA8D55D69455D5A7484A844BE383F82C71D0C")]
-    [InlineData("PPSA01493", "145AC55D2DD596EEA0C096D82B8CA0D5D9F557A4E985BE5834DE8D5D7B99B254")]
+    [InlineData("PPSA01463", "149963F60C77A4DE4DF33DE6ED4C1B550FF3E6382DB6DCF0923B2CBD4B5BDC44")]
+    [InlineData("PPSA01493", "BAAAC5820879135BC830E3EE59DA7A29FBFB2D52D9A332A1D32E9557EB4901F8")]
     public void SampleGenerationsAndBackups_RetainPreAdapterFingerprint(string title, string expected)
     {
         var set = SampleSaves.Load(title);

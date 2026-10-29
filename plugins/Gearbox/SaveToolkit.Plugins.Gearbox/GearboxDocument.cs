@@ -156,7 +156,12 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         Func<FieldValue, string?>? validate = null, string? warning = null)
     {
         _readers[id] = get;
-        return Field(id, label, spec, get, set, validate) with { Confidence = Confidence.Verified, Warning = warning };
+        return Field(id, label, spec, get, set, validate) with
+        {
+            Confidence = Confidence.Verified,
+            Description = GearboxWriteWarnings.SchemaEvidence,
+            Warning = set is null ? warning : GearboxWriteWarnings.ForWrite(warning),
+        };
     }
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
