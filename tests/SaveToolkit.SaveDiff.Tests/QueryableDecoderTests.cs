@@ -32,7 +32,14 @@ public sealed class QueryableDecoderTests
         Assert.Contains(diff.Changes, c => c is { Path: "inventory0/5/quantity", Before: "5", After: "9" });
         Assert.Contains(diff.Changes, c => c is { Path: "collections/inventory0/rows/item~15/cells/state", Before: "stored:5", After: "stored:9" });
         Assert.Equal(6, plugin.Queries.Count);
-        Assert.All(plugin.Queries, q => { Assert.Null(q.SortColumn); Assert.Null(q.Text); Assert.Empty(q.Filters); });
+        Assert.All(plugin.Queries, q =>
+        {
+            Assert.True(q.IncludeEmpty);
+            Assert.False(q.Descending);
+            Assert.Null(q.SortColumn);
+            Assert.Null(q.Text);
+            Assert.Empty(q.Filters);
+        });
         Assert.True(plugin.Disposed);
     }
 
