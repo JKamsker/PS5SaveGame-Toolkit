@@ -61,9 +61,10 @@ internal sealed record Sav3Directory(IReadOnlyList<string> Names, IReadOnlyList<
             var entry = table + 4 + index * 8;
             var offset = BinaryData.PayloadOffset(data, entry, container.HeaderSize);
             var size = BinaryData.Int32(data, entry + 4);
-            if (offset < 16 || size < 1 || offset > table - 10 - size)
+            var isNameTable = offset == nm + 2 && size == table - 10 - offset;
+            if (offset < 16 || size < 1 || !isNameTable && (offset >= rb || size > rb - offset))
             {
-                throw new SaveFormatException("SAV3 variable entry exceeds its data region.");
+                throw new SaveFormatException("SAV3 variable entry exceeds its data region or overlaps directory metadata.");
             }
 
             entries[index] = new Sav3Entry(offset, size);
