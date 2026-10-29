@@ -361,6 +361,24 @@ lookup counts, never elapsed time. Full Release suite: **194 passed, zero failed
 or skipped**; API Release build: **zero warnings/errors**. Shared cursor/FString,
 robustness, byte-identical no-op, write/reopen, stale-plan and undo tests remain green.
 
+### Reusable codec workspace adoption (2026-10-29, #40)
+
+`SlotDataDecoder` retains its aggregate bound and exact plain buffer, and reuses
+one disposable `OodleWorkspace` across all frames. Each frame decodes into its
+exact destination slice; contextual errors and final aggregate validation remain.
+The codec guarantees exact output or throws, so no separate result-length check
+or per-frame result allocation/copy is needed.
+
+The allocation regression exercises the production decoder on the 14-stream,
+1,751,391-byte sample. It subtracts an identical plain-array copy and record-parser
+pass to exclude aggregate/index allocations; reads, framing and assertions are
+outside measurement. With five warmups and the median of three synchronous
+measurements (Release, .NET 10, tiered compilation disabled), managed codec
+allocations fell from **2,384,928** to **632,552 bytes** against a **917,504-byte**
+cap. The earlier codec review's 10.5 MB baseline predates the shared codec changes.
+This is allocation evidence, not a latency or retained-memory claim. Exact error
+messages, chunk offsets and inner exception types are pinned by sample-free tests.
+
 ## Sources and attribution
 
 Retrieved 2026-10-28. Sources were read, not executed as downloaded programs.
