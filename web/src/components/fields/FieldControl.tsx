@@ -5,6 +5,7 @@ import { NullableControl, UnionControl } from "./VariantControl";
 import { ReferenceControl } from "./reference/ReferenceControl";
 import { useValueCommit } from "./useValueCommit";
 import { TextualControl } from "./TextualControl";
+import { TextCapacityHint } from "./TextCapacityHint";
 
 export interface FieldControlProps {
   id: string;
@@ -34,7 +35,10 @@ export function FieldControl(props: FieldControlProps) {
   if (spec.kind === "reference") return <ReferenceControl {...props} spec={spec} />;
   if (spec.readOnly || disabled) {
     const text = displayValue(spec, value);
-    return <span title={text} className={spec.kind === "integer" && spec.format === "Hex" ? "readonly-value mono" : "readonly-value"}>{text}</span>;
+    const display = <span title={text} className={spec.kind === "integer" && spec.format === "Hex" ? "readonly-value mono" : "readonly-value"}>{text}</span>;
+    return spec.kind === "text" && spec.maxUtf8Bytes !== undefined ? <div className={`textual-control${props.compact ? " textual-control--compact" : ""}`}>
+      {display}<TextCapacityHint id={`${props.id}-capacity`} text={text} capacity={spec.maxUtf8Bytes} compact={props.compact} />
+    </div> : display;
   }
   switch (spec.kind) {
     case "nullable":

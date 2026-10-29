@@ -9,6 +9,10 @@ for IDs containing `/`, because Kestrel preserves encoded slashes in route value
 There is no version prefix or authentication handshake. This is a local,
 single-user application; workspaces are transient, not persisted across restarts.
 
+Text specs may publish an optional `maxUtf8Bytes` constraint for the logical value;
+see [UTF-8 text capacity and planned actions](TEXT_CAPACITY.md) for byte counting,
+strict Unicode validation, and empty/stale preview behavior.
+
 The endpoint headings below are an executable inventory:
 `ApiDocumentationTests` compares them in both directions with ASP.NET Core's real
 `EndpointDataSource`, including aliases. SPA/static-file routes are outside this API.

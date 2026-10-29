@@ -25,9 +25,12 @@ function PlannedActionBody({ node, action }: PlannedDialogProps) {
     <p>{scopeLabel}</p>
     {node.confirm && <p className="notice notice--Warning">{node.confirm}</p>}
     {!preview && <ActionParameterFields form={form} formVersion={formVersion} idPrefix={id} actionId={node.actionId} busy={busy} variant="planned" />}
-    <p role="status" aria-atomic="true">{busy ? "Working…" : preview ? `${preview.plan.changes.length} field changes · ${preview.plan.skippedRows.length} skipped rows · one undo step` : ""}</p>
-    {error && <p role="alert" tabIndex={-1} className="notice notice--Danger">{error}</p>}
-    {stale && <p role="alert">The document or selection changed. Preview again before applying.</p>}
+    <p role="status" aria-atomic="true">{busy ? "Working…" : preview && !preview.plan.errors.length
+      ? preview.plan.changes.length ? `${preview.plan.changes.length} field changes · ${preview.plan.skippedRows.length} skipped rows · one undo step`
+        : "No changes. No undo step will be created."
+      : ""}</p>
+    {error && <p role="alert" tabIndex={-1} className="notice notice--Danger">{error}{stale && <><br />This preview is stale. Preview again before applying.</>}</p>}
+    {stale && !error && <p role="alert" tabIndex={-1}>This preview is stale. The document or selection changed. Preview again before applying.</p>}
     <ActionPreviewChanges action={action} />
   </div>;
 }
@@ -37,8 +40,8 @@ function PlannedActionFooter({ node, action }: PlannedDialogProps) {
   return <div className="dialog__footer">
     <button type="button" className="btn btn--quiet" disabled={busy} onClick={closeDialog}>Cancel</button>
     {preview && <button type="button" className="btn" disabled={busy} onClick={changeParameters}>Change parameters</button>}
-    <button type="submit" className={`btn ${node.tone === "Danger" ? "btn--danger" : "btn--primary"}`} disabled={busy || invalid || binding.unavailable || Boolean(preview?.planId && !stale && !doc.canEdit)}>
-      {preview?.planId && !stale ? "Apply" : "Preview"}
+    <button type="submit" className={`btn ${node.tone === "Danger" ? "btn--danger" : "btn--primary"}`} disabled={busy || invalid || binding.unavailable || Boolean(preview?.planId && !stale && (!doc.canEdit || !preview.plan.changes.length))}>
+      {preview?.planId && !stale ? "Apply" : stale ? "Preview again" : "Preview"}
     </button>
   </div>;
 }

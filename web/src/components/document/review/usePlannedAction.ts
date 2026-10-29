@@ -1,5 +1,6 @@
 import { useId, useMemo, useState } from "react";
 import { actionReview, type ActionPreview, type ActionScope } from "../../../api/actionReview";
+import { ApiError } from "../../../api/client";
 import type { ActionNode, FieldValue } from "../../../api/protocol";
 import { useDocument, useDocumentState } from "../../../state/documentStore";
 import { useActionDialog } from "../../ui/useActionDialog";
@@ -27,12 +28,13 @@ function usePlannedActionState(node: ActionNode) {
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const [formVersion, setFormVersion] = useState(0);
   const [previewScope, setPreviewScope] = useState("");
+  const [rejectedStale, setRejectedStale] = useState(false);
   // Keep pagination mounted when the preview is hidden for parameter editing or reopening.
   const changesPage = useReviewPage(preview?.plan.changes ?? []);
   const skippedPage = useReviewPage(preview?.plan.skippedRows ?? []);
   const form = { parameters, values, setValues, errors, setErrors };
   return { id, form, preview, setPreview, busy, submit, ...modal, onClose, error, setError,
-    formVersion, setFormVersion, previewScope, setPreviewScope, changesPage, skippedPage,
+    formVersion, setFormVersion, previewScope, setPreviewScope, rejectedStale, setRejectedStale, changesPage, skippedPage,
     invalid: Object.values(errors).some(Boolean) };
 }
 
@@ -62,12 +64,14 @@ function createActionPlan(node: ActionNode, state: PlannedState, selection: Plan
     if (state.invalid || binding.unavailable) return;
     state.focusHeading();
     state.setError("");
+    state.setRejectedStale(false);
     state.setPreview(null);
     state.form.setErrors({});
     try {
       const result = await actionReview.plan(doc.workspaceId, doc.documentId, node.actionId, params, scope, doc.store.state.revision);
       if (!isCurrent()) return;
       state.setPreview(result);
+      state.setRejectedStale(Boolean(result.stale));
       state.setPreviewScope(scopeKey);
       if (result.stale) await doc.refresh();
       if (!isCurrent()) return;
@@ -84,7 +88,7 @@ function createActionApply(state: PlannedState, selection: PlannedScope) {
   const { doc, stale, binding } = selection;
   const { preview } = state;
   return () => state.submit(async isCurrent => {
-    if (!preview?.planId || stale || binding.unavailable) return;
+    if (!preview?.planId || !preview.plan.changes.length || stale || binding.unavailable || !doc.canEdit) return;
     state.focusHeading();
     state.setError("");
     try {
@@ -93,12 +97,14 @@ function createActionApply(state: PlannedState, selection: PlannedScope) {
       if (result.ok) state.closeDialog();
       else {
         state.setPreview(null);
+        state.setRejectedStale(Boolean(result.stale));
         state.setError(result.errors.map(error => error.message).join(" ") || "Apply failed. Preview the action again.");
         state.requestFocus("error");
       }
     } catch (failure) {
       if (!isCurrent()) return;
       state.setPreview(null);
+      state.setRejectedStale(failure instanceof ApiError && failure.status === 409);
       state.setError(failure instanceof Error ? failure.message : "Could not apply this action.");
       state.requestFocus("error");
     }
@@ -110,7 +116,7 @@ export function usePlannedAction(node: ActionNode) {
   const state = usePlannedActionState(node);
   const selectedCount = state.preview?.scope.rowKeys?.length ?? scope.selectedCount;
   const scopeLabel = selectedCount === undefined ? "Whole document" : `${selectedCount} selected ${selectedCount === 1 ? "row" : "rows"}`;
-  const stale = Boolean(state.preview && (state.preview.revision !== scope.revision || state.previewScope !== scope.scopeKey));
+  const stale = state.rejectedStale || Boolean(state.preview && (state.preview.stale || state.preview.revision !== scope.revision || state.previewScope !== scope.scopeKey));
   const selection = { ...scope, scopeLabel, stale };
   const plan = createActionPlan(node, state, selection);
   const apply = createActionApply(state, selection);
@@ -120,6 +126,7 @@ export function usePlannedAction(node: ActionNode) {
     state.form.setErrors({});
     state.setFormVersion(previous => previous + 1);
     state.setError("");
+    state.setRejectedStale(false);
     state.setPreview(null);
     state.openDialog();
     if (!state.form.parameters.length) void plan(defaults);

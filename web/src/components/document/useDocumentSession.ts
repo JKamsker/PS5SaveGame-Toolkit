@@ -109,7 +109,7 @@ function useDocumentMutation(workspaceId: string, documentId: string, query: Doc
           const message = error instanceof ApiError ? error.message : "The server could not be reached.";
           if (lifetime.active) onToast(message, true);
           // Action dialogs need this diagnostic inside the modal, where background toasts are inert.
-          return rejected(message);
+          return { ...rejected(message), stale: error instanceof ApiError && error.status === 409 };
         }
       });
       return activity?.track(request) ?? request;

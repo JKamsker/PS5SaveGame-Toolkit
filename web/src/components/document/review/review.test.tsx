@@ -127,7 +127,8 @@ describe("action preview", () => {
     fireEvent.click(screen.getByRole("button", { name: "Refill" }));
     await screen.findByText("Potion quantity");
     fireEvent.click(screen.getByRole("button", { name: "Apply" }));
-    expect(await screen.findByText("Preview is stale")).toBeTruthy();
+    await waitFor(() => expect(screen.getByRole("alert").textContent).toContain("Preview is stale"));
+    expect(screen.getByRole("button", { name: "Preview again" })).toBeTruthy();
   });
 
   it("preserves immediate invocation for legacy actions", async () => {
