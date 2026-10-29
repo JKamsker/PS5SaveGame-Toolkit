@@ -167,6 +167,40 @@ Shared F12 view traversal is also verified against 205 generic F8 rows over mult
 pages, including truncation at the query-row cap. It describes rendered storage;
 the native Hogwarts hook remains the row-identity evidence mode.
 
+## Hogwarts read-only talent summary (2026-10-29)
+
+The opening Hogwarts tab shows **stored talent points** and **stored talent-record
+rows** separately for `RawDatabaseImage` and `RawExclusiveImage`. The property name
+is provenance, not proof of a live, backup or authoritative role. Mirrored images
+retain two summaries; their values are never added, merged or synchronized.
+Comparable differing values/counts produce an informational divergence note.
+
+Points use the exact, case-sensitive `MiscDataDynamic` tuple
+`DataOwner='Player0', DataName='PerkPoints'`, overriding any column collation.
+The summary preserves SQLite text (including empty strings/leading zeros) or integer
+type without parsing a balance. It reads at most two matches, and clips text to 128
+Unicode characters in SQL before materialization; clipping is explicit and clipped
+points are not compared across images. Missing tables/columns/tuples, duplicate
+tuples, SQL NULL, embedded NUL text and unexpected SQLite types remain explicit
+unavailable/ambiguous states. A bounded-query failure does not hide other statistics.
+
+The talent count reuses the existing `PerkDynamic` row count only when the observed
+`PerkID`/`Level` columns exist. Missing/unknown layouts are unavailable; a known,
+empty table shows zero. Duplicate IDs and unknown levels still count as storage
+rows. This is neither spent points nor a proven talent-cost, active-effect or player
+ownership calculation. A failed image retains its existing overlay warning and does
+not suppress the successful image's summary. Meaning stays **Inferred**, maturity
+stays **Experimental**, and talent writes remain disabled. The existing
+[discovery evidence and attributed sources](HOGWARTS-FIELD-DISCOVERY.md) supply
+the interpretation; no new external source/data was imported.
+
+`HogwartsTalentSummaryTests` authors synthetic schema-present/missing, exact-tuple,
+duplicate-tuple, mirrored/differing-image, storage-type, clipped-value, failed-image,
+read-only binding and byte-identical no-op regressions. The existing 30 per-image
+sample cases also assert the displayed summary against their pinned storage values.
+These new checks are **authored but not executed in this implementation worker**;
+the coordinated validation agent must run them and the plugin suite sequentially.
+
 ## Hogwarts talent / Field Guide discovery (#40, 2026-10-29)
 
 Talent points, learned talents, collection states, page flags, map states and Field

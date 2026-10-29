@@ -7,6 +7,7 @@ namespace SaveToolkit.Plugins.UnrealGvas.Hogwarts;
 /// <summary>One independent, memory-only image with bounded queries and tracked existing-cell edits.</summary>
 public sealed class HogwartsDatabase : IDisposable
 {
+    internal const int TalentPointTextLimit = 128;
     private const int MaxTables = 256;
     private const int MaxColumns = 64;
     private SqliteImage _database;
@@ -112,6 +113,23 @@ public sealed class HogwartsDatabase : IDisposable
         _database.Dispose();
         _database = candidate;
     }
+
+    /// <summary>Exact storage tuple, at most two rows, with text clipped before materialization.</summary>
+    internal SqliteResult QueryTalentPoints() => _database.Query("""
+        SELECT typeof(DataValue),
+            CASE typeof(DataValue)
+                WHEN 'text' THEN substr(DataValue, 1, $textLimit)
+                WHEN 'integer' THEN DataValue
+                ELSE NULL END,
+            CASE WHEN typeof(DataValue)='text' THEN length(DataValue)>$textLimit ELSE 0 END,
+            CASE WHEN typeof(DataValue)='text' THEN instr(DataValue,char(0))>0 ELSE 0 END
+        FROM MiscDataDynamic
+        WHERE DataOwner COLLATE BINARY=$owner AND DataName COLLATE BINARY=$name
+        ORDER BY _rowid_ LIMIT 2
+        """, new Dictionary<string, object?>
+        {
+            ["$textLimit"] = TalentPointTextLimit, ["$owner"] = "Player0", ["$name"] = "PerkPoints",
+        });
 
     /// <summary>Research only: SQLite enforces integrity_check before returning a no-op image.</summary>
     public byte[] SerializeForResearch() => _database.Serialize();

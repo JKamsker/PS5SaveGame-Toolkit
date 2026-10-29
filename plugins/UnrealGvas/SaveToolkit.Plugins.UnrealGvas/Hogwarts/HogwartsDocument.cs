@@ -81,6 +81,7 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
             new("Hogwarts", [
                 new TextNode(CanEdit ? WriteWarning : ReadOnlyMessage) { Tone = Tone.Warning },
                 new TextNode("RawDatabaseImage and RawExclusiveImage are inspected independently. No merge, authoritative-image or synchronization rule is assumed.") { Tone = Tone.Info },
+                .. HogwartsTalentSummary.Build(_databases),
                 .. _databases.Select(database => (ViewNode)new StatsNode([
                     new Stat("Image", database.Name), new Stat("SQLite bytes", database.ImageBytes.ToString()),
                     new Stat("Tables", database.Tables.Count.ToString()), new Stat("SQLite integrity", "ok"),
