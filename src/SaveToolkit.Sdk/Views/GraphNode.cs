@@ -48,7 +48,7 @@ public sealed record GraphItem(string Id, string Label, GraphState State)
     public string? Branch { get; init; }
     /// <summary>Optional explanation or attribution.</summary>
     public string? Description { get; init; }
-    /// <summary>Optional navigation to a corresponding existing control or row.</summary>
+    /// <summary>Optional navigation to an existing field or action control; graph items do not support row targets.</summary>
     public ViewTarget? Target { get; init; }
 }
 

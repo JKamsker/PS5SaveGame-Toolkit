@@ -17,7 +17,7 @@ public sealed record InMemoryCollectionOptions<T>
 {
     /// <summary>Null orders by ordinal native key. Equal values always use ascending ordinal keys.</summary>
     public IComparer<T>? DefaultComparer { get; init; }
-    /// <summary>Reverses the default comparer when descending is requested without an explicit sort column.</summary>
+    /// <summary>Reverses the default ordering when descending is requested without an explicit sort column.</summary>
     public bool ReverseDefaultOrderWhenDescending { get; init; } = true;
     /// <summary>Clamps offsets and page sizes when true; false rejects values outside protocol bounds.</summary>
     public bool ClampPaging { get; init; } = true;
