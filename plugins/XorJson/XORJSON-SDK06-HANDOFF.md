@@ -47,7 +47,6 @@ so a fresh group candidate cannot alias the original document or node state.
 - Branch base before dependency merge: `e76e51035fec308a56e5c26b5d97a9c08089f881`
 - Consumer head before R1 fixes: `8d7c4c17691b1de27e37922bfda3d7cb67177645`
 - Consumer follow-up head: `ab568661cc1a2945ad209c1091e98aa5fcfb41e9` (`fix(xorjson): close SDK06 scalar and snapshot gaps`)
-- Final branch head including this handoff: `2a41a5f4`.
 - Consumer PR base: `t3/sdk06-lossless-json` / reviewed SDK head above; parent may
   retarget the PR to `main` after #51 lands.
 
