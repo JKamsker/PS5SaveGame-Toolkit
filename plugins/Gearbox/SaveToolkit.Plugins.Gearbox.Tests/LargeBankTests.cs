@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
 
@@ -7,36 +7,62 @@ namespace SaveToolkit.Plugins.Gearbox.Tests;
 public sealed class LargeBankTests(ITestOutputHelper output)
 {
     private const int ItemCount = 5000;
+    // Observed ceilings: 7 MiB for a fresh 5,000-item view/page and 115 KiB for a repeated page.
+    private const long ViewAndPageAllocationLimit = 12 * 1024 * 1024;
+    private const long CachedPageAllocationLimit = 256 * 1024;
 
     [Theory]
-    [InlineData("PPSA01463")]
-    [InlineData("PPSA01493")]
-    public void LargeBank_PagesSearchesAndCachesWithoutChangingDuplicateIdentities(string title)
+    [InlineData("PPSA01463", true)]
+    [InlineData("PPSA01493", true)]
+    [InlineData("PPSA01463", false)]
+    [InlineData("PPSA01493", false)]
+    public void LargeBank_PagesSearchesAndCachesWithoutChangingDuplicateIdentities(string title, bool sampleBacked)
     {
         var plugin = new GearboxPlugin();
-        var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "profile" && !f.Directory.IsBackup);
+        var wonderlands = title == "PPSA01493";
+        var file = sampleBacked
+            ? SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "profile" && !f.Directory.IsBackup)
+            : GearboxTestData.File(title, GearboxTestData.CreateContainer(wonderlands, true), "profile");
         var container = GearboxContainer.Parse(file.ReadAllBytes(), title, true);
         var root = container.Decode();
-        var characterFile = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1" && !f.Directory.IsBackup);
-        using var character = (GearboxDocument)plugin.Open(characterFile);
-        var source = character.Inventory.Entries.First(entry => character.Inventory.Info(entry.Id).Complete);
+        var source = sampleBacked ? SampleItem(title) :
+            (Serial: IndependentSerialProbe.Encode(SyntheticItem.Payload(wonderlands), wonderlands ? 5 : 4, -1), Message: (ProtoMessage?)null);
         var spec = root.Schema.Spec(root.Type, GearboxInventory.Bank);
-        var template = new ProtoField(root.Schema.Tag(root.Type, GearboxInventory.Bank), 2, spec, [], source.Serial,
-            root.Schema.IsMessage(spec.Type) ? source.Field.Message!.Clone() : null);
+        var message = root.Schema.IsMessage(spec.Type) ? source.Message ?? new ProtoMessage(root.Schema, spec.Type, []) : null;
+        if (message is not null && message.Last("item_serial_number") is null)
+        {
+            var serialSpec = root.Schema.Spec(message.Type, "item_serial_number");
+            message.Add(new(root.Schema.Tag(message.Type, "item_serial_number"), 2, serialSpec, [], source.Serial, null));
+        }
+        var template = new ProtoField(root.Schema.Tag(root.Type, GearboxInventory.Bank), 2, spec, [], source.Serial, message);
         foreach (var field in root.All(GearboxInventory.Bank).ToArray()) root.Remove(field);
         for (var index = 0; index < ItemCount; index++) root.Add(template.Clone());
         var original = container.Encode(root);
-        using var document = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, original));
-        var timer = Stopwatch.StartNew();
+        var overlaid = GearboxTestData.Overlay(file, original);
+        var query = new QueryableCollectionQuery { Offset = 4000, Limit = 3, SortColumn = "index" };
+        // Exclude one-time embedded catalog loading; the measured document still has fresh caches.
+        using (var warmup = (GearboxDocument)plugin.Open(overlaid))
+        {
+            _ = warmup.BuildView();
+            _ = warmup.Query(GearboxInventory.Bank, query);
+        }
+        using var document = (GearboxDocument)plugin.Open(overlaid);
         var allocated = GC.GetAllocatedBytesForCurrentThread();
         _ = document.BuildView();
-        var page = document.Query(GearboxInventory.Bank, new() { Offset = 4000, Limit = 3, SortColumn = "index" });
+        var page = document.Query(GearboxInventory.Bank, query);
+        var viewBytes = GC.GetAllocatedBytesForCurrentThread() - allocated;
+        output.WriteLine($"{title} ({(sampleBacked ? "sample" : "synthetic")}): view + page allocated {viewBytes:N0} bytes.");
+        Assert.True(viewBytes < ViewAndPageAllocationLimit, $"View + page allocated {viewBytes:N0} bytes.");
         Assert.Equal(ItemCount, page.TotalCount);
         Assert.Equal(3, page.Rows.Count);
         Assert.Equal("4000", Assert.IsType<TextNode>(page.Rows[0].Cells["index"]).Text);
         Assert.Equal(3, page.Rows.Select(row => row.Key).Distinct().Count());
-        output.WriteLine($"{title}: {ItemCount}-item bank initial view + middle page: {timer.Elapsed.TotalMilliseconds:F1} ms, " +
-            $"{GC.GetAllocatedBytesForCurrentThread() - allocated} thread allocation bytes (measurement only; no timing assertion).");
+        allocated = GC.GetAllocatedBytesForCurrentThread();
+        var repeated = document.Query(GearboxInventory.Bank, query);
+        var pageBytes = GC.GetAllocatedBytesForCurrentThread() - allocated;
+        output.WriteLine($"Repeated page allocated {pageBytes:N0} bytes.");
+        Assert.True(pageBytes < CachedPageAllocationLimit, $"Repeated page allocated {pageBytes:N0} bytes.");
+        Assert.Equal(page.Rows.Select(row => row.Key), repeated.Rows.Select(row => row.Key));
         var ids = page.Rows.Select(row => row.Key).ToArray();
         foreach (var id in ids)
         {
@@ -48,5 +74,13 @@ public sealed class LargeBankTests(ITestOutputHelper output)
         Assert.Equal(ItemCount, matching.FilteredCount);
         Assert.Equal(ids, matching.Rows.Select(row => row.Key));
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
+    }
+
+    private static (byte[] Serial, ProtoMessage? Message) SampleItem(string title)
+    {
+        var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1" && !f.Directory.IsBackup);
+        using var character = (GearboxDocument)new GearboxPlugin().Open(file);
+        var entry = character.Inventory.Entries.First(entry => character.Inventory.Info(entry.Id).Complete);
+        return (entry.Serial, entry.Field.Message?.Clone());
     }
 }
