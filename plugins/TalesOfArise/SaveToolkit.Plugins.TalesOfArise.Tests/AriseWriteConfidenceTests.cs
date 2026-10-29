@@ -9,6 +9,46 @@ namespace SaveToolkit.Plugins.TalesOfArise.Tests;
 
 public sealed class AriseWriteConfidenceTests
 {
+    [Fact]
+    public void EditableViewsAndOutcomes_KeepConsoleWarningAndFormatQualifications()
+    {
+        const string warning = "Experimental. Not validated on console. The game may reject or overwrite the edited save. " +
+            "PS5 field mapping is inferred from PS4 research and sample bytes; edits have not been tested in-game. " +
+            "The game may reject an edited save even though ciphertext SHA1 and encryption self-check succeed.";
+        using var document = new TalesOfArisePlugin().Open(MemorySaveSet.SingleFile(
+            AriseTestContainer.FileName, new AriseTestContainer().Encrypt(), AriseTestContainer.TitleId));
+        var root = Assert.IsType<TabsNode>(document.BuildView());
+        var party = root.Tabs.Single(tab => tab.Title == "Party");
+        Assert.Contains(party.Children.OfType<TextNode>(), node => node.Text == warning && node.Tone == Tone.Warning);
+        Assert.Equal(warning, Assert.Single(party.Children.OfType<FieldNode>(), field => field.ValueId == "party/gald").Warning);
+
+        var characters = Assert.Single(party.Children.OfType<TableNode>());
+        foreach (var field in characters.Rows.SelectMany(row => row.Cells.Values.OfType<FieldNode>()).Where(field => !field.Spec.ReadOnly))
+        {
+            Assert.StartsWith(warning, field.Warning!);
+            Assert.Equal(Confidence.Inferred, field.Confidence);
+        }
+
+        var level = Assert.IsType<FieldNode>(characters.Rows[0].Cells["level"]);
+        Assert.Contains("Level alone does not recalculate experience or stats. The preserved load-screen preview can show the old level.", level.Warning!);
+        var inventory = document.LoadInventory();
+        Assert.Equal(warning, Assert.IsType<FieldNode>(inventory.Rows[0].Cells["quantity"]).Warning);
+        var edit = document.ApplyEdits([new("party/gald", FieldValue.Of(124L))]);
+        Assert.True(edit.Succeeded);
+        Assert.Contains(warning, edit.Warnings);
+
+        var planner = Assert.IsAssignableFrom<IActionPlanningDocument>(document);
+        var plan = planner.PlanAction("inventory/set-quantity", new Dictionary<string, FieldValue>
+            { ["quantity"] = FieldValue.Of(2L) }, new ActionScope(["inventory/0/quantity"]));
+        Assert.Empty(plan.Errors);
+        var actionWarning = Assert.Single(plan.Warnings, text => text.StartsWith("Experimental.", StringComparison.Ordinal));
+        Assert.StartsWith("Experimental. Not validated on console. The game may reject or overwrite the edited save.", actionWarning);
+        Assert.Contains("PS5 item mapping and 15-count stack bound are inferred", actionWarning);
+        Assert.Contains("console loading, later acquisition and zero-count semantics are unvalidated", actionWarning);
+        Assert.Contains("Only existing recognised records change. Ciphertext SHA1 and encryption are recomputed and self-checked", actionWarning);
+        Assert.Contains("the game may still reject the edited save", actionWarning);
+    }
+
     [Theory]
     [InlineData(6)]
     [InlineData(7)]

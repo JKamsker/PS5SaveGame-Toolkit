@@ -9,7 +9,7 @@ internal sealed class AriseInventoryActions(AriseDocument document)
 {
     public const string SetQuantityAction = "inventory/set-quantity";
     private const string QuantityParameter = "quantity";
-    private const string Warning = "Experimental: the PS5 item mapping and 15-count stack bound are inferred from existing samples and PS4 research; console loading, later acquisition and zero-count semantics are unvalidated. " +
+    private const string Warning = AriseDocument.ConsoleWarning + "The PS5 item mapping and 15-count stack bound are inferred from existing samples and PS4 research; console loading, later acquisition and zero-count semantics are unvalidated. " +
         "Only existing recognised records change. Ciphertext SHA1 and encryption are recomputed and self-checked; the game may still reject the edited save.";
 
     public static bool Handles(string actionId) => actionId == SetQuantityAction;

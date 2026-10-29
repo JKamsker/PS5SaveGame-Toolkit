@@ -22,7 +22,8 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
     private const int ItemRecordSize = 16;
     private const int ItemRecordCount = 0x3A6; // Count in the cited PS4 inventory patch; later regions are not item stacks.
     internal const int ConsumableStackLimit = 15;
-    internal const string ExperimentalWarning = "Experimental: PS5 field mapping is inferred from PS4 research and sample bytes; edits have not been tested in-game. The game may reject an edited save even though ciphertext SHA1 and encryption self-check succeed.";
+    internal const string ConsoleWarning = "Experimental. Not validated on console. The game may reject or overwrite the edited save. ";
+    internal const string ExperimentalWarning = ConsoleWarning + "PS5 field mapping is inferred from PS4 research and sample bytes; edits have not been tested in-game. The game may reject an edited save even though ciphertext SHA1 and encryption self-check succeed.";
     private readonly AriseReferences _references = new(references);
     private readonly AriseReadOnlyAliases _readOnlyAliases = new(save.Payload);
     private AriseInventoryActions? _inventoryActions;
@@ -208,7 +209,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
                 ["name"] = Field($"{prefix}/name", "Character", new TextSpec(), () => FieldValue.Of(name))
                     with { Description = _references.Character(i)?.AttributionText ?? CharacterAttribution, Confidence = i < MainCharacterCount ? Confidence.Inferred : Confidence.Unknown },
                 ["level"] = Scalar("level", "Level", LevelOffset, MaximumLevel, active, active ? 1u : 0u)
-                    with { Warning = "Level alone does not recalculate experience or stats. The preserved load-screen preview can show the old level." },
+                    with { Warning = (active ? ExperimentalWarning + " " : string.Empty) + "Level alone does not recalculate experience or stats. The preserved load-screen preview can show the old level." },
                 ["hp"] = Scalar("hp", "Current HP", CurrentHpOffset, MaximumHp, active),
                 ["baseHp"] = Scalar("base-hp", "Base HP", BaseHpOffset, uint.MaxValue),
                 ["experience"] = Scalar("experience", "Experience", ExperienceOffset, uint.MaxValue),
