@@ -101,7 +101,7 @@ public sealed class CatalogCollectionTests
             var keys = new HashSet<string>(StringComparer.Ordinal);
             for (var offset = 0; offset < collection.TotalCount; offset += 200)
             {
-                var page = queryable.Query(collection.Id, new() { Offset = offset, Limit = 200 });
+                var page = queryable.Query(collection.Id, new() { Offset = offset, Limit = 200, IncludeEmpty = true });
                 Assert.Equal(collection.TotalCount, page.TotalCount);
                 Assert.Equal(collection.TotalCount, page.FilteredCount);
                 Assert.InRange(page.Rows.Count, 1, 200);
@@ -113,10 +113,11 @@ public sealed class CatalogCollectionTests
 
         var last = queryable.Query("inventory", new()
         {
+            IncludeEmpty = true,
             Filters = new Dictionary<string, string> { ["slot"] = "2047" },
         });
         Assert.Equal("inventory/2047", Assert.Single(last.Rows).Key);
-        var sorted = queryable.Query("inventory", new() { SortColumn = "slot", Descending = true, Limit = 2 });
+        var sorted = queryable.Query("inventory", new() { SortColumn = "slot", Descending = true, Limit = 2, IncludeEmpty = true });
         Assert.Equal(["inventory/2047", "inventory/2046"], sorted.Rows.Select(row => row.Key));
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }

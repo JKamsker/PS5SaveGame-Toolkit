@@ -49,6 +49,7 @@ select-all-matching scopes; reject stale/tampered plans; and apply/undo/redo as 
 | F11 shared codecs | N/A | Supported inputs are already decrypted, uncompressed custom linked records. They contain neither a Kraken stream nor SQLite data. No local codec or native dependency is used. |
 | F12 | Used | `FinalFantasy7Plugin` exposes the SDK-only `ff7r-character-evidence` hook with bounded, stable character paths; `HookSaveDecoder` and F8 traversal tests cover deterministic reads, host caps, foreign-file rejection and byte preservation. |
 | F13 | Used / N/A | Browse-only reference fields cover read-only weapon, materia and item type IDs; existing F8 catalog queries cover bounded filter/sort; integer duration remains appropriate for whole-second play time. N/A for non-mutating inspection actions because this plugin has no message-only action to publish. |
+| F14 empty slots | Used | Inventory, materia and Rebirth owned weapon/materia relationships each publish one F8 table with empty-row metadata. Confirmed empty slots are hidden by default, labelled `Empty slot` when shown, and counted before paging. Native keys, raw fields, F6 query visibility/exclusions and byte-identical no-op saves are covered by `EmptySlotTests`. |
 
 ## Completion-round spatial and research views
 
@@ -192,8 +193,9 @@ the PS5 samples. It does **not** mean PS5 editing or console loading was tested.
 flag semantics are `Unknown`. Record offsets, allocation boundaries and declared lengths are verified.
 
 Gil is exposed only if exactly one matching entry exists. Unknown names remain `Unknown ID 0x...`;
-no game-specific dictionary is shared across Remake/Rebirth. Empty slots and negative sentinel values
-remain visible; negative quantities receive a warning. No arbitrary gameplay limits are imposed on
+no game-specific dictionary is shared across Remake/Rebirth. Confirmed empty slots are hidden by default
+and can be shown as `Empty slot`; other unknown IDs and zero/negative quantities remain visible.
+Negative quantities receive a warning. No arbitrary gameplay limits are imposed on
 read-only values. Ordinary item stacks use an editor cap of 9,999, gil 9,999,999 and final-tier AP
 999,999; these are not proven game caps. An original value above a cap remains restorable after
 editing and refreshing bindings. Negative quantities, ambiguous gil and instance-bearing gear quantities are read-only. Existing mapped
@@ -215,6 +217,33 @@ records at `0x5FA6C` to detail records at `0xB3A68` (stride `0x60`) and show cha
 enables qualified existing-instance changes. The **Catalog** tab searches all item/materia/weapon metadata and can use optional
 toolkit reference packs with catalog ids `ff7r-items`, `ff7r-materia`, `ff7r-weapons` and
 `ff7r-characters`.
+
+### Empty-slot presentation (F14 / #38)
+
+Inventory and materia each use one complete F8 table, with search/filter/sort over the full array.
+The unused `Slots N–M` section builder and owned-item lazy section builder have been removed.
+Bounded legacy page endpoints remain for existing sessions and use the same empty flags and labels;
+new views never publish linked inventory pages. Empty visibility changes presentation only.
+
+The sample-checked vacant type markers are `0xFFFFFFFF` for all 2,048-slot inventories,
+`0` for Remake's 1,000 materia slots, and `0xFFFFFFFF` for Rebirth/demo materia. Rebirth's
+128 owned weapon slots and 1,000 owned materia slots retain the existing unused-instance/type
+rule (either instance or type is `0xFFFFFFFF`), now exposing rather than dropping those rows.
+`TotalCount` includes every slot. Text and exact filters run first, `HiddenEmptyCount` counts
+matching vacant rows, and visibility is applied before sorting/paging and F6 query-scope selection.
+Unknown non-sentinel IDs and zero quantities alone are never evidence of vacancy.
+
+Research rechecked 2026-10-29 against the pinned [GTC Remake utility/schema](https://github.com/RyudoSynbios/game-tools-collection/tree/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor)
+and [Rebirth utility/schema](https://github.com/RyudoSynbios/game-tools-collection/tree/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor),
+plus direct reads of every supplied gameplay sample. No upstream implementation was copied.
+`EmptySlotTests` verifies each sample's markers/counts and raw IDs, shown/hidden key stability,
+one inventory table, matching hidden counts, bounded paging, visible edits at native byte offsets,
+undo restoration, and Core F6 select-all visibility/exclusions. Catalogues, cards, progress,
+enemy intel, character records and raw record/body inspection are not vacant inventory slots;
+their zero/unknown states remain visible, including allocated linked records with empty headers.
+
+F14 validation: **135 passed, 0 failed, 0 skipped**, with all three sample archives present;
+API build passed with **0 warnings and 0 errors**. No files outside this plugin were changed.
 
 ### Semantic safety evidence
 

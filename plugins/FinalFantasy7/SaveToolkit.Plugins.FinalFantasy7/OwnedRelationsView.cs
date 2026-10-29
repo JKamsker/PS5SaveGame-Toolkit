@@ -19,29 +19,22 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references,
     public CollectionQuery Collection(string kind)
     {
         var count = kind == "materia" ? MateriaCount : WeaponCount;
-        var offset = kind == "materia" ? MateriaInventoryOffset : WeaponInventoryOffset;
-        var occupied = Enumerable.Range(0, count).Count(slot => U32(offset + slot * 0x20) != uint.MaxValue &&
-            U32(offset + slot * 0x20 + 4) != uint.MaxValue);
         return new(new($"owned-{kind}", $"Owned {kind} relationships",
             [new("slot", "Slot", IntegerSpec.UInt32), new("instance", "Instance"), new("type", "Type"),
              new("name", "Name"), new("quantity", "Count", IntegerSpec.UInt32), new("detail", "Detail type"),
-             new("owner", "Referenced by"), new("source", "Source")], occupied)
+             new("owner", "Referenced by"), new("source", "Source")], count)
         {
+            EmptyRows = EmptySlots.Presentation,
             Description = "Read-only instance/detail joins; type IDs use browse-only attributed catalogues; equipment legality remains unverified. " + EmbeddedCatalogs.Attribution,
         }, () => Rows(kind, 0, count, bindType: false)
             .Select(row =>
             {
                 var values = row.Cells.ToDictionary(pair => pair.Key, pair => ((TextNode)pair.Value).Text, StringComparer.Ordinal);
-                return new CollectionEntry(row.Key, values);
+                return new CollectionEntry(row.Key, values) { IsEmpty = row.IsEmpty };
             }));
     }
 
-    public IReadOnlyList<ViewNode> Sections() =>
-    [
-        SectionNode.Lazy("Owned weapons (instance → detail)", "owned/weapon/0", $"{WeaponCount} slots"),
-        SectionNode.Lazy("Owned materia (instance → detail → owner)", "owned/materia/0", $"{MateriaCount} slots"),
-    ];
-
+    // Compatibility endpoint for existing sessions; new views use the complete F8 collection.
     public TableNode Page(string kind, int page)
     {
         var materia = kind == "materia";
@@ -58,6 +51,7 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references,
              new("source", "Source")], Rows(kind, page * PageSize, PageSize, bindType: true))
         {
             Title = materia ? "Owned materia relationships" : "Owned weapon relationships",
+            EmptyRows = EmptySlots.Presentation,
             Description = "Instance/type domains are kept separate; unresolved and duplicate details are not repaired. Type IDs use browse-only attributed catalogues. Demo mappings remain Inferred. " + EmbeddedCatalogs.Attribution,
         };
     }
@@ -79,12 +73,8 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references,
             var offset = (materia ? MateriaInventoryOffset : WeaponInventoryOffset) + slot * 0x20;
             var instance = U32(offset);
             var type = U32(offset + 4);
-            if (instance == uint.MaxValue || type == uint.MaxValue)
-            {
-                continue;
-            }
-
-            var offsets = detailOffsets.GetValueOrDefault(instance);
+            var empty = instance == uint.MaxValue || type == uint.MaxValue;
+            var offsets = empty ? null : detailOffsets.GetValueOrDefault(instance);
             var uniqueDetail = offsets is { Length: 1 };
             uint? detail = uniqueDetail ? U32(offsets![0] + sizeof(uint)) : null;
             var ownerId = materia && uniqueDetail ? bytes[offsets![0] + 0x11] : int.MaxValue;
@@ -93,7 +83,7 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references,
                 : !materia && characterRefs.TryGetValue(instance, out var names)
                     ? string.Join(", ", names)
                     : "Unassigned / unresolved";
-            var name = materia ? references.Materia(type) : references.Weapon(type);
+            var name = empty ? EmptySlots.Label : materia ? references.Materia(type) : references.Weapon(type);
             var key = $"owned/{kind}/{instance:X8}/{slot}";
             var cells = new Dictionary<string, ViewNode>(StringComparer.Ordinal)
             {
@@ -110,7 +100,7 @@ internal sealed class OwnedRelationsView(byte[] bytes, ReferenceData references,
                 ["source"] = new TextNode(references.Source(materia ? "ff7r-materia" : "ff7r-weapons", type) +
                     " Character labels: " + characterSource),
             };
-            rows.Add(new TableRow(key, cells));
+            rows.Add(new TableRow(key, cells) { IsEmpty = empty });
         }
 
         return rows;

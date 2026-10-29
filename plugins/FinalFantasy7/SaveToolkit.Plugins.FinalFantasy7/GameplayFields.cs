@@ -26,6 +26,7 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
     public Confidence MeaningConfidence => schema.IsDemo ? Confidence.Inferred : Confidence.Verified;
 
     public uint TypeId(bool materia, int slot) => U32(IdOffset(materia, slot));
+    public bool IsEmpty(bool materia, int slot) => EmptySlots.IsEmptyType(TypeId(materia, slot), materia, schema);
     public uint Ap(int slot) => U32(IdOffset(true, slot) + GameplayLayout.MateriaApDelta);
     public int Level(int slot) => bytes[_layout.MateriaLevelOffset + slot * GameplayLayout.MateriaStride];
     public int Quantity(int slot) => BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(IdOffset(false, slot) + GameplayLayout.QuantityDelta));
@@ -62,15 +63,7 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
         return nodes;
     }
 
-    public IReadOnlyList<ViewNode> Pages(bool materia)
-    {
-        var count = materia ? MateriaCount : InventoryCount;
-        var category = materia ? "materia" : "inventory";
-        return [.. Enumerable.Range(0, (count + RowsPerPage - 1) / RowsPerPage).Select(page =>
-            SectionNode.Lazy($"Slots {page * RowsPerPage}-{Math.Min(count, (page + 1) * RowsPerPage) - 1}",
-                $"{category}/{page}"))];
-    }
-
+    // Compatibility endpoint for existing sessions; new views publish one complete F8 table.
     public TableNode Page(bool materia, int page, Func<ScalarField, FieldNode> bind)
     {
         var count = materia ? MateriaCount : InventoryCount;
@@ -94,6 +87,7 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
         return new TableNode(columns, rows)
         {
             Title = materia ? "Materia" : "Inventory",
+            EmptyRows = EmptySlots.Presentation,
             Description = (schema.IsDemo ? DemoWarning : "Empty slots and unknown IDs are retained.") + " " + EmbeddedCatalogs.Attribution,
         };
     }
@@ -106,7 +100,7 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
         var cells = new Dictionary<string, ViewNode>(StringComparer.Ordinal)
         {
             ["slot"] = new TextNode(i.ToString()),
-            ["name"] = new TextNode(id is 0 or uint.MaxValue ? "Empty" : materia ? references.Materia(id) : references.Item(id)),
+            ["name"] = new TextNode(IsEmpty(materia, i) ? EmptySlots.Label : materia ? references.Materia(id) : references.Item(id)),
             ["id"] = bind(DefineReference($"{key}/id", "Item ID", idOffset, materia ? "ff7r-materia" : "ff7r-items")),
         };
         if (materia)
@@ -133,7 +127,7 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
                 warning: ItemWarning(id, editable, isGil)));
         }
 
-        return new TableRow(key, cells);
+        return new TableRow(key, cells) { IsEmpty = IsEmpty(materia, i) };
     }
 
     private ScalarField Define(string id, string label, int offset, IntegerSpec spec, bool signed = false,
@@ -148,7 +142,7 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
     private static string? JoinWarnings(string? first, string? second) => first is null ? second : second is null ? first : $"{first} {second}";
 
     private string ItemWarning(uint id, bool editable, bool gil) => !editable
-        ? $"Write disabled: {(id == 0 || id == uint.MaxValue ? "empty" : "unmapped, sentinel or instance-bearing equipment")} row; raw value is retained."
+        ? $"Write disabled: {(id == uint.MaxValue ? "empty" : "unmapped, sentinel or instance-bearing equipment")} row; raw value is retained."
         : $"{EditWarning} {(gil ? "Gil" : "item quantity")} bound is editor policy or the original observed category maximum, not a proven game limit. Progression/acquisition/deck/reward flags are preserved; changing a count does not grant them.";
 
     private int IdOffset(bool materia, int slot) => materia
