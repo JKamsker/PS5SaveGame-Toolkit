@@ -397,6 +397,109 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("Clear a column filter to", document("docs/USER_GUIDE.md"))
         self.assertNotIn("reload the page to reset the filter", document("docs/USER_GUIDE.md"))
 
+    def test_sdk_02_to_05_documented_types_and_members_exist(self):
+        # Check code spans, not arbitrary prose/path globs such as DocumentMember*.
+        type_pattern = (r"EmbeddedReference(?:Context|PackLimits|PackException)|DocumentMember\w+|"
+                        r"IFieldMetadataDocument|FieldMetadata\w*|FieldBindingKind|FieldSpecMetadata|"
+                        r"ReferenceIcon(?:Options|Availability)")
+        declarations = {}
+        for path in sorted(source_paths()):
+            if path.startswith("src/SaveToolkit.Sdk/") and re.fullmatch(type_pattern, Path(path).stem):
+                code = source(path)
+                for name in re.findall(r"public (?:sealed |static )?(?:class|record|interface|enum) (\w+)", code):
+                    declarations[name] = code
+        checked = set()
+        for page in ("docs/PLUGIN_GUIDE.md", "docs/API.md", "docs/SDK_REQUESTS.md"):
+            for span in re.findall(r"(?<!`)`([^`\n]+)`(?!`)", document(page)):
+                if span.startswith(("src/", "tests/", "plugins/", "docs/")):
+                    continue  # Evidence paths can name internal types and are not SDK member references.
+                for match in re.finditer(rf"\b({type_pattern})\b(?:\.(\w+))?", span):
+                    name, member = match.groups()
+                    with self.subTest(page=page, type=name, member=member):
+                        self.assertTrue(name in declarations, f"Missing public SDK type: {name}")
+                        if member:
+                            # Methods/properties/constants must be public; enum values are implicit public.
+                            declaration = (rf"(?m)(?:public [^;{{\n]*\b{member}\s*(?:\(|\{{|=>|=)|"
+                                           rf"^\s*{member}\s*[,=])")
+                            self.assertIsNotNone(re.search(declaration, declarations[name]),
+                                                 f"Missing public SDK member: {name}.{member}")
+                    checked.add((name, member))
+        self.assertIn(("EmbeddedReferenceContext", "Load"), checked)
+        self.assertIn(("DocumentMemberRouter", "Resolve"), checked)
+        self.assertIn(("FieldMetadataLimits", "MaxBatchSize"), checked)
+
+    def test_sdk_review_and_metadata_limits_match_main(self):
+        guide = document("docs/PLUGIN_GUIDE.md")
+        api = document("docs/API.md")
+        options = source("src/SaveToolkit.Core/Sessions/EditHistory.cs")
+        for name, description in (("MaxReviewQueryRows", "rows"), ("MaxReviewQueryPages", "pages")):
+            value = int(re.search(rf"{name}.*?= ([\d_]+);", options)[1].replace("_", ""))
+            for page in (guide, api):
+                with self.subTest(option=name, page="guide" if page == guide else "api"):
+                    self.assertIn(name, page)
+                    self.assertRegex(page, rf"{value:,} (?:query )?{description}")
+        limit = re.search(r"MaxBatchSize = (\d+)", source("src/SaveToolkit.Sdk/FieldMetadataLimits.cs"))[1]
+        self.assertIn(f"`FieldMetadataLimits.MaxBatchSize` is {limit}", guide)
+        self.assertIn("public long MaxReviewQueryBytes { get; init; } = 16L * 1024 * 1024;", options)
+        for page in (guide, api):
+            self.assertIn("16 MiB", page)
+
+    def test_sdk_adoption_status_matches_main_plugin_evidence(self):
+        section = markdown_section(document("docs/PLUGIN_GUIDE.md"), "### SDK-01–05 adoption on main")
+        _, rows = markdown_table(section)
+        expected = {
+            ("SDK-02", "Pragmata"): ("F6", "IFieldMetadataDocument"),
+            ("SDK-03", "FinalFantasy7"): ("F2", "EmbeddedReferenceContext"),
+            ("SDK-03", "FinalFantasy16"): ("F2", "EmbeddedReferenceContext"),
+            ("SDK-03", "GodOfWarRagnarok"): ("F2", "EmbeddedReferenceContext"),
+            ("SDK-04", "Gearbox"): ("F7", "DocumentMemberAdapter"),
+            ("SDK-04", "XorJson"): ("F7", "DocumentMemberAdapter"),
+            ("SDK-05", "BaldursGate3"): ("F3", "ReferenceViews.Icon"),
+            ("SDK-05", "TalesOfArise"): ("F2", "ReferenceViews.Icon"),
+        }
+        actual = []
+        for sdk, plugin_link, status, _ in rows:
+            name = re.fullmatch(r"\[([^]]+)\]\(.+\)", plugin_link)[1]
+            actual.append((sdk, name))
+            with self.subTest(sdk=sdk, plugin=name):
+                feature, helper = expected[(sdk, name)]
+                self.assertEqual("Used", status)
+                readme = source(f"plugins/{name}/README.md")
+                adoption = markdown_section(readme, "## Framework feature adoption")
+                feature_row = next(line for line in adoption.splitlines() if line.startswith(f"| {feature} "))
+                self.assertIn("Used", feature_row)
+                self.assertIn(helper, readme)
+                usage = subprocess.run(["git", "grep", "--quiet", "--fixed-strings", helper, CODE_REF,
+                    "--", f"plugins/{name}/SaveToolkit.Plugins.{name}/*.cs"], cwd=ROOT, check=False)
+                self.assertEqual(0, usage.returncode, f"{helper} is not used in {CODE_REF} production code")
+        self.assertCountEqual(expected, actual)
+
+    def test_reference_field_route_lists_and_batch_bound_match_main(self):
+        code = source("src/SaveToolkit.Api/Endpoints/ReferenceFieldEndpoints.cs")
+        routes = {(method.upper(), route) for method, route in re.findall(r'\.Map(Get|Post)\("([^"]+)"', code)}
+        guide = document("docs/PLUGIN_GUIDE.md")
+        listed = set(re.findall(r"`(GET|POST) \.\.\.(/reference-fields/[\w-]+)", guide))
+        self.assertEqual(routes, listed)
+        api = document("docs/API.md")
+        for method, route in routes:
+            heading = f"### `{method} /api/workspaces/{{workspaceId}}/documents/{{documentId}}{route}`"
+            self.assertEqual(1, api.count(heading))
+        limit = re.search(r"MaxPairs = (\d+)", source("src/SaveToolkit.Api/Contracts/ReferenceBatchDtos.cs"))[1]
+        batch = markdown_section(api,
+            "### `POST /api/workspaces/{workspaceId}/documents/{documentId}/reference-fields/records`")
+        self.assertIn(f"at most {limit} pairs", guide)
+        self.assertIn(f"**{limit} pairs**", batch)
+        self.assertIn("**413**", batch)
+        self.assertIn("StatusCodes.Status413PayloadTooLarge",
+                      source("src/SaveToolkit.Api/Infrastructure/ApiRequestValidation.cs"))
+
+    def test_selection_table_hints_remain_explicitly_proposed(self):
+        proposal = markdown_section(document("docs/PLUGIN_GUIDE.md"), "### Selection-scope conformance proposal (#40)")
+        self.assertIn("minimal proposed association", proposal)
+        for name in ("SelectionTableId", "SelectionId"):
+            self.assertIn(name, proposal)
+            self.assertNotIn(name, source("src/SaveToolkit.Sdk/Views/ViewNode.cs"))
+
     def test_group_proposal_status_documents_empty_success_and_offer_errors(self):
         code = source("src/SaveToolkit.Core/Sessions/Groups/DocumentGroupRegistry.cs")
         self.assertIn("if (plugin is not IDocumentGroupPlugin groupPlugin) return [];", code)
