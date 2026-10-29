@@ -1,5 +1,14 @@
 # BG3 evidence corpus and owner validation
 
+## Current scope and historical evidence
+
+The 2026-10-29 documentation accuracy pass checked these notes against the current
+code and sample-backed suite. The current plugin is 0.7.0; [README.md](README.md)
+records enabled writes, confidence, references and validation. Older round results
+below describe their respective revisions. In particular, 0.7.0 embeds attributed
+Larian icons and game-text excerpts; publisher ownership is no longer a reuse
+blocker under the 2026-10-29 owner policy. Legacy NC wiki prose remains excluded.
+
 ## Completion round (0.6.0)
 
 This section supersedes historical read-only/live-writer limitations below. The
@@ -13,10 +22,13 @@ current container entries, PS5 Health/Stats profiles, class selections and spell
 books. The sample census is 38 groups / 39 member quantities; 638 entries / 239
 nonempty containers; 380 Health rows; 256 Stats rows; 256 class selections;
 291 books / 2,242 spell occurrences. These are **storage counts, not party totals**.
-Creator/template candidates preserve repeated EntityId provenance and avoid class,
-transform, largest-book or adjacent-entity identity guesses.
+Creator/template candidates preserve repeated EntityId provenance. The current
+identity graph ranks exact template matches by class-row presence, stats-row
+presence and linked spell count, requiring a unique winner. Duplicate health rows
+use the first ownerlist-linked row; duplicate spell-book rows use a unique largest
+stored count. These storage policies do not prove native gameplay authority.
 
-Enabled five new write kinds plus two actions: existing member quantity, current
+Enabled storage writes and two planned actions: existing member quantity, current
 HP candidate, temporary HP candidate, effective ability-cache family, and two-key
 container reorder; F6 imported-quantity restoration reuses the quantity writer,
 and the reorder uses F6 planning/F5 scoped mementos. Current/temporary HP and each
@@ -24,7 +36,7 @@ ability have independent bounds. No base-score, respec or current-party guarante
 Every field/action documents absent console validation, unknown inner integrity /
 dependencies and possible game rejection. Known outer digest repair remains on.
 
-Final verification: **203 passed, 0 failed, 0 skipped** with the actual sample
+Historical 0.6.0 verification: **203 passed, 0 failed, 0 skipped** with the actual sample
 environment exported in the test command. An empty artifacts directory gives
 **170 passed, 30 skipped, 0 failed**. API build: zero warnings/errors. F1 fixture
 verification: one baseline, two unchanged files, identical backup pair and zero
@@ -37,7 +49,7 @@ changed bytes. All changes remain within this plugin; no sample data is committe
 | P1 / R12: directory, bounds, EntityId occurrences, heaps/strings, ownerlists | Do now: shipped supported PS5 profiles | Dynamic directory retained; bounded explicit references and owner candidates added. Arbitrary archetype shifts/enum pools remain unimplemented; unsupported families have raw diagnostics. |
 | P1/P3 / R1/R10/R11/R15: party/body/stats/spell/owner joins, duplicate builds and recursive bags | Do now: software joins shipped; native authority owner-blocked | Three party body joins, duplicate-preserving TemplateComponent bridges, state/stats/health/spell/classes rows, party-rooted recursive container paths and 638 sample entries are proven against measured bytes. Native current-party semantics, transient stack events and gameplay authority still require #31 captures. |
 | P2 / R4/R6/R7/R8/R18: framework data injection, cells, pickers, paging | Do now: used | F2/F3/F4/F8 adopted; current-template references stay read-only because replacement effects are unmodeled. Rebased onto main for F12/F13: bounded live F8 semantic traversal, browse-only references and host catalogue filter/sort. |
-| P2 / R3/R19/R20/R21: matching multilingual/module data, full descriptions/art/icons and offline asset conversion | Owner-blocked matching data/rights | Existing permitted attributed subset retained. No matching source pack/artwork is present; no giant extracted dataset or speculative icon conversion is embedded. Existing permission to use clearly licensed data is honored. |
+| P2 / R3/R19/R20/R21: matching multilingual/module data, full descriptions/art/icons and offline asset conversion | Partial import shipped; matching-data gaps remain | Pack 1.2.0 embeds 51 compact icons and 39 distinct game-text excerpts with separate Larian attribution, plus 12 base-class UUID/name facts. Complete build/language/module-matched data remains unavailable; this is a coverage gap, not a publisher-rights refusal. |
 | P4 / R1/R12/R14/R15: existing stack quantities | Do now: shipped | Explicit NewStack→member/entry references, positive sums, fixed u32 patches and intended-byte tests. Player gold ownership/target-total distribution remains unavailable; world/trader gold is not merged. |
 | P5: character values/spells | Do now: storage joins and bounded candidates shipped | Current/temp HP and effective ability-cache candidates enabled and joined to the three sample state entities. Base/derived authority, boosts, learned/prepared/source joins and dependent progression writes remain unavailable for the exact reasons in NEWAGE.md. |
 | P6 / R5/R16/R17/R22: F5/F6 inventory transactions | Do now: fixed-shape reorder/restoration shipped | Two-key swap preserves all allocation/references and has scoped structural undo. F6 quantity restoration supports #27 query scopes/exclusions. |
@@ -45,7 +57,7 @@ changed bytes. All changes remain within this plugin; no sample data is committe
 | P7: quest/approval/romance/waypoint mutations | Won't do in this completion implementation | No event/state-machine/dependency writer; markers/presence do not prove effective state. Event captures and native validation remain in #31. |
 | R2/R10/R11: PS5 acceptance and edge-case captures | Owner-blocked #31 | Untouched/metadata/new live edit cases must be tested independently. Exact checklist is in NEWAGE.md, plus the historical broader capture list below. |
 | R9 / optional F9 | Do now: spell presence graphs shipped | Unknown state, no invented prerequisite edges, raw-ID controls/text alternatives. Map not applicable without discovery/coordinate semantics and data. |
-| R13: research/code reuse | Do now: attributed reimplementation | Unlicensed facts are reused with attribution under the owner decision dated 2026-10-28; code behaviour was independently reimplemented. GPL-2-only, NC/no-redistribution material and proprietary assets remain listed in README Licence exclusions. |
+| R13: research/code reuse | Do now: attributed reimplementation | Unlicensed facts are reused with attribution under the owner decision dated 2026-10-28; code behaviour was independently reimplemented. The README/central register retain the specific legacy NC wiki-prose refusal and the resolved Larian asset import; no source-specific GPL-2.0-only refusal is recorded for BG3. |
 | R14: evidence manifest | Do now: retained | Sole baseline self-comparison; no event/control pair or churn mask fabricated. ByteDiff assertions cover intended new write ranges; F12 traversal is tested across live F8 pages, including incomplete-budget warnings. |
 | Acceptance: scope, corruption/bounds, missing refs, exact no-op/undo, writes/reopen, source sizes, docs | Do now: software verification | Synthetic and real-sample tests cover each new family, wrong scopes/values, preservation and Core history; final results recorded in README/handoff. |
 | Acceptance: native load/effect, authoritative identities/gold/journal, Act 3 breadth and timing | Owner-blocked, full phase exits not claimed | Need controlled native PS5 captures, matching data and larger supported fixtures. A single tutorial snapshot cannot establish these. |
@@ -134,8 +146,9 @@ are claimed. A no-action **resave** control still needs to be captured.
 
 The sample-specific tests check [the independent LSMF census](LSMF.md), 761 saved
 LSF Item occurrences, four exact referenced gold-template occurrences and twenty
-healing-potion-template occurrences. The seven-record starter pack labels 40/761
-saved items, plus the sample's Laezel/DarkUrge origins. The third origin stays raw.
+healing-potion-template occurrences. The four-record template catalog labels 40/761
+saved items; the three-record origin catalog labels the sample's Laezel/DarkUrge
+origins. The third origin stays raw.
 These are reference-label matches, not inventory totals or known in-game counts.
 All-owner item rows must not be summed as player gold. SaveInfo's three level-1
 rows and XP `(30,30)`, `(30,30)`, `(0,0)` remain metadata-only.
@@ -147,19 +160,25 @@ without inventing a gameplay interpretation. Synthetic
 tests cover version/count/range corruption, truncation, GUID byte order, repeated
 GUIDs/templates, bounded pages, no-pack/build-mismatch fallbacks and attribution.
 
-Round 2 adds six catalog datasets (`bg3_items`, `bg3_equipment`, `bg3_spells`,
+The historical 0.4.0 round added six catalog datasets (`bg3_items`,
+`bg3_equipment`, `bg3_spells`,
 `bg3_passives`, `bg3_companions`, `bg3_camp_supplies`) with pinned page revisions,
 record-level source links and CC BY-SA attribution. The catalogs contain factual
-labels and technical candidates only; no legacy wiki prose, icons or game assets are
-embedded. Catalog and all-owner inventory collections implement bounded SDK query
+labels and technical candidates. Version 0.7.0 enriched this subset with attributed
+icons and game-text excerpts; legacy NC wiki editorial prose remains excluded.
+Catalog and all-owner inventory collections implement bounded SDK query
 pages with stable row IDs. Explicit owner/quantity attributes are surfaced as
 unverified candidates when present; positional and quantity-only joins remain rejected.
 The NewAge view now groups character/health/classes/spellbook/container/stack families
-as read-only component candidates. StorySave inspection reports only bounded ASCII
+as read-only component candidates. StorySave inspection reports bounded ASCII
+and UTF-16LE
 database markers (`DB_ApprovalRating`, roster/team families and related names); it does
 not decode Osiris tuples or claim approval, quest, camp or romance state.
 
-## Phase status for this round
+## Historical 0.4.0 phase status
+
+These are the original read-only phase results. The completion gap audit above
+and current README/NEWAGE notes supersede their missing-writer/asset statements.
 
 - **Phase 1, partial:** directory/arena range validation, duplicate EntityId
   provenance, independent census, bounded views and F1 baseline shipped. Ownerlist,
@@ -204,9 +223,10 @@ Follow `docs/SAMPLES.md`; put dumps only in the external artifacts directory.
    Include one dump whose StorySave marker set is unchanged by a no-action resave and
    one controlled approval/quest event with the corresponding visible UI outcome; this
    is required before marker presence can be promoted to a tuple decoder.
-8. **Reference rights:** provide build/language/module-matched permitted template,
-   stats/LOCA data and a rights manifest; decide icon/commercial scope, legacy
-   wiki content, spoiler policy and required write-validation standard.
+8. **Reference coverage:** provide build/language/module-matched template,
+   stats/LOCA data and source/rights provenance. The owner already permits
+   attributed game assets; legacy NC wiki prose remains excluded. Additional
+   coverage, spoiler policy and write-validation evidence are separate questions.
 9. **Console validation:** first restore an untouched re-export into a spare slot and
    load/resave/re-export it. Test metadata-only changes separately. Test any future
    enabled edit separately; confirm effect, unchanged
@@ -214,8 +234,10 @@ Follow `docs/SAMPLES.md`; put dumps only in the external artifacts directory.
    Supply warnings/failures as well as successful results. Only the owner promotes
    maturity to Stable.
 
-No new SDK request blocks this subset. F1's existing view adapter, F2 packs/context,
-F4 reference labels remain read-only; F8 quantity pages share canonical primitive
-bindings. F5/F6/F7 remain framework-owned and are not needed for these scalar edits.
+For the historical scalar-only subset, no SDK request was blocking. F1's view
+adapter and F2 packs/context were used; F4 reference labels remain read-only,
+and F8 quantity pages share canonical primitive
+bindings. F5/F6 were subsequently adopted for the bounded NewAge actions; F7 remains
+inapplicable because coupled resources are inside one atomic LSPK output.
 Future full parser work must preserve packed streams/references before safely
 exposing structural gameplay operations.
