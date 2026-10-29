@@ -26,6 +26,22 @@ function setup(refresh = vi.fn(async () => {}), tableColumns = columns) {
   return { store, client, refresh, generation: (value: number) => rerender(view(value)) };
 }
 
+it("allows one new automatic stale recovery after a successful page load", async () => {
+  const stale = new ApiError("Stale view", 409, { code: "stale" });
+  vi.spyOn(api, "queryCollection").mockRejectedValueOnce(stale).mockResolvedValueOnce(page).mockRejectedValue(stale);
+  const { client, refresh, generation } = setup();
+  await waitFor(() => expect(refresh).toHaveBeenCalledTimes(1));
+  generation(1);
+  await screen.findByRole("checkbox", { name: "Select Potion" });
+  generation(2);
+  await waitFor(() => expect(refresh).toHaveBeenCalledTimes(2));
+  generation(3);
+  await waitFor(() => expect(api.queryCollection).toHaveBeenCalledTimes(4));
+  expect(await screen.findByRole("alert")).toHaveProperty("textContent", expect.stringContaining("out of date"));
+  expect(refresh).toHaveBeenCalledTimes(2);
+  client.clear();
+});
+
 describe("server table request lifecycle", () => {
   it("removes a cleared exact filter and restores rows while preserving other filters", async () => {
     const query = vi.spyOn(api, "queryCollection").mockImplementation(async (_workspace, _document, _collection, query) => ({
