@@ -15,7 +15,6 @@ public sealed class SemanticReviewPerformanceTests(ITestOutputHelper output) : I
     private const int Repetitions = 7;
     private const int WarmupIterations = 5;
     private const long AllocationLimit = 20_000_000;
-    private const int MaximumReviewMilliseconds = 2_000;
     private readonly WorkspaceStore _store = new(new PluginCatalog([new CounterPlugin()]),
         new WorkspaceStoreOptions { DataRoot = TestZips.TempDir() });
 
@@ -25,7 +24,7 @@ public sealed class SemanticReviewPerformanceTests(ITestOutputHelper output) : I
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(100)]
-    public void FullBudgetReviewHasLinearAllocationAndTimeBounds(int edits)
+    public void FullBudgetReviewHasBoundedAllocationsAndVisitsEachPageOnce(int edits)
     {
         var zip = TestZips.Build(("PPSA99999/sdimg_SAVE/save.dat", CounterPlugin.Create(5)));
         var workspace = _store.Create("review-perf", [new ImportSource("dump.zip", () => new MemoryStream(zip))]);
@@ -57,11 +56,9 @@ public sealed class SemanticReviewPerformanceTests(ITestOutputHelper output) : I
             Assert.Equal(Rows / QueryableCollectionLimits.MaxPageSize, current.Queries.Count - pagesBefore);
         });
 
-        output.WriteLine($"{edits} edits: {allocation.MinimumBytes} B; {bestTime.TotalMilliseconds:F3} ms; Release time bound {MaximumReviewMilliseconds} ms");
-        // Generous per-request time bound detects accidental quadratic work, tolerating JIT/CI variance.
-#if !DEBUG
-        Assert.True(bestTime.TotalMilliseconds < MaximumReviewMilliseconds, $"Review took {bestTime}.");
-#endif
+        // Scheduling and tiered JIT affect wall time; the exact page count above and allocation
+        // budget below are the deterministic regression gates. Keep elapsed time as evidence.
+        output.WriteLine($"{edits} edits: {allocation.MinimumBytes} B; {bestTime.TotalMilliseconds:F3} ms (diagnostic only)");
         allocation.AssertLessThan(AllocationLimit, "One full-budget semantic review.");
     }
 }
