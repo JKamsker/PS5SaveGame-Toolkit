@@ -49,7 +49,7 @@ title-node joins/costs, unknown identities, paging and sample-byte preservation.
 
 ## Offline regeneration checks
 
-Run all Python checks before and after importer changes, with the external scratch
+Run all 18 Python checks before and after importer changes, with the external scratch
 environment above (no network access or game samples are needed):
 
 ```powershell
@@ -105,9 +105,11 @@ They cover the deterministic stages available locally, without skipping tests or
 using the network. Full original-source regeneration still requires the external
 hash-matching caches and the pinned encoder stack, followed by the complete base
 then overlay commands above. Tests reject network attempts even on cache misses.
-The three previously deferred long importer functions can be split behind this
-coverage; this resolves their cleanup, while original-input recovery remains an
-explicit evidence gap. Runtime code and shipped reference-pack bytes are unchanged.
+The three previously deferred long functions are now split into row-specific
+extractors, source validation, dataset reconciliation/serialization, and asset
+encoding/copying/record overlay/manifest stages. All functions in both builders
+are at most 42 lines. Their cleanup is resolved; original-input recovery remains
+an explicit evidence gap. Runtime code and shipped reference-pack bytes are unchanged.
 
 All adapted source data stays [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/),
 credited to Aselia Wiki contributors. Every dataset, record, adjacent sidecar,
