@@ -4,7 +4,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok;
 
-internal sealed record RagnarokCollectionRow(string Key, int Offset, IReadOnlyDictionary<string, string> Cells,
+internal sealed record RagnarokCollectionRow(string Key, int Offset, Dictionary<string, string> Cells,
     string? NumberColumn = null, int NumberOffset = 0, Confidence Confidence = Confidence.Unknown);
 
 /// <summary>Query stable row identities with live counter values; bind only the requested page.</summary>
@@ -121,17 +121,11 @@ internal sealed class RagnarokCollections
             throw new ArgumentException("Unknown Ragnarök collection column.", nameof(query));
         }
 
-        var matches = collection.Rows.Select(row => LiveRow(document, row)).Where(row =>
-            (string.IsNullOrWhiteSpace(query.Text) || row.Cells.Values.Any(value => value.Contains(query.Text.Trim(), StringComparison.OrdinalIgnoreCase))) &&
-            query.Filters.All(filter => string.Equals(row.Cells.GetValueOrDefault(filter.Key), filter.Value, StringComparison.OrdinalIgnoreCase))).ToArray();
-        var sorted = query.SortColumn is { } column
-            ? query.Descending ? matches.OrderByDescending(row => SortValue(row, column), StringComparer.OrdinalIgnoreCase)
-                : matches.OrderBy(row => SortValue(row, column), StringComparer.OrdinalIgnoreCase)
-            : matches.OrderBy(row => row.Offset);
+        var matches = RagnarokCollectionQuery.Match(document, collection.Rows, query);
         var offset = Math.Max(0, query.Offset);
         var limit = Math.Clamp(query.Limit, 1, QueryableCollectionLimits.MaxPageSize);
-        var rows = sorted.ThenBy(row => row.Key, StringComparer.Ordinal).Skip(offset).Take(limit).Select(row => Render(document, row)).ToArray();
-        return new(id, collection.Info.Columns, rows, collection.Info.TotalCount, matches.Length, offset, limit);
+        var rows = matches.Skip(offset).Take(limit).Select(row => Render(document, row)).ToArray();
+        return new(id, collection.Info.Columns, rows, collection.Info.TotalCount, matches.Count, offset, limit);
     }
 
     private void Add(string id, string title, IReadOnlyList<RagnarokCollectionRow> rows, string description)
@@ -192,18 +186,6 @@ internal sealed class RagnarokCollections
         return new(row.Key, cells);
     }
 
-    private static RagnarokCollectionRow LiveRow(RagnarokDocument document, RagnarokCollectionRow row)
-    {
-        if (row.NumberColumn is not { } column) return row;
-        var cells = row.Cells.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        cells[column] = document.ReadWord(row.NumberOffset).ToString(CultureInfo.InvariantCulture);
-        return row with { Cells = cells };
-    }
-
-    private static string SortValue(RagnarokCollectionRow row, string key) =>
-        key is "quantity" or "metadata" or "word" && ulong.TryParse(row.Cells[key], out var number)
-            ? number.ToString("D20", CultureInfo.InvariantCulture) : row.Cells.GetValueOrDefault(key) ?? "";
-
     private static string Hex(int offset) => $"0x{offset:X8}";
     private static string Label(string key) => key switch
     {
@@ -213,6 +195,6 @@ internal sealed class RagnarokCollections
         _ => char.ToUpperInvariant(key[0]) + key[1..],
     };
 
-    private static IReadOnlyDictionary<string, string> Cells(params (string Key, string Value)[] cells) =>
+    private static Dictionary<string, string> Cells(params (string Key, string Value)[] cells) =>
         cells.ToDictionary(cell => cell.Key, cell => cell.Value, StringComparer.Ordinal);
 }
