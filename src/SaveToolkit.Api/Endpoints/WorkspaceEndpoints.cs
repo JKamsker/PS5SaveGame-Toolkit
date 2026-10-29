@@ -9,6 +9,7 @@ using SaveToolkit.Core.Export;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk.Collections;
+using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace SaveToolkit.Api.Endpoints;
 
@@ -19,7 +20,7 @@ internal static class WorkspaceEndpoints
 
     public static void MapToolkitApi(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("/api").AddEndpointFilter<ApiContractFilter>();
+        var api = app.MapGroup("/api").AddEndpointFilter<ApiContractFilter>().WithApiErrors(Status500InternalServerError);
 
         api.MapGet("/plugins", (WorkspaceStore store) =>
             store.Catalog.Plugins.OrderBy(p => p.Info.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.ToDto()));
@@ -28,19 +29,22 @@ internal static class WorkspaceEndpoints
 
         api.MapGet("/workspaces", (WorkspaceStore store) => store.All.Select(w => w.ToSummary()));
 
-        api.MapPost("/workspaces", CreateWorkspace).DisableAntiforgery();
+        api.MapPost("/workspaces", CreateWorkspace).DisableAntiforgery()
+            .Produces<WorkspaceDto>().WithApiErrors(Status400BadRequest, Status413PayloadTooLarge, Status422UnprocessableEntity);
 
-        var ws = api.MapGroup("/workspaces/{workspaceId}");
+        var ws = api.MapGroup("/workspaces/{workspaceId}").WithApiErrors(Status404NotFound);
         ws.MapGet("", (WorkspaceRef w, WorkspaceStore store) => w.Value.ToDto(store.Catalog));
-        ws.MapDelete("", (string workspaceId, WorkspaceStore store) => store.Remove(workspaceId) ? Results.NoContent() : Results.NotFound());
+        ws.MapDelete("", (string workspaceId, WorkspaceStore store) => store.Remove(workspaceId) ? Results.NoContent() : Results.NotFound())
+            .Produces(StatusCodes.Status204NoContent);
 
         ws.MapGet("/directories/{directoryId}/icon", (WorkspaceRef w, string directoryId) =>
             w.Value.Set.FindDirectory(directoryId) is { } dir && DtoMapper.Icon(dir) is { } icon
                 ? Results.Stream(icon.OpenRead(), "image/png")
-                : Results.NotFound());
+                : Results.NotFound()).Produces<byte[]>(contentType: "image/png");
 
         ws.MapPost("/files/{fileId}/open", (WorkspaceRef w, string fileId, [FromBody] OpenRequest? request) =>
-            w.Value.Open(fileId, request?.PluginId).ToDto());
+            w.Value.Open(fileId, request?.PluginId).ToDto())
+            .WithApiErrors(Status400BadRequest, Status409Conflict, Status415UnsupportedMediaType, Status422UnprocessableEntity);
 
         ws.MapDocumentGroups();
 
@@ -50,7 +54,7 @@ internal static class WorkspaceEndpoints
         {
             var plan = WorkspaceExporter.Plan(w.Value, ToOptions(request));
             return new ExportPlanDto(plan.Files, plan.Overrides.Count);
-        });
+        }).WithApiErrors(Status400BadRequest, Status409Conflict, Status415UnsupportedMediaType, Status422UnprocessableEntity);
         ws.MapPost("/export", (WorkspaceRef w, ExportRequest request) =>
         {
             var plan = WorkspaceExporter.Plan(w.Value, ToOptions(request));
@@ -60,32 +64,41 @@ internal static class WorkspaceEndpoints
             }
 
             return WorkspaceExportResponse.Create(plan, $"{SafeName(w.Value.Name)}-edited.zip");
-        });
+        }).Produces<byte[]>(contentType: "application/zip")
+            .WithApiErrors(Status400BadRequest, Status409Conflict, Status415UnsupportedMediaType, Status422UnprocessableEntity);
     }
 
     private static void MapDocumentRoutes(RouteGroupBuilder doc)
     {
-        doc.AddEndpointFilter<DocumentRevisionFilter>();
+        doc.AddEndpointFilter<DocumentRevisionFilter>().WithApiErrors(Status400BadRequest, Status404NotFound, Status409Conflict,
+            Status412PreconditionFailed, Status422UnprocessableEntity);
         doc.MapActionReview();
         doc.MapGet("", (DocumentRef d) => d.Value.ToDto(d.Workspace));
-        doc.MapDelete("", (DocumentRef d) => d.Workspace.Close(d.Value.Id) ? Results.NoContent() : Results.NotFound());
+        doc.MapDelete("", (DocumentRef d) => d.Workspace.Close(d.Value.Id) ? Results.NoContent() : Results.NotFound())
+            .Produces(StatusCodes.Status204NoContent);
         doc.MapGet("/nodes", (DocumentRef d, [FromQuery] string id) => d.Value.Expand(id));
         // Opaque IDs may contain slashes, which Kestrel preserves as %2F in route parameters.
         doc.MapGet("/collections", (HttpRequest request, DocumentRef document, [FromQuery] string collectionId) =>
-            QueryCollection(request, document, collectionId));
-        doc.MapGet("/collections/{collectionId}", QueryCollection);
+            QueryCollection(request, document, collectionId)).Produces<QueryablePageDto>().WithApiErrors(Status413PayloadTooLarge);
+        doc.MapGet("/collections/{collectionId}", QueryCollection).Produces<QueryablePageDto>().WithApiErrors(Status413PayloadTooLarge);
         doc.MapPost("/edits", (DocumentRef d, EditRequest request) =>
-            SessionEditResponse.Create(d.Value.ApplyEdits([.. request.Edits.Select(e => new IncomingEdit(e.ValueId, e.Value))], request.Revision)));
+            SessionEditResponse.Create(d.Value.ApplyEdits([.. request.Edits.Select(e => new IncomingEdit(e.ValueId, e.Value))], request.Revision)))
+            .Produces<SessionEditResult>().WithApiErrors(Status415UnsupportedMediaType);
         doc.MapPost("/actions", (DocumentRef d, ActionRequest request) =>
-            SessionEditResponse.Create(d.Value.InvokeAction(request.ActionId, request.Parameters ?? [], request.Revision)));
-        doc.MapPost("/undo", (DocumentRef d, HistoryRequest? request) => SessionEditResponse.Create(d.Value.Undo()));
-        doc.MapPost("/redo", (DocumentRef d, HistoryRequest? request) => SessionEditResponse.Create(d.Value.Redo()));
+            SessionEditResponse.Create(d.Value.InvokeAction(request.ActionId, request.Parameters ?? [], request.Revision)))
+            .Produces<SessionEditResult>().WithApiErrors(Status415UnsupportedMediaType);
+        doc.MapPost("/undo", (DocumentRef d, HistoryRequest? request) => SessionEditResponse.Create(d.Value.Undo()))
+            .Produces<SessionEditResult>().WithApiErrors(Status415UnsupportedMediaType);
+        doc.MapPost("/redo", (DocumentRef d, HistoryRequest? request) => SessionEditResponse.Create(d.Value.Redo()))
+            .Produces<SessionEditResult>().WithApiErrors(Status415UnsupportedMediaType);
         doc.MapGet("/assets", (DocumentRef d, [FromQuery] string id) =>
-            d.Value.GetAsset(id) is { } asset ? Results.Bytes(asset.Content, asset.ContentType) : Results.NotFound());
+            d.Value.GetAsset(id) is { } asset ? Results.Bytes(asset.Content, asset.ContentType) : Results.NotFound())
+            .Produces<byte[]>(contentType: "application/octet-stream");
         doc.MapGet("/blobs", (DocumentRef d, [FromQuery] string id, [FromQuery] long offset, [FromQuery] int count) =>
             offset < 0
                 ? (IResult)Results.BadRequest(new ErrorDto("Offset cannot be negative."))
-                : Results.Bytes(d.Value.ReadBlob(id, offset, Math.Clamp(count, 0, MaxBlobPage)), "application/octet-stream"));
+                : Results.Bytes(d.Value.ReadBlob(id, offset, Math.Clamp(count, 0, MaxBlobPage)), "application/octet-stream"))
+            .Produces<byte[]>(contentType: "application/octet-stream");
         doc.MapGet("/download", (DocumentRef d) =>
         {
             var session = d.Value;
@@ -95,7 +108,7 @@ internal static class WorkspaceEndpoints
             return own is null
                 ? Results.Stream(session.File.OpenRead(), "application/octet-stream", session.File.FileName)
                 : Results.Bytes(own.Content, "application/octet-stream", session.File.FileName);
-        });
+        }).Produces<byte[]>(contentType: "application/octet-stream");
     }
 
     private static IResult QueryCollection(HttpRequest request, DocumentRef document, string collectionId)

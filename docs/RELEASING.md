@@ -27,6 +27,13 @@ compatibility. Web checks include ESLint, TypeScript, Vitest and the production 
 NuGet/npm downloads are cached; per-project TRX and web JUnit results are uploaded even on failure,
 and the validation jobs write summaries.
 
+The API tests include the generated OpenAPI snapshot and hosting/schema regression
+checks in `tests/SaveToolkit.Api.Performance.Tests`. Contract drift fails normal CI;
+re-pin only after reviewing an intentional API metadata/contract change using the
+[one-line workflow](API.md#openapi-contract-and-regression-guard). Documentation tests
+compare the checked-in contract's method/route inventory with `docs/API.md` in both
+directions. `/openapi/v1.json` is also available in packaged Production runs.
+
 The web package's `lint` script runs `eslint src e2e`, using `web/eslint.config.js` (flat config).
 The `validate` job invokes `npm run lint --if-present` on both Ubuntu and Windows immediately
 after installing web dependencies, before typecheck, Vitest and the production build; lint errors
