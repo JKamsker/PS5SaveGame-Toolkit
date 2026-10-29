@@ -64,6 +64,12 @@ an all-ineffective reported scalar batch only after typed `FieldValue` equality,
 no derived rows/structure/memento, and a complete identical serialized output proof
 (paths, count and bytes). The proof copies borrowed memory before mutation and is
 limited to 8 MiB; larger outputs or unavailable proof keep existing history behavior.
+For declared system outputs, proof and export reuse the same exact ownership-set
+check: primary and every declared path must appear exactly once, with no extras.
+Incomplete output cannot establish a no-op. Export/download keep the landed
+gate-captured output bytes, dirty status and revision; no later live-state read
+or second serialization is introduced into verification. Included clean sources
+and dirty sources retain immutable primary/system fingerprint preflight.
 Mixed batches, explicit unions, derived effects and structural/memento outcomes
 retain their original rows and replay path. Byte differences, including signed
 zero or an unreported secondary-file mutation, prevent suppression. This is not

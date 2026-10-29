@@ -19,6 +19,7 @@ internal sealed class ScalarEffectDocument(FieldValue initial, FieldSpec spec) :
     public bool Memento { get; init; }
     public bool FailSnapshot { get; init; }
     public bool OversizeSnapshot { get; init; }
+    public Action? AfterSet { get; init; }
     public override string Title => "Scalar effect fixture";
 
     public override ViewNode BuildView() => new SectionNode(Title,
@@ -29,6 +30,7 @@ internal sealed class ScalarEffectDocument(FieldValue initial, FieldSpec spec) :
             _value = value;
             if (UnreportedBytes) _hidden[0]++;
             if (Derived) _derived++;
+            AfterSet?.Invoke();
         }, _ => Reject ? "Provider rejects the current value." : null),
         Field("readonly", "Read only", spec, () => _value),
         Field("derived", "Derived", IntegerSpec.Int64, () => FieldValue.Of(_derived)),

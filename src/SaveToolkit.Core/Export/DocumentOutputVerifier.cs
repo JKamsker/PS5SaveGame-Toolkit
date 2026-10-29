@@ -40,16 +40,8 @@ internal static class DocumentOutputVerifier
                 throw new ExportException($"Two open documents both rewrite '{output.RelativePath}'. Close one of them.");
         }
 
-        if (session.RequiresCompleteOutputs && !grouped && capture.IsDirty)
-        {
-            foreach (var expected in session.OwnedOutputPaths)
-            {
-                if (!pending.ContainsKey(expected))
-                    throw new ExportException($"Plugin '{session.Plugin.Info.Id}' did not serialize required output '{expected}'.");
-            }
-            if (pending.Keys.Any(path => !session.OwnedOutputPaths.Contains(path, StringComparer.OrdinalIgnoreCase)))
-                throw new ExportException($"Plugin '{session.Plugin.Info.Id}' returned an output outside its declared ownership set.");
-        }
+        if (!grouped && capture.IsDirty && session.OutputSetError(pending.Keys) is { } outputError)
+            throw new ExportException($"Plugin '{session.Plugin.Info.Id}' {outputError}");
 
         foreach (var (path, content) in pending)
             overrides.Add(path, content);

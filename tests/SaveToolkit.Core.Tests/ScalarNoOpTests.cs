@@ -173,6 +173,22 @@ public sealed class ScalarNoOpTests
         AssertBytes(bytes, document);
     }
 
+    [Fact]
+    public void CancellationAfterSetterFinishesRepeatedProofAndStatePublicationTogether()
+    {
+        using var cancellation = new CancellationTokenSource();
+        using var document = new ScalarEffectDocument(FieldValue.Of(17L), IntegerSpec.Int64) { AfterSet = cancellation.Cancel };
+        using var fixture = Open(document);
+        var before = Bytes(document);
+        var result = fixture.Session.ApplyEdits([Edit(FieldValue.Of(17L))], 0, cancellation.Token);
+        Assert.True(cancellation.IsCancellationRequested);
+        Assert.True(result.Ok);
+        Assert.Empty(result.Changes);
+        Assert.Equal(new DocumentState(false, false, false), result.State);
+        Assert.Equal(1, document.Writes);
+        AssertBytes(before, document);
+    }
+
     private static MutationSessionFixture Open(ScalarEffectDocument document)
     {
         var fixture = new MutationSessionFixture(document, openOriginal: () =>
