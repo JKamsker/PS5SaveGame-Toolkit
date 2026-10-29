@@ -60,8 +60,7 @@ test("an unknown layout opens read-only in the raw file inspector", async ({ pag
   await expect(page.getByText(fixture("unknown.txt").subarray(0, 16).toString("hex").toUpperCase(), { exact: true })).toBeVisible();
 });
 
-// #40: DiskSaveFile.RelativePath reconstructs paths with the UNKNOWN title instead
-// of retaining the imported relative path. Do not accept that rename as a baseline.
+// #40 regression: title-less layouts must not gain the synthetic UNKNOWN grouping prefix on export.
 test("unknown-layout export preserves the imported path (#40)", async ({ page }, testInfo) => {
   const files = { "unrecognized-layout/mystery.dat": fixture("unknown.txt") };
   await home(page);

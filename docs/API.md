@@ -360,10 +360,9 @@ Same required JSON/options as export plan. Returns `application/zip` with
 Safe names retain letters/digits/hyphen/underscore and replace other characters
 with `_`. Entries follow the toolkit's imported relative paths. Standard `<TITLE>/sdimg_<directory>/...`
 layouts are retained; additional generations are prefixed `genN/`. Wrapper prefixes before the
-recognized title/save directory are not retained. Unknown-title layouts are reconstructed with an
-`UNKNOWN/` prefix: for example `unrecognized-layout/mystery.dat` exports as
-`UNKNOWN/unrecognized-layout/mystery.dat`. Original unknown-layout path preservation is a known
-#40 gap, not a guaranteed round trip. `ChangedFiles` includes only
+recognized title/save directory are not retained. Unknown-title layouts keep their normalized
+imported path without an `UNKNOWN/` prefix: for example `unrecognized-layout/mystery.dat` exports as
+`unrecognized-layout/mystery.dat`. `ChangedFiles` includes only
 rewritten files; `ChangedDirectories` includes entire changed save directories
 and system files; `Everything` includes the imported set. Mirroring replaces
 identical original console backups unless separately owned/open.

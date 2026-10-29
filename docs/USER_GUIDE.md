@@ -265,8 +265,8 @@ fails, read the error and undo or correct the edit; passing these checks still d
 prove console acceptance. Save the downloaded zip separately from the original. A
 document's **Download file** downloads just that file; use workspace Export for complete
 save folders and for related-file groups. Inspect the plan paths: additional generations use `genN/`,
-and an unrecognized title/layout can acquire an `UNKNOWN/` prefix. The latter is a known #40
-path-preservation gap; do not restore such an export as though its original layout were unchanged.
+wrapper folders above a recognized title are dropped, and an unrecognized title/layout keeps its
+imported path.
 
 You can re-import an exported zip to inspect it. Restore through your own save manager,
 including any required encryption or signing. On a disposable backed-up slot, check the

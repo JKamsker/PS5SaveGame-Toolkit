@@ -302,13 +302,16 @@ class DocumentationTests(unittest.TestCase):
                 self.assertIn(f"web/e2e/{filename}", source_paths())
                 for claim in claims:
                     self.assertIn(claim, text)
-        self.assertIn("test.fixme(", source("web/e2e/import.e2e.ts"))
-        self.assertNotIn("test.fixme(", source("web/e2e/table.e2e.ts"))
+        for spec in ("import.e2e.ts", "table.e2e.ts"):
+            with self.subTest(spec=spec):
+                self.assertNotIn("test.fixme(", source(f"web/e2e/{spec}"))
+        self.assertIn('test("unknown-layout export preserves the imported path', source("web/e2e/import.e2e.ts"))
         self.assertIn('test("clearing a JSON-type filter restores all rows', source("web/e2e/table.e2e.ts"))
-        self.assertIn("This skipped case is not validated behavior", text)
+        self.assertIn("No browser case is currently skipped", text)
         for page in ("README.md", "docs/API.md", "docs/USER_GUIDE.md"):
             with self.subTest(page=page):
-                self.assertIn("`UNKNOWN/` prefix", document(page))
+                self.assertNotIn("acquire an `UNKNOWN/` prefix", document(page))
+                self.assertNotIn("path-preservation gap", document(page))
 
     def test_user_guide_registered_titles_and_maturity_match_code(self):
         text = document("docs/USER_GUIDE.md")
@@ -539,7 +542,7 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("optional backup mirroring", introduction)
         self.assertIn("original bytes", introduction)
         self.assertIn("ownership", introduction)
-        self.assertIn("`UNKNOWN/` prefix", introduction)
+        self.assertIn("Unknown-layout exports keep their imported paths", introduction)
         # These conditions exist in Core; the overview must not promise unconditional behavior.
         self.assertIn("MaxSnapshotBytes", source("src/SaveToolkit.Core/Sessions/EditHistory.cs"))
         exporter = source("src/SaveToolkit.Core/Export/WorkspaceExporter.cs")
