@@ -450,6 +450,17 @@ gain/spend, legal caps and console validation remain open.** Replace the blanket
 deferred-name statement with these three discoveries and the remaining Cabin
 Coin/other-resource research gap. Central documentation is outside this branch's scope.
 
+## Sample-free mutation fuzzing (#40)
+
+The conformance seed hook supplies one `data000.bin` from `SyntheticInventory.Create(2)`.
+It includes two authored inventory records, typed roots and clock values inside the existing
+synthetic DSSS/Mandarin envelope. The plugin probes, decrypts, parses, builds its view and queries
+every collection from this seed. Synthetic consistency metadata and hashes satisfy the parser;
+this does **not** reproduce an authentic RSA signature or establish console acceptance.
+No private sample bytes are embedded. `SyntheticFuzzSeedsOpenAndPreserveBytes` checks the unchanged
+seed before the nightly 5,000 deterministic mutations; envelope integrity failures are expected
+clean rejections, so byte mutation does not imply coverage of every decrypted typed field.
+
 ## Validation and development
 
 Documentation audit, **2026-10-29**, against plugin code at `b369fa4`:

@@ -412,6 +412,17 @@ matching visible slots across unloaded pages, retains explicit visibility/exclus
 and skips empty rows if shown. Direct page edits, grouped actions, undo/redo and
 byte-identical no-op serialization retain the original slot identities.
 
+## Sample-free mutation fuzzing (#40)
+
+The conformance seed hook supplies one `SaveData_000.sav` from the existing
+`AriseTestContainer().Encrypt()` builder. The format requires its fixed 760,856-byte size;
+this is an authored fixture with all schema sections, representative party/character values
+and inventory records, encrypted with the test cipher schedule and a repaired digest.
+The unmutated seed probes, decrypts, opens, builds its view, queries every collection and
+serializes unchanged in `SyntheticFuzzSeedsOpenAndPreserveBytes`. The nightly run applies
+5,000 deterministic mutations without private samples. Changed ciphertext/digests commonly
+reject cleanly; the fixture is parser coverage, not console acceptance evidence.
+
 ## Validation
 
 CP discovery (#40), **2026-10-29**: Release suite **392 passed, 0 failed,

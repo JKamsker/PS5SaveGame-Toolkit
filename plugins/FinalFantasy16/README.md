@@ -663,3 +663,14 @@ resources and pooled scratch buffers for non-seekable streams. No corresponding
 framework request remains open. Shared `Crc32Ieee` is already used for parsing,
 edits, serialization and streaming preview checksums; fixed-offset reads and
 Faith-specific framing/allocator guards remain local as described above.
+
+## Synthetic mutation fuzz testing (#40)
+
+One independently authored `FaithCharacterizationData.Combined()` seed, `game-save-data` for
+PPSA10665, reuses the CRC-repaired Faith fixture with player, inventory, skills and other known
+blocks. The baseline opens and renders, without private bytes. Mutations deliberately retain the
+real CRC gate: damaged covered bytes normally reject before block decoding; no checksum repair is
+applied to mutations.
+
+`MutationFuzzSyntheticSeedsOpenAndRender` checks every unmutated seed before the inherited
+`MutationFuzz` fact supplies deterministic mutations. No samples are required for these checks.

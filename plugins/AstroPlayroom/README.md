@@ -614,3 +614,12 @@ No outstanding plugin-specific SDK requests. The planned-action reference bindin
 (`63580dc`) is on main and this plugin now uses its `ReferenceSpec("astro_worlds")` path with
 mapped-world eligibility. F12 uses shared bounded view traversal and F13 inspection is implemented;
 neither remains pending on #32/#33. Shared collection/action-plan helper adoption is recorded above.
+
+## Synthetic mutation fuzzing (#40)
+
+One authored `AstroTestData` seed reaches the real PreInstall parser with the required
+1 MiB `memory.dat` allocation and `PPSA01325` title. This is the minimum accepted
+allocation size; no private bytes are embedded. The fixed XML contains play count and
+coin fields. The nightly conformance fuzz uses 5,000 deterministic mutations of this
+seed without private samples; mutations that change the fixed length or signature
+are honest probe rejections.

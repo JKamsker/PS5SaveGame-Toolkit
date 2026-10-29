@@ -694,3 +694,15 @@ captures, unverified coordinates and save-ID/effect joins remain evidence gaps.
 | --- | --- | --- | --- | --- |
 | [PowerPyx regional maps](https://www.powerpyx.com/final-fantasy-7-vii-rebirth-full-world-map-revealed/), published 2024-02-29; research retrieval 2026-10-28, asset retrieval 2026-10-29 | Earlier research: none found; current notice: Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29 | Resolved: imported (owner decision 2026-10-29); six downscaled WebP backgrounds | Earlier research used an external link without importing art; unverified marker coordinates remain list-only | Completed for map art; verified coordinates need separate evidence |
 | [Final Fantasy Wiki Remake item images](https://finalfantasy.fandom.com/wiki/Category:Final_Fantasy_VII_Remake_item_images), retrieved 2026-10-29 | Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29 | Resolved: imported (owner decision 2026-10-29); selected 64px WebP icons | Raw IDs and attributed text remain available when an icon is absent; earlier HTTP 403/402 retrieval failures were availability gaps | Completed for selected icons; no current licence blocker |
+
+## Synthetic mutation fuzz testing (#40)
+
+Three 1,056-byte independently authored `ContainerTests.Common` seeds cover the Remake, Rebirth and
+Rebirth demo common-file envelopes and linked-record framing. Each baseline opens and builds its
+read-only view. These are common/settings container seeds, not gameplay-body coverage.
+`CoverageFixture` loads private samples and is intentionally not used; full synthetic gameplay
+allocations are 9-23 MiB and remain covered by focused fixture tests. No private save bytes or
+authentication material are embedded.
+
+`MutationFuzzSyntheticSeedsOpenAndRender` checks every unmutated seed before the inherited
+`MutationFuzz` fact supplies deterministic mutations. No samples are required for these checks.

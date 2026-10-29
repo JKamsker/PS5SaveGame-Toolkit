@@ -593,3 +593,21 @@ the same decoder ID and allowlisted paths. Raw byte reports still need the endpo
 described in [Evidence/README.md](Evidence/README.md). No plugin-local inspect/traversal framework
 was added. Unsupported build/loadout presets require the format dependency evidence described
 above, not another SDK abstraction.
+
+## Synthetic mutation fuzz testing (#40)
+
+One independently authored `SyntheticSave([0])` seed, `sce_sdmemory/memory.dat` for PPSA03169,
+contains one active character and a valid menu/profile. The format requires the fixed 0x1BA0080-byte
+allocation even for one character; a small accepted memory.dat is infeasible. No private bytes,
+encryption key or signature are needed. Mutations exercise the header, slot/profile parsing and
+bounded view/collection paths; the large fixed allocation makes the 60-second nightly limit a
+performance constraint. A local Windows preflight at seed `20261029` (`0x013528A5`), 5,000
+mutations and the unchanged 60-second cap stopped at mutation index 1852 before completing;
+this is an incomplete performance-budget failure, not 5,000-case parser coverage.
+A 300-second-budget rerun completed all 5,000 mutations in 107.7 seconds: 1,743
+complete opens, 3,257 documented/probe rejections and zero parser failures. The
+large fixture is valid; a complete 5,000-case run under the nightly cap remains
+unestablished, and the cap is unchanged.
+
+`MutationFuzzSyntheticSeedsOpenAndRender` checks every unmutated seed before the inherited
+`MutationFuzz` fact supplies deterministic mutations. No samples are required for these checks.
