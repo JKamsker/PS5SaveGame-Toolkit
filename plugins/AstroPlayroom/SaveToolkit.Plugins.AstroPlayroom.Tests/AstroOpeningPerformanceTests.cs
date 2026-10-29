@@ -38,7 +38,42 @@ public sealed class AstroOpeningPerformanceTests
             using var document = plugin.Open(file, context);
             _ = document.BuildView();
         });
+        TestContext.Current.TestOutputHelper?.WriteLine(allocated.ToString());
         allocated.AssertInRange(0, 5_200_000);
+    }
+
+    [Fact]
+    public void OpeningRegistersLiveStorageBeforeAnyProjectionIsRendered()
+    {
+        const string recordId = "/PreInstall[0]/Artifact[0]/item[0]";
+        const string ownershipId = recordId + "/IsGot[0]/text[0]";
+        const string unknownId = "/PreInstall[0]/Unknown[0]/text[0]";
+        const string text = "\r\n<PreInstall><Artifact><item><IsGot>false</IsGot>" +
+            "<IsCinematicsPlayed>true</IsCinematicsPlayed></item></Artifact><Unknown>0007</Unknown></PreInstall>opaque";
+        using var document = AstroTestData.Open(AstroTestData.Bytes(text));
+        // Neither BuildView, Raw expansion nor a collection query has run yet.
+        Assert.Equal(FieldValue.Of(false), document.GetValue(ownershipId));
+        Assert.Equal(FieldValue.Of(7L), document.GetValue(unknownId));
+        Assert.True(document.ApplyEdits([new(ownershipId, FieldValue.Of(true))]).Succeeded);
+        Assert.False(document.ApplyEdits([new(unknownId, FieldValue.Of(8L))]).Succeeded);
+        for (var iteration = 0; iteration < 2; iteration++)
+        {
+            var row = AstroCatalogueTestData.Row(document, "Artifacts", "Artifact/item");
+            var detail = Assert.Single(Assert.IsType<SectionNode>(row.Cells["details"]).Children.OfType<FieldNode>());
+            var raw = Assert.Single(document.ExpandNode(recordId + "/IsGot[0]").OfType<FieldNode>());
+            Assert.Equal(raw with { Label = detail.Label }, detail);
+            Assert.True(detail.Value.AsBool());
+            Assert.False(detail.Spec.ReadOnly);
+            var unknown = Assert.Single(document.ExpandNode("/PreInstall[0]/Unknown[0]").OfType<FieldNode>());
+            Assert.True(unknown.Spec.ReadOnly);
+            Assert.Equal(FieldValue.Of(7L), unknown.Value);
+        }
+        Assert.Equal(AstroTestData.Bytes(text.Replace("<IsGot>false", "<IsGot>true", StringComparison.Ordinal)),
+            AstroTestData.Output(document));
+        Assert.True(document.ApplyEdits([new(ownershipId, FieldValue.Of(false))]).Succeeded);
+        var current = Assert.Single(document.ExpandNode(recordId + "/IsGot[0]").OfType<FieldNode>());
+        Assert.False(current.Value.AsBool());
+        Assert.Equal(AstroTestData.Bytes(text), AstroTestData.Output(document));
     }
 
     [Fact]
