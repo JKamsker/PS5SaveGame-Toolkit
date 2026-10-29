@@ -41,7 +41,8 @@ bytes, extracted records or private asset dumps are embedded. Attributed compact
   with Unknown completion/discovery and links to the matching level rows and
   the community location guide. No geographical transform, map art, community
   coordinates, collectible crosswalk or fast-travel availability is asserted.
-- F1 can walk over 9,100 exposed scalar values with `PluginViewDecoder`. Native
+- F1 walks exposed scalar values, including all F8 inventory rows with empty
+  slots explicitly included, through `PluginViewDecoder`. Native
   state, opaque properties, transforms and velocities still require byte diffs.
   A synthetic relocated-property pair proves identity alignment and detection
   of a single changed value. The actual primary/backup have no differences.
@@ -85,7 +86,7 @@ They are not blocked on captures tracked in [#31](https://github.com/JKamsker/PS
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
 | Existing populated slot `Amount` | Inferred | Explicit signed IntProperty/Int64Property tags. Values must be 0 through the original maximum in that container, bounded by storage width. Zero changes only the scalar; it does not remove a slot. | SHA-1 and byte counts repaired; output decoded/reparsed. Unknown inner integrity/duplicates and stored-block acceptance mean **the game may reject the edited save**. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small material/ammo/resource edit, observe/use/spend, save/restart/reload and diff. Observed bounds are not proven game caps. |
-| Existing populated `ItemDataAsset` replacement | Inferred | Exact catalog join plus unambiguous full path already observed in this save, same catalog category. ItemId, Amount, grid position, native instance data and unknown bytes are retained. | FString encoding and affected property/struct-array/object/array lengths repaired; SHA-1 repaired; output decoded/reparsed. **The game may reject the save**, or dependent equipment/module/ownership state may not match. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one known weapon/ammo reference, inspect equipment/modules/capacity, use/equip, save/restart/reload. Category matching does not prove compatibility. |
+| Existing populated `ItemDataAsset` replacement | Inferred | Exact catalog join plus unambiguous full path already observed in this save, same catalog category; both records must be eligible for replacement (the three screenshot-based resource/consumable joins are reference-only). ItemId, Amount, grid position, native instance data and unknown bytes are retained. | FString encoding and affected property/struct-array/object/array lengths repaired; SHA-1 repaired; output decoded/reparsed. **The game may reject the save**, or dependent equipment/module/ownership state may not match. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one known weapon/ammo reference, inspect equipment/modules/capacity, use/equip, save/restart/reload. Category matching does not prove compatibility. |
 | F6 `inventory/set-amount` | Inferred | Same existing Amount bindings; selected, document or server-resolved F8 query preview. Empty/unsupported slots, over-limit targets and unchanged values are listed as skipped. | Same repairs and rejection warning as individual amounts. Plans/outcomes retain warnings; stale/tampered plans fail; one undo/redo covers the batch. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): selected, filtered with exclusions and full eligible batches, compare intended and unrelated values after use/resave/reload. |
 
 Writable fields, outcomes and action previews share the warning opening:
@@ -120,10 +121,17 @@ enabled paths.
 | F8 queryable tables | Used | All 4,063 records and all inventory slots; whole-model search/filter/sort, numeric Amount/ItemId ordering, stable IDs and bounded 200-row pages. Inventory details/hex live in the single F8 table; original raw record inspection remains available. |
 | F9 maps/graphs | Used | Added in the 2026-10-29 implementation round: paged skill/weapon evidence graphs and external-only saved-level map, compact stable IDs, text alternatives, confidence and tested navigation. Prerequisites/coordinates/discovery remain unknown. |
 | F10 exact/nullable/union values | N/A | The decoded UE tags use fixed-width signed/unsigned integers and IEEE floating-point scalars; no JSON numeric lexemes, nullable scalar storage or tagged union is rewritten. Existing Int128 SDK values preserve all integer bits. |
-| F11 shared codecs | Used | Optimized in the 2026-10-29 implementation round: `SaveToolkit.Codecs` Kraken decode/stored encode; retained compressed frames, exact output allocation, validated serialization cache and byte-identical no-op. No local codec. |
+| F11 shared codecs | Used | `SaveToolkit.Codecs` Kraken decode/stored encode; one `OodleWorkspace` per decode batch and caller-owned aggregate slices, retained compressed frames, exact output allocation, validated serialization cache and byte-identical no-op. Current measured 14-stream codec allocation is about 0.63 MB; see [PERFORMANCE.md](PERFORMANCE.md). No local codec. |
 | F12 SaveDiff F8 traversal/hooks | Used | Registered `atomic-heart.saveextension-v1`, a bounded SDK-only decoder for stable scalar tag paths; shared `PluginViewDecoder` now traverses the inventory F8 collection. |
-| F13 inspect/browse/filter/duration | Used | Catalogue item inspection is `Mutates = false`; read-only asset references use browse-only pickers, and the pinned 48-entry item catalogue supports category filtering and declared category/key/name sorting. Duration hints are N/A because no timer field is published. |
+| F13 inspect/browse/filter/duration | Used | `ReferenceInspection.Create` / `ResolveSelection` implement the `Mutates = false` catalogue action; read-only asset references use browse-only pickers, and the pinned 48-entry item catalogue supports category filtering and declared category/key/name sorting. Duration hints are N/A because no timer field is published. |
 | F14 inventory empties | Used | Added in the 2026-10-29 F14 round: one F8 inventory table replaces the F8/eager-page duplicate. Confirmed `None`/zero slots with ItemId `0` or `-1` are marked empty; shared metadata hides them by default. Complete-model matching precedes visibility, sorting and paging; hidden counts and F6 scopes retain every stable slot identity. |
+
+Shared SDK helper adoption: `SaveExtensionBinary` wraps `BoundedBinaryCursor`
+and `FStringCodec.ByteLength` / `Decode`, retaining format limits and legacy
+diagnostics. `BoundSaveDocument` owns scalar bindings and atomic edits. The
+collection queries and action-plan comparison remain plugin-local; they do not
+use `InMemoryCollection<T>` or `ActionPlans`. FString writing remains local to
+`InventoryPatcher`; the shared string codec is used for reading.
 
 ## F14 table audit (2026-10-29)
 
@@ -153,7 +161,7 @@ with both visibility choices, exclusions and undo/redo. The shared eager-only
 conformance edit walk is replaced locally by an explicit F8 edit round trip;
 the other shared conformance checks remain enabled.
 
-Validation: **79 tests passed, 0 failed, 0 skipped** with the supplied samples;
+Historical F14 validation (2026-10-29): **79 tests passed, 0 failed, 0 skipped** with the supplied samples;
 the API build passed with **0 warnings and 0 errors**. All tracked changes stay
 inside `plugins/AtomicHeart`; no sample data is committed.
 
@@ -260,10 +268,25 @@ become write targets.
 Run from the repository root:
 
 ```powershell
-$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/AtomicHeart/SaveToolkit.Plugins.AtomicHeart.Tests
+$scratch='D:/Temp/saveeditor/test-scratch/docs/accuracy-atomicheart'
+New-Item -ItemType Directory -Force -Path $scratch | Out-Null
+$env:TEMP=$scratch
+$env:TMP=$scratch
+$env:TMPDIR=$scratch
+$env:SAVETOOLKIT_TEST_TEMP=$scratch
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
+dotnet test --project plugins/AtomicHeart/SaveToolkit.Plugins.AtomicHeart.Tests --configuration Release --results-directory $scratch
 
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj --configuration Release --warnaserror
+
+python docs/tests/test_documentation.py
 ```
+
+Documentation accuracy validation (2026-10-29, implementation `72cd997`):
+**214 passed, 0 failed, 0 skipped**, using the private samples in Release;
+API Release build with `--warnaserror`: **0 warnings, 0 errors**.
+Documentation checks: **14 passed**. Earlier round results below and in
+[EVIDENCE.md](EVIDENCE.md) are historical, rather than current suite counts.
 
 The sample-backed suite covers the complete lazy view, conformance, pack validity,
 known layout/spans, every synthetic inner/outer truncation, valid-hash malformed
@@ -284,13 +307,10 @@ agreement and PS5 console reload remain open. Amount writes get an F1 byte diff
 limited to the intended payload; reference writes test growing/shrinking strings
 and retention of unrelated records, leaf payloads and opaque tails. Scalar and
 selected-bulk session tests cover undo/redo, stale plans and atomic invalid batches.
-The completion suite passed **59 tests, 0 failed, 0 skipped**, with
+Historical completion validation (2026-10-29): **59 tests, 0 failed, 0 skipped**, with
 `SAVETOOLKIT_ARTIFACTS` exported in the test command. API build passed with
-**0 warnings and 0 errors**. No timing assertions are used. A diagnostic run on
-the largest (and only unique) sample
-measured a first changed export at about 136 ms / 29.1 MB allocated and ten repeated
-validated exports at about 0.6 ms / 0.50 MB allocated per export; this includes
-returned-buffer copies and test overhead and is not a cross-machine benchmark.
+**0 warnings and 0 errors**. No timing assertions are used. Historical export
+measurements and the current codec allocation are in [PERFORMANCE.md](PERFORMANCE.md).
 
 ### Malformed-input review (2026-10-29, #40)
 
@@ -308,7 +328,7 @@ payloads and unknown tails remain opaque; accepting them is not a claim that
 their uninspected grammar is valid. No additional parser defect is claimed for
 the characterization tests, and no findings are deferred.
 
-Release validation: **157 passed / 0 failed / 0 skipped** with private samples
+Historical robustness validation (2026-10-29): **157 passed / 0 failed / 0 skipped** with private samples
 (baseline 114). With samples unavailable: **125 passed / 0 failed / 32 skipped**;
 all new synthetic cases execute. The API Release build with `--warnaserror`
 reports **0 warnings / 0 errors**. Existing byte-identical no-op, write/reopen,
@@ -317,87 +337,41 @@ All review changes are confined to this plugin; no sample bytes were committed.
 
 ### Performance review (2026-10-29, #40)
 
-Record inspection retains short member segments and constructs full leaf IDs only
-when expanded. The same complete identity-length budget is still checked at Open.
-The immutable record explorer retains one last ordered query result and a copied
-filter snapshot; page nodes remain fresh. Combined class labels are reused.
-Inventory queries retain one current asset description per slot, refresh it after
-asset edits/undo, and match live numeric values using stack-formatted spans.
-Selected action plans resolve native row ordinals without scanning unselected slots.
-The inventory query still filters/sorts the complete live model on each request.
+`SlotDataDecoder` uses one disposable `OodleWorkspace` for all frames and decodes
+straight into exact slices of its bounded aggregate buffer. The current
+sample-backed focused allocation check reports **632,544 bytes (about 0.63 MB)** for the
+14-stream codec batch, excluding aggregate and record-parser allocations. The
+full-suite audit recorded 632,528 bytes; the merged adoption run recorded
+632,544 bytes versus 2,384,928 before adoption. All post-adoption runs are below
+the 917,504-byte regression cap. These measure managed
+allocation, not retained memory or latency. The earlier 10.46 MB follow-up is
+resolved, and earlier end-to-end benchmarks predate the codec changes.
 
-Harness and baseline source snapshot: `D:/Temp/saveeditor/review-results/perf-atomicheart/`.
-Run `./run.ps1 -Baseline -Label before` and `./run.ps1 -Label after` there.
-Release/.NET 10.0.11, SDK 10.0.400, tiered compilation disabled, five warmups
-and 21 synchronous measurements per operation. Medians use Stopwatch and
-[`GC.GetAllocatedBytesForCurrentThread`](https://learn.microsoft.com/en-us/dotnet/api/system.gc.getallocatedbytesforcurrentthread?view=net-10.0);
-managed allocations exclude native memory and are not retained-heap sizes.
-Import and pack setup are excluded. Largest/sole unique snapshot: 126,214 bytes,
-1,751,391 decoded bytes, 14 chunks, 4,063 objects. Pages request 20 rows.
-
-| Operation | Before → after median ms | Before → after allocated bytes |
-| --- | --- | --- |
-| Open pinned + first root | 43.4325 → 46.9232 | 34,988,656 → 29,192,544 |
-| First root on prepared fresh document | 0.0192 → 0.0168 | 11,104 → 9,560 |
-| Inspector construction | 9.0620 → 3.3976 | 9,136,480 → 3,340,504 |
-| First class-sorted record page | 0.4824 → 2.3756 | 684,408 → 496,728 |
-| Subsequent record page / search / class sort | 0.1428 / 0.4238 / 0.4126 → 0.0056 / 0.0035 / 0.0056 | 213,960 / 13,072 / 684,264 → 17,648 / 11,088 / 17,872 |
-| First inventory search | 0.0591 → 0.0538 | 136,208 → 148,112 |
-| Subsequent inventory page / search / amount sort | 0.0718 / 0.0864 / 0.0712 → 0.0431 / 0.0479 / 0.0456 | 157,288 / 137,072 / 157,288 → 158,056 / 132,680 / 158,056 |
-| One selected retail quantity preview | 0.0179 → 0.0004 | 9,144 → 1,360 |
-| Authored 10,000-slot search / one-row preview | 4.3903 / 0.9822 → 1.5468 / 0.0005 | 5,021,184 / 674,368 → 8,528 / 912 |
-
-Tradeoffs: the first record query sorts and retains its complete result instead
-of partially sorting one page; subsequent matching pages reuse it. First inventory
-search allocates descriptions which remain bounded to the slot count. Rich inventory
-page rendering and whole-document previews have no meaningful allocation improvement.
-Open allocation falls about 16.6%; total Open latency varied with machine load,
-including unchanged codec/parser phases, so no total-Open speedup is claimed.
-These are warm-process diagnostics, not cold-start or console benchmarks.
-
-All 15 added sample-free cases pass; seven performance checks failed against the
-corresponding pre-fix code. Regression gates assert allocation bounds or catalogue
-lookup counts, never elapsed time. Full Release suite: **194 passed, zero failed
-or skipped**; API Release build: **zero warnings/errors**. Shared cursor/FString,
-robustness, byte-identical no-op, write/reopen, stale-plan and undo tests remain green.
-
-### Reusable codec workspace adoption (2026-10-29, #40)
-
-`SlotDataDecoder` retains its aggregate bound and exact plain buffer, and reuses
-one disposable `OodleWorkspace` across all frames. Each frame decodes into its
-exact destination slice; contextual errors and final aggregate validation remain.
-The codec guarantees exact output or throws, so no separate result-length check
-or per-frame result allocation/copy is needed.
-
-The allocation regression exercises the production decoder on the 14-stream,
-1,751,391-byte sample. It subtracts an identical plain-array copy and record-parser
-pass to exclude aggregate/index allocations; reads, framing and assertions are
-outside measurement. With five warmups and the median of three synchronous
-measurements (Release, .NET 10, tiered compilation disabled), managed codec
-allocations fell from **2,384,928** to **632,544 bytes** against a **917,504-byte**
-cap. The earlier codec review's 10.5 MB baseline predates the shared codec changes.
-This is allocation evidence, not a latency or retained-memory claim. Exact error
-messages, chunk offsets and inner exception types are pinned by sample-free tests.
+See [PERFORMANCE.md](PERFORMANCE.md) for measurement scope, reproduction,
+current regression coverage and clearly separated historical diagnostics.
 
 ### Maintainability review (2026-10-29, #40)
 
 Record identity/prefix parsing, inventory-container indexing, patch splicing and
 map-page rendering now have named steps in their existing owners. Test fixtures
 share raw opening and property-size traversal helpers; outer inventory framing
-is separate from property construction. No handwritten method exceeds 50 lines,
-and the largest plugin C# file is 196 lines. No tooling or framework changes were
-needed. Public strings, identities, confidence labels and warnings are unchanged.
+is separate from property construction. At that review no handwritten method
+exceeded 50 lines, and the largest plugin C# file was 196 lines. No tooling or
+framework changes were needed. Public strings, identities, confidence labels
+and warnings are unchanged.
 
 Twenty added cases cover exact decoder diagnostics, allocation bounds, record
 identities/native tails, inventory ordering/limits, patch and spatial errors,
-and fixture helper contracts. The full Release suite passes **214 tests, zero
-failed or skipped** with private samples, including byte-identical no-op,
+and fixture helper contracts. Historical maintainability validation (2026-10-29):
+the full Release suite passed **214 tests, zero failed or skipped** with private
+samples, including byte-identical no-op,
 malformed primitives, overflowing inventory values and existing performance bounds.
 The API Release build with `--warnaserror` has **zero warnings/errors**.
 
 ## Sources and attribution
 
-Retrieved 2026-10-28. Sources were read, not executed as downloaded programs.
+Initial format/label research was retrieved 2026-10-28; later source dates are
+recorded per row. Sources were read, not executed as downloaded programs.
 The repository and derived public-tool label dataset are GPL-3.0-or-later.
 
 | Dataset / reference | Source and author | Licence / changes and use |
@@ -464,7 +438,7 @@ not embedded. No permission decision is pending for the shipped catalog.
 
 ## SDK requests
 
-None blocking the enabled writes or the new F9 views: F1/F2/F4/F6/F8/F9/F12/F13 and F11 suffice. F11's managed Kraken decoder
+None blocking the enabled writes or views: F1/F2/F4/F6/F8/F9/F11/F12/F13/F14 suffice. F11's managed Kraken decoder
 and stored writer are used directly. Non-Kraken variants remain unsupported.
 Independent compressed-codec agreement and console captures are validation
 requests. Coupled skill/loadout, structural and story operations need a safe
@@ -475,15 +449,14 @@ remains reachable; the inventory uses only F8, SaveDiff explicitly includes empt
 rows, and the production decoder hook covers native scalar evidence. No framework
 files were changed.
 
-Performance follow-up (#40), deferred outside this plugin: F11 Kraken decoding
-allocates padded input/output, exact-output copies and entropy scratch separately
-per independent stream. All 14 sample chunks allocate about 10.46 MB in the codec
-alone; the plugin additionally aggregates their decoded output. A caller-owned
-destination/workspace API could reduce copies/scratch churn while retaining exact
-consumption, padding, work budgets and corruption rejection. No codec/SDK files
-were edited. SQLite is not part of this format. Open decodes each chunk once;
-queries/plans do not decompress or parse again, and the existing serialization
-cache retains full first-changed-output validation and isolated output copies.
+Resolved (#40): the shared codec now provides caller-owned destinations and a
+reusable `OodleWorkspace`, and `SlotDataDecoder` adopts both. The old 10.46 MB
+follow-up predates the shared codec changes and this adoption; current 14-stream
+codec allocation is about **0.63 MB**, excluding aggregate/parser allocations
+(see [PERFORMANCE.md](PERFORMANCE.md)). SQLite is not part of this format.
+Open decodes each chunk once; queries/plans do not decompress or parse again,
+and the serialization cache retains full first-changed-output validation and
+isolated output copies. No codec/SDK change is requested for this resolved item.
 
 
 ## Asset round results (2026-10-29)
@@ -495,14 +468,13 @@ cache retains full first-changed-output validation and isolated output copies.
 - Nine Shok guide costs are reference-only. Their authored `reference/shok/...` keys cannot replace native skill IDs. The saved three empty skill collections retain Unknown state and no prerequisite edges. Other branches contain source ambiguities and were not imported. Full exact localized skill text and build-matched limits remain unavailable.
 - **No map backgrounds**: the evidence view lists 262 saved levels without coordinates or a supported transform. It keeps the text/external-guide fallback; art cannot establish marker positions.
 
-First-load diagnostic, Release .NET 10, largest/sole unique 126,214-byte sample, three alternating fresh-process runs before/after; no timing assertions or speedup claim. The before project was reconstructed from the original tracked plugin in a temporary folder, using the same SDK/Core/codec dependencies. The stopwatch covers `ReferencePackStore` construction/pinning, plugin Open, BuildView and the first complete 90-slot inventory query; current-thread allocations use `GC.GetAllocatedBytesForCurrentThread`. Sample loading happens before the stopwatch. Medians:
+Historical first-load asset diagnostics predate the codec changes and are
+retained in [PERFORMANCE.md](PERFORMANCE.md#historical-asset-first-load-diagnostics-2026-10-29).
+They do not describe current Open allocation. The reference guide still loads
+rows lazily, and asset hashes, attribution, live replacement/undo, reference-only
+joins, Amount bounds and missing-pack fallbacks remain covered by tests.
 
-- Cold pack + Open + view + inventory: **274.94 ms / 37,834,744 allocated bytes before**, **250.69 ms / 40,119,880 bytes after**.
-- Reusing the pinned pack, Open + view + inventory: **113.33 ms / 36,987,624 bytes before**, **97.75 ms / 37,079,032 bytes after**.
-
-Timings vary with JIT and scheduling. The new cold allocation cost is about 2.29 MB; repeat-open overhead is about 91 KB. The reference guide does not materialize rows until expanded. Hash/type/rights resolution, duplicate rejection, live icon replacement/undo, reference-only joins, unchanged Amount bounds, byte-identical no-op/undo, unknown spatial state and missing-pack fallbacks are covered by tests.
-
-Validation: **66 passed, 0 failed, 0 skipped**, with `SAVETOOLKIT_ARTIFACTS=C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts` exported in the same test command. Full API build: **0 warnings, 0 errors**. Image audit verifies 23 unique 64x64 WebP files and every manifest hash. All handwritten C# files stay below 300 lines. All changed repository files are under `plugins/AtomicHeart`.
+Historical asset-round validation (2026-10-29): **66 passed, 0 failed, 0 skipped**, with `SAVETOOLKIT_ARTIFACTS=C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts` exported in the same test command. Full API build: **0 warnings, 0 errors**. Image audit verifies 23 unique 64x64 WebP files and every manifest hash. All handwritten C# files stay below 300 lines. All changed repository files are under `plugins/AtomicHeart`.
 
 ## Licence exclusions
 

@@ -1,7 +1,15 @@
-# Atomic Heart evidence, 2026-10-28
+# Atomic Heart evidence, updated 2026-10-29
 
-Current branch: `plugin/atomicheart-completion` (preceded by roadmap and write rounds). Scope: PPSA10695 only, observed engine 4.27.2,
+Checked against implementation `72cd997` after the roadmap, write, completion,
+asset, F12/F13/F14 and review rounds. Scope: PPSA10695 only, observed engine 4.27.2,
 package 522. Patch/region/DLC and known in-game counts are unknown.
+
+Current documentation-audit validation (2026-10-29): **214 passed, 0 failed,
+0 skipped** with private samples in Release; API Release build with
+`--warnaserror`: **0 warnings/errors**; documentation checks: **14 passed**.
+Earlier round counts below are historical. Current codec batch allocation is
+about **0.63 MB**, measured after caller-owned workspace adoption; measurement
+scope and historical diagnostics are in [PERFORMANCE.md](PERFORMANCE.md).
 
 ## Corpus and F1
 
@@ -36,6 +44,10 @@ implementation: 13 × 131,072 + 47,455 = 1,751,391 bytes. The inner array prefix
 1,751,387, exactly the remaining decoded length. Frame duplicate lengths, exact
 codec input/output consumption, aggregate size and the outer SHA-1 are checked.
 
+One disposable `OodleWorkspace` is reused across all streams in a decode batch.
+Each stream writes directly into its exact slice of the bounded aggregate;
+there is no separate per-stream decoded result to copy into it.
+
 Root UObject tags occupy the beginning at offset 4; `None` begins at `0x8B`,
 followed by a zero int32. Manual records begin at `0x98`. Five subsystem records
 end at `0x129B`; the main level has 70 actors. The sublevel count at `0x11D65`
@@ -66,7 +78,9 @@ No scratch program, decoded dump or private sample was added to the repository.
   bounded indexes, F8 search, span/opaque inspection and F1 corpus evidence done.
   Independent codec agreement remains an open acceptance item.
 - Phase 2 partial: explicit serialized inventory fields, exact asset joins, unknown
-  retention and an attributed 45-entry F2 public-label pack. Controlled gameplay
+  retention and an attributed 48-entry F2 item pack (45 weapon/ammunition pairs
+  plus three screenshot-based resource/consumable joins). Separate 8-entry guide
+  and 9-entry Shok catalogues have no native save joins. Controlled gameplay
   observations and wider build/NG+/DLC coverage remain open.
 - F4 integration: existing populated references now accept same-category catalog
   assets whose unambiguous full paths occur in the input. Unmapped/empty references
@@ -82,7 +96,7 @@ No scratch program, decoded dump or private sample was added to the repository.
   be reconstructed. No writes are held off merely for missing owner evidence.
   No PS5 acceptance claim or Stable promotion.
 
-Validation: **46 tests passed, 0 failed, 0 skipped**, with SAVETOOLKIT_ARTIFACTS set
+Historical write-round validation (2026-10-28): **46 tests passed, 0 failed, 0 skipped**, with SAVETOOLKIT_ARTIFACTS set
 in the test command. API build passed with 0 warnings and 0 errors. The suite
 includes complete lazy traversal, catalog hashes/attribution, malformed inner
 counts and lengths with valid SHA-1, synthetic truncations, 500 seeded inner
@@ -118,16 +132,23 @@ the save because PS5 stored-block acceptance and inner integrity are unproven.
 See [README.md](README.md) for the exact owner capture/console checklist, source
 attribution, format safety limits and remaining SDK/evidence requests.
 
-## Completion round
+## Completion evidence, updated 2026-10-29
 
 - F8 inventory queries cover all 90 slots before paging, search current catalog
   names/IDs/categories and numeric values, filter exactly, sort Amount/ItemId
   numerically and retain stable keys. An authored 450-slot model verifies paging
   and a match beyond the first 200 rows. F6 #27 session tests resolve unloaded
   matching rows, honor exclusions, preserve empty selections and undo/redo as one
-  group. The original bounded lazy inspection path remains for F1 until #32.
-- F2's catalog is now 45 public label pairs (37 weapons, 8 ammunition), retaining
-  the same pinned GPL source/credits. F3 detail cells expose raw IDs, provenance,
+  group. The inventory uses a single F8 table; its duplicate eager/lazy inventory
+  pages were removed by F14. F1's shared `PluginViewDecoder` traverses F8 and
+  explicitly includes empty rows. The SDK-only F12 hook
+  `atomic-heart.saveextension-v1` emits parsed scalar tag paths; native/opaque
+  payloads remain byte-level evidence. F13's read-only catalogue inspection uses
+  the shared `ReferenceInspection` helpers and supports browse-only pickers and
+  category/key/name ordering. No timer field needs a duration hint.
+- F2's current 48-entry item catalog retains the 45 public label pairs
+  (37 weapons, 8 ammunition) and their pinned GPL source/credits, with three
+  screenshot-based joins added in the asset round. F3 detail cells expose raw IDs, provenance,
   descriptions and bytes. Unmapped labels/categories are explicitly identifier
   formatting/container/path inference. No private ID dictionary is embedded.
   F4 read-only record fields annotate exact catalog-matched item/blueprint IDs.
@@ -148,16 +169,16 @@ attribution, format safety limits and remaining SDK/evidence requests.
   output reparses outer integrity and returns a fresh buffer. No-op/complete undo
   reuse the original Open-validated decode and remain byte-identical. Cache tests
   cover returned-buffer damage, changed Amount/reference, complete undo and redo.
-- Diagnostic only, one run on the sole unique sample: first changed export about
-  135.7 ms / 29.1 MB allocated; ten repeated validated exports about 0.57 ms / 0.50 MB
-  per export. Test assertions/returned-buffer copies are included; no flaky timing
-  thresholds are enforced and this is not a cross-machine benchmark.
+- Historical export diagnostics predate the codec changes. Their measurements
+  and the current reusable-workspace allocation check are separated in
+  [PERFORMANCE.md](PERFORMANCE.md); no elapsed-time regression threshold is used.
 
-Final completion validation: **59 passed, 0 failed, 0 skipped**, with the artifacts
+Historical completion validation (2026-10-29): **59 passed, 0 failed, 0 skipped**, with the artifacts
 environment variable exported in the same command. Full API build: **0 warnings,
 0 errors**. No file outside `plugins/AtomicHeart` changed. See README's complete
-AH-R1–R19 audit and F1–F13 adoption table; missing owner evidence remains #31 and
-unavailable F12/F13 remain pending framework issues #32/#33.
+AH-R1–R19 audit and F1–F14 adoption table; missing owner evidence remains #31.
+F12/F13 are now used, not pending framework adoption. F14 retains all 90 sample
+slot identities while hiding 79 confirmed `None`/zero vacancies by default.
 
 
 ## Asset round (2026-10-29)
@@ -185,7 +206,7 @@ Pack audit: 23 unique 64x64 WebP icons, exactly 12,624 bytes. Every hash and MIM
 signature validates; all 23 record asset IDs resolve. Attribution is in sidecars,
 manifest, README, PluginInfo and visible record/Sources metadata. Image processing
 occurred outside the repository with isolated Python; no downloaded code executed.
-Sample-backed suite: 66 passed, 0 failed, 0 skipped. API build: 0 warnings/errors.
-README records three-run median first-load and pinned-load diagnostics, including
-allocations and measurement scope; timing is diagnostic only. No console/Stable
+Historical asset-round suite (2026-10-29): 66 passed, 0 failed, 0 skipped. API build: 0 warnings/errors.
+PERFORMANCE.md records historical three-run median first-load and pinned-load
+diagnostics, including allocation scope; they predate codec adoption. No console/Stable
 claim, new cap, prerequisite, native mapping or writer is implied.
