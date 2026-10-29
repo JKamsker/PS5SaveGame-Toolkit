@@ -25,8 +25,10 @@ internal sealed class ObservedFeatures
     public IReadOnlyList<GwentCopies> CopyEdits { get; } = [];
     public IReadOnlyList<string> Warnings { get; }
     private AbilityCollections AbilityTables => new(Abilities, _abilities, SkillEdits, AbilityRow);
-    public IReadOnlyList<QueryableCollection> Collections => AbilityTables.Collections;
-    public QueryableCollectionPage Query(string id, QueryableCollectionQuery query) => AbilityTables.Query(id, query);
+    private GwentCollection GwentTable => new(Cards ?? [], _gwent, GwentRow);
+    public IReadOnlyList<QueryableCollection> Collections => [.. AbilityTables.Collections, .. (Cards is null ? Array.Empty<QueryableCollection>() : [GwentTable.Collection])];
+    public QueryableCollectionPage Query(string id, QueryableCollectionQuery query) => id == GwentCollection.CollectionId
+        ? GwentTable.Query(query) : AbilityTables.Query(id, query);
 
     public ObservedFeatures(PlayerData? player, Sav3Tree tree, byte[] data, IReadOnlyList<string> names,
         IReferenceCatalog? abilities = null, IReferenceCatalog? gwent = null, WriteFields? writeFields = null,
@@ -67,15 +69,16 @@ internal sealed class ObservedFeatures
         new TextNode("Experimental non-core skill ranks and existing Gwent counts are editable. Core skills with level 1 are not purchased skills. " +
             "Default/sentinel records are retained. Reference icons and historical wiki-transcribed tooltips are optional; exact PS5 effects remain unverified."),
         new TextNode(WriteFields.SkillWarning + " " + WriteFields.GwentWarning) { Tone = Tone.Warning },
+        new TextNode(AbilitySlots.Source),
         .. Warnings.Select(w => new TextNode(w) { Tone = Tone.Warning }),
         SectionNode.Lazy("Skill definition graph", "ability-graph/skills"),
         SectionNode.Lazy("Mutation prerequisite graph", "ability-graph/mutations"),
         .. AbilityTables.Build(),
         .. Abilities.SelectMany(a => Enumerable.Range(0, Math.Max(1, (a.Entries.Count + PageSize - 1) / PageSize))
-            .Select(page => SectionNode.Lazy($"{a.Name}: linked details {page + 1}", $"ability/{a.Name}/{page * PageSize}", a.Entries.Count.ToString()))),
+            .Select(page => SectionNode.Lazy($"{a.Name}: raw graph target details {page + 1}", $"ability/{a.Name}/{page * PageSize}"))),
         .. (Cards is null ? new ViewNode[] { new TextNode("No supported Gwent collection was decoded.") } : [
             new StatsNode([new Stat("Gwent indices", Cards.Count.ToString()), new Stat("Saved copies", Cards.Sum(c => (long)c.Copies).ToString())]),
-            SectionNode.Lazy("Gwent collection (native indices)", "gwent/0", Cards.Count.ToString()),
+            GwentTable.Build(),
             new TextNode("Collection pairs stop at SBSelectedDeckIndex. Catalog targets are community expectations, not legal limits or achievement guarantees. " +
                 "Not recorded does not prove a card is obtainable in this build. Deck contents remain separate."),
         ]),
@@ -91,20 +94,9 @@ internal sealed class ObservedFeatures
         if (parts.Length == 3 && parts[0] == "ability" && int.TryParse(parts[2], out var start) &&
             Abilities.SingleOrDefault(a => a.Name == parts[1]) is { } array && start >= 0 && start <= array.Entries.Count)
         {
-            return [new TableNode([new("image", "Icon"), new("id", "Saved identity"), new("name", "Reference name"), new("rank", "Stored rank"), new("properties", "Input properties (read-only)")],
-                array.Entries.Skip(start).Take(PageSize).Select(entry => AbilityRow(array, entry)).ToArray()) { Title = array.Name }];
-        }
-
-        if (parts.Length == 2 && parts[0] == "gwent" && int.TryParse(parts[1], out start) && Cards is { } cards && start >= 0 && start <= cards.Count)
-        {
-            return [new TableNode([new("image", "Card art"), new("index", "Native card index"), new("name", "Reference name"), new("copies", "Saved copies"), new("kind", "Collection group")],
-                cards.Skip(start).Take(PageSize).Select(card => new TableRow(card.Index.ToString(), new Dictionary<string, ViewNode> {
-                    ["image"] = ReferenceImages.Cell(_gwent?.Find(card.Index.ToString(System.Globalization.CultureInfo.InvariantCulture)), _assetProvenance),
-                    ["index"] = new TextNode(card.Index.ToString()), ["copies"] = _writeFields is null ? new TextNode(card.Copies.ToString()) :
-                        _writeFields.Copies(CopyEdits.Single(c => c.Card.Index == card.Index)),
-                    ["name"] = ReferenceCell(_gwent?.Find(card.Index.ToString(System.Globalization.CultureInfo.InvariantCulture)), card.Index.ToString()),
-                    ["kind"] = new TextNode(card.Leader ? "Leader collection" : "Ordinary collection"),
-                })).ToArray()), .. Next("gwent", start, cards.Count)];
+            // Separate raw field groups keep F9 navigation independent of which F8 rows have been loaded.
+            return array.Entries.Skip(start).Take(PageSize).Select(entry => (ViewNode)new SectionNode(entry.Id,
+                AbilityRow(array, entry).Cells.Values.ToArray()) { Collapsed = true }).ToArray();
         }
 
         throw new KeyNotFoundException($"Unknown feature page '{lazyId}'.");
@@ -131,10 +123,18 @@ internal sealed class ObservedFeatures
     private TableRow AbilityRow(AbilityArray array, AbilityEntry entry) => new(entry.Id, new Dictionary<string, ViewNode> {
         ["image"] = ReferenceImages.Cell(_abilities?.Find(entry.Id), _assetProvenance),
         ["id"] = _writeFields is null ? new TextNode(entry.Id) : _writeFields.Identity(array.Name, entry, _abilities?.Find(entry.Id)),
-        ["name"] = ReferenceCell(_abilities?.Find(entry.Id), entry.Id),
+        ["name"] = entry.IsEmpty ? new TextNode(AbilitySlots.EmptyLabel) : ReferenceCell(_abilities?.Find(entry.Id), entry.Id),
         ["rank"] = array.Name == "skills" && SkillEdits?.Find(entry.Id) is { } rank && _writeFields is not null
             ? _writeFields.Rank(rank) : new TextNode("Definition / read-only"),
         ["properties"] = new SectionNode("Encoded properties", entry.Record.Properties.Select(p => (ViewNode)new TextNode($"{p.Name}: {Value(p)}")).ToArray()) { Collapsed = true },
+    }) { IsEmpty = entry.IsEmpty };
+
+    private TableRow GwentRow(GwentCard card) => new(GwentCollection.Key(card), new Dictionary<string, ViewNode> {
+        ["image"] = ReferenceImages.Cell(_gwent?.Find(GwentCollection.Key(card)), _assetProvenance),
+        ["index"] = new TextNode(GwentCollection.Key(card)), ["copies"] = _writeFields is null ? new TextNode(card.Copies.ToString()) :
+            _writeFields.Copies(CopyEdits.Single(c => c.Card.Index == card.Index)),
+        ["name"] = ReferenceCell(_gwent?.Find(GwentCollection.Key(card)), GwentCollection.Key(card)),
+        ["kind"] = new TextNode(card.Leader ? "Leader collection" : "Ordinary collection"),
     });
 
     private string Value(TaggedProperty property)
@@ -149,7 +149,4 @@ internal sealed class ObservedFeatures
         return scalar is not null ? scalar.Value.ToString() :
             $"{property.Type}, {property.Value.Length} bytes, SHA-256 {Convert.ToHexString(SHA256.HashData(property.Value))}";
     }
-
-    private static IEnumerable<ViewNode> Next(string prefix, int start, int count) =>
-        start + PageSize < count ? [SectionNode.Lazy("Next records", $"{prefix}/{start + PageSize}")] : [];
 }

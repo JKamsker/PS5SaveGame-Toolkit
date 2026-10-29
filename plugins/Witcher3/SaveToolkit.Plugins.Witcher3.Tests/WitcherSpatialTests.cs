@@ -69,7 +69,7 @@ public sealed class WitcherSpatialTests
         _ = session.BuildView();
         var graph = Assert.IsType<GraphNode>(Assert.Single(session.Expand("ability-graph/skills")));
         var item = graph.Items.Single(i => i.Id == "S_Sword_s01");
-        foreach (var part in item.Target!.Path.Where(p => p.StartsWith("section:", StringComparison.Ordinal))) { _ = session.Expand(part[8..]); }
+        foreach (var part in item.Target!.Path.Where(p => p.StartsWith("section:ability/", StringComparison.Ordinal))) { _ = session.Expand(part[8..]); }
         var outcome = session.ApplyEdits([EnabledWriteFixture.Incoming(item.Target!.Id, FieldValue.Of(1))]);
         Assert.True(outcome.Ok);
         Assert.True(outcome.StructureChanged);
@@ -80,11 +80,11 @@ public sealed class WitcherSpatialTests
         Assert.Equal(GraphState.Unlocked, State());
         var queryable = (IQueryableDocument)document;
         var id = AbilityCollections.Prefix + "skills";
-        var last = queryable.Query(id, new() { Offset = 101, Limit = 1 });
+        var last = queryable.Query(id, new() { Offset = 95, Limit = 1 });
         var target = Assert.Single(last.Rows).Key;
         Assert.Equal(target, Assert.Single(queryable.Query(id, new() { Text = target }).Rows).Key);
         Assert.Empty(queryable.Query(id, new() { Offset = int.MaxValue }).Rows);
-        Assert.Equal(102, queryable.Query(id, new() { Limit = int.MaxValue }).Rows.Count);
+        Assert.Equal(96, queryable.Query(id, new() { Limit = int.MaxValue }).Rows.Count);
         Assert.Single(queryable.Query(id, new() { Filters = new Dictionary<string, string> { ["id"] = item.Id } }).Rows);
         Assert.Throws<ArgumentException>(() => queryable.Query(id, new() { SortColumn = "unsupported" }));
         Assert.Throws<ArgumentException>(() => queryable.Query(id, new() { Cursor = "unsupported" }));
@@ -181,8 +181,24 @@ public sealed class WitcherSpatialTests
     private static void Navigate(ISaveDocument document, ViewTarget target)
     {
         Assert.Equal(ViewTargetKind.Field, target.Kind);
-        foreach (var part in target.Path.Where(p => p.StartsWith("section:", StringComparison.Ordinal))) { _ = document.ExpandNode(part[8..]); }
-        _ = document.GetValue(target.Id);
+        var root = Assert.IsType<TabsNode>(document.BuildView());
+        IReadOnlyList<ViewNode> nodes = root.Tabs.Single(t => "tab:" + t.Title == target.Path[0]).Children;
+        foreach (var part in target.Path.Skip(1))
+        {
+            var key = part[(part.IndexOf(':') + 1)..];
+            if (part.StartsWith("section:", StringComparison.Ordinal))
+            {
+                var section = Assert.Single(nodes.OfType<SectionNode>(), s => s.LazyId == key || s.Title == key);
+                nodes = section.LazyId is { } lazy ? document.ExpandNode(lazy) : section.Children;
+            }
+            else
+            {
+                var row = Assert.Single(nodes.OfType<TableNode>().SelectMany(t => t.Rows), r => r.Key == key);
+                nodes = row.Cells.Values.ToArray();
+            }
+        }
+        var field = Assert.Single(nodes.OfType<FieldNode>(), f => f.ValueId == target.Id);
+        Assert.Equal(field.Value, document.GetValue(target.Id));
     }
 
     private static (Sav3Node Manager, List<Sav3Node> Nodes, byte[] Bytes) MapFixture(int count = 1)

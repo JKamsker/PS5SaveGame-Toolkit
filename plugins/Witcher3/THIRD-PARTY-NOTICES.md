@@ -40,6 +40,13 @@ Existing MIT parser notices remain in [W3SavegameEditor-LICENSE.txt](W3SavegameE
 [SaveConverter-LICENSE.txt](SaveConverter-LICENSE.txt). No game scripts, XML, original localization
 archives or letter/card flavor text are bundled. Game-script mirrors remain research-only.
 
+F14 socket occupancy research additionally used CD PROJEKT RED's `PlayerAbilityManager`, mirrored
+and modified by Lknechtli/BetterCombatEvolved at
+[a85e52c](https://github.com/Lknechtli/BetterCombatEvolved/blob/a85e52c3e3841863999b45afc2a0fd1f284a6bc0/Witcher3/content/scripts/game/gameplay/ability/PlayerAbilityManager.ws).
+Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29.
+No script code is copied; conservative occupancy tests were independently implemented and checked
+against PS5 bytes. [Research sidecar](SaveToolkit.Plugins.Witcher3/AbilitySlots.source.md).
+
 ## Publisher game artwork
 
 Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29.

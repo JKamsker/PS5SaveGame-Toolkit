@@ -33,7 +33,7 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
     public IReadOnlyList<QueryableCollection> Collections => [Inventory.Collection, .. Catalogs.Collections, .. World.Collections, Maps.Collection, .. Features.Collections];
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => collectionId == InventoryViews.CollectionId
         ? Inventory.Query(query) : Catalogs.HandlesCollection(collectionId) ? Catalogs.Query(collectionId, query)
-        : collectionId.StartsWith(AbilityCollections.Prefix, StringComparison.Ordinal) ? Features.Query(collectionId, query)
+        : collectionId == GwentCollection.CollectionId || collectionId.StartsWith(AbilityCollections.Prefix, StringComparison.Ordinal) ? Features.Query(collectionId, query)
         : collectionId == MapViews.CollectionId ? Maps.Query(query) : World.HandlesCollection(collectionId) ? World.Query(collectionId, query)
         : throw new KeyNotFoundException($"Unknown collection '{collectionId}'.");
     public override AssetContent? GetAsset(string assetId) => references.GetAsset(assetId);
@@ -103,7 +103,7 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
         if (lazyId.StartsWith(RegionalMapViews.Prefix, StringComparison.Ordinal) || lazyId.StartsWith("map-view/", StringComparison.Ordinal) ||
             lazyId.StartsWith("map-details/", StringComparison.Ordinal)) { return Maps.Expand(lazyId); }
         if (World.HandlesExpansion(lazyId)) { return World.Expand(lazyId); }
-        if (lazyId.StartsWith("ability/", StringComparison.Ordinal) || lazyId.StartsWith("ability-graph/", StringComparison.Ordinal) || lazyId.StartsWith("gwent/", StringComparison.Ordinal))
+        if (lazyId.StartsWith("ability/", StringComparison.Ordinal) || lazyId.StartsWith("ability-graph/", StringComparison.Ordinal))
         {
             return Features.Expand(lazyId);
         }
