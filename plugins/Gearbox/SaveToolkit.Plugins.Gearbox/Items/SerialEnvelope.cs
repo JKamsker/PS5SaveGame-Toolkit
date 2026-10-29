@@ -2,6 +2,7 @@
 // Copyright (c) 2020-2022 CJ Kucera, Abram Hindle. See Notices/*-COPYING.txt and README attribution.
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Binary;
 
 namespace SaveToolkit.Plugins.Gearbox;
 
@@ -11,8 +12,6 @@ internal sealed class SerialEnvelope
     public const int MaximumLength = 4096;
     private const ulong Multiplier = 0x10A860C1;
     private const ulong Modulus = 0xFFFFFFFB;
-    private const uint CrcPolynomial = 0xEDB88320;
-    private static readonly uint[] CrcTable = BuildCrcTable();
     private readonly byte[] _header;
     private readonly byte[] _plain;
     public int Version => _header[0];
@@ -45,26 +44,12 @@ internal sealed class SerialEnvelope
 
     private ushort Checksum()
     {
-        var crc = uint.MaxValue;
-        foreach (var b in _header) crc = Update(crc, b);
-        crc = Update(Update(crc, byte.MaxValue), byte.MaxValue);
-        foreach (var b in _plain.AsSpan(2)) crc = Update(crc, b);
-        crc = ~crc;
-        return (ushort)((crc >> 16) ^ crc);
-    }
-
-    private static uint Update(uint crc, byte value) => (crc >> 8) ^ CrcTable[(crc ^ value) & byte.MaxValue];
-
-    private static uint[] BuildCrcTable()
-    {
-        var table = new uint[256];
-        for (var i = 0; i < table.Length; i++)
-        {
-            var crc = (uint)i;
-            for (var bit = 0; bit < 8; bit++) crc = (crc >> 1) ^ ((crc & 1) != 0 ? CrcPolynomial : 0);
-            table[i] = crc;
-        }
-        return table;
+        var crc = new Crc32Ieee();
+        crc.Append(_header);
+        crc.Append([byte.MaxValue, byte.MaxValue]); // Stored checksum bytes are covered as FF FF.
+        crc.Append(_plain.AsSpan(2));
+        var hash = crc.GetCurrentHash();
+        return (ushort)((hash >> 16) ^ hash);
     }
 
     public byte[] EncodeOriginalSeed()
