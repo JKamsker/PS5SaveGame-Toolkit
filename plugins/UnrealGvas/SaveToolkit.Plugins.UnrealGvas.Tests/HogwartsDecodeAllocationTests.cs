@@ -3,9 +3,11 @@ using SaveToolkit.Codecs;
 using SaveToolkit.Codecs.Sqlite;
 using SaveToolkit.Plugins.UnrealGvas.Hogwarts;
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.UnrealGvas.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class HogwartsDecodeAllocationTests
 {
     [Fact]
@@ -20,11 +22,9 @@ public sealed class HogwartsDecodeAllocationTests
         byte[] image = source.Serialize();
         byte[] frames = HogwartsImage.EncodeStored(image);
         _ = HogwartsImage.Decode(frames); // Exclude one-time codec initialization.
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        byte[] decoded = HogwartsImage.Decode(frames);
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => HogwartsImage.Decode(frames), out var decoded);
         // Codec input, padded output, returned chunk and final image, plus bounded per-frame overhead.
-        Assert.True(allocated < 5L * image.Length, $"Allocated {allocated:N0} bytes for a {image.Length:N0}-byte image.");
+        allocated.AssertLessThan(5L * image.Length, $"Allocated {allocated.MinimumBytes:N0} bytes for a {image.Length:N0}-byte image.");
         Assert.Equal(image, decoded);
     }
 
@@ -37,10 +37,11 @@ public sealed class HogwartsDecodeAllocationTests
         int nextFrame = HogwartsImage.FrameBytes + checked((int)BinaryPrimitives.ReadUInt64LittleEndian(frames.AsSpan(16)));
         BinaryPrimitives.WriteUInt64LittleEndian(frames.AsSpan(nextFrame), ulong.MaxValue);
         Assert.Throws<SaveFormatException>(() => HogwartsImage.Decode([])); // Warm exception path.
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        Assert.Throws<SaveFormatException>(() => HogwartsImage.Decode(frames));
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.True(allocated < HogwartsImage.ChunkBytes, $"Allocated {allocated:N0} bytes before rejecting frame declarations.");
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            Assert.Throws<SaveFormatException>(() => HogwartsImage.Decode(frames));
+        });
+        allocated.AssertLessThan(HogwartsImage.ChunkBytes, $"Allocated {allocated.MinimumBytes:N0} bytes before rejecting frame declarations.");
     }
 
     [Theory]

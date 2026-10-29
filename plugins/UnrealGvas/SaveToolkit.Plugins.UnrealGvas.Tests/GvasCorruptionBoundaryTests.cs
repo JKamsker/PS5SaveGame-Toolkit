@@ -5,6 +5,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.UnrealGvas.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class GvasCorruptionBoundaryTests
 {
     [Fact]
@@ -28,10 +29,9 @@ public sealed class GvasCorruptionBoundaryTests
         int countOffset = bytes.AsSpan().IndexOf("++Test\0"u8) + "++Test\0"u8.Length + FormatBytes;
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(countOffset), count);
         _ = Assert.Throws<SaveFormatException>(() => GvasFile.Parse(bytes)); // Warm exception/JIT paths.
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        var error = Assert.Throws<SaveFormatException>(() => GvasFile.Parse(bytes));
         const int RejectionAllocationBudget = 64 * 1024;
-        Assert.True(GC.GetAllocatedBytesForCurrentThread() - before < RejectionAllocationBudget);
+        var allocated = AllocationProbe.Measure(() => Assert.Throws<SaveFormatException>(() => GvasFile.Parse(bytes)), out var error);
+        allocated.AssertLessThan(RejectionAllocationBudget);
         Assert.Contains(count == GvasFile.MaxNodes ? "Truncated GVAS custom versions" : "Invalid GVAS count", error.Message);
         Assert.False(new UnrealGvasPlugin().Probe(MemorySaveSet.SingleFile("save", bytes)).IsMatch);
     }

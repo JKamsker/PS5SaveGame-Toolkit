@@ -1,8 +1,10 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class LsfAllocationTests
 {
     private const int AttributeCount = 10_000;
@@ -13,16 +15,12 @@ public sealed class LsfAllocationTests
     {
         var attribute = new ResourceAttribute("Counter", LarianAttributeType.Int, new byte[sizeof(int)]);
         AttributeDecoder.Validate(attribute);
-        // Minimum of three runs, bounded below one byte per call: a per-call message would cost at least
-        // 24 bytes per validation, while tiered-JIT/OSR transitions add a few KB to a single run.
-        var allocated = long.MaxValue;
-        for (var run = 0; run < 3; run++)
+        var allocated = AllocationProbe.Measure(() =>
         {
-            var before = GC.GetAllocatedBytesForCurrentThread();
             for (var index = 0; index < AttributeCount; index++) AttributeDecoder.Validate(attribute);
-            allocated = Math.Min(allocated, GC.GetAllocatedBytesForCurrentThread() - before);
-        }
-        Assert.True(allocated < AttributeCount, $"Successful validation allocated {allocated:N0} diagnostic bytes.");
+        });
+        // Stay below one byte per validation: a diagnostic string costs at least 24 bytes per call.
+        allocated.AssertLessThan(AttributeCount, $"Successful validation allocated {allocated.MinimumBytes:N0} diagnostic bytes.");
     }
 
     [Fact]
@@ -36,13 +34,10 @@ public sealed class LsfAllocationTests
         var values = new byte[AttributeCount * sizeof(int)];
         var names = new Dictionary<uint, string> { [0] = "Counter" };
         _ = LsfTables.Read(names, nodes, attributes, values, [], false);
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        var model = LsfTables.Read(names, nodes, attributes, values, [], false);
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
+        var allocated = AllocationProbe.Measure(() => LsfTables.Read(names, nodes, attributes, values, [], false), out var model);
         Assert.Equal(AttributeCount, model.Attributes.Count);
         Assert.Equal(AttributeCount, model.Nodes[0].Attributes.Count);
-        Assert.True(allocated < AttributeCount * MaximumBytesPerAttribute,
-            $"Parsing allocated {allocated:N0} bytes; valid attributes must not format error messages.");
+        allocated.AssertLessThan(AttributeCount * MaximumBytesPerAttribute, $"Parsing allocated {allocated.MinimumBytes:N0} bytes; valid attributes must not format error messages.");
     }
 
     [Fact]

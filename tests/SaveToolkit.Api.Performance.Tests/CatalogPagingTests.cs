@@ -1,9 +1,11 @@
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Tests.References;
 using SaveToolkit.Sdk.References;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Api.Performance.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class CatalogPagingTests
 {
     private const long WarmPageAllocationLimit = 32 * 1024;
@@ -18,14 +20,12 @@ public sealed class CatalogPagingTests
         var query = new ReferenceQuery { SortBy = ReferenceSortKey.Name, Offset = 12_000 };
         _ = catalog.Search(query);
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = catalog.Search(query);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => catalog.Search(query), out var page);
 
         Assert.Equal(count, page.Total);
         Assert.Equal(ReferenceQuery.DefaultLimit, page.Items.Count);
         Assert.Equal("012999", page.Items[0].Key);
-        Assert.True(allocated < WarmPageAllocationLimit, $"Warm catalog page allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(WarmPageAllocationLimit, $"Warm catalog page allocated {allocated.MinimumBytes:N0} bytes.");
     }
 
     [Theory]

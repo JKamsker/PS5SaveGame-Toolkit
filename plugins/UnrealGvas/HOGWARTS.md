@@ -41,6 +41,10 @@ enables cells; capacities, curve parameters, perks and rewards are not semantic
 editing features.
 Collection and mission flags retain raw state values. A row is not reported as a
 completed or rewarded objective merely because its name or flag resembles one.
+The [2026-10-29 talent / Field Guide investigation](HOGWARTS-FIELD-DISCOVERY.md)
+adds read-only Inferred bindings for points, perks, collection cells, page/map
+flags and FGC challenge cells. `PerkPoints` and `PageCollected*` DataValue rows
+are excluded from generic editing; conflicting collection tuples are preserved.
 
 F4 fields use the F2 catalog only when the raw ID **and** catalog table/column
 qualifiers match. Every resolved field has attribution and Inferred confidence;
@@ -107,6 +111,8 @@ Existing integer, real and text cells are writable only in `MiscDataDynamic`,
 `InventoryDynamic`, `GearItemsDynamic`, `EquippedGearDynamic` and `PlayerStatsDynamic`.
 Column names must contain `Count`, `Quantity`, `Knuts`, `Experience` or `Level`
 (case-insensitive), or equal `XP`, `Value`, `State`, `Status` or `DataValue`.
+Exception: `MiscDataDynamic` rows named `PerkPoints` or starting `PageCollected`
+remain read-only for every owner and value type, including without reference packs.
 An existing text value must have at most 256 UTF-16 units to expose a binding;
 the edit spec then allows up to 1,048,576 units, subject to shared SQLite bounds.
 These fields carry Inferred confidence and a console/integrity warning. Identity

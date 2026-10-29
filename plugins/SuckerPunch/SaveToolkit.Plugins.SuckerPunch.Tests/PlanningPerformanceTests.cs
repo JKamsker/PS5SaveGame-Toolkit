@@ -1,8 +1,10 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 using static SaveToolkit.Plugins.SuckerPunch.Tests.QuantityPlanningTestData;
 
 namespace SaveToolkit.Plugins.SuckerPunch.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class PlanningPerformanceTests
 {
     private const long MaximumPreviewAllocation = 32 * 1024;
@@ -20,13 +22,11 @@ public sealed class PlanningPerformanceTests
         foreach (var scope in scopes)
         {
             for (var i = 0; i < 5; i++) _ = planner.PlanAction(save.ActionId, parameters, scope);
-            var before = GC.GetAllocatedBytesForCurrentThread();
-            var plan = planner.PlanAction(save.ActionId, parameters, scope);
-            var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            var allocated = AllocationProbe.Measure(() => planner.PlanAction(save.ActionId, parameters, scope), out var plan);
             Assert.Empty(plan.Errors);
             if (scope.RowKeys is null) Assert.NotEmpty(plan.Changes);
             else Assert.Empty(plan.Changes);
-            Assert.True(allocated < MaximumPreviewAllocation, $"Preview allocated {allocated:N0} bytes.");
+            allocated.AssertLessThan(MaximumPreviewAllocation, $"Preview allocated {allocated.MinimumBytes:N0} bytes.");
         }
         Assert.Equal(save.Bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }

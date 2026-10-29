@@ -2,9 +2,11 @@ using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.AstroPlayroom.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AstroQueryPerformanceTests
 {
     private const string Collection = "astro.collectibles";
@@ -19,7 +21,7 @@ public sealed class AstroQueryPerformanceTests
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
         var query = new QueryableCollectionQuery { Text = "nonexistentneedle", Limit = 20 };
         var allocated = AstroPerformanceData.Allocated(() => _ = queryable.Query(Collection, query));
-        Assert.InRange(allocated, 0, 80_000);
+        allocated.AssertInRange(0, 80_000);
         Assert.Empty(queryable.Query(Collection, query).Rows);
     }
 
@@ -33,7 +35,7 @@ public sealed class AstroQueryPerformanceTests
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
         var query = new QueryableCollectionQuery { Text = "nonexistentneedle", Limit = 1 };
         var allocated = AstroPerformanceData.Allocated(() => _ = queryable.Query(Collection, query));
-        Assert.InRange(allocated, 0, 450_000);
+        allocated.AssertInRange(0, 450_000);
         Assert.Equal(1500, queryable.Query(Collection, query).TotalCount);
         Assert.Empty(queryable.Query(Collection, query).Rows);
     }

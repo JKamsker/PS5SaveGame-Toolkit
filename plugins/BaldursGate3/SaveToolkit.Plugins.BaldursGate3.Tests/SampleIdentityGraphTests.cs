@@ -46,7 +46,8 @@ public sealed class SampleIdentityGraphTests
         Assert.Equal(638, inventory.Entries.Count);
         Assert.Equal(2, inventory.Entries.Count(entry => entry.OwnerBodyEntityRow is not null));
         Assert.All(inventory.Entries, entry => Assert.False(string.IsNullOrWhiteSpace(entry.Path)));
-        Assert.Empty(inventory.Gold);
+        Assert.Equal(4, inventory.Gold.Count);
+        Assert.All(inventory.Gold, candidate => Assert.Null(candidate.OwnerBodyEntityRow));
         Assert.Contains(inventory.Diagnostics, message => message.Contains("Gold", StringComparison.Ordinal));
     }
 }

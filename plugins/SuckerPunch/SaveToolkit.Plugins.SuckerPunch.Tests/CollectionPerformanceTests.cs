@@ -2,9 +2,11 @@ using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.SuckerPunch.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class CollectionPerformanceTests
 {
     private const long MaximumCachedPageAllocation = 12 * 1024;
@@ -23,12 +25,10 @@ public sealed class CollectionPerformanceTests
             _ = data.Query(query);
             var next = query with { Offset = 10 };
             _ = data.Query(next);
-            var before = GC.GetAllocatedBytesForCurrentThread();
-            var page = data.Query(next);
-            var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            var allocated = AllocationProbe.Measure(() => data.Query(next), out var page);
             Assert.Single(page.Rows);
             Assert.Equal(data.Rows.Count, page.FilteredCount);
-            Assert.True(allocated < MaximumCachedPageAllocation, $"{column} page allocated {allocated:N0} bytes.");
+            allocated.AssertLessThan(MaximumCachedPageAllocation, $"{column} page allocated {allocated.MinimumBytes:N0} bytes.");
         }
         Assert.Equal(data.Original, Assert.Single(data.Document.Serialize()).Content.ToArray());
     }

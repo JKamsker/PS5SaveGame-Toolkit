@@ -77,7 +77,7 @@ in the XorJson README. Git history retains the earlier register.
 | --- | --- | --- | --- | --- | --- | --- |
 | AstroPlayroom | 2 | 0 | 2 | 0 | 0 | 2 |
 | AtomicHeart | 2 | 1 | 1 | 2 | 0 | 3 |
-| BaldursGate3 | 2 | 1 | 2 | 1 | 0 | 3 |
+| BaldursGate3 | 3 | 1 | 2 | 2 | 0 | 4 |
 | Cyberpunk2077 | 3 | 0 | 3 | 0 | 0 | 3 |
 | EldenRing | 3 | 4 | 4 | 1 | 2 | 7 |
 | FinalFantasy16 | 3 | 0 | 2 | 0 | 1 | 3 |
@@ -92,7 +92,7 @@ in the XorJson README. Git history retains the earlier register.
 | UnrealGvas | 9 | 0 | 3 | 0 | 6 | 9 |
 | Witcher3 | 5 | 0 | 3 | 1 | 1 | 5 |
 | XorJson | 3 | 0 | 2 | 0 | 1 | 3 |
-| **Total** | 64 | 26 | 49 | 5 | 36 | 90 |
+| **Total** | 65 | 26 | 49 | 6 | 36 | 91 |
 
 ## README exclusion decisions
 
@@ -104,6 +104,7 @@ in the XorJson README. Git history retains the earlier register.
 | AtomicHeart | [Wiki skills](https://atomicheart.fandom.com/wiki/Skills), unpinned, checked 2026-10-29 | Previously recorded CC BY-NC-SA; version not recorded; fetch still inaccessible (402/403) | Still refused | NC wiki text/cost/prerequisite dataset remains excluded. | Attributed GameRiv Shok subset in a separate reference guide; saved graph states remain Unknown. | Compatible wiki terms and build-matched skill/native ID mapping. |
 | BaldursGate3 | [bg3.wiki copyright policy and legacy contributions](https://bg3.wiki/wiki/bg3wiki:Copyrights), retrieved 2026-10-28 | CC BY-NC-SA (legacy expressive contributions) | Still refused | Non-commercial terms remain a refusal for legacy wiki editorial prose; this is separate from directly attributed Larian game assets. | Used attributed CC BY-SA label facts and technical mappings plus separately attributed Larian icons/game-text excerpts; kept legacy wiki editorial content out of the pack. | A source-specific CC BY/CC BY-SA or other compatible relicensing grant covering the exact material. |
 | BaldursGate3 | Larian Studios Baldur's Gate 3 art, icons and extracted game text, exact source/file revisions in assets.source.md | Rights reserved by Larian Studios; used with attribution per owner decision 2026-10-29 | Imported | **Resolved: imported (owner decision 2026-10-29).** | 51 compact icons and 39 distinct game-description excerpts embedded with attribution. | No remaining publisher-asset policy blocker for this import. |
+| BaldursGate3 | [Norbyte/bg3se, 60fb4caf99c08de604abac26e07af13a2e0a028d](https://github.com/Norbyte/bg3se/tree/60fb4caf99c08de604abac26e07af13a2e0a028d), accessed 2026-10-29 | [MIT License + “Commons Clause” License Condition v1.0](https://github.com/Norbyte/bg3se/blob/60fb4caf99c08de604abac26e07af13a2e0a028d/LICENSE) | Still refused | No-sale restriction; component-definition code reuse excluded under rule 9's commercial-use restriction policy. This is not plain MIT. | Read for facts only; independently measured PS5 storage and used existing plugin primitives. No bg3se code or implementation copied, ported or executed. | Compatible source-specific grant or a revision without the restrictive condition. Mirrored in the central register. |
 | Cyberpunk2077 | [Piggyback Night City](https://maps.piggyback.com/cyberpunk-2077/maps/night-city), 49 public zoom-3 tile hashes pinned, 2026-10-29 | Rights reserved by Piggyback / CDPR; used with attribution per owner decision 2026-10-29 | Imported | **Resolved: imported (owner decision 2026-10-29)**, background art | Unpositioned marker list; positions remain omitted because a save-ID/geographic crosswalk is unverified. | No licence blocker remains. Positioning needs a verified save-ID/geographic crosswalk, independent of rights. |
 | Cyberpunk2077 | [CDPR planner](https://www.cyberpunk.net/en/build-planner), English chunk `8603-b6e6f72c476c734a52a4.js`, retrieved 2026-10-29 | Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29 | Imported | **Resolved: imported (owner decision 2026-10-29)**, official names/descriptions | Reference text and stored ranks; no invented prerequisite edges or gameplay rules. | No licence blocker remains. Build-matched prerequisites/costs/effects/entitlement remain evidence gaps. |
 | Cyberpunk2077 | Complete PS5 2.21 TweakDB/localization/icon exports, no complete matching source supplied | Missing data; publisher assets are usable under owner decision 2026-10-29 | Imported | Partial import completed: 146 item IDs, 193 perks, 16 icons; no rights refusal | Remaining identifiers keep raw/baseline names and explicit missing-art fallback. No speculative joins. | Supply complete build-matched exports and verify exact identifier joins; this is an evidence gap, not a licence refusal. |

@@ -135,8 +135,9 @@ For storage-only registration, use the protected
 calling the getter or creating a node; a missing setter makes the rendered field read-only.
 Structural changes and memento restores clear these bindings, so register them again against the
 current model. This does not publish host metadata or bypass host spec validation; direct plugin
-calls still own validation for unpublished IDs. See [SDK-02](SDK_REQUESTS.md#prioritized-inventory)
-for the remaining metadata/primary-alias contract.
+calls still own validation for unpublished IDs. Opt into the delivered
+[SDK-02 metadata/primary-alias contract](#field-metadata-without-rendering-a-page-sdk-02)
+to make registered fields discoverable by the host without rendering them.
 See `tests/SaveToolkit.Core.Tests/Fakes/CounterPlugin.cs` for the smallest complete example.
 `BoundSaveDocument.ApplyEdits` rollback includes setters that throw after changing their bound value, failed
 readbacks and failures while enumerating `DerivedChanges`. Setters must accept their previous value
@@ -183,10 +184,11 @@ does not bypass dependency checks, custom validation, or format-integrity repair
 Render a registered field later with `Field(id, label)`. Registered metadata takes precedence over
 view-learned metadata, and specs must agree in all properties, including nested options and hints;
 a conflict rejects indexing/preflight. Labels may differ across projections. Action parameter
-specs remain separate from document-field metadata. `FieldSpecMetadata.Snapshot` / `Agree` copy
-nested spec collections and compare their definitions while retaining executable `ReferenceSpec.Assess`
-policies; ordinary JSON round-tripping loses those callbacks. Keep eligibility delegates stable for
-the same model revision: callback equality is part of agreement and preview revalidation.
+specs remain separate from document-field metadata. `FieldSpecMetadata.Snapshot` copies nested
+spec collections while retaining executable `ReferenceSpec.Assess` policies; `FieldSpecMetadata.Agree`
+compares definitions and callbacks. Ordinary JSON round-tripping loses those callbacks. Keep
+eligibility delegates stable for the same model revision: callback equality is part of agreement
+and preview revalidation.
 
 Core validates unloaded edits and all F6 planned consequences with these specs, rejects missing or
 duplicate planned IDs and inconsistent primary/derived classification, and checks the old values.
@@ -346,11 +348,11 @@ does not silently insert defaults or infer gameplay-safe bounds.
 For example, nullable JSON scalars can use:
 
 ```csharp
-new NullableSpec(new UnionSpec([
+var scalarSpec = new NullableSpec(new UnionSpec([
     new UnionOption("number", "Number", new ExactNumberSpec()),
     new UnionOption("string", "String", new TextSpec { Multiline = true }),
     new UnionOption("boolean", "Boolean", new BoolSpec()),
-]))
+]));
 ```
 
 Union option ids must be stable and unique; incoming edits explicitly name one and are validated
@@ -383,7 +385,7 @@ Invalid/nonpositive rates fall back to raw display. Publish units only when supp
 Actions remain mutating by default. Opt into inspection explicitly:
 
 ```csharp
-new ActionNode("inspect-item", "Inspect item") { Mutates = false }
+var inspectAction = new ActionNode("inspect-item", "Inspect item") { Mutates = false };
 // InvokeAction returns new ActionOutcome { Message = "...", Warnings = [...] };
 ```
 
@@ -547,7 +549,8 @@ For XorJson, retain default query-row identities, set `TableCellScope = (scope, 
 and `ExpansionScope = (_, _) => "view"`, disable graph/marker ID prefixing, prepend group and role
 navigation sections without rewriting the original path, and preserve its collection metadata
 `ReadOnly = !document.CanEdit` override. Default scope localization replaces its local scope visitor.
-Both plugins remain unchanged until an explicit migration; see the plugin compatibility fixtures
+Gearbox and XorJson have adopted these policies; see their
+[adoption status](#sdk-0105-adoption-on-main), the plugin compatibility fixtures
 and composition/history tests under `tests/SaveToolkit.Core.Tests/SdkHelpers/DocumentMember*`.
 
 ## Structural edits (add / remove / reorder)
@@ -656,14 +659,12 @@ deliberately read-only at the collection boundary: returned rows still contain o
 `TextNode`, `ImageNode` and `ActionNode` cells, so the normal controls, validation and edit routing apply.
 
 ```csharp
-public sealed class InventoryDocument : BoundSaveDocument, IQueryableDocument
-{
-    public IReadOnlyList<QueryableCollection> Collections =>
-        [new("inventory", "Inventory", [new("id", "Id", IntegerSpec.UInt32), new("name", "Name", new TextSpec())], items.Count)];
+// Inside your concrete BoundSaveDocument, which also implements IQueryableDocument:
+public IReadOnlyList<QueryableCollection> Collections =>
+    [new("inventory", "Inventory", [new("id", "Id", IntegerSpec.UInt32), new("name", "Name", new TextSpec())], items.Count)];
 
-    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
-        BuildInventoryPage(collectionId, query); // filter and sort the complete model, then take the page
-}
+public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
+    BuildInventoryPage(collectionId, query); // filter and sort the complete model, then take the page
 ```
 
 Collection ids, column keys and row keys are opaque strings and must be stable for the document's
@@ -1102,7 +1103,8 @@ filters, sorting, paging, keyboard detail navigation, raw-ID preview and attribu
 available, but there is no selection/commit button and Enter cannot write. Closing restores
 focus to the field trigger; the saved raw ID remains unchanged.
 
-Per-document field-aware API (only previously published fields/parameters are queryable):
+Per-document field-aware API (document fields resolve from SDK-02 metadata or rendered views;
+action parameters must belong to a published action):
 
 - `GET .../reference-fields/candidates?valueId=...&q=...&category=...&sortBy=Name&descending=false&offset=0&limit=30&revision=0`
 - `GET .../reference-fields/record?valueId=...&rawId=...&revision=0`
@@ -1276,8 +1278,9 @@ startup policy of reporting rejected packs and continuing to load other packs.
 on the original loaded collection for each open, since pinning a filtered context only narrows it.
 `Catalog(id, gameBuild)` uses Core's build, locale (default `en`), version and ordinal pack-ID policy;
 pass `preferredLocales` to `Pin` for another locale order. Pack bytes/catalogs are shared between pins.
-Missing catalogs, records, assets and provenance return null. Host contexts retain ownership of Sources
-usage tracking; the embedded SDK context exposes attribution without host usage state.
+Missing catalogs, records, assets and provenance return null. Treat returned metadata, nested
+collections and asset buffers as read-only; shared pins do not deep-freeze them. Host contexts retain
+ownership of Sources usage tracking; the embedded SDK context exposes attribution without host usage state.
 
 The two-argument `Open` must keep the supplied context. Do not replace it merely because `Packs` is
 empty: custom contexts may supply catalogs without pack metadata. For existing per-record fallback
@@ -1299,12 +1302,21 @@ public ISaveDocument Open(ISaveFile file, IReferenceContext references)
     var items = references.Catalog("items", gameBuild: save.Build);
     return new MyDocument(save, items, references);
 }
+```
 
-// In the document:
+This variant intentionally uses an empty direct-open context; use the cached SDK-03 fallback
+above when standalone opens need embedded names or icons. In your concrete document's view method:
+
+```csharp
 var record = items?.Find(rawId.ToString(CultureInfo.InvariantCulture));
 var field = Field(id, record?.Name ?? $"Item {rawId}", IntegerSpec.UInt16 with { Max = record?.Limit ?? ushort.MaxValue }, get, set)
     with { Description = record?.AttributionText, Confidence = record is null ? Confidence.Unknown : Confidence.Verified };
 var icon = record?.AssetId is { } asset ? new ImageNode(asset, record.Name) : null;
+```
+
+In that document's asset override:
+
+```csharp
 public override AssetContent? GetAsset(string assetId) => references.GetAsset(assetId) ?? OwnAssets(assetId);
 ```
 
@@ -1324,8 +1336,9 @@ public override AssetContent? GetAsset(string assetId) => references.GetAsset(as
 - `ReferenceRecord.Dataset` resolves a record's provenance: the pack id, dataset and
   `ReferenceAttribution`. `AssetProvenance(assetId)` does the same for images.
 - Asset ids from records are pack-qualified (`packId:path`). Pass them through unchanged.
-- The context is immutable and safe to keep in the document. It records which datasets you resolved,
-  so the Sources panel lists exactly what the document uses.
+- Keep the pinned context in the document and treat its published data as read-only. The host context
+  tracks resolved datasets for the Sources panel; SDK-03's embedded context exposes attribution
+  without usage tracking. Custom `IReferenceContext` implementations own their synchronization policy.
 - Always handle `null`. Tests and direct opens may use an empty context, and users may have no pack.
 - If `Open(file)` forwards to `Open(file, IReferenceContext.Empty)`, you **must** implement the two-argument
   overload. Otherwise the default overload calls back into `Open(file)` and recurses forever.
@@ -1574,3 +1587,22 @@ SDK limitation precisely, link its issue, and update the row when resolved.
 Framework adoption is not a console-validation or full-roadmap completion claim. Keep confidence,
 write scope, unsupported dependencies and the linked owner checklist explicit. Add `## Licence exclusions`
 with the rule 9 columns for every licence refusal and keep the central register synchronized.
+
+### SDK-01–05 adoption on main
+
+SDK-01 is delivered host behavior: bounded F8 semantic review and revision-bound navigation,
+as described under [paged collections](#pagedqueryable-collections) and in the
+[review API](API.md#preview-and-semantic-review). SDK-02–05 are opt-in integrations.
+These migrations are already adopted on local `main`; the linked README adoption tables
+and adjacent SDK-request notes describe their retained plugin policies.
+
+| SDK | Plugin | Status | Integration |
+| --- | --- | --- | --- |
+| SDK-02 | [Pragmata](../plugins/Pragmata/README.md#framework-feature-adoption) | Used | Targeted `IFieldMetadataDocument` resolution; canonical quantity primaries and read-only derived aliases. |
+| SDK-03 | [FinalFantasy7](../plugins/FinalFantasy7/README.md#framework-feature-adoption) | Used | Cached title-pinned embedded decoder with build-scoped catalogs and host row overrides. |
+| SDK-03 | [FinalFantasy16](../plugins/FinalFantasy16/README.md#framework-feature-adoption) | Used | Cached assembly-wide fallback; published-item preference and host overrides. |
+| SDK-03 | [GodOfWarRagnarok](../plugins/GodOfWarRagnarok/README.md#framework-feature-adoption) | Used | Cached embedded decoder; bounded catalog reads and per-record evidence joins. |
+| SDK-04 | [Gearbox](../plugins/Gearbox/README.md#framework-feature-adoption) | Used | Shared member adapter/router with collection-qualified rows and local transactions. |
+| SDK-04 | [XorJson](../plugins/XorJson/README.md#framework-feature-adoption) | Used | Shared member adapter/router with existing eager-row/navigation policies. |
+| SDK-05 | [BaldursGate3](../plugins/BaldursGate3/README.md#framework-feature-adoption) | Used | `ReferenceViews.Icon` with `RequireProvenance`. |
+| SDK-05 | [TalesOfArise](../plugins/TalesOfArise/README.md#framework-feature-adoption) | Used | `ReferenceViews.Icon` with `AssetIdOnly`, exact alt text and em-dash fallback. |

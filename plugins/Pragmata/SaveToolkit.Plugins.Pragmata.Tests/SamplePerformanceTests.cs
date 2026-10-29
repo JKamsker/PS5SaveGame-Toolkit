@@ -1,8 +1,10 @@
 using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Pragmata.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class SamplePerformanceTests
 {
     [Fact]
@@ -14,12 +16,11 @@ public sealed class SamplePerformanceTests
         var bytes = file.ReadAllBytes();
         // Exclude shared resource loading, sample extraction and pinned pack construction.
         using (var warm = new PragmataDocument(file.RelativePath, bytes, references)) _ = warm.BuildView();
-        var start = GC.GetAllocatedBytesForCurrentThread();
-        using var document = new PragmataDocument(file.RelativePath, bytes, references);
+        var allocated = AllocationProbe.MeasureOpen(() => new PragmataDocument(file.RelativePath, bytes, references), out var opened, document => _ = document.BuildView());
+        using var document = opened;
         var view = document.BuildView();
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - start;
         Assert.IsType<TabsNode>(view);
         Assert.NotNull(document.Layout.Inventory);
-        Assert.True(allocated < 45_000_000, $"Largest sample {file.FileName}: open + first view allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(45_000_000, $"Largest sample {file.FileName}: open + first view allocated {allocated.MinimumBytes:N0} bytes.");
     }
 }

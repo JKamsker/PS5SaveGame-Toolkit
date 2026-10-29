@@ -6,6 +6,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.SuckerPunch.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class SamplePerformanceTests
 {
     private const long MaximumOpenAndViewAllocation = 2 * 1024 * 1024;
@@ -26,21 +27,18 @@ public sealed class SamplePerformanceTests
             using var warm = plugin.Open(file, references);
             _ = warm.BuildView();
         }
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        using var document = plugin.Open(file, references);
+        var allocated = AllocationProbe.MeasureOpen(() => plugin.Open(file, references), out var opened, document => _ = document.BuildView());
+        using var document = opened;
         var view = document.BuildView();
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
         Assert.NotNull(view);
-        Assert.True(allocated < MaximumOpenAndViewAllocation, $"Open and first view allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(MaximumOpenAndViewAllocation, $"Open and first view allocated {allocated.MinimumBytes:N0} bytes.");
         var queryable = (IQueryableDocument)document;
         var collection = Assert.Single(queryable.Collections);
         var query = new QueryableCollectionQuery { Limit = 10 };
         _ = queryable.Query(collection.Id, query);
-        before = GC.GetAllocatedBytesForCurrentThread();
-        var page = queryable.Query(collection.Id, query with { Offset = 200 });
-        allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        allocated = AllocationProbe.Measure(() => queryable.Query(collection.Id, query with { Offset = 200 }), out var page);
         Assert.Equal(10, page.Rows.Count);
-        Assert.True(allocated < MaximumTenRowPageAllocation, $"Ten-row page allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(MaximumTenRowPageAllocation, $"Ten-row page allocated {allocated.MinimumBytes:N0} bytes.");
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
     }
 }

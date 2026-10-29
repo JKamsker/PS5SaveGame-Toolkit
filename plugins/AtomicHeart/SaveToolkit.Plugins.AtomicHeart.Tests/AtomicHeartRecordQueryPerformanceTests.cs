@@ -1,8 +1,10 @@
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.AtomicHeart.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AtomicHeartRecordQueryPerformanceTests
 {
     [Theory]
@@ -13,11 +15,9 @@ public sealed class AtomicHeartRecordQueryPerformanceTests
         var collection = Collection(10000);
         var query = new QueryableCollectionQuery { SortColumn = sort, Limit = 20 };
         _ = collection.Query(RecordCollection.Id, query);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = collection.Query(RecordCollection.Id, query with { Offset = 20 });
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => collection.Query(RecordCollection.Id, query with { Offset = 20 }), out var page);
         Assert.Equal(20, page.Rows.Count);
-        Assert.True(allocated < 40_000, $"Repeated record page allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(40_000, $"Repeated record page allocated {allocated.MinimumBytes:N0} bytes.");
     }
 
     [Fact]

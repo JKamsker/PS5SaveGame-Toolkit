@@ -46,7 +46,7 @@ internal sealed class SemanticViews(byte[] bytes, IReadOnlyList<SemanticCharacte
                             or "strength" or "dexterity" or "intelligence" or "faith" or "arcane").Select(pair => pair.Key + "=" + pair.Value))
                         + ". " + ReferenceBrowser.Details(classReference),
             },
-            EquipmentViews.Build(bytes, character, references, bind),
+            EquipmentViews.Build(bytes, character, slot, references, bind),
             new SectionNode("Equipment raw representations", Equipment(character, bind)) { Description = Provenance, Collapsed = true },
             new TableNode([new("name", "Range"), new("offset", "File offset"), new("length", "Bytes")],
                 character.Ranges.Select(range => new TableRow($"slots/{slot.Index}/ranges/{range.Name}", new Dictionary<string, ViewNode>

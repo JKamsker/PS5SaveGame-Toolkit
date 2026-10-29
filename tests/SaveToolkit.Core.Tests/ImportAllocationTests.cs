@@ -1,8 +1,10 @@
 using System.Security.Cryptography;
 using SaveToolkit.Core.Storage;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Core.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class ImportAllocationTests(ITestOutputHelper output)
 {
     private const int FileCount = 100;
@@ -22,13 +24,11 @@ public sealed class ImportAllocationTests(ITestOutputHelper output)
         _ = SaveSetImporter.Import(sources, TestZips.TempDir());
         var root = TestZips.TempDir();
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var set = SaveSetImporter.Import(sources, root);
-        var perFile = (GC.GetAllocatedBytesForCurrentThread() - before) / FileCount;
+        var perFile = AllocationProbe.Measure(() => SaveSetImporter.Import(sources, root), out var set, beforeRun: () => root = TestZips.TempDir()).TransformSamples(bytes => bytes / FileCount);
 
-        output.WriteLine($"ZIP={zipped}: {perFile:N0} allocated bytes per 512-byte file.");
+        output.WriteLine($"ZIP={zipped}: {perFile.MinimumBytes:N0} allocated bytes per 512-byte file.");
         Assert.Equal(FileCount, set.AllDiskFiles.Count());
-        Assert.True(perFile <= PerFileBudget, $"Import allocated {perFile:N0} bytes per file.");
+        perFile.AssertAtMost(PerFileBudget, $"Import allocated {perFile.MinimumBytes:N0} bytes per file.");
         Assert.All(set.AllDiskFiles, file => Assert.Equal(content, file.ReadAllBytes()));
     }
 
@@ -63,12 +63,13 @@ public sealed class ImportAllocationTests(ITestOutputHelper output)
         ImportSource[] sources = [new("data.bin", () => new FailingStream())];
         for (var i = 0; i < 5; i++) Fail();
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        for (var i = 0; i < repetitions; i++) Fail();
-        var perFailure = (GC.GetAllocatedBytesForCurrentThread() - before) / repetitions;
+        var perFailure = AllocationProbe.Measure(() =>
+        {
+            for (var i = 0; i < repetitions; i++) Fail();
+        }).TransformSamples(bytes => bytes / repetitions);
 
-        output.WriteLine($"Failed import: {perFailure:N0} bytes per attempt.");
-        Assert.True(perFailure <= PerFileBudget, $"Failed imports allocated {perFailure:N0} bytes each.");
+        output.WriteLine($"Failed import: {perFailure.MinimumBytes:N0} bytes per attempt.");
+        perFailure.AssertAtMost(PerFileBudget, $"Failed imports allocated {perFailure.MinimumBytes:N0} bytes each.");
         Assert.Empty(Directory.GetFiles(root));
         var recovered = SaveSetImporter.Import([new("data.bin", () => new MemoryStream(new byte[] { 9 }))], root);
         Assert.Equal(new byte[] { 9 }, Assert.Single(recovered.AllDiskFiles).ReadAllBytes());

@@ -1,8 +1,8 @@
-using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
@@ -19,14 +19,16 @@ public sealed class StorySamplePerfTests(ITestOutputHelper output)
         Assert.NotEmpty(payloads["StorySave.bin"]);
         var expected = ExpectedOccurrences(payloads["StorySave.bin"]);
         // This corpus has no known raw markers. Synthetic tests supply positive occurrence controls.
-        using var document = new BaldursGate3Plugin().Open(file);
-        var timer = Stopwatch.StartNew();
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        var expanded = document.ExpandNode("story/databases");
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
-        timer.Stop();
-        output.WriteLine($"Story marker first expansion: {timer.Elapsed.TotalMilliseconds:F2} ms; {allocated:N0} managed bytes.");
-        Assert.True(allocated < MaximumExpansionAllocation, $"Story marker expansion allocated {allocated:N0} bytes.");
+        SaveToolkit.Sdk.ISaveDocument current = null!;
+        var allocated = AllocationProbe.Measure(() => current.ExpandNode("story/databases"), out var expanded,
+            beforeRun: () =>
+            {
+                current?.Dispose();
+                current = new BaldursGate3Plugin().Open(file);
+            });
+        using var document = current;
+        output.WriteLine($"Story marker first expansion: {allocated}.");
+        allocated.AssertLessThan(MaximumExpansionAllocation, $"Story marker expansion allocated {allocated.MinimumBytes:N0} bytes.");
         var table = Assert.Single(expanded.OfType<TableNode>());
         var stat = Assert.Single(Assert.Single(expanded.OfType<StatsNode>()).Items);
         Assert.Equal("Known marker families", stat.Label);

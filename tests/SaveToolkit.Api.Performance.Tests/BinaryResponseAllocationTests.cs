@@ -1,3 +1,5 @@
+using SaveToolkit.Testing;
+
 namespace SaveToolkit.Api.Performance.Tests;
 
 [Collection(ApiMeasurementCollection.Name)]
@@ -24,14 +26,15 @@ public sealed class BinaryResponseAllocationTests(ITestOutputHelper output)
         var payloadBytes = route.StartsWith("blobs", StringComparison.Ordinal) ? BlobPageBytes : LargePayloadBytes;
         await ReadAsync();
         await ReadAsync();
-        var before = GC.GetTotalAllocatedBytes(precise: true);
-        for (var i = 0; i < RequestCount; i++) await ReadAsync();
-        var allocated = (GC.GetTotalAllocatedBytes(precise: true) - before) / RequestCount;
-        new ApiMeasurement(output, route).Record("binary-response", allocated);
+        var allocated = (await AllocationProbe.MeasureProcessWideAsync(async () =>
+        {
+            for (var i = 0; i < RequestCount; i++) await ReadAsync();
+        })).TransformSamples(bytes => bytes / RequestCount);
+        new ApiMeasurement(output, route).Record("binary-response", allocated.MinimumBytes);
         // TestServer also allocates transfer buffers. Two complete payloads is still below
         // the old snapshot + clone + transfer cost, with room for one snapshot and transport.
         var limit = payloadBytes * 2;
-        Assert.True(allocated < limit, $"{route} allocated {allocated:N0} B per request; limit {limit:N0} B.");
+        allocated.AssertLessThan(limit, $"{route} allocated {allocated.MinimumBytes:N0} B per request; limit {limit:N0} B.");
 
         async Task ReadAsync()
         {

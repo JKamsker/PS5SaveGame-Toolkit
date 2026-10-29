@@ -2,6 +2,7 @@ using System.Text.Json;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
 
@@ -26,7 +27,8 @@ public sealed class HogwartsSessionTests
             var second = session.QueryCollection(collection.Id, query);
             Assert.Equal(first.Rows.Select(row => row.Key), second.Rows.Select(row => row.Key));
             Assert.True(JsonSerializer.SerializeToUtf8Bytes(first).Length < 2 * 1024 * 1024);
-            reference ??= first.Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>().FirstOrDefault();
+            reference ??= first.Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>()
+                .FirstOrDefault(field => field.Spec is ReferenceSpec);
         }
         Assert.NotNull(reference);
         var candidates = session.SearchReferences(reference.ValueId, new() { Text = reference.Value.AsString(), Limit = 5 });

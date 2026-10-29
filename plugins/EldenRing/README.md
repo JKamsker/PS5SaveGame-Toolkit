@@ -287,7 +287,8 @@ boundaries; independent restricted-source research corroborates the format but c
 
 The owner's 2026-10-28 decision, **“Enable writes. Keep warnings.”**, replaces the prior evidence gate.
 Unknown character/profile versions remain read-only because their writable layouts are not modeled.
-No additional integrity algorithm is known for this PS wrapper. Every writable field/action and F6
+No additional integrity algorithm is verified for this PS wrapper; internal-hash research is discussed
+in the field-discovery section. Every writable field/action and F6
 preview warns that unknown integrity/dependency rules may cause game rejection. No checksum is invented,
 and the regulation bytes remain unchanged. Only the owner may promote maturity to Stable.
 
@@ -357,11 +358,55 @@ Missing/ambiguous/zero-quantity/wrong-category references and mirror disagreemen
 unaltered and protected. Independent raw representations and unknown words remain inspectable.
 
 Equipment/loadout writes remain unavailable because the reader does not yet model the additional
-profile-summary equipment copies, empty/unarmed encoding, slot capacity and modifier updates. Changing
+profile-summary equipment **updates**, empty/unarmed encoding, slot capacity and modifier updates. The
+field-discovery round below adds read-only observations of two menu copies. Changing
 only the displayed joins would leave inconsistent mirrors. Upgrade/affinity/AoW changes lack compatible
 PARAM rules and maximum-ever upgrade-history modeling. Attributes/respec have no correct modifier-aware
 vital transaction: resetting the sample's **504/504/476** HP to one base value would destroy saved state.
 These are missing writer/dependency implementations, not a wait for owner evidence alone.
+
+## Field discovery: equipment, attributes and respec (#40)
+
+Research/access date **2026-10-29**. See [the reproducible findings and capture matrix](Evidence/FIELD_DISCOVERY.md).
+Every available Elden Ring archive was checked: only `PPSA03169_saves_dec.zip` is present, containing
+one primary and one byte-identical backup, one active character and **one independent snapshot**.
+There are no additional classes/levels or temporal controls to compare; consistency across the twins
+cannot prove a transition. Private bytes and extracted regulation remain outside the repository.
+
+| Field | Evidence and shipped outcome | Missing dependency / write gate |
+| --- | --- | --- |
+| Vigor → Arcane | Player `+34..+50`: **13, 13, 11, 11, 16, 10, 8, 9** in both records. Existing fields corrected from Verified to **Inferred**, read-only, with source attribution. F1 now emits all eight. | Cited 1–99 bounds do not establish class minima or modifier-aware respec. No attribute writer. |
+| Rune level | Player `+60` and profile `+22`: **12 = 91 − 79** in both records. **Inferred**, read-only; both copies now appear in F1. This is character level, separate from held runes/history. | A future stat transaction must update both level mirrors and preserve/repair all affected vitals and integrity. |
+| Equipped gear | Existing **34** gear/quick/pouch candidates retain **17** agreeing nonempty joins. Unique held rows, instance handles, physical record + `0x180`, category-stripped assembly IDs and full equipped IDs agree; each resolved ID also has an exact matching row in the sample's corresponding PARAM directory. **Inferred**, read-only, with catalog names for resolved identities. | Row existence and a catalog name do not establish eligibility, slots, modifier application, upgrade/AoW rules or safe writes. |
+| Menu equipment copies | Newly exposed **Inferred read-only** numeric candidates at profile `+17E + 4*w` and `+1D6 + 4*w` for known gear words. All assigned gear agrees with the independently measured encodings; unknown profile versions omit them. | The pinned upstream profile has different gap words. Its so-called gaitem field is **not an owned-instance handle** here. No profile/equipment writer was ported. |
+| Larval Tears / respec state | Catalog `Larval Tear`, goods row **8185**, full ID **`0x40001FF9`**, direct handle **`0xB0001FF9`**. Exact regulation row exists; **no matching held or storage row** in either record. Synthetic key-inventory reading works and stays protected. | **Negative result:** no observed positive PS5 stack, cap, acquisition/consumption transition, respec counter or unlock predicate. No new counter, fabricated zero-balance field, grant or respec action. |
+
+The menu encoded weapon candidate matches `0x80000000 | (fullId & 0x007FFFFF)` in this snapshot;
+armor/talisman candidates match `0x80000000 | fullId`. The second menu copy matches category-stripped
+IDs. The two Scimitars have different live handles but the same menu encoding. This is an observed
+relationship, not a general inverse conversion or an instruction to repair arbitrary data. Sentinel
+and disagreement values remain unchanged and visible. Quick/pouch menu copies are not modeled.
+
+HP/FP/stamina retain separate current/effective/base words: **504/504/476**, **88/88/88**, **97/97/97**.
+Vigor/Mind/Endurance, active effects and equipment can affect these values. Equipment weight needs
+exact equipment PARAM weights; maximum load depends on Endurance/effects. Paramdex declares `weight`
+in weapon/protector/accessory schemas and HP/MP/stamina/load modifiers in `SpEffect`. Neither matched
+row IDs nor those declarations validate the actual payload schema/calculation for this PS5 build.
+No weight value or recalculation is invented, and an attribute-budget-preserving respec still changes
+these dependencies even when rune level stays constant.
+
+**Integrity gate is not met for new writes.** The PS wrapper has no PC per-slot MD5; that does not prove
+absence of internal gameplay hashes. Public sources conflict: SaveForge's hash chapter says hashes can
+be ignored, while its equipment chapter describes hash inputs and incomplete recomputation; Hapfel's
+restricted source describes a tracked-value hash block. None establishes PS5 acceptance here. This
+reader does not locate/recompute/verify that block. No new writer, F6 respec/equip action or write
+promotion is enabled; Experimental maturity, preview and undo alone cannot satisfy the task's gates.
+
+Tests first reproduced the erroneous Verified confidence and missing F1 values. Added coverage checks
+both records, independent synthetic stats/gear/menu encodings, last-slot addressing, version gating,
+representation disagreements, exact PARAM row membership, protected Larval Tear quantities, decoder
+output budgets and complete byte-identical no-op export. Existing conformance and mutation fuzz remain
+required. No embedded reference pack changed. Final validation is recorded in the linked findings.
 
 Structural add/remove/transfer remains unavailable: free-handle allocation, variable map growth,
 counts/acquisition indices and dependent equipment cleanup are unmodeled, so an arbitrary patch could
@@ -437,6 +482,10 @@ Downloaded code was read as untrusted text, never executed.
 | Dataset / code port | Author / source | Licence / modifications / coverage |
 | --- | --- | --- |
 | PS prefix/profile, bounded GaItem/inventory/equipment reader | [ClayAmore/ER-Save-Editor, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save) | Dual MIT/Apache-2.0; MIT option retained in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). Adapted only read algorithms, bounded ranges and ID-space facts; sample v150 only for deeper reads. |
+| #40 field-discovery layout and bounds | ClayAmore 014107f0: [profile declarations](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/common/user_data_10.rs), [attribute UI](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/ui/stats.rs), [PS wrapper](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/playstation/ps_save.rs) | Accessed 2026-10-29; MIT option, existing full notice. Research facts only; original bounded numeric reader/decoder, independent PS5 profile gaps/encodings. Source PC/Save-Wizard support is not blanket PS5 compatibility. Existing catalog goods row 8185 supplies Larval Tear's name; no new pack data. |
+| #40 attribute/vital/load structure cross-check | oisis/SaveForge ee1042d7: [PlayerGameData](https://github.com/oisis/EldenRing-SaveForge/blob/ee1042d7a5bd933f91e6f8a0162e0e0237a1c4c5/spec/04-player-game-data.md), [1–99 bounds and level formula](https://github.com/oisis/EldenRing-SaveForge/blob/ee1042d7a5bd933f91e6f8a0162e0e0237a1c4c5/spec/26-parameter-reference.md), [platform wrapper notes](https://github.com/oisis/EldenRing-SaveForge/blob/ee1042d7a5bd933f91e6f8a0162e0e0237a1c4c5/spec/01-header.md) | Accessed 2026-10-29; [GPL-3.0 licence](https://github.com/oisis/EldenRing-SaveForge/blob/ee1042d7a5bd933f91e6f8a0162e0e0237a1c4c5/LICENSE). Facts only, no code or documentation copied. Docs include PS5 claims but their examples are PC/PS4; offsets/arithmetic independently checked. Modifier/load calculations and claimed load-time validation behavior remain unverified here. |
+| #40 weight/modifier dependency declarations | soulsmods/Paramdex ff7245e5: [weapon](https://github.com/soulsmods/Paramdex/blob/ff7245e524329bc3eab00036723d2bd53384cedf/ER/Defs/EquipParamWeapon.xml), [protector](https://github.com/soulsmods/Paramdex/blob/ff7245e524329bc3eab00036723d2bd53384cedf/ER/Defs/EquipParamProtector.xml), [accessory](https://github.com/soulsmods/Paramdex/blob/ff7245e524329bc3eab00036723d2bd53384cedf/ER/Defs/EquipParamAccessory.xml), [SpEffect](https://github.com/soulsmods/Paramdex/blob/ff7245e524329bc3eab00036723d2bd53384cedf/ER/Defs/SpEffect.xml) | Accessed 2026-10-29. No licence published; reused with attribution per owner decision 2026-10-28. Declaration names only: `weight`, `maxHpRate`, `maxMpRate`, `maxStaminaRate`, `equipWeightChangeRate`. No new schema/data imported or payload decoded. These are dependencies to validate, not PS5 calculation rules. |
+| #40 conflicting internal-hash claims | [SaveForge equipment chapter](https://github.com/oisis/EldenRing-SaveForge/blob/ee1042d7a5bd933f91e6f8a0162e0e0237a1c4c5/spec/06-equipment.md), [hash chapter](https://github.com/oisis/EldenRing-SaveForge/blob/ee1042d7a5bd933f91e6f8a0162e0e0237a1c4c5/spec/22-player-hash.md); Hapfel [tracked-value hash notes, 5b95be5f](https://github.com/Hapfel1/er-save-manager/blob/5b95be5fe4cd7898c6a1eb30cbfa614c0fd40f28/src/er_save_manager/parser/player_data_hash.py) | Accessed 2026-10-29. SaveForge GPL-3.0; Hapfel explicitly restricts redistribution (refusal below). Facts-only comparison; no algorithm or code ported, translated, executed or distributed. Conflicting claims are not evidence of PS5 integrity/acceptance. |
 | F14 vacancy/default research | [ClayAmore serialized inventory/defaults, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/common/save_slot.rs), [inventory reader, same revision](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/vm/inventory/mod.rs) | MIT, rechecked 2026-10-29. Existing twelve-zero-byte vacancy rule checked against sample bytes; original F14 presentation/query integration, no new code port. Unknown-category fallback is not used as proof of vacancy. |
 | AES/DCX/BND/PARAM directory format | [ClayAmore util, same revision](https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/util) | MIT option, same notice. Narrow managed read-only port, sample-verified flag corrections, bounded decompression, no unsafe field/schema port. Public format key is not a user credential. |
 | Zlib completion research | [.NET 10 DeflateStream](https://github.com/dotnet/runtime/blob/v10.0.0/src/libraries/System.IO.Compression/src/System/IO/Compression/DeflateZLib/DeflateStream.cs), [RFC 1950](https://www.rfc-editor.org/rfc/rfc1950) | Inspected 2026-10-29. MIT runtime source and zlib format specification used as behavioral references only; original bounded input stream, no code copied. Independent stored-block/checksum vectors and truncated-prefix tests. |
@@ -531,6 +580,7 @@ in diagnostics. No current NG+ cycle, DLC entitlement, quest completion or reset
 | Source (pinned revision) | Licence/terms found | Why excluded | Alternative | What would unblock it |
 | --- | --- | --- | --- | --- |
 | [Hapfel1/er-save-manager, 81b55f78](https://github.com/Hapfel1/er-save-manager/blob/81b55f78d19b571f480b0ae06d680151a9b61e1e/LICENSE) | Source-Available: “may not be sublicensed, sold or included in any other package or bundle intended for distribution” | Explicit redistribution restriction, not missing licence | Research only; independent source/sample facts; no code/data imported | Specific written redistribution permission |
+| [Hapfel1/er-save-manager, 5b95be5f](https://github.com/Hapfel1/er-save-manager/blob/5b95be5fe4cd7898c6a1eb30cbfa614c0fd40f28/LICENSE), accessed 2026-10-29 | er-save-manager Source-Available License, copyright 2026 Hapfel; section 3 forbids redistribution outside its authorized distribution points and inclusion in another distributed package | Current equipment/hash implementation and associated data/documentation refused for copying or translation; read public format facts only, never executed | Independently test existing MIT layout plus actual PS5 numeric observations; no internal-hash implementation imported | Specific written redistribution permission; independently verified PS5 integrity semantics still required |
 | Publisher game text/icons/map art; previous ERDB / ER-Save-Lib / Paramdex / TGA leads | Publisher rights retained; owner decision 2026-10-29 permits attributed use | Resolved: selected content imported from pinned Compass extraction | 1,245 official descriptions/illustrated records, 1,096 icons and three map backgrounds; other material unneeded | No publisher-asset policy blocker remains; exact joins/alignment still require evidence |
 | [Map Genie](https://mapgenie.io/elden-ring/maps/the-lands-between) | Reuse terms unverified; no explicit NC/no-redistribution terms established | Publisher/art policy blocker resolved; site content not needed | Attributed external link remains; local art/coordinates use pinned Compass source instead | No permission request; optional additional sources require provenance and matching coordinates |
 

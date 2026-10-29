@@ -1,5 +1,8 @@
+using SaveToolkit.Testing;
+
 namespace SaveToolkit.Codecs.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class OodleAllocationTests
 {
     private const int OutputBytes = 1_000_000;
@@ -13,12 +16,13 @@ public sealed class OodleAllocationTests
         for (int i = 0; i < Iterations; i++)
             _ = OodleCodec.Decompress(input, OutputBytes);
 
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        for (int i = 0; i < Iterations; i++)
-            _ = OodleCodec.Decompress(input, OutputBytes);
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            for (int i = 0; i < Iterations; i++)
+                _ = OodleCodec.Decompress(input, OutputBytes);
+        });
 
-        Assert.InRange(allocated, 0, (long)Iterations * (OutputBytes + PerDecodeOverhead));
+        allocated.AssertInRange(0, (long)Iterations * (OutputBytes + PerDecodeOverhead));
     }
 
     [Theory]
@@ -36,12 +40,13 @@ public sealed class OodleAllocationTests
         for (int i = 0; i < Iterations; i++)
             OodleCodec.Decompress(input, output, workspace);
 
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        for (int i = 0; i < Iterations; i++)
-            OodleCodec.Decompress(input, output, workspace);
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            for (int i = 0; i < Iterations; i++)
+                OodleCodec.Decompress(input, output, workspace);
+        });
 
-        Assert.InRange(allocated, 0, Iterations * PerDecodeOverhead);
+        allocated.AssertInRange(0, Iterations * PerDecodeOverhead);
         Assert.All(output, value => Assert.Equal(entropy ? (byte)42 : (byte)0, value));
     }
 }
