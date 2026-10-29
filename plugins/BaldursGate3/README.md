@@ -52,10 +52,14 @@ the party-member entity,
 traversed recursively with cycle and depth guards, and each path retains its source
 container, slot and item entity. The supplied sample proves 3 party joins and 638
 current inventory entries; only entries reached from the party roots receive a body
-owner label, while other world/trader/container rows remain explicitly unowned. Gold
-template occurrences remain world/trader candidates:
-the LSF item node has no unique item-instance bridge, so no player total or gold
-distribution writer is exposed.
+owner label, while other world/trader/container rows remain explicitly unowned.
+The [gold/base-score discovery pass](FIELD_DISCOVERY.md) adds a read-only **Inferred**
+gold-category join across repeated GUID occurrences: four candidates, three explicit
+imported contribution sums (4, 2, 2), no proven party owner. The fourth amount is
+Unknown. No player total or gold distribution writer is exposed. Two creation
+point-buy-shaped arrays are located, but a contradictory owner prevents a named
+character base-score field or respec writer. This is one snapshot with identical
+backups, not controlled gameplay differential evidence.
 
 ## Game assets (0.7.0)
 
@@ -259,10 +263,12 @@ The round 2 joins do not make three writers safe. Learned-spell rows are empty i
 the supplied sample (`LearnedSpells` uses the empty sentinel); prepared-spell
 storage is a variable-length `SpellBookPrepares`/string-pool relationship whose
 allocation and source/owner semantics are not established. Effective `StatsComponent`
-ability values are cache candidates; `CharacterCreationStatsComponent` is present,
-but its base-score layout and derived invalidation contract are not established.
-The four gold-template occurrences have duplicate Creator template mappings and no
-unique LSF item-instance-to-Entity bridge. A controlled learned/prepared edit, a
+ability values are cache candidates. Two creation arrays have point-buy-shaped
+values, but an owner join contradicts the numerical effective-score match; the
+base-score identity and derived invalidation contract remain unproven. Four gold
+Creator categories now have read-only storage joins, with three explicit imported
+quantity sums; none has a proven party owner or unique LSF Item-instance bridge.
+See [field discovery](FIELD_DISCOVERY.md). A controlled learned/prepared edit, a
 base-versus-derived capture, or a gold gain/spend pair with visible owner is the
 evidence that would unblock each writer. Fixed-width no-op and byte-preservation
 checks remain in force for every enabled writer.
@@ -435,20 +441,30 @@ are recorded in [PERFORMANCE.md](PERFORMANCE.md); no latency guarantee is claime
 
 ## Validation
 
-The documentation accuracy pass on 2026-10-29 ran the Release plugin suite with
-private samples: **370 passed, 0 failed, 0 skipped**. API Release build with
-`--warnaserror`: **0 warnings, 0 errors**. All 14 documentation checks passed.
-Historical review counts below refer to their respective revisions, not the current suite.
+The gold/base-score field-discovery pass on 2026-10-29 ran the Release plugin suite
+with private samples: **386 passed, 0 failed, 0 skipped** (baseline 377).
+API Release build: **0 warnings, 0 errors**. Conformance, byte-identical no-op copies,
+synthetic compressed LSF, mutation fuzz (**200 cases, one private seed**) and the
+unchanged allocation tests pass. Nine new cases pin the gold join/read-only view,
+missing/ambiguous contributions and base-allocation/owner contradictions across
+both copies. See [FIELD_DISCOVERY.md](FIELD_DISCOVERY.md) for evidence, negative
+results, remaining parser coverage and suggested central documentation changes.
+The current documentation command runs 28 checks: **27 pass, one fails** because
+the new Commons Clause exclusion has no central-register mirror. `docs/` is outside
+this task's allowed edits; FIELD_DISCOVERY.md supplies the exact row for integration.
+The earlier documentation-accuracy pass ran 14 checks successfully; historical
+counts below describe their respective revisions.
 
 ```powershell
-$scratch = 'D:/Temp/saveeditor/test-scratch/docs/accuracy-baldursgate3'
+$scratch = 'D:/Temp/saveeditor/test-scratch/research-baldursgate3-gold'
 New-Item -ItemType Directory -Force -Path $scratch | Out-Null
 $env:SAVETOOLKIT_TEST_TEMP = $scratch
 $env:TEMP = $scratch
 $env:TMP = $scratch
+$env:TMPDIR = $scratch
 $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj -c Release --warnaserror
-dotnet test --project plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3.Tests -c Release
+dotnet test --project plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3.Tests -c Release --results-directory "$scratch/verified"
 python docs/tests/test_documentation.py
 ```
 
@@ -549,7 +565,7 @@ and neither; they remain identical to the pre-migration baseline.
 | F5 structural undo | Used | Two-existing-container-key reorder with scoped inverse memento, stable row IDs, exact bytes on undo. Allocation/removal/transfers remain unsupported. |
 | F6 preview/apply | Used | Restore imported quantities supports explicit/document/Core-resolved values-query scopes with exclusions; swap requires exactly two entries in one source/container via explicit/slots-query selection and rejects document scope. Preview includes changes, skipped rows and warnings; each apply is one undo step. |
 | F7 document groups | N/A | Gameplay/summary resources are already members of one atomically rewritten LSPK. Backup twins are identical archival copies, not a demonstrated coupled gameplay invariant. |
-| F8 collections | Used | Catalogs, saved items, live values, slots, classes, spell books, party identity joins, recursive inventory and gold candidates; bounded text/filter/sort pages. Gold collection is empty in the sample; unresolved LSF gold-template occurrences are not synthesized as live items. |
+| F8 collections | Used | Catalogs, saved items, live values, slots, classes, spell books, party identity joins, recursive inventory and gold candidates; bounded text/filter/sort pages. Four gold storage candidates expose three read-only imported contribution sums; party ownership and the fourth quantity remain Unknown. |
 | F9 graph/map | Used | Saved spell presence graphs, text alternatives and field targets, Unknown states, no guessed prerequisite edges. Map N/A: no proven saved discovery/coordinate transform. |
 | F10 exact values | N/A | Supported fields use fixed binary types or bounded existing integer JSON tokens, without nullable/union/arbitrary-number editing. IntegerSpec/Int128 already preserves u32/i32/u64 (including class levels); this is the existing integer transport, not adoption of ExactNumberSpec/NullableSpec/UnionSpec. |
 | F11 shared codecs | N/A | No Kraken or SQLite payload exists in this supported Larian path. LZ4/zstd/zlib use the existing attributed managed codecs. |
@@ -561,6 +577,10 @@ and neither; they remain identical to the pre-migration baseline.
 
 | Dataset / code | Source and author | Licence / retrieval | Changes and scope |
 | --- | --- | --- | --- |
+| Gold/base field-discovery format research | [Norbyte LSLib issue #127](https://github.com/Norbyte/lslib/issues/127); [DanFinchUK FORMAT.md, 9578ff7c](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/FORMAT.md); [Hawk-on FIELD_MAPPING.md, 6a62466c](https://github.com/Hawk-on/bg3-save-editor/blob/6a62466c77ad4939fc5e6fdcbc2e4188efdfcd15/FIELD_MAPPING.md) | Accessed 2026-10-29. LSLib/Hawk-on MIT; issue discussion and DanFinchUK: No licence published; reused with attribution per owner decision 2026-10-28 | Format facts independently checked through PS5 LSF/NewAge decoding; no new upstream code copied/executed. Read-only inferred gold contribution sums; base-score identity remains unresolved. Full observations and limits in FIELD_DISCOVERY.md. |
+| Runtime-versus-serialized component facts (no code reuse) | [Norbyte bg3se, 60fb4caf](https://github.com/Norbyte/bg3se/tree/60fb4caf99c08de604abac26e07af13a2e0a028d), component files linked in FIELD_DISCOVERY.md | [MIT License + Commons Clause License Condition v1.0](https://github.com/Norbyte/bg3se/blob/60fb4caf99c08de604abac26e07af13a2e0a028d/LICENSE), accessed 2026-10-29 | Live-memory definitions consulted only as factual leads for abilities/modifiers/creation/stack/weight distinctions. No code port or runtime-offset assumptions. Reuse exclusion below. |
+| Gold/base-score rule facts | bg3.wiki contributors, [Gold](https://bg3.wiki/wiki/Gold), [Abilities](https://bg3.wiki/wiki/Abilities), [copyright policy](https://bg3.wiki/wiki/bg3wiki:Copyrights) | Factual research only, accessed 2026-10-29; new dual-licensed contributions CC BY-SA 4.0, legacy CC BY-NC-SA prose excluded | Point-buy cost/range and bonus distinction, score modifiers and gold weight inform the research report only. No wiki prose or new dataset imported; no new runtime limits inferred from generic 1–20 rules. |
+| Console/editor workflow discussion | [Serofix-code editor, e6213431](https://github.com/Serofix-code/bg3-save-editor/tree/e62134311f1ec737472448e4bfc9dda72afd4f3e); u/Xx360rapidz and respondents, [PS5 cross-save discussion](https://www.reddit.com/r/BaldursGate3/comments/16ax5k8/) | No licence published; reused with attribution per owner decision 2026-10-28. Accessed 2026-10-29; facts only | Command helpers/live-game resaves distinguished from packed-save writing; conflicting persistence reports do not validate a PS5 dependency writer. No code/cheat table/prose reused. |
 | Summary level cap (12) | [bg3.wiki contributors, Experience](https://bg3.wiki/wiki/Experience) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | One factual base-game cap; no prose, progression table or new pack copied. Unknown modded levels use the observed maximum. Source is also adjacent to the constant, in Info.References and field descriptions. |
 | Summary/quantity write research | [Hawk-on FIELD_MAPPING.md, pinned revision](https://github.com/Hawk-on/bg3-save-editor/blob/6a62466c77ad4939fc5e6fdcbc2e4188efdfcd15/FIELD_MAPPING.md); [Norbyte PackageWriter.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/PackageWriter.cs) | MIT, revisited 2026-10-28 | Confirms metadata/runtime distinction and existing outer hash algorithm. No new upstream implementation copied or executed; live gold heuristics rejected. |
 | `bg3_templates` (4 records) | [bg3.wiki contributors](https://bg3.wiki/): [Gold](https://bg3.wiki/w/index.php?title=Gold&oldid=419021), [Potion of Healing](https://bg3.wiki/w/index.php?title=Potion_of_Healing&oldid=421944), [Longsword](https://bg3.wiki/wiki/Longsword), [Shortbow](https://bg3.wiki/w/index.php?title=Shortbow&oldid=423168) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual labels/technical GUIDs, original uncertainty annotations plus game icons and flavour-text excerpts; no gameplay limits. Exact GUID candidates only. Game material has separate rights below. |
@@ -581,13 +601,16 @@ and neither; they remain identical to the pre-migration baseline.
 
 ## Licence exclusions
 
-The table retains the legacy wiki refusal and the resolved publisher-asset decision,
-matching the [central register](../../docs/LICENCE_EXCLUSIONS.md). Unlicensed factual research is
+The legacy wiki refusal and resolved publisher-asset decision match the
+[central register](../../docs/LICENCE_EXCLUSIONS.md). The new bg3se refusal needs the
+central row proposed in [field discovery](FIELD_DISCOVERY.md); updating `docs/` is
+outside this task's scope. Unlicensed factual research is
 permitted by the owner decision dated 2026-10-28; its behaviour is independently
 reimplemented and attributed in the table above.
 
 | Source and revision | Licence found (exact) | Why it was refused | What we did instead | What would unblock it |
 | --- | --- | --- | --- | --- |
+| [Norbyte/bg3se, 60fb4caf99c08de604abac26e07af13a2e0a028d](https://github.com/Norbyte/bg3se/tree/60fb4caf99c08de604abac26e07af13a2e0a028d), accessed 2026-10-29 | [MIT License + “Commons Clause” License Condition v1.0](https://github.com/Norbyte/bg3se/blob/60fb4caf99c08de604abac26e07af13a2e0a028d/LICENSE) | No-sale restriction; component-definition code reuse excluded under rule 9's commercial-use restriction policy. This is not plain MIT. | Read for facts only; independently measured PS5 storage and used existing plugin primitives. No bg3se code or implementation copied, ported or executed. | Compatible source-specific grant or a revision without the restrictive condition. Central-register row is proposed in FIELD_DISCOVERY.md; docs/ is outside this task's edit scope. |
 | [bg3.wiki copyright policy and legacy contributions](https://bg3.wiki/wiki/bg3wiki:Copyrights), retrieved 2026-10-28 | CC BY-NC-SA (legacy expressive contributions) | Non-commercial terms remain a refusal for legacy wiki editorial prose; this is separate from directly attributed Larian game assets. | Used attributed CC BY-SA label facts and technical mappings plus separately attributed Larian icons/game-text excerpts; kept legacy wiki editorial content out of the pack. | A source-specific CC BY/CC BY-SA or other compatible relicensing grant covering the exact material. |
 | Larian Studios Baldur's Gate 3 art, icons and extracted game text, exact source/file revisions in assets.source.md | Rights reserved by Larian Studios; used with attribution per owner decision 2026-10-29 | **Resolved: imported (owner decision 2026-10-29).** | 51 compact icons and 39 distinct game-description excerpts embedded with attribution. | No remaining publisher-asset policy blocker for this import. |
 

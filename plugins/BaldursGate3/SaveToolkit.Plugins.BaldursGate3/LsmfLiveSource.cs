@@ -46,7 +46,7 @@ internal sealed class LsmfLiveSource
         catch (SaveFormatException exception) { _diagnostics.Add("Identity joins: " + exception.Message); }
         if (Identity is not null)
         {
-            try { Inventory = new LsmfInventoryGraph(Access, Identity, resource); }
+            try { Inventory = new LsmfInventoryGraph(Access, Identity, resource, Stacks); }
             catch (SaveFormatException exception) { _diagnostics.Add("Inventory joins: " + exception.Message); }
             catch (InvalidDataException exception) { _diagnostics.Add("Inventory joins: " + exception.Message); }
         }

@@ -55,10 +55,12 @@ containers are traversed with a visited-path set and a 128-container depth guard
 All 638 sample entries retain container, slot and item provenance; only the two
 entries reached from the three party-root containers receive a body-owner label in
 this sample, while the remaining world/trader/container rows stay explicitly
-unowned. Gold
-template rows are not promoted to player gold: the four LSF `Item` nodes share one
-template and expose no unique item-instance bridge. This is the exact unresolved
-structure for a gold distribution writer.
+unowned. Four gold Creator categories now join repeated EntityId occurrences to
+unique stack contributions and current slots; three expose imported sums of 4, 2
+and 2. None is party-owned through the measured graph, and the fourth quantity is
+Unknown. The four LSF `Item` nodes share one template without a unique item-instance
+bridge. These are read-only storage candidates, not a player balance or gold
+distribution writer; see [field discovery](FIELD_DISCOVERY.md).
 
 ## Enabled fixed-width edits
 
@@ -89,7 +91,8 @@ and compressed package entries. No-op and full undo return exact original bytes.
 
 Live values, slots, classes, books, party identity joins, recursive inventory and
 gold candidates use F8 bounded pages, text search, exact
-column filters and deterministic source/tie ordering. Sorts use current values.
+column filters and deterministic source/tie ordering. Sorts use current values,
+except the explicitly labelled imported gold snapshot, which uses original values.
 Only a requested page binds fields/builds rich evidence/action cells. Books expand
 to F9 presence graphs and bound raw-ID fields; all states Unknown, no prerequisite
 edges, every node has text and a field target. Books over 512 occurrences retain
@@ -109,10 +112,15 @@ Native gameplay authority remains unavailable even though the software storage j
 are proven on the supplied sample. Learned rows are empty sentinels, and prepared
 spell membership uses variable-length `SpellBookPrepares` records plus string-pool
 allocation whose ownership/source semantics are not established. `StatsComponent`
-values are derived/cache candidates; the `CharacterCreationStatsComponent` base
-layout and invalidation dependencies are unknown. Gold has duplicate template
-Creators but no unique item-instance bridge. These exact structures, plus controlled
-native event pairs, are needed before writers can be enabled. Class/progression,
+values are derived/cache candidates. The [field-discovery pass](FIELD_DISCOVERY.md)
+locates two point-buy-shaped `CharacterCreationStatsComponent` arrays at +72/+80
+in 88-byte rows, but a contradictory owner prevents a proven character/base-score
+join; invalidation dependencies remain unknown. Four gold Creator GUID categories
+now join to repeated EntityId occurrences; three have explicit read-only imported
+contribution sums. None has proven party ownership, and one lacks contributions.
+Gold/base writers still need controlled native event pairs and dependency mapping.
+The tutorial level's nested NewAge remains unsupported by the alignment guard.
+Class/progression,
 equipment, new entities, deletion, transfer, split/merge, archetype relocation,
 story/approval and event dependencies remain unavailable. No opaque pointer writer
 is exposed; full roadmap phases are not claimed done.
