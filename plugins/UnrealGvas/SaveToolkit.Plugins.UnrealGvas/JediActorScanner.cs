@@ -46,7 +46,7 @@ internal static class JediActorScanner
         {
             if (!TryTag(bytes, position, end, out var tag)) break;
             if (tag.IsNone) break;
-            if (tag.Next <= position || tag.PayloadEnd > end) break;
+            if (tag.PayloadEnd <= position || tag.PayloadEnd > end) break;
             var node = new GvasNode(tag.Name, tag.Type, tag.PayloadStart, tag.Size);
             remaining--;
             if (tag.Scalar is not null) node.Scalar = tag.Scalar;
@@ -60,7 +60,7 @@ internal static class JediActorScanner
             else if (tag.Type is not "BoolProperty")
                 node.Note = "Actor payload is preserved; no game-specific schema is asserted.";
             nodes.Add(node);
-            position = tag.Next;
+            position = tag.PayloadEnd;
         }
         return nodes;
     }
@@ -72,14 +72,13 @@ internal static class JediActorScanner
         if (!TryString(bytes, ref position, end, out var name)) return false;
         if (name == "None")
         {
-            tag = new Tag(name, "None", position, position, position, null, true);
+            tag = new Tag(name, "None", position, position, null, true);
             return true;
         }
         if (!TryString(bytes, ref position, end, out var type) || position > end - 8) return false;
         var size = BinaryPrimitives.ReadInt32LittleEndian(bytes[position..]);
         position += 8;
         if (size < 0 || size > end - position) return false;
-        string? inner = null;
         var boolOffset = -1;
         var boolValue = false;
         switch (type)
@@ -90,10 +89,10 @@ internal static class JediActorScanner
                 boolValue = bytes[position++] != 0;
                 break;
             case "ArrayProperty": case "SetProperty": case "ByteProperty": case "EnumProperty":
-                if (!TryString(bytes, ref position, end, out inner)) return false;
+                if (!TryString(bytes, ref position, end, out _)) return false;
                 break;
             case "MapProperty":
-                if (!TryString(bytes, ref position, end, out inner) || !TryString(bytes, ref position, end, out _)) return false;
+                if (!TryString(bytes, ref position, end, out _) || !TryString(bytes, ref position, end, out _)) return false;
                 break;
             case "StructProperty":
                 if (!TryString(bytes, ref position, end, out _) || position > end - 16) return false;
@@ -110,7 +109,7 @@ internal static class JediActorScanner
         var scalar = type == "BoolProperty"
             ? new GvasScalar(GvasScalarKind.Boolean, boolOffset, 1, boolValue)
             : ReadScalar(type, bytes, payloadStart, size);
-        tag = new Tag(name, type, payloadStart, payloadEnd, payloadEnd, scalar, false, inner);
+        tag = new Tag(name, type, payloadStart, payloadEnd, scalar, false);
         return true;
     }
 
@@ -155,8 +154,8 @@ internal static class JediActorScanner
         return true;
     }
 
-    private readonly record struct Tag(string Name, string Type, int PayloadStart, int PayloadEnd, int Next,
-        GvasScalar? Scalar, bool IsNone, string? Inner = null)
+    private readonly record struct Tag(string Name, string Type, int PayloadStart, int PayloadEnd,
+        GvasScalar? Scalar, bool IsNone)
     {
         public int Size => PayloadEnd - PayloadStart;
     }
