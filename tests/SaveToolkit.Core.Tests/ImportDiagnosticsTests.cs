@@ -5,16 +5,6 @@ namespace SaveToolkit.Core.Tests;
 
 public sealed class ImportDiagnosticsTests
 {
-    [Fact]
-    public void ZIP_checksum_matches_standard_IEEE_vector_across_chunks()
-    {
-        var checksum = new ZipEntryChecksum();
-        Assert.Equal(0U, checksum.Value);
-        checksum.Append("1234"u8);
-        checksum.Append("56789"u8);
-        Assert.Equal(0xCBF43926U, checksum.Value);
-    }
-
     [Theory]
     [InlineData(2)]
     [InlineData(4)]

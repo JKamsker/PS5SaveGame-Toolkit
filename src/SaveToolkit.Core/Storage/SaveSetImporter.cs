@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using SaveToolkit.Sdk.Binary;
 using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.Core.Storage;
@@ -191,7 +192,7 @@ public static partial class SaveSetImporter
                 throw new ImportException($"Upload exceeds {limits.MaxTotalBytes / (1024 * 1024)} MiB.");
 
             using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-            var checksum = expectedCrc32.HasValue ? new ZipEntryChecksum() : null;
+            var checksum = expectedCrc32.HasValue ? new Crc32Ieee() : null;
             using var output = new FileStream(blobPath, FileMode.CreateNew, FileAccess.Write);
             // Track only files we created: a name collision must never delete someone else's data.
             _createdBlobs.Add(blobPath);
@@ -220,7 +221,7 @@ public static partial class SaveSetImporter
             {
                 throw new InvalidDataException($"Truncated entry: expected {declared} bytes but read {length}.");
             }
-            if (expectedCrc32 is { } crc32 && checksum!.Value != crc32)
+            if (expectedCrc32 is { } crc32 && checksum!.GetCurrentHash() != crc32)
             {
                 throw new InvalidDataException("Entry CRC-32 does not match the imported data; the archive may be corrupt or truncated.");
             }
