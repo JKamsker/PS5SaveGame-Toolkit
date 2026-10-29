@@ -38,10 +38,11 @@ public sealed class WorkspaceExportResponseTests
         Assert.False(target.WasDisposed);
         buffer.Position = 0;
         using var zip = new ZipArchive(buffer, ZipArchiveMode.Read, leaveOpen: true);
-        Assert.Equal(files.Length, zip.Entries.Count);
+        // Title-less imports export under their imported paths, not the synthetic UNKNOWN grouping.
+        Assert.Equal(files.Select(f => f.FileName).Order(), zip.Entries.Select(e => e.FullName).Order());
         foreach (var file in files)
         {
-            using var entry = zip.GetEntry(file.RelativePath)!.Open();
+            using var entry = zip.GetEntry(file.FileName)!.Open();
             using var content = new MemoryStream();
             await entry.CopyToAsync(content, ApiPerformanceHost.Ct);
             Assert.Equal(file == changed ? new byte[] { 3, 4, 5 } : original, content.ToArray());
