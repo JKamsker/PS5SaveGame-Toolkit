@@ -9,7 +9,7 @@ internal sealed class AbilityCollections(IReadOnlyList<AbilityArray> arrays, IRe
     SkillRanks? edits, Func<AbilityArray, AbilityEntry, TableRow> row)
 {
     public const string Prefix = "saved/abilities/";
-    public static IReadOnlyList<QueryableColumn> Columns => [new("id", "Saved identity"), new("name", "Reference name"),
+    public static IReadOnlyList<QueryableColumn> Columns => [new("image", "Icon"), new("id", "Saved identity"), new("name", "Reference name"),
         new("rank", "Stored rank"), new("properties", "Input properties (read-only)")];
     public IReadOnlyList<QueryableCollection> Collections => arrays.Select(a => new QueryableCollection(
         Prefix + a.Name, a.Name, Columns, a.Entries.Count)).ToArray();
@@ -20,12 +20,13 @@ internal sealed class AbilityCollections(IReadOnlyList<AbilityArray> arrays, IRe
     {
         var array = arrays.SingleOrDefault(a => Prefix + a.Name == id) ?? throw new KeyNotFoundException(id);
         if (query.Cursor is not null || query.Offset < 0 || query.Text?.Length > QueryableCollectionLimits.MaxQueryLength ||
-            query.Filters.Count > QueryableCollectionLimits.MaxFilterCount || query.Filters.Any(f => f.Key is not ("id" or "name" or "rank") ||
-                f.Value.Length > QueryableCollectionLimits.MaxFilterLength) || query.SortColumn is not (null or "id" or "name" or "rank" or "properties"))
+            query.Filters.Count > QueryableCollectionLimits.MaxFilterCount || query.Filters.Any(f => f.Key is not ("image" or "id" or "name" or "rank") ||
+                f.Value.Length > QueryableCollectionLimits.MaxFilterLength) || query.SortColumn is not (null or "image" or "id" or "name" or "rank" or "properties"))
         {
             throw new ArgumentException("Unsupported ability query.");
         }
         string Cell(AbilityEntry e, string? column) => column switch {
+            "image" => catalog?.Find(e.Id)?.AssetId ?? "",
             "name" => catalog?.Find(e.Id)?.Name ?? e.Id,
             "rank" => Rank(e)?.ToString(CultureInfo.InvariantCulture) ?? "Unknown / definition", _ => e.Id,
         };

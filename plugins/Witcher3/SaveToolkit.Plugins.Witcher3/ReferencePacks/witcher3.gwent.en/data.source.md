@@ -10,7 +10,10 @@ Faction/type, acquisition, expected copies and missable quest/cutoff advice deri
 
 Modifications: expanded aliases into separate native keys; normalized descriptions and attributes;
 retained canonical-index relations; added confidence, availability and write-limit caveats.
-No artwork, flavor text, script bodies or achievement-rule execution is bundled.
+A separate 2026-10-29 publisher assets dataset adds 213 deduplicated card images for all 225
+catalogue indices, joined by native/canonical filenames at the same pinned commit. Publisher
+artwork is not relicensed as MIT. See [asset provenance](../assets.source.md) and its hash audit.
+No flavor text, script bodies or achievement-rule execution is bundled.
 
 Keep both full MIT notices when redistributing:
 

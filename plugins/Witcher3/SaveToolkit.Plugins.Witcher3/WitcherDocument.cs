@@ -17,14 +17,14 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
     private SavedWorldViews? _world;
     private WriteFields? _writeFields;
     private MapViews? _maps;
-    private MapViews Maps => _maps ??= new MapViews(tree, container.Payload, directory.Names, Field);
+    private MapViews Maps => _maps ??= new MapViews(tree, container.Payload, directory.Names, Field, references);
     private WriteFields Writes => _writeFields ??= new WriteFields(Field);
     private RepairPlanning Repair => new(_player?.Inventory?.Items ?? [], CanEdit);
     private InventoryViews Inventory => _inventory ??= new InventoryViews(_player?.Inventory?.Items ?? [],
         references.Catalog(InventoryViews.CatalogId, ReferenceBuild), ItemField, references.AssetProvenance, Writes.Durability);
     private string ReferenceBuild => $"sav3-{BinaryData.Int32(container.Payload, 4)}.{BinaryData.Int32(container.Payload, 8)}.{BinaryData.Int32(container.Payload, 12)}";
     private ObservedFeatures Features => _features ??= new ObservedFeatures(_player, tree, container.Payload, directory.Names,
-        references.Catalog("abilities", ReferenceBuild), references.Catalog("gwent", ReferenceBuild), Writes);
+        references.Catalog("abilities", ReferenceBuild), references.Catalog("gwent", ReferenceBuild), Writes, references.AssetProvenance);
     private CatalogViews Catalogs => _catalogs ??= new CatalogViews(references, ReferenceBuild, () => Features.Cards);
     private SavedWorldViews World => _world ??= new SavedWorldViews(new SavedWorldData(_player, tree, container.Payload, directory.Names),
         references.Catalog("items", ReferenceBuild));
@@ -100,7 +100,8 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
-        if (lazyId.StartsWith("map-view/", StringComparison.Ordinal) || lazyId.StartsWith("map-details/", StringComparison.Ordinal)) { return Maps.Expand(lazyId); }
+        if (lazyId.StartsWith(RegionalMapViews.Prefix, StringComparison.Ordinal) || lazyId.StartsWith("map-view/", StringComparison.Ordinal) ||
+            lazyId.StartsWith("map-details/", StringComparison.Ordinal)) { return Maps.Expand(lazyId); }
         if (World.HandlesExpansion(lazyId)) { return World.Expand(lazyId); }
         if (lazyId.StartsWith("ability/", StringComparison.Ordinal) || lazyId.StartsWith("ability-graph/", StringComparison.Ordinal) || lazyId.StartsWith("gwent/", StringComparison.Ordinal))
         {

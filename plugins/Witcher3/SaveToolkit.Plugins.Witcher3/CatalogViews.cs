@@ -12,7 +12,7 @@ internal sealed class CatalogViews(IReferenceContext references, string build, F
     private const string CollectionPrefix = "catalog/";
     private const string ActionPrefix = "reference/inspect/";
     private static IReadOnlyList<string> CatalogIds => ["items", "abilities", "gwent"];
-    private static IReadOnlyList<QueryableColumn> Columns => [new("name", "Name"), new("raw", "Native ID / wiki reference key"),
+    private static IReadOnlyList<QueryableColumn> Columns => [new("image", "Icon"), new("name", "Name"), new("raw", "Native ID / wiki reference key"),
         new("category", "Category"), new("owned", "Saved copies / state"), new("details", "Description and source")];
 
     public IReadOnlyList<QueryableCollection> Collections => CatalogIds.Select(id =>
@@ -46,8 +46,8 @@ internal sealed class CatalogViews(IReferenceContext references, string build, F
         var catalog = Catalog(id);
         if (!CatalogIds.Contains(id, StringComparer.Ordinal) || query.Cursor is not null || query.Offset < 0 ||
             query.Text?.Length > QueryableCollectionLimits.MaxQueryLength || query.Filters.Count > QueryableCollectionLimits.MaxFilterCount ||
-            query.Filters.Any(f => f.Value.Length > QueryableCollectionLimits.MaxFilterLength || f.Key is not ("name" or "raw" or "category" or "owned" or "details")) ||
-            query.SortColumn is not (null or "name" or "raw" or "category" or "owned" or "details"))
+            query.Filters.Any(f => f.Value.Length > QueryableCollectionLimits.MaxFilterLength || f.Key is not ("image" or "name" or "raw" or "category" or "owned" or "details")) ||
+            query.SortColumn is not (null or "image" or "name" or "raw" or "category" or "owned" or "details"))
         {
             throw new ArgumentException("Unsupported reference catalog query.");
         }
@@ -122,7 +122,7 @@ internal sealed class CatalogViews(IReferenceContext references, string build, F
         string[] text = [record.Name, record.Key, record.Category ?? "", record.Description ?? "", State(id, record), .. record.Attributes.Values];
         return (string.IsNullOrWhiteSpace(query.Text) || text.Any(value => value.Contains(query.Text, StringComparison.OrdinalIgnoreCase))) &&
             query.Filters.All(f => string.IsNullOrEmpty(f.Value) || string.Equals(f.Key switch {
-                "name" => record.Name, "raw" => record.Key, "category" => record.Category,
+                "image" => record.AssetId ?? "", "name" => record.Name, "raw" => record.Key, "category" => record.Category,
                 "owned" => State(id, record), "details" => record.Description, _ => null,
             }, f.Value, StringComparison.OrdinalIgnoreCase));
     }
@@ -136,11 +136,13 @@ internal sealed class CatalogViews(IReferenceContext references, string build, F
     }
 
     private TableRow Row(string id, ReferenceRecord record) => new(record.Key, new Dictionary<string, ViewNode> {
+        ["image"] = ReferenceImages.Cell(record, references.AssetProvenance),
         ["name"] = new SectionNode(record.Name, [new TextNode(record.AttributionText)]) {
             Badge = record.Attributes.ContainsKey("nativeIdStatus") ? "Native ID unknown" : "Inferred mapping" },
         ["raw"] = new TextNode(record.Key) { Monospace = true }, ["category"] = new TextNode(record.Category ?? "Unclassified"),
         ["owned"] = new TextNode(State(id, record)),
         ["details"] = new SectionNode("Reference details", [new TextNode(record.Description ?? "No description."),
-            new TextNode(record.AttributionText), .. record.Attributes.Select(a => (ViewNode)new TextNode($"{a.Key}: {a.Value}"))]) { Collapsed = true },
+            new TextNode(record.AttributionText), .. ReferenceImages.Sources(record, references.AssetProvenance),
+            .. record.Attributes.Select(a => (ViewNode)new TextNode($"{a.Key}: {a.Value}"))]) { Collapsed = true },
     });
 }

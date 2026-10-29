@@ -117,7 +117,8 @@ public sealed class WitcherSampleTests(ITestOutputHelper output)
                 _ => [],
             };
             var batch = children.ToArray();
-            Assert.True(batch.Length <= 256);
+            // Rich tables now include an image cell; retain the row bound and account for declared columns.
+            Assert.True(batch.Length <= (node is TableNode richTable ? 128 * richTable.Columns.Count : 256));
             foreach (var child in batch)
             {
                 pending.Enqueue(child);

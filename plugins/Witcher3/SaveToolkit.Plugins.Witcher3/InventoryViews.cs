@@ -17,7 +17,7 @@ internal sealed class InventoryViews(
     public const string CatalogId = "items";
     private const string UnknownCategory = "Unmapped";
 
-    private static IReadOnlyList<QueryableColumn> Columns => [new("name", "Item"), new("raw", "Native ID"),
+    private static IReadOnlyList<QueryableColumn> Columns => [new("image", "Icon"), new("name", "Item"), new("raw", "Native ID"),
         new("category", "Category"), new("quantity", "Quantity", IntegerSpec.UInt16), new("slot", "Saved slot"), new("equipped", "Equipped (inferred)"),
         new("durability", "Stored durability", FloatSpec.Single), new("details", "Details")];
 
@@ -58,7 +58,7 @@ internal sealed class InventoryViews(
             "raw" => Order(filtered, i => i.Name, query.Descending, StringComparer.Ordinal),
             "category" => Order(filtered, Category, query.Descending, StringComparer.OrdinalIgnoreCase),
             "slot" => Order(filtered, i => i.Slot, query.Descending, StringComparer.Ordinal),
-            "name" => Order(filtered, Label, query.Descending, StringComparer.OrdinalIgnoreCase),
+            "name" or "image" => Order(filtered, Label, query.Descending, StringComparer.OrdinalIgnoreCase),
             "equipped" => Order(filtered, i => i.Equipped, query.Descending),
             _ => Order(filtered, i => i.Id, query.Descending),
         };
@@ -78,8 +78,8 @@ internal sealed class InventoryViews(
         return new ActionOutcome { Message = $"{record.Name} [{record.Key}] · {record.Category}\n{record.Description}\n{record.AttributionText}" };
     }
 
-    private static IReadOnlyList<string> FilterColumns => ["name", "raw", "category", "slot", "equipped"];
-    private static IReadOnlyList<string> SortColumns => ["name", "raw", "category", "quantity", "slot", "durability", "equipped", "details"];
+    private static IReadOnlyList<string> FilterColumns => ["image", "name", "raw", "category", "slot", "equipped"];
+    private static IReadOnlyList<string> SortColumns => ["image", "name", "raw", "category", "quantity", "slot", "durability", "equipped", "details"];
     private string Label(InventoryItem item) => catalog?.Find(item.Name)?.Name ?? item.Name;
     private string Category(InventoryItem item) => catalog?.Find(item.Name)?.Category ?? UnknownCategory;
 
@@ -88,7 +88,7 @@ internal sealed class InventoryViews(
         string[] text = [Label(item), item.Name, Category(item), item.Slot, item.Id.ToString(CultureInfo.InvariantCulture)];
         return (string.IsNullOrWhiteSpace(query.Text) || text.Any(t => t.Contains(query.Text, StringComparison.OrdinalIgnoreCase))) &&
             query.Filters.All(filter => string.Equals(filter.Key switch {
-                "name" => Label(item), "raw" => item.Name, "category" => Category(item), "slot" => item.Slot,
+                "image" => catalog?.Find(item.Name)?.AssetId ?? "", "name" => Label(item), "raw" => item.Name, "category" => Category(item), "slot" => item.Slot,
                 "equipped" => item.Equipped ? "true" : "false", _ => "",
             }, filter.Value, StringComparison.OrdinalIgnoreCase));
     }
@@ -108,13 +108,10 @@ internal sealed class InventoryViews(
             new TextNode($"Tags: {string.Join(", ", item.Tags)}"),
             .. item.Attributes.Select(a => new TextNode($"{a.Name}: raw 0x{a.RawValue:X8}, type byte {a.Type} (unknown semantics)")),
         ];
-        if (record?.AssetId is { } asset && assetProvenance?.Invoke(asset) is { } provenance)
-        {
-            details.Add(new ImageNode(asset, record.Name));
-            details.Add(new TextNode($"Image source: {provenance.Attribution.ToShortText()}"));
-        }
+        details.AddRange(ReferenceImages.Sources(record, assetProvenance));
 
         return new TableRow(item.Id.ToString(CultureInfo.InvariantCulture), new Dictionary<string, ViewNode> {
+            ["image"] = ReferenceImages.Cell(record, assetProvenance),
             ["name"] = new SectionNode(Label(item), [new TextNode(record?.AttributionText ?? "Source: save-native ID.")]) {
                 Badge = record is null ? "Unknown mapping" : "Inferred mapping", Description = record?.Description,
             },

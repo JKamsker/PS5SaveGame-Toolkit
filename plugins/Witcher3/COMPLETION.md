@@ -1,5 +1,10 @@
 # Witcher3 completion audit — 2026-10-28
 
+Asset-round follow-up (2026-10-29): [ASSETS.md](ASSETS.md) supersedes the earlier publisher-asset
+refusals and missing-icon statements below. Version 0.7.0 imports attributed icons, wiki-transcribed
+tooltips/effects and separate regional reference backgrounds. Native saved-tag region/coordinate
+joins remain unknown; console/gameplay and structural-write evidence requirements are unchanged.
+
 Compared every plan requirement/acceptance criterion and all #25 handoffs with starting local
 `main` **1f0d1f1**. Branch: `plugin/witcher3-completion`. All repository changes are inside this
 plugin. Writes remain Experimental; no PS5 load/acceptance is claimed.
@@ -80,8 +85,8 @@ and action logs; first capture a no-action save/load/save control. Keep decrypte
 
 - Unrestricted complete-all-quests, guessed dependency/identity allocation or forced schema/platform
   conversion: cannot preserve unknown related systems.
-- Import NC/unlicensed map art, coordinate datasets, game scripts/icons or copyrighted resource
-  dumps. Attribution alone cannot authorize redistribution; external links are provided instead.
+- Invent native tag/region/coordinate joins or import unnecessary community marker/code datasets.
+  The asset-round owner decision now permits selected attributed publisher artwork/text; see ASSETS.md.
 - Plugin-local F12/F13 substitutes: the merged framework hooks, inspection and catalogue contracts are used directly.
 
 Agent work complete; remaining items are owner-blocked (#31). F12/F13 follow-up is implemented

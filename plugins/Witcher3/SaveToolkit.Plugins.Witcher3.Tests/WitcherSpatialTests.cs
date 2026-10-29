@@ -41,7 +41,7 @@ public sealed class WitcherSpatialTests
             Assert.Null(map.Background);
             Assert.False(map.CoordinateEmbeddingPermitted);
             Assert.Equal(MapViews.SourceUrl, map.ExternalSource!.Url);
-            Assert.Contains("External link only", map.ExternalSource.Attribution, StringComparison.Ordinal);
+            Assert.Contains("alignment unknown", map.ExternalSource.Attribution, StringComparison.Ordinal);
             var parsed = EnabledWriteFixture.Read(file.ReadAllBytes());
             var tags = MapReader.Read(parsed.Tree, parsed.Container.Payload, parsed.Directory.Names)!;
             Assert.Equal(tags.Count, map.Markers.Count);
