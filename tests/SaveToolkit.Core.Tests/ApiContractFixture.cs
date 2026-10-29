@@ -21,7 +21,8 @@ public sealed class ApiContractFixture : IDisposable
         _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseEnvironment("Production").UseSetting("Toolkit:DataRoot", TestZips.TempDir())
-                .UseSetting("Toolkit:PackRoot", TestZips.TempDir());
+                .UseSetting("Toolkit:PackRoot", TestZips.TempDir())
+                .UseSetting("Toolkit:PresetRoot", TestZips.TempDir());
             builder.ConfigureServices(services => services.AddSingleton(new PluginCatalog(plugins)));
         });
     }

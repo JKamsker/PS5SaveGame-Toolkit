@@ -9,6 +9,7 @@ public sealed class IsolatedApiFactory : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting("Toolkit:DataRoot", TestZips.TempDir())
-            .UseSetting("Toolkit:PackRoot", TestZips.TempDir());
+            .UseSetting("Toolkit:PackRoot", TestZips.TempDir())
+            .UseSetting("Toolkit:PresetRoot", TestZips.TempDir());
     }
 }

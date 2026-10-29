@@ -21,8 +21,8 @@ public static class FieldValueCoercer
     {
         if (spec.ReadOnly) return Fail("Field is read-only.");
         if (spec is NullableSpec nullable && json.ValueKind != JsonValueKind.Null)
-            return FromJson(json, nullable.Inner);
-        if (spec is UnionSpec union) return UnionValueCoercer.FromJson(json, union);
+            return FromJson(json, nullable.Inner, references);
+        if (spec is UnionSpec union) return UnionValueCoercer.FromJson(json, union, references);
         if (json.ValueKind is JsonValueKind.Undefined) return Fail("An edit value is required; missing is not null.");
         if (json.ValueKind is JsonValueKind.Array) return Fail("Expected a scalar field value.");
         if (json.ValueKind is JsonValueKind.Object || spec is ExactNumberSpec && json.ValueKind == JsonValueKind.Number)

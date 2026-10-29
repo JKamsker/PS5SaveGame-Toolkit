@@ -55,8 +55,23 @@ internal static class PackSnapshotBaseline
         // The historical payload includes attribution display dates, whose calendar is localized.
         using var culture = new TestCulture(CultureInfo.InvariantCulture);
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        // Preserve the old decoded snapshot payload, resetting the hash for each pack.
-        hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(pack.Info));
+        // Preserve the historical decoded-data snapshot. ContentFingerprint is host identity
+        // metadata, not catalog or asset payload, and is verified by reference-identity tests.
+        // Excluding it keeps this baseline focused on the underlying dataset/hash guarantees.
+        var historicalInfo = new
+        {
+            pack.Info.Id,
+            pack.Info.Version,
+            pack.Info.Title,
+            pack.Info.Origin,
+            pack.Info.Description,
+            pack.Info.PluginIds,
+            pack.Info.TitleIds,
+            pack.Info.GameBuilds,
+            pack.Info.Locale,
+            pack.Info.Datasets,
+        };
+        hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(historicalInfo));
         var context = new ReferenceContext([pack], ["en"]);
         foreach (var dataset in manifest.GetProperty("datasets").EnumerateArray())
         {

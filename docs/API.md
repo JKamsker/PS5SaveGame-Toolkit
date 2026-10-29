@@ -168,6 +168,49 @@ checking its writer. Content-based JSON overlays do not register extra title IDs
 listed with `None` can still contain editable JSON. Consult the
 [user guide's per-file limits](USER_GUIDE.md#supported-titles-and-write-limits).
 
+### `GET /api/presets`
+
+Returns the host-owned `ToolkitPreset[]` list. Presets contain schema version, name,
+plugin/version/title/build/variant/reference-pack compatibility and semantic action parameters;
+they never contain save bytes or local paths. All preset routes return a typed `503
+presetStorageUnavailable` when the host library cannot be read or written temporarily.
+
+### `POST /api/presets/reload`
+
+Reloads the external preset file through a bounded single-handle read. A malformed,
+oversized, or duplicate-record replacement is rejected without replacing the last good
+in-memory library. Storage I/O failures return 503; invalid payloads return 422.
+
+### `POST /api/presets`
+
+JSON body `{name,compatibility,actions}` creates one version-1 preset and returns it. The
+compatibility boundary must include a plugin, plugin version and at least one title ID. The host
+rejects empty names, oversized payloads and invalid action counts with 422.
+
+### `PATCH /api/presets/{presetId}`
+
+JSON body `{name}` renames a host preset. It does not alter any open document or save bytes.
+
+### `DELETE /api/presets/{presetId}`
+
+Deletes only the external preset record and returns 204. Document Undo/Redo does not restore
+preset deletion.
+
+### `POST /api/workspaces/{workspaceId}/documents/{documentId}/presets/capture`
+
+JSON `{name,actionId,parameters?,scopeKind?,selectedRowKeys?,allMatches?}` invokes the optional
+pure plugin capture adapter. Selected row keys are ephemeral input only; the returned preset contains
+semantic targets and the host's actual title/plugin/variant/build/reference-pack boundary. Plugins do
+not perform storage or reference-pack I/O. The operation changes host preset storage only, never save
+bytes or document history.
+
+### `GET /api/workspaces/{workspaceId}/documents/{documentId}/presets`
+
+Returns document-scoped rows `{preset,compatibility}`. Compatibility is computed by the
+server against the opened document's exact title, plugin, build, variant, role, capability
+schema, reference-pack identity, action and scope support. Unknown or mismatched rows are
+reported with a stable code and are not advertised as previewable.
+
 ### `GET /api/workspaces`
 
 No parameters or pagination. Returns currently retained workspace summaries:
@@ -372,6 +415,20 @@ Required JSON `{planId:string,revision:number}` (revision must be explicitly
 present). Returns **EditResult** and ETag. Plans are document-specific and
 single-use, including failed domain validation; re-preview after a failure.
 Stale/replaced/reused plan or changed consequences: 409; rejected effects: 422.
+
+### `POST /api/workspaces/{workspaceId}/documents/{documentId}/presets/{presetId}/preview`
+
+JSON `{revision?:number}` checks the preset's plugin/version/title/build/variant/reference-pack
+boundary and returns `{preset,preview}`. The generic host adapter currently accepts one planned
+F6 action and delegates to the same pure action planner; selecting a preset never edits the save.
+Mismatch, read-only or unsupported multi-action/instance resolution is 422; stale revision is 409.
+
+### `POST /api/workspaces/{workspaceId}/documents/{documentId}/presets/{presetId}/apply`
+
+Required JSON `{planId:string,revision:number}` applies the single-use revision-bound preview as one
+existing document history entry. Reused/stale plans and changed consequences are rejected without
+partial writes. A plugin implementing `IPresetDocument` owns explicit missing/ambiguous instance
+resolution and atomic multi-action application; the host never substitutes by name, type or slot.
 Effects are recomputed and checked before atomic application as one undo group.
 Transport/header rejection happens before invoking the domain operation.
 
@@ -457,7 +514,9 @@ There is no workspace ETag or cross-document revision snapshot guarantee.
 
 No parameters. Returns `{packs:ReferencePackInfo[],errors:[{origin,message}]}`.
 Load errors are diagnostics in a successful listing. Pack information includes
-identity/version/title/origin and declared datasets/compatibility metadata.
+identity/version/title/origin, a host-computed `contentFingerprint` over the validated manifest/file
+hashes, and declared datasets/compatibility metadata. The fingerprint distinguishes same-id/version/
+locale overlays and is safe to use as a preset compatibility key.
 
 ### `POST /api/reference-packs`
 
@@ -478,7 +537,7 @@ and any Origin must match the request host authority. Existing pins survive remo
 ### `GET /api/workspaces/{workspaceId}/documents/{documentId}/sources`
 
 Returns `{datasets:[{packId,packTitle,packVersion,origin,locale?,datasetId,kind,
-title?,itemCount,attribution,used}]}` for pinned sources. Attribution includes
+title?,itemCount,attribution,used,contentFingerprint?}]}` for pinned sources. Attribution includes
 source/license/author/retrieval date/modifications. This is provenance, not a remote fetch.
 
 ### `GET /api/workspaces/{workspaceId}/documents/{documentId}/references/{catalogId}`

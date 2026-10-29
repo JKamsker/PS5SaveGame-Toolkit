@@ -68,6 +68,8 @@ public sealed record DocumentDto(
     ViewNode View)
 {
     public IReadOnlyList<GroupMemberInfo>? GroupMembers { get; init; }
+    public PresetCapability? PresetCapability { get; init; }
+    public string? TitleId { get; init; }
 }
 
 public sealed record OpenRequest(string? PluginId);
@@ -82,3 +84,73 @@ public sealed record ActionRequest(string ActionId, Dictionary<string, JsonEleme
 public sealed record ExportRequest(ExportScope Scope = ExportScope.ChangedDirectories, bool MirrorBackups = true);
 
 public sealed record ExportPlanDto(IReadOnlyList<ExportedFile> Files, int ChangedCount);
+
+public sealed record PresetDto(
+    string SchemaVersion,
+    string Id,
+    string Name,
+    PresetCompatibility Compatibility,
+    IReadOnlyList<PresetAction> Actions,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset UpdatedAt);
+
+public sealed record PresetCompatibilitySummaryDto(
+    bool Compatible,
+    string? Code,
+    string? Reason,
+    bool ReadOnly,
+    bool CanPreview,
+    string? PreviewCode,
+    string? PreviewReason,
+    string PresetKind,
+    string SavedPluginVersion,
+    string CurrentPluginVersion,
+    string? SavedGameBuild,
+    string? CurrentGameBuild,
+    string? SavedFormatVariant,
+    string? CurrentFormatVariant,
+    string? SavedReferencePackIdentity,
+    string? CurrentReferencePackIdentity,
+    string? SavedSchemaFingerprint,
+    string? CurrentSchemaFingerprint,
+    string? SavedFileRole,
+    string? CurrentFileRole,
+    string? SavedCapabilitySchemaVersion,
+    string? CurrentCapabilitySchemaVersion,
+    IReadOnlyList<string> UnsupportedActions)
+{
+    /// <summary>Title identifiers captured with the preset, shown by the server-authoritative UI.</summary>
+    public IReadOnlyList<string> SavedTitleIds { get; init; } = [];
+    /// <summary>Title identifier of the currently opened document.</summary>
+    public string? CurrentTitleId { get; init; }
+    /// <summary>Current capability kind, or the explicit generic fallback kind.</summary>
+    public string CurrentPresetKind { get; init; } = "toolkit.action-parameters";
+    /// <summary>Whether the current document can perform the reviewed apply.</summary>
+    public bool CanApply { get; init; }
+    /// <summary>Stable server readiness state used for filtering and accessible status text.</summary>
+    public string Readiness { get; init; } = "unknown";
+}
+
+public sealed record DocumentPresetDto(PresetDto Preset, PresetCompatibilitySummaryDto Compatibility);
+
+public sealed record CreatePresetRequest(
+    string Name,
+    PresetCompatibility Compatibility,
+    IReadOnlyList<PresetAction> Actions);
+
+public sealed record RenamePresetRequest(string Name);
+
+public sealed record PresetPlanRequest(long? Revision = null, IReadOnlyDictionary<string, string>? Choices = null);
+
+public sealed record CapturePresetRequest(
+    string Name,
+    string ActionId,
+    Dictionary<string, JsonElement>? Parameters = null,
+    string ScopeKind = "document",
+    IReadOnlyList<string>? SelectedRowKeys = null,
+    bool AllMatches = false);
+
+public sealed record ApplyPresetRequest(string PlanId, long Revision);
+
+public sealed record PresetPreviewDto(PresetDto Preset, ActionPreview Preview);
+public sealed record PresetSemanticPreviewDto(PresetDto Preset, PresetActionPreview Preview);
