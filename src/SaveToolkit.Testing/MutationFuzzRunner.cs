@@ -18,7 +18,8 @@ internal sealed class MutationFuzzRunner(
     TimeSpan caseTimeout,
     Func<ISaveFile, long> allocationBudget,
     Func<ISaveFile, IReferenceContext> referencesFor,
-    Action<string> progress)
+    Action<string> progress,
+    TimeSpan? timeBudget = null)
 {
     internal static IEnumerable<ISaveFile> SelectSamples(IEnumerable<ISaveFile> eligible, int limit) =>
         eligible.OrderBy(file => file.Length).ThenBy(file => file.RelativePath, StringComparer.Ordinal).Take(limit);
@@ -33,6 +34,7 @@ internal sealed class MutationFuzzRunner(
         var cases = 0;
         var expected = 0;
         var elapsed = TimeSpan.Zero;
+        var runStarted = Stopwatch.GetTimestamp();
         progress("Preparing samples");
         foreach (var original in files)
         {
@@ -48,6 +50,11 @@ internal sealed class MutationFuzzRunner(
                 var mutation = SaveMutation.Create(bytes, seed, index);
                 var reproducer = $"case seed=0x{seed:X8} index={index} sample={original.RelativePath} sha256={hash}: {mutation.Description}";
                 progress(reproducer);
+                if (timeBudget is { } limit && Stopwatch.GetElapsedTime(runStarted) >= limit)
+                {
+                    failures.Add(new(reproducer, "PluginTimeBudgetExceeded", $"Per-plugin limit {limit}."));
+                    return Result();
+                }
                 var overlay = new OverlaySaveSet(original.Directory.SaveSet,
                     new Dictionary<string, ReadOnlyMemory<byte>> { [original.RelativePath] = mutation.Content });
                 var file = ((ISaveSet)overlay).FindFile(original.RelativePath)!;
@@ -65,8 +72,11 @@ internal sealed class MutationFuzzRunner(
             progress($"Preparing next sample after {original.RelativePath}");
         }
 
-        return new()
+        return Result();
+
+        MutationFuzzResult Result() => new()
         {
+            Plugin = plugin.Info.Id, Seed = seed, MutationsPerSeed = count,
             Samples = samples, Cases = cases, ExpectedFailures = expected, ElapsedSeconds = elapsed.TotalSeconds,
             Failures = failures, KnownFailures = known,
         };

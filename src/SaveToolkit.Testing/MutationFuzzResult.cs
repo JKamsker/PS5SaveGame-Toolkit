@@ -16,6 +16,11 @@ public sealed record MutationFuzzFailure(string Reproducer, string ExceptionType
 /// <summary>Machine-readable outcome exchanged with the isolated worker.</summary>
 public sealed record MutationFuzzResult
 {
+    public string Plugin { get; init; } = "";
+    public uint Seed { get; init; } = SaveMutation.DefaultSeed;
+    public int MutationsPerSeed { get; init; }
+    public int SyntheticSeeds { get; init; }
+    public int SampleSeeds { get; init; }
     public int Samples { get; init; }
     public int Cases { get; init; }
     public int ExpectedFailures { get; init; }

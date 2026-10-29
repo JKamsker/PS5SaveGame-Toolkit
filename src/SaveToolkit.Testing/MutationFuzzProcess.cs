@@ -16,7 +16,8 @@ internal static class MutationFuzzProcess
     internal static void Progress(string folder, string description) =>
         File.WriteAllText(Path.Combine(folder, ProgressFile), description);
 
-    internal static async Task<MutationFuzzResult> RunAsync(Type testClass, TimeSpan caseTimeout)
+    internal static async Task<MutationFuzzResult> RunAsync(Type testClass, TimeSpan caseTimeout,
+        TimeSpan? timeBudget = null)
     {
         var folder = Path.Combine(TestScratch.ProcessFolder, "mutation-fuzz-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(folder);
@@ -43,6 +44,7 @@ internal static class MutationFuzzProcess
         var stderr = process.StandardError.BaseStream.CopyToAsync(Stream.Null);
         var lastProgress = "Preparing fuzz worker";
         var elapsed = Stopwatch.StartNew();
+        var totalElapsed = Stopwatch.StartNew();
         try
         {
             while (!process.HasExited)
@@ -55,6 +57,8 @@ internal static class MutationFuzzProcess
                 }
 
                 var limit = lastProgress.StartsWith("case ", StringComparison.Ordinal) ? caseTimeout : PreparationTimeout;
+                if (timeBudget is { } totalLimit && totalElapsed.Elapsed > totalLimit)
+                    throw new XunitException($"MutationFuzz exceeded per-plugin budget {totalLimit}: {lastProgress}");
                 if (elapsed.Elapsed > limit)
                     throw new XunitException($"MutationFuzz exceeded {limit}: {lastProgress}");
                 await Task.Delay(PollInterval);

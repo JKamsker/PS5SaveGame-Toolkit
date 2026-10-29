@@ -2,6 +2,7 @@ using System.Text.Json;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
 using Xunit;
+using Xunit.Sdk;
 
 namespace SaveToolkit.Testing;
 
@@ -17,7 +18,8 @@ public abstract partial class PluginConformanceTests<TPlugin>
     protected virtual int MaxMutationFuzzFilesPerTitle => 1;
 
     /// <summary>Optional small valid files, including their title, name and any required siblings.</summary>
-    protected virtual IEnumerable<ISaveFile> MutationFuzzSyntheticSeeds => [];
+    protected virtual IEnumerable<ISaveFile> MutationFuzzSyntheticSeeds =>
+        global::SaveToolkit.Testing.MutationFuzzSyntheticSeeds.For(Plugin.Info.Id);
 
     /// <summary>Documented format rejections only; general programming/runtime errors cannot be accepted.</summary>
     protected virtual IReadOnlyList<Type> MutationFuzzRejectionTypes => [];
@@ -35,37 +37,59 @@ public abstract partial class PluginConformanceTests<TPlugin>
     [Fact]
     public async Task MutationFuzz()
     {
+        var options = MutationFuzzOptions.Read(MutationFuzzSeed, MutationFuzzCount);
+        var context = $"MutationFuzz plugin={Plugin.Info.Id} seed=0x{options.Seed:X8}";
         MutationFuzzResult result;
         if (Environment.GetEnvironmentVariable(MutationFuzzProcess.WorkerVariable) is { Length: > 0 } worker)
         {
-            result = new MutationFuzzRunner(Plugin, MutationFuzzSeed, MutationFuzzCount,
+            var synthetic = MutationFuzzSyntheticSeeds.ToArray();
+            var sampleSeeds = 0;
+            result = new MutationFuzzRunner(Plugin, options.Seed, options.Mutations,
                 MutationFuzzRejectionTypes, ExpectedFuzzFailures, MutationFuzzCaseTimeout,
-                MutationFuzzAllocationBudget, ReferencesFor, message => MutationFuzzProcess.Progress(worker, message))
-                .Run(FuzzFiles());
+                MutationFuzzAllocationBudget, ReferencesFor, message => MutationFuzzProcess.Progress(worker, message),
+                options.TimeBudget).Run(FuzzFiles(synthetic, () => sampleSeeds++));
+            result = result with { SyntheticSeeds = synthetic.Length, SampleSeeds = sampleSeeds };
             File.WriteAllText(Path.Combine(worker, MutationFuzzProcess.ResultFile), JsonSerializer.Serialize(result));
             return;
         }
 
-        Assert.True(MutationFuzzCount > 0, "MutationFuzzCount must be positive.");
-        Assert.True(MaxMutationFuzzFilesPerTitle > 0, "MaxMutationFuzzFilesPerTitle must be positive.");
-        Assert.True(MutationFuzzCaseTimeout > TimeSpan.Zero, "MutationFuzzCaseTimeout must be positive.");
-        result = await MutationFuzzProcess.RunAsync(GetType(), MutationFuzzCaseTimeout);
+        Assert.True(options.Mutations > 0, $"{context}: MutationFuzzCount must be positive.");
+        Assert.True(MaxMutationFuzzFilesPerTitle > 0, $"{context}: MaxMutationFuzzFilesPerTitle must be positive.");
+        Assert.True(MutationFuzzCaseTimeout > TimeSpan.Zero, $"{context}: MutationFuzzCaseTimeout must be positive.");
+        try
+        {
+            result = await MutationFuzzProcess.RunAsync(GetType(), MutationFuzzCaseTimeout, options.TimeBudget);
+        }
+        catch (XunitException exception)
+        {
+            // Worker diagnostics contain only checkpoints, never its raw output or exception messages.
+            result = new()
+            {
+                Plugin = Plugin.Info.Id, Seed = options.Seed, MutationsPerSeed = options.Mutations,
+                Failures = [new(context, "WorkerFailure", exception.Message)],
+            };
+        }
+
+        MutationFuzzReport.Write(result);
         TestContext.Current.AddAttachment("mutation-fuzz.json", JsonSerializer.Serialize(result));
         TestContext.Current.TestOutputHelper?.WriteLine(
-            $"MutationFuzz: {result.Samples} samples, {result.Cases} cases, {result.ExpectedFailures} known failures, {result.ElapsedSeconds:F3}s parser work.");
-        Assert.SkipWhen(result.Samples == 0, "No available samples or synthetic mutation-fuzz seeds.");
-        Assert.True(result.Failures.Count == 0, string.Join("\n\n", result.Failures));
+            $"{context}: {result.SyntheticSeeds} synthetic seeds, {result.SampleSeeds} sample seeds, {result.Cases} cases, {result.ExpectedFailures} known failures, {result.ElapsedSeconds:F3}s parser work.");
+        Assert.True(result.Failures.Count == 0, context + "\n" + string.Join("\n\n", result.Failures));
+        Assert.SkipWhen(result.Samples == 0, $"{context}: No available samples or synthetic mutation-fuzz seeds.");
     }
 
-    private IEnumerable<ISaveFile> FuzzFiles()
+    private IEnumerable<ISaveFile> FuzzFiles(IEnumerable<ISaveFile> synthetic, Action sampleSelected)
     {
-        foreach (var seed in MutationFuzzSyntheticSeeds) yield return seed;
+        foreach (var seed in synthetic) yield return seed;
         foreach (var title in SampleTitleIds)
         {
             // A missing title must not hide available titles or synthetic coverage.
             if (SampleSaves.FindArchive(title) is null) continue;
             foreach (var file in MutationFuzzRunner.SelectSamples(SelectFiles(SampleSaves.Load(title)), MaxMutationFuzzFilesPerTitle))
+            {
+                sampleSelected();
                 yield return file;
+            }
         }
     }
 }
