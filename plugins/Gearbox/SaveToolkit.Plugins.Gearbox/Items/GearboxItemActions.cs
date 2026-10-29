@@ -7,12 +7,21 @@ namespace SaveToolkit.Plugins.Gearbox;
 /// <summary>F6 calculations are pure; F5 wraps every apply including new/removed identities.</summary>
 internal sealed class GearboxItemActions(GearboxDocument document)
 {
+    internal const string SelectionHint = "Select inventory rows, then open a row's Serial and parts details to preview duplication or removal of the selected items.";
+
     public static IReadOnlyList<ViewNode> Build(bool rootWonderlands) =>
     [
         Action("items/level", "Set item levels", [new("level", "Target level", new IntegerSpec(1, rootWonderlands ? 40 : 72), FieldValue.Of(1))]),
+        new TextNode(SelectionHint) { Tone = Tone.Info },
+        Action("items/import", "Import serial into backpack / bank", [new("code", "Serial code for this game", new TextSpec { MaxLength = 6000 }, FieldValue.Of(string.Empty))]),
+    ];
+
+    // Row details inherit their owning table's selection, including an explicitly empty selection.
+    // Profiles have two item tables, so one document-level binding would be ambiguous.
+    internal static IReadOnlyList<ViewNode> SelectedActions() =>
+    [
         Action("items/duplicate", "Duplicate selected items", []),
         Action("items/remove", "Remove selected items", []),
-        Action("items/import", "Import serial into backpack / bank", [new("code", "Serial code for this game", new TextSpec { MaxLength = 6000 }, FieldValue.Of(string.Empty))]),
     ];
 
     internal static ActionNode Action(string id, string title, IReadOnlyList<FieldNode> parameters) => new(id, title)
