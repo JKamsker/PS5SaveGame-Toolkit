@@ -122,6 +122,9 @@ untouched images retain their exact compressed payloads. Reverting every cell,
 including rollback of a rejected batch, restores the original file bytes. This
 avoids relying on inverse SQL to restore SQLite page layout and change counters
 ([SQLite atomic commit documentation](https://www.sqlite.org/atomiccommit.html)).
+Accepted imported GVAS strings can be restored exactly even when their original
+length-delimited encoding contains an embedded NUL. This exception only restores
+the original scalar bytes; newly supplied NUL-containing strings remain rejected.
 
 ## Sample coverage and file roles
 
