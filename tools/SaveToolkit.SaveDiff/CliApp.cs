@@ -59,8 +59,15 @@ internal static class CliApp
         {
             if (args.Count == 0 || args[0] is "help" or "--help" or "-h")
             {
-                stdout.Write(Usage);
+                Emit(null, stdout, Usage);
                 return args.Count == 0 ? ExitError : ExitSame;
+            }
+
+            if (args.Count == 2 && args[0] is "compare" or "verify" or "list" or "list-decoders"
+                && args[1] is "--help" or "-h")
+            {
+                Emit(null, stdout, Usage);
+                return ExitSame;
             }
 
             return args[0] switch
@@ -87,16 +94,21 @@ internal static class CliApp
     /// <summary>Writes the rendered report to the checked <paramref name="outputPath"/> or stdout.</summary>
     public static void Emit(string? outputPath, TextWriter stdout, string text)
     {
+        // Renderers and indented JSON can use host newlines. Keep report bytes portable.
+        text = text.Replace("\r\n", "\n", StringComparison.Ordinal);
         if (outputPath is { } path)
         {
             File.WriteAllText(path, text);
-            stdout.WriteLine($"Report written to {path}");
+            stdout.Write($"Report written to {DisplayPath(path)}\n");
         }
         else
         {
             stdout.Write(text);
         }
     }
+
+    /// <summary>Use forward slashes for host path separators in report metadata.</summary>
+    public static string DisplayPath(string path) => path.Replace(Path.DirectorySeparatorChar, '/');
 
     public static bool WantsJson(CliArguments args) => args.Get("format") switch
     {
