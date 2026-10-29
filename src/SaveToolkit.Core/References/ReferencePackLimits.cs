@@ -1,3 +1,5 @@
+using SaveToolkit.Sdk.References;
+
 namespace SaveToolkit.Core.References;
 
 /// <summary>Size guards applied to every pack, embedded or user-supplied.</summary>
@@ -21,6 +23,17 @@ public sealed record ReferencePackLimits
     public int MaxFiles { get; init; } = 20_000;
 
     public int MaxRecordsPerCatalog { get; init; } = 250_000;
+
+    internal EmbeddedReferencePackLimits ToEmbedded() => new()
+    {
+        MaxTotalBytes = MaxTotalBytes,
+        MaxManifestBytes = MaxManifestBytes,
+        MaxRecordsFileBytes = MaxRecordsFileBytes,
+        MaxAssetBytes = MaxAssetBytes,
+        MaxImageDimension = MaxImageDimension,
+        MaxFiles = MaxFiles,
+        MaxRecordsPerCatalog = MaxRecordsPerCatalog,
+    };
 }
 
 /// <summary>A pack failed validation. The message is shown to the user.</summary>

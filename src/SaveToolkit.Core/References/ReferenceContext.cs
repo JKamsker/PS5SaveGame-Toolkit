@@ -112,7 +112,7 @@ public sealed class ReferenceContext : IReferenceContext
         return resolution;
     }
 
-    private LoadedAsset? FindAsset(string assetId) =>
+    private DecodedAsset? FindAsset(string assetId) =>
         PackPaths.TrySplitAsset(assetId, out var packId, out var path)
             ? _packs.FirstOrDefault(p => p.Id == packId)?.Asset(path)
             : null;

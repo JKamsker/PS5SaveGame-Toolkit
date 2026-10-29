@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace SaveToolkit.Core.References;
+namespace SaveToolkit.Sdk.References;
 
 /// <summary>Validation of ids and pack-relative paths. Paths never reach the file system; this keeps them boring anyway.</summary>
 internal static partial class PackPaths
