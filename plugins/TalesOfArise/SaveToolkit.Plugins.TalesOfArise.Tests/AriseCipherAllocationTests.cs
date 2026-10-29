@@ -1,5 +1,8 @@
+using SaveToolkit.Testing;
+
 namespace SaveToolkit.Plugins.TalesOfArise.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AriseCipherAllocationTests
 {
     private const int KiB = 1024;
@@ -17,8 +20,7 @@ public sealed class AriseCipherAllocationTests
             Transform(large, output, encrypt);
             var smallBytes = Allocated(() => Transform(small, output, encrypt));
             var largeBytes = Allocated(() => Transform(large, output, encrypt));
-            Assert.True(largeBytes <= smallBytes + 2 * KiB,
-                $"Cipher allocated {largeBytes:N0} B for 1,024 chunks versus {smallBytes:N0} B for one chunk.");
+            largeBytes.AssertAtMost(smallBytes.MinimumBytes + 2 * KiB, $"Small cipher samples: {smallBytes}. Cipher allocated {largeBytes.MinimumBytes:N0} B for 1,024 chunks versus {smallBytes.MinimumBytes:N0} B for one chunk.");
         }
     }
 
@@ -30,8 +32,8 @@ public sealed class AriseCipherAllocationTests
         _ = AriseFormat.Encode(save);
         var decodeBytes = Allocated(() => { _ = AriseFormat.Decode(bytes); });
         var encodeBytes = Allocated(() => { _ = AriseFormat.Encode(save); });
-        Assert.True(decodeBytes < 1600 * KiB, $"Decode allocated {decodeBytes:N0} B.");
-        Assert.True(encodeBytes < 3 * MiB, $"Verified encode allocated {encodeBytes:N0} B.");
+        decodeBytes.AssertLessThan(1600 * KiB, $"Decode allocated {decodeBytes.MinimumBytes:N0} B.");
+        encodeBytes.AssertLessThan(3 * MiB, $"Verified encode allocated {encodeBytes.MinimumBytes:N0} B.");
         Assert.Equal(bytes, AriseFormat.Encode(save));
     }
 
@@ -41,10 +43,6 @@ public sealed class AriseCipherAllocationTests
         cipher.Transform(input, output, encrypt);
     }
 
-    private static long Allocated(Action action)
-    {
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        action();
-        return GC.GetAllocatedBytesForCurrentThread() - before;
-    }
+    private static AllocationProbeResult Allocated(Action action) =>
+        AllocationProbe.Measure(action, warmupRuns: 1);
 }

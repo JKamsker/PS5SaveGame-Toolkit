@@ -1,5 +1,8 @@
+using SaveToolkit.Testing;
+
 namespace SaveToolkit.Plugins.AtomicHeart.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AtomicHeartDecoderAllocationTests(ITestOutputHelper output)
 {
     private const int Warmups = 5;
@@ -16,39 +19,18 @@ public sealed class AtomicHeartDecoderAllocationTests(ITestOutputHelper output)
         var expected = SlotDataDecoder.Decode(bytes, outer);
         Assert.Equal(ExpectedChunks, outer.Chunks.Count);
         Assert.Equal(ExpectedPlainBytes, expected.Plain.Length);
-        for (var i = 0; i < Warmups; i++)
-        {
-            _ = DecodeAllocation(bytes, outer, expected.Plain);
-            _ = ParseAllocation(expected.Plain);
-        }
-
         // Decode also allocates the aggregate and RecordIndex. Subtract an identical
         // plain-array copy + parser pass to isolate codec allocations on the real path.
         // File reads, framing and comparison assertions are outside both measurements.
-        var allocations = new long[Measurements];
-        for (var i = 0; i < Measurements; i++)
-            allocations[i] = DecodeAllocation(bytes, outer, expected.Plain) - ParseAllocation(expected.Plain);
-        Array.Sort(allocations);
-        var allocated = allocations[Measurements / 2];
-        output.WriteLine($"14-stream codec batch, excluding aggregate/parser: {allocated:N0} allocated bytes.");
-        Assert.InRange(allocated, 0, (long)ExpectedChunks * BytesPerChunkBudget);
-    }
-
-    private static long DecodeAllocation(byte[] bytes, SaveExtensionFile outer, byte[] expected)
-    {
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var decoded = SlotDataDecoder.Decode(bytes, outer);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.Equal(expected, decoded.Plain);
-        return allocated;
-    }
-
-    private static long ParseAllocation(byte[] plain)
-    {
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var parsed = new RecordReader(plain.ToArray()).Read();
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var decode = AllocationProbe.Measure(() => SlotDataDecoder.Decode(bytes, outer), out var decoded,
+            warmupRuns: Warmups, measuredRuns: Measurements);
+        Assert.Equal(expected.Plain, decoded.Plain);
+        var parse = AllocationProbe.Measure(() => new RecordReader(expected.Plain.ToArray()).Read(), out var parsed,
+            warmupRuns: Warmups, measuredRuns: Measurements);
         GC.KeepAlive(parsed);
-        return allocated;
+        var allocated = decode.TransformSamples(sample => sample - parse.MinimumBytes);
+        output.WriteLine($"14-stream codec batch, excluding aggregate/parser: {allocated}.");
+        allocated.AssertInRange(0, (long)ExpectedChunks * BytesPerChunkBudget,
+            $"Decode: {decode}; aggregate/parser baseline: {parse}.");
     }
 }

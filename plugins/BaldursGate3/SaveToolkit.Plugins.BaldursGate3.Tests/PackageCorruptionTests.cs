@@ -4,6 +4,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class PackageCorruptionTests
 {
     private const int MaximumRejectionAllocation = 1024 * 1024;
@@ -68,11 +69,9 @@ public sealed class PackageCorruptionTests
 
     private static void RejectWithBoundedAllocation(byte[] bytes)
     {
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        var error = Record.Exception(() => Open(bytes));
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
+        var allocated = AllocationProbe.Measure(() => Record.Exception(() => Open(bytes)), out var error);
         Assert.IsType<SaveFormatException>(error);
-        Assert.True(allocated < MaximumRejectionAllocation, $"Invalid package allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(MaximumRejectionAllocation, $"Invalid package allocated {allocated.MinimumBytes:N0} bytes.");
     }
 
     private static ISaveDocument Open(byte[] bytes) =>

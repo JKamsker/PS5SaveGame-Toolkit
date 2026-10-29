@@ -1,8 +1,10 @@
 using SaveToolkit.Plugins.Pragmata.Crypto;
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Pragmata.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class ContainerRobustnessTests
 {
     private const int MaximumPlaintext = 64 * 1024 * 1024;
@@ -25,11 +27,9 @@ public sealed class ContainerRobustnessTests
         }
         // Warm the exception/assertion paths without the large declared length.
         Assert.Throws<SaveFormatException>(() => new DsssContainer(SyntheticDsss.EmptyEnvelope(1)));
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var error = Assert.Throws<SaveFormatException>(() => new DsssContainer(bytes));
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => Assert.Throws<SaveFormatException>(() => new DsssContainer(bytes)), out var error);
         Assert.Contains("Truncated Mandarin block", error.Message, StringComparison.Ordinal);
-        Assert.True(allocated < RejectionAllocationBudget, $"Rejection allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(RejectionAllocationBudget, $"Rejection allocated {allocated.MinimumBytes:N0} bytes.");
     }
 
     [Theory]

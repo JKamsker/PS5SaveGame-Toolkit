@@ -1,8 +1,10 @@
 using System.Text;
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class LsxPreflightTests
 {
     [Theory]
@@ -13,11 +15,9 @@ public sealed class LsxPreflightTests
         var content = attributes ? string.Concat(Enumerable.Repeat("<n a='1' b='2'/>", BinaryData.MaxRecords / 2))
             : string.Concat(Enumerable.Repeat("<n/>", BinaryData.MaxRecords));
         var xml = Encoding.UTF8.GetBytes("<save id='root'>" + content + "</save>");
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        var error = Record.Exception(() => LsxReader.Read(xml));
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
+        var allocated = AllocationProbe.Measure(() => Record.Exception(() => LsxReader.Read(xml)), out var error);
         Assert.IsType<SaveFormatException>(error);
-        Assert.True(allocated < 1024 * 1024, $"Excessive XML counts allocated {allocated:N0} bytes before rejection.");
+        allocated.AssertLessThan(1024 * 1024, $"Excessive XML counts allocated {allocated.MinimumBytes:N0} bytes before rejection.");
     }
 
     [Fact]

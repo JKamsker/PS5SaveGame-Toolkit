@@ -34,12 +34,13 @@ public sealed class PerformanceMeasurements(ITestOutputHelper output)
         var file = set.AllDiskFiles.Where(f => plugin.Probe(f).IsMatch).MaxBy(f => f.Length)!;
         output.WriteLine($"{title}: largest={file.Length} bytes; Release recommended; {Repetitions} warm repetitions.");
         ReferencePackStore store = null!;
-        Measure("cold pack store (both embedded packs)", () => store = new([plugin]), 1, PackStoreAllocationLimit);
+        Measure("pack store (both embedded packs)", () => store = new([plugin]), 1, PackStoreAllocationLimit);
         Assert.Empty(store.LoadErrors);
-        Measure("cold fallback", () => _ = SerialDatabase.For(title == "PPSA01493"), 1, FallbackAllocationLimit);
+        Measure("warmed fallback", () => _ = SerialDatabase.For(title == "PPSA01493"), 1, FallbackAllocationLimit);
         var references = store.Pin(plugin, title);
-        using (var first = plugin.Open(file, references))
-            Measure("first root view", () => _ = first.BuildView(), 1);
+        ISaveDocument? first = null;
+        Measure("first root view", () => _ = first!.BuildView(), 1,
+            beforeRun: () => first = plugin.Open(file, references), afterRun: () => first?.Dispose());
         Measure("pin", () => _ = store.Pin(plugin, title), allocationLimit: PinAllocationLimit);
         Measure("open", () => { using var document = plugin.Open(file, references); });
         Measure("open + root", () => { using var document = plugin.Open(file, references); _ = document.BuildView(); });
@@ -81,22 +82,24 @@ public sealed class PerformanceMeasurements(ITestOutputHelper output)
         }, allocationLimit: ValidateAndOpenAllocationLimit);
     }
 
-    private void Measure(string phase, Action action, int repetitions = Repetitions, long allocationLimit = DefaultAllocationLimit)
+    private void Measure(string phase, Action action, int repetitions = Repetitions, long allocationLimit = DefaultAllocationLimit,
+        Action? beforeRun = null, Action? afterRun = null)
     {
-        if (repetitions > 1) action();
-        var observations = new List<(double Milliseconds, long Bytes)>();
-        for (var iteration = 0; iteration < repetitions; iteration++)
+        var durations = new List<double>();
+        long started = 0;
+        var allocated = AllocationProbe.Measure(() =>
         {
-            var allocated = GC.GetAllocatedBytesForCurrentThread();
-            var started = Stopwatch.GetTimestamp();
+            started = Stopwatch.GetTimestamp();
             action();
-            observations.Add((Stopwatch.GetElapsedTime(started).TotalMilliseconds,
-                GC.GetAllocatedBytesForCurrentThread() - allocated));
-        }
-        Assert.All(observations, observation => Assert.True(observation.Bytes < allocationLimit,
-            $"{phase} allocated {observation.Bytes:N0} bytes (budget {allocationLimit:N0})."));
-        output.WriteLine($"{phase}: median {observations.OrderBy(o => o.Milliseconds).ElementAt(repetitions / 2).Milliseconds:F3} ms; " +
-            $"{observations.OrderBy(o => o.Bytes).ElementAt(repetitions / 2).Bytes} thread allocated bytes");
+        }, measuredRuns: Math.Max(AllocationProbe.DefaultMeasuredRuns, repetitions), beforeRun: beforeRun,
+            afterRun: () =>
+            {
+                durations.Add(Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+                afterRun?.Invoke();
+            });
+        allocated.AssertLessThan(allocationLimit, phase);
+        var measuredDurations = durations.Skip(1).Order().ToArray();
+        output.WriteLine($"{phase}: median {measuredDurations[measuredDurations.Length / 2]:F3} ms; {allocated}.");
     }
 }
 

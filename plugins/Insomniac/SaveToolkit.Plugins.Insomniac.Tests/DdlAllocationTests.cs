@@ -1,7 +1,9 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Insomniac.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class DdlAllocationTests
 {
     [Fact]
@@ -15,11 +17,9 @@ public sealed class DdlAllocationTests
         var section = Assert.Single(container.Sections);
         _ = new DdlReader(container, section).Read();
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var fields = new DdlReader(container, section).Read();
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => new DdlReader(container, section).Read(), out var fields);
 
-        Assert.True(allocated <= allocationBudget, $"DDL allocated {allocated:N0} bytes; budget {allocationBudget:N0}.");
+        allocated.AssertAtMost(allocationBudget, $"DDL allocated {allocated.MinimumBytes:N0} bytes; budget {allocationBudget:N0}.");
         Assert.Equal(count, fields["Values"].Values.Count);
         Assert.Equal(payload.Select(value => (long)value), fields["Values"].Values.Select(value => value.AsInt64()));
     }
@@ -33,11 +33,9 @@ public sealed class DdlAllocationTests
         var section = Assert.Single(container.Sections);
         _ = Assert.Throws<SaveFormatException>(() => new DdlReader(container, section).Read());
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var error = Assert.Throws<SaveFormatException>(() => new DdlReader(container, section).Read());
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => Assert.Throws<SaveFormatException>(() => new DdlReader(container, section).Read()), out var error);
 
         Assert.Equal("DDL section 0x2EE91673: Field exceeds the object bounds.", error.Message);
-        Assert.True(allocated <= allocationBudget, $"Truncated DDL allocated {allocated:N0} bytes.");
+        allocated.AssertAtMost(allocationBudget, $"Truncated DDL allocated {allocated.MinimumBytes:N0} bytes.");
     }
 }

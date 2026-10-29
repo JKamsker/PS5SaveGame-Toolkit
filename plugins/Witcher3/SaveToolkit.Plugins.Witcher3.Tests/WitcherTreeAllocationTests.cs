@@ -1,7 +1,9 @@
 using System.Buffers.Binary;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Witcher3.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class WitcherTreeAllocationTests
 {
     [Fact]
@@ -22,9 +24,7 @@ public sealed class WitcherTreeAllocationTests
         }
         var directory = new Sav3Directory(["value", "Int32"], entries, data.Length);
         _ = Sav3Tree.Parse(data, directory); // Exclude initialization/JIT from the allocation budget.
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var tree = Sav3Tree.Parse(data, directory);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => Sav3Tree.Parse(data, directory), out var tree);
 
         Assert.Equal(nodeCount, tree.Roots.Count);
         Assert.All(tree.Nodes, node => {
@@ -37,7 +37,6 @@ public sealed class WitcherTreeAllocationTests
             Assert.Equal(sizeof(int), node.ValueSize);
             Assert.Empty(node.Children);
         });
-        Assert.True(allocated <= nodeCount * maximumBytesPerNode,
-            $"Tree allocated {allocated:N0} bytes; budget {nodeCount * maximumBytesPerNode:N0}.");
+        allocated.AssertAtMost(nodeCount * maximumBytesPerNode, $"Tree allocated {allocated.MinimumBytes:N0} bytes; budget {nodeCount * maximumBytesPerNode:N0}.");
     }
 }

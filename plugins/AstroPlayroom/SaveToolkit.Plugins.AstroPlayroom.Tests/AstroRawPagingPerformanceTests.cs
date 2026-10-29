@@ -1,8 +1,10 @@
 using System.Text;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.AstroPlayroom.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AstroRawPagingPerformanceTests
 {
     private const string NodeId = "/PreInstall[0]/Unknown[0]";
@@ -16,7 +18,7 @@ public sealed class AstroRawPagingPerformanceTests
         var bytes = AstroTestData.Bytes(text.ToString());
         using var document = AstroTestData.Open(bytes);
         var allocated = AstroPerformanceData.Allocated(() => _ = document.ExpandNode(NodeId + "|31"));
-        Assert.InRange(allocated, 0, 45_000);
+        allocated.AssertInRange(0, 45_000);
         var page = document.ExpandNode(NodeId + "|31");
         Assert.Equal(64, page.Count);
         Assert.Equal(Enumerable.Range(1984, 64).Select(i => NodeId + $"/@a{i}"),

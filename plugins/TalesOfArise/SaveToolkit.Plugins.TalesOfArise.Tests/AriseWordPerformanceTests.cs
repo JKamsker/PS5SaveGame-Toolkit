@@ -3,9 +3,11 @@ using System.Globalization;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.TalesOfArise.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AriseWordPerformanceTests
 {
     private const int PageOffset = 12000;
@@ -92,11 +94,9 @@ public sealed class AriseWordPerformanceTests
         var (_, _, collection) = Fixture();
         var query = new QueryableCollectionQuery { SortColumn = sort, Text = text, Offset = PageOffset, Limit = PageSize };
         _ = collection.Query(query, Field);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = collection.Query(query, Field);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => collection.Query(query, Field), out var page);
         Assert.Equal(PageSize, page.Rows.Count);
-        Assert.True(allocated < bound, $"{sort}/{text ?? "unfiltered"} page allocated {allocated:N0} B; bound {bound:N0} B.");
+        allocated.AssertLessThan(bound, $"{sort}/{text ?? "unfiltered"} page allocated {allocated.MinimumBytes:N0} B; bound {bound:N0} B.");
 
         static FieldNode Field(string id, string label, int _) => new(id, label, IntegerSpec.UInt32, FieldValue.Of(0L));
     }

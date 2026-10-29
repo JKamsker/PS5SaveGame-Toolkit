@@ -3,6 +3,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class RagnarokSamplePerformanceTests
 {
     [Fact]
@@ -12,11 +13,9 @@ public sealed class RagnarokSamplePerformanceTests
         var plugin = new GodOfWarRagnarokPlugin();
         var references = RagnarokTestSupport.PinnedReferences(plugin);
         using (var warmup = plugin.Open(file, references)) _ = warmup.BuildView();
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        using var document = plugin.Open(file, references);
-        _ = document.BuildView();
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.InRange(allocated, 0, 5_950_000);
+        var allocated = AllocationProbe.MeasureOpen(() => plugin.Open(file, references), out var opened, document => _ = document.BuildView());
+        using var document = opened;
+        allocated.AssertInRange(0, 5_950_000);
         Assert.Equal(3_217_731, file.Length);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
     }
@@ -40,11 +39,9 @@ public sealed class RagnarokSamplePerformanceTests
             _ => new() { Offset = 200, Limit = 20 },
         };
         _ = document.Query(collection, query);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = document.Query(collection, query);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => document.Query(collection, query), out var page);
         Assert.NotEmpty(page.Rows);
-        Assert.InRange(allocated, 0, budget);
+        allocated.AssertInRange(0, budget);
     }
 
     private static SaveToolkit.Sdk.Saves.ISaveFile LargestSample() => SampleSaves.Load("PPSA08330").AllDiskFiles

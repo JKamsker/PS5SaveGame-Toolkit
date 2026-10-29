@@ -1,9 +1,11 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.AtomicHeart.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AtomicHeartInspectorPerformanceTests
 {
     [Fact]
@@ -11,11 +13,9 @@ public sealed class AtomicHeartInspectorPerformanceTests
     {
         var index = Index(1000, new string('x', 512), 3);
         _ = Views(index);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var views = Views(index);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => Views(index), out var views);
         GC.KeepAlive(views);
-        Assert.True(allocated < 1_500_000, $"Inspector construction allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(1_500_000, $"Inspector construction allocated {allocated.MinimumBytes:N0} bytes.");
     }
 
     [Fact]

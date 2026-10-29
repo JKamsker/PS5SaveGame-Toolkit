@@ -1,6 +1,8 @@
+using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.XorJson.Tests;
 
@@ -13,12 +15,13 @@ public sealed class CollectionPerformanceTests
     [Fact]
     public void FirstViewAndMetadataDoNotMaterializeRawArrayCells()
     {
-        using var document = OpenRows();
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        _ = document.BuildView();
-        var metadata = ((IQueryableDocument)document).Collections;
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.InRange(allocated, 1, 128 * 1024);
+        ISaveDocument? document = null;
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            _ = document!.BuildView();
+            return ((IQueryableDocument)document).Collections;
+        }, out var metadata, beforeRun: () => document = OpenRows(), afterRun: () => document?.Dispose());
+        allocated.AssertInRange(1, 128 * 1024);
         Assert.Equal(RowCount, Assert.Single(metadata).TotalCount);
     }
 
@@ -34,11 +37,9 @@ public sealed class CollectionPerformanceTests
         var id = Assert.Single(collection.Collections).Id;
         var query = new QueryableCollectionQuery { Text = text, SortColumn = sort, Offset = 1, Limit = 1 };
         _ = collection.Query(id, query);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = collection.Query(id, query);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => collection.Query(id, query), out var page);
         Assert.Single(page.Rows);
-        Assert.InRange(allocated, 1, PageBudget);
+        allocated.AssertInRange(1, PageBudget);
         Assert.Equal(text is null ? RowCount : 19, page.FilteredCount);
     }
 
@@ -54,12 +55,10 @@ public sealed class CollectionPerformanceTests
             Limit = 1,
         };
         _ = collection.Query(id, query);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = collection.Query(id, query);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => collection.Query(id, query), out var page);
         Assert.Equal("value/10001", Assert.Single(page.Rows).Key);
         Assert.Equal(1, page.FilteredCount);
-        Assert.InRange(allocated, 1, PageBudget);
+        allocated.AssertInRange(1, PageBudget);
         var removal = document.InvokeAction("json/remove/2", new Dictionary<string, FieldValue>());
         Assert.Empty(collection.Query(id, query).Rows);
         Assert.Equal("value/10001", Assert.Single(collection.Query(id, query with

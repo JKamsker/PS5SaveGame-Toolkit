@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Api.Performance.Tests;
 
@@ -16,11 +17,9 @@ public sealed class HttpExportAllocationTests(ITestOutputHelper output)
         var workspace = await host.ImportAsync(new MemoryStream(bytes), "random.bin");
         var url = $"/api/workspaces/{workspace.GetProperty("id").GetString()}/export";
         await ExportAsync();
-        var before = GC.GetTotalAllocatedBytes(precise: true);
-        await ExportAsync();
-        var allocated = GC.GetTotalAllocatedBytes(precise: true) - before;
-        new ApiMeasurement(output, "8MiB-random").Record("http-export", allocated);
-        Assert.True(allocated < PayloadBytes / 2, $"HTTP export allocated {allocated:N0} B.");
+        var allocated = await AllocationProbe.MeasureProcessWideAsync(ExportAsync);
+        new ApiMeasurement(output, "8MiB-random").Record("http-export", allocated.MinimumBytes);
+        allocated.AssertLessThan(PayloadBytes / 2, $"HTTP export allocated {allocated.MinimumBytes:N0} B.");
 
         async Task ExportAsync()
         {

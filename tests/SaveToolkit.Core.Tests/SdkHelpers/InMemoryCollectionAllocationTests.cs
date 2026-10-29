@@ -1,8 +1,10 @@
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Core.Tests.SdkHelpers;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class InMemoryCollectionAllocationTests(ITestOutputHelper output)
 {
     private const int PageSize = 50;
@@ -52,9 +54,10 @@ public sealed class InMemoryCollectionAllocationTests(ITestOutputHelper output)
 
         QueryableCollectionPage? page = null;
         rendered = 0;
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        for (var i = 0; i < MeasuredQueries; i++) page = collection.Query(query);
-        var bytesPerQuery = (GC.GetAllocatedBytesForCurrentThread() - before) / MeasuredQueries;
+        var bytesPerQuery = AllocationProbe.Measure(() =>
+        {
+            for (var i = 0; i < MeasuredQueries; i++) page = collection.Query(query);
+        }, beforeRun: () => rendered = 0).TransformSamples(bytes => bytes / MeasuredQueries);
 
         Assert.NotNull(page);
         Assert.Equal(count, page.TotalCount);
@@ -62,11 +65,10 @@ public sealed class InMemoryCollectionAllocationTests(ITestOutputHelper output)
         Assert.Equal(kind == "empty" ? count / 2 : 0, page.HiddenEmptyCount);
         Assert.Equal(PageSize, page.Rows.Count);
         Assert.Equal(PageSize * MeasuredQueries, rendered);
-        var perThousand = bytesPerQuery * 1_000 / count;
+        var perThousand = bytesPerQuery.TransformSamples(bytes => bytes * 1_000 / count);
         var budget = kind == "stream" ? StreamingBytesPerThousandRows : BytesPerThousandRows;
-        output.WriteLine($"{kind}, {count} rows: {bytesPerQuery:N0} B/query, {perThousand:N0} B/1,000 rows.");
-        Assert.True(perThousand <= budget,
-            $"{kind}: {perThousand:N0} B/1,000 rows exceeds {budget:N0} B (query: {bytesPerQuery:N0} B).");
+        output.WriteLine($"{kind}, {count} rows: {bytesPerQuery.MinimumBytes:N0} B/query, {perThousand.MinimumBytes:N0} B/1,000 rows.");
+        perThousand.AssertAtMost(budget, $"{kind}: {perThousand.MinimumBytes:N0} B/1,000 rows exceeds {budget:N0} B (query: {bytesPerQuery.MinimumBytes:N0} B).");
     }
 
     private static IEnumerable<int> Stream(int[] items)

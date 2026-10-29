@@ -1,5 +1,6 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.XorJson.Tests;
 
@@ -20,11 +21,9 @@ public sealed class PlanningPerformanceTests
         using var document = XorJsonTests.Open(bytes);
         var planner = Assert.IsAssignableFrom<IActionPlanningDocument>(document);
         var scope = new ActionScope(["value/10001"]);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var plan = planner.PlanAction("json/bulk-set", Parameters, scope);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => planner.PlanAction("json/bulk-set", Parameters, scope), out var plan);
 
-        Assert.InRange(allocated, 1, SelectionBudget);
+        allocated.AssertInRange(1, SelectionBudget);
         Assert.Empty(plan.Errors);
         var change = Assert.Single(plan.Changes);
         Assert.Equal("value/10001", change.ValueId);

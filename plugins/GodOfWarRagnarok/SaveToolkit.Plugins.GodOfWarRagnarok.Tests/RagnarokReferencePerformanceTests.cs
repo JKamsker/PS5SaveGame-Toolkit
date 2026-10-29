@@ -1,9 +1,11 @@
 using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class RagnarokReferencePerformanceTests
 {
     [Theory]
@@ -19,19 +21,20 @@ public sealed class RagnarokReferencePerformanceTests
         var category = references.Category(id);
         var catalog = references.Catalog(id);
         context.FindCalls = 0;
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        for (var repeat = 0; repeat < 100; repeat++)
+        var allocated = AllocationProbe.Measure(() =>
         {
-            _ = references.Find(id);
-            _ = references.Name(id);
-            _ = references.Attribution(id);
-            _ = references.Category(id);
-            _ = references.Catalog(id);
-        }
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            for (var repeat = 0; repeat < 100; repeat++)
+            {
+                _ = references.Find(id);
+                _ = references.Name(id);
+                _ = references.Attribution(id);
+                _ = references.Category(id);
+                _ = references.Catalog(id);
+            }
+        });
 
         Assert.Equal(0, context.FindCalls);
-        Assert.InRange(allocated, 0, 1024);
+        allocated.AssertInRange(0, 1024);
         Assert.Same(record, references.Find(id));
         Assert.Equal(name, references.Name(id));
         Assert.Equal(attribution, references.Attribution(id));

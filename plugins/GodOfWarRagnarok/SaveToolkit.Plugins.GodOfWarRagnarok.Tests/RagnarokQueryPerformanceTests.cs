@@ -2,9 +2,11 @@ using System.Globalization;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class RagnarokQueryPerformanceTests
 {
     private static readonly string[] SortColumns = ["container", "name", "id", "category", "quantity", "metadata", "source", "offset", "icon", "inspect", "restore"];
@@ -29,12 +31,10 @@ public sealed class RagnarokQueryPerformanceTests
             _ => new() { Offset = 800, Limit = 1 },
         };
         _ = document.Query("resources", query);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = document.Query("resources", query);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => document.Query("resources", query), out var page);
         Assert.Single(page.Rows);
         // Sorting retains typed keys and row references, never rich cells for the complete model.
-        Assert.InRange(allocated, 0, 64 * 1024);
+        allocated.AssertInRange(0, 64 * 1024);
     }
 
     public static TheoryData<string, bool> SortCases => new(

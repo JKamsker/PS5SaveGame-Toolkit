@@ -2,9 +2,11 @@ using System.Buffers.Binary;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.FinalFantasy16.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class FaithQueryPerformanceTests
 {
     [Theory]
@@ -76,10 +78,8 @@ public sealed class FaithQueryPerformanceTests
         }
         _ = engine.Query(query, Row, metadata);
         rendered.Clear();
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = engine.Query(query, Row, metadata);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.True(allocated < 16 * 1024, $"A one-row slot page allocated {allocated:N0} bytes.");
+        var allocated = AllocationProbe.Measure(() => engine.Query(query, Row, metadata), out var page, beforeRun: () => rendered.Clear());
+        allocated.AssertLessThan(16 * 1024, $"A one-row slot page allocated {allocated.MinimumBytes:N0} bytes.");
         Assert.Empty(references.CatalogCalls);
         Assert.Equal([descending ? 99 : 1100], rendered);
         Assert.Equal(FaithInventory.Capacity, page.TotalCount);

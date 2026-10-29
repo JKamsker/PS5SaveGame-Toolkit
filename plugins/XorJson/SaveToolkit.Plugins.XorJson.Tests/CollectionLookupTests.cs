@@ -19,14 +19,14 @@ public sealed class CollectionLookupTests
         // Isolate plugin work from the host's pinned catalog loader; catalog calls
         // are checked separately below, and the standalone harness measures both.
         using (var warmup = plugin.Open(file)) _ = warmup.BuildView();
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        using var document = plugin.Open(file);
-        var opening = GC.GetAllocatedBytesForCurrentThread() - before;
-        before = GC.GetAllocatedBytesForCurrentThread();
-        _ = document.BuildView();
-        var firstView = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.InRange(opening, 1, 2 * 1024 * 1024);
-        Assert.InRange(firstView, 1, 128 * 1024);
+        var opening = AllocationProbe.MeasureOpen(() => plugin.Open(file), out var opened);
+        using var document = opened;
+        ISaveDocument? firstViewDocument = null;
+        var firstView = AllocationProbe.Measure(() => firstViewDocument!.BuildView(), out _,
+            beforeRun: () => firstViewDocument = plugin.Open(file),
+            afterRun: () => firstViewDocument?.Dispose());
+        opening.AssertInRange(1, 2 * 1024 * 1024);
+        firstView.AssertInRange(1, 128 * 1024);
         Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
     }
 

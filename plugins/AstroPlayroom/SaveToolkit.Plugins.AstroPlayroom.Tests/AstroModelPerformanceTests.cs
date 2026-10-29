@@ -2,9 +2,11 @@ using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.AstroPlayroom.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AstroModelPerformanceTests
 {
     [Fact]
@@ -38,7 +40,7 @@ public sealed class AstroModelPerformanceTests
         var scope = new ActionScope();
         var allocated = AstroPerformanceData.Allocated(() =>
             _ = planner.PlanAction("collectibles/collect-all", parameters, scope));
-        Assert.InRange(allocated, 0, 48_000);
+        allocated.AssertInRange(0, 48_000);
         Assert.Equal(164, planner.PlanAction("collectibles/collect-all", parameters, scope).Changes.Count);
     }
 

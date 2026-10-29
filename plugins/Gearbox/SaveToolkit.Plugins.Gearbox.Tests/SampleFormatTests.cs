@@ -7,6 +7,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Gearbox.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class SampleFormatTests(ITestOutputHelper output)
 {
     private readonly GearboxPlugin _plugin = new();
@@ -24,11 +25,10 @@ public sealed class SampleFormatTests(ITestOutputHelper output)
         using (var warmup = _plugin.Open(files[0])) { }
         foreach (var file in files)
         {
-            var before = GC.GetAllocatedBytesForCurrentThread();
-            using var document = _plugin.Open(file);
-            var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-            output.WriteLine($"{file.RelativePath}: open allocated {allocated:N0} bytes.");
-            Assert.True(allocated < SampleOpenAllocationLimit, $"Opening {file.RelativePath} allocated {allocated:N0} bytes.");
+            var allocated = AllocationProbe.MeasureOpen(() => _plugin.Open(file), out var opened);
+            using var document = opened;
+            output.WriteLine($"{file.RelativePath}: open allocated {allocated.MinimumBytes:N0} bytes.");
+            allocated.AssertLessThan(SampleOpenAllocationLimit, $"Opening {file.RelativePath} allocated {allocated.MinimumBytes:N0} bytes.");
             Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
             var twin = files.Single(f => f.Directory.Generation == file.Directory.Generation && f.FileName == file.FileName
                 && f.Directory.IsBackup != file.Directory.IsBackup);

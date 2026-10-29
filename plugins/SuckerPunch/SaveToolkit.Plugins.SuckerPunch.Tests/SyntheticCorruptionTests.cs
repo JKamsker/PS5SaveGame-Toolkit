@@ -2,9 +2,11 @@ using System.Text;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.SuckerPunch.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class SyntheticCorruptionTests
 {
     [Theory]
@@ -267,10 +269,8 @@ public sealed class SyntheticCorruptionTests
         var plugin = new SuckerPunchPlugin();
         // Allow the fixed-size document copy and bounded tables, never a declared count/length allocation.
         const long allocationBudget = 4 * 1024 * 1024;
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var error = Assert.Throws<SaveFormatException>(() => plugin.Open(file));
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => Assert.Throws<SaveFormatException>(() => plugin.Open(file)), out var error);
         Assert.Equal(expected, error.Message);
-        Assert.InRange(allocated, 0, allocationBudget);
+        allocated.AssertInRange(0, allocationBudget);
     }
 }
