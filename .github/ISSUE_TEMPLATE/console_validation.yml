@@ -1,0 +1,67 @@
+name: Console validation report
+description: Record an edit's observed in-game behavior and persistence.
+title: "[Console validation]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Follow the [owner capture and console-validation guide](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/OWNER_CHECKLIST.md#capture-protocol-f1).
+        Link the related checklist item/plugin issue and [console validation tracking (#31)](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
+        Report rejection, clamping and overwritten edits as well as successes. An export check alone does not prove console acceptance.
+        **Do not upload save files publicly; describe the layout instead.** Redact account information and personal paths.
+  - type: input
+    id: app-version
+    attributes:
+      label: App version
+      description: Copy the version from the home-page footer or GET /api/version.
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin name or ID and plugin version
+      description: Plugin versions are independent of the app version; GET /api/plugins lists them.
+    validations:
+      required: true
+  - type: textarea
+    id: game-build
+    attributes:
+      label: Game, title ID and build
+      description: Include region, DLC, mode/NG+, locale and console system version where known. Omit account identifiers.
+    validations:
+      required: true
+  - type: textarea
+    id: edit
+    attributes:
+      label: Exact edit tested
+      description: Record the file's relative path/layout, field/action, original/requested values, selected scope and any derived changes or warnings.
+    validations:
+      required: true
+  - type: textarea
+    id: protocol
+    attributes:
+      label: Validation steps
+      description: Describe the unchanged-export recovery check, one small edit, restore/load, normal gameplay use, native save and reload. Identify any steps not performed.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: In-game result and persistence
+      description: Record visible before/after values, rejection/clamping/overwrites, unrelated effects, and whether the edit persisted after native save and reload. State what remains untested.
+    validations:
+      required: true
+  - type: textarea
+    id: tracking
+    attributes:
+      label: Related checklist item and issue
+      description: Link the relevant owner-checklist heading or task, plugin issue and any prior report; state if no specific item exists.
+    validations:
+      required: true
+  - type: checkboxes
+    id: backup
+    attributes:
+      label: Backup confirmation
+      options:
+        - label: I kept an untouched recovery backup and tested on a disposable spare slot.
+          required: true

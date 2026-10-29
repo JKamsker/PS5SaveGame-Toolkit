@@ -115,6 +115,10 @@ tables. Replace the demonstration format with researched game data before claimi
 Run `./scripts/self-test.ps1 -ScratchDirectory <scratch-path>` for scaffold/script regressions;
 the generated-project checks require the .NET SDK above and package restore access, but no private saves.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests, plugin rules and review tracking.
+
 ## Architecture
 
 - **SDK** (`src/SaveToolkit.Sdk`): the plugin contract. Plugins describe *what* data is — types,

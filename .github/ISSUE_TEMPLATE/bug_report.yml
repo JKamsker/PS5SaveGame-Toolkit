@@ -1,0 +1,86 @@
+name: Bug report
+description: Report a reproducible problem with the app or a plugin.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Do not upload save files publicly; describe the layout instead.**
+        Do not attach decrypted dumps, extracted save data or account information.
+        Redact personal paths and account identifiers from logs and screenshots.
+        Check the [user guide](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/USER_GUIDE.md#report-a-problem) and existing issues first.
+  - type: input
+    id: app-version
+    attributes:
+      label: App version
+      description: Copy the running version from the home-page footer or GET /api/version.
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system and architecture
+      placeholder: Windows 11 x64, macOS arm64, or Linux distribution/version x64
+    validations:
+      required: true
+  - type: input
+    id: game
+    attributes:
+      label: Game and title ID
+      description: Include region, game build and DLC if known; use N/A for app-only problems.
+      placeholder: Game name, PPSA12345, build, region, DLC
+    validations:
+      required: true
+  - type: input
+    id: plugin
+    attributes:
+      label: Plugin name or ID and version
+      description: Include the plugin version if known; use N/A for app-only problems.
+    validations:
+      required: true
+  - type: textarea
+    id: save-layout
+    attributes:
+      label: Save layout
+      description: Describe relative folders, filenames, sizes, primary/backup files and zip/folder import. No save contents or personal identifiers. Use N/A if unrelated to a save.
+      placeholder: PPSA12345/slot0/save.dat (size), sce_sys/ metadata, backup folder if present
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the selected file, field/action, before/requested values and whether undo or export/re-import triggers the problem. Omit private values.
+      placeholder: |
+        1. Import a dump with the layout above.
+        2. Open ...
+        3. Change ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: error
+    attributes:
+      label: Error message or log excerpt
+      description: Paste the exact relevant error with personal information removed, or state that no error was shown.
+      render: text
+    validations:
+      required: true
+  - type: checkboxes
+    id: backup
+    attributes:
+      label: Backup confirmation
+      options:
+        - label: I have an untouched backup of the original save, or this report does not involve a save.
+          required: true
