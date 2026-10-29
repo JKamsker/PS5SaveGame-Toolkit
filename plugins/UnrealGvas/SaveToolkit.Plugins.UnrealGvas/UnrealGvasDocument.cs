@@ -193,7 +193,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
             _envelope.ReplaceFile(GvasFile.Parse(output));
             Reindex();
         }, "Removed the last primitive container element. The operation is Experimental and reversible; game semantics are unverified.");
-        return _integrityWarning is { } warning ? outcome with { Warnings = [warning] } : outcome;
+        return outcome with { Warnings = [.. outcome.Warnings, _integrityWarning ?? EditWarning] };
     }
 
     protected override DocumentMemento? CaptureSnapshot()
@@ -237,8 +237,8 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
         var outcome = base.ApplyEdits(edits);
-        return outcome.Succeeded && edits.Count > 0 && _integrityWarning is not null
-            ? outcome with { Warnings = [_integrityWarning] }
+        return outcome.Succeeded && outcome.Changes.Any(change => change.OldValue != change.NewValue)
+            ? outcome with { Warnings = [.. outcome.Warnings, _integrityWarning ?? EditWarning] }
             : outcome;
     }
 

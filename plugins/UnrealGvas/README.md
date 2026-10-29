@@ -421,7 +421,7 @@ file-size policy is enforced in review.
 4. Add game schemas for opaque map/set structs, native values, complex FText and
    version extensions when samples become available.
 5. Solve Sackboy General checksum coverage; decode image texture layouts before
-   providing image previews. Atomic Heart now has its own read-only plugin.
+   providing image previews. Atomic Heart now has its own Experimental plugin with warned existing-record writes.
 6. Generic structural insertion, reorder and semantic item creation remain disabled
    until stable identities, required defaults and game relationships are proven. The
    bounded primitive-container remove-last action is the only enabled structural edit.
