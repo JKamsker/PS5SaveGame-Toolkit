@@ -75,7 +75,7 @@ public sealed class LosslessJsonDocumentTests
         Assert.Throws<LosslessJsonException>(() => LosslessJsonDocument.Parse(Encoding.UTF8.GetBytes("[1,2,3]"), new LosslessJsonLimits { MaxTokens = 2 }));
         var document = LosslessJsonDocument.Parse(Encoding.UTF8.GetBytes("[1e1000000000]"));
         Assert.Equal("1e1000000000", document.Root.Children[0].OriginalLexeme);
-        Assert.Throws<LosslessJsonException>(() => document.ReplaceScalar(document.Root.Children[0], "1e1000000000"));
+        Assert.Throws<LosslessJsonException>(() => document.ReplaceScalar(document.Root.Children[0], "1e1000000001"));
     }
 
     [Fact]
@@ -238,5 +238,22 @@ public sealed class LosslessJsonDocumentTests
         Assert.Equal(source.Length + 3, output.Length);
         var reopened = LosslessJsonDocument.Parse(output, limits);
         Assert.Equal("ß", reopened.Root.Children[1].StringValue);
+    }
+
+    [Fact]
+    public void OversizedValidStringIsRejectedByByteCountBeforeScalarParsing()
+    {
+        var source = Encoding.UTF8.GetBytes("\uFEFF  [0]  \r\n");
+        var document = LosslessJsonDocument.Parse(source, new LosslessJsonLimits { MaxBytes = source.Length });
+        var node = document.Root.Children[0];
+        var snapshot = document.CaptureSnapshot();
+        var replacement = "\"" + new string('é', 100_000) + "\"";
+
+        Assert.Throws<LosslessJsonException>(() => document.ReplaceScalar(node, replacement));
+        Assert.Equal("0", node.CurrentLexeme);
+        Assert.Equal(LosslessJsonNodeKind.Number, node.Kind);
+        Assert.Null(node.StringValue);
+        Assert.Equal(snapshot.Replacements, document.CaptureSnapshot().Replacements);
+        Assert.Equal(source, document.Serialize());
     }
 }

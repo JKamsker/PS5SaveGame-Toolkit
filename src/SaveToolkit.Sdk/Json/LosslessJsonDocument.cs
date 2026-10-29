@@ -110,10 +110,10 @@ public sealed class LosslessJsonDocument
         ArgumentNullException.ThrowIfNull(scalarLexeme);
         if (!_byId.TryGetValue(nodeId, out var node)) throw new KeyNotFoundException($"Unknown JSON node {nodeId}.");
         if (!node.IsScalar) throw new InvalidOperationException("Only scalar JSON nodes can be replaced.");
-        var parsed = LosslessJsonScalar.Parse(scalarLexeme, Limits);
         var current = node.CurrentLexeme!;
         if (current == scalarLexeme) return false;
         EnsureSerializedLength(nodeId, scalarLexeme == node.OriginalLexeme ? null : scalarLexeme);
+        var parsed = LosslessJsonScalar.Parse(scalarLexeme, Limits);
         if (scalarLexeme == node.OriginalLexeme) _replacements.Remove(nodeId);
         else _replacements[nodeId] = scalarLexeme;
         Apply(node, parsed, scalarLexeme);
@@ -134,6 +134,7 @@ public sealed class LosslessJsonDocument
         ArgumentNullException.ThrowIfNull(snapshot);
         if (!ReferenceEquals(snapshot.Owner, _identity))
             throw new ArgumentException("Snapshot belongs to another JSON document.", nameof(snapshot));
+        EnsureSerializedLength(snapshot.Replacements);
         var parsed = new Dictionary<int, ParsedScalar>();
         foreach (var pair in snapshot.Replacements)
         {
@@ -141,7 +142,6 @@ public sealed class LosslessJsonDocument
                 throw new ArgumentException("Snapshot belongs to another JSON document.", nameof(snapshot));
             parsed[pair.Key] = LosslessJsonScalar.Parse(pair.Value, Limits);
         }
-        EnsureSerializedLength(snapshot.Replacements);
         var prior = CaptureSnapshot();
         foreach (var node in Nodes.Where(candidate => candidate.OriginalLexeme is not null))
         {
@@ -189,7 +189,7 @@ public sealed class LosslessJsonDocument
             else if (!_replacements.TryGetValue(node.Id, out replacement))
                 continue;
             if (replacement is null) continue;
-            length = checked(length - node.OriginalSpan.Length + StrictUtf8.GetByteCount(replacement));
+            length = checked(length - node.OriginalSpan.Length + LosslessJsonScalar.GetUtf8ByteCount(replacement));
         }
         if (length > Limits.MaxBytes)
             throw new LosslessJsonException($"Serialized JSON exceeds the {Limits.MaxBytes}-byte safety limit.");
@@ -203,7 +203,7 @@ public sealed class LosslessJsonDocument
         {
             if (!_byId.TryGetValue(pair.Key, out var node) || node.OriginalLexeme is null)
                 throw new ArgumentException("Snapshot belongs to another JSON document.", nameof(replacements));
-            length = checked(length - node.OriginalSpan.Length + StrictUtf8.GetByteCount(pair.Value));
+            length = checked(length - node.OriginalSpan.Length + LosslessJsonScalar.GetUtf8ByteCount(pair.Value));
         }
         if (length > Limits.MaxBytes)
             throw new LosslessJsonException($"Serialized JSON exceeds the {Limits.MaxBytes}-byte safety limit.");

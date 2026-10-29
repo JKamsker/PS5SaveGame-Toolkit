@@ -28,6 +28,8 @@ object, so `{"x":1,"x":2}` has two distinct identities.
 or snapshot restore computes the checked UTF-8 byte total before changing node state; an operation
 that would exceed the budget throws `LosslessJsonException` and leaves the previous lexemes and
 serialized bytes intact. `Serialize()` repeats the budget check before allocating its output buffer.
+The strict UTF-8 byte count is obtained before scalar parsing allocates an encoded candidate buffer
+or decoded string, so a rejected replacement cannot exceed the selected output budget temporarily.
 The node overload of `ReplaceScalar` also verifies document ownership before looking up the stable
 ID, so an equal-ID node from another document cannot patch this document.
 

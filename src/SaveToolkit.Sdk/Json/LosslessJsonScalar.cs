@@ -10,6 +10,15 @@ internal static class LosslessJsonScalar
 {
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
 
+    public static int GetUtf8ByteCount(string text)
+    {
+        try { return StrictUtf8.GetByteCount(text); }
+        catch (EncoderFallbackException ex)
+        {
+            throw new LosslessJsonException("Replacement contains an unpaired Unicode surrogate.", ex.Index, ex);
+        }
+    }
+
     public static ParsedScalar FromReader(Utf8JsonReader reader, string lexeme, LosslessJsonLimits limits)
     {
         var kind = reader.TokenType switch
@@ -28,6 +37,7 @@ internal static class LosslessJsonScalar
     public static ParsedScalar Parse(string lexeme, LosslessJsonLimits limits)
     {
         if (lexeme.Length == 0) throw new LosslessJsonException("A scalar replacement cannot be empty.");
+        _ = GetUtf8ByteCount(lexeme);
         byte[] bytes;
         try { bytes = StrictUtf8.GetBytes(lexeme); }
         catch (EncoderFallbackException ex) { throw new LosslessJsonException("Replacement contains an unpaired Unicode surrogate.", ex.Index, ex); }
