@@ -110,6 +110,9 @@ public static partial class SaveSetImporter
         var titleIndex = Array.FindIndex(segments, s => TitleIdRegex().IsMatch(s));
         var anyTitle = titleIndex < 0 ? null : segments[titleIndex].ToUpperInvariant();
         var rootIndex = titleIndex < 0 ? 0 : titleIndex + 1;
+        if (rootIndex < segments.Length - 1 && string.Equals(segments[rootIndex], "sce_sys", StringComparison.OrdinalIgnoreCase))
+            return new ParsedPath(anyTitle, "loose", string.Join('/', segments[rootIndex..]));
+
         if (rootIndex < segments.Length - 1)
             return new ParsedPath(anyTitle, segments[rootIndex], string.Join('/', segments[(rootIndex + 1)..]));
 

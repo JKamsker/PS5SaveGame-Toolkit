@@ -49,6 +49,7 @@ public sealed class ImportLayoutTests
         var set = Import(TestZips.Build(
             ("PPSA00001/sdimg_SAVE/", []),
             ("PPSA00001\\sdimg_SAVE\\", []),
+            ("PPSA00001/sdimg_SAVE/subfolder\\", []),
             ("wrapper/__MACOSX/PPSA00001/sdimg_SAVE/._data.bin", [9]),
             ("PPSA00001/sdimg_SAVE/data.bin", [])));
 
@@ -77,6 +78,24 @@ public sealed class ImportLayoutTests
         var file = Assert.Single(Assert.Single(set.Directories).Files);
         Assert.Equal(relative, file.PathInDirectory);
         Assert.Equal([7, 8], file.ReadAllBytes());
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("PPSA00001/")]
+    public void Save_folder_contents_keep_root_system_files_beside_game_data(string prefix)
+    {
+        var set = Import(TestZips.Build(
+            ($"{prefix}data.bin", [1]),
+            ($"{prefix}sce_sys/param.sfo", [2]),
+            ($"{prefix}sce_sys/icon0.png", [])));
+
+        var directory = Assert.Single(set.Directories);
+        Assert.Equal("loose", directory.RawName);
+        Assert.Equal("data.bin", Assert.Single(directory.Files).PathInDirectory);
+        Assert.Equal(2, directory.SystemFiles.Count);
+        Assert.Contains(directory.SystemFiles, f => f.PathInDirectory == "sce_sys/param.sfo");
+        Assert.Contains(directory.SystemFiles, f => f.PathInDirectory == "sce_sys/icon0.png");
     }
 
     private static DiskSaveSet Import(byte[] archive) => SaveSetImporter.Import(
