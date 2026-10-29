@@ -89,13 +89,19 @@ internal sealed class TypedReader(byte[] data)
 
     private void ReadSized(SaveNode node, int size)
     {
+        ValidateSizedType(node.Type, size);
         Align(size);
         node.Offset = _position;
         node.Size = size;
-        if (node.Type != FieldTags.Struct && !PrimitiveCodec.IsSupported(node.Type, size))
-            Fail($"Unsupported primitive type/size {node.Type}/{size}");
         Read(size);
         ScalarCount++;
+    }
+
+    private void ValidateSizedType(int type, int size)
+    {
+        if (size == 0) Fail("Unsupported typed member size");
+        if (type != FieldTags.Struct && !PrimitiveCodec.IsSupported(type, size))
+            Fail($"Unsupported primitive type/size {type}/{size}");
     }
 
     private void ReadArray(SaveNode node, int depth)
@@ -107,6 +113,7 @@ internal sealed class TypedReader(byte[] data)
         var count = Count(MaximumArrayElements, 1);
         var arrayType = Int32();
         if (arrayType is not (ValueArray or ClassArray)) Fail("Unsupported array kind");
+        if (arrayType == ValueArray && memberType != FieldTags.String) ValidateSizedType(memberType, memberSize);
         if (arrayType == ClassArray)
         {
             if (UInt32() == ClassArrayMarker) Read(checked(count * sizeof(uint)));

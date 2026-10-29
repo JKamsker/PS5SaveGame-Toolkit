@@ -71,7 +71,7 @@ internal sealed class PragmataViews
             stats.Add(new Stat("Playtime (hours)", _document.HoursPlayed(header).ToString("F3", CultureInfo.InvariantCulture)) { Hint = "Units inferred from all 11 gameplay samples." });
             stats.Add(new Stat("Cleared", _document.Read(header.Find(KnownHashes.Cleared)!).ToString()));
             stats.Add(new Stat("Difficulty hash", $"0x{_document.Read(header.Find(KnownHashes.Difficulty)!).AsUInt32():x8}") { Hint = "Difficulty ID meaning unknown." });
-            fields.Add(new SectionNode("Save header", header.Children.Select(n => (ViewNode)_document.Field(n)).ToArray()));
+            fields.Add(new SectionNode("Save header", header.Children.Select(n => _raw.Node(n, raw: false)).ToArray()));
         }
         fields.Add(new SectionNode("File detail", layout.Detail.Children.Select(n => (ViewNode)new TextNode($"{HashNames.Label(n.Hash)}: {_document.PreviewOrValue(n)} · {HashNames.Provenance(n.Hash)}")).ToArray()));
         return [new StatsNode(stats), .. fields];
