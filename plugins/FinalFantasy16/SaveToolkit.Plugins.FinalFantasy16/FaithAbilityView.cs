@@ -51,9 +51,10 @@ internal sealed class FaithAbilityView(FaithCatalog catalog)
                     "build availability or current progression. The 68 stored rank-byte identities remain Unknown; raw controls are on Character context.")
                 { Tone = Tone.Warning },
             graph,
-            new TableNode([new("ability", "Reference ability"), new("eikon", "Eikon / evidence")],
+            new TableNode([new("icon", "Icon"), new("ability", "Reference ability"), new("eikon", "Eikon / evidence")],
                 abilities.Select(ability => new TableRow(FieldId(ability), new Dictionary<string, ViewNode>
                 {
+                    ["icon"] = catalog.Icon(ability),
                     ["ability"] = field(FieldId(ability), FaithCatalog.PlainText(ability.Name), new ReferenceSpec(FaithCatalog.AbilitiesId),
                         () => FieldValue.Of(ability.Key), Confidence.Inferred, FaithCatalog.Describe(ability)),
                     ["eikon"] = new SectionNode(ability.Category ?? "Unknown Eikon", [

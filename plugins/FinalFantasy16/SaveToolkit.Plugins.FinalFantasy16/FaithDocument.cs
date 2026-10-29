@@ -64,7 +64,8 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
     ]);
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => lazyId == FaithAbilityView.LazyId
-        ? new FaithAbilityView(_catalog).Build(BindContextField) : _explorer.Expand(lazyId);
+        ? new FaithAbilityView(_catalog).Build(BindContextField)
+        : lazyId == FaithMapArt.RegionalLazyId ? FaithMapArt.Regions(_references) : _explorer.Expand(lazyId);
 
     public IReadOnlyList<QueryableCollection> Collections => _inventory.IsSupported ? [InventoryView().Collection] : [];
 

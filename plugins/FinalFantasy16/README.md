@@ -11,6 +11,56 @@ retains an Inferred/Unknown label and a console-validation warning. System and
 unsupported schemas remain read-only; empty gameplay saves may expose independent
 supported context fields. No-op output preserves every byte.
 
+## Game assets (#15, 2026-10-29)
+
+The owner-approved asset round adds **140 icons**: 92 exact-name item records
+from the actual sample corpus/common consumables (36 accessories, 31 materials,
+7 consumables, 8 weapons, 5 belts and 5 vambraces), plus all 48 reference abilities.
+Each record has a matching `assetId` and a short **official game-description
+excerpt** from its individual Game8 article. Excerpts preserve source wording,
+are limited to 24 words, and show an ellipsis when shortened. They do not establish
+gameplay caps, saved ability indices or ownership. Icons appear in F4 pickers,
+F3/F8 inventory cells and the existing spoiler-gated ability details.
+
+The candidate-location map now has Square Enix's **Valisthea** artwork. A lazy
+section adds **Rosaria, Sanbreque, Dhalmekia and Waloed** reference backgrounds
+from Game8. Symbols and labels baked into those screenshots are source artwork,
+not saved discovery markers. The saved candidate map ID remains **unpositioned**
+in the text list because the save-to-art coordinate transform is Unknown. Missing
+packs retain the stored-location list and external guide. Direct Fandom downloads
+returned HTTP 403 in this environment; the earlier wiki text remains separately
+attributed under CC BY-SA 3.0.
+
+All **145 WebP images total exactly 398,116 bytes**, below the 4,000,000-byte
+budget. Icons are at most 64×64; the world image is 1920×756 and each regional
+image is at most 750 pixels on the long edge. The largest image is 75,802 bytes.
+Image processing/visual inspection took place outside the repository. Source
+URLs, retrieval date, input/output SHA-256 hashes, dimensions and selection are in
+[the media ledger](research/game-assets.json), with
+[processing/provenance notes](research/game-assets.source.md).
+
+Rights notices in the F2 asset datasets, descriptions, Sources panel, sidecars,
+this README and `Info.References` name Square Enix and Game8. The licence field is
+`Rights reserved by Square Enix and Game8; used with attribution per owner decision 2026-10-29`
+(Square Enix alone for its official world artwork). This notice records the owner's
+reuse policy; it does not change the rights holder or relicense the media.
+
+Largest retail sample, 1,075,780 bytes: cold pack load + document open + BuildView
+measured **204.683 → 211.826 ms**, and **60,882,536 → 73,289,496 allocated bytes**.
+This is a quick stopwatch measurement including JIT, not a statistical benchmark.
+Core loads/validates image bytes once in its shared pack store and serves cached
+objects; the plugin does no runtime file/network I/O. Regional views and ability
+details expand lazily. Core currently allocates an 81,920-byte scratch buffer for
+each resource read; those temporary allocations contribute to cold-load overhead.
+See [measurement details](research/assets-load.json).
+
+Asset-round verification: **131 passed, 0 failed, 0 skipped**, with the external
+artifacts directory exported in the command. All nine media-specific tests also
+pass on the final build; API Release build has **0 warnings and 0 errors**.
+Base catalogue generation followed by media application reproduces every JSON
+byte (LF-normalized); media application alone is byte-for-byte idempotent.
+All changes are inside `plugins/FinalFantasy16/`.
+
 ## Published identifiers unblock (#15)
 
 The owner's 2026-10-28 decision unblocks community data previously excluded only
@@ -57,9 +107,10 @@ are reference slugs, not Nex IDs or saved rank indices. The 68 raw rank controls
 and three named Nex IDs remain separate. Missing AP costs remain Unknown.
 
 The F9 location map links the candidate stored map ID to its control and an
-external wiki guide. No artwork, coordinates, visited/completion claims or
-teleportation are supplied. Missing/duplicate/unsupported PartyData produces no
-map. Standalone opening now displays the same map-variant attributes as host packs.
+external wiki guide. The asset round adds attributed reference backgrounds above;
+coordinates, visited/completion claims and teleportation remain unproven.
+Missing/duplicate/unsupported PartyData produces no map. Standalone opening
+displays the same map-variant attributes as host packs, with a text-only fallback.
 
 That completion round retained the 234-entry wiki pack and 131/172 retail,
 2/2 demo coverage. Its 41 outstanding names are now resolved by the published
@@ -71,14 +122,14 @@ confirmed save mappings. See the [requirement/acceptance gap audit](COMPLETION.m
 | Feature | Adoption | Where / concrete reason |
 | --- | --- | --- |
 | F1 SaveDiff | Used | Hash-pinned generation fixture, native `ffxvi` F12 hook and exact allowed-byte-range write tests. No local diff engine. |
-| F2 reference packs | Used | Five packs, immutable standalone fallbacks, Sources panel and provenance; separately attributed wiki, Nex, feats, abilities and published identifiers. |
-| F3 rich cells | Used; added this round | Field confidence, selected-row planned actions and expandable source/storage details in eager/queried rows. No reviewed licensed icons are available. |
+| F2 reference packs | Used | Six packs, immutable standalone catalogue fallbacks, Sources panel and provenance; separately attributed wiki, Nex, feats, abilities, published identifiers and maps. Asset round: 140 icons, 140 official-description excerpts, five map backgrounds. |
+| F3 rich cells | Used; added this round | Icons, field confidence, selected-row planned actions and expandable source/storage details in eager/queried rows and spoiler-gated ability rows. |
 | F4 pickers | Used; added this round | Inventory/gear/shortcut IDs, summon/command/map context, Nex skill and read-only ability references. Read-only IDs publish browse-only ReferenceSpec controls; catalogue searches use category and declared sort keys. Other numeric context is an index/bitset or has no catalogue. |
 | F5 structural undo | N/A | No safe allocator writer: free-list/generation/slot reuse and dependencies are unidentified. Fixed-width edits use value history. |
 | F6 planning / #27 | Used; added this round | Explicit main-stack targets for document, selected rows and resolved whole-query scopes, with exclusions, CRC, skips, warnings and one undo group. The only planned parameter is a numeric quantity; selected item IDs already use ReferenceSpec fields, so no planned-action ID fallback is needed. |
 | F7 groups | N/A | No established gameplay/system coupling or prepared multi-file writer; speculative sibling edits have no substantiated contract. |
 | F8 collections | Added this round | Main inventory reaches 1,200 rows; materialize only requested rich rows. Secondary <=100, gear 18, raw ability bytes 92. |
-| F9 graph/map | Added this round | Lazy spoiler-gated reference progression DAG and link-only candidate location map; text alternatives, provenance and field navigation. |
+| F9 graph/map | Used; added this round | Lazy spoiler-gated progression DAG; Valisthea background and four lazy regional references. Stored map marker stays unpositioned; text alternatives, attribution, missing-pack fallbacks and field navigation retained. |
 | F10 numbers | Used | Exact integer-string wire and integer-duration seconds. ExactNumberSpec/nullable/union are N/A to present fixed-width binary integers/bytes with no lexeme or null/type discriminator. |
 | F11 codecs | N/A | Supported PS5 files are plaintext Faith blocks with CRC; no Kraken/SQLite or PC PNG/XOR/zlib wrapper. |
 | F12 diff traversal | Used | The `ffxvi` SDK decoder hook emits bounded Faith root, inventory and context evidence independently of UI paging; the existing F1 fixture now has a native hook option. |
@@ -330,6 +381,7 @@ python -I plugins/FinalFantasy16/research/build_published_catalog.py
 python -I plugins/FinalFantasy16/research/build_layout_catalog.py '<scratch>/ffxvi-nex-layouts'
 python -I plugins/FinalFantasy16/research/build_feat_catalog.py
 python -I plugins/FinalFantasy16/research/build_ability_catalog.py
+python -I plugins/FinalFantasy16/research/apply_game_assets.py # after base catalogue generation
 python -I plugins/FinalFantasy16/research/verify_reference_audit.py
 python -I plugins/FinalFantasy16/research/measure_write_ranges.py
 ```
@@ -379,6 +431,9 @@ text; no upstream code/templates were executed. Notices are retained in
 
 | Dataset / code research | Source / revision | Licence / modifications |
 | --- | --- | --- |
+| 92 item and 48 ability icons; 140 official-description excerpts | Game8 individual articles in the [media ledger](research/game-assets.json); [consumables](https://game8.co/games/Final-Fantasy-XVI/archives/415576), [accessories](https://game8.co/games/Final-Fantasy-XVI/archives/414895), [materials](https://game8.co/games/Final-Fantasy-XVI/archives/415577), [weapons](https://game8.co/games/Final-Fantasy-XVI/archives/409998), [armor](https://game8.co/games/Final-Fantasy-XVI/archives/416024), [abilities](https://game8.co/games/Final-Fantasy-XVI/archives/409930); retrieved 2026-10-29 | Rights reserved by Square Enix and Game8; used with attribution per owner decision 2026-10-29. Exact-name joins only, 64px WebP icons, excerpts up to 24 words. Existing identifier/wiki licences and mapping warnings retained. [Media source sidecar](research/game-assets.source.md). |
+| Valisthea world artwork | [Square Enix official story page](https://na.finalfantasyxvi.com/story), exact CDN image and hash in the media ledger; retrieved 2026-10-29 | Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29. WebP conversion, no positioned save marker or inferred coordinate transform. |
+| Four regional map screenshots | [Game8 Valisthea/regions guide](https://game8.co/games/Final-Fantasy-XVI/archives/410003), exact image URLs and hashes in the media ledger; retrieved 2026-10-29 | Rights reserved by Square Enix and Game8; used with attribution per owner decision 2026-10-29. Resized WebP screenshots retain baked-in source symbols; lazy reference-only maps. [F2 sidecar](SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.maps.en/data.source.md). |
 | 48 Eikon ability references / progression / AP annotations | [Base-game navbox, 3770527](https://finalfantasy.fandom.com/wiki/Template:Navbox_abilities_FFXVI?oldid=3770527), [Leviathan, 4005603](https://finalfantasy.fandom.com/wiki/Leviathan_(Final_Fantasy_XVI)?oldid=4005603), [Ultima, 4045298](https://finalfantasy.fandom.com/wiki/Ultima_(Final_Fantasy_XVI)?oldid=4045298); every individual AP/name article pinned in TSV/records | CC BY-SA 3.0; original slug keys/warnings, selected names/groups/stages and individual AP facts, no art or saved-index joins. [Share-alike sidecar](SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.abilities.en/data.source.md). Missing AP stays Unknown. |
 | External location guide | [Final Fantasy Wiki locations](https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_locations) | Link only; no artwork or coordinates imported. Stored map labels retain the separate MIT Nex attribution. |
 | English names/categories and resource labels | [Final Fantasy Wiki translations, 4007473](https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_translations?oldid=4007473); per-record Gil/Renown/AP revision links | CC BY-SA 3.0; original 205 labels plus sourced base labels for upgraded variants; original factual ID crosswalk and evidence, no prose/art/caps. [Share-alike sidecar](SaveToolkit.Plugins.FinalFantasy16/ReferencePacks/ffxvi.wiki.en/data.source.md) |
@@ -404,8 +459,8 @@ PS5 save offsets. No additional signature/MAC is substantiated.
 | Source and revision | Licence found | Why it was refused | What was done instead | What would unblock it |
 | --- | --- | --- | --- | --- |
 | [Published FF16 identifier CSVs, `4b5e7eb`](https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids) | No licence published; reused with attribution per owner decision 2026-10-28 | Resolved: imported (owner decision 2026-10-28) | Attributed F2 data, names/categories/pickers, retained CSVs/hash pins and sidecars. | Resolved; no licence-based blocker remains. |
-| [Final Fantasy XVI locations guide](https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_locations) (unversioned link) | Wiki text: CC BY-SA 3.0 (Fandom licensing); map images/screenshots: game assets, not covered | proprietary game assets (the map art and coordinates; the CC BY-SA text itself would be usable with attribution) | Kept an HTTPS link-only guide and published no art, screenshots, or coordinates; local map labels use the separately noticed MIT dataset. | A rights-cleared map/coordinate dataset with explicit permission to embed it. |
-| FF16 game icons, screenshots, and other extracted media (no standalone revision) | none found | proprietary game assets | No image assets are shipped; views expose text, raw IDs, provenance, and external links only. | Written permission from the rights holder for redistribution in this plugin. |
+| [Final Fantasy XVI locations guide](https://finalfantasy.fandom.com/wiki/Final_Fantasy_XVI_locations), checked 2026-10-29 | Wiki text: CC BY-SA 3.0; publisher artwork separately attributed | Resolved: imported alternative source artwork (owner decision 2026-10-29) | Official Square Enix Valisthea art and four Game8 regional maps are embedded. Direct Fandom downloads returned HTTP 403; wiki link retained. | No remaining licence blocker; positioned pins still require a proven save-to-art transform. |
+| FF16 game icons and official descriptions; Game8 sources retrieved 2026-10-29 | Rights reserved by Square Enix and Game8; used with attribution per owner decision 2026-10-29 | Resolved: imported (owner decision 2026-10-29) | 140 icons and 140 short official-description excerpts; per-image hashes, F2 attribution and Sources integration. | Resolved for this curated selection; no entire-wiki import. |
 
 ## Owner capture and console-validation checklist
 

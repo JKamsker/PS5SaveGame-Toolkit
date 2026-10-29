@@ -10,12 +10,20 @@ public sealed class FinalFantasy16Plugin : IGamePlugin, ISaveDecoderProvider
 {
     public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new FaithEvidenceDecoder()];
 
-    public PluginInfo Info { get; } = new("ffxvi", "Final Fantasy XVI", "0.6.0")
+    public PluginInfo Info { get; } = new("ffxvi", "Final Fantasy XVI", "0.7.0")
     {
         Description = "Paged PS5 inventories, filtered quantity previews, Eikon ability reference trees and a location guide; experimental fixed-width writes. Not console-validated.",
         Games = [new GameTitle("PPSA10665", "Final Fantasy XVI"), new GameTitle("PPSA13803", "Final Fantasy XVI Demo")],
         Maturity = PluginMaturity.Experimental,
         References = [
+            FaithMapArt.OfficialUrl,
+            FaithMapArt.RegionalUrl,
+            "https://game8.co/games/Final-Fantasy-XVI/archives/415576",
+            "https://game8.co/games/Final-Fantasy-XVI/archives/414895",
+            "https://game8.co/games/Final-Fantasy-XVI/archives/415577",
+            "https://game8.co/games/Final-Fantasy-XVI/archives/409998",
+            "https://game8.co/games/Final-Fantasy-XVI/archives/416024",
+            "https://game8.co/games/Final-Fantasy-XVI/archives/409930",
             "https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids",
             "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/item_ids.csv",
             "https://github.com/Nenkai/ffxvi-modding/blob/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids/equip_item_ids.csv",
