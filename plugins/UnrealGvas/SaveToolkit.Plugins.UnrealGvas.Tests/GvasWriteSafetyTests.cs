@@ -14,8 +14,7 @@ public sealed class GvasWriteSafetyTests
         const string consoleWarning = "Not validated on console. The game may reject or overwrite the edited save.";
         const string storageWarning = "Serialized property name and type are verified. Game constraints and effects are unverified; keep a backup.";
         var file = settings
-            ? SampleSaves.Load("PPSA02199").AllDiskFiles.First(file =>
-                file.Directory.Name == "GameUserSettings" && file.FileName == "ue4savegame.dpx.sav")
+            ? MemorySaveSet.SingleFile("settings.sav", TitleFixture.Settings(), "PPSA02199")
             : MemorySaveSet.SingleFile("generic.sav", GvasFixture.Nested());
         using var document = new UnrealGvasPlugin().Open(file);
         Assert.True(document.CanEdit);

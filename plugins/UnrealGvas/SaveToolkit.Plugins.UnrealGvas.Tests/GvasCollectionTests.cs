@@ -51,10 +51,7 @@ public sealed class GvasCollectionTests
     [Fact]
     public void PagingFiltersSortAndBoundsAreDeterministic()
     {
-        var bytes = GvasFixture.Build(writer =>
-        {
-            for (var i = 0; i < 251; i++) GvasFixture.Property(writer, "Repeated", "IntProperty", GvasFixture.Body(body => body.Write(i)));
-        });
+        var bytes = GvasFixture.RepeatedIntegers(251);
         var file = MemorySaveSet.SingleFile("many.sav", bytes);
         var plugin = new UnrealGvasPlugin();
         using var document = plugin.Open(file);

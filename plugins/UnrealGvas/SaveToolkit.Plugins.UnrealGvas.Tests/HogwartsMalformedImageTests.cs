@@ -27,7 +27,7 @@ public sealed class HogwartsMalformedImageTests
             case "truncated": image = image[..^1]; break;
         }
         Assert.Throws<InvalidDataException>(() => new HogwartsDatabase("bad", image));
-        AssertFailedOverlay(Save(HogwartsImage.EncodeStored(image), HogwartsImage.EncodeStored(Image())));
+        AssertFailedOverlay(TitleFixture.Hogwarts(HogwartsImage.EncodeStored(image), HogwartsImage.EncodeStored(Image())));
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public sealed class HogwartsMalformedImageTests
             case "length": BinaryPrimitives.WriteUInt64LittleEndian(frames.AsSpan(24), ulong.MaxValue); break;
             case "codec": frames[HogwartsImage.FrameBytes] = 0; break;
         }
-        AssertFailedOverlay(Save(frames, HogwartsImage.EncodeStored(Image())));
+        AssertFailedOverlay(TitleFixture.Hogwarts(frames, HogwartsImage.EncodeStored(Image())));
     }
 
     private static void AssertFailedOverlay(byte[] bytes)
@@ -71,12 +71,6 @@ public sealed class HogwartsMalformedImageTests
         Assert.Single(queryable.Query(good.Id, new()).Rows);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
-
-    private static byte[] Save(byte[] bad, byte[] good) => GvasFixture.Build(w =>
-    {
-        foreach (var (name, frames) in new[] { ("RawDatabaseImage", bad), ("RawExclusiveImage", good) })
-            GvasFixture.Property(w, name, "ArrayProperty", GvasFixture.Body(b => { b.Write(frames.Length); b.Write(frames); }), "ByteProperty");
-    }, saveClass: HogwartsImage.SaveClass, customVersions: 72);
 
     private static byte[] Image()
     {

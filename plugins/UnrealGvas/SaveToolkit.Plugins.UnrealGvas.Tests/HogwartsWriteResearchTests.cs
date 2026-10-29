@@ -5,7 +5,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.UnrealGvas.Tests;
 
-public sealed class HogwartsWriteResearchTests
+public sealed class HogwartsWriteResearchTests(ITestOutputHelper output)
 {
     [Fact]
     public void Hl0010_SerializedSqliteAndStoredFramesRebuildGvasWithoutEnablingWrites()
@@ -39,6 +39,6 @@ public sealed class HogwartsWriteResearchTests
         using var document = new UnrealGvasPlugin().Open(sample);
         Assert.True(document.CanEdit);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
-        File.WriteAllText(Path.Combine(Path.GetTempPath(), "hogwarts-write-size.txt"), $"original={original.Length}; stored={rebuilt.Length}");
+        output.WriteLine($"original={original.Length}; stored={rebuilt.Length}");
     }
 }

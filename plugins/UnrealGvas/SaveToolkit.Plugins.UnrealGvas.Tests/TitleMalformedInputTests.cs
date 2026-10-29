@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.IO.Compression;
 using SaveToolkit.Plugins.UnrealGvas.Gvas;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
@@ -13,11 +12,11 @@ public sealed class TitleMalformedInputTests
     [Fact]
     public void EveryTruncatedJediZlibStreamDisablesTheOverlayWithoutLosingBytes()
     {
-        byte[] plain = ActorProperties();
-        byte[] compressed = Compress(plain);
+        byte[] plain = TitleFixture.ActorProperties();
+        byte[] compressed = TitleFixture.Compress(plain);
         for (var length = 0; length < compressed.Length; length++)
-            AssertInvalidJedi(Jedi(compressed[..length], (uint)plain.Length));
-        using var valid = new UnrealGvasPlugin().Open(MemorySaveSet.SingleFile("save", Jedi(compressed, (uint)plain.Length)));
+            AssertInvalidJedi(TitleFixture.Jedi(compressed[..length], (uint)plain.Length));
+        using var valid = new UnrealGvasPlugin().Open(MemorySaveSet.SingleFile("save", TitleFixture.Jedi(compressed, (uint)plain.Length)));
         Assert.True(valid.CanEdit);
         Assert.Contains(Assert.IsAssignableFrom<IQueryableDocument>(valid).Collections, collection => collection.Id == "jedi/actor-tags");
     }
@@ -32,8 +31,8 @@ public sealed class TitleMalformedInputTests
     [InlineData("no-tags")]
     public void InvalidJediStreamsAndLengthsFailBoundedValidation(string corruption)
     {
-        byte[] plain = ActorProperties();
-        byte[] compressed = Compress(plain);
+        byte[] plain = TitleFixture.ActorProperties();
+        byte[] compressed = TitleFixture.Compress(plain);
         uint declared = (uint)plain.Length;
         switch (corruption)
         {
@@ -42,10 +41,10 @@ public sealed class TitleMalformedInputTests
             case "short": declared--; break;
             case "long": declared++; break;
             case "huge": declared = uint.MaxValue; break;
-            case "empty": compressed = Compress([]); declared = 0; break;
-            case "no-tags": compressed = Compress(new byte[32]); declared = 32; break;
+            case "empty": compressed = TitleFixture.Compress([]); declared = 0; break;
+            case "no-tags": compressed = TitleFixture.Compress(new byte[32]); declared = 32; break;
         }
-        AssertInvalidJedi(Jedi(compressed, declared));
+        AssertInvalidJedi(TitleFixture.Jedi(compressed, declared));
     }
 
     [Theory]
@@ -103,30 +102,4 @@ public sealed class TitleMalformedInputTests
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 
-    private static byte[] Jedi(byte[] compressed, uint declared)
-    {
-        byte[] bytes = GvasFixture.Build(w =>
-        {
-            GvasFixture.Property(w, "CompressedActorRecords", "ArrayProperty",
-                GvasFixture.Body(b => { b.Write(compressed.Length); b.Write(compressed); }), "ByteProperty");
-            GvasFixture.Property(w, "UncompressedActorRecordsSize", "UInt32Property", GvasFixture.Body(b => b.Write(declared)));
-            GvasFixture.Property(w, "Crc32", "UInt32Property", new byte[sizeof(uint)]);
-        }, minor: 25, saveClass: "/Script/RsGameTechRT.RsSaveGameObject", customVersions: 56);
-        BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(8), 518); // Observed package version.
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(16), 0); // Observed engine patch.
-        return bytes;
-    }
-
-    private static byte[] ActorProperties() => GvasFixture.Body(w =>
-    {
-        GvasFixture.Property(w, "ActorRecords", "IntProperty", GvasFixture.Body(b => b.Write(42)));
-        GvasFixture.String(w, "None");
-    });
-
-    private static byte[] Compress(byte[] plain)
-    {
-        using var output = new MemoryStream();
-        using (var zlib = new ZLibStream(output, CompressionLevel.SmallestSize, leaveOpen: true)) zlib.Write(plain);
-        return output.ToArray();
-    }
 }
