@@ -8,12 +8,13 @@ internal sealed class AstroCollectionBrowser(
     AstroSchema schema,
     AstroLocations locations,
     Func<AstroField, FieldValue> current,
+    Func<AstroField, FieldNode> value,
     Func<string, string, string, string, Confidence, FieldNode> label,
     Func<string, string, string, string, Confidence, FieldNode> reference,
     Func<long?> coins)
 {
     public AstroCollectionQuery Queryable { get; } = new(schema, locations, current,
-        record => Row(record, locations.Reference(record), current, label, locations));
+        record => Row(record, locations.Reference(record), current, value, label, locations));
 
     public IReadOnlyList<ViewNode> Build() => [
         new TextNode("Catalogue labels are read-only. Ownership means the saved IsGot flag; names and locations are candidates, not console-validated mappings. Search/filter to find missing records, then preview the ownership action before applying."),
@@ -97,7 +98,7 @@ internal sealed class AstroCollectionBrowser(
                 new TableColumn("category", "Category / candidate world"),
                 new TableColumn("world", "Candidate world"),
                 new TableColumn("details", "Evidence and provenance") { Width = ColumnWidth.Narrow }
-            ], resolved.Select(r => Row(r.Record, r.Reference, current, label, locations)).ToArray())
+            ], resolved.Select(r => Row(r.Record, r.Reference, current, value, label, locations)).ToArray())
             { Title = title, Description = "Names include source attribution and confidence; expand a row for raw IDs and flag evidence." }
         ])
         {
@@ -107,6 +108,7 @@ internal sealed class AstroCollectionBrowser(
 
     private static TableRow Row(AstroCollectionRecord record, ReferenceRecord? reference,
         Func<AstroField, FieldValue> current,
+        Func<AstroField, FieldNode> value,
         Func<string, string, string, string, Confidence, FieldNode> label, AstroLocations locations)
     {
         var key = $"{record.Group}/{record.Element.Name}";
@@ -130,13 +132,16 @@ internal sealed class AstroCollectionBrowser(
             ["details"] = new SectionNode("Record details", [
                 new TextNode($"Stable saved record: {record.Element.Id}") { Monospace = true },
                 new TextNode($"Saved IsGot: {status}. Saved IsCinematicsPlayed: {cinematic}. Flags are independent; neither implies the other."),
+                .. (record.Ownership is { } ownership
+                    ? new ViewNode[] { value(ownership) with { Label = "Saved IsGot / ownership flag" } }
+                    : []),
                 new TextNode(reference?.Attributes.GetValueOrDefault("internalGroup") is { } prefix
                     ? $"Internal group: {prefix}. {MappingText(reference)}"
                     : reference?.Attributes.GetValueOrDefault("worldKey") is { } worldKey
                         ? $"Candidate world key: {worldKey}. Identity and pickup location remain Inferred."
                         : "No piece-location mapping supplied."),
                 new TextNode(provenance),
-                new TextNode("Select rows in this table, then review the selection below. An empty selection changes nothing. Individual experimental flag controls remain in Raw.") { Tone = Tone.Warning },
+                new TextNode("Select rows in this table, then review the selection below. An empty selection changes nothing. Other individual experimental flag controls remain in Raw.") { Tone = Tone.Warning },
                 AstroPlanning.CollectionAction(), AstroRestorePlanning.View()
             ])
         });

@@ -34,7 +34,7 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
         _references = new AstroReferences(references, _schema.Fingerprint);
         _locations = new AstroLocations(_schema, _references);
         _spatial = new AstroSpatialViews(_schema, _fields, _references, _locations, Current);
-        _collections = new AstroCollectionBrowser(_schema, _locations, Current, CatalogueLabel,
+        _collections = new AstroCollectionBrowser(_schema, _locations, Current, ValueNode, CatalogueLabel,
             CatalogueReference,
             () => AstroFields.Coins(_fields) is { } coins
                 ? Current(coins).AsInt64() : null);
