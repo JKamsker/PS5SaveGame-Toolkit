@@ -10,9 +10,8 @@ internal static class LspkWriter
 
     internal static byte[] Write(byte[] original, IReadOnlyDictionary<string, byte[]> replacements)
     {
-        var package = LspkPackage.Read(original);
+        var package = LspkPackage.Read(original, out var expanded);
         BinaryData.Require(package.Version == 18, "Writing is supported only for LSPK v18.");
-        var expanded = package.Entries.ToDictionary(e => e.Name, package.Extract, StringComparer.Ordinal);
         BinaryData.Require(replacements.Keys.All(expanded.ContainsKey), "Unknown LSPK entry edit.");
         var rowIndices = package.Entries.Select((entry, index) => (entry.Name, index)).ToDictionary(p => p.Name, p => p.index, StringComparer.Ordinal);
         var changed = replacements.Where(pair => !pair.Value.AsSpan().SequenceEqual(expanded[pair.Key])).ToDictionary(StringComparer.Ordinal);
@@ -74,12 +73,12 @@ internal static class LspkWriter
         BinaryPrimitives.WriteUInt64LittleEndian(result.AsSpan(LspkLayout.FileListOffset), (ulong)newListOffset);
         BinaryPrimitives.WriteUInt32LittleEndian(result.AsSpan(LspkLayout.FileListSize), (uint)newListSize);
         LspkIntegrity.Compute(package.Entries.OrderBy(e => e.Offset).Select(e => expanded[e.Name])).CopyTo(result, LspkLayout.Digest);
-        var reopened = LspkPackage.Read(result); // validates the new digest as well as all ranges/codecs
+        var reopened = LspkPackage.Read(result, out var reopenedPayloads); // validates the digest and all ranges/codecs
         for (var i = 0; i < package.Entries.Count; i++)
         {
             var entry = reopened.Entries[i];
             BinaryData.Require(entry.Name == package.Entries[i].Name && entry.Flags == package.Entries[i].Flags &&
-                reopened.Extract(entry).AsSpan().SequenceEqual(expanded[entry.Name]), "LSPK edit did not survive writer validation.");
+                reopenedPayloads[entry.Name].AsSpan().SequenceEqual(expanded[entry.Name]), "LSPK edit did not survive writer validation.");
         }
 
         return result;

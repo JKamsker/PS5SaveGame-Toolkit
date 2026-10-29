@@ -26,8 +26,8 @@ internal static class Bg3Serialization
         if (package is null) _ = LsfReader.Read(output, budget);
         else
         {
-            var reopened = LspkPackage.Read(output);
-            foreach (var entry in reopened.Entries) _ = ReadResource(entry.Name, reopened.Extract(entry), budget);
+            var reopened = LspkPackage.Read(output, out var payloads);
+            foreach (var entry in reopened.Entries) _ = ReadResource(entry.Name, payloads[entry.Name], budget);
         }
         return [new FileOutput(path, output)];
     }

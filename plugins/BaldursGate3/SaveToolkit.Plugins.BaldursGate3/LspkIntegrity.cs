@@ -25,9 +25,14 @@ internal static class LspkIntegrity
         return digest;
     }
 
-    internal static void Validate(LspkPackage package)
+    internal static void Validate(LspkPackage package, Dictionary<string, byte[]>? payloads = null)
     {
-        var actual = Compute(package.Entries.OrderBy(e => e.Offset).Select(package.Extract));
+        var actual = Compute(package.Entries.OrderBy(e => e.Offset).Select(entry =>
+        {
+            var payload = package.Extract(entry);
+            payloads?.Add(entry.Name, payload);
+            return payload;
+        }));
         BinaryData.Require(Convert.ToHexString(actual) == package.HeaderDigest,
             "LSPK header digest mismatch: expanded payloads do not match their checksum.");
     }
