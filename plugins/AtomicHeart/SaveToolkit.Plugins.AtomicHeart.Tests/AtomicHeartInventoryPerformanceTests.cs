@@ -17,10 +17,15 @@ public sealed class AtomicHeartInventoryPerformanceTests
         var collection = PerformanceInventory.Collection(state);
         var query = new QueryableCollectionQuery { Text = text, SortColumn = sort, Limit = 1 };
         _ = collection.Query(query);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = collection.Query(query);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.Single(page.Rows);
+        // Minimum of three measured runs: JIT tiering on Linux CI adds a few KB to single runs.
+        var allocated = long.MaxValue;
+        for (var run = 0; run < 3; run++)
+        {
+            var before = GC.GetAllocatedBytesForCurrentThread();
+            var page = collection.Query(query);
+            allocated = Math.Min(allocated, GC.GetAllocatedBytesForCurrentThread() - before);
+            Assert.Single(page.Rows);
+        }
         Assert.True(allocated < 450_000, $"Inventory query allocated {allocated:N0} bytes.");
     }
 
