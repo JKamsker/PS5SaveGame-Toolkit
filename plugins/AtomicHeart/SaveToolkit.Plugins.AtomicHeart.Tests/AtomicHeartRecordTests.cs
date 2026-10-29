@@ -36,7 +36,14 @@ public sealed class AtomicHeartRecordTests
     {
         var plain = PlainFixture.Create();
         for (var length = 0; length < plain.Length; length++)
-            Assert.Throws<SaveFormatException>(() => Open(SlotFixture.Create(plain: plain[..length])));
+        {
+            var truncated = plain[..length];
+            // Keep every enclosing layer valid so rejection exercises the inner grammar.
+            if (length >= sizeof(int))
+                BinaryPrimitives.WriteInt32LittleEndian(truncated, length - sizeof(int));
+            var error = Assert.Throws<SaveFormatException>(() => Open(SlotFixture.Create(plain: truncated)));
+            Assert.DoesNotContain("byte-array prefix", error.Message, StringComparison.Ordinal);
+        }
     }
 
     [Theory]
