@@ -15,6 +15,10 @@ internal sealed class InspectionCollection<T>(
     Func<T, string>? extraSearch = null,
     Func<T, bool>? isEmpty = null)
 {
+    // Native row identities are stable for this collection's lifetime. Only this order is
+    // cached: values, filters and empty-row predicates can change after edit/undo.
+    private readonly Lazy<T[]> _keyOrder = new(() => items.OrderBy(key, StringComparer.Ordinal).ToArray());
+
     public QueryableCollection Metadata { get; } = metadata;
 
     public QueryableTableNode View() => new(Metadata.Id, Metadata.Title, Metadata.Columns, Metadata.TotalCount)
@@ -49,39 +53,48 @@ internal sealed class InspectionCollection<T>(
             throw new ArgumentException($"Unknown sort column '{sort}'.", nameof(query));
         }
 
-        IEnumerable<T> matches = items;
+        var offset = Math.Max(0, query.Offset);
+        var limit = Math.Clamp(query.Limit, 1, QueryableCollectionLimits.MaxPageSize);
+        var includeEmpty = query.IncludeEmpty ?? Metadata.EmptyRows?.HideByDefault != true;
+        var hideEmpty = !includeEmpty && Metadata.EmptyRows is not null && isEmpty is not null;
+        if (sort is null && string.IsNullOrEmpty(query.Text) && query.Filters.Count == 0 && !hideEmpty)
+        {
+            var index = _keyOrder.Value;
+            var page = new TableRow[Math.Min(limit, Math.Max(0, index.Length - offset))];
+            for (var i = 0; i < page.Length; i++)
+                page[i] = row(index[query.Descending ? index.Length - 1 - offset - i : offset + i]);
+            return new QueryableCollectionPage(Metadata.Id, Metadata.Columns, page, items.Count, items.Count, offset, limit);
+        }
+
+        IEnumerable<T> matches = sort is null
+            ? query.Descending ? _keyOrder.Value.Reverse() : _keyOrder.Value
+            : items;
         if (!string.IsNullOrEmpty(query.Text))
         {
             matches = matches.Where(item => values.Values.Any(get => get(item).Contains(query.Text, StringComparison.OrdinalIgnoreCase)) ||
                 extraSearch?.Invoke(item).Contains(query.Text, StringComparison.OrdinalIgnoreCase) == true);
         }
 
-        matches = matches.Where(item => query.Filters.All(filter =>
-            string.Equals(values[filter.Key](item), filter.Value, StringComparison.OrdinalIgnoreCase)));
+        if (query.Filters.Count > 0)
+            matches = matches.Where(item => query.Filters.All(filter =>
+                string.Equals(values[filter.Key](item), filter.Value, StringComparison.OrdinalIgnoreCase)));
         var filtered = matches.ToArray();
-        var includeEmpty = query.IncludeEmpty ?? Metadata.EmptyRows?.HideByDefault != true;
         var hiddenEmptyCount = 0;
-        if (!includeEmpty && Metadata.EmptyRows is not null && isEmpty is not null)
+        if (hideEmpty)
         {
-            hiddenEmptyCount = filtered.Count(isEmpty);
-            filtered = filtered.Where(item => !isEmpty(item)).ToArray();
+            hiddenEmptyCount = filtered.Count(isEmpty!);
+            filtered = filtered.Where(item => !isEmpty!(item)).ToArray();
         }
 
-        IOrderedEnumerable<T> ordered;
+        IEnumerable<T> ordered = filtered;
         if (sort is not null)
         {
             var numeric = Metadata.Columns.Single(column => column.Key == sort).Spec is IntegerSpec or NullableSpec { Inner: IntegerSpec };
             IComparer<string> comparer = numeric ? NumericComparer.Instance : StringComparer.OrdinalIgnoreCase;
-            ordered = query.Descending ? filtered.OrderByDescending(values[sort], comparer) : filtered.OrderBy(values[sort], comparer);
-            ordered = ordered.ThenBy(key, StringComparer.Ordinal);
-        }
-        else
-        {
-            ordered = query.Descending ? filtered.OrderByDescending(key, StringComparer.Ordinal) : filtered.OrderBy(key, StringComparer.Ordinal);
+            ordered = (query.Descending ? filtered.OrderByDescending(values[sort], comparer) : filtered.OrderBy(values[sort], comparer))
+                .ThenBy(key, StringComparer.Ordinal);
         }
 
-        var offset = Math.Max(0, query.Offset);
-        var limit = Math.Clamp(query.Limit, 1, QueryableCollectionLimits.MaxPageSize);
         return new QueryableCollectionPage(Metadata.Id, Metadata.Columns, ordered.Skip(offset).Take(limit).Select(row).ToArray(),
             items.Count, filtered.Length, offset, limit) { HiddenEmptyCount = hiddenEmptyCount };
     }

@@ -50,6 +50,13 @@ allocated bytes **136,135,608 → 140,845,168**. Timing is noisy; no speedup cla
 
 ## Framework feature adoption
 
+Performance review (#40): compact merged fact identities and lazy stable-key paging reduce
+largest-sample warm open + first-root allocations **61,416,304 → 26,168,104 bytes** and retained
+managed document memory **42,454,264 → 19,971,640 bytes**. Ten 50-row fact pages allocate
+**27,364,520 → 2,669,384 bytes**. All root/collection/lazy views match the baseline, with no-op
+bytes preserved. **172 passed / 0 failed / 0 skipped**. See [PERFORMANCE-REVIEW.md](PERFORMANCE-REVIEW.md)
+for matched timings, D: benchmark artifacts, regression failures and measurement limits.
+
 | Feature | Adoption | Where / concrete scope |
 | --- | --- | --- |
 | F1 SaveDiff | Used | Hash-pinned `Evidence/corpus.json`, `CyberpunkEvidenceDecoder`, independent semantic/byte-diff edit tests and final ZIP/backup preservation. The native decoder is registered through the F12 SDK provider. |

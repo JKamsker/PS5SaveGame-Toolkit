@@ -26,7 +26,7 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument,
     private readonly EquipmentInspection _equipment;
     private readonly DevelopmentInspection _development;
     private readonly WorldInspection _world;
-    private readonly InspectionTable _factCatalog;
+    private readonly FactCatalogInspection _factCatalog;
     private readonly ItemStatsInspection _itemStats;
     private readonly JournalInspection _journal;
     private readonly CyberwareInspection _cyberware;
@@ -69,7 +69,7 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument,
             (id, _) => _factEditor.Field(id, Bind), _factEditor.Value);
         _factCatalog = FactCatalogInspection.Build(facts, _references, _factEditor.Value,
             (id, label, spec, get) => Field(id, label, spec, get));
-        _inspectionTables = new[] { _equipment.Table, _cyberware.Table, _development.Table, _world.Vehicles, _world.Travel, _factCatalog, _itemStats.Table, _journal.Table }
+        _inspectionTables = new[] { _equipment.Table, _cyberware.Table, _development.Table, _world.Vehicles, _world.Travel, _itemStats.Table, _journal.Table }
             .ToDictionary(table => table.Metadata.Id, StringComparer.Ordinal);
     }
 
@@ -154,12 +154,14 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument,
     }
 
     public IReadOnlyList<QueryableCollection> Collections => [_inventory.Metadata, _facts.Metadata,
-        .. _inspectionTables.Values.Select(table => table.Metadata), .. _inventory.PartCollections];
+        _equipment.Table.Metadata, _cyberware.Table.Metadata, _development.Table.Metadata, _world.Vehicles.Metadata,
+        _world.Travel.Metadata, _factCatalog.Metadata, _itemStats.Table.Metadata, _journal.Table.Metadata, .. _inventory.PartCollections];
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => collectionId switch
     {
         InventoryInspection.CollectionId => _inventory.Query(query),
         FactInspection.CollectionId => _facts.Query(query),
+        FactCatalogInspection.CollectionId => _factCatalog.Query(query),
         _ when collectionId.StartsWith(ItemPartInspection.CollectionPrefix, StringComparison.Ordinal) => _inventory.QueryParts(collectionId, query),
         _ => _inspectionTables.TryGetValue(collectionId, out var table) ? table.Query(query)
             : throw new KeyNotFoundException($"Unknown collection '{collectionId}'."),
