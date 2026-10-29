@@ -82,6 +82,23 @@ public sealed class Dat1FormatTests
         Assert.Throws<SaveFormatException>(() => new InsomniacPlugin().Open(file));
     }
 
+    [Theory]
+    [InlineData(0, "DAT1 magic is missing.")]
+    [InlineData(1, "Unsupported DAT1 header word 0x00000007; expected 8.")]
+    [InlineData(2, "DAT1 total size (1) does not match the file length (83).")]
+    [InlineData(3, "DAT1 descriptor count is unreasonably large.")]
+    public void HeaderValidationPrecedesLaterMalformedMetadata(int firstInvalidWord, string expected)
+    {
+        var bytes = Synthetic(0x40, 0x50, 0);
+        if (firstInvalidWord == 0) Write(0, 0);
+        if (firstInvalidWord <= 1) Write(4, 7);
+        if (firstInvalidWord <= 2) Write(8, 1);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(12), ushort.MaxValue);
+        Write(20, uint.MaxValue);
+        Assert.Equal(expected, Assert.Throws<SaveFormatException>(() => Dat1Container.Parse(bytes)).Message);
+        void Write(int offset, uint value) => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), value);
+    }
+
     private static byte[] Synthetic(uint sectionOffsetA, uint sectionOffsetB, byte padding)
     {
         const int firstSize = 4;

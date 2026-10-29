@@ -64,21 +64,7 @@ internal static class InventoryReader
             var count = Word(bytes, ref position, blockEnd);
             if (count > MaxRecords - totalRecords) throw Invalid("Record budget exceeded.");
             totalRecords += checked((int)count);
-            var records = new List<InventoryRecord>();
-            var identities = new Dictionary<string, int>(StringComparer.Ordinal);
-            for (var index = 0; index < count; index++)
-            {
-                var type = Word(bytes, ref position, blockEnd);
-                var length = Word(bytes, ref position, blockEnd);
-                if (length > blockEnd - position) throw Invalid("Record extends past block.");
-                var payload = bytes.AsSpan(position, checked((int)length));
-                var record = Decode(type, payload, position);
-                var key = record.GuidBytes ?? $"opaque-{index}";
-                var occurrence = identities.GetValueOrDefault(key);
-                identities[key] = occurrence + 1;
-                records.Add(record with { Key = $"{key}/{occurrence}" });
-                position += checked((int)length);
-            }
+            var records = ReadRecords(bytes, ref position, blockEnd, count);
             var opaque = blockEnd - position;
             position = blockEnd;
             // These two container types have a separate four-byte suffix outside
@@ -93,6 +79,26 @@ internal static class InventoryReader
             blocks.Add(new InventoryBlock(tag, blockOccurrence, start, position - start, opaque, records));
         }
         return blocks;
+    }
+
+    private static IReadOnlyList<InventoryRecord> ReadRecords(byte[] bytes, ref int position, int blockEnd, uint count)
+    {
+        var records = new List<InventoryRecord>();
+        var identities = new Dictionary<string, int>(StringComparer.Ordinal);
+        for (var index = 0; index < count; index++)
+        {
+            var type = Word(bytes, ref position, blockEnd);
+            var length = Word(bytes, ref position, blockEnd);
+            if (length > blockEnd - position) throw Invalid("Record extends past block.");
+            var payload = bytes.AsSpan(position, checked((int)length));
+            var record = Decode(type, payload, position);
+            var key = record.GuidBytes ?? $"opaque-{index}";
+            var occurrence = identities.GetValueOrDefault(key);
+            identities[key] = occurrence + 1;
+            records.Add(record with { Key = $"{key}/{occurrence}" });
+            position += checked((int)length);
+        }
+        return records;
     }
 
     private static InventoryRecord Decode(uint type, ReadOnlySpan<byte> payload, int offset)

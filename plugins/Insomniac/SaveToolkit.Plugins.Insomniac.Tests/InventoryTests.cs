@@ -105,6 +105,22 @@ public sealed class InventoryTests
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 
+    [Theory]
+    [InlineData(0, "Block extends past section.")]
+    [InlineData(1, "Expected bounded TVNI block.")]
+    [InlineData(2, "Record budget exceeded.")]
+    public void FramingValidationPrecedesMalformedRecordPayloads(int firstInvalidPart, string expected)
+    {
+        const int sectionStart = 32;
+        var bytes = Fixture(new byte[16]);
+        if (firstInvalidPart == 0) Write(sectionStart + 4, uint.MaxValue);
+        if (firstInvalidPart <= 1) Write(sectionStart + 8, 0);
+        Write(sectionStart + 12, 4097);
+        Write(sectionStart + 20, uint.MaxValue);
+        Assert.Equal("Inventory section: " + expected, Assert.Throws<SaveFormatException>(() => Parse(bytes)).Message);
+        void Write(int offset, uint value) => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), value);
+    }
+
     internal static IReadOnlyList<InventoryBlock> Parse(byte[] bytes)
     {
         var container = Dat1Container.Parse(bytes);
