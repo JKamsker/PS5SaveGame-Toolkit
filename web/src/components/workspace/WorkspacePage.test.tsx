@@ -4,11 +4,12 @@ import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { api, ApiError } from "../../api/client";
 import { WorkspacePage } from "./WorkspacePage";
+import type { DocumentSummary } from "../../api/protocol";
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
-async function setup() {
-  vi.spyOn(api, "workspace").mockResolvedValue({ id: "w", name: "Test dump", createdAt: "2026-10-28", titles: [], documents: [] });
+async function setup(documents: DocumentSummary[] = []) {
+  vi.spyOn(api, "workspace").mockResolvedValue({ id: "w", name: "Test dump", createdAt: "2026-10-28", titles: [], documents });
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   render(<MemoryRouter initialEntries={["/w/w"]}><QueryClientProvider client={client}>
     <Routes><Route path="/w/:workspaceId" element={<WorkspacePage />} /><Route path="/" element={<h1>Import</h1>} /></Routes>
@@ -18,7 +19,30 @@ async function setup() {
 }
 
 describe("closing a dump", () => {
+  it("keeps edited sessions when the discard confirmation is cancelled", async () => {
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+    const remove = vi.spyOn(api, "deleteWorkspace").mockResolvedValue(undefined);
+    const client = await setup([{ id: "d", fileId: "f", filePath: "save.dat", title: "Save", pluginId: "test", isDirty: true }]);
+    fireEvent.click(screen.getByRole("button", { name: "Close dump" }));
+    expect(confirm).toHaveBeenCalledWith(expect.stringMatching(/discard.*edits/i));
+    expect(remove).not.toHaveBeenCalled();
+    expect(screen.getByText("Test dump")).toBeTruthy();
+    client.clear();
+  });
+
+  it("closes an edited dump only after explicitly confirming discard", async () => {
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
+    const remove = vi.spyOn(api, "deleteWorkspace").mockResolvedValue(undefined);
+    const client = await setup([{ id: "d", fileId: "f", filePath: "save.dat", title: "Save", pluginId: "test", isDirty: true }]);
+    fireEvent.click(screen.getByRole("button", { name: "Close dump" }));
+    expect(confirm).toHaveBeenCalledOnce();
+    await screen.findByRole("heading", { name: "Import" });
+    expect(remove).toHaveBeenCalledWith("w");
+    client.clear();
+  });
+
   it("reports failures and leaves the workspace available for retry", async () => {
+    const confirm = vi.spyOn(window, "confirm");
     vi.spyOn(api, "deleteWorkspace").mockRejectedValueOnce(new ApiError("Dump is busy", 409)).mockResolvedValueOnce(undefined);
     const client = await setup();
     fireEvent.click(screen.getByRole("button", { name: "Close dump" }));
@@ -27,6 +51,7 @@ describe("closing a dump", () => {
     fireEvent.click(screen.getByRole("button", { name: "Close dump" }));
     await screen.findByRole("heading", { name: "Import" });
     expect(api.deleteWorkspace).toHaveBeenCalledTimes(2);
+    expect(confirm).not.toHaveBeenCalled();
     client.clear();
   });
 
