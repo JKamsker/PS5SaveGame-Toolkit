@@ -92,7 +92,7 @@ public sealed class PresetTransferMetadataApiTests(IsolatedApiFactory factory) :
         Assert.Equal(HttpStatusCode.UnprocessableEntity, rejected.StatusCode);
         var error = JsonNode.Parse(await rejected.Content.ReadAsStringAsync(Ct))!;
         Assert.Equal("invalidPresetLibrary", error["code"]!.GetValue<string>());
-        Assert.Contains("distinct", error["error"]!.GetValue<string>());
+        Assert.Contains("malformed record", error["error"]!.GetValue<string>());
         Assert.Null(error["token"]);
         Assert.Empty((await client.GetFromJsonAsync<JsonNode[]>("/api/presets", Ct))!);
         Assert.False(File.Exists(Path.Combine(root, "presets.json")));
