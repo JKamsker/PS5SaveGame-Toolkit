@@ -22,66 +22,10 @@ internal sealed class PlayerProgress
         _node = node;
         _data = data;
         _names = names;
-        var raw = BinaryData.Slice(data, node.ValueOffset, node.ValueSize);
-        var classIndex = raw.Length >= 8 ? BinaryData.UInt16(raw, 6) : 0;
-        if (raw.Length < 11 || !raw[..2].SequenceEqual(new byte[] { 0, 1 }) ||
-            classIndex < 1 || classIndex > names.Count || names[classIndex - 1] != "W3LevelManager")
-        {
-            throw new SaveFormatException("Unsupported player level manager handle.");
-        }
-
-        var position = node.ValueOffset + 8;
-        var end = node.Offset + node.Size;
-        _manager = TaggedRecord.Read(data, ref position, end, names);
-        if (position != end)
-        {
-            throw new SaveFormatException("Trailing data in player level manager.");
-        }
-
+        _manager = ReadManager(node, data, names);
         Level = _originalLevel = _manager.Integer("level");
-        var definitions = _manager.Find("levelDefinitions");
-        if (definitions is null || definitions.Type != "array:2,0,SLevelDefinition")
-        {
-            throw new SaveFormatException("Missing player level definitions.");
-        }
-
-        var definitionCount = BinaryData.Int32(definitions.Value, 0);
-        if (definitionCount is < 1 or > MaximumLevelDefinitions)
-        {
-            throw new SaveFormatException("Invalid player level definition count.");
-        }
-
-        position = definitions.Offset + 12;
-        var definitionEnd = definitions.Offset + definitions.Bytes.Length;
-        for (var index = 0; index < definitionCount; index++)
-        {
-            MaximumDefinedLevel = Math.Max(MaximumDefinedLevel, TaggedRecord.Read(data, ref position, definitionEnd, names).Integer("number"));
-        }
-
-        if (position != definitionEnd || MaximumDefinedLevel < Level)
-        {
-            throw new SaveFormatException("Unsupported player level definitions or current level.");
-        }
-
-        var pointArray = _manager.Find("points");
-        if (pointArray is null || pointArray.Type != "array:2,0,SSpendablePoints" ||
-            BinaryData.Int32(pointArray.Value, 0) != SpendablePointTypes)
-        {
-            throw new SaveFormatException("Unsupported player spendable points array.");
-        }
-
-        position = pointArray.Offset + 12;
-        var pointEnd = pointArray.Offset + pointArray.Bytes.Length;
-        _points = new TaggedRecord[SpendablePointTypes];
-        for (var index = 0; index < _points.Length; index++)
-        {
-            _points[index] = TaggedRecord.Read(data, ref position, pointEnd, names);
-        }
-
-        if (position != pointEnd)
-        {
-            throw new SaveFormatException("Trailing data in player spendable points.");
-        }
+        MaximumDefinedLevel = ReadMaximumLevel(_manager, data, names, Level);
+        _points = ReadPoints(_manager, data, names);
 
         _originalFree = _points.Select(p => p.Integer("free")).ToArray();
         AbilityPoints = _originalFree[0];
@@ -105,35 +49,13 @@ internal sealed class PlayerProgress
 
     public IReadOnlyList<Sav3Patch> Patches(Sav3Directory directory, WitcherContainer container)
     {
-        if (!Changed)
-        {
-            return [];
-        }
-
-        var names = _names.ToList();
+        if (!Changed) { return []; }
+        var names = new NameTableEdits(_names);
         var replacements = new Dictionary<string, byte[]>(StringComparer.Ordinal);
-        if (Level != _originalLevel)
-        {
-            replacements.Add("level", Integer("level", Level));
-        }
-
+        if (Level != _originalLevel) { replacements.Add("level", names.IntegerProperty("level", Level)); }
         if (Experience != _originalFree[1] || AbilityPoints != _originalFree[0])
         {
-            using var values = new MemoryStream();
-            values.Write(BinaryData.EncodeInt32(SpendablePointTypes));
-            for (var index = 0; index < _points.Length; index++)
-            {
-                var value = index == 0 ? AbilityPoints : Experience;
-                var changes = new Dictionary<string, byte[]>(StringComparer.Ordinal);
-                if (value != _originalFree[index])
-                {
-                    changes.Add("free", Integer("free", value));
-                }
-
-                values.Write(_points[index].Write(changes));
-            }
-
-            replacements.Add("points", TaggedRecord.Property(Name("points"), Name("array:2,0,SSpendablePoints"), values.ToArray()));
+            replacements.Add("points", PointsProperty(names));
         }
 
         var record = _manager.Write(replacements);
@@ -143,44 +65,98 @@ internal sealed class PlayerProgress
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(8), bytes.Length - OuterPropertyHeaderSize);
         record.CopyTo(bytes, prefixSize);
         var patches = new List<Sav3Patch> { new(_node.Offset, _node.Size, bytes) };
-        if (names.Count != _names.Count)
-        {
-            var table = directory.VariableTableOffset;
-            var nm = BinaryData.PayloadOffset(_data, table - 10, container.HeaderSize);
-            var oldLength = table - 10 - nm - 2;
-            using var manu = new MemoryStream();
-            manu.Write(_data.AsSpan(nm + 2, oldLength - 8));
-            foreach (var name in names.Skip(_names.Count))
-            {
-                manu.WriteByte(checked((byte)name.Length));
-                manu.Write(System.Text.Encoding.ASCII.GetBytes(name));
-            }
-
-            manu.Write(_data.AsSpan(nm + 2 + oldLength - 8, 8));
-            var dictionaryBytes = manu.ToArray();
-            BinaryPrimitives.WriteInt32LittleEndian(dictionaryBytes.AsSpan(4), names.Count);
-            patches.Add(new Sav3Patch(nm + 2, oldLength, dictionaryBytes));
-        }
-
+        if (names.Patch(_data, directory, container.HeaderSize) is { } dictionary) { patches.Add(dictionary); }
         return patches;
+    }
 
-        int Name(string name)
+    private byte[] PointsProperty(NameTableEdits names)
+    {
+        using var values = new MemoryStream();
+        values.Write(BinaryData.EncodeInt32(SpendablePointTypes));
+        for (var index = 0; index < _points.Length; index++)
         {
-            var index = names.IndexOf(name);
-            if (index < 0)
-            {
-                if (names.Count == ushort.MaxValue)
-                {
-                    throw new SaveFormatException("Witcher name dictionary is full.");
-                }
-
-                names.Add(name);
-                index = names.Count - 1;
-            }
-
-            return index + 1;
+            var value = index == 0 ? AbilityPoints : Experience;
+            var changes = new Dictionary<string, byte[]>(StringComparer.Ordinal);
+            if (value != _originalFree[index]) { changes.Add("free", names.IntegerProperty("free", value)); }
+            values.Write(_points[index].Write(changes));
         }
 
-        byte[] Integer(string name, int value) => TaggedRecord.Property(Name(name), Name("Int32"), BinaryData.EncodeInt32(value));
+        return TaggedRecord.Property(names.Index("points"), names.Index("array:2,0,SSpendablePoints"), values.ToArray());
+    }
+
+    private static TaggedRecord ReadManager(Sav3Node node, byte[] data, IReadOnlyList<string> names)
+    {
+        var raw = BinaryData.Slice(data, node.ValueOffset, node.ValueSize);
+        var classIndex = raw.Length >= 8 ? BinaryData.UInt16(raw, 6) : 0;
+        if (raw.Length < 11 || !raw[..2].SequenceEqual(new byte[] { 0, 1 }) ||
+            classIndex < 1 || classIndex > names.Count || names[classIndex - 1] != "W3LevelManager")
+        {
+            throw new SaveFormatException("Unsupported player level manager handle.");
+        }
+
+        var position = node.ValueOffset + HandleHeaderSize;
+        var end = node.Offset + node.Size;
+        var manager = TaggedRecord.Read(data, ref position, end, names);
+        if (position != end)
+        {
+            throw new SaveFormatException("Trailing data in player level manager.");
+        }
+
+        return manager;
+    }
+
+    private static int ReadMaximumLevel(TaggedRecord manager, byte[] data, IReadOnlyList<string> names, int level)
+    {
+        var definitions = manager.Find("levelDefinitions");
+        if (definitions is null || definitions.Type != "array:2,0,SLevelDefinition")
+        {
+            throw new SaveFormatException("Missing player level definitions.");
+        }
+
+        var definitionCount = BinaryData.Int32(definitions.Value, 0);
+        if (definitionCount is < 1 or > MaximumLevelDefinitions)
+        {
+            throw new SaveFormatException("Invalid player level definition count.");
+        }
+
+        var position = definitions.Offset + OuterPropertyHeaderSize;
+        var maximum = 0;
+        var definitionEnd = definitions.Offset + definitions.Bytes.Length;
+        for (var index = 0; index < definitionCount; index++)
+        {
+            maximum = Math.Max(maximum, TaggedRecord.Read(data, ref position, definitionEnd, names).Integer("number"));
+        }
+
+        if (position != definitionEnd || maximum < level)
+        {
+            throw new SaveFormatException("Unsupported player level definitions or current level.");
+        }
+
+        return maximum;
+    }
+
+    private static TaggedRecord[] ReadPoints(TaggedRecord manager, byte[] data, IReadOnlyList<string> names)
+    {
+        var pointArray = manager.Find("points");
+        if (pointArray is null || pointArray.Type != "array:2,0,SSpendablePoints" ||
+            BinaryData.Int32(pointArray.Value, 0) != SpendablePointTypes)
+        {
+            throw new SaveFormatException("Unsupported player spendable points array.");
+        }
+
+        var position = pointArray.Offset + OuterPropertyHeaderSize;
+        var pointEnd = pointArray.Offset + pointArray.Bytes.Length;
+        var points = new TaggedRecord[SpendablePointTypes];
+        for (var index = 0; index < points.Length; index++)
+        {
+            points[index] = TaggedRecord.Read(data, ref position, pointEnd, names);
+        }
+
+        if (position != pointEnd)
+        {
+            throw new SaveFormatException("Trailing data in player spendable points.");
+        }
+
+        return points;
     }
 }
