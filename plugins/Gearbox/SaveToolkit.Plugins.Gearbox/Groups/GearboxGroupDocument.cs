@@ -18,6 +18,17 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
         _original = input.Members.OrderBy(m => m.Role, StringComparer.Ordinal).Select(m => new MemberBytes(
             m.Role, m.File.RelativePath, m.File.Directory.TitleId, m.File.ReadAllBytes().ToArray())).ToArray();
         _members = OpenMembers(_original);
+        try
+        {
+            // Keep the exact models that passed validation rather than reopening both members.
+            foreach (var member in _members)
+                GearboxGroups.ValidateRoundTrip(member.Document, _original.Single(m => m.Role == member.Role).Bytes);
+        }
+        catch
+        {
+            Dispose();
+            throw;
+        }
     }
 
     public string Title => "Gearbox character + profile";
