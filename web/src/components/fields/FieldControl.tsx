@@ -16,6 +16,8 @@ export interface FieldControlProps {
   compact?: boolean;
   /** Reports local validation problems while typing. */
   onLocalError?: (message: string | undefined) => void;
+  /** A changed textual draft was explicitly restored to the current saved value. */
+  onDraftDiscard?: () => void;
   labelledBy?: string;
   /** IDs of help, warnings and validation feedback belonging to this editor. */
   describedBy?: string;

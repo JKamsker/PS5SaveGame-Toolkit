@@ -151,7 +151,7 @@ function needsDetailsEditor(node: FieldNode): boolean {
 function FieldCell({ node, columnConfidence, rowLabel, onOpenDetails }: { node: FieldNode; columnConfidence: Confidence | undefined; rowLabel: string; onOpenDetails: () => void }) {
   const fieldRef = useFieldJump(node.valueId);
   const { canEdit } = useDocument();
-  const { value, error, modified, commit } = useLiveField(node);
+  const { value, error, modified, commit, discardDraft } = useLiveField(node);
   const [localError, setLocalError] = useState<string>();
   const labelId = useId();
   const shownError = localError ?? error;
@@ -163,7 +163,7 @@ function FieldCell({ node, columnConfidence, rowLabel, onOpenDetails }: { node: 
   let control: ReactNode;
   if (!needsDetailsEditor(node)) {
     control = (
-      <FieldControl id={`${labelId}-control`} valueId={node.valueId} labelledBy={labelId} describedBy={description ? `${labelId}-description` : undefined} invalid={Boolean(shownError)} spec={node.spec} value={value} disabled={!canEdit} compact onCommit={commit} onLocalError={setLocalError} />
+      <FieldControl id={`${labelId}-control`} valueId={node.valueId} labelledBy={labelId} describedBy={description ? `${labelId}-description` : undefined} invalid={Boolean(shownError)} spec={node.spec} value={value} disabled={!canEdit} compact onCommit={commit} onDraftDiscard={discardDraft} onLocalError={setLocalError} />
     );
   } else {
     const summary = fieldSummary(node.spec, value);

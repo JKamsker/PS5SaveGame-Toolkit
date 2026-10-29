@@ -157,3 +157,33 @@ it("shows the global edit error instead of an unrelated first field error", asyn
   await waitFor(() => expect(toast).toHaveBeenCalledWith("Save is read-only", true));
   expect(screen.getByRole("alert").textContent).toBe("Quantity rejected");
 });
+
+it("restores the saved value and dismisses a settled field rejection on Escape without another mutation", async () => {
+  vi.spyOn(api, "document").mockResolvedValue(snapshot(false));
+  const edit = vi.spyOn(api, "edit").mockResolvedValue(rejected({ errors: [{ valueId: "quantity", message: "Quantity rejected" }] }));
+  mount();
+  const input = await screen.findByRole<HTMLInputElement>("textbox", { name: /Quantity/ });
+  await act(async () => {
+    fireEvent.change(input, { target: { value: "9" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+  });
+  await screen.findByRole("alert");
+  await waitFor(() => expect(input.getAttribute("aria-invalid")).toBe("true"));
+  fireEvent.keyDown(input, { key: "Escape" });
+  expect(input.value).toBe("2");
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(input.getAttribute("aria-invalid")).toBe("false");
+  await act(async () => { fireEvent.keyDown(input, { key: "Enter" }); fireEvent.blur(input); });
+  expect(edit).toHaveBeenCalledExactlyOnceWith("w", "d", [{ valueId: "quantity", value: "9" }], 1);
+  expect(screen.getByRole("button", { name: "Undo" })).toHaveProperty("disabled", false);
+  expect(screen.getByRole("button", { name: "Redo" })).toHaveProperty("disabled", true);
+  // Clearing the old failure must not suppress a subsequent rejected edit.
+  await act(async () => {
+    fireEvent.change(input, { target: { value: "8" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+  });
+  expect(await screen.findByRole("alert")).toHaveProperty("textContent", "Quantity rejected");
+  expect(input.value).toBe("8");
+  expect(input.getAttribute("aria-invalid")).toBe("true");
+  expect(edit).toHaveBeenCalledTimes(2);
+});
