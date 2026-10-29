@@ -1,4 +1,5 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Binary;
 
 namespace SaveToolkit.Plugins.AtomicHeart;
 
@@ -10,7 +11,6 @@ internal sealed class RecordReader(byte[] plain)
 {
     private const int TransformBytes = 10 * sizeof(float);
     private const int VelocityBytes = 6 * sizeof(float);
-    private readonly SaveCursor reader = new(plain);
     private readonly PropertyReader properties = new(plain);
     private readonly List<ObjectRecord> objects = [];
     private readonly List<LevelRecord> levels = [];
@@ -21,26 +21,27 @@ internal sealed class RecordReader(byte[] plain)
 
     internal RecordIndex Read()
     {
+        var reader = SaveExtensionBinary.Cursor(plain);
         var arrayLength = reader.Count(SaveExtensionFile.MaxBytes);
         if (arrayLength != reader.Remaining) throw new SaveFormatException("SlotData byte-array prefix does not match the decoded aggregate.");
-        var root = properties.ReadSequence(reader);
-        ReadObjectTerminator(reader);
+        var root = properties.ReadSequence(ref reader);
+        ReadObjectTerminator(ref reader);
         var subsystems = reader.Count(RecordIndex.MaxRecords);
-        for (var index = 0; index < subsystems; index++) ReadRecord(RecordKinds.Subsystem, "SlotData");
-        ReadLevel();
+        for (var index = 0; index < subsystems; index++) ReadRecord(ref reader, RecordKinds.Subsystem, "SlotData");
+        ReadLevel(ref reader);
         var sublevels = reader.Count(RecordIndex.MaxLevels - 1);
-        for (var index = 0; index < sublevels; index++) ReadLevel();
+        for (var index = 0; index < sublevels; index++) ReadLevel(ref reader);
         if (reader.Remaining != 0) throw new SaveFormatException("Unexpected bytes after Atomic Heart level records.");
         return new RecordIndex(plain, root, objects, levels);
     }
 
-    private void ReadLevel()
+    private void ReadLevel(ref BoundedBinaryCursor reader)
     {
         var start = reader.Position;
         var name = reader.String(RecordIndex.MaxNameUnits);
         if (name.Length == 0) throw new SaveFormatException("Empty Atomic Heart level name.");
         var count = reader.Count(RecordIndex.MaxRecords);
-        for (var index = 0; index < count; index++) ReadActor(name);
+        for (var index = 0; index < count; index++) ReadActor(ref reader, name);
         var occurrence = levelOccurrences.GetValueOrDefault(name);
         levelOccurrences[name] = occurrence + 1;
         // Hash the name/occurrence pair, not a suffixed name that could collide with a literal '#2'.
@@ -48,30 +49,30 @@ internal sealed class RecordReader(byte[] plain)
         levels.Add(new LevelRecord(id, name, new(start, reader.Position - start), count));
     }
 
-    private void ReadActor(string owner)
+    private void ReadActor(ref BoundedBinaryCursor reader, string owner)
     {
-        var actor = ReadRecord(RecordKinds.Actor, owner);
+        var actor = ReadRecord(ref reader, RecordKinds.Actor, owner);
         if (actor is null) return;
-        ReadBit(); // bHiddenInGame
-        ReadBit(); // bIsProcedural
-        reader.Take(TransformBytes);
+        ReadBit(ref reader); // bHiddenInGame
+        ReadBit(ref reader); // bIsProcedural
+        reader.TakeBytes(TransformBytes);
         var moving = reader.Int32();
         if (moving is not (0 or 1)) throw new SaveFormatException("Invalid actor velocity flag.");
-        if (moving != 0) reader.Take(VelocityBytes);
+        if (moving != 0) reader.TakeBytes(VelocityBytes);
         var count = reader.Count(RecordIndex.MaxRecords);
         for (var index = 0; index < count; index++)
         {
-            var component = ReadRecord(RecordKinds.Component, actor.Id);
+            var component = ReadRecord(ref reader, RecordKinds.Component, actor.Id);
             if (component is not null)
             {
-                reader.Take(TransformBytes);
-                Complete(component);
+                reader.TakeBytes(TransformBytes);
+                Complete(component, reader.Position);
             }
         }
-        Complete(actor);
+        Complete(actor, reader.Position);
     }
 
-    private ObjectRecord? ReadRecord(string kind, string owner)
+    private ObjectRecord? ReadRecord(ref BoundedBinaryCursor reader, string kind, string owner)
     {
         if (objects.Count >= RecordIndex.MaxRecords) throw new SaveFormatException("Too many Atomic Heart object records.");
         var start = reader.Position;
@@ -84,7 +85,7 @@ internal sealed class RecordReader(byte[] plain)
         var classSubPath = reader.String(RecordIndex.MaxNameUnits);
         var length = reader.Count(reader.Remaining);
         var payload = new ByteSpan(reader.Position, length);
-        reader.Take(length);
+        reader.TakeBytes(length);
         var tagCount = reader.Count(RecordIndex.MaxCollection);
         var tags = new List<string>();
         for (var index = 0; index < tagCount; index++) tags.Add(reader.String(RecordIndex.MaxNameUnits));
@@ -95,7 +96,7 @@ internal sealed class RecordReader(byte[] plain)
         if (occurrence != 0) id += $"#{occurrence + 1}";
         identityUnits = checked(identityUnits + id.Length);
         if (identityUnits > RecordIndex.MaxIndexPathUnits) throw new SaveFormatException("Record identity text exceeds the index budget.");
-        var cursor = new SaveCursor(plain, payload.Offset, payload.End);
+        var cursor = SaveExtensionBinary.Cursor(plain, payload.Offset, payload.End);
         IReadOnlyList<string> prefixIds = [];
         if (classPath.EndsWith(InventoryClasses.Player, StringComparison.Ordinal))
         {
@@ -107,7 +108,7 @@ internal sealed class RecordReader(byte[] plain)
         IReadOnlyList<TaggedProperty> members = [];
         // A payload may start with native state. Do not search arbitrary bytes for a plausible tag.
         var tagged = IsTaggedStart(cursor);
-        if (tagged) members = properties.ReadSequence(cursor);
+        if (tagged) members = properties.ReadSequence(ref cursor);
         if (cursor.Remaining >= sizeof(int) && tagged)
         {
             var end = cursor.Position;
@@ -121,9 +122,8 @@ internal sealed class RecordReader(byte[] plain)
         return record;
     }
 
-    private bool IsTaggedStart(SaveCursor cursor)
+    private static bool IsTaggedStart(BoundedBinaryCursor probe)
     {
-        var probe = new SaveCursor(plain, cursor.Position, cursor.End);
         try
         {
             var name = probe.String(RecordIndex.MaxNameUnits);
@@ -134,18 +134,18 @@ internal sealed class RecordReader(byte[] plain)
         catch (SaveFormatException) { return false; }
     }
 
-    private void Complete(ObjectRecord record)
+    private void Complete(ObjectRecord record, int end)
     {
         var index = recordPositions[record.Id];
-        objects[index] = record with { Span = new(record.Span.Offset, reader.Position - record.Span.Offset) };
+        objects[index] = record with { Span = new(record.Span.Offset, end - record.Span.Offset) };
     }
 
-    private void ReadBit()
+    private static void ReadBit(ref BoundedBinaryCursor reader)
     {
         if (reader.Byte() > 1) throw new SaveFormatException("Invalid actor flag.");
     }
 
-    private static void ReadObjectTerminator(SaveCursor cursor)
+    private static void ReadObjectTerminator(ref BoundedBinaryCursor cursor)
     {
         if (cursor.Int32() != 0) throw new SaveFormatException("Invalid SlotData UObject terminator.");
     }

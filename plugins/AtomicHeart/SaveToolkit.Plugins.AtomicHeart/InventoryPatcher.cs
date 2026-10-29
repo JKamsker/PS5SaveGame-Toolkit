@@ -82,7 +82,7 @@ internal static class InventoryPatcher
     private static bool Contains(ByteSpan parent, ByteSpan child) => parent.Offset <= child.Offset && parent.End >= child.End;
     private static int SizeOffset(byte[] bytes, int start)
     {
-        var reader = new SaveCursor(bytes, start);
+        var reader = SaveExtensionBinary.Cursor(bytes, start);
         _ = reader.String();
         _ = reader.String();
         return reader.Position;

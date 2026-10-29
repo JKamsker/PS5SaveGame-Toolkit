@@ -1,4 +1,5 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Binary;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Plugins.AtomicHeart;
@@ -11,20 +12,20 @@ internal sealed class PropertyReader(byte[] bytes)
     private const int GuidBytes = 16;
     private int propertyCount;
 
-    internal IReadOnlyList<TaggedProperty> ReadSequence(SaveCursor reader, int depth = 0)
+    internal IReadOnlyList<TaggedProperty> ReadSequence(ref BoundedBinaryCursor reader, int depth = 0)
     {
         if (depth > MaxDepth) throw new SaveFormatException("Tagged properties exceed the depth limit.");
         var properties = new List<TaggedProperty>();
         while (properties.Count < MaxObjectProperties)
         {
-            var property = ReadTag(reader);
+            var property = ReadTag(ref reader);
             if (property is null) return properties;
             properties.Add(property with { Children = ReadChildren(property, depth) });
         }
         throw new SaveFormatException("Object exceeds 1,024 tagged properties.");
     }
 
-    private TaggedProperty? ReadTag(SaveCursor reader)
+    private TaggedProperty? ReadTag(ref BoundedBinaryCursor reader)
     {
         var start = reader.Position;
         var name = reader.String(RecordIndex.MaxNameUnits);
@@ -35,7 +36,7 @@ internal sealed class PropertyReader(byte[] bytes)
         var size = reader.Count(reader.Remaining);
         var arrayIndex = reader.Int32();
         var detail = string.Empty;
-        if (type == "StructProperty") { detail = reader.String(RecordIndex.MaxNameUnits); reader.Take(GuidBytes); }
+        if (type == "StructProperty") { detail = reader.String(RecordIndex.MaxNameUnits); reader.TakeBytes(GuidBytes); }
         else if (type is "ArrayProperty" or "SetProperty" or "ByteProperty" or "EnumProperty")
             detail = reader.String(RecordIndex.MaxNameUnits);
         else if (type == "MapProperty")
@@ -44,17 +45,17 @@ internal sealed class PropertyReader(byte[] bytes)
         if (boolean > 1) throw new SaveFormatException("Invalid property boolean.");
         var hasGuid = reader.Byte();
         if (hasGuid > 1) throw new SaveFormatException("Invalid property GUID flag.");
-        if (hasGuid != 0) reader.Take(GuidBytes);
+        if (hasGuid != 0) reader.TakeBytes(GuidBytes);
         PrimitivePayload.ValidateSize(type, detail, size);
         var payload = new ByteSpan(reader.Position, size);
-        reader.Take(size);
+        reader.TakeBytes(size);
         var value = ReadValue(type, payload, boolean);
         return new TaggedProperty(name, type, detail, arrayIndex, new(start, reader.Position - start), payload, value);
     }
 
     private FieldValue? ReadValue(string type, ByteSpan span, byte? boolean)
     {
-        var reader = new SaveCursor(bytes, span.Offset, span.End);
+        var reader = SaveExtensionBinary.Cursor(bytes, span.Offset, span.End);
         FieldValue? value = type switch
         {
             "BoolProperty" when span.Length == 0 => FieldValue.Of(boolean == 1),
@@ -82,12 +83,12 @@ internal sealed class PropertyReader(byte[] bytes)
 
     private IReadOnlyList<TaggedProperty> ReadChildren(TaggedProperty property, int depth)
     {
-        var reader = new SaveCursor(bytes, property.Payload.Offset, property.Payload.End);
+        var reader = SaveExtensionBinary.Cursor(bytes, property.Payload.Offset, property.Payload.End);
         // These are observed tagged structs; native Transform, GameplayTagContainer, etc. stay raw.
         if (property.Type == "StructProperty" && property.Detail is
             "InventoryList" or "InventoryGrid" or "InventoryDump" or "InventoryData" or "SkillDump" or "PrimaryAssetId" or "PrimaryAssetType")
         {
-            var children = ReadSequence(reader, depth + 1);
+            var children = ReadSequence(ref reader, depth + 1);
             RequireEnd(reader);
             return children;
         }
@@ -95,31 +96,31 @@ internal sealed class PropertyReader(byte[] bytes)
             property.Name is "Slots" or "AllCraftablePrimaryAssetIDs")
         {
             var count = reader.Count(RecordIndex.MaxCollection);
-            var descriptor = ReadTag(reader) ?? throw new SaveFormatException("Missing struct array descriptor.");
+            var descriptor = ReadTag(ref reader) ?? throw new SaveFormatException("Missing struct array descriptor.");
             if (descriptor.Name != property.Name || descriptor.Type != "StructProperty" || descriptor.Payload.End != property.Payload.End)
                 throw new SaveFormatException("Invalid struct array bounds.");
             if (descriptor.Detail != (property.Name == "Slots" ? "InventoryData" : "PrimaryAssetId")) return [];
             reader.Position = descriptor.Payload.Offset;
-            return ReadElements(reader, count, depth, keyed: false);
+            return ReadElements(ref reader, count, depth, keyed: false);
         }
         if (property.Type == "MapProperty" && property.Detail == "Int64Property/StructProperty" && property.Name == "Elements")
         {
             var removed = reader.Count(RecordIndex.MaxCollection);
-            reader.Take(checked(removed * sizeof(long)));
+            reader.TakeBytes(checked(removed * sizeof(long)));
             var count = reader.Count(RecordIndex.MaxCollection);
-            return ReadElements(reader, count, depth, keyed: true);
+            return ReadElements(ref reader, count, depth, keyed: true);
         }
         return [];
     }
 
-    private IReadOnlyList<TaggedProperty> ReadElements(SaveCursor reader, int count, int depth, bool keyed)
+    private IReadOnlyList<TaggedProperty> ReadElements(ref BoundedBinaryCursor reader, int count, int depth, bool keyed)
     {
         var elements = new List<TaggedProperty>();
         for (var index = 0; index < count; index++)
         {
             var start = reader.Position;
             var key = keyed ? reader.Int64().ToString() : index.ToString();
-            var children = ReadSequence(reader, depth + 1);
+            var children = ReadSequence(ref reader, depth + 1);
             var span = new ByteSpan(start, reader.Position - start);
             elements.Add(new TaggedProperty(key, "StructElement", "", 0, span, span, null) { Children = children });
         }
@@ -127,7 +128,7 @@ internal sealed class PropertyReader(byte[] bytes)
         return elements;
     }
 
-    private static void RequireEnd(SaveCursor reader)
+    private static void RequireEnd(BoundedBinaryCursor reader)
     {
         if (reader.Remaining != 0) throw new SaveFormatException("Unexpected bytes in an inspected tagged collection.");
     }

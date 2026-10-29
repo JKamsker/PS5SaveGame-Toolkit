@@ -29,7 +29,7 @@ internal sealed record SaveExtensionFile(int PackageVersion, string Engine, int 
         if (!SHA1.HashData(bytes.AsSpan(0, bytes.Length - DigestBytes)).AsSpan().SequenceEqual(bytes.AsSpan(^DigestBytes)))
             throw new SaveFormatException("Atomic Heart SHA-1 trailer does not match the file.");
 #pragma warning restore CA5350
-        var reader = new SaveCursor(bytes, end: bytes.Length - DigestBytes);
+        var reader = SaveExtensionBinary.Cursor(bytes, end: bytes.Length - DigestBytes);
         if (reader.Int32() != FileTypeTag || reader.Int32() != SaveVersion) throw new SaveFormatException("Unsupported SaveExtension tag/version.");
         var package = reader.Int32();
         var major = reader.UInt16();
@@ -39,18 +39,18 @@ internal sealed record SaveExtensionFile(int PackageVersion, string Engine, int 
         _ = reader.String();
         if (major != 4 || minor < 12 || reader.Int32() != GuidCustomVersionFormat) throw new SaveFormatException("Unsupported SaveExtension engine/custom versions.");
         var count = reader.Count(MaxCustomVersions);
-        reader.Take(count * 20);
+        reader.TakeBytes(count * 20);
         if (reader.String() != "/Script/SaveExtension.SlotInfo") throw new SaveFormatException("Missing SaveExtension SlotInfo class.");
         var infoLength = reader.Count(reader.Remaining);
         var infoStart = reader.Position;
-        reader.Take(infoLength);
+        reader.TakeBytes(infoLength);
         var properties = ReadProperties(bytes, infoStart, infoLength);
         if (reader.String() != "/Script/SaveExtension.SlotData") throw new SaveFormatException("Missing SaveExtension SlotData class.");
         // Atomic Heart replaces upstream's compression bool with an algorithm FString.
         if (reader.String() != "Oodle") throw new SaveFormatException("Unsupported Atomic Heart compression algorithm.");
         var dataLength = reader.Count(reader.Remaining);
         var dataStart = reader.Position;
-        reader.Take(dataLength);
+        reader.TakeBytes(dataLength);
         if (reader.Remaining != 0) throw new SaveFormatException("Unexpected data before the Atomic Heart SHA-1 trailer.");
         var chunks = ReadChunks(bytes, dataStart, dataLength);
         return new SaveExtensionFile(package, $"{major}.{minor}.{patch}", count, properties, dataStart, dataLength, chunks);
@@ -58,7 +58,7 @@ internal sealed record SaveExtensionFile(int PackageVersion, string Engine, int 
 
     private static IReadOnlyList<SlotProperty> ReadProperties(byte[] bytes, int start, int length)
     {
-        var reader = new SaveCursor(bytes, start, start + length);
+        var reader = SaveExtensionBinary.Cursor(bytes, start, start + length);
         var properties = new List<SlotProperty>();
         while (properties.Count < MaxProperties)
         {
@@ -72,17 +72,17 @@ internal sealed record SaveExtensionFile(int PackageVersion, string Engine, int 
             var size = reader.Count(reader.Remaining);
             _ = reader.Int32(); // static-array index, preserved
             string? structType = null;
-            if (type == "StructProperty") { structType = reader.String(); reader.Take(16); }
+            if (type == "StructProperty") { structType = reader.String(); reader.TakeBytes(16); }
             else if (type is "ArrayProperty" or "SetProperty" or "ByteProperty" or "EnumProperty") _ = reader.String();
             else if (type == "MapProperty") { _ = reader.String(); _ = reader.String(); }
             if (type == "BoolProperty" && reader.Byte() > 1) throw new SaveFormatException("Invalid SlotInfo property boolean.");
             var hasGuid = reader.Byte();
             if (hasGuid > 1) throw new SaveFormatException("Invalid SlotInfo property GUID flag.");
-            if (hasGuid != 0) reader.Take(16);
+            if (hasGuid != 0) reader.TakeBytes(16);
             PrimitivePayload.ValidateSize(type, structType, size);
             var offset = reader.Position;
-            reader.Take(size);
-            var value = new SaveCursor(bytes, offset, offset + size);
+            reader.TakeBytes(size);
+            var value = SaveExtensionBinary.Cursor(bytes, offset, offset + size);
             FieldValue? decoded = type switch
             {
                 "IntProperty" when size == 4 => FieldValue.Of(value.Int32()),
@@ -98,7 +98,7 @@ internal sealed record SaveExtensionFile(int PackageVersion, string Engine, int 
 
     private static IReadOnlyList<CompressedChunk> ReadChunks(byte[] bytes, int start, int length)
     {
-        var reader = new SaveCursor(bytes, start, start + length);
+        var reader = SaveExtensionBinary.Cursor(bytes, start, start + length);
         var chunks = new List<CompressedChunk>();
         long total = 0;
         while (reader.Remaining > 0)
@@ -111,7 +111,7 @@ internal sealed record SaveExtensionFile(int PackageVersion, string Engine, int 
             if (compressed == 0 || compressed > (ulong)reader.Remaining || plain is 0 or > ChunkSize ||
                 reader.UInt64() != compressed || reader.UInt64() != plain)
                 throw new SaveFormatException("Invalid Unreal compressed chunk sizes.");
-            var payload = reader.Take((int)compressed);
+            var payload = reader.TakeBytes((int)compressed);
             // The shared codec validates Kraken, including block-level stored frames (CC 06).
             if (payload.Length < 2 || (payload[0] & 0x8F) != 0x8C || payload[1] != 0x06)
                 throw new SaveFormatException("Unsupported Atomic Heart Oodle variant; only Kraken (decoder 6) is supported.");
