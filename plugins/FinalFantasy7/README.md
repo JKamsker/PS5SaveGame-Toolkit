@@ -404,11 +404,45 @@ Tests check complete record walks, byte-identical round trips and an initial vie
 Correctness tests do not gate on wall-clock speed, which varies with CI scheduling and machine load.
 No framework changes, runtime file/network access or extra NuGet dependencies are required.
 
-Collection queries use the shared SDK `InMemoryCollection<CollectionEntry>` engine. The thin
+Collection queries use the shared SDK `InMemoryCollection<T>` engine. Inventory/materia query native
+slot indexes through `GameplayCollection`, compare numbers without formatting/parsing and only build
+rich cells for the requested page. Immutable catalogue projections are cached lazily per document;
+owned relationship queries build text entries directly, while owner references remain live. Pinned
+record descriptions/source strings are reused, including across repeated stacks in action previews.
+The thin
 `CollectionQuery` adapter retains FFVII's validation messages, signed-64-bit numeric comparer with
 ordinal text fallback, whitespace-only search normalization and ascending ordinal key tie breaks
 (also for descending column sorts). F14 still uses the native slot predicates; only requested page
 rows render bindings. Characterization tests pin these policies before the helper migration (#40).
+
+Performance review (#40, 2026-10-29): Release, .NET SDK 10.0.400, largest sample
+`PPSA08664/ff7rebirth000` (23,381,104 bytes), pinned built-in packs, synchronous per-thread allocations.
+Five warmups and 21 measurements with tiered compilation disabled; elapsed/allocation medians are
+independent. Sample import and reference-store setup are outside timings. Pages contain 50 rows;
+search uses `1`, sorting uses descending quantity, and empty rows are included. Plans use document scope.
+
+| Operation | Before → after milliseconds | Before → after allocated bytes |
+| --- | --- | --- |
+| Open pinned + first root view | 4.747 → 4.561 | 24,247,112 → 24,427,688 |
+| First root view alone | 0.087 → 0.079 | 156,632 → 156,632 |
+| Inventory page / search / sort | 1.169 / 1.269 / 1.152 → 0.339 / 0.574 / 0.236 | 2,894,368 / 3,035,880 / 3,094,216 → 724,008 / 952,192 / 791,712 |
+| Materia page / search / sort | 0.504 / 0.786 / 0.677 → 0.152 / 0.472 / 0.184 | 1,521,336 / 1,635,464 / 1,697,080 → 542,304 / 706,336 / 589,808 |
+| Owned materia page | 1.186 → 0.492 | 3,033,800 → 1,136,872 |
+| Item catalogue first query | 0.530 → 0.593 | 2,368,400 → 2,238,680 |
+| Item catalogue subsequent page | 0.466 → 0.113 | 2,368,480 → 319,296 |
+| Restock preview | 0.546 → 0.435 | 682,408 → 302,648 |
+| Materia AP preview | 0.007 → 0.007 | 6,568 → 4,576 |
+| Synthetic 2,048-stack restock preview | 1.449 → 0.814 | 3,914,808 → 777,160 |
+
+Open retains an additional ~180 KB of stable slot keys. The catalogue cache pays its construction
+cost on the first query and retains that immutable projection for subsequent queries; cold catalogue
+latency is not improved. These are warm-process measurements, not process-startup/static-resource
+loading measurements. Timing changes are diagnostic, never test gates. Sixteen new sample-free cases
+cover allocation ceilings, current values after edits/restoration, relationship/legacy equivalence,
+owner freshness and canonical action selection. Complete plugin suite: 387 passed, zero failed/skipped;
+API Release build: zero warnings/errors. The reproducible harness, original source snapshot, all
+collection measurements and test-first failure logs remain at
+`D:/Temp/saveeditor/review-perf-finalfantasy7/` (`run.ps1`, `before-stable.txt`, `after-stable.txt`).
 
 Imported reference indexes use `ReferenceCatalogReader.ReadBounded` with an explicit 250,000-record
 budget, matching the host's default per-catalog limit. Numeric ID normalization, source-order
@@ -477,6 +511,16 @@ every measured sample Open call stayed below two seconds in that historical loca
 ## SDK requests
 
 No framework bug blocks the shipped subset. F12/F13 are adopted as recorded above. The plugin has no message-only inspection action to mark `Mutates = false`.
+
+Performance (#40, deferred because `src/` is outside this review's scope): `InMemoryCollection<T>`
+allocates a reference-type `Entry` per source item, clones it for matching/empty-state metadata,
+and allocates full snapshots, a uniqueness set and ordering machinery on every query. An isolated
+native-int source with prebuilt keys, no text/filter/sort and 50 empty rendered rows allocates
+278,760 bytes for 1,000 rows and 565,200 bytes for 2,048 rows (0.085 / 0.218 ms in the review run).
+Consider value-type entries and fewer intermediate materializations while preserving full-model key
+validation, empty counts and ordinal tie breaks. No SDK code was changed. `ReadBounded` remains the
+complete one-time index reader behind the existing document catalogue cache; no repeated catalogue
+traversal was found in paging/search/sort/planning.
 
 R19 remains a framework-owned request: versioned toolkit preset storage outside save bytes with
 title/build compatibility and explicit missing/ambiguous owned-instance resolution. A later loadout

@@ -43,9 +43,7 @@ internal sealed class InventoryPlanning(Ff7Schema schema, GameplayFields gamepla
         var sources = new HashSet<string>(StringComparer.Ordinal);
         foreach (var key in keys.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
-            var parts = key.Split('/');
-            if (parts.Length != 2 || parts[0] != "inventory" || !int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var slot) ||
-                slot < 0 || slot >= GameplayFields.InventoryCount || key != $"inventory/{slot}")
+            if (!ActionSlotKeys.TryParse(key, ActionSlotKeys.InventoryPrefix, GameplayFields.InventoryCount, out var slot))
             {
                 skipped.Add(new(key, "Not a current inventory slot."));
                 continue;
