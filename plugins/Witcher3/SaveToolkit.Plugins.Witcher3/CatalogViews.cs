@@ -75,11 +75,18 @@ internal sealed class CatalogViews(IReferenceContext references, string build, F
         // Saved state/description are plugin presentation columns, not SDK reference sort keys.
         // Full metadata text search and these legacy columns stream bounded reference pages without a second index.
         var matches = Records(catalog, search).Where(record => Matches(record, query, state));
-        if (query.SortColumn is "owned" or "details")
+        if (query.SortColumn == "owned")
         {
-            Func<ReferenceRecord, string> key = query.SortColumn == "owned" ? state : r => r.Description ?? "";
-            matches = (query.Descending ? matches.OrderByDescending(key, StringComparer.OrdinalIgnoreCase) :
-                matches.OrderBy(key, StringComparer.OrdinalIgnoreCase)).ThenBy(r => r.Key, StringComparer.Ordinal);
+            // Preserve the unknown-state bucket: after recorded counts ascending, before them descending.
+            matches = (query.Descending
+                ? matches.OrderByDescending(r => state(r).Copies is null).ThenByDescending(r => state(r).Copies)
+                : matches.OrderBy(r => state(r).Copies is null).ThenBy(r => state(r).Copies))
+                .ThenBy(r => r.Key, StringComparer.Ordinal);
+        }
+        else if (query.SortColumn == "details")
+        {
+            matches = (query.Descending ? matches.OrderByDescending(r => r.Description ?? "", StringComparer.OrdinalIgnoreCase) :
+                matches.OrderBy(r => r.Description ?? "", StringComparer.OrdinalIgnoreCase)).ThenBy(r => r.Key, StringComparer.Ordinal);
         }
         var rows = new List<TableRow>(limit);
         var count = 0;
@@ -118,35 +125,49 @@ internal sealed class CatalogViews(IReferenceContext references, string build, F
         }
     }
 
-    private static bool Matches(ReferenceRecord record, QueryableCollectionQuery query, Func<ReferenceRecord, string> state)
+    private static bool Matches(ReferenceRecord record, QueryableCollectionQuery query, Func<ReferenceRecord, SavedState> state)
     {
-        string[] text = [record.Name, record.Key, record.Category ?? "", record.Description ?? "", state(record), .. record.Attributes.Values];
+        string[] text = [record.Name, record.Key, record.Category ?? "", record.Description ?? "", state(record).Text, .. record.Attributes.Values];
         return (string.IsNullOrWhiteSpace(query.Text) || text.Any(value => value.Contains(query.Text, StringComparison.OrdinalIgnoreCase))) &&
             query.Filters.All(f => string.IsNullOrEmpty(f.Value) || string.Equals(f.Key switch {
                 "image" => record.AssetId ?? "", "name" => record.Name, "raw" => record.Key, "category" => record.Category,
-                "owned" => state(record), "details" => record.Description, _ => null,
+                "owned" => state(record).Text, "details" => record.Description, _ => null,
             }, f.Value, StringComparison.OrdinalIgnoreCase));
     }
 
-    private Func<ReferenceRecord, string> State(string id)
+    private Func<ReferenceRecord, SavedState> State(string id)
     {
-        if (id != "gwent") { return _ => "Reference only"; }
-        if (cards() is not { } collection) { return _ => "Collection unavailable"; }
+        if (id != "gwent")
+        {
+            var reference = new SavedState(Description: "Reference only");
+            return _ => reference;
+        }
+        if (cards() is not { } collection)
+        {
+            var unavailable = new SavedState(Description: "Collection unavailable");
+            return _ => unavailable;
+        }
         // Cards() reflects mutable copy edits. Share one snapshot throughout this query, never across queries.
-        var saved = new Dictionary<string, string>(collection.Count, StringComparer.Ordinal);
+        var saved = new Dictionary<string, SavedState>(collection.Count, StringComparer.Ordinal);
         foreach (var card in collection)
         {
-            saved.TryAdd(card.Index.ToString(System.Globalization.CultureInfo.InvariantCulture), $"{card.Copies} saved copies");
+            saved.TryAdd(card.Index.ToString(System.Globalization.CultureInfo.InvariantCulture), new SavedState(card.Copies));
         }
-        return record => saved.GetValueOrDefault(record.Key, "Not recorded; availability unknown");
+        var unrecorded = new SavedState();
+        return record => saved.GetValueOrDefault(record.Key, unrecorded);
     }
 
-    private TableRow Row(ReferenceRecord record, Func<ReferenceRecord, string> state) => new(record.Key, new Dictionary<string, ViewNode> {
+    private sealed record SavedState(int? Copies = null, string Description = "Not recorded; availability unknown")
+    {
+        public string Text => Copies is { } copies ? $"{copies} saved copies" : Description;
+    }
+
+    private TableRow Row(ReferenceRecord record, Func<ReferenceRecord, SavedState> state) => new(record.Key, new Dictionary<string, ViewNode> {
         ["image"] = ReferenceImages.Cell(record, references.AssetProvenance),
         ["name"] = new SectionNode(record.Name, [new TextNode(record.AttributionText)]) {
             Badge = record.Attributes.ContainsKey("nativeIdStatus") ? "Native ID unknown" : "Inferred mapping" },
         ["raw"] = new TextNode(record.Key) { Monospace = true }, ["category"] = new TextNode(record.Category ?? "Unclassified"),
-        ["owned"] = new TextNode(state(record)),
+        ["owned"] = new TextNode(state(record).Text),
         ["details"] = new SectionNode("Reference details", [new TextNode(record.Description ?? "No description."),
             new TextNode(record.AttributionText), .. ReferenceImages.Sources(record, references.AssetProvenance),
             .. record.Attributes.Select(a => (ViewNode)new TextNode($"{a.Key}: {a.Value}"))]) { Collapsed = true },
