@@ -46,6 +46,11 @@ internal static class PlayerStatsReader
             throw new SaveFormatException("Unverified player forced-modifier buffer length.");
         }
 
+        return ReadModifierOffsets(buffer, node.Offset + 8 + field.Offset);
+    }
+
+    private static IReadOnlyDictionary<ulong, int> ReadModifierOffsets(byte[] buffer, int bufferOffset)
+    {
         var offsets = new Dictionary<ulong, int>();
         var position = 4;
         while (position < buffer.Length)
@@ -58,7 +63,7 @@ internal static class PlayerStatsReader
 
             var hash = BinaryData.UInt64(buffer, position);
             var value = BinaryPrimitives.ReadSingleLittleEndian(BinaryData.Slice(buffer, position + 12, 4));
-            if (!float.IsFinite(value) || !offsets.TryAdd(hash, node.Offset + 8 + field.Offset + position + 12))
+            if (!float.IsFinite(value) || !offsets.TryAdd(hash, bufferOffset + position + 12))
             {
                 throw new SaveFormatException("Ambiguous or invalid player stat modifiers; attributes remain read-only.");
             }

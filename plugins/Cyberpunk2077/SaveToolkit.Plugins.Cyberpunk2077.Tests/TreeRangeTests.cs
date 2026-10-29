@@ -1,10 +1,19 @@
-using System.Text;
+using System.Security.Cryptography;
 using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Plugins.Cyberpunk2077.Tests;
 
 public sealed class TreeRangeTests
 {
+    [Theory]
+    // Captured before consolidating this fixture with the shared independent CSAV encoder.
+    [InlineData(false, false, "741A2930BD16E72EBFF6AA77980CE06148471E06A40F1CC35D547D67264102D1")]
+    [InlineData(false, true, "7733A8C2525A9FBBA8D16C1C2FAD516FA40C4A25CCEBA887B498CBB72E2AE412")]
+    [InlineData(true, false, "59A13AD7FAD2B3057543E759762C249BB0C95660B5690FF6C56C7DFCEC456549")]
+    [InlineData(true, true, "2DD797D188F9E2B27835FDD7C52A0158AFD9C618DD857A791D9F13D5840CFAA4")]
+    public void RangeFixturesKeepTheirExactWireBytes(bool nested, bool overlap, string expected) =>
+        Assert.Equal(expected, Convert.ToHexString(SHA256.HashData(Fixture(nested, overlap))));
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -21,26 +30,17 @@ public sealed class TreeRangeTests
 
     private static byte[] Fixture(bool nested, bool overlap)
     {
-        const int dataOffset = 45;
         const int payloadSize = 24;
         var count = nested ? 3 : 2;
-        using var output = new MemoryStream();
-        using var writer = new BinaryWriter(output, Encoding.ASCII, true);
-        writer.Write("VASC"u8); writer.Write(new byte[21]); writer.Write("FZLC"u8);
-        writer.Write(1); writer.Write(dataOffset); writer.Write(payloadSize); writer.Write(payloadSize);
-        for (var i = 0; i < payloadSize / sizeof(int); i++) writer.Write(i < count ? i : 0);
-        var directory = (int)output.Position;
-        writer.Write("EDON"u8); writer.Write((byte)count);
+        var payload = new byte[payloadSize];
+        var nodes = new FixtureNode[count];
         for (var i = 0; i < count; i++)
         {
-            writer.Write((byte)0x81); writer.Write((byte)'x');
+            CsavCorruptionFixture.SetWord(payload, i * sizeof(int), i);
             var parent = nested && i == 0;
-            writer.Write(parent || i == count - 1 ? -1 : i + 1);
-            writer.Write(parent ? 1 : -1);
-            writer.Write(dataOffset + i * sizeof(int));
-            writer.Write(parent ? payloadSize : overlap && i == count - 2 ? 8 : 4);
+            nodes[i] = new FixtureNode("x", parent || i == count - 1 ? -1 : i + 1, parent ? 1 : -1,
+                i * sizeof(int), parent ? payloadSize : overlap && i == count - 2 ? 8 : 4);
         }
-        writer.Write(directory); writer.Write("ENOD"u8);
-        return output.ToArray();
+        return CsavCorruptionFixture.Create(payload, nodes);
     }
 }

@@ -10,6 +10,25 @@ internal sealed class CyberwareInspection
     public CyberwareInspection(IReadOnlyList<InventoryItem> items, EquipmentData? equipment, CyberpunkReferences references,
         CsavContainer container, CsavTree tree)
     {
+        var (rows, rowIds) = BuildRows(items, equipment, references, container, tree);
+        Table = new InspectionTable(CollectionId, "Cyberware inventory, slots and catalog (read-only)", [new("icon", "Icon"), new("name", "Name / identifier"),
+            new("id", "TweakDB ID"), new("ownership", "Inventory evidence"), new("loadout", "Loadout evidence"),
+            new("identity", "Instance identity"), new("rules", "Capacity / eligibility")], rows,
+            "Separate inventory instances, unresolved slot records and catalog-only records. Classification is community reference data, not proof of entitlement or compatibility. " +
+            "Duplicate base records keep distinct inventory keys. Empty slots and absent catalog items never imply capacity, eligibility or available replacements.",
+            cell: (row, column) => column switch
+            {
+                "icon" => references.ItemIcon(rowIds[row.Key]),
+                "name" => references.ItemPresentation(rowIds[row.Key]),
+                _ => null,
+            });
+    }
+    public InspectionTable Table { get; }
+    public IReadOnlyList<ViewNode> Build() => [new TextNode(Table.Metadata.Description!), Table.View()];
+
+    private static (List<InspectionRow> Rows, Dictionary<string, ulong> RowIds) BuildRows(IReadOnlyList<InventoryItem> items,
+        EquipmentData? equipment, CyberpunkReferences references, CsavContainer container, CsavTree tree)
+    {
         var rows = new List<InspectionRow>();
         var saved = new HashSet<ulong>();
         var rowIds = new Dictionary<string, ulong>(StringComparer.Ordinal);
@@ -50,18 +69,6 @@ internal sealed class CyberwareInspection
             Add("cyberware/catalog/" + record.Key, id, "Catalog only; not observed in classified inventory",
                 equipment is null ? "Unknown: loadout unavailable" : "Not listed in decoded cyberware slots", "");
         }
-        Table = new InspectionTable(CollectionId, "Cyberware inventory, slots and catalog (read-only)", [new("icon", "Icon"), new("name", "Name / identifier"),
-            new("id", "TweakDB ID"), new("ownership", "Inventory evidence"), new("loadout", "Loadout evidence"),
-            new("identity", "Instance identity"), new("rules", "Capacity / eligibility")], rows,
-            "Separate inventory instances, unresolved slot records and catalog-only records. Classification is community reference data, not proof of entitlement or compatibility. " +
-            "Duplicate base records keep distinct inventory keys. Empty slots and absent catalog items never imply capacity, eligibility or available replacements.",
-            cell: (row, column) => column switch
-            {
-                "icon" => references.ItemIcon(rowIds[row.Key]),
-                "name" => references.ItemPresentation(rowIds[row.Key]),
-                _ => null,
-            });
+        return (rows, rowIds);
     }
-    public InspectionTable Table { get; }
-    public IReadOnlyList<ViewNode> Build() => [new TextNode(Table.Metadata.Description!), Table.View()];
 }

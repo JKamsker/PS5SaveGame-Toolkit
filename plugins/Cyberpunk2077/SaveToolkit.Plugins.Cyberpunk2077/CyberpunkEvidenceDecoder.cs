@@ -40,6 +40,12 @@ internal sealed class CyberpunkEvidenceDecoder : ISaveDecoderHook
             return;
         }
 
+        if (!DecodeInventory(container, tree, sink)) return;
+        DecodeFacts(container, tree, sink);
+    }
+
+    private static bool DecodeInventory(CsavContainer container, CsavTree tree, ISaveDecodeSink sink)
+    {
         foreach (var item in InventoryReader.Read(container, tree))
         {
             var node = tree.Nodes[item.NodeId];
@@ -47,16 +53,20 @@ internal sealed class CyberpunkEvidenceDecoder : ISaveDecoderHook
             var path = $"inventory[container={item.ContainerId};identity={identity}]";
             if (item.QuantityOffset is { } offset && !sink.Add(path + "/quantity", "integer", Number(BinaryData.UInt32(container.Payload, offset))))
             {
-                return;
+                return false;
             }
 
             // Include the body fingerprint to retain changes to currently opaque instance data.
             if (!sink.Add(path + "/bodySha256", "sha256", Convert.ToHexStringLower(SHA256.HashData(container.Payload.AsSpan(node.Offset + ItemBodyOffset, node.Size - ItemBodyOffset)))))
             {
-                return;
+                return false;
             }
         }
+        return true;
+    }
 
+    private static void DecodeFacts(CsavContainer container, CsavTree tree, ISaveDecodeSink sink)
+    {
         foreach (var node in tree.Nodes.Where(node => node.Name == "FactsTable"))
         {
             foreach (var fact in FactsReader.Read(BinaryData.Slice(container.Payload, node.Offset, node.Size)))

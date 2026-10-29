@@ -23,66 +23,81 @@ internal sealed class ProgressionEditor(ProgressionData data, byte[] payload)
         result.Add(new StatsNode(data.Proficiencies.Select(p => new Stat(p.Type == "Level" ? "Level" : "Street cred", p.Level.ToString())).ToArray()));
         foreach (var proficiency in data.Proficiencies)
         {
-            void Add(string suffix, string label, int original, int policyMaximum, Func<int> get, Action<int> set)
-            {
-                var minimum = Math.Min(suffix == "level" ? 1 : 0, original);
-                var maximum = Math.Max(policyMaximum, original);
-                var refusal = suffix == "level" ? proficiency.LevelWarning : null;
-                result.Add(bind(new($"progression/{proficiency.Type}/{suffix}", label, new IntegerSpec(minimum, maximum),
-                    () => FieldValue.Of(get()), refusal is null ? value => set(value.AsInt32()) : null, value => Validate(value, minimum, maximum))) with
-                {
-                    Confidence = Confidence.Inferred,
-                    Description = "Based on the PS5 2.21 SProficiency records and WolvenKit's pinned SProficiency schema. " +
-                        ScriptableReader.Source + " " + WriteSafety.ProgressionWarning,
-                    Warning = refusal ?? WriteSafety.ProgressionWarning,
-                });
-            }
-            Add("level", proficiency.Type == "Level" ? "Stored level" : "Stored street cred", proficiency.OriginalLevel,
-                proficiency.Type == "Level" ? MaximumLevel : MaximumStreetCred, () => proficiency.Level, value =>
-                {
-                    proficiency.Level = value;
-                    if (proficiency.MirrorOffset is { } mirror) BinaryPrimitives.WriteSingleLittleEndian(payload.AsSpan(mirror), value);
-                });
-            Add("xp", "Stored current XP", proficiency.OriginalExperience, MaximumExperience,
-                () => proficiency.Experience, value => proficiency.Experience = value);
-            Add("threshold", "Stored XP threshold (0 when omitted)", proficiency.OriginalThreshold, MaximumExperience,
-                () => proficiency.Threshold, value => proficiency.Threshold = value);
-            if (proficiency.MirrorOffset is { } offset)
-                result.Add(bind(new($"stats/proficiency/{proficiency.Type}", "Existing forced level stat", FloatSpec.Single,
-                    () => FieldValue.Of((double)BinaryPrimitives.ReadSingleLittleEndian(payload.AsSpan(offset))))));
+            AddProficiencyFields(result, proficiency, bind);
         }
 
         foreach (var attribute in data.Attributes)
         {
-            var minimum = Math.Min(MinimumAttribute, attribute.Value);
-            var maximum = Math.Max(MaximumAttribute, attribute.Value);
-            Action<FieldValue>? setter = attribute.MirrorOffset is { } mirror ? value =>
-            {
-                BinaryPrimitives.WriteInt32LittleEndian(payload.AsSpan(attribute.Offset), value.AsInt32());
-                BinaryPrimitives.WriteSingleLittleEndian(payload.AsSpan(mirror), value.AsInt32());
-            } : null;
-            result.Add(bind(new($"progression/{attribute.Id}", attribute.Label, new IntegerSpec(minimum, maximum),
-                () => FieldValue.Of(BinaryData.Int32(payload, attribute.Offset)), setter,
-                value => Validate(value, minimum, maximum))) with {
-                Warning = setter is null ? data.AttributeWarning ?? "No matching unique player stat mirror; edit refused."
-                    : WriteSafety.Warning + " Updates both development data and the forced player stat. Existing perks and point balances are preserved.",
-            });
+            result.Add(AttributeField(attribute, bind));
         }
 
         foreach (var point in data.Points.Where(p => p.Type is "Attribute" or "Primary" or "Espionage"))
         {
-            var maximum = Math.Max(MaximumPointBalance, point.Original);
-            var label = point.Type switch { "Attribute" => "Unspent attribute points", "Primary" => "Unspent perk points", _ => "Unspent relic points" };
-            result.Add(bind(new($"progression/points/{point.Type}", label, new IntegerSpec(0, maximum),
-                () => FieldValue.Of(point.Value), value => point.Value = value.AsInt32(), value => Validate(value, 0, maximum))) with {
-                Warning = WriteSafety.Warning + " Experimental: changes only unspent points. Spent points and unlocks are preserved; the editor cap is a policy.",
-            });
+            result.Add(PointField(point, bind));
         }
 
         result.Add(new SectionNode("Dependent player stats", data.Attributes.Where(a => a.MirrorOffset.HasValue)
             .Select(a => (ViewNode)bind(new($"stats/{a.Id}", $"{a.Label} forced stat", FloatSpec.Single,
                 () => Mirror(a)))).ToArray()) { Collapsed = true });
         return result;
+    }
+
+    private void AddProficiencyFields(List<ViewNode> result, ProficiencyValue proficiency, Func<ScalarBinding, FieldNode> bind)
+    {
+        void Add(string suffix, string label, int original, int policyMaximum, Func<int> get, Action<int> set)
+        {
+            var minimum = Math.Min(suffix == "level" ? 1 : 0, original);
+            var maximum = Math.Max(policyMaximum, original);
+            var refusal = suffix == "level" ? proficiency.LevelWarning : null;
+            result.Add(bind(new($"progression/{proficiency.Type}/{suffix}", label, new IntegerSpec(minimum, maximum),
+                () => FieldValue.Of(get()), refusal is null ? value => set(value.AsInt32()) : null, value => Validate(value, minimum, maximum))) with
+            {
+                Confidence = Confidence.Inferred,
+                Description = "Based on the PS5 2.21 SProficiency records and WolvenKit's pinned SProficiency schema. " +
+                    ScriptableReader.Source + " " + WriteSafety.ProgressionWarning,
+                Warning = refusal ?? WriteSafety.ProgressionWarning,
+            });
+        }
+        Add("level", proficiency.Type == "Level" ? "Stored level" : "Stored street cred", proficiency.OriginalLevel,
+            proficiency.Type == "Level" ? MaximumLevel : MaximumStreetCred, () => proficiency.Level, value =>
+            {
+                proficiency.Level = value;
+                if (proficiency.MirrorOffset is { } mirror) BinaryPrimitives.WriteSingleLittleEndian(payload.AsSpan(mirror), value);
+            });
+        Add("xp", "Stored current XP", proficiency.OriginalExperience, MaximumExperience,
+            () => proficiency.Experience, value => proficiency.Experience = value);
+        Add("threshold", "Stored XP threshold (0 when omitted)", proficiency.OriginalThreshold, MaximumExperience,
+            () => proficiency.Threshold, value => proficiency.Threshold = value);
+        if (proficiency.MirrorOffset is { } offset)
+            result.Add(bind(new($"stats/proficiency/{proficiency.Type}", "Existing forced level stat", FloatSpec.Single,
+                () => FieldValue.Of((double)BinaryPrimitives.ReadSingleLittleEndian(payload.AsSpan(offset))))));
+    }
+
+    private FieldNode AttributeField(ProgressionScalar attribute, Func<ScalarBinding, FieldNode> bind)
+    {
+        var minimum = Math.Min(MinimumAttribute, attribute.Value);
+        var maximum = Math.Max(MaximumAttribute, attribute.Value);
+        Action<FieldValue>? setter = attribute.MirrorOffset is { } mirror ? value =>
+        {
+            BinaryPrimitives.WriteInt32LittleEndian(payload.AsSpan(attribute.Offset), value.AsInt32());
+            BinaryPrimitives.WriteSingleLittleEndian(payload.AsSpan(mirror), value.AsInt32());
+        } : null;
+        return bind(new($"progression/{attribute.Id}", attribute.Label, new IntegerSpec(minimum, maximum),
+            () => FieldValue.Of(BinaryData.Int32(payload, attribute.Offset)), setter,
+            value => Validate(value, minimum, maximum))) with {
+            Warning = setter is null ? data.AttributeWarning ?? "No matching unique player stat mirror; edit refused."
+                : WriteSafety.Warning + " Updates both development data and the forced player stat. Existing perks and point balances are preserved.",
+        };
+    }
+
+    private static FieldNode PointField(PointBalance point, Func<ScalarBinding, FieldNode> bind)
+    {
+        var maximum = Math.Max(MaximumPointBalance, point.Original);
+        var label = point.Type switch { "Attribute" => "Unspent attribute points", "Primary" => "Unspent perk points", _ => "Unspent relic points" };
+        return bind(new($"progression/points/{point.Type}", label, new IntegerSpec(0, maximum),
+            () => FieldValue.Of(point.Value), value => point.Value = value.AsInt32(), value => Validate(value, 0, maximum))) with {
+            Warning = WriteSafety.Warning + " Experimental: changes only unspent points. Spent points and unlocks are preserved; the editor cap is a policy.",
+        };
     }
 
     public IReadOnlyDictionary<string, FieldValue> DerivedValues() => data.Attributes.Where(a => a.MirrorOffset.HasValue)

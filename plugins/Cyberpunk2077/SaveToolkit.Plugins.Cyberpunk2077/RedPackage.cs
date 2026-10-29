@@ -43,6 +43,12 @@ internal sealed class RedPackage
         }
 
         BinaryData.Slice(bytes, _baseOffset, chunkData);
+        Names = ReadNames(bytes, nameDesc, nameData);
+        (Types, _offsets) = ReadChunks(bytes, chunkData);
+    }
+
+    private IReadOnlyList<string> ReadNames(byte[] bytes, int nameDesc, int nameData)
+    {
         var names = new List<string>();
         for (var entry = nameDesc; entry < nameData; entry += 4)
         {
@@ -63,7 +69,11 @@ internal sealed class RedPackage
             names.Add(Encoding.ASCII.GetString(raw[..^1]));
         }
 
-        Names = names;
+        return names;
+    }
+
+    private (IReadOnlyList<string> Types, int[] Offsets) ReadChunks(byte[] bytes, int chunkData)
+    {
         var types = new List<string>();
         var offsets = new List<int>();
         for (var entry = _descriptors; entry < chunkData; entry += 8)
@@ -80,8 +90,7 @@ internal sealed class RedPackage
             offsets.Add(_baseOffset + offset);
         }
 
-        Types = types;
-        _offsets = offsets.ToArray();
+        return (types, offsets.ToArray());
     }
 
     public IReadOnlyList<string> Names { get; }

@@ -36,6 +36,21 @@ internal sealed class ProgressionData
 
         _node = nodes[0];
         _package = new RedPackage(PackageBytes(container.Payload, _node), true);
+        _playerIndex = ReadPlayerIndex();
+        _player = _package.Chunk(_playerIndex);
+        ValidatePlayerOwner();
+        Points = ReadPoints();
+
+        // Resolve both stored attribute copies. A disagreement disables attribute editing, never guesses.
+        var attributes = _player.StructArray(_player.Require("attributes", "array:SAttribute"));
+        var mirrors = ReadMirrors(container, tree, out var attributeWarning);
+        AttributeWarning = attributeWarning;
+        Attributes = ReadAttributes(container, attributes, mirrors);
+        Proficiencies = ReadProficiencies(container, mirrors);
+    }
+
+    private int ReadPlayerIndex()
+    {
         var systems = _package.Types.Select((type, index) => (type, index)).Where(p => p.type == "PlayerDevelopmentSystem").ToArray();
         if (systems.Length != 1)
         {
@@ -49,13 +64,17 @@ internal sealed class ProgressionData
             throw new SaveFormatException("Only the verified single-player development layout can be edited.");
         }
 
-        _playerIndex = BinaryData.Int32(handles, 4);
-        if (_playerIndex < 0 || _playerIndex >= _package.Types.Count || _package.Types[_playerIndex] != "PlayerDevelopmentData")
+        var index = BinaryData.Int32(handles, 4);
+        if (index < 0 || index >= _package.Types.Count || _package.Types[index] != "PlayerDevelopmentData")
         {
             throw new SaveFormatException("Player development handle has an invalid target.");
         }
 
-        _player = _package.Chunk(_playerIndex);
+        return index;
+    }
+
+    private void ValidatePlayerOwner()
+    {
         var owner = _player.Require("ownerID", "entEntityID");
         var ownerBytes = _player.Raw(owner);
         var ownerClass = new PackageClass(_package, ownerBytes, 0, ownerBytes.Length);
@@ -63,20 +82,31 @@ internal sealed class ProgressionData
         {
             throw new SaveFormatException("Progression editing requires player owner ID 1.");
         }
+    }
 
-        Points = _player.StructArray(_player.Require("devPoints", "array:SDevelopmentPoints"))
+    private IReadOnlyList<PointBalance> ReadPoints()
+    {
+        var points = _player.StructArray(_player.Require("devPoints", "array:SDevelopmentPoints"))
             .Select(record => new PointBalance(record.Enum("type", "gamedataDevelopmentPointType", "Attribute"), record)).ToArray();
-        if (Points.Select(p => p.Type).Distinct(StringComparer.Ordinal).Count() != Points.Count ||
-            Points.Any(p => p.Original < 0 || p.Record.Int("spent") < 0))
+        if (points.Select(p => p.Type).Distinct(StringComparer.Ordinal).Count() != points.Length ||
+            points.Any(p => p.Original < 0 || p.Record.Int("spent") < 0))
         {
             throw new SaveFormatException("Ambiguous or negative development point balances.");
         }
 
-        // Resolve both stored attribute copies. A disagreement disables attribute editing, never guesses.
-        var attributes = _player.StructArray(_player.Require("attributes", "array:SAttribute"));
-        IReadOnlyDictionary<ulong, int> mirrors;
-        try { mirrors = PlayerStatsReader.Read(container, tree); }
-        catch (SaveFormatException ex) { mirrors = new Dictionary<ulong, int>(); AttributeWarning = ex.Message; }
+        return points;
+    }
+
+    private static IReadOnlyDictionary<ulong, int> ReadMirrors(CsavContainer container, CsavTree tree, out string? warning)
+    {
+        warning = null;
+        try { return PlayerStatsReader.Read(container, tree); }
+        catch (SaveFormatException ex) { warning = ex.Message; return new Dictionary<ulong, int>(); }
+    }
+
+    private IReadOnlyList<ProgressionScalar> ReadAttributes(CsavContainer container,
+        IReadOnlyList<PackageClass> attributes, IReadOnlyDictionary<ulong, int> mirrors)
+    {
         var scalars = new List<ProgressionScalar>();
         foreach (var (name, label) in new[] { ("Strength", "Body"), ("Reflexes", "Reflexes"),
             ("TechnicalAbility", "Technical ability"), ("Intelligence", "Intelligence"), ("Cool", "Cool") })
@@ -95,9 +125,13 @@ internal sealed class ProgressionData
             scalars.Add(new ProgressionScalar($"attributes/{name}", label, value, _node.Offset + 8 + field.Offset, mirror));
         }
 
-        Attributes = scalars;
+        return scalars;
+    }
+
+    private ProficiencyValue[] ReadProficiencies(CsavContainer container, IReadOnlyDictionary<ulong, int> mirrors)
+    {
         var proficiencies = _player.StructArray(_player.Require("proficiencies", "array:SProficiency"));
-        Proficiencies = ProficiencyTypes.Select(type =>
+        return ProficiencyTypes.Select(type =>
         {
             var matching = proficiencies.Where(p => p.Enum("type", "gamedataProficiencyType", "Assault") == type).ToArray();
             if (matching.Length != 1)
@@ -162,6 +196,20 @@ internal sealed class ProgressionData
             .Concat(Points.SelectMany(point => point.RequiredNames));
         var package = new RedPackage(PackageBytes(editedPayload, _node), true).WithNames(requiredNames);
         var player = package.Chunk(_playerIndex);
+        var points = RebuildPoints();
+        var replacements = new Dictionary<string, byte[]>();
+        if (points is not null) replacements.Add("devPoints", points);
+        if (Proficiencies.Any(p => p.Changed)) replacements.Add("proficiencies", RebuildProficiencies(player));
+        var rebuilt = package.Rebuild(_playerIndex, player.Rebuild(replacements));
+        var result = new byte[rebuilt.Length + 8];
+        BinaryPrimitives.WriteInt32LittleEndian(result, _node.Id);
+        BinaryPrimitives.WriteInt32LittleEndian(result.AsSpan(4), rebuilt.Length);
+        rebuilt.CopyTo(result, 8);
+        return new(_node.Id, result);
+    }
+
+    private byte[]? RebuildPoints()
+    {
         using var array = new MemoryStream();
         Span<byte> integer = stackalloc byte[4];
         BinaryPrimitives.WriteInt32LittleEndian(integer, Points.Count);
@@ -173,28 +221,23 @@ internal sealed class ProgressionData
                 ? new Dictionary<string, byte[]>() : new Dictionary<string, byte[]> { ["unspent"] = integer.ToArray() }));
         }
 
-        var replacements = new Dictionary<string, byte[]>();
-        if (Points.Any(p => p.Value != p.Original)) replacements.Add("devPoints", array.ToArray());
-        if (Proficiencies.Any(p => p.Changed))
+        return Points.Any(p => p.Value != p.Original) ? array.ToArray() : null;
+    }
+
+    private byte[] RebuildProficiencies(PackageClass player)
+    {
+        using var proficiencies = new MemoryStream();
+        var records = player.StructArray(player.Require("proficiencies", "array:SProficiency"));
+        Span<byte> integer = stackalloc byte[4];
+        BinaryPrimitives.WriteInt32LittleEndian(integer, records.Count);
+        proficiencies.Write(integer);
+        foreach (var record in records)
         {
-            using var proficiencies = new MemoryStream();
-            var records = player.StructArray(player.Require("proficiencies", "array:SProficiency"));
-            BinaryPrimitives.WriteInt32LittleEndian(integer, records.Count);
-            proficiencies.Write(integer);
-            foreach (var record in records)
-            {
-                var type = record.Enum("type", "gamedataProficiencyType", "Assault");
-                var editable = Proficiencies.SingleOrDefault(p => p.Type == type);
-                proficiencies.Write(editable is null ? record.Rebuild(new Dictionary<string, byte[]>()) : editable.Rebuild(record));
-            }
-            replacements.Add("proficiencies", proficiencies.ToArray());
+            var type = record.Enum("type", "gamedataProficiencyType", "Assault");
+            var editable = Proficiencies.SingleOrDefault(p => p.Type == type);
+            proficiencies.Write(editable is null ? record.Rebuild(new Dictionary<string, byte[]>()) : editable.Rebuild(record));
         }
-        var rebuilt = package.Rebuild(_playerIndex, player.Rebuild(replacements));
-        var result = new byte[rebuilt.Length + 8];
-        BinaryPrimitives.WriteInt32LittleEndian(result, _node.Id);
-        BinaryPrimitives.WriteInt32LittleEndian(result.AsSpan(4), rebuilt.Length);
-        rebuilt.CopyTo(result, 8);
-        return new(_node.Id, result);
+        return proficiencies.ToArray();
     }
 
     internal static byte[] PackageBytes(byte[] payload, CsavNode node)
