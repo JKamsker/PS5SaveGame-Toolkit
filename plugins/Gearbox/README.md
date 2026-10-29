@@ -788,8 +788,18 @@ fresh-snapshot restoration. Planned coordinated actions use F6 planning and F7 s
 structural snapshots. F12's `ISaveDecoderProvider` / `gearbox-evidence` and F13 inspection/browse
 contracts are also adopted. Shared binary/string/CRC and reference-icon helpers are implemented
 as listed under Framework feature adoption; these are resolved integrations, not SDK requests.
-No outstanding framework contract request or alternative output API is needed. Remaining capture,
-console-validation and gameplay-model gaps are listed above and tracked in [#31][owner-validation].
+**GEARBOX-F13 / action-effect metadata: open SDK request.** Host `DocumentSession` planning for
+`items/import` (empty and nonempty destinations) and group `transfer/deposit`, `transfer/withdraw`
+and `transfer/claim` emits ordered effects such as `import/serial`,
+`character/inventory_items/item-0`, `profile/bank_inventory_list/character:item-0`, and the
+source/destination `/count` rows. The existence effects are absent/new action records rather than
+parsed fields, and `import/serial` is an action payload, so the current parsed-ID contract cannot
+describe them without inventing a writable field or weakening host preflight. Current count and
+presence observations remain honest, including zero known lists. The framework needs an explicit
+ordered action/memento-effect descriptor carrying old/new existence, typed values and atomic
+cardinality; Gearbox will adopt it after publication and then add host-session preview/apply/
+undo/redo byte and cardinality regressions. Remaining capture, console-validation and gameplay-
+model gaps are listed above and tracked in [#31][owner-validation].
 
 ## Owner capture and validation checklist
 

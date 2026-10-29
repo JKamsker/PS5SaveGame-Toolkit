@@ -1,4 +1,5 @@
 using SaveToolkit.Sdk;
+using System.Globalization;
 
 namespace SaveToolkit.Plugins.Gearbox;
 
@@ -8,7 +9,7 @@ internal sealed class GearboxInventory
     public const string Backpack = "inventory_items";
     public const string Bank = "bank_inventory_list";
     public const string LostLoot = "lost_loot_inventory_list";
-    private const int DirectLookupWorkLimit = 4096;
+    internal const int DirectLookupWorkLimit = 4096;
     private readonly GearboxDocument _document;
     private readonly Dictionary<string, List<string>> _ids;
     private readonly Dictionary<string, (string List, int Index)> _locations = new(StringComparer.Ordinal);
@@ -20,6 +21,10 @@ internal sealed class GearboxInventory
     private Dictionary<string, InventoryEntry> _byId = new(StringComparer.Ordinal);
     private readonly Dictionary<string, InventoryEntry> _directEntries = new(StringComparer.Ordinal);
     private readonly Dictionary<string, (byte[] Bytes, SerialInfo Info)> _serials = new(StringComparer.Ordinal);
+
+    internal int LastDirectFieldsVisited { get; private set; }
+    internal int LastDirectRecordsVisited { get; private set; }
+    internal bool LastDirectLookupExceeded { get; private set; }
 
     public GearboxInventory(GearboxDocument document)
     {
@@ -39,6 +44,9 @@ internal sealed class GearboxInventory
     private bool TryFindDirect(string id, out InventoryEntry entry)
     {
         entry = null!;
+        LastDirectFieldsVisited = 0;
+        LastDirectRecordsVisited = 0;
+        LastDirectLookupExceeded = false;
         if (!ReferenceEquals(_directRoot, _document.Root))
         {
             _directRoot = _document.Root;
@@ -47,19 +55,18 @@ internal sealed class GearboxInventory
         }
         if (_directEntries.TryGetValue(id, out var cached)) { entry = cached; return true; }
         if (_locations.TryGetValue(id, out var location)) return TryEntry(location.List, location.Index, out entry);
-        var identity = id[(id.LastIndexOf(':') + 1)..];
-        if (!identity.StartsWith("item-", StringComparison.Ordinal) || !int.TryParse(identity[5..], out var number) || number < 0)
+        if (!TryCanonicalItemId(id, out var number))
             return false;
         // Cold targeted lookup uses the stable numeric identity directly. Full identity lists are
         // materialized only by view/structural paths; this keeps one unloaded request bounded.
         if (!_identitiesInitialized && !_document.Profile && number < DirectLookupWorkLimit)
-            return TryEntry(Backpack, number, out entry, identity);
+            return TryEntry(Backpack, number, out entry, id);
         if (!_identitiesInitialized && _document.Profile && number < DirectLookupWorkLimit)
         {
             var bankCount = CountBounded(Bank);
             if (bankCount < 0) return false;
-            if (number < bankCount) return TryEntry(Bank, number, out entry, identity);
-            return TryEntry(LostLoot, number - bankCount, out entry, identity);
+            if (number < bankCount) return TryEntry(Bank, number, out entry, id);
+            return TryEntry(LostLoot, number - bankCount, out entry, id);
         }
         return false;
     }
@@ -71,9 +78,18 @@ internal sealed class GearboxInventory
         ProtoField? field = null;
         foreach (var candidate in _document.Root.Fields)
         {
+            if (++LastDirectFieldsVisited > DirectLookupWorkLimit)
+            {
+                LastDirectLookupExceeded = true;
+                return false;
+            }
             if (candidate.Spec?.Name != list) continue;
+            if (++LastDirectRecordsVisited > DirectLookupWorkLimit)
+            {
+                LastDirectLookupExceeded = true;
+                return false;
+            }
             if (seen++ == index) { field = candidate; break; }
-            if (seen >= DirectLookupWorkLimit) break;
         }
         if (field is null) return false;
         entry = new InventoryEntry(identity ?? _ids[list][index], list, index, field);
@@ -225,10 +241,35 @@ internal sealed class GearboxInventory
         var count = 0;
         foreach (var field in _document.Root.Fields)
         {
+            if (++LastDirectFieldsVisited > DirectLookupWorkLimit)
+            {
+                LastDirectLookupExceeded = true;
+                return -1;
+            }
             if (field.Spec?.Name != list) continue;
-            if (++count >= DirectLookupWorkLimit) return -1;
+            if (++LastDirectRecordsVisited > DirectLookupWorkLimit)
+            {
+                LastDirectLookupExceeded = true;
+                return -1;
+            }
+            if (count++ >= DirectLookupWorkLimit)
+            {
+                LastDirectLookupExceeded = true;
+                return -1;
+            }
         }
         return count;
+    }
+
+    private static bool TryCanonicalItemId(string id, out int number)
+    {
+        number = -1;
+        const string prefix = "item-";
+        if (!id.StartsWith(prefix, StringComparison.Ordinal)) return false;
+        var token = id[prefix.Length..];
+        if (token.Length == 0 || token.Length > 10 || token[0] == '0' && token.Length > 1) return false;
+        if (!int.TryParse(token, NumberStyles.None, CultureInfo.InvariantCulture, out number) || number < 0) return false;
+        return string.Equals(id, prefix + number.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal);
     }
 
     public void ValidateDestination(string list, ProtoField source)

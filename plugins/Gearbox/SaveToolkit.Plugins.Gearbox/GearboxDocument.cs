@@ -195,7 +195,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         var description = unlocked ? "Raw unlocked ceiling; trial milestones and rewards are unchanged. " + SerialWrites.Warning :
             "Existing playthrough difficulty only. Unlock challenges, modifier seeds and rewards are unchanged. " + SerialWrites.Warning;
         return Integer($"world/{index}/{(unlocked ? "unlocked" : "difficulty")}", label,
-            () => Root.Children("game_state_save_data_for_playthrough").ElementAt(index),
+            () => GearboxMetadataLookup.RequireChild(Root, "game_state_save_data_for_playthrough", index),
             unlocked ? "mayhem_unlocked_level" : "mayhem_level", wonderlands ? 100 : 11,
             warning: SerialWrites.Warning, confidence: Confidence.Inferred, description: description);
     }
@@ -275,9 +275,13 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
 
     internal FieldNode Category(string list, uint hash, string label, long maximum, string id)
     {
-        var current = Root.CategoryQuantity(list, hash);
+        var current = GearboxMetadataLookup.TryFindMessage(Root, list,
+            category => category.Integer("base_category_definition_hash") == hash, out var category)
+            ? category.Integer("quantity") : 0;
         return Bind(id, label, new IntegerSpec(Math.Min(0, current), Math.Max(maximum, current)),
-            () => FieldValue.Of(Root.CategoryQuantity(list, hash)),
+            () => FieldValue.Of(GearboxMetadataLookup.TryFindMessage(Root, list,
+                candidate => candidate.Integer("base_category_definition_hash") == hash, out var currentCategory)
+                ? currentCategory.Integer("quantity") : 0),
             current >= 0 && current <= maximum ? v => Root.SetCategoryQuantity(list, hash, v.AsInt64()) : null,
             v => v.Kind != FieldValueKind.Integer || v.AsInteger() < 0 || v.AsInteger() > maximum ? "Unsupported currency amount." : null,
             GearboxWriteWarnings.ConsoleValidation + " The game may clamp large values. Absent currency categories are created only when a nonzero amount is set.");

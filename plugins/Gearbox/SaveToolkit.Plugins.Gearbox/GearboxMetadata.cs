@@ -59,10 +59,10 @@ internal static class GearboxMetadata
         {
             if (!document.Profile)
             {
-                var index = document.Root.Children("game_stats_data").ToList().FindIndex(s =>
-                    s.Text("stat_path") == CharacterProgression.LevelStat(document.Root.Schema.Wonderlands));
+                var index = FindChildIndex(document.Root, "game_stats_data",
+                    s => s.Text("stat_path") == CharacterProgression.LevelStat(document.Root.Schema.Wonderlands));
                 if (index >= 0) _ = document.Integer(id, "Recorded level statistic",
-                    () => document.Root.Children("game_stats_data").ElementAt(index), "stat_value",
+                    () => GearboxMetadataLookup.RequireChild(document.Root, "game_stats_data", index), "stat_value",
                     warning: "Updated with XP; this statistic alone does not change level.");
             }
             return;
@@ -75,12 +75,14 @@ internal static class GearboxMetadata
     private static bool TryCurrency(GearboxDocument document, string id)
     {
         var split = id.Split('/');
-        if (split.Length != 2 || split[0] is not ("currency" or "keys") || !uint.TryParse(split[1], NumberStyles.None, CultureInfo.InvariantCulture, out var hash)) return false;
+        if (split.Length != 2 || split[0] is not ("currency" or "keys") ||
+            !TryCanonicalUInt(split[1], out var hash)) return false;
         if (document.Profile != (split[0] == "keys")) return false;
         var known = document.Profile ? hash == GoldenKeyHash : hash is MoneyHash or EridiumHash;
         if (!known) return false;
         var list = document.Profile ? "bank_inventory_category_list" : "inventory_category_list";
-        if (!document.Root.All(list).Any(field => field.Message?.Integer("base_category_definition_hash") == hash)) return false;
+        if (!GearboxMetadataLookup.TryFindMessage(document.Root, list,
+            field => field.Integer("base_category_definition_hash") == hash, out _)) return false;
         var label = document.Profile ? (document.Root.Schema.Wonderlands ? "Skeleton keys" : "Golden keys")
             : hash == MoneyHash ? "Money" : document.Root.Schema.Wonderlands ? "Moon orbs" : "Eridium";
         var maximum = hash == EridiumHash && document.Root.Schema.Wonderlands ? 16_000 : 2_000_000_000;
@@ -91,29 +93,27 @@ internal static class GearboxMetadata
     private static bool TryAmmo(GearboxDocument document, string id)
     {
         var split = id.Split('/');
-        if (document.Profile || split.Length != 2 || split[0] != "ammo" || !int.TryParse(split[1], NumberStyles.None, CultureInfo.InvariantCulture, out var index)) return false;
-        var pools = document.Root.Children("resource_pools").ToArray();
-        if ((uint)index >= (uint)pools.Length) return false;
-        _ = document.Ammo(id, () => document.Root.Children("resource_pools").ElementAt(index));
+        if (document.Profile || split.Length != 2 || split[0] != "ammo" ||
+            !GearboxMetadataLookup.TryCanonicalIndex(split[1], out var index) ||
+            !GearboxMetadataLookup.TryChildAt(document.Root, "resource_pools", index, out _)) return false;
+        _ = document.Ammo(id, () => GearboxMetadataLookup.RequireChild(document.Root, "resource_pools", index));
         return true;
     }
 
     private static bool TrySdu(GearboxDocument document, string id)
     {
         var split = id.Split('/');
-        if (split.Length != 2 || split[0] != "sdu" || !int.TryParse(split[1], NumberStyles.None, CultureInfo.InvariantCulture, out var index)) return false;
+        if (split.Length != 2 || split[0] != "sdu" || !GearboxMetadataLookup.TryCanonicalIndex(split[1], out var index)) return false;
         var list = document.Profile ? "profile_sdu_list" : "sdu_list";
-        var rows = document.Root.Children(list).ToArray();
-        if ((uint)index >= (uint)rows.Length) return false;
-        var row = rows[index];
+        if (!GearboxMetadataLookup.TryChildAt(document.Root, list, index, out var row)) return false;
         var maximum = GearboxWritePolicies.SduMaximum(row.Text("sdu_data_path"), document.Root.Schema.Wonderlands);
         if (maximum is null || row.Integer("sdu_level") < 0 || row.Integer("sdu_level") > maximum.Value)
-            _ = document.Integer(id, "Purchased level", () => document.Root.Children(list).ElementAt(index), "sdu_level", writable: false);
+            _ = document.Integer(id, "Purchased level", () => GearboxMetadataLookup.RequireChild(document.Root, list, index), "sdu_level", writable: false);
         else
             _ = document.ItemNumber(id, "Purchased level", 0, maximum.Value,
-                () => checked((int)document.Root.Children(list).ElementAt(index).Integer("sdu_level")), value =>
+                () => checked((int)GearboxMetadataLookup.RequireChild(document.Root, list, index).Integer("sdu_level")), value =>
                 {
-                    var current = document.Root.Children(list).ElementAt(index);
+                    var current = GearboxMetadataLookup.RequireChild(document.Root, list, index);
                     current.SetInteger("sdu_level", value);
                     if (GearboxWritePolicies.StorageList(current.Text("sdu_data_path")) is { } storageList)
                         document.Inventory.EnsureCapacity(storageList, 0);
@@ -131,12 +131,11 @@ internal static class GearboxMetadata
             return true;
         }
         var split = id.Split('/');
-        if (split.Length != 3 || split[0] != "world" || !int.TryParse(split[1], NumberStyles.None, CultureInfo.InvariantCulture, out var index)
+        if (split.Length != 3 || split[0] != "world" || !GearboxMetadataLookup.TryCanonicalIndex(split[1], out var index)
             || split[2] is not ("difficulty" or "unlocked")) return false;
-        var rows = document.Root.Children("game_state_save_data_for_playthrough").ToArray();
-        if ((uint)index >= (uint)rows.Length) return false;
+        if (!GearboxMetadataLookup.TryChildAt(document.Root, "game_state_save_data_for_playthrough", index, out var row)) return false;
         var field = split[2] == "difficulty" ? "mayhem_level" : "mayhem_unlocked_level";
-        if (split[2] == "unlocked" && !document.Root.Schema.Wonderlands || !Has(rows[index], field)) return false;
+        if (split[2] == "unlocked" && !document.Root.Schema.Wonderlands || !Has(row, field)) return false;
         _ = document.WorldDifficulty(index, split[2] == "unlocked");
         return true;
     }
@@ -145,11 +144,10 @@ internal static class GearboxMetadata
     {
         var split = id.Split('/');
         if (document.Profile || split.Length != 3 || split[0] != "slots" || split[2] != "index"
-            || !int.TryParse(split[1], NumberStyles.None, CultureInfo.InvariantCulture, out var index)) return false;
-        var rows = document.Root.Children("equipped_inventory_list").ToArray();
-        if ((uint)index >= (uint)rows.Length) return false;
+            || !GearboxMetadataLookup.TryCanonicalIndex(split[1], out var index) ||
+            !GearboxMetadataLookup.TryChildAt(document.Root, "equipped_inventory_list", index, out _)) return false;
         _ = document.DerivedInteger(id, "Equipment slot " + index + " inventory index",
-            () => document.Root.Children("equipped_inventory_list").ElementAt(index), "inventory_list_index", int.MaxValue);
+            () => GearboxMetadataLookup.RequireChild(document.Root, "equipped_inventory_list", index), "inventory_list_index", int.MaxValue);
         return true;
     }
 
@@ -163,16 +161,7 @@ internal static class GearboxMetadata
             if (document.Profile ? role != "myth" : role is not ("hero" or "myth-mirror")) return false;
         }
         else if (document.Profile ? role != "profile" : role is not ("legacy" or "character")) return false;
-        Func<ProtoMessage?> parent = () => split[1] switch
-        {
-            "hero" => document.Root.Child("hero_points_save_data"),
-            "profile" => document.Root.Child("guardian_rank"),
-            "legacy" => document.Root.Child("guardian_rank"),
-            "character" => document.Root.Child("guardian_rank_character_data"),
-            "myth" => document.Root.Child("player_prestige"),
-            "myth-mirror" => document.Root.Child("profile_cloud_data")?.Child("player_prestige"),
-            _ => null,
-        };
+        Func<ProtoMessage?> parent = () => RoleParent(document, role);
         var name = split[2];
         if (parent() is not { } current || !IntegerField(current, name)) return false;
         var (label, maximum, description, warning) = AccountPresentation(document, role, name, current);
@@ -208,6 +197,22 @@ internal static class GearboxMetadata
     }
 
     private const string AccountDescription = "Existing raw stored value; observed range plus conservative editor bound. Point budgets, mirror precedence and derived rewards are not inferred. " + SerialWrites.Warning;
+
+    private static ProtoMessage? RoleParent(GearboxDocument document, string role)
+    {
+        var name = role switch
+        {
+            "hero" => "hero_points_save_data",
+            "profile" or "legacy" => "guardian_rank",
+            "character" => "guardian_rank_character_data",
+            "myth" => "player_prestige",
+            "myth-mirror" => "profile_cloud_data",
+            _ => null,
+        };
+        if (name is null || !GearboxMetadataLookup.TryChildAt(document.Root, name, 0, out var parent)) return null;
+        if (role != "myth-mirror") return parent;
+        return GearboxMetadataLookup.TryChildAt(parent, "player_prestige", 0, out var mirror) ? mirror : null;
+    }
 
     private static bool TryItem(GearboxDocument document, string id)
     {
@@ -288,9 +293,35 @@ internal static class GearboxMetadata
         return value is > 0 and <= 128 ? (int)value : 32;
     }
 
-    private static bool Has(ProtoMessage message, string name) => message.Fields.Any(field => field.Spec?.Name == name);
-    private static bool IntegerField(ProtoMessage message, string name) => message.Fields.Any(field =>
-        field.Spec?.Name == name && field.Value is ulong or long or uint or int);
+    private static bool Has(ProtoMessage message, string name)
+    {
+        var visited = 0;
+        foreach (var field in message.Fields)
+        {
+            if (++visited > GearboxInventory.DirectLookupWorkLimit) return false;
+            if (field.Spec?.Name == name) return true;
+        }
+        return false;
+    }
+
+    private static bool IntegerField(ProtoMessage message, string name)
+    {
+        var visited = 0;
+        foreach (var field in message.Fields)
+        {
+            if (++visited > GearboxInventory.DirectLookupWorkLimit) return false;
+            if (field.Spec?.Name == name && field.Value is ulong or long or uint or int) return true;
+        }
+        return false;
+    }
+
+    private static bool TryCanonicalUInt(string token, out uint value)
+    {
+        value = 0;
+        if (token.Length == 0 || token[0] == '0' && token.Length > 1) return false;
+        if (!uint.TryParse(token, NumberStyles.None, CultureInfo.InvariantCulture, out value)) return false;
+        return string.Equals(token, value.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+    }
 
     private static bool TryActionObservation(GearboxDocument document, string id)
     {
@@ -304,12 +335,27 @@ internal static class GearboxMetadata
         if (split.Length == 2 && split[1] == "count" && split[0] is GearboxInventory.Backpack or GearboxInventory.Bank or GearboxInventory.LostLoot)
         {
             var list = split[0];
-            if (!document.Root.All(list).Any()) return false;
+            if (!GearboxMetadataLookup.TryCount(document.Root, list, out _)) return false;
             _ = document.ActionObservation(id, list + " item count", new IntegerSpec(0, int.MaxValue),
-                () => FieldValue.Of(document.Root.All(list).Count()),
+                () => GearboxMetadataLookup.TryCount(document.Root, list, out var count)
+                    ? FieldValue.Of(count) : FieldValue.Null,
                 "Structural item cardinality; import, transfer, duplicate and removal actions own the write.");
             return true;
         }
         return false;
+    }
+
+    private static int FindChildIndex(ProtoMessage root, string name, Func<ProtoMessage, bool> predicate)
+    {
+        var index = 0;
+        var visited = 0;
+        foreach (var field in root.Fields)
+        {
+            if (++visited > GearboxInventory.DirectLookupWorkLimit) return -1;
+            if (field.Spec?.Name != name || field.Message is null) continue;
+            if (predicate(field.Message)) return index;
+            index++;
+        }
+        return -1;
     }
 }

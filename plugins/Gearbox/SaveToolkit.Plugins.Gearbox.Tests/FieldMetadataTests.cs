@@ -221,6 +221,61 @@ public sealed class FieldMetadataTests
         Assert.Equal(before, document.Serialize().Single().Content.ToArray());
     }
 
+    [Fact]
+    public void MalformedNumericAndForeignItemIdsAreOmittedWithoutDuplicatePrimaries()
+    {
+        using var document = EditCoverageData.Create(false);
+        var before = document.Serialize().Single().Content.ToArray();
+        var metadata = ((IFieldMetadataDocument)document).ResolveFieldMetadata([
+            "item-00/level", "item-0/level", "ammo/+0", "ammo/0", "ammo/ 0", "foreign:item-0/level"]);
+
+        Assert.Equal(["item-0/level", "ammo/0"], metadata.Select(field => field.ValueId));
+        Assert.All(metadata, field => Assert.Equal(FieldBindingKind.Primary, field.BindingKind));
+        Assert.False(document.ApplyEdits([new("item-00/level", FieldValue.Of(2))]).Succeeded);
+        Assert.False(document.ApplyEdits([new("foreign:item-0/level", FieldValue.Of(2))]).Succeeded);
+        Assert.Equal(before, document.Serialize().Single().Content.ToArray());
+
+        var old = document.GetValue("item-0/level");
+        var applied = document.ApplyEdits([new("item-0/level", FieldValue.Of(old.AsInt32() + 1))]);
+        Assert.True(applied.Succeeded);
+        var changed = document.Serialize().Single().Content.ToArray();
+        var redo = document.RestoreMemento(applied.Revert!);
+        Assert.Equal(before, document.Serialize().Single().Content.ToArray());
+        _ = document.RestoreMemento(redo);
+        Assert.Equal(changed, document.Serialize().Single().Content.ToArray());
+    }
+
+    [Fact]
+    public void ColdTargetedLookupStopsBeforeUnrelatedFieldsAndLargeRepeatedLists()
+    {
+        using var document = EditCoverageData.Create(false, root =>
+        {
+            for (var i = 0; i < GearboxInventory.DirectLookupWorkLimit + 800; i++)
+                root.Add(new ProtoField(1900, 0, null, [], 0UL, null));
+            for (var i = 0; i < GearboxInventory.DirectLookupWorkLimit + 800; i++)
+                EditCoverageData.AddPool(root, EditCoverageData.OtherAmmoPath, i);
+        });
+        var before = document.Serialize().Single().Content.ToArray();
+
+        var metadata = ((IFieldMetadataDocument)document).ResolveFieldMetadata(["item-4095/level", "ammo/4095"]);
+
+        Assert.Empty(metadata);
+        Assert.True(document.Inventory.LastDirectLookupExceeded);
+        Assert.InRange(document.Inventory.LastDirectFieldsVisited, 1, GearboxInventory.DirectLookupWorkLimit + 1);
+        Assert.Equal(before, document.Serialize().Single().Content.ToArray());
+    }
+
+    [Fact]
+    public void EmptyKnownInventoryCountsRemainInspectable()
+    {
+        using var document = EditCoverageData.Create(false, profile: true);
+        var metadata = ((IFieldMetadataDocument)document).ResolveFieldMetadata([
+            "bank_inventory_list/count", "lost_loot_inventory_list/count"]);
+
+        Assert.Equal(["bank_inventory_list/count", "lost_loot_inventory_list/count"], metadata.Select(field => field.ValueId));
+        Assert.All(metadata, field => Assert.Equal(0, document.GetValue(field.ValueId).AsInt64()));
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
