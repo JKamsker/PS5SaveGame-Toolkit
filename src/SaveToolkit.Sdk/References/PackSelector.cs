@@ -16,7 +16,7 @@ internal static class PackSelector
     public static DecodedReferencePack? Select(
         IEnumerable<DecodedReferencePack> packs, string catalogId, string? gameBuild, IReadOnlyList<string> preferredLocales) =>
         packs
-            .Where(p => p.Catalog(catalogId) is not null && BuildAllowed(p.Info, gameBuild))
+            .Where(p => p.HasCatalog(catalogId) && BuildAllowed(p.Info, gameBuild))
             .OrderBy(p => BuildRank(p.Info, gameBuild))
             .ThenBy(p => LocaleRank(p.Info.Locale, preferredLocales))
             .ThenBy(p => p.Info.Origin == ReferencePackOrigin.User ? 0 : 1)

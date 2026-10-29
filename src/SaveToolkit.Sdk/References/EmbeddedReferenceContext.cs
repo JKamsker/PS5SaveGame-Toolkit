@@ -3,13 +3,13 @@ using System.Reflection;
 namespace SaveToolkit.Sdk.References;
 
 /// <summary>
-/// Validated embedded reference packs, decoded from manifest resources without file or network I/O.
+/// Validated embedded reference packs, read from manifest resources without file or network I/O.
 /// Load once per plugin assembly, then <see cref="Pin"/> for each document's plugin and title.
 /// </summary>
 /// <remarks>
 /// Uses the host's decoder, hash normalization, catalog queries and build/locale/version selection.
 /// Only embedded packs are considered; supplied host contexts and game-specific joins remain plugin policy.
-/// No global cache is retained. Pack bytes and catalogs are shared between pinned contexts.
+/// No global cache is retained. Catalogs and individual asset buffers are materialized once on first use and shared between pinned contexts.
 /// Concurrent reads are supported when callers treat returned metadata, nested collections and asset
 /// buffers as read-only. Pin copies locale preferences. Limits apply per pack, not to the whole assembly.
 /// </remarks>
@@ -29,7 +29,7 @@ public sealed class EmbeddedReferenceContext : IReferenceContext
     public IReadOnlyList<ReferencePackInfo> Packs { get; }
 
     /// <summary>
-    /// Decodes every <c>refpacks/&lt;folder&gt;/</c> pack in an assembly. Backslashes in resource names
+    /// Validates every <c>refpacks/&lt;folder&gt;/</c> pack in an assembly; catalogs and images load on first use. Backslashes in resource names
     /// are normalized as in the host. The returned unfiltered collection can be cached and pinned per open.
     /// </summary>
     /// <exception cref="EmbeddedReferencePackException">Any discovered pack is invalid or has a duplicate id.</exception>
@@ -41,9 +41,10 @@ public sealed class EmbeddedReferenceContext : IReferenceContext
         limits ??= new();
         limits.Validate();
         var packs = new Dictionary<string, DecodedReferencePack>(StringComparer.Ordinal);
+        var strings = new ReferenceStringPool();
         foreach (var source in EmbeddedPackSource.Discover(assembly))
         {
-            var pack = PackDecoder.Load(source, ReferencePackOrigin.Embedded, limits);
+            var pack = PackDecoder.Load(source, ReferencePackOrigin.Embedded, limits, strings);
             if (!packs.TryAdd(pack.Id, pack))
                 throw new EmbeddedReferencePackException($"Pack id '{pack.Id}' is already loaded; duplicate embedded pack.");
         }

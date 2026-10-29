@@ -2,7 +2,7 @@ using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Core.References;
 
-/// <summary>A validated, fully loaded pack. Immutable and shared by every document that pins it.</summary>
+/// <summary>A validated pack with embedded catalogs and image buffers loaded on first use. Immutable and shared by every document that pins it.</summary>
 public sealed class LoadedReferencePack
 {
     internal LoadedReferencePack(DecodedReferencePack decoded) => Decoded = decoded;

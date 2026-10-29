@@ -1278,7 +1278,15 @@ CRLF-to-LF record hashing (assets remain byte-exact), record attributes and limi
 dataset attribution, bounded search and deterministic selection are identical. No ZIP, filesystem,
 network, persistence or global cache is involved.
 
-Cache the decoded assembly once and pin it for each document's plugin/title:
+`Load` still validates all manifests, hashes, records, asset references and limits immediately,
+so rejection timing and listed item counts are unchanged. Embedded catalog graphs are materialized
+once per dataset on first `Catalog` access; each image buffer is loaded once on first `GetAsset`.
+Listing, `Pin`, provenance and selection of other locales do not materialize unused data. Concurrent
+pins share these caches; cancelling a caller's wait does not cancel or poison shared initialization.
+Identical record strings are shared within the loaded context (not globally interned). Imported ZIP
+packs retain their eager snapshot because their archive stream is disposed after import.
+
+Cache the validated assembly once and pin it for each document's plugin/title:
 
 ```csharp
 private static readonly EmbeddedReferenceContext Embedded =

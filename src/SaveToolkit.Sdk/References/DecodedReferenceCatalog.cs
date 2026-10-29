@@ -1,6 +1,9 @@
 namespace SaveToolkit.Sdk.References;
 
-internal sealed record DecodedAsset(AssetContent Content, ReferenceDatasetInfo Dataset);
+internal sealed record DecodedAsset(Lazy<AssetContent> MaterializedContent, ReferenceDatasetInfo Dataset)
+{
+    public AssetContent Content => MaterializedContent.Value;
+}
 
 /// <summary>Records of one dataset with O(1) key lookup and paged search.</summary>
 internal sealed class DecodedReferenceCatalog : IReferenceCatalog
