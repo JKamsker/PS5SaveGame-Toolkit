@@ -27,22 +27,21 @@ validation remain in place. See [method, results and regression evidence](PERFOR
 
 ## Framework feature adoption
 
-| feature | status | where / reason |
+| Feature | Status | Concrete use / evidence or reason |
 | --- | --- | --- |
 | F1 SaveDiff | Used | Hogwarts decoder hook and adjacent table/row evidence; corruption and no-op fixtures cover GVAS and database framing. |
 | F2 reference packs | Used | `unrealgvas.ps5`, `unrealgvas.storage` and `hogwarts.legilimens` are embedded, pinned and attributed in the Sources panel. |
 | F3 rich table cells | Used | F8 rows expose live field cells, text, confidence, descriptions, warnings and provenance; image-cell rendering remains host-owned. |
 | F4 `ReferenceSpec` pickers | Used | Exact table/column-qualified Hogwarts IDs, title captions and catalogue examples open the F13 browse-only picker with attribution, category filters, declared sorting and no save commit. |
-| F5 structural edits | Added | Fully parsed primitive array/map/set nodes expose a bounded remove-last action with snapshot undo/redo, reparsing and size validation; struct/native/opaque containers remain read-only. |
+| F5 structural edits | Used | Fully parsed primitive array/map/set nodes expose a bounded remove-last action with snapshot undo/redo, reparsing and size validation; struct/native/opaque containers remain read-only. |
 | F6 planned bulk actions | N/A | No bounded bulk or preset has proven gameplay semantics; adding one would hide unknown checksum/relationship effects. |
 | F7 document groups | N/A | No enabled edit safely owns a coupled companion; Hogwarts primary/backup and the two database images remain independent until owner captures establish roles. |
 | F8 queryable collections | Used | Generic nested properties, Jedi actor observations, Sackboy projections and all Hogwarts tables use bounded search/filter/sort/paging. |
-| F9 maps/graphs | Added | Hogwarts Spatial tab adds an attributed schematic collectible/location map and a catalogue-domain graph, both with text alternatives and unknown states. |
+| F9 maps/graphs | Used | Hogwarts Spatial tab adds an attributed schematic collectible/location map and a catalogue-domain graph, both with text alternatives and unknown states. |
 | F10 exact numbers and nullable/union specs | Used | GVAS widths are preserved through `Int128`/exact scalar bindings; nullable database values remain text-only when their semantics are unknown. |
 | F11 shared codecs | Used | Hogwarts routes Kraken framing and in-memory SQLite through `SaveToolkit.Codecs`; no local codec or filesystem I/O is present. |
 | F12 SaveDiff F8 traversal / decoder hook | Used | Shared `PluginViewDecoder` pages generic/named F8 views; `UnrealGvasPlugin.Decoders` registers the production SDK-only `unrealgvas.hogwarts.rows` evidence hook. |
-| F13 non-mutating inspection / catalogue browsing | Added | Attributed catalogue tabs and `Mutates = false` coverage/provenance actions work on writable and read-only documents; Hogwarts uses shared category filtering and Key/Name/Category sorting. |
-| F13 float duration hint | N/A | No exposed float timer has verified units; serialized time-like names alone do not justify a duration conversion. |
+| F13 non-mutating inspection / catalogue browsing / float duration | Used | Attributed catalogue tabs and `Mutates = false` coverage/provenance actions work on writable and read-only documents; read-only `ReferenceSpec` examples and saved reference fields use the browse-only picker. Hogwarts uses shared category filtering and Key/Name/Category sorting. Float duration: N/A — no evidenced float time unit; serialized time-like names alone do not justify a duration conversion. |
 | F14 empty inventory slots | Added this round | Each independent Hogwarts `InventoryDynamic` F8 table hides confirmed NULL item/variation + integer-zero slots before paging, with matching metadata, stable tuple keys and correct hidden counts. Named zero-count and unknown records remain visible; Jedi/Sackboy projections have no confirmed vacancy rule. |
 | F4 in F6 planned parameters (`63580dc`) | N/A | No planned action or enum parameter fallback is published; catalogue inspection actions have no parameters and cannot mutate saved IDs. |
 
@@ -116,7 +115,7 @@ the native Hogwarts hook remains the row-identity evidence mode.
 
 ## Enabled writes and their evidence
 
-| write | confidence | evidence | integrity status | owner validation needed |
+| Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
 | Jedi gameplay and Sackboy General existing scalar fields (checksum fields remain read-only) | Inferred | Field names/types and bounded scalar spans match the supplied PS5 captures; edits reopen byte-exactly | CRC/checksum coverage is unproven; the game may reject or overwrite the save | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): controlled before/after captures and console load/save/reload for each title |
 | Hogwarts existing integer, real and text cells in either decoded database image | Inferred | Shared `SaveToolkit.Codecs` SQLite image, integrity check, stored Kraken frame rebuild, fresh GVAS parse and independent SQLite reopen | SQLite `PRAGMA integrity_check` is required; stored-block game acceptance is unproven and output is capped at 16 MiB | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): unchanged reconstruction, per-event image/row mapping, slot allocation and console reload |
@@ -441,7 +440,23 @@ upstream code was copied and no downloaded program was executed.
 
 ## Licence exclusions
 
-Resolved in the 2026-10-29 owner decision: publisher game assets and all-rights-reserved community references used by the curated Hogwarts gear and Sackboy thumbnail datasets. Each asset dataset records the holder, source, attribution and owner-policy basis; no unlisted publisher or community media is embedded.
+No current licence-based refusal is recorded. The source-specific dispositions below
+retain the historical research/link-only choices and the resolved publisher imports.
+The unimported sources remain usable under the owner decisions; saved-ID joins and
+implementation needs are separate evidence gaps. These research entries match the
+[central register](../../docs/LICENCE_EXCLUSIONS.md).
+
+| Source / revision | Licence found | Disposition | Alternative | Unblock |
+| --- | --- | --- | --- | --- |
+| [HogwartsLegacy.GamesRef.com gear database](https://hogwartslegacy.gamesref.com/gear), retrieved 2026-10-29 | Publisher UI text; Warner Bros. Games / Portkey Games retain rights | Resolved: imported with attribution per owner decision 2026-10-29 | Eight short gear descriptions; full source/holder in manifest and [sidecar](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/hogwarts.legilimens/assets.source.md) | None for current import; saved-ID joins remain Inferred |
+| [EIP.GG gear icon mirror](https://cdn.eip.gg/hogwarts-legacy/icons/gear/), retrieved 2026-10-29 | Publisher assets; Warner Bros. Games / Portkey Games retain rights | Resolved: imported with attribution per owner decision 2026-10-29 | Eight downscaled 64x64 WebP icons; manifest and asset sidecar retain provenance | None for current import; icon/name joins remain Inferred |
+| [Imagisphere Sackboy costume icons](https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Costume_Icons), retrieved 2026-10-29 | Publisher assets; Sony Interactive Entertainment / Sumo Digital retain rights | Resolved: imported with attribution per owner decision 2026-10-29 | Four downscaled 64x64 WebP reference thumbnails; manifest and [sidecar](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/unrealgvas.ps5/costumes.source.md) retain provenance | None for current import; no ownership/unlock or saved-ID join asserted |
+| [Imagisphere Sackboy levels](https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels), revision not recorded | none found in recorded evidence | Not used; no current licence refusal | Original Sackboy storage captions and source links; no level list or guide prose imported | Usable with attribution under owner decisions; future native joins require evidence |
+| [Imagisphere Zom Zom shop](https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29), revision not recorded | none found in recorded evidence | Not used; no current licence refusal | Source links; no shop prices/prose imported | Usable with attribution under owner decisions; saved-ID and price joins remain unproven |
+| [PowerPyx Jedi collectible guide](https://www.powerpyx.com/star-wars-jedi-fallen-order-all-collectible-locations-guide/), unpinned | none found in recorded evidence | Not used; no current licence refusal | Existing Jedi storage captions/raw views and source links; no guide prose or collectible coordinates imported | Usable with attribution under owner decisions; future native joins require evidence |
+| [SackboyWorldUnlocker](https://github.com/MsKrypt1/SackboyWorldUnlocker), revision not recorded | none found | Not used; no current licence refusal | PS4 format research only; original scalar parser/writer covers supported paths | Usable with attribution under owner decisions; reimplement documented behavior rather than copying unlicensed code |
+| [GingerBread scaffold](https://github.com/LBPHaxMods/GingerBread/tree/2cf1351e8992ca07d7d7474be454c6476f8ebde2), revision `2cf1351e8992ca07d7d7474be454c6476f8ebde2` | none found in recorded evidence | Not used; no current licence refusal | Scaffold research only; separate MIT image extractor supplies metadata research; no code/schema import needed | Usable with attribution under owner decisions; reimplement documented behavior rather than copying unlicensed code |
+| [MapGenie Hogwarts map](https://mapgenie.io/hogwarts-legacy/maps/hogwarts), checked 2026-10-28, unpinned | none found | Not used; no current licence refusal | Original aligned schematic and MIT Legilimens references; external navigation link retained, no MapGenie art/coordinates imported | Usable with attribution under owner decisions; future native joins require evidence |
 
 ## SDK requests
 
