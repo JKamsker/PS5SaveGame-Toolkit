@@ -68,10 +68,10 @@ function LazyChildren({ lazyId }: { lazyId: string }) {
   }, [stale, query.isSuccess, refresh]);
   return <>
     {query.isFetching && <p role="status" className="section__loading">Loading…</p>}
-    {stale ? <div>
+    {stale ? <div className="read-error">
       <p role="alert" className="notice notice--Danger">This section is out of date. Refresh the document to load its current contents.</p>
       <button type="button" className="btn btn--small" onClick={() => void refresh().catch(() => {})}>Refresh document</button>
-    </div> : query.isError && <div>
+    </div> : query.isError && <div className="read-error">
       <p role="alert" className="notice notice--Danger">{query.error.message}</p>
       <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={() => void query.refetch()}>Retry section</button>
     </div>}

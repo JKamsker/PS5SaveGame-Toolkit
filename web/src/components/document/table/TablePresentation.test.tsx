@@ -37,4 +37,16 @@ describe("table presentation", () => {
     expect(screen.getByText(value).title).toBe(value);
     expect(screen.getByRole("columnheader", { name: "Value" }).title).toBe("Value");
   });
+
+  it("reserves diagnostic space from complete metadata, including offscreen rows", () => {
+    const rows = Array.from({ length: 100 }, (_, index) => ({ key: String(index), cells: {
+      name: text(`Item ${index}`),
+      value: field(`quantity${index}`, { kind: "integer", min: "0", max: "999" }, "123", {
+        confidence: "Unknown", ...(index === 99 ? { warning: "Not validated on console." } : {}),
+      }),
+    } }));
+    renderTable(table(rows));
+    expect(screen.getByRole("table").style.gridTemplateColumns).toContain("var(--table-column-field)");
+    expect(screen.queryByRole("textbox", { name: /quantity99/ })).toBeNull();
+  });
 });

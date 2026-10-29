@@ -39,6 +39,7 @@
   --text-hero: clamp(2.25rem, 1.4rem + 3vw, 3.5rem);
 
   --space-1: 4px;
+  --space-half: 2px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
@@ -52,15 +53,22 @@
   --radius-panel: 10px;
 
   /* Keep data tracks stable as rows and pages change. Row height stays owned by virtualisation. */
-  --table-column-narrow: 160px;
-  --table-column-normal: 208px;
+  --table-column-narrow: 112px;
+  --table-column-normal: 160px;
   --table-column-wide: 280px;
-  --table-filter-min: 144px;
+  --table-column-field: 240px;
+  --table-filter-columns: 4;
   --control-height: 34px;
   --control-height-compact: 28px;
   --weight-label: 560;
   --weight-heading: 650;
   --row-hover: #f1f4fa;
+  --rail-width: clamp(260px, 20vw, 320px);
+  --editor-width: 1560px;
+  --editor-heading-basis: 28rem;
+  --editor-gutter: clamp(var(--space-4), 2vw, var(--space-6));
+  --measure-copy: 70ch;
+  --status-height: 48px;
 
   --duration-fast: 120ms;
   --duration-normal: 220ms;

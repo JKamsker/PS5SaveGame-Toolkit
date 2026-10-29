@@ -119,7 +119,7 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
             {columns.map((column) => (
               <label key={column.key} className="table__facet">
                 <span className="visually-hidden">Filter {column.label}</span>
-                <input className="input input--compact" placeholder={`Filter ${column.label}`} value={filters[column.key] ?? ""} onChange={(e) => updateQuery({ filters: { ...filters, [column.key]: e.target.value } })} />
+                <input className="input input--compact" title={`Filter ${column.label}`} placeholder={`Filter ${column.label}`} value={filters[column.key] ?? ""} onChange={(e) => updateQuery({ filters: { ...filters, [column.key]: e.target.value } })} />
               </label>
             ))}
           </div>
@@ -131,7 +131,7 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
           {selection.queryScope && <span className="table__scope">All filtered rows selected; edits apply to this query.</span>}
         </div>
         {node.description && <p className="section__description">{node.description}</p>}
-        {result.isError && <div>
+        {result.isError && <div className="read-error">
           <p role="alert" className="notice notice--Danger">{stale ? "This table is out of date. Refresh the document to load current rows." : result.error.message}</p>
           <button type="button" className="btn btn--small" onClick={() => {
             if (stale) void refresh().catch(() => {});
@@ -139,11 +139,12 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
           }}>{stale ? "Refresh document" : "Retry rows"}</button>
         </div>}
         <div className="table__scroller" inert={retired}>
-          <div className="table__grid" role="table" aria-label={node.title} aria-busy={result.isFetching} aria-rowcount={(page?.filteredCount ?? node.totalCount) + detailCount + 1} style={{ gridTemplateColumns: `36px ${hasDetails ? "36px " : ""}${columns.map(columnTrack).join(" ")}` }}>
+          <div className="table__grid" role="table" aria-label={node.title} aria-busy={result.isFetching} aria-rowcount={(page?.filteredCount ?? node.totalCount) + detailCount + 1} style={{ gridTemplateColumns: `36px ${hasDetails ? "36px " : ""}${columns.map(column => columnTrack(column)).join(" ")}` }}>
             <Header columns={columns} rows={rows} hasDetails={hasDetails} selected={visibleSelected} selection={selection} />
             {indexedRows.map(({ row, rowIndex }) => <ServerRow key={row.key} row={row} emptyRows={node.emptyRows} columns={columns} showDetailsColumn={hasDetails}
               rowIndex={rowIndex} selected={selection.isSelected(row.key)} onToggle={selection.toggle} expanded={expanded.has(row.key)} onExpand={expandRow} onToggleDetails={toggleDetails} />)}
           </div>
+          {!page && !result.isError && <p role="status" className="table__empty">Loading rows…</p>}
           {page && rows.length === 0 && <p className="table__empty">No rows match the current filters.</p>}
         </div>
         <nav className="table__pagination" aria-label={`${node.title} pages`}>

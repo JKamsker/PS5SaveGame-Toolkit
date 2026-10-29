@@ -37,10 +37,17 @@ describe("workspace reflow constraints", () => {
     expect(style(".bar__actions").flexShrink).toBe("0");
   });
 
-  it.each([1024, 1440])("retains the desktop rail and a shrinkable editor at %ipx", width => {
+  it.each([1024, 1440, 1920])("retains the desktop rail and a shrinkable editor at %ipx", width => {
     const style = workspaceAt(width);
     expect(style(".shell").gridTemplateAreas).toBe('"bar bar" "rail main"');
     expect(style(".shell").gridTemplateColumns).toContain("minmax(0, 1fr)");
     expect(style(".bar__actions").flexShrink).toBe("0");
+  });
+
+  it("bounds the desktop rail and lets document headings wrap within the editor", () => {
+    expect(css).toMatch(/grid-template-columns:\s*var\(--rail-width\) minmax\(0, 1fr\)/);
+    expect(css).toMatch(/\.editor__head\s*>\s*div:first-child\s*\{[^}]*min-width:\s*0/);
+    expect(css).toMatch(/\.editor__title\s*\{[^}]*overflow-wrap:\s*anywhere/);
+    expect(css).toMatch(/\.empty\s+p\s*\{[^}]*max-width:\s*var\(--measure-copy\)/);
   });
 });

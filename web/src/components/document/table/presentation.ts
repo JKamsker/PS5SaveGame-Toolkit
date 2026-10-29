@@ -1,4 +1,4 @@
-import type { FieldSpec, QueryableColumn, TableColumn, TableRow, ViewNode } from "../../../api/protocol";
+import type { FieldSpec, QueryableColumn, TableRow, ViewNode } from "../../../api/protocol";
 
 /** Use published types where available. Raw text counts are numeric only when unambiguous. */
 export function isNumericSpec(spec: FieldSpec | undefined): boolean {
@@ -19,11 +19,16 @@ export function numericColumns(columns: readonly QueryableColumn[], rows: readon
   }).map(column => column.key));
 }
 
-/** Share stable tracks between eager and paged tables; never size from a virtual page's contents. */
-export function columnTrack(column: TableColumn): string {
-  switch (column.width) {
-    case "Narrow": return "minmax(var(--table-column-narrow), 0.6fr)";
-    case "Wide": return "minmax(var(--table-column-wide), 2fr)";
-    default: return "minmax(var(--table-column-normal), 1fr)";
-  }
+/** Reserve room for diagnostics without letting values or the mounted virtual slice size tracks. */
+export function columnTrack(column: QueryableColumn, rows: readonly TableRow[] = []): string {
+  const size = column.width?.toLowerCase() ?? "normal";
+  const fraction = column.width === "Narrow" ? "0.6fr" : column.width === "Wide" ? "2fr" : "1fr";
+  // Paged columns publish specs; eager tables can inspect the complete static row metadata.
+  // A warning and a local error must fit together without squeezing the editor out of its cell.
+  const diagnostics = column.spec !== undefined || rows.some(row => {
+    const cell = row.cells[column.key];
+    return cell?.type === "field" && Boolean(cell.warning);
+  });
+  const minimum = `var(--table-column-${size})`;
+  return `minmax(${diagnostics ? `max(${minimum}, var(--table-column-field))` : minimum}, ${fraction})`;
 }

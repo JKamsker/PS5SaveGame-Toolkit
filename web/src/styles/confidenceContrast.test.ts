@@ -28,21 +28,24 @@ function contrast(first: string, second: string): number {
 
 describe.each([["light", light], ["dark", dark]] as const)("%s confidence contrast", (_name, palette) => {
   it("keeps small hints and metadata readable across workspace surfaces", () => {
-    for (const surface of ["ground", "surface", "surface-sunk", "modified-soft", "signal-soft"]) {
+    for (const surface of ["ground", "surface", "surface-sunk", "modified-soft", "signal-soft", "row-hover"]) {
       expect(contrast(palette["ink-faint"]!, palette[surface]!), `ink-faint on ${surface}`).toBeGreaterThanOrEqual(4.5);
     }
   });
 
   it.each(["verified", "inferred", "unknown"])("keeps %s text readable on field and table surfaces", confidence => {
-    for (const surface of ["surface", "surface-sunk", "modified-soft", "signal-soft"]) {
+    for (const surface of ["surface", "surface-sunk", "modified-soft", "signal-soft", "row-hover"]) {
       expect(contrast(palette[confidence]!, palette[surface]!), `${confidence} on ${surface}`).toBeGreaterThanOrEqual(4.5);
     }
   });
 
   it.each(["inferred", "unknown", "info", "danger"])("keeps %s badge glyphs readable", confidence => {
     const block = /\.cell-badge\s*\{([^}]+)\}/.exec(viewStyles)![1]!;
-    const foreground = /\bcolor:\s*var\(--([\w-]+)\)/.exec(block)![1]!;
-    expect(contrast(palette[foreground]!, palette[confidence]!)).toBeGreaterThanOrEqual(4.5);
+    const specific = new RegExp(`\\.cell-badge--${confidence}\\s*\\{([^}]+)\\}`).exec(viewStyles)?.[1] ?? "";
+    const foreground = /\bcolor:\s*var\(--([\w-]+)\)/.exec(specific)?.[1]
+      ?? /\bcolor:\s*var\(--([\w-]+)\)/.exec(block)![1]!;
+    const background = /\bbackground:\s*var\(--([\w-]+)\)/.exec(specific)?.[1] ?? confidence;
+    expect(contrast(palette[foreground]!, palette[background]!)).toBeGreaterThanOrEqual(4.5);
   });
 
   it("keeps the quiet Verified badge readable on its own surface", () => {

@@ -26,12 +26,12 @@ export function CellBadges({ confidence, description, warning, error }: CellBadg
         {description && <Badge kind="info" glyph="i" label={`Description: ${description}`} />}
         {warning && <Badge kind="warning" glyph="!" text="Warning" label={`Warning: ${warning}`} />}
         {error && (
-        <>
-          <Badge kind="error" glyph="×" text="Error" label={`Error: ${error}`} />
-          <span className="visually-hidden" role="alert">
-            {error}
-          </span>
-        </>
+          <>
+            <Badge kind="error" glyph="×" text="Error" label={`Error: ${error}`} />
+            <span className="visually-hidden" role="alert">
+              {error}
+            </span>
+          </>
         )}
       </span>}
     </span>

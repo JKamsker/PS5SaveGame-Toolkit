@@ -5,6 +5,7 @@ import { api, ApiError } from "../../../api/client";
 import type { QueryablePage } from "../../../api/protocol";
 import { DocumentContext, DocumentStore, type DocumentContextValue } from "../../../state/documentStore";
 import { ServerTableView } from "./ServerTableView";
+import { deferred } from "../../../test/deferred";
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
@@ -25,6 +26,19 @@ function setup(refresh = vi.fn(async () => {})) {
 }
 
 describe("server table request lifecycle", () => {
+  it("distinguishes loading rows from a completed empty result", async () => {
+    const pending = deferred<QueryablePage>();
+    vi.spyOn(api, "queryCollection").mockReturnValue(pending.promise);
+    const { client } = setup();
+    expect(screen.getByRole("status").textContent).toBe("Loading rows…");
+    expect(screen.getByRole("table").getAttribute("aria-busy")).toBe("true");
+    expect(screen.queryByText("No rows match the current filters.")).toBeNull();
+    await act(async () => pending.resolve({ ...page, rows: [], filteredCount: 0 }));
+    expect(await screen.findByText("No rows match the current filters.")).toBeTruthy();
+    expect(screen.queryByRole("status")).toBeNull();
+    client.clear();
+  });
+
   it("honors column widths and aligns numeric headings without moving filter or page controls", async () => {
     vi.spyOn(api, "queryCollection").mockResolvedValue({ ...page, columns: [
       { key: "name", label: "Name", width: "Wide" },

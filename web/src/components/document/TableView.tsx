@@ -82,7 +82,8 @@ export function TableView({ node }: { node: TableNode }) {
     const index = entries.findIndex(entry => entry.kind === "row" && next === `row:${entry.row.key}`);
     if (index >= 0) virtualizer.scrollToIndex(index, { align: "center" });
   }, [next, entries, virtualizer]);
-  const template = [CONTROL_COLUMN, ...(hasDetails ? [CONTROL_COLUMN] : []), ...node.columns.map(columnTrack)].join(" ");
+  const template = useMemo(() => [CONTROL_COLUMN, ...(hasDetails ? [CONTROL_COLUMN] : []),
+    ...node.columns.map(column => columnTrack(column, node.rows))].join(" "), [node.columns, node.rows, hasDetails]);
   const numbers = useMemo(() => numericColumns(node.columns, node.rows), [node.columns, node.rows]);
   const items = virtualizer.getVirtualItems();
   const padTop = items[0]?.start ?? 0;
