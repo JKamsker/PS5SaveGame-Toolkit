@@ -19,6 +19,7 @@ public sealed class AstroAssetTests
     public void EveryEmbeddedAssetHasMatchingHashWebpHeaderBoundedDimensionsAndAttribution()
     {
         var (plugin, _, context) = AstroCatalogueTestData.References();
+        Assert.Equal("1.1.0", Assert.Single(context.Packs, pack => pack.Id == PackId).Version);
         var assembly = typeof(AstroPlayroomPlugin).Assembly;
         var resource = Assert.Single(assembly.GetManifestResourceNames(), name =>
             name.Replace('\\', '/') == "refpacks/astro.catalogue.en/pack.json");

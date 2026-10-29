@@ -18,16 +18,7 @@ public sealed class AstroWriteBoundaryTests
         var text = root + new string('x', AstroTestData.AllocationSize - AstroTestData.TextOffset -
             Encoding.UTF8.GetByteCount(root) - 1);
         var original = AstroTestData.Bytes(text);
-        using var zip = new MemoryStream();
-        using (var archive = new ZipArchive(zip, ZipArchiveMode.Create, leaveOpen: true))
-        {
-            using var entry = archive.CreateEntry("PPSA01325/sdimg_sce_sdmemory/memory.dat").Open();
-            entry.Write(original);
-        }
-
-        var set = SaveSetImporter.Import([new ImportSource("authored.zip", () => new MemoryStream(zip.ToArray()))],
-            Path.Combine(TestScratch.ProcessFolder, nameof(AstroWriteBoundaryTests)));
-        var file = Assert.Single(set.AllDiskFiles);
+        var file = ImportAuthoredAllocation(original);
         var plugin = new AstroPlayroomPlugin();
         var document = plugin.Open(file);
         using var session = new DocumentSession("astro-capacity", file, plugin, document);
@@ -69,6 +60,20 @@ public sealed class AstroWriteBoundaryTests
         Assert.Equal(expected, AstroTestData.Output(document));
         Assert.True(session.Undo().Ok);
         Assert.Equal(original, AstroTestData.Output(document));
+    }
+
+    private static DiskSaveFile ImportAuthoredAllocation(byte[] original)
+    {
+        using var zip = new MemoryStream();
+        using (var archive = new ZipArchive(zip, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            using var entry = archive.CreateEntry("PPSA01325/sdimg_sce_sdmemory/memory.dat").Open();
+            entry.Write(original);
+        }
+
+        var set = SaveSetImporter.Import([new ImportSource("authored.zip", () => new MemoryStream(zip.ToArray()))],
+            Path.Combine(TestScratch.ProcessFolder, nameof(AstroWriteBoundaryTests)));
+        return Assert.Single(set.AllDiskFiles);
     }
 
     private static IncomingEdit Edit(string id, int value) => new(id, JsonSerializer.SerializeToElement(value));

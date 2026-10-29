@@ -35,14 +35,7 @@ public sealed class AstroSpatialTests
             {
                 var maps = ReadMaps(document, group);
                 Assert.Equal(count, maps.Sum(map => map.Markers.Count));
-                Assert.All(maps, map =>
-                {
-                    SpatialViewValidation.Validate(map);
-                    Assert.Null(map.Background);
-                    Assert.False(map.CoordinateEmbeddingPermitted);
-                    Assert.Contains("PowerPyx", map.ExternalSource!.Attribution, StringComparison.Ordinal);
-                    Assert.NotEmpty(map.TextAlternative);
-                });
+                Assert.All(maps, AssertCollectionMap);
                 var rows = AstroCatalogueTestData.Table(document, title).Rows.ToDictionary(row => row.Key, StringComparer.Ordinal);
                 foreach (var marker in maps.SelectMany(map => map.Markers))
                 {
@@ -61,6 +54,15 @@ public sealed class AstroSpatialTests
             Assert.Equal(file.Directory.Generation == 0 ? 0 : 13, markers.Count(marker => marker.Status == MapMarkerStatus.Found));
             Assert.Equal(file.ReadAllBytes(), AstroTestData.Output(document));
         }
+    }
+
+    private static void AssertCollectionMap(MapNode map)
+    {
+        SpatialViewValidation.Validate(map);
+        Assert.Null(map.Background);
+        Assert.False(map.CoordinateEmbeddingPermitted);
+        Assert.Contains("PowerPyx", map.ExternalSource!.Attribution, StringComparison.Ordinal);
+        Assert.NotEmpty(map.TextAlternative);
     }
 
     [Fact]

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
+using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -66,7 +67,7 @@ public sealed class AstroCatalogueSessionTests
             Assert.True(result.Ok);
             Assert.True(result.StructureChanged);
             Assert.Single(result.Changes);
-            Check("Owned", file.Directory.Generation == 0 ? 1 : 4);
+            AssertCatalogueStatus(document, labelId, "Owned", file.Directory.Generation == 0 ? 1 : 4);
             var edited = AstroTestData.Output(document);
             using (var reopened = plugin.Open(AstroTestData.File(edited), context))
             {
@@ -77,24 +78,24 @@ public sealed class AstroCatalogueSessionTests
             Assert.True(undo.Ok);
             Assert.True(undo.StructureChanged);
             Assert.Equal(beforeBadge, AstroCatalogueTestData.Group(document, "Artifacts").Badge);
-            Check("Missing", file.Directory.Generation == 0 ? 0 : 3);
+            AssertCatalogueStatus(document, labelId, "Missing", file.Directory.Generation == 0 ? 0 : 3);
             Assert.Equal(original, AstroTestData.Output(document));
             Assert.False(session.State.IsDirty);
             Assert.True(session.Redo().Ok);
-            Check("Owned", file.Directory.Generation == 0 ? 1 : 4);
+            AssertCatalogueStatus(document, labelId, "Owned", file.Directory.Generation == 0 ? 1 : 4);
             Assert.Equal(edited, AstroTestData.Output(document));
             Assert.True(session.Undo().Ok);
             Assert.Equal(original, AstroTestData.Output(document));
-
-            void Check(string status, int owned)
-            {
-                var row = AstroCatalogueTestData.Row(document, "Artifacts", "Artifact/ps1");
-                Assert.Equal(labelId, Assert.IsType<FieldNode>(row.Cells["name"]).ValueId);
-                Assert.Equal(status, Assert.IsType<TextNode>(row.Cells["status"]).Text);
-                Assert.StartsWith($"{owned}/50 owned", AstroCatalogueTestData.Group(document, "Artifacts").Badge, StringComparison.Ordinal);
-                var details = Assert.IsType<SectionNode>(row.Cells["details"]);
-                Assert.Contains(details.Children.OfType<TextNode>(), t => t.Text.Contains("Saved IsCinematicsPlayed: false", StringComparison.Ordinal));
-            }
         }
+    }
+
+    private static void AssertCatalogueStatus(ISaveDocument document, string labelId, string status, int owned)
+    {
+        var row = AstroCatalogueTestData.Row(document, "Artifacts", "Artifact/ps1");
+        Assert.Equal(labelId, Assert.IsType<FieldNode>(row.Cells["name"]).ValueId);
+        Assert.Equal(status, Assert.IsType<TextNode>(row.Cells["status"]).Text);
+        Assert.StartsWith($"{owned}/50 owned", AstroCatalogueTestData.Group(document, "Artifacts").Badge, StringComparison.Ordinal);
+        var details = Assert.IsType<SectionNode>(row.Cells["details"]);
+        Assert.Contains(details.Children.OfType<TextNode>(), t => t.Text.Contains("Saved IsCinematicsPlayed: false", StringComparison.Ordinal));
     }
 }

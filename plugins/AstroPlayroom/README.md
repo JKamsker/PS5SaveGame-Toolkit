@@ -335,6 +335,16 @@ contradict this evidence. No control-pair churn masks or unsupported gameplay ca
 
 ## Validation
 
+Maintainability review (#40, 2026-10-29): **262 passed / 0 failed / 0 skipped** in Release
+with external samples (baseline 236). The **26 added characterization cases** passed before
+and after extracting tokenizer content readers and field classification. They pin mixed-content
+token order/occurrences, exact UTF-8 diagnostic byte offsets, untouched bytes across an edit,
+scalar types and editing eligibility, including unexpected group booleans. Existing no-op,
+robustness and allocation bounds remain unchanged. Five long test methods now delegate separate
+verification responsibilities to named helpers, retaining their assertions and byte oracles.
+All handwritten C# method/local-function bodies in this plugin and its tests are at most 50 lines.
+The asset tests also pin pack version 1.1.0 alongside the existing image/caption inventory checks.
+
 Test-quality review (#40, 2026-10-29): **210 passed / 0 failed / 0 skipped** in Release
 with external samples (baseline 176). With `SAVETOOLKIT_ARTIFACTS` unset: **155 passed /
 0 failed / 55 skipped**, exit 0. All **34 added cases** run without private samples. API Release
@@ -478,7 +488,7 @@ owner-blocked. Maturity stays Experimental. The central F4/F6 planned-reference 
 | AP-R2, AP-R3 | Done: F1 fixtures, attributed schema-qualified catalogue and candidate aliases; owner still verifies physical locations/identities. |
 | AP-R7, AP-R17 | Publisher assets imported under owner decision 2026-10-29: 50 artifact thumbnails, shared puzzle image, 49 official captions and world-selection artwork. Physical collectible locations and console validation remain owner-blocked. |
 | AP-R8–AP-R13 | Done with existing F3/F4/F6/F8/F9/F13: rich details, world/status filtering, live refresh, named changes/skips/warnings, read-only catalogue inspection and Core all-query scopes. |
-| AP-R14, AP-R15 | F2 pinned context used; additional optional image/localization ingestion not pursued because there is no cleared icon/localization dataset to ingest. |
+| AP-R14, AP-R15 | F2 pinned context used with the shipped English pack 1.1.0: 52 attributed images and 49 official captions, as detailed above. Additional localization datasets have not been imported. |
 | AP-R16 | Done: preservation, malformed schemas, per-action atomicity/undo, independent byte oracle, F1, conformance and Core export regression checks. |
 | AP-R18 | Done: original level schematic and externally linked collectible lists; physical coordinates stay absent pending owner mapping. No invented prerequisites/graph edges. |
 

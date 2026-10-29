@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing.Diff;
@@ -58,20 +59,25 @@ public sealed class AstroCollectWriteTests
                 Assert.True(range.End <= terminator);
             });
 
-            var decoder = new PluginViewDecoder(plugin);
-            var diff = SemanticDiffer.Compare(decoder.Decode(file, new()), decoder.Decode(AstroTestData.File(output), new()));
-            Assert.Null(diff.Error);
-            Assert.False(diff.InputTruncated);
-            Assert.False(diff.Truncated);
-            Assert.Empty(diff.Warnings);
-            Assert.Equal(expectedChanges * 2, diff.Total);
-            Assert.Equal(0, diff.Added);
-            Assert.Equal(0, diff.Removed);
-            Assert.Equal(plan.Changes.Select(c => c.ValueId).Order(StringComparer.Ordinal),
-                diff.Changes.Where(c => c.Path.StartsWith('/'))
-                    .Select(c => c.Path).Order(StringComparer.Ordinal));
-            Assert.Equal(expectedChanges, diff.Changes.Count(c => c.Path.StartsWith("collections/", StringComparison.Ordinal)));
+            AssertSemanticOwnershipChanges(plugin, file, output, plan);
         }
+    }
+
+    private static void AssertSemanticOwnershipChanges(AstroPlayroomPlugin plugin, ISaveFile file, byte[] output, ActionPlan plan)
+    {
+        var decoder = new PluginViewDecoder(plugin);
+        var diff = SemanticDiffer.Compare(decoder.Decode(file, new()), decoder.Decode(AstroTestData.File(output), new()));
+        Assert.Null(diff.Error);
+        Assert.False(diff.InputTruncated);
+        Assert.False(diff.Truncated);
+        Assert.Empty(diff.Warnings);
+        Assert.Equal(plan.Changes.Count * 2, diff.Total);
+        Assert.Equal(0, diff.Added);
+        Assert.Equal(0, diff.Removed);
+        Assert.Equal(plan.Changes.Select(c => c.ValueId).Order(StringComparer.Ordinal),
+            diff.Changes.Where(c => c.Path.StartsWith('/'))
+                .Select(c => c.Path).Order(StringComparer.Ordinal));
+        Assert.Equal(plan.Changes.Count, diff.Changes.Count(c => c.Path.StartsWith("collections/", StringComparison.Ordinal)));
     }
 
     [Fact]

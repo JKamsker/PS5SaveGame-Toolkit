@@ -37,6 +37,46 @@ public sealed class AstroExportSafetyTests
         var originals = AstroTestData.Samples().ToDictionary(file => file.RelativePath, file => file.ReadAllBytes());
         var session = workspace.Open(primary.Id, plugin.Info.Id);
         _ = session.BuildView();
+        var actionPlan = ApplyPreset(session, actionId, plugin);
+
+        var options = new ExportOptions { Scope = ExportScope.ChangedFiles };
+        var plan = WorkspaceExporter.Plan(workspace, options);
+        // Generation 1 already exceeds the requested budget: preserve it without dirtying/exporting.
+        if (actionPlan.Changes.Count == 0)
+        {
+            Assert.Equal(BudgetAction, actionId);
+            Assert.Equal(1, generation);
+            Assert.False(session.State.IsDirty);
+            Assert.False(session.State.CanUndo);
+            Assert.Empty(plan.Files);
+            Assert.Empty(plan.Overrides);
+            return;
+        }
+
+        var edited = Assert.Single(session.Serialize()).Content.ToArray();
+        var paths = new[] { primary.RelativePath, backup.RelativePath }.Order(StringComparer.Ordinal).ToArray();
+        Assert.Equal(paths, plan.Overrides.Keys.Order(StringComparer.Ordinal));
+        AssertZip(plan, paths, edited);
+        using (var reopened = plugin.Open(AstroTestData.File(edited)))
+        {
+            Assert.All(actionPlan.Changes, change => Assert.Equal(change.NewValue, reopened.GetValue(change.ValueId)));
+        }
+
+        Assert.True(session.Undo().Ok);
+        Assert.False(session.State.IsDirty);
+        Assert.False(session.State.CanUndo);
+        Assert.Empty(session.Serialize());
+        var undone = WorkspaceExporter.Plan(workspace, options);
+        Assert.Empty(undone.Files);
+        Assert.Empty(undone.Overrides);
+        Assert.True(session.Redo().Ok);
+        AssertZip(WorkspaceExporter.Plan(workspace, options), paths, edited);
+        Assert.True(session.Undo().Ok);
+        Assert.All(AstroTestData.Samples(), file => Assert.Equal(originals[file.RelativePath], file.ReadAllBytes()));
+    }
+
+    private static ActionPlan ApplyPreset(DocumentSession session, string actionId, AstroPlayroomPlugin plugin)
+    {
         var parameters = actionId switch
         {
             CoinAction => Parameters("amount", 1700),
@@ -56,41 +96,7 @@ public sealed class AstroExportSafetyTests
         Assert.True(applied.Ok);
         Assert.Equal(preview.Plan.Warnings, applied.Warnings);
         Assert.Equal(PluginMaturity.Experimental, plugin.Info.Maturity);
-
-        var options = new ExportOptions { Scope = ExportScope.ChangedFiles };
-        var plan = WorkspaceExporter.Plan(workspace, options);
-        // Generation 1 already exceeds the requested budget: preserve it without dirtying/exporting.
-        if (preview.Plan.Changes.Count == 0)
-        {
-            Assert.Equal(BudgetAction, actionId);
-            Assert.Equal(1, generation);
-            Assert.False(session.State.IsDirty);
-            Assert.False(session.State.CanUndo);
-            Assert.Empty(plan.Files);
-            Assert.Empty(plan.Overrides);
-            return;
-        }
-
-        var edited = Assert.Single(session.Serialize()).Content.ToArray();
-        var paths = new[] { primary.RelativePath, backup.RelativePath }.Order(StringComparer.Ordinal).ToArray();
-        Assert.Equal(paths, plan.Overrides.Keys.Order(StringComparer.Ordinal));
-        AssertZip(plan, paths, edited);
-        using (var reopened = plugin.Open(AstroTestData.File(edited)))
-        {
-            Assert.All(preview.Plan.Changes, change => Assert.Equal(change.NewValue, reopened.GetValue(change.ValueId)));
-        }
-
-        Assert.True(session.Undo().Ok);
-        Assert.False(session.State.IsDirty);
-        Assert.False(session.State.CanUndo);
-        Assert.Empty(session.Serialize());
-        var undone = WorkspaceExporter.Plan(workspace, options);
-        Assert.Empty(undone.Files);
-        Assert.Empty(undone.Overrides);
-        Assert.True(session.Redo().Ok);
-        AssertZip(WorkspaceExporter.Plan(workspace, options), paths, edited);
-        Assert.True(session.Undo().Ok);
-        Assert.All(AstroTestData.Samples(), file => Assert.Equal(originals[file.RelativePath], file.ReadAllBytes()));
+        return preview.Plan;
     }
 
     [Theory]
