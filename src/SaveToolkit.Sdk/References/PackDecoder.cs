@@ -58,7 +58,7 @@ internal static class PackDecoder
             var datasetInfo = DatasetInfo(info.Id, dataset, records.Count);
             datasetInfos.Add(datasetInfo.Id, datasetInfo);
             catalogs.Add(datasetInfo.Id, deferred
-                ? DeferredCatalog(source, dataset, info, datasetInfo, limits, assetPaths, strings)
+                ? DeferredCatalog(source, dataset, info, datasetInfo, limits, strings)
                 : SnapshotCatalog(records, info, datasetInfo, strings));
         }
         problems.ThrowIfAny();
@@ -77,12 +77,10 @@ internal static class PackDecoder
 
     private static Lazy<DecodedReferenceCatalog> DeferredCatalog(IPackFileSource source, PackDatasetModel model,
         ReferencePackInfo pack, ReferenceDatasetInfo dataset, EmbeddedReferencePackLimits limits,
-        HashSet<string> assetPaths, ReferenceStringPool strings) => new(() =>
+        ReferenceStringPool strings) => new(() =>
         {
-            var problems = new PackProblems($"'{pack.Id}'");
-            var records = PackRecordReader.Load(source, model, limits, new PackByteBudget(limits.MaxTotalBytes), assetPaths, problems);
-            problems.ThrowIfAny();
-            return CreateCatalog(records, pack, dataset, strings);
+            var records = PackRecordReader.ReadValidated(source, model, limits, strings);
+            return CreateCatalog(records, pack, dataset, strings, attributesAreShared: true);
         }, LazyThreadSafetyMode.ExecutionAndPublication);
 
     private static Lazy<DecodedReferenceCatalog> SnapshotCatalog(List<RecordModel> records, ReferencePackInfo pack,
@@ -90,8 +88,8 @@ internal static class PackDecoder
         new(() => CreateCatalog(records, pack, dataset, strings));
 
     private static DecodedReferenceCatalog CreateCatalog(List<RecordModel> records, ReferencePackInfo pack,
-        ReferenceDatasetInfo dataset, ReferenceStringPool strings) =>
-        new(pack, dataset, records.Select(record => strings.ToRecord(record, pack.Id, dataset)).ToArray());
+        ReferenceDatasetInfo dataset, ReferenceStringPool strings, bool attributesAreShared = false) =>
+        new(pack, dataset, records.Select(record => strings.ToRecord(record, pack.Id, dataset, attributesAreShared)).ToArray());
 
     private static DecodedAsset DeferredAsset(IPackFileSource source, PackFileModel file,
         ReferenceDatasetInfo dataset, EmbeddedReferencePackLimits limits) => new(new Lazy<AssetContent>(() =>

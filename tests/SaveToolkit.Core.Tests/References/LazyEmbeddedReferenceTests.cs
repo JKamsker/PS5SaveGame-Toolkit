@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Tests.Fakes;
 using SaveToolkit.Sdk.References;
@@ -144,6 +145,46 @@ public sealed class LazyEmbeddedReferenceTests
             Assert.Same(first.Source, record.Source);
             Assert.Same(first.Attributes.Keys.Single(), record.Attributes.Keys.Single());
             Assert.Same(first.Attributes.Values.Single(), record.Attributes.Values.Single());
+        }
+    }
+
+    [Theory]
+    [InlineData(255)]
+    [InlineData(256)]
+    [InlineData(257)]
+    [InlineData(8192)]
+    public void PooledStringsPreserveBufferBoundariesEscapesAndOrdinalAttributeKeys(int descriptionLength)
+    {
+        var description = new string('x', descriptionLength);
+        var descriptionJson = JsonSerializer.Serialize(description);
+        var rows = $$$"""
+            {"records":[
+              {"id":"1","name":"  Caf\u00e9 \uD83D\uDE80  ","description":{{{descriptionJson}}},
+               "attributes":{"Key":"Upper","key":"lower","empty":"","\uD83D\uDE80":"Caf\u00e9 \uD83D\uDE80"}},
+              {"id":"2","name":"Caf\u00e9 \uD83D\uDE80","description":{{{descriptionJson}}},
+               "attributes":{"Key":"Upper","key":"lower","empty":"","\uD83D\uDE80":"Caf\u00e9 \uD83D\uDE80"}}
+            ]}
+            """;
+        var source = CountingPackResourceAssembly.Create(new PackBuilder { Id = EnglishId }.Records("items.json", rows));
+        var catalog = EmbeddedReferenceContext.Load(source).Pin("test.items", null).Catalog("items")!;
+        var first = catalog.Find("1")!;
+        var second = catalog.Find("2")!;
+
+        Assert.Equal(description, first.Description);
+        Assert.Same(first.Description, second.Description);
+        Assert.Equal("Café 🚀", first.Name);
+        Assert.Same(first.Name, second.Name);
+        Assert.Equal(4, first.Attributes.Count);
+        Assert.Equal("Upper", first.Attributes["Key"]);
+        Assert.Equal("lower", first.Attributes["key"]);
+        Assert.Equal("", first.Attributes["empty"]);
+        Assert.Equal("Café 🚀", first.Attributes["🚀"]);
+        Assert.Same(first.Name, first.Attributes["🚀"]);
+        foreach (var (key, value) in first.Attributes)
+        {
+            var secondKey = second.Attributes.Keys.Single(candidate => candidate == key);
+            Assert.Same(key, secondKey);
+            Assert.Same(value, second.Attributes[secondKey]);
         }
     }
 

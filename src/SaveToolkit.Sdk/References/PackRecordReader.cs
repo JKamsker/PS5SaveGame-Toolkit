@@ -10,6 +10,24 @@ internal static class PackRecordReader
     private const int MaxAttributes = 32;
     private const int MaxAttributeLength = 1024;
 
+    /// <summary>
+    /// Reopens immutable embedded files whose hashes, shape and cross-references already passed Load.
+    /// Avoid repeating per-record validation/diagnostic allocation during the first document open.
+    /// </summary>
+    public static List<RecordModel> ReadValidated(IPackFileSource source, PackDatasetModel dataset,
+        EmbeddedReferencePackLimits limits, ReferenceStringPool strings)
+    {
+        var records = new List<RecordModel>();
+        foreach (var file in dataset.Files!)
+        {
+            var bytes = source.Read(file.Path!, limits.MaxRecordsFileBytes)
+                ?? throw new EmbeddedReferencePackException($"'{file.Path}' is listed but missing.");
+            var parsed = PackJson.Parse<RecordsFileModel>(bytes, $"'{file.Path}'", strings.JsonOptions);
+            records.AddRange(parsed.Records!);
+        }
+        return records;
+    }
+
     public static List<RecordModel> Load(
         IPackFileSource source,
         PackDatasetModel dataset,

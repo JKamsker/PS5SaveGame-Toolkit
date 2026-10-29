@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Text.Json;
 
 namespace SaveToolkit.Sdk.References;
 
@@ -10,10 +11,36 @@ internal sealed class ReferenceStringPool
 {
     private readonly Lock _gate = new();
     private readonly Dictionary<string, string> _strings = new(StringComparer.Ordinal);
+    private readonly Lazy<JsonSerializerOptions> _jsonOptions;
 
-    public ReferenceRecord ToRecord(RecordModel record, string packId, ReferenceDatasetInfo dataset)
+    public ReferenceStringPool()
     {
-        // One lock per record, rather than per string. Different packs may load concurrently.
+        _jsonOptions = new(() =>
+        {
+            var options = new JsonSerializerOptions(PackJson.Options);
+            options.Converters.Add(new PooledReferenceStringConverter(this));
+            return options;
+        });
+    }
+
+    public JsonSerializerOptions JsonOptions => _jsonOptions.Value;
+
+    public string Get(ReadOnlySpan<char> value)
+    {
+        lock (_gate)
+        {
+            // Ordinal alternate lookup avoids allocating a temporary string for repeated JSON text.
+            var lookup = _strings.GetAlternateLookup<ReadOnlySpan<char>>();
+            if (lookup.TryGetValue(value, out var shared)) return shared;
+            var owned = new string(value);
+            _strings.Add(owned, owned);
+            return owned;
+        }
+    }
+
+    public ReferenceRecord ToRecord(RecordModel record, string packId, ReferenceDatasetInfo dataset, bool attributesAreShared)
+    {
+        // Hold the pool lock for the complete record conversion; different packs may load concurrently.
         lock (_gate)
         {
             return new(Share(record.Id!), Share(record.Name!.Trim()))
@@ -23,12 +50,18 @@ internal sealed class ReferenceStringPool
                 Description = Optional(record.Description),
                 AssetId = record.AssetId is null ? null : Share(PackPaths.QualifyAsset(packId, record.AssetId)),
                 Source = Optional(record.Source),
-                Attributes = record.Attributes is { } attributes
-                    ? attributes.ToDictionary(pair => Share(pair.Key), pair => Share(pair.Value), StringComparer.Ordinal).AsReadOnly()
-                    : ReadOnlyDictionary<string, string>.Empty,
+                Attributes = ShareAttributes(record.Attributes, attributesAreShared),
                 Dataset = dataset,
             };
         }
+    }
+
+    private IReadOnlyDictionary<string, string> ShareAttributes(Dictionary<string, string>? attributes, bool alreadyShared)
+    {
+        if (attributes is null) return ReadOnlyDictionary<string, string>.Empty;
+        if (!alreadyShared)
+            attributes = attributes.ToDictionary(pair => Share(pair.Key), pair => Share(pair.Value), StringComparer.Ordinal);
+        return attributes.AsReadOnly();
     }
 
     private string? Optional(string? value) => value is null ? null : Share(value);
