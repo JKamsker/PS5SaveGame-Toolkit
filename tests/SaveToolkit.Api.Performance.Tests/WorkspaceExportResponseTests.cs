@@ -42,7 +42,9 @@ public sealed class WorkspaceExportResponseTests
         Assert.Equal(files.Select(f => f.FileName).Order(), zip.Entries.Select(e => e.FullName).Order());
         foreach (var file in files)
         {
-            using var entry = zip.GetEntry(file.FileName)!.Open();
+            var exported = zip.GetEntry(file.FileName);
+            Assert.NotNull(exported);
+            using var entry = exported.Open();
             using var content = new MemoryStream();
             await entry.CopyToAsync(content, ApiPerformanceHost.Ct);
             Assert.Equal(file == changed ? new byte[] { 3, 4, 5 } : original, content.ToArray());

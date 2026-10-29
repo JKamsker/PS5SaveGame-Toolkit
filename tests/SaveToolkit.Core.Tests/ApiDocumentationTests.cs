@@ -20,6 +20,7 @@ public sealed class ApiDocumentationTests(WebApplicationFactory<Program> factory
                 .Select(method => method + " " + endpoint.RoutePattern.RawText!.TrimEnd('/')))
             .Order(StringComparer.Ordinal).ToArray();
         Assert.NotEmpty(endpoints);
+        Assert.Contains("POST /api/workspaces/{workspaceId}/documents/{documentId}/reference-fields/records", endpoints);
         Assert.Equal(endpoints.Length, endpoints.Distinct(StringComparer.Ordinal).Count());
 
         var directory = new DirectoryInfo(AppContext.BaseDirectory);

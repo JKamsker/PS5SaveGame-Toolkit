@@ -39,6 +39,8 @@ beforeEach(() => {
   Object.defineProperty(HTMLDialogElement.prototype, "showModal", { configurable: true, value: function (this: HTMLDialogElement) { this.setAttribute("open", ""); } });
   vi.spyOn(api, "referenceCandidates").mockResolvedValue(page());
   vi.spyOn(api, "referenceCandidate").mockImplementation(async (_w, _d, query) => query.rawId === "1001" ? potion : unknown(query.rawId));
+  vi.spyOn(api, "referenceRecords").mockImplementation(async (_w, _d, pairs, revision) => ({ revision: revision ?? 0,
+    results: pairs.map(pair => ({ ...pair, status: 200, candidate: pair.recordKey === "1001" ? potion : unknown(pair.recordKey) })) }));
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.useRealTimers(); Reflect.deleteProperty(HTMLDialogElement.prototype, "showModal"); });
 
@@ -192,13 +194,15 @@ describe("reference field picker", () => {
   });
 
   it("bounds automatic stale label recovery across repeated metadata failures", async () => {
-    vi.mocked(api.referenceCandidate).mockRejectedValue(new ApiError("View is stale", 409, { code: "stale" }));
+    vi.useFakeTimers();
+    vi.mocked(api.referenceRecords).mockRejectedValue(new ApiError("View is stale", 409, { code: "stale" }));
     const context = renderField();
-    await act(async () => {});
+    await flushCandidateSearch();
     expect(context.refresh).toHaveBeenCalledOnce();
     await act(async () => { context.store.apply({ ok: true, errors: [], warnings: [], structureChanged: false,
       changes: [{ valueId: "item/id", oldValue: "9999", newValue: "8888" }], state: { ...context.store.state, revision: 1 } }); });
-    expect(api.referenceCandidate).toHaveBeenCalledTimes(2);
+    await flushCandidateSearch();
+    expect(api.referenceRecords).toHaveBeenCalledTimes(2);
     expect(context.refresh).toHaveBeenCalledOnce();
   });
 

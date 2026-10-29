@@ -438,6 +438,27 @@ including policy/provenance. Unknown raw IDs still return 200, with absent catal
 metadata and eligibility governed by custom-ID policy. Missing field: 404; stale:
 409. This differs intentionally from a missing catalog record lookup.
 
+### `POST /api/workspaces/{workspaceId}/documents/{documentId}/reference-fields/records`
+
+JSON `{pairs:[{fieldId:string,recordKey:string,actionId?:string}],revision?:number}`.
+`fieldId` is the published `valueId`; `actionId` identifies its owning action for
+parameters. At most **256 pairs**, including duplicates; exceeding this returns
+**413** ProblemDetails with the limit in `detail`. Missing/null pairs, null entries,
+missing/blank field IDs, non-string/null keys, blank supplied action IDs or negative
+revisions return 400. Empty keys are exact raw IDs; an empty array is valid.
+
+Returns `{revision,results:[{fieldId,recordKey,actionId?,status,candidate?,error?}]}`
+with exactly one result per pair in input order, preserving duplicates. Each pair
+uses its own published field's catalog, custom-ID policy and eligibility assessment;
+results are never shared by raw key alone. A known reference field returns
+`status:200,candidate` with the same policy/provenance as the single-record route,
+even for an unknown raw key. Missing/unpublished/non-reference fields or missing
+action parameters return `status:404,error` for that pair, without aborting others.
+An unknown workspace/document returns a whole-request 404. An exact revision
+mismatch or retired binding rejects the whole request with 409 and `code:"stale"`;
+`If-Match` applies as usual (412). No partial response is emitted. The document
+HTTP operation gate covers the entire batch. This read does not edit the document.
+
 ### `GET /api/workspaces/{workspaceId}/documents/{documentId}/reference-assets`
 
 Required query `id` (`packId:asset/path`). Returns only declared, pinned assets

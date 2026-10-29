@@ -300,6 +300,11 @@ export interface ReferenceRecordDetail {
 }
 
 export interface ReferenceEligibility { available: boolean; eligible: boolean; reasons: string[]; selectable: boolean }
+export interface ReferenceRecordPair { fieldId: string; recordKey: string; actionId?: string }
+export type ReferenceRecordResult = ReferenceRecordPair & (
+  { status: 200; candidate: ReferenceCandidate } | { status: 404; error: string }
+);
+export interface ReferenceRecordsResponse { revision: number; results: ReferenceRecordResult[] }
 export interface ReferenceCandidate {
   rawId: string;
   label?: string;

@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using SaveToolkit.Api.Contracts;
+using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Api.Endpoints;
@@ -28,6 +30,29 @@ internal static class ReferenceFieldEndpoints
         doc.MapGet("/reference-fields/record", (DocumentRef d, [FromQuery] string valueId,
             [FromQuery] string rawId, [FromQuery] long? revision, [FromQuery] string? actionId) =>
             d.Value.FindReference(valueId, rawId, revision, actionId));
+
+        doc.MapPost("/reference-fields/records", (DocumentRef d, ReferenceRecordsRequest request) =>
+        {
+            long revision = d.Value.State.Revision;
+            if (request.Revision is { } expected && expected != revision) throw new StaleViewException();
+            var results = new List<ReferenceRecordResult>(request.Pairs.Count);
+            foreach (var pair in request.Pairs)
+            {
+                try
+                {
+                    // Always resolve the published field, even when another pair has the same key.
+                    // The document HTTP gate holds across the whole batch; the captured revision
+                    // also rejects interleaving mutations by non-HTTP Core callers.
+                    var candidate = d.Value.FindReference(pair.FieldId, pair.RecordKey, revision, pair.ActionId);
+                    results.Add(new(pair.FieldId, pair.RecordKey, pair.ActionId, StatusCodes.Status200OK, candidate));
+                }
+                catch (KeyNotFoundException error)
+                {
+                    results.Add(new(pair.FieldId, pair.RecordKey, pair.ActionId, StatusCodes.Status404NotFound, Error: error.Message));
+                }
+            }
+            return new ReferenceRecordsResponse(revision, results);
+        });
     }
 }
 

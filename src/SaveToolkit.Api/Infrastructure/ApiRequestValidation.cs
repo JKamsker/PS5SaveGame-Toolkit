@@ -9,6 +9,14 @@ internal static class ApiRequestValidation
 {
     internal static string? Error(object? request) => request switch
     {
+        ReferenceRecordsRequest r when r.Pairs is null => "Pairs is required and must be an array.",
+        ReferenceRecordsRequest r when r.Pairs.Count > ReferenceRecordsRequest.MaxPairs =>
+            throw new BadHttpRequestException($"At most {ReferenceRecordsRequest.MaxPairs} reference pairs are allowed.",
+                StatusCodes.Status413PayloadTooLarge),
+        ReferenceRecordsRequest r when r.Pairs.Any(pair => pair is null || Missing(pair.FieldId)
+            || pair.RecordKey is null || pair.ActionId is not null && Missing(pair.ActionId)) =>
+            "Every reference pair requires a fieldId, a string recordKey, and a nonempty actionId when supplied.",
+        ReferenceRecordsRequest { Revision: < 0 } => "Revision cannot be negative.",
         EditRequest r when r.Edits is null => "Edits is required and must be an array.",
         EditRequest r when r.Edits.Any(edit => edit is null || Missing(edit.ValueId)
             || edit.Value.ValueKind == JsonValueKind.Undefined) => "Every edit requires a valueId and a value.",
