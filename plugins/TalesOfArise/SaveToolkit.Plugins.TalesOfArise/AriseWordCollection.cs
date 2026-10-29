@@ -10,7 +10,8 @@ internal sealed class AriseWordCollection(AriseSave save, AriseSection section)
 {
     private const int WordSize = sizeof(uint);
     private const int MaximumPageSize = 200;
-    public string Id => $"evidence/{section.Id:X8}";
+    private const int CellBufferLength = 32; // UInt32 decimal/hex and section-relative offsets fit.
+    public string Id { get; } = $"evidence/{section.Id:X8}";
 
     private static readonly IReadOnlyList<QueryableColumn> Columns =
     [
@@ -19,7 +20,7 @@ internal sealed class AriseWordCollection(AriseSave save, AriseSection section)
         new("value", "UInt32 (unknown meaning)", IntegerSpec.UInt32 with { ReadOnly = true }),
     ];
 
-    public QueryableCollection Metadata => new(Id, $"{section.Name} · raw evidence", Columns, section.Size / WordSize)
+    public QueryableCollection Metadata { get; } = new($"evidence/{section.Id:X8}", $"{section.Name} · raw evidence", Columns, section.Size / WordSize)
     {
         Description = "Unknown semantics. Stable keys use schema ID and body offset; nonzero values do not indicate progress or ownership. " + AriseSchema.SectionAttribution,
     };
@@ -34,15 +35,42 @@ internal sealed class AriseWordCollection(AriseSave save, AriseSection section)
             throw new ArgumentException("Use offset paging and published evidence columns.", nameof(query));
         }
 
-        var matching = Enumerable.Range(0, section.Size / WordSize).Select(index => index * WordSize)
-            .Where(relative => Matches(relative, query)).ToArray();
         var sortColumn = query.SortColumn ?? "offset";
-        var ordered = sortColumn == "offset"
-            ? (query.Descending ? matching.OrderByDescending(relative => relative) : matching.OrderBy(relative => relative))
-            : (query.Descending ? matching.OrderByDescending(Value) : matching.OrderBy(Value));
         var offset = Math.Max(0, query.Offset);
         var limit = Math.Clamp(query.Limit, 1, MaximumPageSize);
-        var rows = ordered.ThenBy(relative => relative).Skip(offset).Take(limit).Select(relative =>
+        var unfiltered = string.IsNullOrWhiteSpace(query.Text) && query.Filters.Count == 0;
+        List<int>? matching = null;
+        if (!unfiltered)
+        {
+            matching = [];
+            var filters = query.Filters.ToArray();
+            for (var relative = 0; relative < section.Size; relative += WordSize)
+            {
+                if (Matches(relative, query.Text, filters)) matching.Add(relative);
+            }
+        }
+
+        var count = matching?.Count ?? section.Size / WordSize;
+        IEnumerable<int> pageOffsets;
+        if (sortColumn == "offset")
+        {
+            // Offset order is already known. Even a deep, descending unfiltered page
+            // only visits the requested words and needs no collection-sized buffer.
+            pageOffsets = Enumerable.Range(0, Math.Min(limit, Math.Max(0, count - offset))).Select(index =>
+            {
+                var position = query.Descending ? count - 1 - offset - index : offset + index;
+                return matching is null ? position * WordSize : matching[position];
+            });
+        }
+        else
+        {
+            IEnumerable<int> candidates = matching is null
+                ? Enumerable.Range(0, count).Select(index => index * WordSize) : matching;
+            var ordered = query.Descending ? candidates.OrderByDescending(Value) : candidates.OrderBy(Value);
+            pageOffsets = ordered.ThenBy(relative => relative).Skip(offset).Take(limit);
+        }
+
+        var rows = pageOffsets.Select(relative =>
             new TableRow($"{section.Id:X8}/{relative:X6}", new Dictionary<string, ViewNode>
             {
                 ["offset"] = new TextNode(CellText(relative, "offset")),
@@ -50,13 +78,34 @@ internal sealed class AriseWordCollection(AriseSave save, AriseSection section)
                 ["value"] = field($"{Id}/{relative:X6}", $"{section.Name} +0x{relative:X}", section.Offset + relative)
                     with { Confidence = Confidence.Unknown, Description = Metadata.Description, Warning = null },
             })).ToArray();
-        return new QueryableCollectionPage(Id, Columns, rows, Metadata.TotalCount, matching.Length, offset, limit);
+        return new QueryableCollectionPage(Id, Columns, rows, Metadata.TotalCount, count, offset, limit);
     }
 
-    private bool Matches(int relative, QueryableCollectionQuery query) =>
-        (string.IsNullOrWhiteSpace(query.Text) || Columns.Any(column =>
-            CellText(relative, column.Key).Contains(query.Text, StringComparison.OrdinalIgnoreCase))) &&
-        query.Filters.All(filter => string.Equals(CellText(relative, filter.Key), filter.Value, StringComparison.OrdinalIgnoreCase));
+    private bool Matches(int relative, string? text, KeyValuePair<string, string>[] filters)
+    {
+        Span<char> buffer = stackalloc char[CellBufferLength];
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            var found = false;
+            for (var index = 0; index < Columns.Count; index++)
+            {
+                if (FormatCell(relative, Columns[index].Key, buffer).Contains(text, StringComparison.OrdinalIgnoreCase))
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) return false;
+        }
+
+        foreach (var filter in filters)
+        {
+            if (!FormatCell(relative, filter.Key, buffer).Equals(filter.Value, StringComparison.OrdinalIgnoreCase)) return false;
+        }
+
+        return true;
+    }
 
     private uint Value(int relative) => AriseFormat.U32(save.Payload, section.Offset + relative);
 
@@ -67,4 +116,14 @@ internal sealed class AriseWordCollection(AriseSave save, AriseSection section)
         "value" => Value(relative).ToString(CultureInfo.InvariantCulture),
         _ => throw new ArgumentException($"Unknown evidence column '{column}'.", nameof(column)),
     };
+
+    private ReadOnlySpan<char> FormatCell(int relative, string column, Span<char> buffer)
+    {
+        var prefix = column switch { "offset" => "+0x", "hex" => "0x", _ => "" };
+        var format = column switch { "offset" => "X6", "hex" => "X8", _ => "D" };
+        prefix.AsSpan().CopyTo(buffer);
+        var value = column == "offset" ? (uint)relative : Value(relative);
+        value.TryFormat(buffer[prefix.Length..], out var written, format, CultureInfo.InvariantCulture);
+        return buffer[..(prefix.Length + written)];
+    }
 }

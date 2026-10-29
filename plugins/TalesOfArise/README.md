@@ -393,6 +393,15 @@ byte-identical no-op output and edited reopen/undo/redo behavior remain covered.
 The generated corruption suite also passes **147/147, 0 skipped** with the artifacts
 environment variable unset, independently of private samples.
 
+Performance review (#40): **332 passed, 0 failed, 0 skipped** in Release; API build
+has **0 warnings/errors**. Three medium findings are fixed: repeated AES setup
+and a redundant payload copy, eager raw-evidence page work, and full-inventory
+rendering during single-row planned apply. See [measurements, reproduction and
+allocation/call-count regressions](PERFORMANCE.md). The D: harness selects the
+largest input from six equal-size samples and measures first views, search/sort
+and actions; timings remain diagnostics. All 147 generated corruption cases and
+existing sample digests, exact no-op/write/reopen/undo checks remain green.
+
 ### Native SaveDiff evidence
 
 ```powershell
