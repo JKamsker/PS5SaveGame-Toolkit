@@ -18,6 +18,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     private int _highestLevel = container.Profile ? 0 : root.Schema.Level(checked((int)root.Integer("experience_points")));
     private ItemBrowser? _items;
     private GearboxInventory? _inventory;
+    private GearboxProgressionBindings? _progression;
     internal GearboxInventory Inventory => _inventory ??= new(this);
     private GearboxItemActions? _actions;
     private GearboxItemActions Actions => _actions ??= new(this);
@@ -81,11 +82,12 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
             confidence: confidence, description: source)
             with { Confidence = confidence, Description = source };
 
-    internal FieldNode ItemNumber(string id, string label, int minimum, int maximum, Func<int> get, Action<int> set) =>
+    internal FieldNode ItemNumber(string id, string label, int minimum, int maximum, Func<int> get, Action<int> set,
+        string? warning = null, string? description = null) =>
         Bind(id, label, new IntegerSpec(Math.Min(minimum, get()), Math.Max(maximum, get())), () => FieldValue.Of(get()),
             value => set(value.AsInt32()), value => value.Kind != FieldValueKind.Integer || value.AsInteger() < minimum || value.AsInteger() > maximum
-                ? "Value is outside the supported editor policy." : null, SerialWrites.Warning,
-            Confidence.Inferred, SerialWrites.Warning);
+                ? "Value is outside the supported editor policy." : null, warning ?? SerialWrites.Warning,
+            Confidence.Inferred, description ?? SerialWrites.Warning);
 
     internal FieldNode DerivedItemNumber(string id, string canonicalId, string label, int minimum, int maximum, Func<int> get)
     {
@@ -102,6 +104,44 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
             },
         }, () => FieldValue.Of(get()));
         return field with { Confidence = Confidence.Inferred, Description = SerialWrites.Warning, Warning = SerialWrites.Warning };
+    }
+
+    internal FieldNode DerivedProjection(string id, string canonicalId, string label, FieldSpec canonicalSpec,
+        Func<FieldValue> get, string description)
+    {
+        var spec = canonicalSpec with { ReadOnly = true };
+        var field = Field(id, label, spec, get);
+        RegisterField(new FieldMetadata(id, label, spec)
+        {
+            BindingKind = FieldBindingKind.Derived,
+            CanonicalValueId = canonicalId,
+            Presentation = new FieldPresentation
+            {
+                Confidence = Confidence.Inferred,
+                Description = description,
+                Warning = SerialWrites.Warning,
+            },
+        }, get);
+        return field with { Confidence = Confidence.Inferred, Description = description, Warning = SerialWrites.Warning };
+    }
+
+    internal FieldNode RawFlags(string id, Func<ProtoMessage> parent) =>
+        ActionObservation(id, "Item flags", IntegerSpec.UInt32,
+            () => FieldValue.Of(parent().Integer("flags")),
+            "Existing parsed flags are inspectable only. Mark actions change mask 6 and preserve unknown bits; arbitrary raw flag writes are unavailable.");
+
+    internal FieldNode MythPoints(string id, Func<ProtoMessage?> get, int position, int maximum, string description)
+    {
+        if (!Coordinated)
+            return InspectionField(id, "Stored points", GearboxAccountViews.TryIntegerAt(get()!,
+                "points_spent_by_index_order", position, out var observed, bounded: false)
+                ? observed.ToString(System.Globalization.CultureInfo.InvariantCulture) : "Absent",
+                Confidence.Inferred, description);
+        return ItemNumber(id, "Stored points", 0, maximum,
+            () => GearboxAccountViews.TryIntegerAt(get()!, "points_spent_by_index_order", position,
+                out var value, bounded: false) ? value : throw new SaveFormatException("The indexed Myth allocation is absent."),
+            next => ProtoArrayEdits.Set(get()!, "points_spent_by_index_order", position, next),
+            description: description);
     }
 
     internal FieldNode PartReference(string id, Func<string> get, Action<string> set, Func<ReferenceRecord, ReferenceEligibility> assess, string source) =>
@@ -187,7 +227,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         Integer(id, label, get, name, maximum, Coordinated && writable, warning ?? SerialWrites.Warning,
             Confidence.Inferred, description ?? "Existing raw stored value; observed range plus conservative editor bound. Point budgets, mirror precedence and derived rewards are not inferred. " + SerialWrites.Warning);
 
-    internal FieldNode WorldDifficulty(int index, bool unlocked)
+    internal FieldNode WorldDifficulty(int index, bool unlocked, bool boundedDiscovery = false)
     {
         var wonderlands = Root.Schema.Wonderlands;
         var label = unlocked ? $"Chaos unlocked (playthrough {index})" :
@@ -195,39 +235,13 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         var description = unlocked ? "Raw unlocked ceiling; trial milestones and rewards are unchanged. " + SerialWrites.Warning :
             "Existing playthrough difficulty only. Unlock challenges, modifier seeds and rewards are unchanged. " + SerialWrites.Warning;
         return Integer($"world/{index}/{(unlocked ? "unlocked" : "difficulty")}", label,
-            () => GearboxMetadataLookup.RequireChild(Root, "game_state_save_data_for_playthrough", index),
+            () => GearboxMetadataLookup.RequireChild(Root, "game_state_save_data_for_playthrough", index, boundedDiscovery),
             unlocked ? "mayhem_unlocked_level" : "mayhem_level", wonderlands ? 100 : 11,
             warning: SerialWrites.Warning, confidence: Confidence.Inferred, description: description);
     }
 
-    internal void EnsureProgressionBindings()
-    {
-        if (Profile || !Has(Root, "experience_points")) return;
-        _ = Level();
-        _ = Experience();
-        if (Root.Child("ability_data") is { } ability)
-        {
-            if (Has(ability, "ability_points"))
-                _ = Integer("character/skill-points", "Unspent skill points", () => Root.Child("ability_data")!, "ability_points",
-                    warning: "Spent points are preserved; levelling down does not refund them.");
-            if (Has(ability, "tree_grade"))
-                _ = Integer("character/tree-grade", "Skill tree grade", () => Root.Child("ability_data")!, "tree_grade",
-                    warning: "Advanced progression value; keep the existing value unless repairing a level-one character.");
-        }
-        var stats = Root.Children("game_stats_data")
-            .Where(stat => stat.Text("stat_path") == CharacterProgression.LevelStat(Root.Schema.Wonderlands))
-            .Select((stat, index) => (stat, index))
-            .ToArray();
-        for (var i = 0; i < stats.Length; i++)
-        {
-            var statIndex = stats[i].index;
-            var id = stats.Length == 1 ? "character/recorded-level" : $"character/recorded-level/{statIndex}";
-            _ = Integer(id, "Recorded level statistic", () => Root.Children("game_stats_data")
-                .Where(stat => stat.Text("stat_path") == CharacterProgression.LevelStat(Root.Schema.Wonderlands))
-                .ElementAt(statIndex), "stat_value", int.MaxValue,
-                warning: "Updated with XP; this statistic alone does not change level.");
-        }
-    }
+    internal bool EnsureProgressionBindings(bool boundedDiscovery = false)
+        => (_progression ??= new(this)).Ensure(boundedDiscovery);
 
     private static bool Has(ProtoMessage message, string name) => message.Fields.Any(field => field.Spec?.Name == name);
 
@@ -273,15 +287,15 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         v => v.Kind != FieldValueKind.Integer || v.AsInteger() < 0 || v.AsInteger() > int.MaxValue ? "Unsupported XP value." : null,
         "Changing XP can change level. Values beyond the supported level cap remain experimental.");
 
-    internal FieldNode Category(string list, uint hash, string label, long maximum, string id)
+    internal FieldNode Category(string list, uint hash, string label, long maximum, string id, bool boundedDiscovery = false)
     {
-        var current = GearboxMetadataLookup.TryFindMessage(Root, list,
-            category => category.Integer("base_category_definition_hash") == hash, out var category)
-            ? category.Integer("quantity") : 0;
+        var current = boundedDiscovery
+            ? GearboxMetadataLookup.TryFindMessage(Root, list,
+                category => category.Integer("base_category_definition_hash") == hash, out var category)
+                ? category.Integer("quantity") : 0
+            : Root.CategoryQuantity(list, hash);
         return Bind(id, label, new IntegerSpec(Math.Min(0, current), Math.Max(maximum, current)),
-            () => FieldValue.Of(GearboxMetadataLookup.TryFindMessage(Root, list,
-                candidate => candidate.Integer("base_category_definition_hash") == hash, out var currentCategory)
-                ? currentCategory.Integer("quantity") : 0),
+            () => FieldValue.Of(Root.CategoryQuantity(list, hash)),
             current >= 0 && current <= maximum ? v => Root.SetCategoryQuantity(list, hash, v.AsInt64()) : null,
             v => v.Kind != FieldValueKind.Integer || v.AsInteger() < 0 || v.AsInteger() > maximum ? "Unsupported currency amount." : null,
             GearboxWriteWarnings.ConsoleValidation + " The game may clamp large values. Absent currency categories are created only when a nonzero amount is set.");
@@ -375,6 +389,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     {
         _items = null;
         _inventory?.Invalidate();
+        _progression?.Invalidate();
         _readers.Clear();
     }
     private void SetExperience(int experience)

@@ -54,37 +54,37 @@ internal sealed class GearboxInventory
             _serials.Clear();
         }
         if (_directEntries.TryGetValue(id, out var cached)) { entry = cached; return true; }
-        if (_locations.TryGetValue(id, out var location)) return TryEntry(location.List, location.Index, out entry);
+        if (_locations.TryGetValue(id, out var location)) return TryEntry(location.List, location.Index, out entry, id, bounded: false);
         if (!TryCanonicalItemId(id, out var number))
             return false;
         // Cold targeted lookup uses the stable numeric identity directly. Full identity lists are
         // materialized only by view/structural paths; this keeps one unloaded request bounded.
         if (!_identitiesInitialized && !_document.Profile && number < DirectLookupWorkLimit)
-            return TryEntry(Backpack, number, out entry, id);
+            return TryEntry(Backpack, number, out entry, id, bounded: true);
         if (!_identitiesInitialized && _document.Profile && number < DirectLookupWorkLimit)
         {
             var bankCount = CountBounded(Bank);
             if (bankCount < 0) return false;
-            if (number < bankCount) return TryEntry(Bank, number, out entry, id);
-            return TryEntry(LostLoot, number - bankCount, out entry, id);
+            if (number < bankCount) return TryEntry(Bank, number, out entry, id, bounded: true);
+            return TryEntry(LostLoot, number - bankCount, out entry, id, bounded: true);
         }
         return false;
     }
 
-    private bool TryEntry(string list, int index, out InventoryEntry entry, string? identity = null)
+    private bool TryEntry(string list, int index, out InventoryEntry entry, string? identity = null, bool bounded = true)
     {
         entry = null!;
         var seen = 0;
         ProtoField? field = null;
         foreach (var candidate in _document.Root.Fields)
         {
-            if (++LastDirectFieldsVisited > DirectLookupWorkLimit)
+            if (bounded && ++LastDirectFieldsVisited > DirectLookupWorkLimit)
             {
                 LastDirectLookupExceeded = true;
                 return false;
             }
             if (candidate.Spec?.Name != list) continue;
-            if (++LastDirectRecordsVisited > DirectLookupWorkLimit)
+            if (bounded && ++LastDirectRecordsVisited > DirectLookupWorkLimit)
             {
                 LastDirectLookupExceeded = true;
                 return false;

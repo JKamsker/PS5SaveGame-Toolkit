@@ -85,7 +85,8 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
                 {
                     var localIds = batch.Edits.Select(edit => batch.Member.Local(edit.ValueId))
                         .Distinct(StringComparer.Ordinal).ToArray();
-                    _ = member.ResolveFieldMetadata(localIds);
+                    foreach (var chunk in localIds.Chunk(FieldMetadataLimits.MaxBatchSize))
+                        _ = member.ResolveFieldMetadata(chunk);
                 }
                 var outcome = batch.Member.ApplyEdits(batch.Edits);
                 if (!outcome.Succeeded)

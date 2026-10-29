@@ -788,18 +788,19 @@ fresh-snapshot restoration. Planned coordinated actions use F6 planning and F7 s
 structural snapshots. F12's `ISaveDecoderProvider` / `gearbox-evidence` and F13 inspection/browse
 contracts are also adopted. Shared binary/string/CRC and reference-icon helpers are implemented
 as listed under Framework feature adoption; these are resolved integrations, not SDK requests.
-**GEARBOX-F13 / action-effect metadata: open SDK request.** Host `DocumentSession` planning for
-`items/import` (empty and nonempty destinations) and group `transfer/deposit`, `transfer/withdraw`
-and `transfer/claim` emits ordered effects such as `import/serial`,
+**GEARBOX-F13 / action-effect metadata: framework landing gate.** The independently reviewed
+action-effect contract is complete, while a separate framework writer owns its opt-in pre-capture,
+memento and inline-descriptor implementation. Against the currently published dependency,
+`items/import` (empty and nonempty destinations) and group `transfer/deposit`,
+`transfer/withdraw` and `transfer/claim` still emit ordered effects such as `import/serial`,
 `character/inventory_items/item-0`, `profile/bank_inventory_list/character:item-0`, and the
-source/destination `/count` rows. The existence effects are absent/new action records rather than
-parsed fields, and `import/serial` is an action payload, so the current parsed-ID contract cannot
-describe them without inventing a writable field or weakening host preflight. Current count and
-presence observations remain honest, including zero known lists. The framework needs an explicit
-ordered action/memento-effect descriptor carrying old/new existence, typed values and atomic
-cardinality; Gearbox will adopt it after publication and then add host-session preview/apply/
-undo/redo byte and cardinality regressions. Remaining capture, console-validation and gameplay-
-model gaps are listed above and tracked in [#31][owner-validation].
+source/destination `/count` rows. Existence effects are absent/new action records rather than
+parsed fields, and `import/serial` remains an action payload pseudo-field; Gearbox does not invent
+writable fields, suppress rows or weaken host preflight. Current count and presence observations
+remain honest, including zero known lists. Gearbox will adopt the published descriptor only after
+the framework implementation lands, then add host-session preview/apply/undo/redo byte and
+cardinality regressions. Remaining capture, console-validation and gameplay-model gaps are listed
+above and tracked in [#31][owner-validation].
 
 ## Owner capture and validation checklist
 

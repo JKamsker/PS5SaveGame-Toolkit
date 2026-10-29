@@ -152,6 +152,32 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         }
     }
 
+    internal static bool TryIntegerAt(ProtoMessage message, string name, int index, out int value, bool bounded = true)
+    {
+        value = 0;
+        var ordinal = 0;
+        var visited = 0;
+        foreach (var field in message.Fields)
+        {
+            if (field.Spec?.Name != name) continue;
+            if (bounded && ++visited > GearboxInventory.DirectLookupWorkLimit) return false;
+            if (field.Value is ulong scalar)
+            {
+                if (ordinal++ == index) { value = unchecked((int)scalar); return true; }
+                continue;
+            }
+            if (field.Value is not byte[] bytes) return false;
+            using var reader = new CodedInputStream(bytes);
+            while (!reader.IsAtEnd)
+            {
+                if (bounded && ++visited > GearboxInventory.DirectLookupWorkLimit) return false;
+                if (ordinal++ == index) { value = reader.ReadInt32(); return true; }
+                reader.ReadInt32();
+            }
+        }
+        return false;
+    }
+
     private FieldNode AccountNumber(string id, string label, Func<ProtoMessage> get, string name, long maximum,
         bool writable = true, string? description = null, string? warning = null) =>
         document.AccountNumber(id, label, get, name, maximum, writable, description, warning);
@@ -161,10 +187,9 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         if (!document.Coordinated || !int.TryParse(upstreamCap, out var cap) || value < 0)
             return document.InspectionField($"{id}/{position}/points", "Stored points", value.ToString(CultureInfo.InvariantCulture), Confidence.Inferred, attribution);
         var maximum = cap == 0 ? Math.Max(value, 1000) : cap;
-        return document.ItemNumber($"{id}/{position}/points", "Stored points", 0, maximum,
-            () => Integers(get()!, "points_spent_by_index_order").ElementAt(position),
-            next => ProtoArrayEdits.Set(get()!, "points_spent_by_index_order", position, next)) with
-        { Description = attribution + " Raw allocation; upstream cap is an editor policy. XP/rank/rotation and point budgets are not automatically reconciled. " + SerialWrites.Warning };
+        var description = (attribution is null ? "" : attribution + " ") +
+            "Raw allocation; upstream cap is an editor policy. XP/rank/rotation and point budgets are not automatically reconciled. " + SerialWrites.Warning;
+        return document.MythPoints($"{id}/{position}/points", get, position, maximum, description);
     }
 
     private static bool Has(ProtoMessage message, string name) => message.Fields.Any(f => f.Spec?.Name == name);

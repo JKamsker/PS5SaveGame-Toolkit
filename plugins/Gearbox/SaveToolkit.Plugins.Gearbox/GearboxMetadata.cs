@@ -1,6 +1,7 @@
 using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.Gearbox;
 
@@ -36,22 +37,18 @@ internal static class GearboxMetadata
         }
         if (id is "character/level" or "character/xp")
         {
-            if (!document.Profile)
-            {
-                document.EnsureProgressionBindings();
-                if (id == "character/level") _ = document.Level();
-                else _ = document.Experience();
-            }
+            if (!document.Profile && document.EnsureProgressionBindings(boundedDiscovery: true))
+                _ = id == "character/level" ? document.Level() : document.Experience();
             return;
         }
         if (id is "character/skill-points" or "character/tree-grade")
         {
-            if (!document.Profile && document.Root.Child("ability_data") is not null)
+            if (!document.Profile && GearboxMetadataLookup.TryChildAt(document.Root, "ability_data", 0, out _, out var exhausted) && !exhausted)
             {
                 var name = id.EndsWith("skill-points", StringComparison.Ordinal) ? "ability_points" : "tree_grade";
                 _ = document.Integer(id, name == "ability_points" ? "Unspent skill points" : "Skill tree grade",
-                    () => document.Root.Child("ability_data")!, name,
-                    warning: name == "ability_points" ? "Spent points are preserved; levelling down does not refund them." : "Advanced progression value; keep the existing value unless repairing a level-one character.");
+                    () => GearboxMetadataLookup.RequireChild(document.Root, "ability_data", 0, bounded: false), name,
+                    warning: name == "ability_points" ? "Spent points are preserved; levelling down does not refund them." : "Advanced progression value; levelling above level one initializes the canonical default.");
             }
             return;
         }
@@ -86,7 +83,7 @@ internal static class GearboxMetadata
         var label = document.Profile ? (document.Root.Schema.Wonderlands ? "Skeleton keys" : "Golden keys")
             : hash == MoneyHash ? "Money" : document.Root.Schema.Wonderlands ? "Moon orbs" : "Eridium";
         var maximum = hash == EridiumHash && document.Root.Schema.Wonderlands ? 16_000 : 2_000_000_000;
-        _ = document.Category(list, hash, label, maximum, id);
+        _ = document.Category(list, hash, label, maximum, id, boundedDiscovery: true);
         return true;
     }
 
@@ -136,7 +133,7 @@ internal static class GearboxMetadata
         if (!GearboxMetadataLookup.TryChildAt(document.Root, "game_state_save_data_for_playthrough", index, out var row)) return false;
         var field = split[2] == "difficulty" ? "mayhem_level" : "mayhem_unlocked_level";
         if (split[2] == "unlocked" && !document.Root.Schema.Wonderlands || !Has(row, field)) return false;
-        _ = document.WorldDifficulty(index, split[2] == "unlocked");
+        _ = document.WorldDifficulty(index, split[2] == "unlocked", boundedDiscovery: true);
         return true;
     }
 
@@ -154,6 +151,9 @@ internal static class GearboxMetadata
     private static bool TryAccount(GearboxDocument document, string id)
     {
         var split = id.Split('/');
+        if (split.Length == 4 && split[0] == "account" && split[3] == "points" &&
+            GearboxMetadataLookup.TryCanonicalIndex(split[2], out var allocation))
+            return TryMythAllocation(document, split[1], allocation, id);
         if (split.Length != 3 || split[0] != "account") return false;
         var role = split[1];
         if (document.Root.Schema.Wonderlands)
@@ -167,6 +167,29 @@ internal static class GearboxMetadata
         var (label, maximum, description, warning) = AccountPresentation(document, role, name, current);
         _ = document.AccountNumber(id, label, () => parent()!, name, maximum,
             writable: name != "guardian_reward_random_seed", description: description, warning: warning);
+        return true;
+    }
+
+    private static bool TryMythAllocation(GearboxDocument document, string role, int index, string id)
+    {
+        if (!document.Root.Schema.Wonderlands || document.Profile != (role == "myth")) return false;
+        if (!document.Profile && role != "myth-mirror") return false;
+        var parent = RoleParent(document, role);
+        if (parent is null || !GearboxAccountViews.TryIntegerAt(parent, "points_spent_by_index_order", index,
+            out var value)) return false;
+        var record = document.World.Find("myth:" + index.ToString(CultureInfo.InvariantCulture));
+        var capText = record?.Attributes.GetValueOrDefault("upstreamCap");
+        var attribution = record?.AttributionText;
+        if (!document.Coordinated || !int.TryParse(capText, out var cap) || value < 0)
+        {
+            _ = document.InspectionField(id, "Stored points", value.ToString(CultureInfo.InvariantCulture),
+                Confidence.Inferred, attribution);
+            return true;
+        }
+        var maximum = cap == 0 ? Math.Max(value, 1000) : cap;
+        var description = (attribution is null ? "" : attribution + " ") +
+            "Raw allocation; upstream cap is an editor policy. XP/rank/rotation and point budgets are not automatically reconciled. " + SerialWrites.Warning;
+        _ = document.MythPoints(id, () => RoleParent(document, role), index, maximum, description);
         return true;
     }
 
@@ -253,19 +276,10 @@ internal static class GearboxMetadata
         }
         if (property == "flags" && entry.Field.Message is not null)
         {
-            var label = "Item flags";
             Func<ProtoMessage> get = () => document.Inventory.Find(entry.Id).Field.Message!;
-            if (requestedList is null)
-                _ = document.Integer(id, label, get, "flags", long.MaxValue,
-                    warning: "Raw item flags; favourite and junk state is preserved by the shared mark policy.");
-            else
-            {
-                var canonical = entry.Id + "/flags";
-                _ = document.Integer(canonical, label, get, "flags", long.MaxValue,
-                    warning: "Raw item flags; favourite and junk state is preserved by the shared mark policy.");
-                _ = document.DerivedItemNumber(id, canonical, label, 0, int.MaxValue,
-                    () => checked((int)get().Integer("flags")));
-            }
+            var canonical = entry.Id + "/flags";
+            if (requestedList is not null) return false;
+            _ = document.RawFlags(canonical, get);
             return true;
         }
         var located = property == "level" ? info.LevelOffset : property == "rerolls" ? info.RerollOffset : info.ChaosOffset;
