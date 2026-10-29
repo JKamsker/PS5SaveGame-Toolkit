@@ -11,6 +11,19 @@ internal static class SemanticSnapshotComparison
         IReadOnlyDictionary<string, SemanticMemberContext> memberContext, CancellationToken cancellationToken)
     {
         var changes = new List<SemanticChange>();
+        if (!HasCanonicalIdentity(original) && !HasCanonicalIdentity(current))
+        {
+            foreach (var (id, before) in original)
+            {
+                current.TryGetValue(id, out var after);
+                Add(id, before, after, original, current);
+            }
+
+            foreach (var (id, after) in current)
+                if (!original.ContainsKey(id)) Add(id, null, after, original, current);
+            return changes;
+        }
+
         // Explicit canonical metadata may expose one writable primary through several read-only
         // projections. Compare one representative per canonical identity so review and replay
         // cannot duplicate the same storage transition. No ID inference occurs here.
@@ -23,6 +36,9 @@ internal static class SemanticSnapshotComparison
             Add(key, before, after, original, current);
         }
         return changes;
+
+        static bool HasCanonicalIdentity(IReadOnlyDictionary<string, SemanticField> fields) =>
+            fields.Values.Any(field => !string.IsNullOrEmpty(field.CanonicalValueId));
 
         static Dictionary<string, SemanticField> Groups(IReadOnlyDictionary<string, SemanticField> fields)
         {

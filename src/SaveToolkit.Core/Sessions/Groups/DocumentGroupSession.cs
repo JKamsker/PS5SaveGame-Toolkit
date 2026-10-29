@@ -37,7 +37,15 @@ public sealed class DocumentGroupSession
             if (Convert.ToHexStringLower(SHA256.HashData(frozen[member.RelativePath].Span)) != member.Sha256)
                 throw new InvalidOperationException("A group input changed while it was being captured. Reimport the dump.");
         var input = Input(new OverlaySaveSet(set, frozen));
-        IGroupedSaveDocument Open() => _groupPlugin.OpenGroup(input, references);
+        IGroupedSaveDocument Open()
+        {
+            // Group plugins commonly publish metadata while building their view. Opened
+            // originals are used by targeted semantic capture before the first live walk,
+            // so initialize that bounded publication point on every candidate as well.
+            var document = _groupPlugin.OpenGroup(input, references);
+            _ = document.BuildView();
+            return document;
+        }
         var staged = new StagedGroupDocument(Open, Verify, token => CheckFingerprints(token), limits.MaxSnapshotBytes);
         Session = new DocumentSession(id, set.FindById(members[0].FileId)!, plugin, staged,
             options: limits, openOriginal: Open, references: references,

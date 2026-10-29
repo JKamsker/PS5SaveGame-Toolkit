@@ -53,7 +53,7 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
             {
                 case FieldNode f:
                     var field = new SemanticField(f.ValueId, rowLabel is null ? f.Label : $"{rowLabel} / {f.Label}", path, f.Value, f.Spec.ReadOnly, target,
-                        Spec: f.Spec);
+                        Spec: FieldSpecMetadata.Snapshot(f.Spec));
                     if (fields.TryGetValue(f.ValueId, out var existing))
                     {
                         var merged = MergeNavigation(existing, field);
@@ -77,7 +77,6 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
                     }
 
                     index(f);
-                    field = field with { Spec = FieldSpecMetadata.Snapshot(f.Spec) };
                     bytes += cost;
                     fields[f.ValueId] = field;
                     break;

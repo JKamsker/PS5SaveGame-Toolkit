@@ -12,11 +12,15 @@ internal static class SemanticMetadataBudget
     public static bool TryEstimate(SemanticField field, long limit, out long bytes)
     {
         bytes = FieldOverheadBytes;
-        if (limit < 0 || !AddStrings(ref bytes, limit, field.ValueId, field.Label, field.CanonicalValueId)) return false;
+        if (limit < 0 || !AddString(ref bytes, field.ValueId, limit)
+            || !AddString(ref bytes, field.Label, limit)
+            || !AddString(ref bytes, field.CanonicalValueId, limit)) return false;
         foreach (var path in field.Path)
             if (!AddString(ref bytes, path, limit)) return false;
-        if (field.Target is { } target && !AddStrings(ref bytes, limit,
-                target.CollectionId, target.RowKey, target.Query.Cursor)) return false;
+        if (field.Target is { } target
+            && (!AddString(ref bytes, target.CollectionId, limit)
+                || !AddString(ref bytes, target.RowKey, limit)
+                || !AddString(ref bytes, target.Query.Cursor, limit))) return false;
         if (field.Spec is { } spec)
         {
             if (!FieldSpecMetadata.TryEstimate(spec, limit - bytes, out var specBytes)) return false;
@@ -25,7 +29,8 @@ internal static class SemanticMetadataBudget
         if (field.Presentation is { } presentation)
         {
             if (!Add(ref bytes, PresentationOverheadBytes, limit)
-                || !AddStrings(ref bytes, limit, presentation.Warning, presentation.Description)) return false;
+                || !AddString(ref bytes, presentation.Warning, limit)
+                || !AddString(ref bytes, presentation.Description, limit)) return false;
         }
         return AddString(ref bytes, field.Value.ToString(), limit);
     }
@@ -33,7 +38,9 @@ internal static class SemanticMetadataBudget
     public static bool TryEstimate(FieldMetadata metadata, long limit, out long bytes)
     {
         bytes = FieldOverheadBytes;
-        if (limit < 0 || !AddStrings(ref bytes, limit, metadata.ValueId, metadata.Label, metadata.CanonicalValueId)) return false;
+        if (limit < 0 || !AddString(ref bytes, metadata.ValueId, limit)
+            || !AddString(ref bytes, metadata.Label, limit)
+            || !AddString(ref bytes, metadata.CanonicalValueId, limit)) return false;
         if (metadata.Path is { } path)
             foreach (var segment in path)
                 if (!AddString(ref bytes, segment, limit)) return false;
@@ -42,16 +49,9 @@ internal static class SemanticMetadataBudget
         if (metadata.Presentation is { } presentation)
         {
             if (!Add(ref bytes, PresentationOverheadBytes, limit)
-                || !AddStrings(ref bytes, limit, presentation.Warning, presentation.Description)) return false;
+                || !AddString(ref bytes, presentation.Warning, limit)
+                || !AddString(ref bytes, presentation.Description, limit)) return false;
         }
-        return true;
-    }
-
-    private static bool AddStrings(ref long total, long limit, string? first, params string?[] rest)
-    {
-        if (!AddString(ref total, first, limit)) return false;
-        foreach (var value in rest)
-            if (!AddString(ref total, value, limit)) return false;
         return true;
     }
 

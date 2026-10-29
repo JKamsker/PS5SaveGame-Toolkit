@@ -47,18 +47,24 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
     }
 
     public void ResolveAll(IEnumerable<string> ids, CancellationToken cancellationToken = default)
+        => ResolveAll(ids, FieldMetadataLimits.MaxClosureIds, cancellationToken);
+
+    internal void ResolveAll(IEnumerable<string> ids, int maxInitialIds, CancellationToken cancellationToken)
     {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxInitialIds);
+        var initial = MaterializeInitialIds(ids, maxInitialIds);
         var working = new Dictionary<string, FieldMetadata>(_fields, StringComparer.Ordinal);
-        ResolveAll(ids, working, cancellationToken);
+        var retainedBytes = _maxMetadataBytes is null ? 0 : MetadataBytes(working.Values);
+        ResolveAll(initial, working, ref retainedBytes, maxInitialIds, cancellationToken);
         _fields.Clear();
         foreach (var (id, field) in working) _fields.Add(id, field);
     }
 
-    private void ResolveAll(IEnumerable<string> ids, Dictionary<string, FieldMetadata> cache,
-        CancellationToken cancellationToken)
+    private void ResolveAll(IReadOnlyList<string> ids, Dictionary<string, FieldMetadata> cache,
+        ref long retainedBytes, int maxScheduledIds, CancellationToken cancellationToken)
     {
         if (document is not IFieldMetadataDocument source) return;
-        var pending = new Queue<string>(ids.Distinct(StringComparer.Ordinal));
+        var pending = new Queue<string>(ids);
         var scheduled = pending.ToHashSet(StringComparer.Ordinal);
         var fetched = new HashSet<string>(StringComparer.Ordinal);
         var touched = new HashSet<string>(StringComparer.Ordinal);
@@ -82,19 +88,35 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
                     || (normalized.BindingKind == FieldBindingKind.Derived && !normalized.Spec.ReadOnly)
                     || !next.TryAdd(normalized.ValueId, normalized))
                     throw new InvalidOperationException("Invalid or duplicate field metadata.");
-                _ = document.GetValue(normalized.ValueId); // A descriptor promises a live binding.
             }
             cancellationToken.ThrowIfCancellationRequested();
-            foreach (var id in batch.Where(id => !next.ContainsKey(id))) cache.Remove(id);
+            foreach (var id in batch.Where(id => !next.ContainsKey(id)))
+            {
+                if (cache.Remove(id, out var removed))
+                    retainedBytes -= MetadataCost(removed);
+            }
+
+            var admissions = new List<(string Id, FieldMetadata Field, long Delta)>(next.Count);
             foreach (var (id, field) in next)
             {
-                if (!cache.TryGetValue(id, out var previous) || !Agree(previous, field))
-                {
-                    if (_maxMetadataBytes is { } remaining
-                        && !SemanticMetadataBudget.TryEstimate(field, remaining, out _))
-                        throw new InvalidOperationException("Field metadata exceeds the bounded review budget.");
+                var previous = cache.GetValueOrDefault(id);
+                var changed = previous is null || !Agree(previous, field);
+                var delta = changed ? MetadataCost(field) - (previous is null ? 0 : MetadataCost(previous)) : 0;
+                if (delta > 0 && _maxMetadataBytes is { } limit && retainedBytes > limit - delta)
+                    throw new InvalidOperationException("Field metadata exceeds the bounded review budget.");
+                admissions.Add((id, field, delta));
+                retainedBytes += delta;
+            }
+
+            // Validate live bindings only after the whole batch has been admitted. A descriptor
+            // that cannot fit the remaining aggregate budget must not trigger a plugin getter.
+            foreach (var (_, field, _) in admissions)
+                _ = document.GetValue(field.ValueId);
+            foreach (var (id, field, _) in admissions)
+            {
+                var previous = cache.GetValueOrDefault(id);
+                if (previous is null || !Agree(previous, field))
                     cache[id] = Snapshot(field);
-                }
                 touched.Add(id);
                 fetched.Add(id);
             }
@@ -105,7 +127,7 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
                 if (canonicalId != field.ValueId && !fetched.Contains(canonicalId)
                     && scheduled.Add(canonicalId))
                 {
-                    if (scheduled.Count > FieldMetadataLimits.MaxClosureIds)
+                    if (scheduled.Count > maxScheduledIds)
                         throw new InvalidOperationException("Canonical metadata closure exceeded its bounded limit.");
                     pending.Enqueue(canonicalId);
                 }
@@ -140,6 +162,34 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
 
     private static FieldMetadata Normalize(FieldMetadata field) =>
         string.IsNullOrEmpty(field.CanonicalValueId) ? field with { CanonicalValueId = field.ValueId } : field;
+
+    private static string[] MaterializeInitialIds(IEnumerable<string> ids, int limit)
+    {
+        ArgumentNullException.ThrowIfNull(ids);
+        var result = new List<string>(Math.Min(limit, 64));
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var id in ids)
+        {
+            if (!seen.Add(id)) continue;
+            if (result.Count >= limit)
+                throw new InvalidOperationException($"Field metadata request exceeds the bounded limit of {limit} IDs.");
+            result.Add(id);
+        }
+
+        return result.ToArray();
+    }
+
+    private static long MetadataBytes(IEnumerable<FieldMetadata> fields)
+    {
+        long total = 0;
+        foreach (var field in fields)
+            total = checked(total + MetadataCost(field));
+        return total;
+    }
+
+    private static long MetadataCost(FieldMetadata field) =>
+        SemanticMetadataBudget.TryEstimate(field, long.MaxValue, out var bytes)
+            ? bytes : throw new InvalidOperationException("Field metadata exceeds bounded snapshot limits.");
 
     // Copy nested option/union lists too: plugin-owned mutable collections must not alter a preview.
     private static FieldMetadata Snapshot(FieldMetadata field) => field with

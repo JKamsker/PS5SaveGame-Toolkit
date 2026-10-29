@@ -179,6 +179,10 @@ public sealed class DocumentGroupTests : IDisposable
         Assert.Equal(Root + "character.dat", change.Member?.RelativePath);
         Assert.Equal("Character + profile", change.Member?.GroupTitle);
         Assert.Equal("synthetic group input", change.Member?.Provenance);
+        var projectedAlias = Assert.Single(change.Aliases!);
+        Assert.Equal("character/raw/balance", projectedAlias.ValueId);
+        Assert.Equal("character", projectedAlias.Member?.Role);
+        Assert.Equal(Root + "character.dat", projectedAlias.Member?.RelativePath);
         var live = _plugin.Opened.Last(document => !document.IsDisposed);
         Assert.NotEmpty(live.ContextRequests);
         Assert.DoesNotContain(live.ContextRequests.SelectMany(request => request), id => id.Contains("/raw/", StringComparison.Ordinal));
