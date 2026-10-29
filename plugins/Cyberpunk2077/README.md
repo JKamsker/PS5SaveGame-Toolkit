@@ -771,3 +771,18 @@ Stack actions continue to use shared F6/F8 whole-query planning (#27).
 | [Piggyback Night City](https://maps.piggyback.com/cyberpunk-2077/maps/night-city), 49 public zoom-3 tile hashes pinned, 2026-10-29 | Rights reserved by Piggyback / CDPR; used with attribution per owner decision 2026-10-29 | **Resolved: imported (owner decision 2026-10-29)**, background art | Unpositioned marker list; positions remain omitted because a save-ID/geographic crosswalk is unverified. | No licence blocker remains. Positioning needs a verified save-ID/geographic crosswalk, independent of rights. |
 | [CDPR planner](https://www.cyberpunk.net/en/build-planner), English chunk `8603-b6e6f72c476c734a52a4.js`, retrieved 2026-10-29 | Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29 | **Resolved: imported (owner decision 2026-10-29)**, official names/descriptions | Reference text and stored ranks; no invented prerequisite edges or gameplay rules. | No licence blocker remains. Build-matched prerequisites/costs/effects/entitlement remain evidence gaps. |
 | Complete PS5 2.21 TweakDB/localization/icon exports, no complete matching source supplied | Missing data; publisher assets are usable under owner decision 2026-10-29 | Partial import completed: 146 item IDs, 193 perks, 16 icons; no rights refusal | Remaining identifiers keep raw/baseline names and explicit missing-art fallback. No speculative joins. | Supply complete build-matched exports and verify exact identifier joins; this is an evidence gap, not a licence refusal. |
+
+## Synthetic mutation fuzzing (#40)
+
+Two authored `CsavCorruptionFixture.Flat` seeds provide valid `PPSA04027` `sav.dat`
+containers with a two-node directory: one stored and one literal-block LZ4 payload.
+Both open and reach the raw node explorer without private samples. The nightly
+conformance fuzz runs 5,000 deterministic mutations per seed. These seeds exercise
+container, chunk and node parsing; their opaque nodes do not claim gameplay-inventory
+or progression coverage. No private sample bytes are embedded.
+
+A sample-free Windows run with seed `20261029` and 5,000 mutations per seed hit the
+60-second plugin cap near index 4,756 of the LZ4 seed. A 300-second-budget rerun
+completed all 10,000 cases in 48.7 seconds: 820 opens, 9,180 documented/probe
+rejections and no parser failures. The cap result depends on host load; its last
+checkpoint is not a crashing mutation. The nightly cap is unchanged.

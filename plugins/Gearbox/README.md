@@ -816,3 +816,13 @@ console-validation and gameplay-model gaps are listed above and tracked in [#31]
   intended visible effect and unrelated inventory, re-save, reload, then return the new dump plus
   observations. Report game clamping. Only the owner can promote maturity to Stable.
 - For BL4 use the separate [file-role/codec capture checklist](BL4-feasibility.md). No BL4 writes.
+
+## Synthetic mutation fuzzing (#40)
+
+Four authored `GearboxTestData.CreateContainer` seeds cover both Borderlands 3
+(`PPSA01463`) and Wonderlands (`PPSA01493`), each with a character (`1`) and `profile`
+container. The existing builder supplies valid GVAS headers, reproducible BogoCrypt
+payloads and small protobuf messages; each seed opens and reaches its document view
+and collections. The nightly conformance fuzz runs 5,000 deterministic mutations per
+seed without private samples. These are structural fixtures, not full game saves,
+and contain no private bytes.

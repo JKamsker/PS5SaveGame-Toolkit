@@ -416,6 +416,16 @@ opaque pointer semantics and console-load behavior remain open questions. Experi
 these limits and the passing preserving-write/conformance tests. Every new field and repair preview
 warns that the game may reject the edited save; no unknown integrity word is overwritten or invented.
 
+## Sample-free mutation fuzzing (#40)
+
+The conformance seed hook supplies two authored SNFH/LZ4 fixtures: `Synthetic.sav` from
+`SyntheticSave.Create()` (generic SAV3 scalar/archive layout) and `Player.sav` from
+`SyntheticPlayerSave.Create(storedPoints: true)` (player identity, progression, inventory
+and nested properties). Both builders already serve the format tests and embed no private
+sample bytes. `SyntheticFuzzSeedsOpenAndPreserveBytes` checks probing, opening, initial view,
+every collection's first page and byte-identical serialization. Nightly fuzz applies 5,000
+mutations to each seed, covering container rejection as well as surviving SAV3 parses.
+
 ## Sample evidence and tests
 
 Four distinct primary saves plus their four byte-identical backup twins are covered:

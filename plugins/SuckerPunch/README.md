@@ -657,3 +657,14 @@ relationship evidence, not a new SDK contract. A future metadata-edit contract c
 play-time/difficulty edits should update `param.sfo SUBTITLE`; no such writer is implemented or requested
 as a prerequisite for the current fixed-width edits. The optional shared helper adoption gaps are
 listed under [Framework feature adoption](#framework-feature-adoption).
+
+## Synthetic mutation fuzz testing (#40)
+
+Two independently authored `SyntheticSave` seeds, `dis.dat` for PPSA02225 and PPSA26344, cover
+Tsushima and Yōtei respectively. The existing builders create inventory tables and repair the real
+checksums; Yōtei also has statistics, gear and secondary tables. Both baselines open and render.
+Mutations retain the real checksum gate, so covered-byte damage usually rejects before table
+decoding. No private bytes or authentication material are embedded.
+
+`MutationFuzzSyntheticSeedsOpenAndRender` checks every unmutated seed before the inherited
+`MutationFuzz` fact supplies deterministic mutations. No samples are required for these checks.

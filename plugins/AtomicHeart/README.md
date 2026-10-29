@@ -505,3 +505,12 @@ Historical asset-round validation (2026-10-29): **66 passed, 0 failed, 0 skipped
 | [Wiki skills](https://atomicheart.fandom.com/wiki/Skills), unpinned, checked 2026-10-29 | Previously recorded CC BY-NC-SA; version not recorded; fetch still inaccessible (402/403) | NC wiki text/cost/prerequisite dataset remains excluded. | Attributed GameRiv Shok subset in a separate reference guide; saved graph states remain Unknown. | Compatible wiki terms and build-matched skill/native ID mapping. |
 
 The two central register rows already record these NC exclusions; they remain applicable. Publisher art and all-rights-reserved guide sources are resolved by the 2026-10-29 owner decision and imported above. No central register file was edited because this worker is confined to its plugin folder.
+
+## Synthetic mutation fuzzing (#40)
+
+One authored `InventoryFixture` seed supplies a valid `PPSA10695` SaveExtension
+slot, including two inventory records, Oodle stored framing and its recomputed SHA-1
+trailer. The existing builder supplies all bytes; no private sample data is embedded.
+The nightly conformance fuzz runs 5,000 deterministic mutations without private
+samples. Integrity-invalid mutations may reject before the inventory parser; the
+original seed opens and exposes its inventory collection.

@@ -646,3 +646,12 @@ Downloaded source was inspected as text; no upstream executable was run.
 - [Serofix-code/bg3-save-editor](https://github.com/Serofix-code/bg3-save-editor): reported repack warnings and metadata versus live-state distinction.
 - [BG3 format research](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/FORMAT.md): leader-name metadata, JSON party/level/XP summary, ownerlist conventions and distinction from live LSMF state. No licence published; reused with attribution per owner decision 2026-10-28. Curated summaries are Inferred, not verified live stat controls.
 - [K4os LZ4 1.3.8](https://www.nuget.org/packages/K4os.Compression.LZ4.Streams/1.3.8) and [ZstdSharp.Port 0.8.8](https://www.nuget.org/packages/ZstdSharp.Port/0.8.8): managed MIT codec dependencies; see notices.
+
+## Synthetic mutation fuzzing (#40)
+
+Two authored seeds run without private saves: an uncompressed LSF resource from
+`ResourceFixture`, and a v18 zstd LSPK package from `PackageFixture` containing an
+adjacency-layout, LZ4-compressed LSF resource. Both use `PPSA18463`, open validly and
+reach resource views. The nightly conformance fuzz runs 5,000 deterministic mutations
+per seed. These small structural fixtures exercise containers, decompression and
+resource parsing; they are not complete campaign saves and contain no private bytes.

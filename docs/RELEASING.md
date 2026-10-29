@@ -136,16 +136,54 @@ The nightly count is **5,000 mutations per seed**. A **60-second per-plugin wall
 (including worker startup/preparation) and a **30-minute job timeout** bound the run. Exceeding a
 cap fails the test and kills the isolated worker; it never silently passes an incomplete run.
 
-Nightly CI has **synthetic seeds only**, with no private sample download. The shared harness currently
-supplies one GenericJson fixture and two XorJson fixtures (XOR-1 and byte-minus-one JSON).
-The other 15 plugin conformance classes have no synthetic seeds and report explicit skips.
-This run therefore covers those two formats, not all game parsers. Plugins can extend coverage with
-`MutationFuzzSyntheticSeeds`; the summary exposes gaps instead of counting skips as fuzz coverage.
-Local runs also use the selected real samples when available, as described in the plugin guide.
-The 5,000 count was checked locally on Windows with coverage off: the sample-free plugin sweep
-ran 15,000 cases in about 82 seconds; a separate deep run across all 17 plugins, 26 private-sample
-seeds and three synthetic seeds ran 145,000 cases in 683 seconds with no failures. These are local
-wall-clock measurements including build/test startup, not a hosted Ubuntu performance guarantee.
+Nightly CI has **synthetic seeds only**, with no private sample download. All **17 plugin conformance
+classes** now supply **27 synthetic seeds**: shared defaults provide GenericJson (one) and XorJson
+(two), and the other **15 plugins** reuse authored test-fixture builders through
+`MutationFuzzSyntheticSeeds`. Every baseline must probe, open and build its initial view; validity
+facts also query collections. No private bytes or extracted save data are embedded.
+
+| Plugin | Synthetic seeds | Parser paths / limits |
+| --- | ---: | --- |
+| AstroPlayroom | 1 | Exact 1 MiB authored memory.dat. |
+| AtomicHeart | 1 | SHA-1 envelope, stored Oodle block and inventory properties. |
+| BaldursGate3 | 2 | Plain LSF and zstd LSPK containing LZ4 LSF. |
+| Cyberpunk2077 | 2 | Stored and LZ4-compressed CSAV node tables. |
+| EldenRing | 1 | One character/menu in the required 0x1BA0080-byte allocation. |
+| FinalFantasy16 | 1 | Combined known FAITH blocks with valid CRC. |
+| FinalFantasy7 | 3 | Remake, Rebirth and demo common containers; no gameplay-body coverage. |
+| Gearbox | 4 | BL3 and Wonderlands character/profile envelopes and protobufs. |
+| GenericJson | 1 | UTF-8 JSON scalars and containers. |
+| GodOfWarRagnarok | 1 | Nested wallets/resources, links, flags and ID/index words. |
+| Insomniac | 1 | Rift Apart currency binary fixture. |
+| Pragmata | 1 | DSSS inventory; parser-valid integrity metadata, no authentic RSA signature. |
+| SuckerPunch | 2 | Tsushima and Yotei inventory layouts and integrity. |
+| TalesOfArise | 1 | Reproducible encrypted envelope and fixed-layout character data. |
+| UnrealGvas | 1 | Hogwarts GVAS/SQLite discovery fixture. |
+| Witcher3 | 2 | SAV3 scalars/archive and typed player identity, points and inventory. |
+| XorJson | 2 | XOR-1 and byte-minus-one JSON. |
+
+No plugin requires a rejection-only seed. A small accepted Elden Ring file is infeasible because
+its probe requires the full fixed allocation. A local Windows preflight with seed `20261029` and
+5,000 requested mutations exceeded the 60-second cap near index 1,852; this is a run-budget failure,
+not evidence of a parser exception. Cyberpunk's two-seed run also exceeded that cap near the end
+of its second seed (index 4,756). The workflow's cap is unchanged. All 17 plugins now have
+sample-free inputs, but a complete green nightly run within that cap is not established.
+FF7 uses small common files because `CoverageFixture` is sample-backed; its authored gameplay
+fixtures require 9-23 MiB each and remain in focused tests. Pragmata's synthetic integrity proves
+parser acceptance only, not authentic signing or console acceptance. See each plugin README's
+fuzz/testing notes for provenance and limitations. Local runs additionally use selected real samples.
+The workflow's introductory summary still mentions its original two built-in formats; its actual
+per-plugin result table is authoritative. Updating workflow text is outside this test-only scope.
+
+The sample-free Windows verification at seed `20261029` completed **135,000 mutations** across
+all 27 seeds: **21,527 opens**, **113,473 rejections**, zero unexpected or quarantined failures.
+An open means the complete probe/open/view/first-collection-pages/dispose lifecycle succeeded;
+rejections include nonmatching probes and documented format exceptions. The two cap failures
+were rerun with a 300-second local budget: Cyberpunk completed in 48.7 seconds and Elden Ring
+in 107.7 seconds. The 17 completed runs totalled 369.8 seconds including build/runner overhead,
+with 154.9 seconds of parser work. These local timings vary with host load and do not establish
+hosted Ubuntu performance. Outcome counters were collected using scratch-only MSBuild
+instrumentation; the committed harness and nightly cap are unchanged.
 
 The harness accepts these optional environment overrides; **unset** variables retain existing
 plugin defaults (normally seed `0x40C0FFEE`, 200 mutations per selected file, no overall plugin cap):

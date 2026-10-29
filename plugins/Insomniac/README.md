@@ -327,6 +327,16 @@ they do not use `BoundedBinaryCursor`. Query execution uses local
 these readers and queries have not adopted them. The measured allocation budgets
 for these local implementations are documented in [PERFORMANCE.md](PERFORMANCE.md).
 
+## Sample-free mutation fuzzing (#40)
+
+The existing conformance seed hook supplies one `i29-s.save` from
+`CurrencyDiscoveryTests.Fixture`: an authored DAT1 inventory section containing bolts and
+raritanium records. No private sample bytes are embedded. The seed probes and opens, builds
+the currency view and queries every exposed collection; `SyntheticFuzzSeedsOpenAndPreserveBytes`
+also checks byte-identical serialization. The nightly sweep runs 5,000 mutations from this
+seed. Preferences, compressed gameplay and other supported Insomniac titles still need
+separate fixtures or real-sample runs for their distinct parser paths.
+
 ## Validation
 
 Use the environment assignment and test command in the **same shell invocation**:

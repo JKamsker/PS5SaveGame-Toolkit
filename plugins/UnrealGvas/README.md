@@ -367,6 +367,16 @@ type names; 64 nested parsing levels and 16 levels within complete type names;
 1,048,576 FString units. Byte-array lengths use the file bound, not the node bound.
 Sample open times are diagnostic output, not an enforced two-second limit.
 
+## Sample-free mutation fuzzing (#40)
+
+The existing conformance seed hook supplies one `save.sav` from
+`HogwartsDiscoveryFixture.Create()`: an authored GVAS envelope with two stored SQLite images,
+including talent, Field Guide and discovery rows. No private sample bytes are used.
+`SyntheticFuzzSeedsOpenAndPreserveBytes` checks probing, opening, view construction, every
+collection's first page and byte-identical serialization before nightly mutation.
+The 5,000-case sweep exercises this Hogwarts/GVAS/SQLite fixture; it does not establish equal
+coverage of every supported Unreal title, compression mode or property type.
+
 ## Validation and maturity
 
 **Experimental**: meaningful edits pass conformance, with integer/float/bool and

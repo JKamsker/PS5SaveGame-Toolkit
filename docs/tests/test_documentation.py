@@ -286,7 +286,37 @@ class DocumentationTests(unittest.TestCase):
         seeds = source("src/SaveToolkit.Testing/MutationFuzzSyntheticSeeds.cs")
         self.assertEqual(["format.json", "format.json-xor"], re.findall(r'case "([^"]+)":', seeds))
         self.assertEqual(3, seeds.count("yield return MemorySaveSet.SingleFile("))
-        self.assertIn("other 15 plugin conformance classes", releasing)
+
+    def test_synthetic_fuzz_inventory_covers_every_plugin(self):
+        expected = {
+            "AstroPlayroom": 1, "AtomicHeart": 1, "BaldursGate3": 2, "Cyberpunk2077": 2,
+            "EldenRing": 1, "FinalFantasy16": 1, "FinalFantasy7": 3, "Gearbox": 4,
+            "GenericJson": 1, "GodOfWarRagnarok": 1, "Insomniac": 1, "Pragmata": 1,
+            "SuckerPunch": 2, "TalesOfArise": 1, "UnrealGvas": 1, "Witcher3": 2, "XorJson": 2,
+        }
+        self.assertEqual({name for name, _, _ in plugins()}, set(expected))
+        releasing = markdown_section(document("docs/RELEASING.md"), "## Nightly mutation fuzz")
+        header, rows = markdown_table(releasing.split("The harness accepts", 1)[0])
+        self.assertEqual(["Plugin", "Synthetic seeds", "Parser paths / limits"], header)
+        self.assertEqual(expected, {row[0]: int(row[1]) for row in rows})
+        self.assertEqual(27, sum(expected.values()))
+        guide = markdown_section(document("docs/PLUGIN_GUIDE.md"), "### Deterministic mutation fuzzing (#40)")
+        for text in (releasing, guide):
+            self.assertIn("**17 plugin conformance", text)
+            self.assertIn("**27 synthetic", text)
+            self.assertIn("rejection-only", text)
+        for name in expected.keys() - {"GenericJson", "XorJson"}:
+            with self.subTest(plugin=name):
+                # These authored test hooks belong to the working-tree test inventory, even
+                # when --code-ref selects an older production-code baseline such as main.
+                code = document(f"plugins/{name}/SaveToolkit.Plugins.{name}.Tests/{name}ConformanceTests.cs")
+                self.assertIn("override IEnumerable<ISaveFile> MutationFuzzSyntheticSeeds", code)
+                count_check = "Assert.Single(seeds)" if expected[name] == 1 else f"Assert.Equal({expected[name]}, seeds.Length)"
+                self.assertIn(count_check, code)
+                self.assertIn("Plugin.Probe(file).IsMatch", code)
+                self.assertIn("Plugin.Open(file)", code)
+                self.assertIn("document.BuildView()", code)
+                self.assertIn("#40", document(f"plugins/{name}/README.md"))
 
     def test_built_app_smoke_docs_cover_shipped_flows_and_skipped_regressions(self):
         text = markdown_section(document("docs/RELEASING.md"), "## Built app browser smoke tests")
