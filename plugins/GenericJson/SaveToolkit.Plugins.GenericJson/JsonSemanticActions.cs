@@ -21,11 +21,12 @@ internal sealed class JsonSemanticActions
     private readonly List<string> _unsupported = [];
     private readonly string? _title;
     private readonly bool _truncated;
+    public JsonOverlay? Overlay { get; }
     public bool IsMatched => _title is not null;
 
     public JsonSemanticActions(ISaveFile file, JsonTokenTree tree, JsonReferenceChoices? references = null)
     {
-        var overlay = JsonOverlay.Match(file, tree);
+        var overlay = Overlay = JsonOverlay.Match(file, tree);
         if (overlay is null) return;
         _title = file.Directory.TitleId;
         if (_title == "PPSA04027")
@@ -41,7 +42,7 @@ internal sealed class JsonSemanticActions
             var nodes = (overlay.IsProfile ? overlay.Groups : overlay.Groups.SelectMany(Leaves)).Take(JsonResetActions.MaxChanges + 1).ToArray();
             _truncated = nodes.Length > JsonResetActions.MaxChanges;
             foreach (var node in nodes.Take(JsonResetActions.MaxChanges))
-                if (node.Parent is { } parent && JsonOverlay.Unique(parent, node.Label) == node
+                if (node.Parent is not null && node.UniqueMember
                     && JsonSemanticValues.Primitive(node, stringAdapters: true, profileCounters: overlay.IsProfile) is { } target)
                     _targets.Add(overlay.IsProfile ? target : target with { Confidence = Confidence.Unknown });
                 else _unsupported.Add(node.ValueId);
@@ -134,14 +135,17 @@ internal sealed class JsonSemanticActions
             }).ToArray();
             if (planned.Length + skipped.Count > JsonResetActions.MaxChanges)
                 throw new ArgumentException("Preview exceeds 5,000 changed/skipped fields; narrow the selection.");
-            var trial = tree.Clone();
-            foreach (var change in planned)
+            if (planned.Length > 0)
             {
-                var node = trial.FindValue(change.ValueId)!;
-                if (node.Validate(change.NewValue) is { } error) throw new ArgumentException(error);
-                node.Current = change.NewValue;
+                var trial = tree.Clone();
+                foreach (var change in planned)
+                {
+                    var node = trial.FindValue(change.ValueId)!;
+                    if (node.Validate(change.NewValue) is { } error) throw new ArgumentException(error);
+                    node.Current = change.NewValue;
+                }
+                _ = JsonTreeWriter.Write(trial);
             }
-            _ = JsonTreeWriter.Write(trial);
             return new() { Changes = planned, SkippedRows = skipped, Warnings = [Warning,
                 "Only existing values are edited. Missing keys, story dependencies and companions are not synthesized. Numeric limits may be conservative observed bounds, not game caps.",
                 _title switch

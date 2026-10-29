@@ -19,17 +19,7 @@ internal static class JsonTreeWriter
         WriteNode(tree.Nodes[0]);
         Append(tree.Postamble.Span);
         var bytes = output.ToArray();
-        var reparsed = JsonTokenTree.Parse(bytes);
-        if (tree.Nodes.Count != reparsed.Nodes.Count)
-            throw new SaveFormatException("Edited JSON changed its node count unexpectedly.");
-        for (var i = 0; i < tree.Nodes.Count; i++)
-        {
-            var expected = tree.Nodes[i];
-            var actual = reparsed.Nodes[i];
-            if (expected.Label != actual.Label || expected.IsContainer != actual.IsContainer
-                || (expected.IsContainer ? expected.Kind != actual.Kind : expected.Current != actual.Current))
-                throw new SaveFormatException("Edited JSON failed token round-trip validation.");
-        }
+        JsonTokenValidation.Validate(bytes, tree);
         return bytes;
 
         void Append(ReadOnlySpan<byte> span)

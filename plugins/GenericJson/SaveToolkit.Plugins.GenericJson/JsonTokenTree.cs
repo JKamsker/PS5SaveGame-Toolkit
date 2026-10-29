@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using SaveToolkit.Sdk;
@@ -81,6 +82,7 @@ internal sealed class JsonTokenTree
                     Source = bytes, Parent = parent,
                     MemberOffset = parent?.Kind == JsonTokenType.StartObject ? propertyOffset : checked((int)reader.TokenStartIndex + bom),
                     MemberNameLength = parent?.Kind == JsonTokenType.StartObject ? propertyLength : 0,
+                    Position = parent?.Children.Count ?? 0,
                 };
                 tree.Nodes.Add(node);
                 parent?.Children.Add(node);
@@ -152,13 +154,18 @@ internal sealed class JsonTokenTree
         void Visit(JsonValueToken node, JsonValueToken? parent)
         {
             node.Parent = parent;
+            node.TreeOrder = Nodes.Count;
+            // All membership, order and name mutations pass through Reindex, including snapshot restore.
+            node.StructureReview = null;
+            node.EscapedPathLabel = null;
+            node.FriendlyLabel = null;
             Nodes.Add(node);
             ById.Add(node.Index, node);
             var occurrences = node.Kind == JsonTokenType.StartObject ? new Dictionary<string, int>(StringComparer.Ordinal) : null;
             for (var i = 0; i < node.Children.Count; i++)
             {
-                if (node.Kind == JsonTokenType.StartArray) node.Children[i].Label = $"[{i}]";
                 var child = node.Children[i];
+                if (node.Kind == JsonTokenType.StartArray && (child.Position != i || child.Parent != node)) child.Label = $"[{i}]";
                 child.Position = i;
                 child.Occurrence = 1;
                 if (occurrences is not null)
@@ -169,6 +176,9 @@ internal sealed class JsonTokenTree
                 }
                 Visit(node.Children[i], node);
             }
+            // Count every sibling, including entries beyond the title adapter's bounded prefix.
+            foreach (var child in node.Children)
+                child.UniqueMember = occurrences is null || occurrences[child.Label] == 1;
         }
     }
 
@@ -203,7 +213,7 @@ internal sealed class JsonTokenTree
         if (reader.TokenType == JsonTokenType.Number)
         {
             var raw = Encoding.UTF8.GetString(reader.ValueSpan);
-            if (ExactJsonNumber.Validate(raw, JsonScalar.NumberSpec) is not null)
+            if (!WithinNumberResources(raw))
             {
                 node.Spec = new TextSpec { ReadOnly = true };
                 node.Current = FieldValue.Of(raw);
@@ -217,5 +227,16 @@ internal sealed class JsonTokenTree
 
         node.Spec = JsonScalar.Spec;
         node.Current = JsonScalar.Read(ref reader);
+    }
+
+    private static bool WithinNumberResources(string raw)
+    {
+        // Utf8JsonReader has already checked syntax. FieldValue.ExactNumber validates accepted
+        // lexemes again; only decide whether to use the lossless read-only resource fallback here.
+        if (raw.Length > ExactJsonNumber.HardMaxLength) return false;
+        var exponentAt = raw.AsSpan().IndexOfAny('e', 'E');
+        return exponentAt < 0 || int.TryParse(raw.AsSpan(exponentAt + 1), NumberStyles.AllowLeadingSign,
+            CultureInfo.InvariantCulture, out var exponent)
+            && exponent >= -ExactJsonNumber.HardMaxAbsoluteExponent && exponent <= ExactJsonNumber.HardMaxAbsoluteExponent;
     }
 }

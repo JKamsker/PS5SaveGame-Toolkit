@@ -51,7 +51,7 @@ public sealed class GenericJsonPlugin : IGamePlugin, ISaveDecoderProvider
                 return ProbeResult.None;
             }
 
-            _ = JsonTokenTree.Parse(file.ReadAllBytes());
+            JsonTokenValidation.Validate(file.ReadAllBytes());
             return ProbeResult.Match(ProbeScore.Format, "UTF-8 JSON");
         }
         catch (SaveFormatException)

@@ -24,9 +24,10 @@ internal static class JsonResetActions
             return new() { Errors = [new(ActionId, "Selection contains a missing JSON node.")] };
         var changes = new List<PlannedChange>();
         var skipped = new List<SkippedActionRow>();
-        foreach (var node in tree.Nodes)
+        var nodes = selected is null ? tree.Nodes.AsEnumerable()
+            : selected.Select(key => tree.FindValue(key)!).OrderBy(node => node.TreeOrder);
+        foreach (var node in nodes)
         {
-            if (selected is not null && !selected.Contains(node.ValueId)) continue;
             if (node.IsContainer || !node.Imported || node.Spec?.ReadOnly == true)
             {
                 if (selected is not null) skipped.Add(new(node.ValueId, "Only existing editable imported scalar values can be reset; use undo for structure."));
