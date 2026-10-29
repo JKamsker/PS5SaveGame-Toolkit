@@ -121,7 +121,14 @@ public sealed class AriseIconCharacterizationTests
         var file = AriseSampleTests.GameplayFiles().First(file => file.FileName == fileName);
         using var document = new TalesOfArisePlugin().Open(file, AriseTestReferences.CreateContext());
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(document.BuildView()));
+        var view = Assert.IsType<TabsNode>(document.BuildView());
+        Assert.Single(view.Tabs.SelectMany(tab => tab.Children).OfType<ActionNode>(), action => action.ActionId == AriseInventoryActions.RestoreImportedAction);
+        // The restore control is covered separately; retain the exact fingerprint of every existing node.
+        view = view with { Tabs = view.Tabs.Select(tab => tab with
+        {
+            Children = tab.Children.Where(node => node is not ActionNode { ActionId: AriseInventoryActions.RestoreImportedAction }).ToArray(),
+        }).ToArray() };
+        hash.AppendData(JsonSerializer.SerializeToUtf8Bytes((ViewNode)view));
         hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(document.LoadInventory()));
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
         var count = queryable.Collections.Single(collection => collection.Id == "inventory").TotalCount;
