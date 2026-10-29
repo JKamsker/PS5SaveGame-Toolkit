@@ -385,8 +385,9 @@ ranges at most 32 children. NaN/Infinity interpretations are text, keeping the v
 Blob requests are capped at 64 KiB and copied to protect the document's backing buffer.
 
 Open retains one file buffer, the small header index, catalog lookups and fixed-slot edit policies; there are no body copies or eager gameplay view trees.
-Tests check each supplied sample opens in under two seconds and the initial view stays below 2,500
-nodes. No framework changes, runtime file/network access or extra NuGet dependencies are required.
+Tests check complete record walks, byte-identical round trips and an initial view below 2,500 nodes.
+Correctness tests do not gate on wall-clock speed, which varies with CI scheduling and machine load.
+No framework changes, runtime file/network access or extra NuGet dependencies are required.
 
 ## Research log and validation
 
@@ -416,14 +417,16 @@ $env:SAVETOOLKIT_ARTIFACTS='C:/path/to/main/artifacts'
 dotnet test --project plugins/FinalFantasy7/SaveToolkit.Plugins.FinalFantasy7.Tests
 ```
 
-Sample-dependent tests skip when their title archive is missing. Synthetic common-format and explorer
-tests run without samples. The conformance suite retains its six-files-per-title default; the dedicated
+Sample-dependent tests skip when their title archive is missing. Synthetic common-format, gameplay-framing
+and explorer tests run without samples. Artificial gameplay bodies are not evidence of real gameplay
+semantics; their independent record-group fixture covers all three layouts, corruption rejection,
+empty allocations and byte preservation. The conformance suite retains its six-files-per-title default; the dedicated
 format test walks and no-op serializes **all** matching sample files, including backup/generation files.
 Edit conformance nudges a writable field on selected Remake and retail Rebirth samples; dedicated
 tests verify in-place byte scope, round-trip reopening, undo-by-old-value and atomic range rejection.
 
 Completion local validation: **121/121 plugin tests, 0 failed, 0 skipped**, with the supplied archives and the API build passing with zero warnings/errors. Tests include Core F4/F6/F8/F9 session integration; a separate whole-Core-suite run was not needed for this plugin-only change. All 55 sample entries round-tripped;
-every measured sample Open call stayed below the two-second test bound.
+every measured sample Open call stayed below two seconds in that historical local run.
 
 ## Open problems
 

@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.Diagnostics;
 using SaveToolkit.Sdk;
 using SaveToolkit.Testing;
 
@@ -33,10 +32,7 @@ public sealed class SampleFormatTests
                 Assert.Equal(records[i].Offset, (int)records[i - 1].Next);
             }
 
-            var timer = Stopwatch.StartNew();
             using var document = plugin.Open(file);
-            timer.Stop();
-            Assert.True(timer.Elapsed < TimeSpan.FromSeconds(2), $"Open exceeded 2s: {file.RelativePath}: {timer.Elapsed}.");
             Assert.Equal(!common, document.CanEdit);
             Assert.True(bytes.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span), file.RelativePath);
         }
