@@ -216,15 +216,15 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
         }));
 
     private QueryRow InventoryRow(LsmfInventoryEntry entry) => new(source.Prefix + "/" + entry.Path,
-        () => $"{entry.ContainerRow} {entry.ItemEntityRow} {entry.Slot} {entry.Path}",
+        () => $"{entry.ContainerRow} {entry.ItemEntityRow} {source.Slot(entry)} {entry.Path}",
         column => column switch
         {
-            "container" => Number(entry.ContainerRow), "item" => Number(entry.ItemEntityRow), "slot" => Number(entry.Slot),
+            "container" => Number(entry.ContainerRow), "item" => Number(entry.ItemEntityRow), "slot" => Number(source.Slot(entry)),
             "owner" => entry.OwnerBodyEntityRow is { } owner ? Number(owner) : "unknown", "path" => entry.Path, _ => "",
         }, () => new TableRow(source.Prefix + "/" + entry.Path, new Dictionary<string, ViewNode>
         {
             ["container"] = new TextNode(Number(entry.ContainerRow)), ["item"] = new TextNode(Number(entry.ItemEntityRow)),
-            ["slot"] = new TextNode(Number(entry.Slot)), ["owner"] = new TextNode(entry.OwnerBodyEntityRow is { } owner ? Number(owner) : "Unknown") { Tone = Tone.Warning },
+            ["slot"] = new TextNode(Number(source.Slot(entry))), ["owner"] = new TextNode(entry.OwnerBodyEntityRow is { } owner ? Number(owner) : "Unknown") { Tone = Tone.Warning },
             ["path"] = new TextNode(entry.Path),
         }));
 

@@ -237,6 +237,16 @@ serialization.
 
 The inventory-presentation tests are included in the current validation below.
 
+The recursive inventory's displayed keys, text search, exact filters and numeric sorts
+now read the same current native map-key bindings as the container-entry table after
+swaps and undo/redo. Native entry/path identities and imported graph records remain
+unchanged; paths contain stable entry indexes, not mutable map keys. Existing cycle/depth
+guards and ambiguous/unowned attribution are retained. `RecursiveInventoryBindingTests`
+adds an authored three-container fixture with sparse keys, a nested cycle and a shared
+item occurrence, covering both tables, row details, review navigation, history, reopen,
+intended key bytes and immutable imported baselines. These new tests have **not yet been
+executed** in this implementation worker; independent validation is required.
+
 ## Enabled writes and their evidence
 
 All writes remain **Experimental**. Writable fields carry `Inferred` or
