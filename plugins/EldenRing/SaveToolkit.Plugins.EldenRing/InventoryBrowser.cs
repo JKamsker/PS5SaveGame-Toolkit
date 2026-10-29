@@ -9,10 +9,15 @@ namespace SaveToolkit.Plugins.EldenRing;
 internal sealed class InventoryBrowser(IReadOnlyList<SemanticCharacter> characters, ReferenceBrowser references,
     Func<string, string?> assetAttribution, Func<InventoryEntry, uint> quantity)
 {
+    public const string EmptySlotLabel = "Empty slot";
+    private static EmptyRowPresentation EmptyRows => new("item");
+
     public IReadOnlyList<QueryableCollection> Collections => characters.SelectMany(character => character.Containers.Select(container =>
         new QueryableCollection(Id(character.Slot, container.Id), $"Slot {character.Slot} · {container.Id}", Columns, container.Entries.Count)
         {
-            Description = $"Inferred serialized rows, including internal placeholders. Capacity {container.Capacity}; "
+            EmptyRows = EmptyRows,
+            Description = "Inferred serialized rows, including internal placeholders. All-zero vacant slots are hidden by default. "
+                + $"Capacity {container.Capacity}; "
                 + $"declared common/key counts {container.CommonCount}/{container.KeyCount}. "
                 + "Experimental positive ordinary-stack quantity edits; identity and structure remain protected."
                 + (container.Warnings.Count == 0 ? "" : " " + string.Join(" ", container.Warnings)),
@@ -36,7 +41,9 @@ internal sealed class InventoryBrowser(IReadOnlyList<SemanticCharacter> characte
         foreach (var container in character.Containers)
         {
             if (id != Id(character.Slot, container.Id)) continue;
-            var result = BrowseQuery.Apply(container.Entries, query, Columns, row => row.Key(character.Slot), Text, Number);
+            var visibility = query with { IncludeEmpty = query.IncludeEmpty ?? !EmptyRows.HideByDefault };
+            var result = BrowseQuery.Apply(container.Entries, visibility, Columns, row => row.Key(character.Slot), Text, Number,
+                row => row.IsEmpty);
             var rows = result.Page.Select(entry => new TableRow(entry.Key(character.Slot), new Dictionary<string, ViewNode>
             {
                 ["item"] = itemField(entry, character.Slot),
@@ -49,15 +56,16 @@ internal sealed class InventoryBrowser(IReadOnlyList<SemanticCharacter> characte
                 ["resolution"] = new TextNode(entry.Resolution),
                 ["details"] = Detail(entry),
                 ["refill"] = WritePlanning.RefillAction(character.Slot),
-            })).ToArray();
-            return new QueryableCollectionPage(id, Columns, rows, container.Entries.Count, result.Filtered, result.Offset, result.Limit);
+            }) { IsEmpty = entry.IsEmpty }).ToArray();
+            return new QueryableCollectionPage(id, Columns, rows, container.Entries.Count, result.Filtered, result.Offset, result.Limit)
+            { HiddenEmptyCount = result.HiddenEmpty };
         }
         throw new KeyNotFoundException($"Unknown collection '{id}'.");
     }
 
     private string Text(InventoryEntry entry, string column) => column switch
     {
-        "item" => $"{entry.RawId} {references.Find(entry.RawId)?.Name}",
+        "item" => entry.IsEmpty ? $"{EmptySlotLabel} {entry.RawId}" : $"{entry.RawId} {references.Find(entry.RawId)?.Name}",
         "category" => entry.Category,
         "sourceGroup" => references.CommunityGroups(entry.RawId),
         "quantity" => quantity(entry).ToString(CultureInfo.InvariantCulture),

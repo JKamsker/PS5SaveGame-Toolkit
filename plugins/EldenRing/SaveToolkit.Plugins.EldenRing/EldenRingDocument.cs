@@ -159,7 +159,11 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
         ["name"] = slot.Active ? Name(slot) : new TextNode("—"),
         ["level"] = slot.Active ? Level(slot) : new TextNode("—"),
         ["time"] = slot.Active ? PlayTime(slot) : new TextNode("—"),
-    })).ToArray()) { Title = "Character profile summaries", Description = "Active names, levels, play time and rune history are cross-checked against character data." };
+    }) { IsEmpty = !slot.Active }).ToArray())
+    {
+        Title = "Character profile summaries", EmptyRows = new("name"),
+        Description = "Active names, levels, play time and rune history are cross-checked against character data.",
+    };
 
     private IReadOnlyList<ViewNode> CharacterFields(CharacterSlot slot)
     {
@@ -206,12 +210,13 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
     }
 
     private static QueryableTableNode Table(QueryableCollection collection) =>
-        new(collection.Id, collection.Title, collection.Columns, collection.TotalCount) { Description = collection.Description };
+        new(collection.Id, collection.Title, collection.Columns, collection.TotalCount)
+        { Description = collection.Description, EmptyRows = collection.EmptyRows };
 
     private FieldNode ItemField(InventoryEntry entry, int slot)
     {
         var record = _catalog.Find(entry.RawId);
-        return Field(entry.Key(slot) + "/item", record?.Name ?? entry.RawId,
+        return Field(entry.Key(slot) + "/item", entry.IsEmpty ? InventoryBrowser.EmptySlotLabel : record?.Name ?? entry.RawId,
             new ReferenceSpec(_catalog.FieldCatalogId(entry.RawId)), () => FieldValue.Of(entry.RawId)) with
         {
             Confidence = entry.ItemId.HasValue ? Confidence.Inferred : Confidence.Unknown,

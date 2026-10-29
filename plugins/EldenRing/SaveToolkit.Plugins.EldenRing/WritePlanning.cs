@@ -79,7 +79,7 @@ internal sealed class WritePlanning(byte[] bytes, ParsedSave save, IReadOnlyList
         var changes = new List<PlannedChange>();
         var skipped = new List<SkippedActionRow>();
         var attribution = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var row in rows.Where(row => selected is null || selected.Contains(row.Key(slot.Index))))
+        foreach (var row in rows.Where(row => selected is null ? !row.IsEmpty : selected.Contains(row.Key(slot.Index))))
         {
             var key = row.Key(slot.Index);
             if (!eligible.TryGetValue(key, out var supported))
