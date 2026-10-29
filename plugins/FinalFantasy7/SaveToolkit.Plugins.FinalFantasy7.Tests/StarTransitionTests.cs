@@ -11,6 +11,42 @@ namespace SaveToolkit.Plugins.FinalFantasy7.Tests;
 
 public sealed class StarTransitionTests
 {
+    [Fact]
+    public void ReapplyingStoredStarsDoesNotNormalizeAboveThresholdAp()
+    {
+        const string title = "PPSA08664";
+        const string name = "ff7rebirth000";
+        var schema = Ff7Schema.ForTitle(title)!;
+        var file = SampleSaves.Load(title).AllDiskFiles.First(file => file.FileName == name);
+        var plugin = new FinalFantasy7Plugin();
+        var original = file.ReadAllBytes();
+        using var document = plugin.Open(file);
+        using var session = new DocumentSession("same-stars", file, plugin, document);
+        _ = session.BuildView();
+
+        var row = session.QueryCollection("materia", new() { Limit = 128 }).Rows.First(row =>
+        {
+            if (row.Cells["quantity"] is not FieldNode { Spec.ReadOnly: false } apField ||
+                row.Cells["level"] is not FieldNode levelField)
+            {
+                return false;
+            }
+
+            var id = uint.Parse(((FieldNode)row.Cells["id"]).Value.AsString(), CultureInfo.InvariantCulture);
+            var curve = EmbeddedCatalogs.Records(schema, "ff7r-materia").Single(record => record.Key == id.ToString(CultureInfo.InvariantCulture))
+                .Attributes["apThresholds"].Split(',').Select(value => uint.Parse(value, CultureInfo.InvariantCulture)).ToArray();
+            var level = levelField.Value.AsInt32();
+            return level >= 1 && level <= curve.Length && apField.Value.AsUInt32() > curve[level - 1];
+        });
+        var level = ((FieldNode)row.Cells["level"]).Value.AsInt32();
+
+        var result = session.ApplyEdits([new(((FieldNode)row.Cells["level"]).ValueId,
+            JsonSerializer.SerializeToElement(level))]);
+
+        Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
+        Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+    }
+
     [Theory]
     [InlineData("PPSA01911", "ff7remake000")]
     [InlineData("PPSA01911", "ff7remakeplus000")]
