@@ -23,6 +23,9 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
     public int Occurrence { get; set; } = 1;
     public bool Imported { get; set; } = true;
     public List<JsonValueToken> Children { get; } = [];
+    // Read-only imported identities can be shared by clones without changing snapshot state.
+    public IReadOnlyList<int> OriginalChildIds { get; set; } = [];
+    public bool HasOriginalChildren => OriginalChildIds.SequenceEqual(Children.Select(child => child.Index));
     public FieldSpec? Spec { get; set; }
     public FieldValue Original { get; set; }
     public FieldValue Current { get; set; }
@@ -43,6 +46,7 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
             Imported = Imported, Spec = Spec, Original = Original, Current = Current, Warning = Warning,
             Position = Position, Occurrence = Occurrence,
             OriginalLabel = OriginalLabel, MemberNameLength = MemberNameLength,
+            OriginalChildIds = OriginalChildIds,
         };
         clone.Children.AddRange(Children.Select(child => child.Clone(clone)));
         return clone;
