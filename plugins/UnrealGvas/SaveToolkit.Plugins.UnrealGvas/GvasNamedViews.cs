@@ -16,7 +16,11 @@ internal sealed class GvasNamedViews
     {
         var entries = GvasPropertyEntry.Create(file.Properties, "property");
         var catalogIds = new List<string> { UnrealGvasReferences.PropertyTypes };
-        if (schema.Kind == UnrealGvasSchemaKind.SackboyGeneral) catalogIds.Add(UnrealGvasReferences.SackboyFields);
+        if (schema.Kind == UnrealGvasSchemaKind.SackboyGeneral)
+        {
+            catalogIds.Add(UnrealGvasReferences.SackboyFields);
+            catalogIds.Add(UnrealGvasReferences.SackboyCostumes);
+        }
         if (schema.Kind == UnrealGvasSchemaKind.JediGameplay) catalogIds.Add(UnrealGvasReferences.JediFields);
         if (schema.Kind == UnrealGvasSchemaKind.JediSettings) catalogIds.Add(UnrealGvasReferences.JediSettings);
         var catalogs = catalogIds.Select(id => references.Catalog(id)).OfType<IReferenceCatalog>().ToArray();

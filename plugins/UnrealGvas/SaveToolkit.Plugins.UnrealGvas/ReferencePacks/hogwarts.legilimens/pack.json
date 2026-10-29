@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "id": "hogwarts.legilimens",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "Hogwarts Legilimens collectible locations",
-  "description": "Pinned MIT PC location catalog; exact PS5 ID joins are read-only and state semantics remain inferred. No icons or video content embedded.",
+  "description": "Pinned MIT collectible locations plus curated attributed Hogwarts gear icons, short game UI descriptions and an original aligned Highlands schematic.",
   "plugins": [
     "engine.unreal-gvas"
   ],
@@ -29,6 +29,91 @@
         "licenseUrl": "https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/blob/02525dde0fd9bc0be72982478680377dccb41246/LICENSE",
         "retrieved": "2026-10-28",
         "modifications": "699 location records projected to F2. Display labels combine type, region and guide index; table/column joins transcribed from legilimens.py. Guide URLs retained; no icons, video media or game descriptions copied. PS5 join evidence is observational, not console validation."
+      }
+    },
+    {
+      "id": "unrealgvas_hogwarts_gear",
+      "kind": "records",
+      "title": "Hogwarts gear names and descriptions",
+      "files": [
+        {
+          "path": "gear.json",
+          "sha256": "5277d5a3843c5e68208d9e300079e1c3d3027d5bedc3146fe0094fc9360dfbd2"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://hogwartslegacy.gamesref.com/gear",
+        "author": "HogwartsLegacy.GamesRef.com; Warner Bros. Games / Portkey Games UI text",
+        "license": "Publisher text; rights reserved; owner decision 2026-10-29",
+        "licenseUrl": "https://hogwartslegacy.gamesref.com/gear",
+        "retrieved": "2026-10-29",
+        "modifications": "Eight short gear descriptions transcribed from the cited database; friendly names and icon joins are inferred and are not PS5 save-ID matches."
+      }
+    },
+    {
+      "id": "unrealgvas_hogwarts_visuals",
+      "kind": "assets",
+      "title": "Hogwarts gear icons and aligned Highlands schematic",
+      "files": [
+        {
+          "path": "icons/UI_T_GA_Back_070_M.webp",
+          "sha256": "d5f3d86074c9fc09f2cb0b1b4269be3e6855e71a55c5f1959e08024178fa165a"
+        },
+        {
+          "path": "icons/UI_T_GA_Back_071_M_Gryffindor.webp",
+          "sha256": "5915b1aacd79d6fc6bd9d9aea12fd8db899f18ee9112b21ce5615b9fcd38ae18"
+        },
+        {
+          "path": "icons/UI_T_GA_Back_072_M.webp",
+          "sha256": "5494492744867350d945c68c36511062d1f1652a5ddee7c4875c918a4ba803de"
+        },
+        {
+          "path": "icons/UI_T_GA_Back_074_Male.webp",
+          "sha256": "16a2387632febf0ea40f062341af140def5d343c09ab44ac8fc0dc6cbb2cc5f3"
+        },
+        {
+          "path": "icons/UI_T_GA_Outfit_001_M.webp",
+          "sha256": "a1e02724a79691d6a57d8640c7cbc3c196802dc73d60d7ea8d30e6e9e7620c5d"
+        },
+        {
+          "path": "icons/UI_T_GA_Outfit_002_M.webp",
+          "sha256": "8cdecfd920c589e627049463414bcff8762789407207fc8e6ee279c16b63d9e0"
+        },
+        {
+          "path": "icons/UI_T_GA_Outfit_003_M_Gryffindor.webp",
+          "sha256": "fcff3ee449f111dd48a365956b2ef7331a3283f18f6be59a53428c86c9fc9ad1"
+        },
+        {
+          "path": "icons/UI_T_GA_Outfit_004_M_Gryffindor.webp",
+          "sha256": "841de786856129703c1afb3d86518579f22e16b6a4a161ef85aff54611f3406b"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://cdn.eip.gg/hogwarts-legacy/icons/gear/",
+        "author": "EIP.GG Hogwarts Legacy asset mirror; Warner Bros. Games / Portkey Games; PS5 Save Game Toolkit contributors",
+        "license": "Publisher assets; rights reserved; owner decision 2026-10-29",
+        "licenseUrl": "https://cdn.eip.gg/hogwarts-legacy/icons/gear/",
+        "retrieved": "2026-10-29",
+        "modifications": "Eight gear exports downscaled to 64x64 WebP; friendly names and icon joins are inferred."
+      }
+    },
+    {
+      "id": "unrealgvas_hogwarts_map",
+      "kind": "assets",
+      "title": "Original aligned Highlands schematic",
+      "files": [
+        {
+          "path": "maps/highlands-schematic.webp",
+          "sha256": "e56996f7b7f9d7e49d5584de6a846c7fd3a6f2badd9e7af2ca1319a68e3d75f0"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit",
+        "author": "PS5 Save Game Toolkit contributors",
+        "license": "GPL-3.0-or-later; original work",
+        "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.html",
+        "retrieved": "2026-10-29",
+        "modifications": "Original 800x800 schematic background authored for the plugin; region labels follow the MIT Legilimens catalogue and markers use the same 0–100 grid."
       }
     }
   ]

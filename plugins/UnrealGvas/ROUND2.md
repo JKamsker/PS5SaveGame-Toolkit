@@ -124,7 +124,9 @@ Info.References, per-row/field provenance and host Sources-panel registration.
 
 Imagisphere, PowerPyx, SackboyWorldUnlocker and the GingerBread reflected scaffold
 remain research/external links where reuse rights or saved-ID joins are unclear.
-No wiki text, datamine content, screenshots, icons or game assets were imported.
+At the time of the round-2 review, no wiki text, datamine content, screenshots,
+icons or game assets were imported. The later asset round is documented in the
+README and pack sidecars.
 No new CC BY-SA adaptation was made, so no unpinned wiki revision is bundled.
 See the README attribution table and adjacent resource source files.
 

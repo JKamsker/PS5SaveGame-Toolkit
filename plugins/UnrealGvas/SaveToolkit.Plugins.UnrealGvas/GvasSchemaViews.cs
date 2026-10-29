@@ -25,7 +25,8 @@ internal sealed class GvasSchemaViews(UnrealGvasSchema schema, IReferenceContext
         };
         if (_schema.Kind == UnrealGvasSchemaKind.SackboyGeneral)
             result.Add(BuildNamedPropertyTable(nodes, UnrealGvasReferences.SackboyFields,
-                ["CollectabellsStored", "TotalCollectabellsCollected", "UnlockedWorlds", "Checksum"],
+                ["CollectabellsStored", "TotalCollectabellsCollected", "UnlockedWorlds", "Checksum",
+                    "CostumeSaveData", "CostumeWardrobe", "EquippedCostumeData", "CostumeItemName"],
                 "Verified storage fields; checksum coverage and gameplay effects are unknown.", identities, bindReference));
         else if (_schema.Kind == UnrealGvasSchemaKind.SackboyImageSet)
             result.Add(BuildNamedPropertyTable(nodes, UnrealGvasReferences.SackboyImageFields,
@@ -61,15 +62,19 @@ internal sealed class GvasSchemaViews(UnrealGvasSchema schema, IReferenceContext
                     : record.Description + " " + record.AttributionText,
                 Warning = "Read-only semantic overlay. The raw property remains the source of truth.",
             };
+            var icon = record?.AssetId is { } asset && _references.GetAsset(asset) is not null && _references.AssetProvenance(asset) is not null
+                ? (ViewNode)new ImageNode(asset, record.Name + ". " + record.AttributionText)
+                : new TextNode("No sourced icon") { Tone = Tone.Muted };
             return new TableRow(id, new Dictionary<string, ViewNode>
             {
+                ["icon"] = icon,
                 ["identity"] = new TextNode(id),
                 ["property"] = reference,
                 ["value"] = new TextNode(raw) { Monospace = node is null },
                 ["type"] = new TextNode(node?.Type ?? "Undecoded") { Tone = node is null ? Tone.Warning : Tone.Normal },
             });
         })).ToArray();
-        return new TableNode([new("identity", "Canonical raw identity"), new("property", "Catalog property"), new("type", "Storage type"), new("value", "Current value")], rows)
+        return new TableNode([new("icon", "Icon"), new("identity", "Canonical raw identity"), new("property", "Catalog property"), new("type", "Storage type"), new("value", "Current value")], rows)
         {
             Title = "Observed schema fields",
             Description = description + " Catalog attribution is shown by each field.",

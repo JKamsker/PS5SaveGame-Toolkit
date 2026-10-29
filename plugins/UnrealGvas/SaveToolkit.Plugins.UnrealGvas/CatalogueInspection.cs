@@ -17,12 +17,17 @@ internal sealed class CatalogueInspection(IReferenceContext references, params s
         {
             var first = catalogue.Search(new ReferenceQuery { Limit = 1 }).Items.FirstOrDefault();
             var nodes = new List<ViewNode>();
-            if (first is not null) nodes.Add(bind("catalogue/" + catalogue.Id, catalogue, first) with
+            if (first is not null)
             {
-                Confidence = Confidence.Inferred,
-                Description = first.AttributionText,
-                Warning = "Catalogue browsing only. This ID is a catalogue example, not a saved value or evidence of ownership.",
-            });
+                if (first.AssetId is { } asset && references.GetAsset(asset) is not null && references.AssetProvenance(asset) is not null)
+                    nodes.Add(new ImageNode(asset, first.Name + ". " + first.AttributionText));
+                nodes.Add(bind("catalogue/" + catalogue.Id, catalogue, first) with
+                {
+                    Confidence = Confidence.Inferred,
+                    Description = first.AttributionText,
+                    Warning = "Catalogue browsing only. This ID is a catalogue example, not a saved value or evidence of ownership.",
+                });
+            }
             nodes.Add(new ActionNode(ActionPrefix + catalogue.Id, "Inspect " + (catalogue.Dataset.Title ?? catalogue.Id))
             {
                 Mutates = false,
