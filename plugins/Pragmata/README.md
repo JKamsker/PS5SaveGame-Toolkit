@@ -289,7 +289,7 @@ only the reviewed JSON/string inputs, current known-hash subset and evidence man
 and does not download/execute upstream code or read saves. HashNames is the
 reviewed observed-hash allowlist; adding new hashes requires reviewing that subset.
 
-The embedded `pragmata.evidence.en` v1.3.0 pack contains `pragmata-identifiers`
+The embedded `pragmata.evidence.en` v1.4.0 pack contains `pragmata-identifiers`
 (408 MIT names), `pragmata-sections` (27 MIT-derived group labels) and
 `pragmata-items` (90 CC0 original unmapped-ID descriptions) and `pragmata-item-evidence`
 (six MIT mission-opening-condition cross-references) and `pragmata-missions`
@@ -297,6 +297,11 @@ The embedded `pragmata.evidence.en` v1.3.0 pack contains `pragmata-identifiers`
 `pragmata-restored-identifiers` (five names), `pragmata-field-schema` (459 declarations)
 and `pragmata-enum-members` (230 values, eight types, aliases retained). The latter
 three carry **No licence published; reused with attribution per owner decision 2026-10-28**.
+The separate `pragmata-illustrated-reference` catalogue contains 29 item/equipment
+references with 29 icons, nine official-description excerpts and six wiki summaries.
+`pragmata-map-locations` contains 26 community escape-hatch locations; the pack
+also includes one Cradle atlas background. These attributed references have no
+proven association with saved item IDs or checkpoint hashes.
 Schema records require known class/field hashes; individual declarations need not
 all occur in a PS5 build. Enum descriptions require matching class, field, storage
 type and exact value, including parent array declarations. Unknown values and flag
@@ -308,8 +313,10 @@ uint32 strings. Identifier and section keys are eight-digit lower-case hex.
 See [pack provenance and import contract](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/data.source.md).
 See also the [community-input hashes, transformations and confidence rules](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/community.source.md).
 F4 item references allow experimental existing-ID replacements, imported labels are at most Inferred, and
-reference limits do not become edit caps. No artwork or copyrighted game descriptions
-are embedded. Counts in the new family tabs denote records, not completion totals.
+reference limits do not become edit caps. Artwork and description excerpts are
+confined to the separate reference library and atlas described above; they do not
+establish saved ownership or completion. Counts in the new family tabs denote
+records, not completion totals.
 Evidence row keys use fixed plaintext offsets, which remain stable under this
 size-preserving editor and across page/filter/sort changes. They identify physical
 records, not proven gameplay identities. Search covers raw IDs, types and up to

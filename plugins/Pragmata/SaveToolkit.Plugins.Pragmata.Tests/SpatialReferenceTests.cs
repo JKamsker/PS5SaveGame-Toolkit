@@ -25,61 +25,70 @@ public sealed class SpatialReferenceTests
             using var document = (PragmataDocument)plugin.Open(file, context);
             var tabs = ((TabsNode)document.BuildView()).Tabs;
             var quests = tabs.Single(tab => tab.Title == "Quests");
-            var graph = Assert.Single(quests.Children.OfType<GraphNode>());
-            SpatialViewValidation.Validate(graph);
-            Assert.Equal(24, graph.Items.Count);
-            Assert.Equal(18, graph.Edges.Count);
-            var fields = quests.Children.OfType<SectionNode>().Where(section => section.LazyId is null)
-                .SelectMany(section => section.Children).OfType<FieldNode>().ToDictionary(field => field.ValueId);
-            Assert.All(graph.Items, item =>
-            {
-                Assert.Equal(GraphState.Unknown, item.State);
-                Assert.Contains("MIT", item.Description!, StringComparison.Ordinal);
-                Assert.Contains("Egg Targaryen", item.Description!, StringComparison.Ordinal);
-                var target = Assert.IsType<ViewTarget>(item.Target);
-                Assert.Equal(ViewTargetKind.Field, target.Kind);
-                Assert.True(fields[target.Id].Spec.ReadOnly);
-                Assert.Equal(fields[target.Id].Value, document.GetValue(target.Id));
-                Assert.Equal(MissionPath, target.Path);
-                Assert.False(document.ApplyEdits([new(target.Id, fields[target.Id].Value)]).Succeeded);
-            });
-            var world = tabs.Single(tab => tab.Title == "World");
-            var mapSection = world.Children.OfType<SectionNode>().Single(section => section.LazyId!.StartsWith("spatial/", StringComparison.Ordinal));
-            var nodes = document.ExpandNode(mapSection.LazyId!);
-            var map = Assert.Single(nodes.OfType<MapNode>());
-            SpatialViewValidation.Validate(map);
-            Assert.NotEmpty(map.Markers);
-            Assert.Equal(CommunityAtlas.BackgroundId, map.Background!.AssetId);
-            Assert.True(map.Background.EmbeddingPermitted);
-            Assert.NotNull(map.CoordinateAttribution);
-            Assert.True(map.CoordinateEmbeddingPermitted);
-            Assert.Equal(CheckpointMap.ExternalMapUrl, map.ExternalSource!.Url);
-            var controls = nodes.OfType<SectionNode>().SelectMany(section => section.Children).OfType<FieldNode>().ToDictionary(field => field.ValueId);
-            Assert.All(map.Markers.Where(marker => marker.Id.StartsWith("checkpoint/", StringComparison.Ordinal)), marker =>
-            {
-                Assert.Equal(MapMarkerStatus.Unknown, marker.Status);
-                Assert.Equal(Confidence.Unknown, marker.Confidence);
-                Assert.Null(marker.X); Assert.Null(marker.Y);
-                Assert.Equal(document.GetValue(marker.Target!.Id), controls[marker.Target.Id].Value);
-                Assert.Equal(new[] { "tab:World", $"section:{mapSection.LazyId}", "section:Checkpoint values" }, marker.Target.Path);
-                Assert.Contains("Unknown", marker.Description!, StringComparison.Ordinal);
-                Assert.Contains(HashNames.Source, marker.Description!, StringComparison.Ordinal);
-            });
-            var locations = map.Markers.Where(marker => marker.Id.StartsWith("community/", StringComparison.Ordinal)).ToArray();
-            Assert.Equal(26, locations.Length);
-            Assert.All(locations, marker =>
-            {
-                Assert.Equal(MapMarkerStatus.Unknown, marker.Status);
-                Assert.Equal(Confidence.Inferred, marker.Confidence);
-                Assert.Null(marker.Target);
-                Assert.NotNull(marker.X); Assert.NotNull(marker.Y);
-                Assert.InRange(marker.X.Value * map.Transform.ScaleX, map.Bounds.MinX, map.Bounds.MaxX);
-                Assert.InRange(marker.Y.Value * map.Transform.ScaleY, map.Bounds.MinY, map.Bounds.MaxY);
-                Assert.Contains("Unknown", marker.Description!, StringComparison.Ordinal);
-                Assert.Contains("Itemaps", marker.Description!, StringComparison.Ordinal);
-            });
+            AssertMissionGraph(document, quests);
+            AssertCheckpointMap(document, tabs.Single(tab => tab.Title == "World"));
             Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
         }
+    }
+
+    private static void AssertMissionGraph(PragmataDocument document, Tab quests)
+    {
+        var graph = Assert.Single(quests.Children.OfType<GraphNode>());
+        SpatialViewValidation.Validate(graph);
+        Assert.Equal(24, graph.Items.Count);
+        Assert.Equal(18, graph.Edges.Count);
+        var fields = quests.Children.OfType<SectionNode>().Where(section => section.LazyId is null)
+            .SelectMany(section => section.Children).OfType<FieldNode>().ToDictionary(field => field.ValueId);
+        Assert.All(graph.Items, item =>
+        {
+            Assert.Equal(GraphState.Unknown, item.State);
+            Assert.Contains("MIT", item.Description!, StringComparison.Ordinal);
+            Assert.Contains("Egg Targaryen", item.Description!, StringComparison.Ordinal);
+            var target = Assert.IsType<ViewTarget>(item.Target);
+            Assert.Equal(ViewTargetKind.Field, target.Kind);
+            Assert.True(fields[target.Id].Spec.ReadOnly);
+            Assert.Equal(fields[target.Id].Value, document.GetValue(target.Id));
+            Assert.Equal(MissionPath, target.Path);
+            Assert.False(document.ApplyEdits([new(target.Id, fields[target.Id].Value)]).Succeeded);
+        });
+    }
+
+    private static void AssertCheckpointMap(PragmataDocument document, Tab world)
+    {
+        var mapSection = world.Children.OfType<SectionNode>().Single(section => section.LazyId!.StartsWith("spatial/", StringComparison.Ordinal));
+        var nodes = document.ExpandNode(mapSection.LazyId!);
+        var map = Assert.Single(nodes.OfType<MapNode>());
+        SpatialViewValidation.Validate(map);
+        Assert.NotEmpty(map.Markers);
+        Assert.Equal(CommunityAtlas.BackgroundId, map.Background!.AssetId);
+        Assert.True(map.Background.EmbeddingPermitted);
+        Assert.NotNull(map.CoordinateAttribution);
+        Assert.True(map.CoordinateEmbeddingPermitted);
+        Assert.Equal(CheckpointMap.ExternalMapUrl, map.ExternalSource!.Url);
+        var controls = nodes.OfType<SectionNode>().SelectMany(section => section.Children).OfType<FieldNode>().ToDictionary(field => field.ValueId);
+        Assert.All(map.Markers.Where(marker => marker.Id.StartsWith("checkpoint/", StringComparison.Ordinal)), marker =>
+        {
+            Assert.Equal(MapMarkerStatus.Unknown, marker.Status);
+            Assert.Equal(Confidence.Unknown, marker.Confidence);
+            Assert.Null(marker.X); Assert.Null(marker.Y);
+            Assert.Equal(document.GetValue(marker.Target!.Id), controls[marker.Target.Id].Value);
+            Assert.Equal(new[] { "tab:World", $"section:{mapSection.LazyId}", "section:Checkpoint values" }, marker.Target.Path);
+            Assert.Contains("Unknown", marker.Description!, StringComparison.Ordinal);
+            Assert.Contains(HashNames.Source, marker.Description!, StringComparison.Ordinal);
+        });
+        var locations = map.Markers.Where(marker => marker.Id.StartsWith("community/", StringComparison.Ordinal)).ToArray();
+        Assert.Equal(26, locations.Length);
+        Assert.All(locations, marker =>
+        {
+            Assert.Equal(MapMarkerStatus.Unknown, marker.Status);
+            Assert.Equal(Confidence.Inferred, marker.Confidence);
+            Assert.Null(marker.Target);
+            Assert.NotNull(marker.X); Assert.NotNull(marker.Y);
+            Assert.InRange(marker.X.Value * map.Transform.ScaleX, map.Bounds.MinX, map.Bounds.MaxX);
+            Assert.InRange(marker.Y.Value * map.Transform.ScaleY, map.Bounds.MinY, map.Bounds.MaxY);
+            Assert.Contains("Unknown", marker.Description!, StringComparison.Ordinal);
+            Assert.Contains("Itemaps", marker.Description!, StringComparison.Ordinal);
+        });
     }
 
     [Fact]
