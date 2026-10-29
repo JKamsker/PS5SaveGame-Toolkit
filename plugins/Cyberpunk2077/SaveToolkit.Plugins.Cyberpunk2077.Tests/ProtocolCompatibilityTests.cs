@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SaveToolkit.Sdk.Collections;
@@ -8,9 +9,22 @@ namespace SaveToolkit.Plugins.Cyberpunk2077.Tests;
 
 public sealed class ProtocolCompatibilityTests
 {
-    [Fact]
-    public void SampleRootAllCollectionPagesAndEvidenceKeepTheirCompleteProtocol()
+    [Theory]
+    [InlineData("en-US")]
+    [InlineData("sv-SE")]
+    public void SampleRootAllCollectionPagesAndEvidenceKeepTheirCompleteProtocol(string cultureName)
     {
+        using var ambientCulture = new CultureScope(CultureInfo.GetCultureInfo(cultureName));
+        AssertHistoricalProtocol();
+        Assert.Equal(cultureName, CultureInfo.CurrentCulture.Name);
+        Assert.Equal(cultureName, CultureInfo.CurrentUICulture.Name);
+    }
+
+    private static void AssertHistoricalProtocol()
+    {
+        // Collection presentation strings were captured under en-US; keep the historical golden
+        // independent of the host locale without changing the plugin's localized presentation.
+        using var culture = new CultureScope(CultureInfo.GetCultureInfo("en-US"));
         var file = ProgressionSampleTests.Files()[0];
         var (plugin, _, context) = ReferencePackFixture.Embedded();
         using var document = plugin.Open(file, context);

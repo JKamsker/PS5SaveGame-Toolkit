@@ -106,22 +106,4 @@ public sealed class CorruptionDiagnosticTests
         }
         Assert.Empty(BinaryData.Slice(new byte[4], 4, 0).ToArray());
     }
-
-    private sealed class CultureScope : IDisposable
-    {
-        private readonly CultureInfo _previousCulture = CultureInfo.CurrentCulture;
-        private readonly CultureInfo _previousUiCulture = CultureInfo.CurrentUICulture;
-
-        public CultureScope(CultureInfo culture)
-        {
-            CultureInfo.CurrentCulture = culture;
-            CultureInfo.CurrentUICulture = culture;
-        }
-
-        public void Dispose()
-        {
-            CultureInfo.CurrentCulture = _previousCulture;
-            CultureInfo.CurrentUICulture = _previousUiCulture;
-        }
-    }
 }
