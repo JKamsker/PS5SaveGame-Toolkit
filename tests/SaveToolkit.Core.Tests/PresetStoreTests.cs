@@ -99,4 +99,17 @@ public sealed class PresetStoreTests
         Assert.Contains("duplicate", error.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(created.Id, Assert.Single(store.List()).Id);
     }
+
+    [Fact]
+    public void ReloadDisappearancePreservesLastGoodLibrary()
+    {
+        var root = TestZips.TempDir();
+        var store = new PresetStore(new() { StorageRoot = root });
+        var created = store.Create("safe", new("p", "1", ["T"]),
+            [new PresetAction("set", new Dictionary<string, JsonElement>())]);
+        File.Delete(Path.Combine(root, "presets.json"));
+
+        Assert.Throws<InvalidDataException>(() => store.Reload());
+        Assert.Equal(created.Id, Assert.Single(store.List()).Id);
+    }
 }

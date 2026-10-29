@@ -46,7 +46,7 @@ public sealed class PresetStore
     /// <summary>Reloads the external library atomically. A malformed replacement leaves the last good view intact.</summary>
     public IReadOnlyList<ToolkitPreset> Reload()
     {
-        var staged = ReadSnapshot();
+        var staged = ReadSnapshot(allowMissing: false);
         lock (_gate)
         {
             _presets.Clear();
@@ -164,28 +164,41 @@ public sealed class PresetStore
     private ToolkitPreset FindRequired(string id) => _presets.TryGetValue(id, out var preset)
         ? preset : throw new KeyNotFoundException("Preset not found.");
 
-    private void Load() => Reload();
+    private void Load()
+    {
+        var staged = ReadSnapshot(allowMissing: true);
+        lock (_gate)
+        {
+            foreach (var pair in staged) _presets.Add(pair.Key, pair.Value);
+        }
+    }
 
-    private Dictionary<string, ToolkitPreset> ReadSnapshot()
+    private Dictionary<string, ToolkitPreset> ReadSnapshot(bool allowMissing)
     {
         var path = Path.Combine(_options.StorageRoot, FileName);
-        if (!File.Exists(path)) return new(StringComparer.Ordinal);
+        if (!File.Exists(path))
+        {
+            if (allowMissing) return new(StringComparer.Ordinal);
+            throw new InvalidDataException("Preset storage disappeared during reload.");
+        }
         try
         {
             using var stream = new FileStream(path, FileMode.Open, FileAccess.Read,
                 FileShare.ReadWrite | FileShare.Delete, 64 * 1024, FileOptions.SequentialScan);
-            var readLimit = (int)Math.Min((long)_options.MaxPayloadBytes + 1, int.MaxValue);
-            var bytes = new byte[readLimit];
-            var count = 0;
-            while (count < bytes.Length)
+            using var content = new MemoryStream(Math.Min(_options.MaxPayloadBytes, 64 * 1024));
+            var buffer = new byte[64 * 1024];
+            long count = 0;
+            while (true)
             {
-                var read = stream.Read(bytes, count, bytes.Length - count);
+                var remaining = _options.MaxPayloadBytes - count;
+                var read = stream.Read(buffer, 0, (int)Math.Min(buffer.Length, remaining + 1));
                 if (read == 0) break;
-                count += read;
+                count = checked(count + read);
+                if (count > _options.MaxPayloadBytes)
+                    throw new InvalidDataException("Preset storage exceeds the configured size limit.");
+                content.Write(buffer, 0, read);
             }
-            if (count > _options.MaxPayloadBytes)
-                throw new InvalidDataException("Preset storage exceeds the configured size limit.");
-            var records = JsonSerializer.Deserialize<List<ToolkitPreset>>(bytes.AsSpan(0, count), JsonOptions) ?? [];
+            var records = JsonSerializer.Deserialize<List<ToolkitPreset>>(content.ToArray(), JsonOptions) ?? [];
             if (records.Count > _options.MaxPresets) throw new InvalidDataException("Preset storage exceeds the configured limit.");
             var staged = new Dictionary<string, ToolkitPreset>(StringComparer.Ordinal);
             foreach (var preset in records)
