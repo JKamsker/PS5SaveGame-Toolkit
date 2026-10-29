@@ -19,7 +19,7 @@ public sealed class RecursiveInventoryBindingTests
     [InlineData(2)]
     public void RecursiveSlotsFollowEachContainerSwapThroughQueriesReviewHistoryAndReopen(int container)
     {
-        var blob = RecursiveInventoryFixture.Blob();
+        var blob = RecursiveInventoryFixture.Blob(includeEditableHealth: true);
         var original = RecursiveInventoryFixture.Resource(blob);
         var imported = new LsmfLiveSource(0, 0, blob, LsfReader.Read(original));
         AssertFixture(imported);
@@ -27,9 +27,20 @@ public sealed class RecursiveInventoryBindingTests
         var pair = imported.Slots.Where(slot => slot.ContainerRow == container).ToArray();
         using var workspace = new SyntheticSaveWorkspace("Globals.lsf", original);
         using var document = Assert.IsType<BaldursGate3Document>(workspace.Plugin.Open(workspace.File));
+        Assert.True(document.CanEdit);
         using var session = new DocumentSession("recursive-slot-bindings", workspace.File, workspace.Plugin, document);
         _ = session.BuildView();
         _ = session.Expand(imported.Prefix);
+        var health = session.QueryCollection(imported.Prefix + "/values", new(), expectedRevision: null,
+            cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Equal(2, health.Rows.Count);
+        Assert.All(health.Rows, row =>
+        {
+            var field = Assert.IsType<FieldNode>(row.Cells["value"]);
+            Assert.False(field.Spec.ReadOnly);
+            Assert.Equal(Confidence.Unknown, field.Confidence);
+            Assert.False(string.IsNullOrWhiteSpace(field.Warning));
+        });
         QueryableCollectionPage Query(string id, QueryableCollectionQuery query) =>
             session.QueryCollection(id, query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         AssertCurrentTables(Query, imported, keys);
@@ -40,6 +51,7 @@ public sealed class RecursiveInventoryBindingTests
         var preview = session.PlanAction(LsmfLiveActions.Swap, new Dictionary<string, JsonElement>(), scope,
             expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
+        Assert.Equal(2, preview.Plan.Changes.Count);
         Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision,
             cancellationToken: TestContext.Current.CancellationToken).Ok);
         keys[pair[0].Key] = pair[1].Slot;
@@ -68,6 +80,36 @@ public sealed class RecursiveInventoryBindingTests
         AssertReviewNavigation(session, document, Query, pair, imported.Prefix);
         Assert.Equal(edited, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(session.Undo().Ok);
+        Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+    }
+
+    [Fact]
+    public void ContainersWithoutWritableFieldsRemainReadOnlyAndRejectHostApply()
+    {
+        var original = RecursiveInventoryFixture.Resource(RecursiveInventoryFixture.Blob());
+        using var workspace = new SyntheticSaveWorkspace("Globals.lsf", original);
+        using var document = Assert.IsType<BaldursGate3Document>(workspace.Plugin.Open(workspace.File));
+        Assert.False(document.CanEdit);
+        using var session = new DocumentSession("read-only-container-bindings", workspace.File, workspace.Plugin, document);
+        _ = session.BuildView();
+        var slots = session.QueryCollection(SlotsId, new() { Filters = new Dictionary<string, string> { ["container"] = "0" } },
+            expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Equal(2, slots.Rows.Count);
+        var scope = new ActionScope { RowKeys = slots.Rows.Select(row => row.Key).ToArray() };
+        var preview = session.PlanAction(LsmfLiveActions.Swap, new Dictionary<string, JsonElement>(), scope,
+            expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Empty(preview.Plan.Errors);
+        Assert.Equal(2, preview.Plan.Changes.Count);
+        var outcome = session.ApplyActionPlan(preview.PlanId!, preview.Revision,
+            cancellationToken: TestContext.Current.CancellationToken);
+        Assert.False(outcome.Ok);
+        Assert.False(outcome.Stale);
+        Assert.False(outcome.State.IsDirty);
+        Assert.False(outcome.State.CanUndo);
+        var error = Assert.Single(outcome.Errors);
+        Assert.Equal(LsmfLiveActions.Swap, error.ValueId);
+        Assert.Equal("This document is read-only.", error.Message);
+        Assert.Empty(session.GetChanges(TestContext.Current.CancellationToken).Changes);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
     }
 

@@ -11,12 +11,13 @@ internal static class RecursiveInventoryFixture
     private const int ContainerBytes = 32;
     private const int SlotBytes = 16;
     private const int PartyMemberBytes = 48;
+    private const int HealthBytes = 32;
     private const int ArenaBase = 48;
     private const int SlotsPerContainer = 2;
     private const int ContainerCount = 3;
     private const int SlotCount = ContainerCount * SlotsPerContainer;
 
-    internal static byte[] Blob()
+    internal static byte[] Blob(bool includeEditableHealth = false)
     {
         var entities = new byte[EntityCount * EntityBytes];
         for (var entity = 0; entity < EntityCount; entity++) entities[entity * EntityBytes] = (byte)(entity + 1);
@@ -29,7 +30,9 @@ internal static class RecursiveInventoryFixture
             ("game.party.v0.MemberComponent", PartyMemberBytes, 1, new byte[PartyMemberBytes]),
             ("test.Keys", 2, 0, new byte[16]),
             ("test.Values", sizeof(ulong), SlotCount, new byte[SlotCount * sizeof(ulong)]),
-            ("test.Owners", 4, 4, new byte[16]));
+            ("test.Owners", 4, 4, new byte[16]),
+            ("game.stats.v0.HealthComponent", HealthBytes, includeEditableHealth ? 1 : 0,
+                includeEditableHealth ? Health() : []));
 
         int Offset(int column) => checked((int)BinaryData.U64(bytes, LsmfFixture.Descriptor(bytes, column) + 40) + ArenaBase);
         ulong Entity(int row) => (ulong)(Offset(2) + row * EntityBytes);
@@ -73,6 +76,16 @@ internal static class RecursiveInventoryFixture
             LsmfFixture.U64(bytes, Offset(7) + index * sizeof(ulong), (ulong)(slot - ArenaBase));
         }
         return bytes;
+    }
+
+    private static byte[] Health()
+    {
+        // A supported numeric storage family makes the document legitimately editable.
+        // It has no ownerlist: no party-health identity or gameplay authority is inferred.
+        var health = new byte[HealthBytes];
+        LsmfFixture.U32(health, 0, 8); // current HP candidate
+        LsmfFixture.U32(health, sizeof(uint), 10); // stored maximum
+        return health;
     }
 
     internal static byte[] Resource(byte[] blob)
