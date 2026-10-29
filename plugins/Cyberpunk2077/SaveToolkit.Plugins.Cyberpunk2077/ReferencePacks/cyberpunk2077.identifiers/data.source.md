@@ -23,11 +23,13 @@ omits locale, descriptions, limits and assets. Record names/categories do not pr
 equipment, quest completion, safe ID replacement or structural editing.
 
 Rights scope: these are factual technical identifiers/categories, extending the already
-attributed identifier dictionary. The repository's MIT code licence is **not** a blanket
+attributed identifier dictionary. The repository's GPL-3.0-or-later code licence is **not** a blanket
 licence for CD PROJEKT RED localization, artwork, icons, dialogue or other expressive game data.
-None is included. No wiki text or GPL implementation is bundled. Rich localization/art packs
-must be separately licensed or supplied locally by the owner with per-dataset attribution;
-do not copy generated game-resource exports into the repository.
+None is included in this identifier pack. No wiki text or upstream GPL implementation is bundled
+in it. The separate game-assets pack includes attributed publisher art/text under the owner decision
+2026-10-29, not under the MIT dictionary licence. Future localization/art imports need per-dataset
+source, rights-holder, revision/date and modification attribution under plugin-guide rule 9;
+explicit NC/no-redistribution terms remain refusal reasons. Private resource exports are not bundled.
 
 Regeneration: `python -I plugins/Cyberpunk2077/reference-data/generate.py <scratch-inputs>`;
 see `plugins/Cyberpunk2077/REFERENCES.md`. The generator is original offline data processing;

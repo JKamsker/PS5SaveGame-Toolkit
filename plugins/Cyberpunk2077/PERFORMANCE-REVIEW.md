@@ -4,6 +4,12 @@ Scope: `plugins/Cyberpunk2077`, branch `review/perf-cyberpunk2077`.
 Baseline: `0bcc815`. Fixes: `ca5d9ae` (compact merged facts), `91a5fce` (stable collection paging).
 Largest supplied `sav.dat`: **1,302,721 bytes**, expanded **5,607,178 bytes**.
 
+Historical measurements for the commits above, before the SDK helper migration. Current
+`InspectionCollection` caches native key projections once and delegates querying to shared
+`InMemoryCollection`, which filters and sorts a fresh snapshot per query. The direct-slice/key-order
+implementation described below was replaced; these timings/allocations do not measure that migration
+or the current plugin. The compact merged-fact model and page-only rich-cell materialization remain.
+
 ## Findings and changes
 
 Two **medium** performance defects were fixed:

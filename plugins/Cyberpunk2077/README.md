@@ -18,6 +18,11 @@ Equipment, cyberware, perk, garage, travel and journal views remain read-only. G
 slot eligibility/capacity and exact quest completion still need controlled captures and console evidence.
 See [REFERENCES.md](REFERENCES.md) and [EVIDENCE.md](EVIDENCE.md) for contracts and exact next steps.
 
+Documentation checked against the current implementation on **2026-10-29**: sample-backed Release
+suite **300 passed / 0 failed / 0 skipped**; Release API build **0 warnings / 0 errors**.
+Earlier validation counts and measurements below describe their named implementation/review rounds,
+not the current suite or a performance guarantee.
+
 The completion round adds lazy **F9 stored-perk graphs and link-first travel maps**, **F10 nullable
 fact values**, overlapping-sibling refusal and indexed equipment/world/stat joins. Every spatial
 entry links to its own read-only details, even before F8 rows have been loaded. See the full
@@ -155,12 +160,15 @@ Production helper code is **38 lines smaller**.
 
 ## Framework feature adoption
 
-Performance review (#40): compact merged fact identities and lazy stable-key paging reduce
+Historical performance review (#40), before SDK helper migration: compact merged fact identities
+and lazy stable-key paging reduced
 largest-sample warm open + first-root allocations **61,416,304 → 26,168,104 bytes** and retained
 managed document memory **42,454,264 → 19,971,640 bytes**. Ten 50-row fact pages allocate
 **27,364,520 → 2,669,384 bytes**. All root/collection/lazy views match the baseline, with no-op
 bytes preserved. **172 passed / 0 failed / 0 skipped**. See [PERFORMANCE-REVIEW.md](PERFORMANCE-REVIEW.md)
-for matched timings, D: benchmark artifacts, regression failures and measurement limits.
+for matched timings, D: benchmark artifacts, regression failures and measurement limits. The later
+shared collection engine replaces the direct-slice paging implementation; these figures do not
+measure the current query engine.
 
 | Feature | Adoption | Where / concrete scope |
 | --- | --- | --- |
@@ -171,7 +179,7 @@ for matched timings, D: benchmark artifacts, regression failures and measurement
 | F5 structural undo | N/A | No complete Cyberpunk add/remove/reorder writer exists: node links/counts, duplicate prefixes, unique counters and dependent stat/effect initialization cannot be repaired from this corpus. Scalar name/property materialization already undoes via values and preserves original bytes; it does not create inventory/perk records. |
 | F6 planned actions | Used | Set-supported-stack-target and refill-to-opening-quantity previews, exclusions/warnings, document/explicit/empty/F8 whole-query scopes (#27), atomic apply and one undo group. No coherent perk-allocation preset exists without effect/requirement mutation. |
 | F7 document groups | N/A | Only `sav.dat` is authoritative and owned here. No demonstrated coupled write to `user.gls`, settings or metadata; JSON partners belong to GenericJson. Core already mirrors gameplay backups and the ZIP test verifies that behavior. |
-| F8 collections | Used | Complete inventory, saved/merged facts, equipment, cyberware, development, modifier, garage/travel and journal queries; max 200 materialized rows. Spatial views use separate lazy 128-entry pages. |
+| F8 collections | Used | Complete inventory, saved/merged facts, equipment, cyberware, development, modifier, garage/travel, journal and per-item attachment queries; max 200 materialized rows. `InspectionCollection` adapts shared `InMemoryCollection` search/filter/sort/paging; `BinaryData` uses shared `BoundedBinaryCursor` range/primitive reads with existing diagnostics. Spatial views use separate lazy 128-entry pages. |
 | F9 maps/graphs | Used | Completion round: `PerkGraphInspection` and `TravelMapInspection`: stable IDs, accessible text alternatives, bounded pages, independently expandable field targets, local attributed Night City background, unpositioned marker list until a save-ID crosswalk is verified, official reference perk text and no invented prerequisite edges. |
 | F10 exact/nullable/union values | Used | Completion round: merged fact-value details use read-only `NullableSpec(UInt32)`: null for absence, integer zero for saved zero; live getters follow edit/undo. Numeric sorting unwraps nullable integers. Exact JSON lexemes and union alternatives are N/A to the fixed binary integer/float schema; UInt64 identities already use lossless decimal strings. |
 | F11 shared codecs | N/A | CSAV uses raw LZ4, already handled by managed K4os with exact-length checks and original-chunk preservation. Shared F11 provides Kraken/SQLite, neither occurs in this format; no local Kraken/SQLite implementation exists to replace. |
@@ -252,7 +260,8 @@ unchanged bytes/revision/dirty/undo/redo state on clean, edited and undone docum
 The **Skills and perks** tab publishes lazy stored-modern-perk diagrams. The supplied save has six
 groups and no allocated modern perks; the diagrams show those group summaries, rather than a
 fabricated full tree. Populated stored ranks are supported by independent synthetic tests. Labels
-remain exact RED identifiers; all states are **Unknown** because the save alone cannot establish
+use official planner names when an exact enum match is available, with RED identifiers retained in
+details and as the fallback. All states are **Unknown** because the save alone cannot establish
 eligibility, active effects, rank limits, point costs or Relic entitlement. No edges are emitted:
 group membership is not a prerequisite. Legacy perk areas remain in the F8 table, separate from
 modern allocations. Point budgets continue to use live F8 values; no graph budget is cached.
@@ -290,13 +299,20 @@ reinterpret edited saves. Fields and action previews keep these warnings; valida
 
 ## Enabled writes and their evidence
 
-Nine new write capabilities ship: six progression scalars, existing raw saved-fact values, and two
-planned actions. On the supplied save this exposes six progression fields and 2,750 fact values.
-No fact records, inventory instances or perk allocations are created or deleted.
+Enabled writes include money, supported stack quantities, five attributes, three unspent point
+balances, six Level/Street Cred progression scalars, existing raw saved-fact values and two planned
+stack actions. The supplied save exposes 20 editable scalar fields outside F8 facts plus 2,750
+editable saved fact values. The nine capabilities from the write-enable round extend the earlier
+money/stack/attribute/point writers; they are not the complete writable scope. No fact records,
+inventory instances or perk allocations are created or deleted.
 
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
-| Stored Level | Inferred | Owner-1 `SProficiency.currentLevel`; sample level 1; pinned WolvenKit schema | Reparsed; matching forced stat updated; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): load/effect/re-save/reload, rewards/unlocks |
+| Money | Inferred | Unique container-1 `Items.money`, node 39, sample 300; hash/source match and independent exact-patch/reopen/undo tests | Four-byte quantity patch; CSAV rebuilt and reparsed; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): displayed money, purchase, re-save/reload |
+| Supported existing stack quantities | Inferred | Container 1, structure 0, 29-byte quantity-only records in the reviewed Ammo/Component/Consumable allowlist; five real sample stacks, synthetic component/sniper identities | Four-byte quantity patch; CSAV rebuilt and reparsed; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): quantities, use/charge/replenishment behavior, reload |
+| Body, Reflexes, Technical ability, Intelligence, Cool | Inferred | Five sample values 3; unique matching entity-1 additive constant forced-stat mirrors; exact two-copy patch/reopen/undo tests | Int32 attribute plus float mirror patched together and verified after reparse; conflicting/missing mirrors refuse writes | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): displayed/effective attributes, unrelated perks/points, reload |
+| Unspent attribute, perk and relic points | Inferred | `Attribute` / `Primary` / `Espionage` balances; sample 7/0/0; omitted-property growth and preservation tests | Rebuild affected RED records/pools and CSAV offsets/lengths; verify intended balances after reparse; spent points/unlocks retained | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): displayed/spendable budgets, re-save/reload |
+| Stored Level | Inferred | Owner-1 `SProficiency.currentLevel`; sample level 1; pinned WolvenKit schema | Reparsed; matching forced stat updated when present; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): load/effect/re-save/reload, rewards/unlocks |
 | Stored Street Cred | Inferred | Distinct StreetCred record, sample 1; same schema | Reparsed; matching forced stat updated when present; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): shown cred, rewards/unlocks, reload |
 | Level current XP | Inferred | Zero-default `currentExp`, schema and independent inserted-property tests | RED names/properties/offsets repaired; reparsed; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): XP display and one threshold crossing |
 | Street Cred current XP | Inferred | Zero-default `currentExp`, same schema/tests | RED names/properties/offsets repaired; reparsed; opaque checks unknown | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): XP display and one cred threshold |
@@ -393,7 +409,9 @@ literally to this sample. Current WolvenKit's wire layout and the actual PS5 byt
 
 `Items.money` resolves to **0x0000000BF5E188EC**: CRC32/IEEE of its UTF-8 name in the low word, name
 length 11 in the next byte. The sample's unique container-1 money item is node 39, quantity **300**.
-This meaning is **Verified** by the hash match, structure and upstream money editor.
+The identity and stored quantity are confirmed by the hash match, structure and upstream money
+editor. The writable field's published confidence is **Inferred**, as for other supported stacks;
+this is separate from console acceptance, which remains untested.
 
 The inventory resolves labels through the pinned `items` F2 catalog. The embedded identifier pack
 contains 5,248 CRC32/UTF-8-length-verified names joined to community class IDs, with no localized
@@ -434,7 +452,8 @@ The sample contains **10 extended items**, including the cutscene Unity's three 
 Inspect raw quest/not-unequippable flag bits, seed/counter/flags, creation time, loot-pool ID,
 appearance, attachment-slot IDs and opaque uint32 members. The stored required-level float uses
 `float.MaxValue` in this sample; it is explicitly not presented as the displayed tier or legal level.
-Attachment tables page at 128 rows. Unknown suffixes disable decoding, preserve bytes and show a reason.
+Each decoded attachment tree uses one F8 table, materializing at most 200 requested rows. Unknown
+suffixes disable decoding, preserve bytes and show a reason.
 
 The bounded scriptable reader follows `EquipmentSystem.ownerData` to the unique owner-1 record.
 It reads `gameSLoadout` areas/slots and joins the complete gameplay identity: TweakDBID, seed,
@@ -442,7 +461,8 @@ unique counter and flags, in player container 1. Structure is a wire property, n
 The sample has **36 areas, seven occupied slots, six exact inventory matches**; special `RightArm`
 remains unresolved. Duplicate base IDs never resolve by row position. Wardrobe/fists/cutscene slots
 are shown as stored entries without claiming current usability. All sampled cyberware slots are empty.
-The separate cyberware union browses all 232 classified catalog records alongside owned instances
+With the embedded packs, the separate cyberware union browses **324** distinct classified catalog
+records (232 baseline plus 92 modern asset-pack IDs) alongside owned instances
 and unresolved slot identities. This sample has catalog-only rows, no classified owned implants;
 unknown inventory records are never silently excluded from the general inventory explorer.
 Capacity/cost, bonus contributors, prerequisite evaluation and compatible replacement rules remain
@@ -510,7 +530,8 @@ Each edit also patches its unique additive `gameConstantStatModifier` in the ent
 values must agree; missing, duplicate, nonconstant or mismatched mirrors disable the affected
 attribute edits with a reason. Every changed mirror is reported as a derived `ValueChange`, exposed
 as a read-only field, and recomputed through framework undo/redo. These meanings and byte layouts
-are **Verified** against the cited sources and both supplied gameplay entries. In-game acceptance,
+are checked against the cited sources and both supplied gameplay entries. The editable attributes
+and point balances publish **Inferred** confidence; mirror fields are read-only. In-game acceptance,
 undocumented dependencies and behavior of extreme values remain **Unknown**.
 
 ## Writing, compression and integrity
@@ -547,7 +568,7 @@ in writable field descriptions, action descriptions, previews and action outcome
 Overview, player development, inventory, equipment/cyberware, item stats, skills/perks, world,
 journal diagnostics, facts, reference catalogs, node tree and container tabs
 provide attributed labels, confidence/warnings, instance details and paged original/payload/node
-bytes. Inventories up to 128 rows use one lazy rich table; larger inventories and all facts use F8
+bytes. Inventories up to 100 rows use one lazy rich table; larger inventories and all facts use F8
 whole-model search, exact column filters, numeric sorting and bounded pages (at most 200 rows).
 Query cells are constructed only after filtering/paging. Chunk tables are bounded to 4096 rows.
 Value IDs and row keys stay stable across edits; no structural inventory edits are implemented.
@@ -555,8 +576,9 @@ F4 pickers inspect technical catalogs and wiki labels without modifying saves. S
 
 Sample evidence: **one primary record and its identical backup**, 1,302,721 stored bytes, 22 chunks,
 5,607,178 expanded bytes, 159 nodes and 22 items. This is one distinct save, not a multi-session corpus.
-Every supplied gameplay entry, including backups, is tested. Opening and initial views remain well
-below the approximately two-second target on the development machine.
+Every supplied gameplay entry, including backups, is tested. Historical development-machine timings
+and their baseline/methodology are recorded in ASSET-VALIDATION.md and PERFORMANCE-REVIEW.md;
+tests report elapsed time without asserting a latency deadline.
 
 Tests cover conformance with a mixed money/ammo/attribute/point edit; individual round trips for all
 five attributes, three point balances, three ammo stacks and two consumables; known sample values;
