@@ -15,7 +15,7 @@ public sealed class GvasProbeTests
     public void OpenableHeaderVariants_AreClaimedInPlainAndWrappedFiles(int version, ushort major, ushort minor, bool wide)
     {
         var bytes = Header(version, major, minor, wide: wide);
-        foreach (var original in new[] { bytes, GvasEnvelopeTests.Wrap(bytes), GvasEnvelopeTests.Wrap(bytes, true) })
+        foreach (var original in new[] { bytes, GvasFixture.Wrap(bytes), GvasFixture.Wrap(bytes, true) })
         {
             var file = MemorySaveSet.SingleFile("save", original);
             var plugin = new UnrealGvasPlugin();
@@ -48,7 +48,7 @@ public sealed class GvasProbeTests
         for (var length = 0; length < bytes.Length; length++)
         {
             var truncated = bytes[..length];
-            foreach (var original in new[] { truncated, GvasEnvelopeTests.Wrap(truncated), GvasEnvelopeTests.Wrap(truncated, true) })
+            foreach (var original in new[] { truncated, GvasFixture.Wrap(truncated), GvasFixture.Wrap(truncated, true) })
                 Assert.False(plugin.Probe(MemorySaveSet.SingleFile("save", original)).IsMatch, $"Header length {length}");
         }
     }
@@ -88,7 +88,7 @@ public sealed class GvasProbeTests
     public void UnsupportedOrMalformedHeaders_AreRejectedByProbeAndOpen(byte[] bytes)
     {
         var plugin = new UnrealGvasPlugin();
-        foreach (var original in new[] { bytes, GvasEnvelopeTests.Wrap(bytes), GvasEnvelopeTests.Wrap(bytes, true) })
+        foreach (var original in new[] { bytes, GvasFixture.Wrap(bytes), GvasFixture.Wrap(bytes, true) })
         {
             var file = MemorySaveSet.SingleFile("save", original);
             Assert.Throws<SaveFormatException>(() => plugin.Open(file));
@@ -103,7 +103,7 @@ public sealed class GvasProbeTests
     public void Probe_StopsBeforePropertyTagsAndPayloads_OnShortNonSeekableReads(int wrapper)
     {
         var bytes = Header(firstName: "FirstProperty"); // Deliberately has no tag or payload.
-        if (wrapper != 0) bytes = GvasEnvelopeTests.Wrap(bytes, wrapper == 2);
+        if (wrapper != 0) bytes = GvasFixture.Wrap(bytes, wrapper == 2);
         using var stream = new ShortReadStream(bytes);
         Assert.NotNull(GvasEnvelope.Probe(stream));
         Assert.InRange(stream.BytesRead, 1, bytes.Length);

@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
@@ -29,7 +30,7 @@ public sealed class JediFallbackContractTests
             writer.Write(tail);
             GvasFixture.String(writer, "None");
         });
-        byte[] bytes = TitleFixture.Jedi(TitleFixture.Compress(plain), (uint)plain.Length);
+        byte[] bytes = TitleFixture.Jedi(GvasFixture.Compress(plain, CompressionLevel.SmallestSize), (uint)plain.Length);
         using var document = new UnrealGvasPlugin().Open(MemorySaveSet.SingleFile("save", bytes, "PPSA02199"));
         Assert.True(document.CanEdit);
         _ = document.BuildView();

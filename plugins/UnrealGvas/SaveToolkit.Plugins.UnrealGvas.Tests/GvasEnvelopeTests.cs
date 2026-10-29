@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.IO.Compression;
 using SaveToolkit.Plugins.UnrealGvas.Gvas;
 using SaveToolkit.Sdk;
 using SaveToolkit.Testing;
@@ -13,7 +12,7 @@ public sealed class GvasEnvelopeTests
     [InlineData(true)]
     public void ZlibWrappedGvas_ProbesByInnerMagicAndPreservesOriginalCompression(bool astroneer)
     {
-        var original = Wrap(GvasFixture.Primitives(), astroneer);
+        var original = GvasFixture.Wrap(GvasFixture.Primitives(), astroneer);
         var plugin = new UnrealGvasPlugin();
         var file = MemorySaveSet.SingleFile("unknown.bin", original);
         Assert.Equal(ProbeScore.Engine, plugin.Probe(file).Score);
@@ -30,19 +29,19 @@ public sealed class GvasEnvelopeTests
     [Fact]
     public void ZlibContainingOtherFormats_IsNotClaimed()
     {
-        var bytes = Wrap("This is not a GVAS file"u8.ToArray());
+        var bytes = GvasFixture.Wrap("This is not a GVAS file"u8.ToArray());
         Assert.False(new UnrealGvasPlugin().Probe(MemorySaveSet.SingleFile("ue4savegame.dpx.sav", bytes)).IsMatch);
     }
 
     [Fact]
     public void TruncatedOrCorruptZlibAndWrongEnvelopeSize_AreRejected()
     {
-        var bytes = Wrap(GvasFixture.Primitives());
+        var bytes = GvasFixture.Wrap(GvasFixture.Primitives());
         for (var length = 0; length < bytes.Length; length++)
             Assert.Throws<SaveFormatException>(() => GvasEnvelope.Open(bytes[..length]));
         bytes[^1] ^= 0xFF;
         Assert.Throws<SaveFormatException>(() => GvasEnvelope.Open(bytes));
-        var astroneer = Wrap(GvasFixture.Primitives(), true);
+        var astroneer = GvasFixture.Wrap(GvasFixture.Primitives(), true);
         BinaryPrimitives.WriteInt32LittleEndian(astroneer.AsSpan(12), 1);
         Assert.Contains("size", Assert.Throws<SaveFormatException>(() => GvasEnvelope.Open(astroneer)).Message, StringComparison.Ordinal);
     }
@@ -66,17 +65,4 @@ public sealed class GvasEnvelopeTests
         }
     }
 
-    internal static byte[] Wrap(byte[] bytes, bool astroneer = false)
-    {
-        using var stream = new MemoryStream();
-        if (astroneer)
-        {
-            stream.Write(new byte[] { 0xBE, 0x40, 0x37, 0x4A, 0xEE, 0x0B, 0x74, 0xA3, 1, 0, 0, 0 });
-            Span<byte> length = stackalloc byte[4];
-            BinaryPrimitives.WriteInt32LittleEndian(length, bytes.Length);
-            stream.Write(length);
-        }
-        using (var compressed = new ZLibStream(stream, CompressionLevel.Optimal, leaveOpen: true)) compressed.Write(bytes);
-        return stream.ToArray();
-    }
 }

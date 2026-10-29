@@ -32,7 +32,7 @@ internal static class TitleFixture
     private static byte[] Jedi(int count)
     {
         byte[] plain = ActorProperties();
-        return Jedi(Compress(plain), (uint)plain.Length, count);
+        return Jedi(GvasFixture.Compress(plain, CompressionLevel.SmallestSize), (uint)plain.Length, count);
     }
 
     public static byte[] Jedi(byte[] compressed, uint declared, int count = InitialCount) => GvasFixture.Build(writer =>
@@ -58,13 +58,6 @@ internal static class TitleFixture
         GvasFixture.Property(writer, "ActorRecords", "IntProperty", GvasFixture.Body(body => body.Write(42)));
         GvasFixture.String(writer, "None");
     });
-
-    public static byte[] Compress(byte[] plain)
-    {
-        using var output = new MemoryStream();
-        using (var zlib = new ZLibStream(output, CompressionLevel.SmallestSize, leaveOpen: true)) zlib.Write(plain);
-        return output.ToArray();
-    }
 
     private static void WriteScalars(BinaryWriter writer, string title, int count)
     {
