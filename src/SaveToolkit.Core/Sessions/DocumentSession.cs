@@ -176,6 +176,7 @@ public sealed partial class DocumentSession : IDisposable
         }
 
         EnsureOriginal(cancellationToken);
+        var scalarProof = ScalarEditEffectiveness.Capture(Document, edits, cancellationToken);
         // Point of no return: mutation and history/revision publication must finish together.
         startApply();
         var outcome = CallPlugin(() => Document.ApplyEdits(edits), edits.FirstOrDefault()?.ValueId);
@@ -183,6 +184,8 @@ public sealed partial class DocumentSession : IDisposable
         {
             return FromOutcome(outcome);
         }
+
+        outcome = ScalarEditEffectiveness.Complete(Document, edits, scalarProof, outcome);
 
         var warnings = outcome.Revert is { } revert
             ? Record(new MementoStep(revert))

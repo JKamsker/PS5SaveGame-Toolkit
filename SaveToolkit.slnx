@@ -80,9 +80,13 @@
     <Project Path="tests/SaveToolkit.Codecs.Tests/SaveToolkit.Codecs.Tests.csproj" />
     <Project Path="tests/SaveToolkit.Core.Tests/SaveToolkit.Core.Tests.csproj" />
     <Project Path="tests/SaveToolkit.SaveDiff.Tests/SaveToolkit.SaveDiff.Tests.csproj" />
+    <Project Path="tests/SaveToolkit.UnrealBrowser.Tests/SaveToolkit.UnrealBrowser.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/benchmarks/">
     <Project Path="tests/benchmarks/SaveToolkit.Benchmarks/SaveToolkit.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/tests/fixtures/">
+    <Project Path="tests/fixtures/SaveToolkit.UnrealBrowserFixture/SaveToolkit.UnrealBrowserFixture.csproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/SaveToolkit.SaveDiff/SaveToolkit.SaveDiff.csproj" />

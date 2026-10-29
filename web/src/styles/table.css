@@ -4,6 +4,7 @@
   flex-direction: column;
   gap: var(--space-2);
   min-width: 0;
+  container-type: inline-size;
 }
 .table__toolbar {
   display: flex;
@@ -308,7 +309,8 @@
 .table__detail-cell {
   position: sticky;
   left: 0;
-  max-width: min(100%, 900px);
+  /* The grid can be much wider than its scroller. Keep full warnings/editors visible. */
+  max-width: min(calc(100cqw - 2px), 900px);
   padding: var(--space-3) var(--space-4) var(--space-3) var(--space-6);
 }
 .row-details { display: flex; flex-direction: column; gap: var(--space-2); }
@@ -320,3 +322,12 @@
 }
 .row-details__label { padding-top: 6px; font-size: var(--text-sm); font-weight: 540; }
 .row-details__body { min-width: 0; }
+
+@container (max-width: 600px) {
+  .table__detail-cell { padding: var(--space-3); }
+  .row-details__item {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+    padding-left: 0;
+  }
+}
