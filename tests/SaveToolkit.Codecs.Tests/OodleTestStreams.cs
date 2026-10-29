@@ -22,5 +22,9 @@ internal static class OodleTestStreams
         var error = Assert.Throws<InvalidDataException>(() => OodleCodec.Decompress(stream, outputSize));
         Assert.False(string.IsNullOrWhiteSpace(error.Message));
         Assert.Contains("Kraken", error.Message, StringComparison.OrdinalIgnoreCase);
+        if (outputSize < 0) return;
+        using var workspace = new OodleWorkspace();
+        byte[] destination = new byte[outputSize];
+        Assert.Throws<InvalidDataException>(() => OodleCodec.Decompress(stream, destination, workspace));
     }
 }

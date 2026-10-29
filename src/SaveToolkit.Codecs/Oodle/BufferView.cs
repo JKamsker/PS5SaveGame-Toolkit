@@ -15,12 +15,14 @@ internal readonly struct BufferView<T> : IEquatable<BufferView<T>>
     private readonly byte[]? _buffer;
     private readonly int _offset;
     private readonly DecodeBudget? _budget;
+    private readonly int _length;
 
-    internal BufferView(byte[]? buffer, int offset, DecodeBudget? budget)
+    internal BufferView(byte[]? buffer, int offset, DecodeBudget? budget, int? length = null)
     {
         _buffer = buffer;
         _offset = offset;
         _budget = budget;
+        _length = length ?? buffer?.Length ?? 0;
     }
 
     internal byte[] Buffer => _buffer ?? throw new InvalidDataException("Missing Kraken buffer.");
@@ -34,23 +36,23 @@ internal readonly struct BufferView<T> : IEquatable<BufferView<T>>
         {
             Budget.Spend();
             int position = checked(_offset + checked((int)(index * ElementSize)));
-            return ref MemoryMarshal.Cast<byte, T>(Buffer.AsSpan(position, ElementSize))[0];
+            return ref MemoryMarshal.Cast<byte, T>(Buffer.AsSpan(0, _length).Slice(position, ElementSize))[0];
         }
     }
 
     internal ref T Value => ref this[0];
-    internal BufferView<U> As<U>() where U : unmanaged => new(_buffer, _offset, _budget);
+    internal BufferView<U> As<U>() where U : unmanaged => new(_buffer, _offset, _budget, _length);
     internal Span<byte> Bytes(long count)
     {
         Budget.Spend(count);
-        return Buffer.AsSpan(_offset, checked((int)count));
+        return Buffer.AsSpan(0, _length).Slice(_offset, checked((int)count));
     }
 
     internal static BufferView<T> Allocate(int count, DecodeBudget budget) =>
         new(new byte[checked(count * ElementSize)], 0, budget);
 
     public static BufferView<T> operator +(BufferView<T> view, long count) =>
-        new(view._buffer, checked(view._offset + checked((int)(count * ElementSize))), view._budget);
+        new(view._buffer, checked(view._offset + checked((int)(count * ElementSize))), view._budget, view._length);
     public static BufferView<T> operator -(BufferView<T> view, long count) => view + checked(-count);
     public static long operator -(BufferView<T> left, BufferView<T> right)
     {

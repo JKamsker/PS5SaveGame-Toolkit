@@ -11,6 +11,28 @@ byte[] plain = OodleCodec.Decompress(compressedSpan, declaredOutputLength, maxBy
 byte[] stream = OodleCodec.EncodeStored(plain);
 ```
 
+For a batch of independent streams, own the destination and reuse one workspace:
+
+```csharp
+using var workspace = new OodleWorkspace();
+byte[] plain = new byte[totalOutputLength]; // Bound the aggregate length before allocating.
+// Repeat for each frame, advancing outputOffset by declaredOutputLength:
+OodleCodec.Decompress(compressedSpan, plain.AsSpan(outputOffset, declaredOutputLength),
+    workspace, maxBytes: 16 * 1024 * 1024);
+```
+
+The destination span declares the exact output length and needs no padding. The workspace owns
+pooled padded input/output staging buffers and lazily rented entropy scratch, retains them across
+calls, and clears/returns them on disposal. Use one workspace per batch without concurrent or
+reentrant calls; those calls and disposal during decoding are rejected. Dispose after the batch
+to release retained peak buffer capacity. Each call resets active buffers (including padding) to
+zero and creates a fresh work/nesting budget and stream state. Logical checked view extents stay
+at the requested padded lengths even when pool rentals are larger. Decoding copies into the
+destination only after complete validation, so failed calls leave it unchanged and overlapping
+input/output is supported. The allocating overload delegates to this path with a temporary
+workspace and returns its own exact-length array. Small stage tables still allocate per decode;
+this API does not promise zero allocations or remove the final staging-to-destination copy.
+
 The complete **Kraken (decoder 6)** path from the pinned GPL C# port is adapted here, including
 raw, Huffman, RLE, tANS, recursive/multi-array entropy and delta/raw literals. The chosen source
 does not implement Mermaid/Selkie, Leviathan, LZNA or Bitknit: those decoder IDs are rejected.
@@ -20,8 +42,8 @@ the supported scope of the source without silently ignoring integrity. Errors us
 
 Both input and declared output are bounded before allocation: 64 MiB by default, maximum caller
 limit 256 MiB; stored header overhead is allowed on input. Exact input consumption and output size
-are required. Entropy/LZ decoding lazily allocates scratch of 0x6C000 bytes plus 64 bytes of owned
-padding once per stream; stored and memset quanta do not allocate it. Each byte/word access uses a
+are required. Entropy/LZ decoding lazily prepares scratch of 0x6C000 bytes plus 64 bytes of owned
+padding once per stream, reusing the workspace rental; stored and memset quanta do not rent it. Each byte/word access uses a
 checked managed view. Entropy nesting is capped at 16; work is capped at the lesser of 256 million
 operations and 1 million + 64 times the sum of input/output sizes. No unsafe code, native decoder,
 reflection or static mutable decoder state is used. Typed table views currently require little endian.
@@ -97,6 +119,14 @@ tests cover repeated/interrupted-operation integrity checks, empty-image round t
 limits, UTF-8/result/parameter limits, created/imported image growth and rollback, every incomplete
 header prefix and page-boundary truncations. These are bounded deterministic cases, not an
 exhaustive malformed-stream proof or a proprietary-decoder cross-check.
+
+Allocation regressions use synchronous `GC.GetAllocatedBytesForCurrentThread` deltas after warmup,
+with input, destination and workspace setup outside the measured interval. Stored and RLE streams
+must stay under 4 KiB of overhead per decode; the allocating stored API allows its result array
+plus 4 KiB. The 14 AtomicHeart and 35/33 Hogwarts frame batches allow at most 64 KiB per frame
+for the remaining small stage tables, excluding caller-owned output and retained pooled buffers.
+There are no wall-clock assertions. Tests also pin buffer extents after casts/cursor arithmetic,
+fresh zeroed buffers/budgets, destination guards/overlap, failure recovery and workspace lifecycle.
 
 Read-only ZIP tests use **only** `SAVETOOLKIT_ARTIFACTS` and skip if samples are absent:
 
