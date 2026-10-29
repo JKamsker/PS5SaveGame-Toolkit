@@ -36,20 +36,7 @@ internal static class LspkWriter
             Align(output);
             var rowIndex = rowIndices[entry.Name];
             var row = table.AsSpan(rowIndex * LspkLayout.Entry18Size, LspkLayout.Entry18Size);
-            BinaryPrimitives.WriteUInt32LittleEndian(row[LspkLayout.EntryOffset..], checked((uint)output.Position));
-            BinaryPrimitives.WriteUInt16LittleEndian(row[LspkLayout.Entry18OffsetHigh..], 0);
-            if (changed.TryGetValue(entry.Name, out var data))
-            {
-                var compressed = LarianCompression.Encode(data, entry.Flags);
-                BinaryPrimitives.WriteUInt32LittleEndian(row[LspkLayout.EntryStoredSize..], (uint)compressed.Length);
-                BinaryPrimitives.WriteUInt32LittleEndian(row[LspkLayout.Entry18ExpandedSize..], entry.Compression == LarianCompressionMethod.None ? 0u : (uint)data.Length);
-                output.Write(compressed);
-                expanded[entry.Name] = data;
-            }
-            else
-            {
-                output.Write(original.AsSpan(entry.Offset, entry.StoredSize));
-            }
+            WriteEntry(original, output, entry, row, changed, expanded);
 
             previousEnd = entry.Offset + entry.StoredSize;
             BinaryData.Size((ulong)output.Length);
@@ -58,21 +45,52 @@ internal static class LspkWriter
         output.Write(original.AsSpan(previousEnd, listOffset - previousEnd));
         Align(output);
         var newListOffset = output.Position;
-        var compressedTable = LarianCompression.Encode(table, (byte)LarianCompressionMethod.Lz4);
-        using (var writer = new BinaryWriter(output, System.Text.Encoding.UTF8, true))
-        {
-            writer.Write(package.Entries.Count);
-            writer.Write(compressedTable.Length);
-            writer.Write(compressedTable);
-        }
-
-        var newListSize = output.Position - newListOffset;
+        var newListSize = WriteFileList(output, table, package.Entries.Count);
         output.Write(original.AsSpan(listOffset + listSize));
         BinaryData.Size((ulong)output.Length);
         var result = output.ToArray();
         BinaryPrimitives.WriteUInt64LittleEndian(result.AsSpan(LspkLayout.FileListOffset), (ulong)newListOffset);
         BinaryPrimitives.WriteUInt32LittleEndian(result.AsSpan(LspkLayout.FileListSize), (uint)newListSize);
         LspkIntegrity.Compute(package.Entries.OrderBy(e => e.Offset).Select(e => expanded[e.Name])).CopyTo(result, LspkLayout.Digest);
+        ValidateOutput(result, package, expanded);
+        return result;
+    }
+
+    private static long WriteFileList(MemoryStream output, byte[] table, int entryCount)
+    {
+        var start = output.Position;
+        var compressedTable = LarianCompression.Encode(table, (byte)LarianCompressionMethod.Lz4);
+        using (var writer = new BinaryWriter(output, System.Text.Encoding.UTF8, true))
+        {
+            writer.Write(entryCount);
+            writer.Write(compressedTable.Length);
+            writer.Write(compressedTable);
+        }
+
+        return output.Position - start;
+    }
+
+    private static void WriteEntry(byte[] original, MemoryStream output, PackageEntry entry, Span<byte> row,
+        IReadOnlyDictionary<string, byte[]> changed, Dictionary<string, byte[]> expanded)
+    {
+        BinaryPrimitives.WriteUInt32LittleEndian(row[LspkLayout.EntryOffset..], checked((uint)output.Position));
+        BinaryPrimitives.WriteUInt16LittleEndian(row[LspkLayout.Entry18OffsetHigh..], 0);
+        if (changed.TryGetValue(entry.Name, out var data))
+        {
+            var compressed = LarianCompression.Encode(data, entry.Flags);
+            BinaryPrimitives.WriteUInt32LittleEndian(row[LspkLayout.EntryStoredSize..], (uint)compressed.Length);
+            BinaryPrimitives.WriteUInt32LittleEndian(row[LspkLayout.Entry18ExpandedSize..], entry.Compression == LarianCompressionMethod.None ? 0u : (uint)data.Length);
+            output.Write(compressed);
+            expanded[entry.Name] = data;
+        }
+        else
+        {
+            output.Write(original.AsSpan(entry.Offset, entry.StoredSize));
+        }
+    }
+
+    private static void ValidateOutput(byte[] result, LspkPackage package, Dictionary<string, byte[]> expanded)
+    {
         var reopened = LspkPackage.Read(result, out var reopenedPayloads); // validates the digest and all ranges/codecs
         for (var i = 0; i < package.Entries.Count; i++)
         {
@@ -80,8 +98,6 @@ internal static class LspkWriter
             BinaryData.Require(entry.Name == package.Entries[i].Name && entry.Flags == package.Entries[i].Flags &&
                 reopenedPayloads[entry.Name].AsSpan().SequenceEqual(expanded[entry.Name]), "LSPK edit did not survive writer validation.");
         }
-
-        return result;
     }
 
     private static void Align(MemoryStream output)
