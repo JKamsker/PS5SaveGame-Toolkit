@@ -69,6 +69,22 @@ public sealed class PresetPackageTests
     }
 
     [Theory]
+    [InlineData(128, true)]
+    [InlineData(129, false)]
+    public void AggregateTargetLimitIsCheckedBeforeTypedPackageMaterialization(int secondActionCount, bool valid)
+    {
+        var json = JsonNode.Parse(PresetPackageCodec.Encode([PresetTransferFixture.Preset()]))!;
+        var actions = json["presets"]![0]!["actions"]!.AsArray();
+        var second = actions[0]!.DeepClone();
+        var reference = actions[0]!["instances"]![0]!.DeepClone();
+        actions[0]!["instances"] = new JsonArray(Enumerable.Range(0, 128).Select(_ => reference.DeepClone()).ToArray());
+        second["instances"] = new JsonArray(Enumerable.Range(0, secondActionCount).Select(_ => reference.DeepClone()).ToArray());
+        actions.Add(second);
+        if (valid) Assert.Equal(2, PresetPackageCodec.Decode(Encoding.UTF8.GetBytes(json.ToJsonString())).Presets.Single().Actions.Count);
+        else Assert.Equal("presetPackageFields", Error(json).Code);
+    }
+
+    [Theory]
     [InlineData("stableId", 256)]
     [InlineData("label", 256)]
     [InlineData("role", 256)]

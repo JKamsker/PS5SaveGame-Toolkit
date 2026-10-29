@@ -63,6 +63,7 @@ public static class PresetPackageCodec
                 var actions = record.GetProperty("actions");
                 if (actions.ValueKind != JsonValueKind.Array || actions.GetArrayLength() is < 1 or > 32)
                     throw Invalid("presetPackageActions", "Each preset must contain 1–32 semantic actions.");
+                var totalInstances = 0;
                 foreach (var action in actions.EnumerateArray())
                 {
                     RequireFields(action, "actionId", "parameters", "instances", "scopeKind");
@@ -71,6 +72,9 @@ public static class PresetPackageCodec
                     if (parameters.ValueKind != JsonValueKind.Object || parameters.EnumerateObject().Count() > 128
                         || instances.ValueKind != JsonValueKind.Array || instances.GetArrayLength() > 256)
                         throw Invalid("presetPackageFields", "An action exceeds the parameter or semantic-target limit.");
+                    totalInstances += instances.GetArrayLength();
+                    if (totalInstances > PresetContractValidation.MaxSemanticInstances)
+                        throw Invalid("presetPackageFields", "A preset exceeds the aggregate limit of 256 semantic targets across all actions.");
                 }
             }
             var package = root.Deserialize<PresetPackage>(JsonOptions)!;

@@ -50,7 +50,8 @@ parses and reserializes package JSON with JavaScript `Number`. JSON whitespace/e
 may change, while typed values, numeric lexemes and Unicode text remain intact.
 
 The whole package is at most 512 KiB, with 1–256 presets and a JSON depth of 16.
-Each preset has 1–32 actions, each action at most 128 parameters and 256 semantic targets.
+Each preset has 1–32 actions, each action at most 128 parameters, and at most 256 semantic
+targets across all its actions. The aggregate target count is checked before typed package materialization.
 Title IDs are limited to 32 per preset; names to 100 characters; identifiers and field
 text have explicit conservative limits in the codec. Arrays/arbitrary nested save
 objects are not parameter values. Control requests are separately limited to 258 KiB/depth 8. This is derived from
