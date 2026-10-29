@@ -25,6 +25,18 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+      - name: Prepare documentation ancestry ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git show-ref --verify --quiet refs/heads/main; then
+            :
+          elif git show-ref --verify --quiet refs/remotes/origin/main; then
+            git branch main refs/remotes/origin/main
+          else
+            git fetch --no-tags origin main:refs/heads/main
+          fi
+          git show-ref --verify --quiet refs/heads/main
       - name: Configure documentation scratch
         run: |
           $scratch = Join-Path $env:RUNNER_TEMP 'saveeditor/test-scratch/docs-site'
