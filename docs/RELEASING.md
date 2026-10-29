@@ -50,6 +50,31 @@ Keep the checkout outside a sample tree when reproducing CI: SampleSaves can als
 hide such a directory. Workflow syntax is checked with [actionlint](https://github.com/rhysd/actionlint)
 on Linux; run `actionlint` locally after workflow edits too.
 
+### Code coverage
+
+Ubuntu validation collects .NET coverage through the Microsoft.Testing.Platform extension and web
+coverage through Vitest V8. Windows validation keeps coverage disabled. Coverage is informational;
+there are no minimum thresholds. The job summary shows .NET line/branch coverage by assembly and
+the web text summary. Download `coverage-Linux` (retained for 14 days) for per-project Cobertura,
+merged .NET Cobertura and HTML, and web Cobertura, JSON summary and HTML reports. Shared test
+helpers and test assemblies are excluded from the merged .NET report; web coverage includes all
+TypeScript source files, including untested files, excluding tests and declarations.
+
+Collect and merge locally from the repository root (set scratch/TEMP as above):
+
+```powershell
+./scripts/test.ps1 -Coverage -Configuration Release -ResultsDirectory D:/Temp/saveeditor/test-scratch/ci-coverage/results
+dotnet tool restore
+dotnet tool run reportgenerator '-reports:D:/Temp/saveeditor/test-scratch/ci-coverage/results/**/coverage.cobertura.xml' '-targetdir:D:/Temp/saveeditor/test-scratch/ci-coverage/backend' '-reporttypes:Cobertura;MarkdownAssembliesSummary;Html' '-assemblyfilters:-*.Tests;-SaveToolkit.Testing'
+Push-Location web
+npm test -- --coverage --coverage.reportsDirectory=D:/Temp/saveeditor/test-scratch/ci-coverage/web
+Pop-Location
+```
+
+`-Coverage` defaults to the repository's ignored `TestResults` directory when `-ResultsDirectory`
+is omitted. Ordinary test runs remain unchanged. The coverage package is centrally referenced only
+by projects named `*.Tests` in `Directory.Packages.props`; new test projects should follow that name.
+
 ### Built app browser smoke tests
 
 The Ubuntu-only `e2e` CI job runs alongside validation with a 12-minute limit. Chromium imports
