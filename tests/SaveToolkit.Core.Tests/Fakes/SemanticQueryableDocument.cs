@@ -16,6 +16,11 @@ internal sealed class SemanticQueryableDocument(int rowCount = 251, int collecti
     public bool CursorPaging { get; init; }
     public bool DuplicateTables { get; init; }
     public string Padding { get; init; } = "";
+    public bool EagerAlias { get; init; }
+    public bool ReadOnlyQuantity { get; init; }
+    public bool QueryLazyAlias { get; init; }
+    public bool QueryLazyCycle { get; init; }
+    public bool DistinctAlias { get; init; }
     public override string Title => "Semantic inventory";
     public IReadOnlyList<QueryableCollection> Collections => Enumerable.Range(0, collectionCount)
         .Select(i => new QueryableCollection(Collection(i), "Inventory", Columns, rowCount)
@@ -26,11 +31,26 @@ internal sealed class SemanticQueryableDocument(int rowCount = 251, int collecti
     public static string ValueId(int collection, int row) => $"{Collection(collection)}/{Row(row)}/quantity";
     public void SetQuantity(int collection, int row, long value) => _values[ValueId(collection, row)] = value;
 
-    public override ViewNode BuildView() => new SectionNode("Root", [SectionNode.Lazy("Inventory", "inventory")]);
+    public override ViewNode BuildView()
+    {
+        List<ViewNode> children = [SectionNode.Lazy("Inventory", "inventory")];
+        if (QueryLazyAlias) children.Add(SectionNode.Lazy("Canonical", "canonical"));
+        if (DistinctAlias)
+        {
+            var id = ValueId(0, 0);
+            children.Add(Field("raw/" + id, "Raw quantity", IntegerSpec.Int32,
+                () => FieldValue.Of(_values.GetValueOrDefault(id)), value => _values[id] = value.AsInt64()));
+        }
+
+        return new SectionNode("Root", children);
+    }
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
+        if (lazyId == "canonical") return QueryLazyCycle ? [SectionNode.Lazy("Cycle", "canonical")]
+            : [Quantity(Collection(0), 0) with { Label = "Legacy quantity" }];
         var tables = Collections.Select(c => (ViewNode)new QueryableTableNode(c.Id, c.Title, c.Columns, c.TotalCount)
         { EmptyRows = c.EmptyRows }).ToArray();
+        if (EagerAlias) return [.. tables, Quantity(Collection(0), 0) with { Label = "Legacy quantity" }];
         return DuplicateTables ? [.. tables, .. tables] : tables;
     }
 
@@ -42,7 +62,7 @@ internal sealed class SemanticQueryableDocument(int rowCount = 251, int collecti
             .Skip(offset).Take(query.Limit).Select(i => new TableRow(Row(i), new Dictionary<string, ViewNode>
             {
                 ["name"] = new TextNode($"Item {i}" + Padding),
-                ["quantity"] = Quantity(collectionId, i),
+                ["quantity"] = (QueryLazyAlias || QueryLazyCycle) && i == 0 ? SectionNode.Lazy("Details", "canonical") : Quantity(collectionId, i),
             }) { IsEmpty = i == 0 }).ToArray();
         var page = new QueryableCollectionPage(collectionId, Columns, rows, rowCount,
             rowCount - (query.IncludeEmpty == true ? 0 : 1), offset, query.Limit)
@@ -53,6 +73,7 @@ internal sealed class SemanticQueryableDocument(int rowCount = 251, int collecti
     private FieldNode Quantity(string collectionId, int row)
     {
         var id = $"{collectionId}/{Row(row)}/quantity";
+        if (ReadOnlyQuantity) return Field(id, "Quantity", IntegerSpec.Int32, () => FieldValue.Of(_values.GetValueOrDefault(id, row)));
         return Field(id, "Quantity", IntegerSpec.Int32,
             () => FieldValue.Of(_values.GetValueOrDefault(id, row)), value => _values[id] = value.AsInt64());
     }

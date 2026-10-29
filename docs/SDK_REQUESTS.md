@@ -8,7 +8,7 @@ Evidence paths and line numbers below refer to that snapshot. The review covers
 and the 292 comments available from `gh issue view 40 --comments` at collection time
 (through comment `6488004888`). No sample bytes or credentials were inspected.
 
-**40 deduplicated items: 9 open, 1 partially resolved, 27 resolved, 3 obsolete.**
+**40 deduplicated items: 8 open, 2 partially resolved, 27 resolved, 3 obsolete.**
 Counts describe capabilities, not individual comments or plugin migrations. Related
 requests are merged; delivered foundations and genuinely different remaining contracts
 have separate IDs. “Requested by” also names the plugin candidates explicitly identified
@@ -26,7 +26,7 @@ and characterization tests, L = a substantial lifecycle/serialization integratio
 
 | ID | Request | Requested by | Status | Evidence (file:line or commit) | Value | Effort | Risk | Recommendation |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| SDK-01 | Bounded F8 traversal in original/current semantic review, with labels, navigation and individual revert | TalesOfArise | open | `plugins/TalesOfArise/README.md:574`; `src/SaveToolkit.Core/Sessions/SemanticReview.cs:131` handles eager tables/lazy sections but no `QueryableTableNode`; `DocumentSession.Review.cs:25` requires a revertible semantic record | At least 3 F8 editors benefit: TalesOfArise, Pragmata and FinalFantasy16; users can review/revert quantities without opening every page | M | Additive Core behavior; original identity and budget correctness | Implement bounded query traversal on the separate original and current documents, including empty rows, stable row paths, explicit incomplete coverage and page/row/byte caps. Retain undo/edit-loaded-field workaround until shipped. |
+| SDK-01 | Bounded F8 traversal in original/current semantic review, with labels, navigation and individual revert | TalesOfArise | partially resolved pending web UI | `src/SaveToolkit.Core/Sessions/SemanticQueryableTraversal.cs`; `SemanticReview.cs`; `SemanticChangeLog.cs`; `tests/SaveToolkit.Core.Tests/QueryableSemantic*Tests.cs`; [API contract](API.md#preview-and-semantic-review) | At least 3 F8 editors benefit: TalesOfArise, Pragmata and FinalFantasy16; users can review/revert quantities without opening every page | M | Additive Core behavior; original identity and budget correctness | Backend now scans separate original/current documents with global row/page/byte caps, includes empty slots, names changes, registers individual revert and returns optional `{collectionId,rowKey,query}` navigation targets. Cuts/invalid pages explicitly report truncated incomplete coverage. Web follow-up: display labels/old-new values and warnings even for zero results; load target pages at review revision, locate row/value ID, offer revision-checked Revert only when `canRevert`, and refresh after mutations/staleness. Preserve SDK-02 guards; no `web/` changes in SDK-01 backend delivery. |
 | SDK-02 | Publish field metadata and canonical primary/derived binding policy independently of rendered views | Pragmata | partially resolved | `plugins/Pragmata/README.md:478`; [design](plans/F13-FIELD-SPEC-PUBLISHING.md); `a1c08c0` adds storage registration; `src/SaveToolkit.Core/Editing/ViewIndex.cs:68` still learns specs from views | 1 explicit requester; at least 3 candidate editors with unloaded fields (Pragmata, FinalFantasy16, TalesOfArise); safer bulk preflight and complete named review | L | Additive optional capability; new alias, replay and invalidation contract | Implement optional `IFieldMetadataDocument` from the design, in bounded batches, with live setters, spec agreement, primary/derived classification and structural/group invalidation. `RegisterField` alone does not satisfy it. Keep Pragmata's unloaded-quantity guard and existing F8 query-resolution path. |
 | SDK-03 | Share pure embedded reference-pack decoding for direct `Open(file)` fallback | FinalFantasy7, FinalFantasy16, GodOfWarRagnarok | open | [duplication report, item 6](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `src/SaveToolkit.Core/References/ReferencePackStore.cs:36` loads embedded packs only in Core; `src/SaveToolkit.Sdk/References/IReferenceContext.cs:17` supplies an empty context, no loader | 3 plugins; direct and hosted opens retain the same names, icons and attribution with less duplicated parsing | M | Additive factory; moving shared decoding must preserve pack-selection contracts | Add SDK-facing `EmbeddedReferenceContext.Load` backed by a pure shared decoder. Keep ZIP persistence/cache ownership in Core and title/build/source precedence in explicit policy. Preserve enriched direct-open behavior; plugins must not reference Core. |
 | SDK-04 | Compose group member identity mapping and dispatch | Gearbox, XorJson | open | [duplication report, item 4](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `src/SaveToolkit.Sdk/DocumentGroups.cs:6` provides transactions, no member adapter; local `GearboxGroupMember` / `XorJsonGroupMember` still map views and identities | 2 plugins; fewer divergent field/action/collection/navigation mappings in grouped editing | M | Additive helper; identity-policy compatibility is sensitive | Add `DocumentMemberAdapter(role, document, identityPolicy)` using composition and policy callbacks. Characterize role-plus-collection versus role-plus-key identities, nested views, F6 scopes, targets and fresh mementos first. Keep transfer/dependency/snapshot policy local. |
@@ -66,6 +66,24 @@ and characterization tests, L = a substantial lifecycle/serialization integratio
 | SDK-38 | Download original files while a document is read-only | UnrealGvas | resolved | `e08c5b0`; `src/SaveToolkit.Api/Endpoints/WorkspaceEndpoints.cs:93` falls back to `session.File.OpenRead()` without `CanEdit` gating; group-specific exception added in `6ae1c6c` | 1 historical requester; read-only inspection still permits retrieving original bytes | — | Existing API behavior | Use `/download` for independent documents; groups use whole-workspace export. No new capability is needed. |
 | SDK-39 | Rich image/nested cells instead of blank table cells | UnrealGvas; Insomniac R5/R8/R9 concern | resolved | `dcd836c`; `src/SaveToolkit.Sdk/Views/ViewNode.cs` permits arbitrary ViewNode cells; `web/src/components/document/table/TableCell.tsx:39` renders images and detail chips | 2 historical concerns; icons and nested content remain reachable | — | Delivered renderer support | Use `ImageNode` and existing rich cells/details. No concrete additional image-cell requirement is specified; SDK-05 concerns helper fidelity, not cell support. |
 | SDK-40 | Mixed platform newlines from shared SaveDiff text renderer reach CLI output | SaveDiff tool/test review | resolved | [outside-scope renderer observation](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6487099886); `6c4353d`, `20a84cf`; `tools/SaveToolkit.SaveDiff/CliApp.cs:95` normalizes at emission | Every CLI report consumer; deterministic stdout/file bytes on Windows and Unix | — | Delivered CLI boundary normalization | Keep `CliApp.Emit` normalization. Shared `TextReportWriter` still uses a platform blank line internally; no unresolved CLI contract remains. |
+
+### SDK-01 alias follow-up through SDK-02
+
+SDK-01 retains distinct value IDs as distinct review entries. Pragmata's existing
+250 raw quantity changes now appear alongside 250 newly traversed primary F8
+quantity changes (500 entries for 250 underlying edits). Core must not infer alias
+identity from matching values, transitions or ID prefixes. Reverting either entry
+recomputes the review: both entries disappear together, the other cannot be
+reverted again, unrelated rows remain changed, and one undo restores both entries.
+Synthetic Core tests and the existing Pragmata integration test cover both revert
+directions, stale revisions and rejected double revert.
+
+**Follow-up for the SDK-02 primary/derived binding policy:** publish explicit
+canonical field/alias relationships, then deduplicate semantic review presentation
+and navigation/revert ownership using that metadata. Preserve complete direct and
+derived effects and undo semantics; do not hide distinct unclassified fields.
+The SDK-01 backend deliberately leaves this duplication visible until that policy
+is implemented. It is separate from the pending web navigation/coverage UI.
 
 ## Resolved appendix
 
@@ -148,6 +166,6 @@ orchestrator follow-ups on #40. Missing controlled captures, safe structural wri
 socket/owner joins, coupled-file evidence, map alignment and console validation are
 likewise not missing framework capabilities. No new framework API can establish them.
 
-Validation for this documentation change: `python docs/tests/test_documentation.py`.
-Runtime behavior was assessed by source/history inspection; no new runtime or sample
-validation is claimed. Only this document is changed by the triage.
+The initial triage was validated with `python docs/tests/test_documentation.py` and
+source/history inspection only. SDK-01's later backend implementation and synthetic
+regressions are recorded in its row; its web UI follow-up remains outstanding.

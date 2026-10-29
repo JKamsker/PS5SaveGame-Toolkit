@@ -64,7 +64,7 @@ public sealed partial class DocumentSession : IDisposable
         _references = referenceContext;
         _history = new EditHistory(limits);
         _referenceFields = new ReferenceFieldService(referenceContext);
-        _semantic = new SemanticReview(limits.MaxOriginalBytes);
+        _semantic = new SemanticReview(limits);
         // The original is re-opened with the same pinned reference packs so its field identities match the live document.
         _openOriginal = openOriginal ?? (() => plugin.Open(file, referenceContext));
     }

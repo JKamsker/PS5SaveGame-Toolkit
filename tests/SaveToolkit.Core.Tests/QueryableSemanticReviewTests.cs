@@ -48,7 +48,9 @@ public sealed class QueryableSemanticReviewTests : IDisposable
         var target = JsonSerializer.SerializeToElement(change).GetProperty("Target");
         Assert.Equal("inventory/0", target.GetProperty("CollectionId").GetString());
         Assert.Equal("slot/250", target.GetProperty("RowKey").GetString());
-        Assert.Equal(250, target.GetProperty("Offset").GetInt32());
+        var query = target.GetProperty("Query");
+        Assert.Equal(cursor ? 0 : 200, query.GetProperty("Offset").GetInt32());
+        Assert.Equal(cursor ? "200" : null, query.GetProperty("Cursor").GetString());
         Assert.All(current.Queries.Concat(original.Queries), q => Assert.True(q.Query.IncludeEmpty));
     }
 
@@ -101,5 +103,32 @@ public sealed class QueryableSemanticReviewTests : IDisposable
         Assert.False(log.Complete);
         Assert.NotEmpty(log.Warnings);
         Assert.DoesNotContain(log.Changes, c => !c.OriginalExists || !c.CurrentExists);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void RevertingEitherDistinctAliasClearsBothEntriesWithoutDoubleRevert(bool rawAlias)
+    {
+        var current = new SemanticQueryableDocument(3) { DistinctAlias = true };
+        current.SetQuantity(0, 0, 7);
+        current.SetQuantity(0, 2, 9);
+        using var session = Open(current, new(3) { DistinctAlias = true });
+        var log = session.GetChanges();
+        Assert.Equal(3, log.Changes.Count);
+        var primaryId = SemanticQueryableDocument.ValueId(0, 0);
+        var rawId = "raw/" + primaryId;
+        Assert.True(session.RevertChange(rawAlias ? rawId : primaryId, log.Revision).Ok);
+        var afterRevert = session.GetChanges();
+        Assert.Equal(SemanticQueryableDocument.ValueId(0, 2), Assert.Single(afterRevert.Changes).ValueId);
+        Assert.Equal("9", afterRevert.Changes[0].CurrentValue.ToString());
+        Assert.True(session.RevertChange(rawAlias ? primaryId : rawId, log.Revision).Stale);
+        Assert.False(session.RevertChange(rawAlias ? primaryId : rawId, afterRevert.Revision).Ok);
+        Assert.Equal(afterRevert.Revision, session.State.Revision);
+        Assert.True(session.Undo().Ok);
+        Assert.False(session.State.CanUndo);
+        Assert.Equal(3, session.GetChanges().Changes.Count);
+        Assert.True(session.Redo().Ok);
+        Assert.Single(session.GetChanges().Changes);
     }
 }
