@@ -1,0 +1,2 @@
+# Golden WebP encoding: official wheel includes libwebp 1.6.0.
+Pillow==12.2.0

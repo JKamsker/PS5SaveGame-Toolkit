@@ -42,6 +42,12 @@ def items(sources, scratch):
     for line in ET.fromstring(text).findtext("DropDownList").splitlines():
         identifier, name = line.split(":", 1)
         add(int(identifier, 16), name, url, source_hash)
+    add_mass_items(sources, add)
+    add_editor_groups(sources, scratch, add)
+    return sorted(rows.values(), key=lambda row: row["id"])
+
+
+def add_mass_items(sources, add):
     archive = sources.archives["tga.zip"]
     for path in sorted(archive.namelist()):
         if "/MassItemGib/" not in path or not path.endswith(".cea"):
@@ -58,6 +64,9 @@ def items(sources, scratch):
             for key, value in (("groups", group), ("contentGroups", content), ("groupSources", url)):
                 values = set(attrs.get(key, "").split(" | ")) - {""}
                 attrs[key] = " | ".join(sorted(values | {value}))
+
+
+def add_editor_groups(sources, scratch, add):
     data = (scratch / "items.rs").read_bytes()
     if S.digest(data) != GROUPS_HASH:
         raise ValueError("Unreviewed inherited item groups")
@@ -76,10 +85,9 @@ def items(sources, scratch):
             attrs["editorMembershipOccurrences"] = str(int(attrs.get("editorMembershipOccurrences", "0")) + 1)
             attrs["editorGroupSource"] = GROUPS_URL
             attrs["editorGroupSha256"] = GROUPS_HASH
-    return sorted(rows.values(), key=lambda row: row["id"])
 
 
-def flags(sources, scratch):
+def event_blocks(sources, scratch):
     data = (scratch / "eventflag_bst.txt").read_bytes()
     if S.digest(data) != BST_HASH:
         raise ValueError("Unreviewed event block map")
@@ -90,6 +98,11 @@ def flags(sources, scratch):
         if group in blocks:
             raise ValueError("Duplicate event block key")
         blocks[group] = block
+    return blocks
+
+
+def flags(sources, scratch):
+    blocks = event_blocks(sources, scratch)
     text, url, source_hash = sources.read("tga.zip", ROOT + "Event Flags/Event Flag Manager/.cea")
     # Remove Lua long comments before selecting data tables, so disabled/commented recipes stay excluded.
     text = re.sub(r"--\[(=*)\[.*?\]\1\]", "", text, flags=re.S)
@@ -123,6 +136,10 @@ def flags(sources, scratch):
                                      S.TGA_REVISION, source_hash, attrs,
                                      "Read-only source flag candidate, not verified PS5 completion. Group predicates and writers are not ported. "
                                      "Raw bits do not establish quests, DLC ownership, NG+ cycle or reset semantics."))
+    return unique_flags(rows)
+
+
+def unique_flags(rows):
     unique = {}
     for row in rows:
         key = row["id"]
@@ -137,19 +154,7 @@ def flags(sources, scratch):
     return sorted(unique.values(), key=lambda row: row["id"])
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("scratch", type=Path)
-    scratch = parser.parse_args().scratch
-    sources = S.Sources(scratch)
-    # Review statements as source text, and retain their hashes with the data's provenance.
-    for archive in S.ARCHIVES:
-        sources.read(archive, "README.md")
-    item_rows = items(sources, scratch)
-    flag_rows = flags(sources, scratch)
-    layouts = S.paramdex(sources)
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    (OUTPUT / "param-rows.json").unlink(missing_ok=True)  # Remove the obsolete v1.0 dump on regeneration.
+def write_datasets(item_rows, flag_rows, layouts):
     definitions = [
         ("eldenring-tga-items", "Community item identities and groups", "items.json", item_rows, "tga.zip"),
         ("eldenring-tga-flags", "Community base/DLC/NG+ flag candidates", "flags.json", flag_rows, "tga.zip"),
@@ -179,9 +184,10 @@ def main():
         dataset["attribution"]["sourceUrl"] = default_source
         datasets.append(dataset)
         print(f"{identifier}: {len(rows)} records; SHA-256 {sha256}")
-    S.write_json(OUTPUT / "pack.json", {"schema": 1, "id": "eldenring.community.en", "version": "1.1.0",
-                                     "title": "Elden Ring attributed community facts", "plugins": ["eldenring"],
-                                     "titleIds": [], "gameBuilds": [], "locale": "en", "datasets": datasets})
+    return datasets
+
+
+def write_sidecar(sources, datasets):
     lines = ["# Community facts provenance", "", f"Licence: **{S.LICENSE}**.",
              f"Retrieved {S.RETRIEVED}. This records reuse authorization, not an upstream licence grant.",
              "No root licence was found in the pinned TGA, Paramdex or ER-Save-Lib trees.", "",
@@ -222,12 +228,36 @@ def main():
     lines.extend(["", "| Source (author/project named in URL) | Original SHA-256 |", "| --- | --- |"])
     lines.extend(f"| {url} | `{sha256}` |" for url, sha256 in sorted(sources.files.items()))
     (OUTPUT / "community.source.md").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+
+
+def write_source_references(sources):
     references = ["// Generated factual source URLs by Evidence/import-community-catalog.py.",
                   "namespace SaveToolkit.Plugins.EldenRing;", "", "internal static class CommunitySourceReferences", "{",
                   "    public static IReadOnlyList<string> All =>", "    ["]
     references.extend(f'        "{url}",' for url in sorted(sources.files))
     references.extend(["    ];", "}", ""])
     (OUTPUT.parent.parent / "CommunitySourceReferences.cs").write_text("\n".join(references), encoding="utf-8", newline="\n")
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("scratch", type=Path)
+    scratch = parser.parse_args().scratch
+    sources = S.Sources(scratch)
+    # Review statements as source text, and retain their hashes with the data's provenance.
+    for archive in S.ARCHIVES:
+        sources.read(archive, "README.md")
+    item_rows = items(sources, scratch)
+    flag_rows = flags(sources, scratch)
+    layouts = S.paramdex(sources)
+    OUTPUT.mkdir(parents=True, exist_ok=True)
+    (OUTPUT / "param-rows.json").unlink(missing_ok=True)  # Remove the obsolete v1.0 dump on regeneration.
+    datasets = write_datasets(item_rows, flag_rows, layouts)
+    S.write_json(OUTPUT / "pack.json", {"schema": 1, "id": "eldenring.community.en", "version": "1.1.0",
+                                     "title": "Elden Ring attributed community facts", "plugins": ["eldenring"],
+                                     "titleIds": [], "gameBuilds": [], "locale": "en", "datasets": datasets})
+    write_sidecar(sources, datasets)
+    write_source_references(sources)
 
 
 if __name__ == "__main__":

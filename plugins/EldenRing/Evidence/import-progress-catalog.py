@@ -6,9 +6,18 @@ All hashes cover original source bytes. No coordinates, art, quest edges or lega
 
 import argparse
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import re
+import sys
+
+sys.dont_write_bytecode = True
+# -I excludes the script directory from sys.path; load only this local serializer.
+SPEC = importlib.util.spec_from_file_location("importer_json", Path(__file__).with_name("importer_json.py"))
+JSON = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(JSON)
+write_json = JSON.write_json
 
 REVISION = "014107f0ca1cff867b5f7565cb79d6684f9b35df"
 ROOT = f"https://github.com/ClayAmore/ER-Save-Editor/blob/{REVISION}"
@@ -29,12 +38,6 @@ LITERAL = r'("(?:[^"\\]|\\.)*")'
 
 def body(text):
     return text.split("HashMap::from([", 1)[1].split("]))", 1)[0]
-
-
-def write_json(path, value):
-    content = json.dumps(value, ensure_ascii=False, indent=2) + "\n"
-    path.write_text(content, encoding="utf-8", newline="\n")
-    return hashlib.sha256(content.encode()).hexdigest()
 
 
 def attribution(files):
