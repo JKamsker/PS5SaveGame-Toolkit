@@ -184,7 +184,7 @@ describe("action preview", () => {
     expect(trigger.textContent).toContain("World/COOLING");
     expect(trigger.disabled).toBe(false);
     await waitFor(() => expect(candidate).toHaveBeenCalledWith("w1", "d1",
-      [{ fieldId: "world", actionId: "set-world", recordKey: "World/COOLING" }], 1)));
+      [{ fieldId: "world", actionId: "set-world", recordKey: "World/COOLING" }], 1));
   });
 
   it("requires another preview when the table selection changes", async () => {
