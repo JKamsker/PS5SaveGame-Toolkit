@@ -8,6 +8,7 @@ internal sealed class AriseCipher : IDisposable
     private const int FeedbackSize = 64;
     private const byte ZeroKeyReplacement = 0x20;
     private readonly Aes _aes = Aes.Create();
+    private readonly byte[] _work = new byte[FeedbackSize];
     private readonly byte[] _key = Convert.FromHexString(
         "39514C4A5048585A556E47324C4A414858433677636648596B42567A53487942" +
         "2D353374396350666E726950634A2D6B4B637252614362364272695553636400");
@@ -18,23 +19,28 @@ internal sealed class AriseCipher : IDisposable
     public void Transform(ReadOnlySpan<byte> source, Span<byte> destination, bool encrypt)
     {
         _aes.Key = _key.AsSpan(0, 32).ToArray();
-        Span<byte> work = stackalloc byte[FeedbackSize];
+        _aes.Mode = CipherMode.ECB;
+        _aes.Padding = PaddingMode.None;
+        // The key evolves once per section; feedback evolves once per 64-byte chunk.
+        // Keep one native AES transform for the section rather than recreating it for every chunk.
+        using var transform = encrypt ? _aes.CreateEncryptor() : _aes.CreateDecryptor();
         for (var offset = 0; offset < source.Length; offset += FeedbackSize)
         {
             var length = Math.Min(FeedbackSize, source.Length - offset);
             var input = source.Slice(offset, length);
             var output = destination.Slice(offset, length);
-            var temporary = work[..length];
+            var temporary = _work.AsSpan(0, length);
+            input.CopyTo(temporary);
             if (encrypt)
             {
-                input.CopyTo(temporary);
                 Xor(temporary);
-                _aes.EncryptEcb(temporary, output, PaddingMode.None);
+                transform.TransformBlock(_work, 0, length, _work, 0);
+                temporary.CopyTo(output);
                 output.CopyTo(_feedback);
             }
             else
             {
-                _aes.DecryptEcb(input, temporary, PaddingMode.None);
+                transform.TransformBlock(_work, 0, length, _work, 0);
                 Xor(temporary);
                 input.CopyTo(_feedback);
                 temporary.CopyTo(output);

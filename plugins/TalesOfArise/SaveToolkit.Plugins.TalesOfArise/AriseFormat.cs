@@ -34,7 +34,7 @@ internal static class AriseFormat
             throw new SaveFormatException("Tales of Arise ciphertext SHA1 mismatch; the save is corrupt.");
         }
 
-        var result = Transform(bytes.AsSpan(PayloadOffset).ToArray(), encrypt: false);
+        var result = Transform(bytes.AsMemory(PayloadOffset), encrypt: false);
         return new AriseSave(bytes.ToArray(), result.Payload, result.Sections);
     }
 
@@ -54,7 +54,7 @@ internal static class AriseFormat
         return bytes;
     }
 
-    private static TransformResult Transform(byte[] source, bool encrypt)
+    private static TransformResult Transform(ReadOnlyMemory<byte> source, bool encrypt)
     {
         var destination = source.ToArray();
         var occupied = new List<(int Start, int End)>();
@@ -93,7 +93,7 @@ internal static class AriseFormat
 
         return new TransformResult(destination, sections.AsReadOnly());
 
-        byte[] Plain() => encrypt ? source : destination;
+        ReadOnlySpan<byte> Plain() => encrypt ? source.Span : destination;
 
         void Block(int offset, int length)
         {
@@ -104,7 +104,7 @@ internal static class AriseFormat
             }
 
             occupied.Add((offset, offset + length));
-            cipher.Transform(source.AsSpan(offset, length), destination.AsSpan(offset, length), encrypt);
+            cipher.Transform(source.Span.Slice(offset, length), destination.AsSpan(offset, length), encrypt);
         }
     }
 
