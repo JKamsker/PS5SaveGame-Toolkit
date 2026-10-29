@@ -1,5 +1,6 @@
+import { installDialogStub } from "../../../test/dialog";
 import { act, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { actionReview, type ActionPreview, type SemanticChange, type SemanticChangeLog } from "../../../api/actionReview";
 import type { EditResult } from "../../../api/protocol";
 import { ActionButton } from "../ActionButton";
@@ -10,11 +11,9 @@ import { ChangesPanel } from "./ChangesPanel";
 import { clearReviewClients, renderDocument } from "./reviewTestUtils";
 import { stubViewport } from "../table/tableTestUtils";
 
-beforeAll(() => {
-  HTMLDialogElement.prototype.showModal = function () { this.open = true; };
-  HTMLDialogElement.prototype.close = function () { this.open = false; };
-});
-afterEach(() => { cleanup(); clearReviewClients(); vi.restoreAllMocks(); });
+let restoreDialog = () => {};
+beforeEach(() => { restoreDialog = installDialogStub(); });
+afterEach(() => { cleanup(); clearReviewClients(); vi.restoreAllMocks(); restoreDialog(); });
 
 const change: SemanticChange = { valueId: "quantity", label: "Potion quantity", path: ["section:Inventory", "tab:Items"],
   originalValue: "2", currentValue: "10", originalExists: true, currentExists: true, canRevert: true };

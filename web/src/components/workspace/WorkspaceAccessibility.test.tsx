@@ -1,3 +1,4 @@
+import { installDialogStub } from "../../test/dialog";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
@@ -8,15 +9,14 @@ import { library } from "../../state/libraryStore";
 import { HomePage } from "../home/HomePage";
 import { WorkspacePage } from "./WorkspacePage";
 
+let restoreDialog = () => {};
 afterEach(() => {
   cleanup(); vi.restoreAllMocks();
-  Reflect.deleteProperty(HTMLDialogElement.prototype, "showModal");
-  Reflect.deleteProperty(HTMLDialogElement.prototype, "close");
+  restoreDialog();
 });
 
-it("keeps import, file/plugin selection, keyboard editing and export discoverable by role and name", async () => {
-  Object.defineProperty(HTMLDialogElement.prototype, "showModal", { configurable: true, value: function (this: HTMLDialogElement) { this.open = true; } });
-  Object.defineProperty(HTMLDialogElement.prototype, "close", { configurable: true, value: function (this: HTMLDialogElement) { this.open = false; } });
+function setupWorkspaceApi() {
+  restoreDialog = installDialogStub();
   vi.spyOn(library, "restore").mockResolvedValue(undefined);
   vi.spyOn(api, "plugins").mockResolvedValue([]);
   vi.spyOn(api, "titles").mockResolvedValue([]);
@@ -48,6 +48,10 @@ it("keeps import, file/plugin selection, keyboard editing and export discoverabl
   vi.spyOn(api, "edit").mockResolvedValue({ ok: true, errors: [], warnings: [], structureChanged: false,
     changes: [{ valueId: "quantity", oldValue: "2", newValue: "7" }], state: { canUndo: true, canRedo: false, isDirty: true, revision: 1 } });
   vi.spyOn(api, "exportPlan").mockResolvedValue({ changedCount: 1, files: [{ relativePath: file.path, length: 16, reason: "edited" }] });
+}
+
+it("keeps import, file/plugin selection, keyboard editing and export discoverable by role and name", async () => {
+  setupWorkspaceApi();
   // Model only the native chooser's file selection; all application interactions use named controls.
   vi.spyOn(HTMLInputElement.prototype, "click").mockImplementation(function (this: HTMLInputElement) {
     fireEvent.change(this, { target: { files: [new File(["invented fixture"], "fixture.zip")] } });
