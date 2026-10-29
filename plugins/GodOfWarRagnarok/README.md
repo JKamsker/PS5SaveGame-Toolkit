@@ -16,7 +16,7 @@ measurements and deterministic paging, lookup and planning regression budgets.
 | Feature | Status and evidence |
 | --- | --- |
 | F1 SaveDiff | **Used**: `RagnarokEvidenceDecoder` is the bounded decoder hook; grammar spans expose stable wallet, flag and integrity paths. |
-| F2 reference packs | **Used**: PS5/community/skill packs plus attributed resource, skill, gear, rune and map assets; 961 runtime IDs, four tree groups and 1,682 explicitly cross-game 2018 candidates; direct fallback and Sources-panel attribution are tested. |
+| F2 reference packs | **Used**: PS5/community/skill packs plus attributed resource, skill, gear, rune and map assets; 961 runtime IDs, four tree groups and 1,682 explicitly cross-game 2018 candidates; SDK-03 `EmbeddedReferenceContext.Load` decodes the direct fallback once with bounded catalog traversal, preserving per-record joins and host overrides; direct fallback and Sources-panel attribution are tested. |
 | F3 rich table cells | **Used**: confidence badges/warnings, detail fields, attributed icon cells, attribution cells and per-row inspect/restore actions. |
 | F4 `ReferenceSpec` pickers | **Used**: catalogue-backed resource IDs in F8 pages and read-only skill-reference fields; unknown IDs remain raw. |
 | F5 structural edits | **N/A**: no safe add/remove/reorder grammar or free-slot/ownership invariant is proven. |
@@ -30,8 +30,9 @@ measurements and deterministic paging, lookup and planning regression budgets.
 | F13 non-mutating inspect/browse | **Used**: resource inspections are `Mutates=false`; reference fields are browse-only and preserve history/bytes. F8 queries expose catalogue-derived labels with filtering/sorting. Float-duration fields are N/A: the time word is integer seconds. |
 
 Shared SDK helpers: **Used** — `BoundSaveDocument` for bindings/atomic edits and
-`SaveToolkit.Sdk.Binary.Crc32Ieee.Compute` for read-only IEEE CRC evidence. The bounded binary
-cursor and `InMemoryCollection<T>` are **N/A** to the current implementation: local readers retain
+`SaveToolkit.Sdk.Binary.Crc32Ieee.Compute` for read-only IEEE CRC evidence, and SDK-03
+`EmbeddedReferenceContext.Load` / `ReferenceCatalogReader.ReadBounded` for embedded fallback records.
+The bounded binary cursor and `InMemoryCollection<T>` are **N/A** to the current implementation: local readers retain
 format-specific enclosing-range checks and exact diagnostics, and local F8 queries read live counter
 words while binding only page rows. See [SDK helper migration](#sdk-helper-migration-40).
 
@@ -378,6 +379,15 @@ The IEEE CRC helper is available and adopted; no CRC SDK request remains.
 F5/F7 are available but no safe structural or linked multi-file writer is established for this format.
 
 ## SDK helper migration (#40)
+
+`RagnarokReferenceLoader` adopts the [SDK-03 decoder-only migration](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489067186).
+It loads the embedded assembly once, bounds complete catalog reads by the SDK record budget and
+checks that each selected catalog belongs to the requested pack. Existing original/collectible/community/
+runtime/2018 and skill joins, host overrides and unknown-ID labels stay local. Direct fallback records
+retain their previous attribution-only dataset metadata and omit icons and quantity limits; supplied
+host contexts still control those enrichments. Invalid embedded packs fail initialization atomically
+through the shared decoder; no partial or empty fallback is substituted. Characterization tests retain
+all 2,797 fallback records and metadata in order, plus unchanged direct and hosted protocol fingerprints.
 
 `RagnarokIntegrity` uses `SaveToolkit.Sdk.Binary.Crc32Ieee.Compute` for its read-only IEEE CRC probes.
 Coverage, folding policy, aligned little-endian comparisons and EOF-sentinel exclusion remain local.
