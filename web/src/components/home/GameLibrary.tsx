@@ -6,6 +6,7 @@ import type { TitleInfo } from "../../api/protocol";
 import type { LibraryGame } from "../../lib/library";
 import { formatBytes } from "../../lib/values";
 import { library, useLibrary } from "../../state/libraryStore";
+import { useImportTask } from "./importTask";
 
 const supportText = { Edit: "Editable", View: "View only", None: "Raw view only" } as const;
 
@@ -75,32 +76,36 @@ function GameTile({ game, title, icon }: { game: LibraryGame; title: TitleInfo |
   const navigate = useNavigate();
   const [progress, setProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const task = useImportTask(game.key);
   const name = title?.name ?? game.fallbackName;
   const support = title?.support ?? "None";
 
-  const open = async () => {
+  const open = () => task.run(async isCurrent => {
     setError(null);
+    setProgress(0);
     const existing = library.importedWorkspace(game.key);
     if (existing) {
       const alive = await api.workspace(existing).then(() => true, () => false);
+      if (!isCurrent()) return;
       if (alive) return navigate(`/w/${existing}`);
     }
-    setProgress(0);
     try {
-      const ws = await api.upload(game.sources, name, setProgress);
+      const ws = await api.upload(game.sources, name, progress => { if (isCurrent()) setProgress(progress); });
+      if (!isCurrent()) return;
       library.rememberImport(game.key, ws.id);
       navigate(`/w/${ws.id}`);
     } catch (e) {
+      if (!isCurrent()) return;
       setError(e instanceof ApiError ? e.message : "The import failed.");
       setProgress(null);
     }
-  };
+  });
 
   const busy = progress !== null;
   return (
     <li className={`game${busy ? " game--busy" : ""}`}>
       <div className="game__content">
-      <button type="button" className="game__button" onClick={() => void open()} disabled={busy} aria-describedby={`${game.key}-meta`}>
+      <button type="button" className="game__button" onClick={() => void open()} disabled={task.busy} aria-describedby={`${game.key}-meta`}>
         {icon ? <img className="game__art" src={icon} alt="" /> : <span className="game__art game__art--empty">{game.titleId ?? "?"}</span>}
         <span className="game__name">{name}</span>
         <span className="game__meta" id={`${game.key}-meta`}>

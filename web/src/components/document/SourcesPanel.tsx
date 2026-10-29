@@ -2,6 +2,7 @@ import { useEffect, useId, useState, type ChangeEvent, type ReactNode } from "re
 import { useQuery } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import type { DocumentSource } from "../../api/protocol";
+import { useAsyncTask } from "../ui/useAsyncTask";
 import "../../styles/sources.css";
 
 interface SourcesPanelProps {
@@ -20,6 +21,7 @@ interface SourcesPanelProps {
  */
 export function SourcesPanel({ workspaceId, documentId, pluginReferences, refreshKey, onToast }: SourcesPanelProps) {
   const [open, setOpen] = useState(false);
+  const { busy, run: submit } = useAsyncTask(`${workspaceId}:${documentId}`);
   const panelId = useId();
   const query = useQuery({
     queryKey: ["sources", workspaceId, documentId, refreshKey],
@@ -36,12 +38,14 @@ export function SourcesPanel({ workspaceId, documentId, pluginReferences, refres
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
+    await submit(async isCurrent => {
     try {
       const pack = await api.importReferencePack(file);
-      onToast(`Imported “${pack.title}”. Re-open the document to use it.`);
+      if (isCurrent()) onToast(`Imported “${pack.title}”. Re-open the document to use it.`);
     } catch (error) {
-      onToast(error instanceof ApiError ? error.message : "The pack could not be imported.", true);
+      if (isCurrent()) onToast(error instanceof ApiError ? error.message : "The pack could not be imported.", true);
     }
+    });
   };
 
   return (
@@ -62,7 +66,7 @@ export function SourcesPanel({ workspaceId, documentId, pluginReferences, refres
           {query.data && <SourcesList datasets={query.data.datasets} pluginReferences={pluginReferences} />}
           <label className="btn btn--small btn--quiet sources__import">
             Import reference pack…
-            <input type="file" accept=".zip,application/zip" className="visually-hidden" onChange={importPack} />
+            <input type="file" accept=".zip,application/zip" className="visually-hidden" disabled={busy} onChange={importPack} />
           </label>
         </div>
       )}

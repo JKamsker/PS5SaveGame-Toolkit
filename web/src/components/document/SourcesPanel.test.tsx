@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import type { DocumentSource } from "../../api/protocol";
 import { SourcesList, SourcesPanel } from "./SourcesPanel";
+import { deferred } from "../../test/deferred";
 
 const source = (overrides: Partial<DocumentSource>): DocumentSource => ({
   packId: "test.items.en",
@@ -37,11 +38,35 @@ function renderPanel() {
   const view = (refreshKey: number) => <QueryClientProvider client={client}>
     <SourcesPanel workspaceId="w" documentId="d" pluginReferences={[]} refreshKey={refreshKey} onToast={toast} />
   </QueryClientProvider>;
-  const { rerender } = render(view(0));
+  const { rerender, unmount } = render(view(0));
   const toggle = screen.getByRole("button", { name: /Sources and attribution/ });
   fireEvent.click(toggle);
-  return { toast, toggle, refresh: () => rerender(view(1)) };
+  return { toast, toggle, unmount, refresh: () => rerender(view(1)) };
 }
+
+it("imports a reference pack only once while pending", async () => {
+  vi.spyOn(api, "sources").mockResolvedValue({ datasets: [] });
+  const pending = deferred<Awaited<ReturnType<typeof api.importReferencePack>>>();
+  const upload = vi.spyOn(api, "importReferencePack").mockReturnValue(pending.promise);
+  const { toast } = renderPanel();
+  const input = document.querySelector('input[type="file"]')!;
+  const file = new File(["fixture"], "pack.zip");
+  act(() => { fireEvent.change(input, { target: { files: [file] } }); fireEvent.change(input, { target: { files: [file] } }); });
+  expect(upload).toHaveBeenCalledOnce();
+  await act(async () => { pending.reject(new ApiError("Pack unavailable", 503)); await pending.promise.catch(() => {}); });
+  expect(toast).toHaveBeenCalledExactlyOnceWith("Pack unavailable", true);
+});
+
+it("suppresses reference-pack import errors after leaving the document", async () => {
+  vi.spyOn(api, "sources").mockResolvedValue({ datasets: [] });
+  const pending = deferred<Awaited<ReturnType<typeof api.importReferencePack>>>();
+  vi.spyOn(api, "importReferencePack").mockReturnValue(pending.promise);
+  const { toast, unmount } = renderPanel();
+  fireEvent.change(document.querySelector('input[type="file"]')!, { target: { files: [new File(["fixture"], "pack.zip")] } });
+  unmount();
+  await act(async () => { pending.reject(new ApiError("Old pack failure", 503)); await pending.promise.catch(() => {}); });
+  expect(toast).not.toHaveBeenCalled();
+});
 
 describe("SourcesList", () => {
   it("shows full attribution with licence and source links for datasets in use", () => {
