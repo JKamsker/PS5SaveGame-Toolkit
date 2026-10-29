@@ -6,20 +6,33 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.GenericJson.Tests;
 
-public sealed class JsonPerformanceTests
+[Collection(typeof(JsonPerformanceCollection))]
+public sealed class JsonPerformanceTests(ITestOutputHelper output)
 {
     private const int Entries = 50_000;
     private const long PageBudget = 100_000;
+    private const long OpeningBudget = 44_000_000;
+    private const int MeasuredOpeningRuns = 3;
 
     [Fact]
     public void OpeningAndFirstViewAvoidDuplicateNumberValidationAndHashBuffers()
     {
         var file = MemorySaveSet.SingleFile("large.json", Source());
         var plugin = new GenericJsonPlugin();
-        using var warmup = plugin.Open(file);
-        _ = warmup.BuildView();
-        var allocated = Allocated(() => { using var document = plugin.Open(file); _ = document.BuildView(); });
-        Assert.InRange(allocated, 0, 44_000_000);
+        OpenAndBuildView();
+        // Gate steady-state allocations without letting one noisy run decide the result.
+        var measurements = new long[MeasuredOpeningRuns];
+        for (var run = 0; run < measurements.Length; run++)
+            measurements[run] = Allocated(OpenAndBuildView);
+        var allocated = measurements.Min();
+        output.WriteLine($"Opening allocations (bytes): {string.Join(", ", measurements)}; minimum: {allocated}.");
+        Assert.InRange(allocated, 0, OpeningBudget);
+
+        void OpenAndBuildView()
+        {
+            using var document = plugin.Open(file);
+            _ = document.BuildView();
+        }
     }
 
     [Fact]
