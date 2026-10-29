@@ -44,6 +44,7 @@ internal sealed class EldenRingEvidenceDecoder : ISaveDecoderHook
                     if (!sink.Add(path + "/identity", "text", entry.RawId)) return;
                 }
             }
+            if (!CharacterEvidence.Add(bytes, slot, semantic, sink)) return;
         }
     }
 

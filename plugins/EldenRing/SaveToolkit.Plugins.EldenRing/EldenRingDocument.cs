@@ -196,9 +196,10 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
         {
             var name = attributeNames[index];
             attributes.Add(ReadOnlyInteger($"slots/{slot.Index}/attributes/{name.ToLowerInvariant()}", name,
-                player + EldenRingLayout.AttributesOffset + index * sizeof(uint)) with
+                player + EldenRingLayout.AttributesOffset + index * sizeof(uint), Confidence.Inferred) with
                 {
-                    Description = "Read-only until class minima and dependent HP/FP/stamina updates are validated.",
+                    Description = "Read-only: class minima, modifier-aware HP/FP/stamina, equip load and integrity updates are unverified. "
+                        + "Source: " + SemanticViews.Provenance,
                 });
         }
         fields.AddRange(attributes);
@@ -268,7 +269,8 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
     private FieldNode Name(CharacterSlot slot) => _writes.Name(slot, Field);
 
     private FieldNode Level(CharacterSlot slot) => ReadOnlyInteger($"slots/{slot.Index}/level", "Level",
-        slot.PlayerOffset!.Value + EldenRingLayout.LevelOffset) with { Description = "Sum of the eight attributes minus 79; matched to the profile summary." };
+        slot.PlayerOffset!.Value + EldenRingLayout.LevelOffset, Confidence.Inferred) with
+        { Description = "Sum of the eight attributes minus 79; matched to the profile summary. Source: " + SemanticViews.Provenance };
 
     private FieldNode PlayTime(CharacterSlot slot) => Field($"slots/{slot.Index}/playtime", "Play time",
         IntegerSpec.UInt64 with { Format = IntegerFormat.Duration, UnitsPerSecond = (long)EldenRingLayout.MillisecondsPerSecond },

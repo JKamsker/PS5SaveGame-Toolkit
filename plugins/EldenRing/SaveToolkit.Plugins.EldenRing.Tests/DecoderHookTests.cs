@@ -22,7 +22,9 @@ public sealed class DecoderHookTests
         var tree = decoder.Decode(file, new());
         Assert.False(tree.Truncated);
         Assert.Empty(tree.Warnings);
-        Assert.Equal(8, tree.Values.Count);
+        // Original 8 inventory/prefix values, 10 attributes/level mirrors, 34 equipment
+        // triples, 18 assembly IDs and 18 pairs of menu representations.
+        Assert.Equal(174, tree.Values.Count);
         Assert.Contains(tree.Values, value => value.Path.EndsWith("/quantity", StringComparison.Ordinal) && value.Value == "12");
         Assert.DoesNotContain(tree.Values, value => value.Value.Contains("Hero", StringComparison.Ordinal));
         Assert.All(tree.Values, value => Assert.DoesNotContain("name", value.Path));
@@ -35,7 +37,7 @@ public sealed class DecoderHookTests
         Assert.Throws<InvalidDataException>(() => decoder.Decode(file, new() { MaxFileBytes = file.Length - 1 }));
         var original = file.ReadAllBytes();
         // Reject at different points, including inventory values and the storage counts.
-        foreach (var accepted in new[] { 0, 1, 2, 4, 5, 7 })
+        foreach (var accepted in new[] { 0, 1, 2, 4, 5, 7, 8, 16, 17, 18, 20, 80, 173 })
         {
             var sink = new RejectingSink(accepted);
             hook.Decode(file, sink);
