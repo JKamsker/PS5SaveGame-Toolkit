@@ -2,7 +2,7 @@
   "schema": 1,
   "id": "gow-ragnarok.skills.en",
   "version": "1.0.0",
-  "title": "Ragnar\u00f6k weapon skill references (not saved-state mappings)",
+  "title": "Ragnarök weapon skill references and thumbnails (not saved-state mappings)",
   "plugins": [
     "gow-ragnarok"
   ],
@@ -21,7 +21,7 @@
       "files": [
         {
           "path": "skills.json",
-          "sha256": "90c4c40bf741cdfb0c5822f33535c7581a3ae857338bd2f577a11ea872a849e9"
+          "sha256": "ca84d96097b3b50dd8e1756bc711ee90a0bce1f537a647b6eead069fe736edbf"
         }
       ],
       "attribution": {
@@ -30,8 +30,9 @@
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Transcribed factual Ragnar\u00f6k-only skill names, branches, listed costs/levels and explicit prerequisites from the three weapon pages and Skill Labors. Normalized Roman numerals and Maelstrom spelling; omitted artwork and gameplay prose. Presentation keys are original and are not game hashes. Unknown requirements stay explicit."
+        "modifications": "Transcribed factual Ragnarök-only skill names, branches, listed costs/levels and explicit prerequisites from the three weapon pages and Skill Labors. Normalized Roman numerals and Maelstrom spelling; omitted artwork and gameplay prose. Presentation keys are original and are not game hashes. Unknown requirements stay explicit."
       }
     }
-  ]
+  ],
+  "description": "Base-game skill names, sourced descriptions and five compact thumbnails; saved-state mappings remain Unknown."
 }

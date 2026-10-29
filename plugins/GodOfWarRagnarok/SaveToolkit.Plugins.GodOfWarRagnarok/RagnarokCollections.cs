@@ -143,7 +143,7 @@ internal sealed class RagnarokCollections
             "index-words" => ["container", "word", "offset"],
             "flags" => ["group", "id", "group-name", "group-source", "name", "source", "flags", "offset"],
             "directory" => ["id", "name", "source", "word", "offset"],
-            _ => ["container", "name", "id", "category", "quantity", "metadata", "source", "offset"],
+            _ => ["container", "name", "id", "category", "quantity", "metadata", "source", "offset", "icon"],
         };
         if (id is "resources" or "xp" or "collectibles") columns = [.. columns, "inspect", "restore"];
         var info = new QueryableCollection(id, title, columns.Select(key => new QueryableColumn(key, Label(key))).ToArray(), rows.Count)
@@ -164,7 +164,8 @@ internal sealed class RagnarokCollections
                 ("container", references.Container(wallet.Id)), ("name", references.Name(id)), ("id", RagnarokReferences.Key(id)),
                 ("category", references.Category(id)), ("quantity", document.ReadWord(offset + sizeof(ulong)).ToString(CultureInfo.InvariantCulture)),
                 ("metadata", document.ReadWord(offset + RagnarokFormat.WalletRowMetadataOffset).ToString(CultureInfo.InvariantCulture)),
-                ("source", references.Attribution(id)), ("offset", Hex(offset))), "quantity", offset + sizeof(ulong), Confidence.Inferred));
+                ("source", references.Attribution(id)), ("offset", Hex(offset)), ("icon", string.Empty)),
+                "quantity", offset + sizeof(ulong), Confidence.Inferred));
         }
     }
 
@@ -183,6 +184,9 @@ internal sealed class RagnarokCollections
             var id = document.ReadId(row.Offset);
             if (_references.Catalog(id) is { } catalog)
                 cells["id"] = document.ResourceReference(row.Offset, catalog, _references.Name(id));
+
+            if (_references.Find(id)?.AssetId is { } asset)
+                cells["icon"] = new ImageNode(asset, _references.Name(id));
         }
 
         return new(row.Key, cells);

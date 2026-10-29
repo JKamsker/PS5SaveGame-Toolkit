@@ -52,7 +52,7 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
             new("Resources & XP", [RagnarokWrites.RestoreAction(), CollectionViews.View("resources"), CollectionViews.View("xp")]),
             new("Gear candidates", [CollectionViews.View("nested-ids"), CollectionViews.View("index-words")]),
             new("Skills", RagnarokSpatialViews.SkillRoots()),
-            new("Realm map", [RagnarokSpatialViews.RealmMap(), SectionNode.Lazy("Realm reference details", "realm-details")]),
+            new("Realm map", [RagnarokSpatialViews.RealmMap(references), SectionNode.Lazy("Realm reference details", "realm-details")]),
             new("Quests & collectibles", [CollectionViews.View("collectibles"), CollectionViews.View("flags"),
                 new TextNode("Named quest IDs, equipped gear and completion flags remain unknown. No completion or ownership is inferred from raw matches.") { Tone = Tone.Warning }]),
             new("Nested containers", [RagnarokNestedView.Build(index, references)]),

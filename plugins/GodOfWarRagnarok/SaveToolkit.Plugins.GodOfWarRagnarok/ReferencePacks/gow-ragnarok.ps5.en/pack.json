@@ -2,18 +2,36 @@
   "schema": 1,
   "id": "gow-ragnarok.ps5.en",
   "version": "1.0.0",
-  "title": "God of War Ragnarök PS5 resource identities (English)",
-  "description": "Versioned factual hash/name/category crosswalk for resource IDs observed in PPSA08330 samples. Legal game limits are deliberately unknown; the storage-width note is informational only.",
-  "plugins": ["gow-ragnarok"],
-  "titleIds": ["PPSA08329", "PPSA08330", "PPSA08331", "PPSA08332", "PPSA08333", "PPSA08334", "PPSA25043", "PPSA25044"],
-  "gameBuilds": ["PS5 revision 0x00513040"],
+  "title": "God of War Ragnarök PS5 resources and attributed icons (English)",
+  "description": "Versioned resource identities with a small attributed icon set for the editor catalogue.",
+  "plugins": [
+    "gow-ragnarok"
+  ],
+  "titleIds": [
+    "PPSA08329",
+    "PPSA08330",
+    "PPSA08331",
+    "PPSA08332",
+    "PPSA08333",
+    "PPSA08334",
+    "PPSA25043",
+    "PPSA25044"
+  ],
+  "gameBuilds": [
+    "PS5 revision 0x00513040"
+  ],
   "locale": "en",
   "datasets": [
     {
       "id": "gow-ragnarok-resources",
       "kind": "records",
       "title": "PS5 resource hash dictionary",
-      "files": [{"path": "resources.json", "sha256": "ab4ec06e5b8a9b561292e8f9339a49d44499d29c4e5370c2c238f5a2e8995864"}],
+      "files": [
+        {
+          "path": "resources.json",
+          "sha256": "db4b593abc37532c6409d4139acabd059f6f590f26f013d71955648650d6fc2a"
+        }
+      ],
       "attribution": {
         "sourceUrl": "https://godofwar.fandom.com/wiki/Resources/GOW_%28Ragnar%C3%B6k%29",
         "author": "God of War Wiki contributors",
@@ -21,6 +39,29 @@
         "licenseUrl": "https://www.fandom.com/licensing",
         "retrieved": "2026-10-28",
         "modifications": "Normalized names and broad resource categories; paired names with byte-order-preserving hash IDs from the cited community resource table and PPSA08330 sample occurrences. No game artwork or copied prose is included. Legal quantity limits remain unknown."
+      }
+    },
+    {
+      "id": "gow-ragnarok-resource-assets",
+      "kind": "assets",
+      "title": "Upgrade resource icons",
+      "files": [
+        {
+          "path": "assets/chaos-flame.webp",
+          "sha256": "07fae31ed650e4f97f09ad34399accb1c1d279649f572d5247f5631f54620067"
+        },
+        {
+          "path": "assets/frozen-flame.webp",
+          "sha256": "7858c99884f546e26f5e06064f85b686e6dfd99ecb2f15a2aad09e2e4bae0e3a"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://godofwar.fandom.com/wiki/Resources/GOW_%28Ragnar%C3%B6k%29",
+        "author": "God of War Wiki contributors; Santa Monica Studio",
+        "license": "Rights reserved by Sony/Santa Monica; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://www.fandom.com/licensing",
+        "retrieved": "2026-10-29",
+        "modifications": "Downscaled source icons to WebP at 96 px or less; no gameplay data changed."
       }
     }
   ]
