@@ -101,8 +101,8 @@ for shared runner options and temporary-storage setup.
   templates, wikis, format keys and checksum algorithms. Reuse proven approaches within rule 9,
   cite sources in the README and verify claims against actual sample bytes. Treat downloaded code
   as untrusted: read it before use. Mark unconfirmed meanings `Inferred` or `Unknown`.
-- Use nullable C#, file-scoped namespaces and `sealed` by default. Keep non-generated files under
-  300 lines where possible and never above 500 without a documented justification. Prefer composition
+- Use nullable C#, file-scoped namespaces and `sealed` by default. Keep files small (<400 lines,
+  owner rule in [AGENTS.md](../AGENTS.md#rules-for-plugin-work)). Prefer composition
   and reused helpers; do not split into partials merely to meet a line count. Avoid `dynamic`,
   reflection tricks and unsafe code (any exception needs a reason in a comment).
 - Do not add repository tooling inside plugin folders: no hooks, build targets, `Directory.Build.*`,

@@ -41,9 +41,21 @@ Documentation checks: `python -B docs/tests/test_documentation.py --code-ref mai
 ## Rules for plugin work
 
 Read [PLUGIN_GUIDE.md](docs/PLUGIN_GUIDE.md) before touching a plugin. Its
-[contribution workflow](docs/PLUGIN_GUIDE.md#contribution-workflow) owns plugin scope, research,
-style and tooling rules; its [hard rules](docs/PLUGIN_GUIDE.md#hard-rules) own preservation,
-integrity, purity, confidence and the owner's licence rule 9. Use those rules instead of older plans.
+[contribution workflow](docs/PLUGIN_GUIDE.md#contribution-workflow) and
+[hard rules](docs/PLUGIN_GUIDE.md#hard-rules) are the detailed source; the essentials:
+
+- Stay inside your `plugins/<Name>/` folder. Do **not** edit `src/`, `web/`, `tests/` or other plugins
+  (exception: a `<PackageVersion>` line in `Directory.Packages.props`). Record SDK needs under
+  `## SDK requests` in the plugin README.
+- Hard rules: never lose data, fix integrity, honest confidence labels, bounded views, stateless
+  plugin, no I/O. Licence policy: rule 9 in the guide.
+- **Research before you implement**, cite every source in the plugin README, treat downloaded code as
+  untrusted, and verify claims against the actual sample bytes (`Inferred`/`Unknown` otherwise).
+- Tests: conformance must pass; add format-specific tests; tests must skip, not fail, without samples.
+- C#: nullable enabled, file-scoped namespaces, `sealed` by default, small files (<400 lines),
+  no `dynamic`, no reflection tricks, no unsafe code unless justified in a comment.
+- No repo tooling in plugin folders (hooks, build targets, `Directory.Build.*`, lint scripts,
+  `.gitattributes`).
 
 ## Collaboration policy
 
