@@ -102,6 +102,29 @@ class DocumentationTests(unittest.TestCase):
 
 
 
+    def test_scaffold_examples_create_an_unused_plugin(self):
+        for page in ("AGENTS.md", "docs/PLUGIN_GUIDE.md"):
+            text = document(page)
+            names = re.findall(r"new-plugin\.ps1 -Name ([A-Z][A-Za-z0-9]+)", text)
+            for name in names:
+                with self.subTest(page=page, name=name):
+                    self.assertFalse(any(path.startswith(f"plugins/{name}/") for path in source_paths()),
+                                     "The scaffolder rejects an existing plugin folder")
+                    self.assertIn(f"plugins/{name}/SaveToolkit.Plugins.{name}.Tests", text)
+
+
+    def test_conformance_coverage_documents_source_limits(self):
+        code = source("src/SaveToolkit.Testing/PluginConformanceTests.cs")
+        text = document("docs/PLUGIN_GUIDE.md").split("## Tests", 1)[1].split("## Plugin README", 1)[0]
+        for name in ("MaxFilesPerTitle", "LazyExpansionBudget"):
+            value = re.search(rf"{name} => (\d+)", code)[1]
+            self.assertRegex(text, rf"`{name}`[^\n]*\*\*{value}\*\*")
+        value = re.search(r"DefaultQueryPageBudget = (\d+)", code)[1]
+        self.assertRegex(text, rf"`QueryPageBudget`[^\n]*\*\*{value}\*\*")
+        self.assertNotIn("opening every claimed sample", text)
+
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--code-ref", default="HEAD", help="Git ref for implementation checks (default: HEAD)")

@@ -72,11 +72,11 @@ checksums, platform prerequisites, version tags and rollback.
 
 ### Run from source
 
-Install the .NET 10 SDK selected by [global.json](global.json), Node.js and npm.
+Install the .NET 10 SDK selected by [global.json](global.json), Node.js 24 and npm.
 From the repository root:
 
 ```powershell
-cd web; npm install; npm run build; cd ..     # builds the UI into src/SaveToolkit.Api/wwwroot
+cd web; npm ci; npm run build; cd ..          # builds the UI into src/SaveToolkit.Api/wwwroot
 dotnet run --project src/SaveToolkit.Api      # http://127.0.0.1:5180
 ```
 

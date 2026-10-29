@@ -29,7 +29,7 @@ dotnet test --project plugins/<Name>/SaveToolkit.Plugins.<Name>.Tests
 ./scripts/package.ps1 -Runtime win-x64 -OutputDirectory <path>      # self-contained UI/API bundle + SHA-256
 ./scripts/smoke-package.ps1 -Runtime win-x64 -PackageDirectory <path> -ScratchDirectory <path>
 ./scripts/new-plugin.ps1 -Name <Name> -Id <id> -TitleIds PPSA..... -GameName "<Game>"
-cd web; npm install; npm run dev                                   # UI on :5173, proxies /api to :5180
+cd web; npm ci; npm run dev                                        # UI on :5173, proxies /api to :5180
 dotnet run --project src/SaveToolkit.Api                           # API on http://127.0.0.1:5180
 ```
 
