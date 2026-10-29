@@ -79,6 +79,10 @@ public sealed partial class DocumentSession : IDisposable
 
     public DocumentState State => Locked(StateUnlocked);
 
+    /// <summary>Captures the view and its revision together, without an edit or undo interleaving.</summary>
+    public DocumentViewSnapshot CaptureView() => Locked(() =>
+        new DocumentViewSnapshot(Document.Title, Document.CanEdit, StateUnlocked(), BuildView()));
+
     public ViewNode BuildView() => Locked(() =>
     {
         var view = Document.BuildView();
