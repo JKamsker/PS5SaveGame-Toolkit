@@ -152,6 +152,7 @@ internal sealed class JsonTokenTree
         void Visit(JsonValueToken node, JsonValueToken? parent)
         {
             node.Parent = parent;
+            node.TreeOrder = Nodes.Count;
             // All membership, order and name mutations pass through Reindex, including snapshot restore.
             node.StructureReview = null;
             node.EscapedPathLabel = null;
