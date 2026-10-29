@@ -133,6 +133,16 @@ jobs:
         with:
           version: v2.14.2
           args: --latest --strip header --output ${{ runner.temp }}/release-notes.md
+      - name: Prepend curated release notes when available
+        shell: pwsh
+        run: |
+          $curatedPath = Join-Path 'docs/release-notes' "$env:RELEASE_TAG.md"
+          if (Test-Path -LiteralPath $curatedPath -PathType Leaf) {
+            $generatedPath = Join-Path $env:RUNNER_TEMP 'release-notes.md'
+            $curated = [IO.File]::ReadAllText((Resolve-Path -LiteralPath $curatedPath).Path)
+            $changelog = [IO.File]::ReadAllText($generatedPath)
+            "$($curated.TrimEnd())`n`n$changelog" | Set-Content -LiteralPath $generatedPath -Encoding utf8 -NoNewline
+          }
       - name: Verify assets and publish release
         shell: pwsh
         run: |
