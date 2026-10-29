@@ -113,6 +113,46 @@ public sealed class AriseInspectionTests
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
     }
 
+    [Theory]
+    [InlineData("items")]
+    [InlineData("artes")]
+    [InlineData("skills")]
+    [InlineData("inventory")]
+    public void FixedRowInspectionWorksThroughCoreWithDefaultsAndRejectsSubstitution(string collectionId)
+    {
+        var plugin = new TalesOfArisePlugin();
+        var file = Assert.IsType<DiskSaveFile>(AriseSampleTests.GameplayFiles().First(file => file.FileName == "SaveData_002.sav"));
+        var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA02745");
+        using var document = plugin.Open(file, references);
+        using var session = new DocumentSession("arise-fixed-inspect", file, plugin, document, references: references);
+        _ = session.BuildView();
+        if (collectionId == "inventory") _ = session.Expand("inventory");
+        var rows = session.QueryCollection(collectionId, new()).Rows;
+        var expectedActions = collectionId == "inventory" ? 1 : 2;
+        var actions = rows.Select(row => row.Cells["inspect"]).OfType<ActionNode>().Take(expectedActions).ToArray();
+        Assert.Equal(expectedActions, actions.Length);
+        var catalog = references.Catalog(collectionId == "inventory" ? "items" : collectionId)!;
+        var before = session.State;
+        var bytes = Assert.Single(document.Serialize()).Content.ToArray();
+        foreach (var action in actions)
+        {
+            var result = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement>(), before.Revision);
+            Assert.True(result.Ok, string.Join(';', result.Errors.Select(error => error.Message)));
+            var record = catalog.Find(Assert.Single(action.Parameters).Value.AsString())!;
+            Assert.Contains(record.Name, result.Message);
+            Assert.Equal(before, result.State);
+        }
+        var other = catalog.Search(new() { Limit = 2 }).Items
+            .First(record => record.Key != Assert.Single(actions[0].Parameters).Value.AsString());
+        var rejected = session.InvokeAction(actions[0].ActionId, new Dictionary<string, JsonElement>
+        {
+            ["record"] = JsonSerializer.SerializeToElement(other.Key),
+        });
+        Assert.False(rejected.Ok);
+        Assert.Equal(before, session.State);
+        Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
+    }
+
     private static IEnumerable<ActionNode> Actions(ViewNode node) => node switch
     {
         ActionNode action => [action],

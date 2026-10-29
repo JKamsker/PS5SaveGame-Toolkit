@@ -18,6 +18,7 @@ internal sealed class AriseReferences(IReferenceContext context)
     public const string CharactersCatalogId = "characters";
     public const string ProgressCatalogId = "progress";
     private const string InspectPrefix = "references/inspect/";
+    private const string RecordParameter = "record";
     private static readonly string[] CatalogIds =
         [ItemsCatalogId, EquipmentCatalogId, ArtesCatalogId, SkillsCatalogId, TitlesCatalogId, SkillNodesCatalogId, CharactersCatalogId, ProgressCatalogId];
     private readonly IReadOnlyDictionary<string, IReferenceCatalog?> _catalogs =
@@ -41,24 +42,21 @@ internal sealed class AriseReferences(IReferenceContext context)
 
     public bool Handles(string actionId) => actionId.StartsWith(InspectPrefix, StringComparison.Ordinal);
 
-    public static ActionNode InspectionAction(string id, ReferenceRecord record, bool fixedRecord = true) =>
-        new(InspectPrefix + id, fixedRecord ? "Inspect" : "Inspect a reference record")
-        {
-            Mutates = false,
-            Tone = Tone.Info,
-            Description = $"Read-only reference details. {record.AttributionText}",
-            Parameters = [new FieldNode("record", "Reference record", new ReferenceSpec(id) { ReadOnly = fixedRecord }, FieldValue.Of(record.Key))],
-        };
+    public static ActionNode InspectionAction(IReferenceCatalog catalog, ReferenceRecord record, bool fixedRecord = true) =>
+        ReferenceInspection.Create(catalog, InspectPrefix + catalog.Id + (fixedRecord ? "/" + record.Key : ""),
+            fixedRecord ? "Inspect" : "Inspect a reference record", RecordParameter, "Reference record",
+            "Read-only reference details.", record.Key, fixedRecord)!;
 
     public ActionOutcome Inspect(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {
-        var id = actionId[InspectPrefix.Length..];
+        // Catalog IDs cannot contain '/', so the remaining suffix is the exact fixed record key.
+        // Encode identity in the action rather than a query cache: Core invokes inspection on a fresh document.
+        var target = actionId[InspectPrefix.Length..];
+        var separator = target.IndexOf('/');
+        var id = separator < 0 ? target : target[..separator];
+        var expectedKey = separator < 0 ? null : target[(separator + 1)..];
         var catalog = CatalogOrThrow(id);
-        if (!parameters.TryGetValue("record", out var value) || value.Kind != FieldValueKind.Text ||
-            catalog.Find(value.AsString()) is not { } record)
-        {
-            throw new ArgumentException("Choose an existing catalog record.", nameof(parameters));
-        }
+        var record = ReferenceInspection.ResolveSelection(catalog, parameters, RecordParameter, expectedKey);
 
         return new ActionOutcome
         {
@@ -100,7 +98,7 @@ internal sealed class AriseReferences(IReferenceContext context)
                         (character is null ? "" : $" Use the Character filter: {character}."),
                 },
                 .. catalog.Search(new ReferenceQuery { Limit = 1 }).Items
-                    .Select(record => InspectionAction(id, record, fixedRecord: false)),
+                    .Select(record => InspectionAction(catalog, record, fixedRecord: false)),
             ]);
     }
 

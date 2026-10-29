@@ -358,6 +358,13 @@ API build: **0 warnings/errors**. A generated-fixture regression pins the consol
 on the overview, editable fields, edit outcome and quantity preview, retaining mapping,
 integrity, level-dependency and acquisition qualifications.
 
+SDK helper migration (#40): **190 passed, 0 failed, 0 skipped** with external samples and
+D: test scratch; API build: **0 warnings/errors**. Before production changes, 23 added
+characterizations passed on the local helpers (181 tests total). Nine further regression cases
+cover fixed-record selection and fresh-document/Core inspection; the five direct-call cases
+failed before migration. Existing byte-identical no-op, edits/reopen, aliases and undo/redo
+tests still pass. Only `plugins/TalesOfArise` changed.
+
 ### Native SaveDiff evidence
 
 ```powershell
@@ -493,6 +500,22 @@ establishes that a named source has GPL-2.0-only or no-redistribution terms.
 | No specific source/revision recorded (commercial save-editor tables, other patch instructions and downloaded implementations) | No source-specific licence terms recorded. | Remain research-only; no specific licence-based refusal is recorded. | Attributed format facts, independently implemented code and the documented imports above. | Identify a concrete source/revision, material and terms before assessing reuse. |
 
 ## SDK requests
+
+SDK helper migration (#40): inventory application uses `ActionPlans.ApplyScalar` with
+`ActionPlanWarningPolicy.Merge`; eligibility, scope validation, unopened bindings and preview-only
+derived aliases remain plugin policy. Reference picker creation and selection use
+`ReferenceInspection`. Fixed row actions include their exact record key in the action ID so
+`ResolveSelection` enforces it even on Core's fresh inspection document; catalog-wide pickers
+retain their existing action IDs and allow choosing other pinned records. Labels, descriptions,
+result messages, warning order and Experimental maturity are unchanged. The shared selection
+helper requires exactly one text parameter and supplies its own invalid-selection diagnostics.
+
+`AriseAssets.Icon` remains local under the migration brief's behavior-preservation exception.
+`ReferenceViews.Icon` always composes record/image attribution in its alt text and falls back
+when image bytes or provenance are absent. The existing renderer preserves exact icon-role and
+publisher-notice text and emits an image whenever a record has an asset ID. Adopting that helper
+would change these behaviors; an exact-alt/availability-policy option would be needed for a
+strict migration. Map artwork, rich catalog filtering and reference detail prose also remain local.
 
 F14 exposes an existing Core semantic-review limitation: its original/current view
 walk does not traverse F8 collections. Quantity changes remain listed by value ID,
