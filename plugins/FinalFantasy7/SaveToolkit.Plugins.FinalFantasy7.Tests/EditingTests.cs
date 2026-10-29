@@ -43,30 +43,42 @@ public sealed class EditingTests
         var quantityId = $"inventory/{itemSlot}/quantity";
         var oldQuantity = document.GetValue(quantityId);
         var oldAp = document.GetValue("materia/0/ap");
-        var outcome = document.ApplyEdits(
+        ValueEdit[] edits =
         [
             new("game/gil", FieldValue.Of(oldGil.AsInt32() + 1L)),
             new(quantityId, FieldValue.Of(oldQuantity.AsInt32() + 1L)),
             new("materia/0/ap", FieldValue.Of(oldAp.AsUInt32() + 1U)),
-        ]);
+        ];
+        var outcome = document.ApplyEdits(edits);
 
         Assert.True(outcome.Succeeded);
-        Assert.Equal(3, outcome.Changes.Count);
+        var oldValues = new[] { oldGil, oldQuantity, oldAp };
+        Assert.Equal(edits.Length, outcome.Changes.Count);
+        for (var i = 0; i < edits.Length; i++)
+        {
+            var change = Assert.Single(outcome.Changes, change => change.ValueId == edits[i].ValueId);
+            Assert.Equal(oldValues[i], change.OldValue);
+            Assert.Equal(edits[i].Value, change.NewValue);
+            Assert.Equal(edits[i].Value, document.GetValue(edits[i].ValueId));
+        }
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
-        var inventoryOffset = schema.IsRemake ? 0x34DD8 : 0x4FA70;
-        var inventoryStride = schema.IsRemake ? 24 : 32;
-        var gilId = schema.IsRemake ? 20U : 1U;
+        const int inventoryOffset = 0x4FA70;
+        const int inventoryStride = 32;
+        const int apOffset = 0xBFA70;
+        const uint gilId = 1;
         var gilSlot = Enumerable.Range(0, 2048)
             .Single(i => BinaryPrimitives.ReadUInt32LittleEndian(original.AsSpan(inventoryOffset + i * inventoryStride)) == gilId);
-        var expectedOffsets = new HashSet<int>
-        {
-            inventoryOffset + gilSlot * inventoryStride + 4,
-            inventoryOffset + itemSlot * inventoryStride + 4,
-            0xBFA70,
-        };
-        var changed = Enumerable.Range(0, original.Length).Where(i => original[i] != edited[i]).ToArray();
-        Assert.NotEmpty(changed);
-        Assert.All(changed, offset => Assert.Contains(offset, expectedOffsets));
+        var expected = original.ToArray();
+        BinaryPrimitives.WriteInt32LittleEndian(expected.AsSpan(inventoryOffset + gilSlot * inventoryStride + sizeof(uint)), edits[0].Value.AsInt32());
+        BinaryPrimitives.WriteInt32LittleEndian(expected.AsSpan(inventoryOffset + itemSlot * inventoryStride + sizeof(uint)), edits[1].Value.AsInt32());
+        BinaryPrimitives.WriteUInt32LittleEndian(expected.AsSpan(apOffset), edits[2].Value.AsUInt32());
+        Assert.Equal(expected, edited);
+
+        using var reopened = new FinalFantasy7Plugin().Open(MemorySaveSet.SingleFile(source.FileName, edited, title));
+        _ = reopened.BuildView();
+        _ = reopened.ExpandNode($"inventory/{itemSlot / GameplayFields.RowsPerPage}");
+        _ = reopened.ExpandNode("materia/0");
+        Assert.All(edits, edit => Assert.Equal(edit.Value, reopened.GetValue(edit.ValueId)));
 
         var undo = document.ApplyEdits(
         [
@@ -84,6 +96,7 @@ public sealed class EditingTests
         const string title = "PPSA01911";
         var schema = Ff7Schema.ForTitle(title)!;
         var source = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == schema.Prefix + "000");
+        var original = source.ReadAllBytes();
         using var document = new FinalFantasy7Plugin().Open(source);
         _ = document.BuildView();
         _ = document.ExpandNode("inventory/0");
@@ -100,5 +113,6 @@ public sealed class EditingTests
         Assert.Empty(result.Changes);
         Assert.Equal(oldGil, document.GetValue("game/gil"));
         Assert.Equal(oldQuantity, document.GetValue("inventory/1/quantity"));
+        Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
     }
 }
