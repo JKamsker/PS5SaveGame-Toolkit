@@ -20,7 +20,7 @@ public sealed class UnsupportedBoltLayoutTests
         using var document = new InsomniacPlugin().Open(MemorySaveSet.SingleFile("i29-s.save", bytes, "PPSA01474"));
         var view = document.BuildView();
         // The positive signed value remains inspectable, but is outside the unsigned write policy.
-        var fields = Fields(view).ToDictionary(field => field.ValueId);
+        var fields = EagerViewFields.Enumerate(view).ToDictionary(field => field.ValueId);
         Assert.True(document.CanEdit); // Independent gold-bolt booleans remain available.
         var otherId = name == "CareerBolts" ? RiftScalarWrites.SpentId : RiftScalarWrites.CareerId;
         var negativeValue = name == "CareerBolts" ? fields[RiftScalarWrites.CareerId].Value.AsInteger() + 1 : 0;
@@ -64,12 +64,4 @@ public sealed class UnsupportedBoltLayoutTests
     }
 
     private static byte[] Output(ISaveDocument document) => Assert.Single(document.Serialize()).Content.ToArray();
-
-    private static IEnumerable<FieldNode> Fields(ViewNode node) => node switch
-    {
-        FieldNode field => [field],
-        TabsNode tabs => tabs.Tabs.SelectMany(tab => tab.Children).SelectMany(Fields),
-        SectionNode section => section.Children.SelectMany(Fields),
-        _ => [],
-    };
 }

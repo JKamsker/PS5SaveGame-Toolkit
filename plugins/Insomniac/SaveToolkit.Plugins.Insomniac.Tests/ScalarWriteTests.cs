@@ -43,7 +43,7 @@ public sealed class ScalarWriteTests
             var plugin = new InsomniacPlugin();
             using var document = plugin.Open(file);
             using var session = new DocumentSession("batch", file, plugin, document);
-            var fields = Fields(session.BuildView()).Where(f => !f.Spec.ReadOnly).ToArray();
+            var fields = EagerViewFields.Enumerate(session.BuildView()).Where(f => !f.Spec.ReadOnly).ToArray();
             Assert.Equal(9, fields.Length);
             var edits = fields.Select(f => new ValueEdit(f.ValueId, Next(f))).ToArray();
             Assert.True(session.ApplyEdits(edits.Select(Incoming).ToArray()).Ok);
@@ -95,7 +95,7 @@ public sealed class ScalarWriteTests
         Assert.Contains(result.Changes, c => c.ValueId == "player/AvailableBolts" && c.NewValue.AsInt64() == 50);
         Assert.Contains(result.Changes, c => c.ValueId == "ddl/d436a987/CareerBolts/0" && c.NewValue.AsInt64() == 100);
         Assert.Equal(100, document.GetValue("ddl/d436a987/CareerBolts/0").AsInt64());
-        var rebuilt = Fields(document.BuildView()).ToDictionary(f => f.ValueId);
+        var rebuilt = EagerViewFields.Enumerate(document.BuildView()).ToDictionary(f => f.ValueId);
         Assert.Equal(100, rebuilt["player/CareerBolts"].Value.AsInt64());
         Assert.Equal(50, rebuilt["player/AvailableBolts"].Value.AsInt64());
         Assert.True(session.Undo().Ok);
@@ -110,7 +110,7 @@ public sealed class ScalarWriteTests
         var bytes = PlayerCorpusTests.Find("i29slot0-s-autosave", 0).ReadAllBytes();
         using var document = new InsomniacPlugin().Open(MemorySaveSet.SingleFile("i29-s.save", bytes));
         Assert.False(document.CanEdit);
-        Assert.All(Fields(document.BuildView()), f => Assert.True(f.Spec.ReadOnly));
+        Assert.All(EagerViewFields.Enumerate(document.BuildView()), f => Assert.True(f.Spec.ReadOnly));
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public sealed class ScalarWriteTests
         var original = RiftScalarWrites.ObservedCareerBoltsMaximum + 1;
         System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), checked((uint)original));
         using var document = new InsomniacPlugin().Open(MemorySaveSet.SingleFile("i29-s.save", bytes, "PPSA01474"));
-        var field = Assert.Single(Fields(document.BuildView()), f => f.ValueId == "player/CareerBolts");
+        var field = Assert.Single(EagerViewFields.Enumerate(document.BuildView()), f => f.ValueId == "player/CareerBolts");
         Assert.Equal(original, Assert.IsType<IntegerSpec>(field.Spec).Max);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.False(document.ApplyEdits([new(field.ValueId, FieldValue.Of(original + 1))]).Succeeded);
@@ -148,7 +148,7 @@ public sealed class ScalarWriteTests
         var plugin = new InsomniacPlugin();
         using var document = plugin.Open(file);
         using var session = new DocumentSession("scalar", file, plugin, document);
-        var fields = Fields(session.BuildView()).Where(f => !f.Spec.ReadOnly).ToArray();
+        var fields = EagerViewFields.Enumerate(session.BuildView()).Where(f => !f.Spec.ReadOnly).ToArray();
         Assert.NotEmpty(fields);
         if (expectedCount is { } count) Assert.Equal(count, fields.Length);
         var original = file.ReadAllBytes();
@@ -197,6 +197,21 @@ public sealed class ScalarWriteTests
         }
     }
 
+    [Fact]
+    public void EagerFieldTraversalPreservesOrderAndDuplicatesWithoutEnteringTablesOrLazySections()
+    {
+        var first = new FieldNode("first", "First", new BoolSpec(), FieldValue.Of(true));
+        var second = new FieldNode("second", "Second", new BoolSpec(), FieldValue.Of(false));
+        var root = new TabsNode([
+            new("First tab", [first, new SectionNode("Nested", [second, first])]),
+            new("Second tab", [
+                SectionNode.Lazy("Unexpanded", "lazy"),
+                new TableNode([new("value", "Value")], [new("row", new Dictionary<string, ViewNode> { ["value"] = second })]),
+            ]),
+        ]);
+        Assert.Equal(new[] { first, second, first }, EagerViewFields.Enumerate(root));
+    }
+
     private static FieldValue Next(FieldNode field) => field.Spec switch
     {
         BoolSpec => FieldValue.Of(!field.Value.AsBool()),
@@ -206,12 +221,4 @@ public sealed class ScalarWriteTests
     };
 
     private static IncomingEdit Incoming(ValueEdit edit) => new(edit.ValueId, JsonSerializer.SerializeToElement(edit.Value));
-
-    private static IEnumerable<FieldNode> Fields(ViewNode node) => node switch
-    {
-        FieldNode field => [field],
-        TabsNode tabs => tabs.Tabs.SelectMany(t => t.Children).SelectMany(Fields),
-        SectionNode section => section.Children.SelectMany(Fields),
-        _ => [],
-    };
 }
