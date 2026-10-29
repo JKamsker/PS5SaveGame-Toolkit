@@ -33,6 +33,9 @@ public sealed class ReferenceContext : IReferenceContext
 
     public IReadOnlyList<ReferencePackInfo> Packs { get; }
 
+    /// <summary>The ordered locale preferences that participate in catalog selection.</summary>
+    public IReadOnlyList<string> PreferredLocales => _preferredLocales;
+
     public IReferenceCatalog? Catalog(string catalogId, string? gameBuild = null)
     {
         lock (_catalogGate)

@@ -28,6 +28,9 @@ public sealed class EmbeddedReferenceContext : IReferenceContext
     /// <summary>All candidates in this context, ordered by ordinal pack id.</summary>
     public IReadOnlyList<ReferencePackInfo> Packs { get; }
 
+    /// <summary>The ordered locale preferences that participate in catalog selection.</summary>
+    public IReadOnlyList<string> PreferredLocales => _preferredLocales;
+
     /// <summary>
     /// Validates every <c>refpacks/&lt;folder&gt;/</c> pack in an assembly; catalogs and images load on first use. Backslashes in resource names
     /// are normalized as in the host. The returned unfiltered collection can be cached and pinned per open.

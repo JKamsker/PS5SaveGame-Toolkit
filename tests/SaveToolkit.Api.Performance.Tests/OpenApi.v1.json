@@ -244,6 +244,26 @@
         ],
         "type": "object"
       },
+      "ApplyPresetRequest": {
+        "properties": {
+          "planId": {
+            "type": "string"
+          },
+          "revision": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "planId",
+          "revision"
+        ],
+        "type": "object"
+      },
       "BoolSpec": {
         "description": "A Boolean field accepting only true or false.",
         "properties": {
@@ -261,6 +281,44 @@
         },
         "type": "object"
       },
+      "CapturePresetRequest": {
+        "properties": {
+          "actionId": {
+            "type": "string"
+          },
+          "allMatches": {
+            "default": false,
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": [
+              "null",
+              "object"
+            ]
+          },
+          "scopeKind": {
+            "default": "document",
+            "type": "string"
+          },
+          "selectedRowKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "actionId"
+        ],
+        "type": "object"
+      },
       "ColumnWidth": {
         "description": "Relative presentation hint for a table column; the host chooses concrete dimensions.",
         "enum": [
@@ -276,6 +334,28 @@
           "Unknown",
           null
         ]
+      },
+      "CreatePresetRequest": {
+        "properties": {
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/PresetAction"
+            },
+            "type": "array"
+          },
+          "compatibility": {
+            "$ref": "#/components/schemas/PresetCompatibility"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "compatibility",
+          "actions"
+        ],
+        "type": "object"
       },
       "DateTimeSpec": {
         "description": "ISO-8601 timestamp text. Set bool DateTimeSpec.HasTimeZone false for local/unknown-zone clocks.",
@@ -387,11 +467,27 @@
           "plugin": {
             "$ref": "#/components/schemas/PluginDto"
           },
+          "presetCapability": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PresetCapability"
+              }
+            ]
+          },
           "state": {
             "$ref": "#/components/schemas/DocumentState"
           },
           "title": {
             "type": "string"
+          },
+          "titleId": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "view": {
             "$ref": "#/components/schemas/ViewNode"
@@ -2150,6 +2246,293 @@
           "Stable"
         ]
       },
+      "PresetAction": {
+        "description": "One action configuration persisted by a toolkit preset.",
+        "properties": {
+          "actionId": {
+            "type": "string"
+          },
+          "instances": {
+            "items": {
+              "$ref": "#/components/schemas/PresetInstanceReference"
+            },
+            "type": "array"
+          },
+          "parameters": {
+            "type": "object"
+          },
+          "scopeKind": {
+            "default": "document",
+            "type": "string"
+          }
+        },
+        "required": [
+          "actionId",
+          "parameters"
+        ],
+        "type": "object"
+      },
+      "PresetActionCapability": {
+        "description": "Published action metadata a plugin is willing to capture or apply through presets.",
+        "properties": {
+          "actionId": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "parameterIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "parameterSpecs": {
+            "items": {
+              "$ref": "#/components/schemas/FieldSpec"
+            },
+            "type": "array"
+          },
+          "scopeKind": {
+            "default": "document",
+            "type": "string"
+          },
+          "scopeKinds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "supportsApply": {
+            "default": true,
+            "type": "boolean"
+          },
+          "supportsCapture": {
+            "default": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "actionId",
+          "label",
+          "parameterIds"
+        ],
+        "type": "object"
+      },
+      "PresetCapability": {
+        "description": "Optional plugin capability for semantic preset capture, instance resolution and atomic apply.",
+        "properties": {
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/PresetActionCapability"
+            },
+            "type": "array"
+          },
+          "fileRole": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "formatVariant": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "gameBuild": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "maxActions": {
+            "default": 32,
+            "format": "int32",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "presetKind": {
+            "default": "toolkit.action-parameters",
+            "type": "string"
+          },
+          "referencePackIdentity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "schemaFingerprint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "schemaVersion": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "actions"
+        ],
+        "type": "object"
+      },
+      "PresetCompatibility": {
+        "description": "Stable title, plugin and optional game-build identity used by an external toolkit preset.",
+        "properties": {
+          "capabilitySchemaVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fileRole": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "formatVariant": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "gameBuild": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pluginId": {
+            "type": "string"
+          },
+          "pluginVersion": {
+            "type": "string"
+          },
+          "presetKind": {
+            "default": "toolkit.action-parameters",
+            "type": "string"
+          },
+          "referencePackIdentity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requiresExplicitInstanceResolution": {
+            "default": true,
+            "type": "boolean"
+          },
+          "schemaFingerprint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "titleIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "pluginId",
+          "pluginVersion",
+          "titleIds"
+        ],
+        "type": "object"
+      },
+      "PresetDto": {
+        "properties": {
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/PresetAction"
+            },
+            "type": "array"
+          },
+          "compatibility": {
+            "$ref": "#/components/schemas/PresetCompatibility"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "schemaVersion": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "id",
+          "name",
+          "compatibility",
+          "actions",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "PresetInstanceReference": {
+        "description": "A semantic instance reference. Stable ids are supplied by a plugin; session ids are forbidden.",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "stableId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "stableId"
+        ],
+        "type": "object"
+      },
+      "PresetPlanRequest": {
+        "properties": {
+          "choices": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "object"
+            ]
+          },
+          "revision": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "QueryableCollectionQuery": {
         "description": "Text, exact column filters and deterministic paging/sorting for a collection.",
         "properties": {
@@ -2673,6 +3056,13 @@
       "ReferencePackInfo": {
         "description": "Identity of a loaded reference pack.",
         "properties": {
+          "contentFingerprint": {
+            "description": "SHA-256 identity of the validated manifest and every listed file hash.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "datasets": {
             "description": "Attributed record and asset datasets supplied by this pack.",
             "items": {
@@ -3077,6 +3467,17 @@
         ],
         "type": "object"
       },
+      "RenamePresetRequest": {
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
       "RevertChangeRequest": {
         "properties": {
           "revision": {
@@ -3345,6 +3746,12 @@
         "properties": {
           "attribution": {
             "$ref": "#/components/schemas/ReferenceAttribution"
+          },
+          "contentFingerprint": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "datasetId": {
             "type": "string"
@@ -4202,6 +4609,251 @@
               }
             },
             "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "SaveToolkit.Api"
+        ]
+      }
+    },
+    "/api/presets": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PresetDto"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "tags": [
+          "SaveToolkit.Api"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePresetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "tags": [
+          "SaveToolkit.Api"
+        ]
+      }
+    },
+    "/api/presets/{presetId}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "presetId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "tags": [
+          "SaveToolkit.Api"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "presetId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenamePresetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
           }
         },
         "tags": [
@@ -6964,6 +7616,277 @@
         ]
       }
     },
+    "/api/workspaces/{workspaceId}/documents/{documentId}/presets/capture": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "documentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional strong revision ETag precondition. Malformed syntax returns 400; mismatch returns 412.",
+            "in": "header",
+            "name": "If-Match",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CapturePresetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "tags": [
+          "PresetEndpoints"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/documents/{documentId}/presets/{presetId}/apply": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "presetId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "documentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional strong revision ETag precondition. Malformed syntax returns 400; mismatch returns 412.",
+            "in": "header",
+            "name": "If-Match",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyPresetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "tags": [
+          "PresetEndpoints"
+        ]
+      }
+    },
+    "/api/workspaces/{workspaceId}/documents/{documentId}/presets/{presetId}/preview": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "presetId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "documentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional strong revision ETag precondition. Malformed syntax returns 400; mismatch returns 412.",
+            "in": "header",
+            "name": "If-Match",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresetPlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "tags": [
+          "PresetEndpoints"
+        ]
+      }
+    },
     "/api/workspaces/{workspaceId}/documents/{documentId}/redo": {
       "post": {
         "parameters": [
@@ -8735,6 +9658,9 @@
     },
     {
       "name": "WorkspaceEndpoints"
+    },
+    {
+      "name": "PresetEndpoints"
     },
     {
       "name": "ReferenceEndpoints"

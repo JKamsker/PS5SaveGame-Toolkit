@@ -68,6 +68,8 @@ public sealed record DocumentDto(
     ViewNode View)
 {
     public IReadOnlyList<GroupMemberInfo>? GroupMembers { get; init; }
+    public PresetCapability? PresetCapability { get; init; }
+    public string? TitleId { get; init; }
 }
 
 public sealed record OpenRequest(string? PluginId);
@@ -82,3 +84,34 @@ public sealed record ActionRequest(string ActionId, Dictionary<string, JsonEleme
 public sealed record ExportRequest(ExportScope Scope = ExportScope.ChangedDirectories, bool MirrorBackups = true);
 
 public sealed record ExportPlanDto(IReadOnlyList<ExportedFile> Files, int ChangedCount);
+
+public sealed record PresetDto(
+    string SchemaVersion,
+    string Id,
+    string Name,
+    PresetCompatibility Compatibility,
+    IReadOnlyList<PresetAction> Actions,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset UpdatedAt);
+
+public sealed record CreatePresetRequest(
+    string Name,
+    PresetCompatibility Compatibility,
+    IReadOnlyList<PresetAction> Actions);
+
+public sealed record RenamePresetRequest(string Name);
+
+public sealed record PresetPlanRequest(long? Revision = null, IReadOnlyDictionary<string, string>? Choices = null);
+
+public sealed record CapturePresetRequest(
+    string Name,
+    string ActionId,
+    Dictionary<string, JsonElement>? Parameters = null,
+    string ScopeKind = "document",
+    IReadOnlyList<string>? SelectedRowKeys = null,
+    bool AllMatches = false);
+
+public sealed record ApplyPresetRequest(string PlanId, long Revision);
+
+public sealed record PresetPreviewDto(PresetDto Preset, ActionPreview Preview);
+public sealed record PresetSemanticPreviewDto(PresetDto Preset, PresetActionPreview Preview);

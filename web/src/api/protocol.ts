@@ -2,6 +2,7 @@ import type { GroupMember } from "./groups";
 // Mirror of src/SaveToolkit.Sdk (views/values) and src/SaveToolkit.Api/Contracts.
 // Keep in sync with the C# records; JSON is camelCase, enums are strings, nulls are omitted.
 import type { GraphNode, MapNode } from "./spatial";
+import type { ActionPreview } from "./actionReview";
 
 /** Exact lexemes and union choices are tagged; existing scalar wire representations are unchanged. */
 interface ExactNumberValue { kind: "exactNumber"; text: string }
@@ -163,6 +164,8 @@ export interface SaveDocument {
   canEdit: boolean;
   state: DocumentState;
   view: ViewNode;
+  presetCapability?: PresetCapability;
+  titleId?: string;
 }
 
 export interface ValueChange { valueId: string; oldValue: FieldValue; newValue: FieldValue }
@@ -210,6 +213,18 @@ export type ExportScope = "ChangedFiles" | "ChangedDirectories" | "Everything";
 
 export interface ExportPlan { files: { relativePath: string; length: number; reason: string }[]; changedCount: number }
 
+export interface PresetCompatibility { pluginId: string; pluginVersion: string; titleIds: string[]; gameBuild?: string; formatVariant?: string; referencePackIdentity?: string; requiresExplicitInstanceResolution?: boolean; presetKind?: string; schemaFingerprint?: string; fileRole?: string; capabilitySchemaVersion?: string }
+export interface PresetActionCapability { actionId: string; label: string; parameterIds: string[]; supportsCapture?: boolean; supportsApply?: boolean; parameterSpecs?: FieldSpec[]; scopeKind?: string; scopeKinds?: string[] }
+export interface PresetCapability { schemaVersion: string; gameBuild?: string; actions: PresetActionCapability[]; maxActions: number; formatVariant?: string; referencePackIdentity?: string; presetKind?: string; schemaFingerprint?: string; fileRole?: string }
+export interface PresetInstanceReference { kind: string; stableId: string; label?: string }
+export interface PresetAction { actionId: string; parameters: Record<string, unknown>; instances?: PresetInstanceReference[]; scopeKind?: string }
+export interface ToolkitPreset {
+  schemaVersion: string; id: string; name: string; compatibility: PresetCompatibility;
+  actions: PresetAction[]; createdAt: string; updatedAt: string;
+}
+export interface PresetResolutionItem { requested: PresetInstanceReference; status: "Resolved" | "Missing" | "Ambiguous" | "Unsupported"; candidates?: PresetInstanceReference[]; message?: string }
+export interface PresetPreview { preset: ToolkitPreset; preview: ActionPreview & { resolution?: { instances: PresetResolutionItem[]; succeeded: boolean } } }
+
 // ---- Reference packs (src/SaveToolkit.Sdk/References, src/SaveToolkit.Api/Contracts/ReferenceDtos.cs) ----
 
 type ReferencePackOrigin = "Embedded" | "User";
@@ -240,6 +255,7 @@ export interface ReferencePackInfo {
   version: string;
   title: string;
   origin: ReferencePackOrigin;
+  contentFingerprint?: string;
   description?: string;
   pluginIds: string[];
   titleIds: string[];
@@ -263,6 +279,7 @@ export interface DocumentSource {
   itemCount: number;
   attribution: ReferenceAttribution;
   used: boolean;
+  contentFingerprint?: string;
 }
 
 export interface DocumentSources { datasets: DocumentSource[] }

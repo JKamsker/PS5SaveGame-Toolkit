@@ -48,8 +48,15 @@ internal static class DtoMapper
     {
         var snapshot = d.CaptureView();
         return new(d.Id, d.File.Id, d.File.RelativePath, snapshot.Title, d.Plugin.ToDto(), snapshot.CanEdit, snapshot.State, snapshot.View)
-        { GroupMembers = workspace?.DocumentGroups.FirstOrDefault(g => g.Session.Id == d.Id)?.Members };
+        {
+            GroupMembers = workspace?.DocumentGroups.FirstOrDefault(g => g.Session.Id == d.Id)?.Members,
+            PresetCapability = d.PresetCapability,
+            TitleId = d.File.Directory.TitleId,
+        };
     }
+
+    public static PresetDto ToDto(this ToolkitPreset preset) => new(
+        preset.SchemaVersion, preset.Id, preset.Name, preset.Compatibility, preset.Actions, preset.CreatedAt, preset.UpdatedAt);
 
     private static DirectoryDto ToDto(Workspace ws, DiskSaveDirectory dir, Dictionary<string, string> openByFile)
     {
