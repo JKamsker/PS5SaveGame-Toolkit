@@ -46,9 +46,9 @@ public sealed class PresetStore
     /// <summary>Reloads the external library atomically. A malformed replacement leaves the last good view intact.</summary>
     public IReadOnlyList<ToolkitPreset> Reload()
     {
-        var staged = ReadSnapshot(allowMissing: false);
         lock (_gate)
         {
+            var staged = ReadSnapshot(allowMissing: false);
             _presets.Clear();
             foreach (var pair in staged) _presets.Add(pair.Key, pair.Value);
             return [.. _presets.Values.OrderByDescending(p => p.UpdatedAt).Select(ClonePreset)];
@@ -217,6 +217,11 @@ public sealed class PresetStore
         {
             throw new InvalidDataException("Preset storage is not valid JSON.", ex);
         }
+        catch (InvalidDataException) { throw; }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            throw new PresetStorageException("Preset storage is temporarily unavailable. Retry the operation.", ex);
+        }
     }
 
     private void Persist(IEnumerable<ToolkitPreset>? records = null)
@@ -243,17 +248,28 @@ public sealed class PresetStore
     {
         ArgumentNullException.ThrowIfNull(compatibility);
         ArgumentNullException.ThrowIfNull(actions);
-        if (string.IsNullOrWhiteSpace(compatibility.PluginId) || string.IsNullOrWhiteSpace(compatibility.PluginVersion)
-            || compatibility.TitleIds is null || compatibility.TitleIds.Count == 0 || compatibility.TitleIds.Any(string.IsNullOrWhiteSpace))
+        if (string.IsNullOrWhiteSpace(compatibility.PluginId) || compatibility.PluginId.Length > PresetContractValidation.MaxKeyLength
+            || string.IsNullOrWhiteSpace(compatibility.PluginVersion) || compatibility.PluginVersion.Length > PresetContractValidation.MaxMetadataLength
+            || compatibility.TitleIds is null || compatibility.TitleIds.Count is < 1 or > PresetContractValidation.MaxMapEntries
+            || compatibility.TitleIds.Any(title => string.IsNullOrWhiteSpace(title) || title.Length > PresetContractValidation.MaxKeyLength))
             throw new ArgumentException("Preset compatibility must include plugin and title identifiers.");
+        if (compatibility.GameBuild is { Length: > PresetContractValidation.MaxMetadataLength }
+            || compatibility.FormatVariant is { Length: > PresetContractValidation.MaxMetadataLength }
+            || compatibility.ReferencePackIdentity is { Length: > PresetContractValidation.MaxMetadataLength }
+            || compatibility.PresetKind is { Length: > PresetContractValidation.MaxMetadataLength }
+            || compatibility.SchemaFingerprint is { Length: > PresetContractValidation.MaxMetadataLength }
+            || compatibility.FileRole is { Length: > PresetContractValidation.MaxMetadataLength }
+            || compatibility.CapabilitySchemaVersion is { Length: > PresetContractValidation.MaxMetadataLength })
+            throw new ArgumentException("Preset compatibility metadata exceeds the bounded limit.");
         if (actions.Count is < 1 or > 32) throw new ArgumentException("A preset must contain between one and 32 actions.");
-        if (actions.Any(action => action is null || string.IsNullOrWhiteSpace(action.ActionId) || action.Parameters is null || action.Parameters.Count > 128
-            || string.IsNullOrWhiteSpace(action.ScopeKind)))
+        if (actions.Any(action => action is null || string.IsNullOrWhiteSpace(action.ActionId) || action.ActionId.Length > PresetContractValidation.MaxKeyLength
+            || action.Parameters is null || action.Parameters.Count > 128
+            || action.Parameters.Keys.Any(key => string.IsNullOrWhiteSpace(key) || key.Length > PresetContractValidation.MaxKeyLength)
+            || string.IsNullOrWhiteSpace(action.ScopeKind) || action.ScopeKind.Length > PresetContractValidation.MaxKeyLength))
             throw new ArgumentException("Preset actions must have an id and at most 128 parameters.");
-        if (actions.SelectMany(action => action.Instances ?? []).Any(reference => reference is null
-            || string.IsNullOrWhiteSpace(reference.Kind) || string.IsNullOrWhiteSpace(reference.StableId)
-            || reference.StableId.Length > PresetContractValidation.MaxKeyLength))
-            throw new ArgumentException("Preset instance references must use bounded stable identifiers.");
+        foreach (var action in actions)
+            if (PresetContractValidation.ValidateInstanceReferences(action.Instances) is { } instanceError)
+                throw new ArgumentException(instanceError);
         var bytes = JsonSerializer.SerializeToUtf8Bytes(new { compatibility, actions }, JsonOptions);
         if (bytes.Length > _options.MaxPayloadBytes) throw new ArgumentException("Preset payload is too large.");
     }

@@ -35,3 +35,13 @@ it("captures the current selected table rows through the selected scope", async 
   fireEvent.click(screen.getByRole("button", { name: "Save preset" }));
   await waitFor(() => expect(capture).toHaveBeenCalledWith("w1", "d1", "Selected", expect.objectContaining({ scopeKind: "selected", selectedRowKeys: ["slot/0"], allMatches: false })));
 });
+
+it("shows a truthful no-actions state without a never-ending loading message", async () => {
+  const noActions = { ...document, view: { type: "section" as const, title: "Root", children: [] } };
+  const presets = vi.spyOn(api, "presets");
+  renderSpatial(<PresetsPanel document={noActions} onToast={vi.fn()} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  expect((await screen.findByText(/no planned preset actions/i)).textContent).toContain("no planned preset actions");
+  expect(screen.queryByText("Loading presets…")).toBeNull();
+  expect(presets).not.toHaveBeenCalled();
+});

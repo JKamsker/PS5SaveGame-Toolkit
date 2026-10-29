@@ -223,7 +223,7 @@ export interface ToolkitPreset {
   actions: PresetAction[]; createdAt: string; updatedAt: string;
 }
 export interface PresetCompatibilitySummary {
-  compatible: boolean; code?: string; reason?: string; readOnly: boolean; presetKind: string;
+  compatible: boolean; code?: string; reason?: string; readOnly: boolean; canPreview: boolean; previewCode?: string; previewReason?: string; presetKind: string;
   savedGameBuild?: string; currentGameBuild?: string; savedFormatVariant?: string; currentFormatVariant?: string;
   savedReferencePackIdentity?: string; currentReferencePackIdentity?: string; savedSchemaFingerprint?: string; currentSchemaFingerprint?: string;
   savedFileRole?: string; currentFileRole?: string; savedCapabilitySchemaVersion?: string; currentCapabilitySchemaVersion?: string;

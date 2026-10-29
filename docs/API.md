@@ -172,7 +172,8 @@ listed with `None` can still contain editable JSON. Consult the
 
 Returns the host-owned `ToolkitPreset[]` list. Presets contain schema version, name,
 plugin/version/title/build/variant/reference-pack compatibility and semantic action parameters;
-they never contain save bytes or local paths.
+they never contain save bytes or local paths. All preset routes return a typed `503
+presetStorageUnavailable` when the host library cannot be read or written temporarily.
 
 ### `POST /api/presets/reload`
 

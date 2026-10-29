@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SaveToolkit.Core.Editing;
+using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 
@@ -12,6 +13,10 @@ public static class PresetContractValidation
     public const int MaxKeyLength = 256;
     public const int MaxSelectedRows = 5000;
     public const int MaxRequestBytes = 256 * 1024;
+    public const int MaxSemanticInstances = 256;
+    public const int MaxResolutionCandidates = 128;
+    public const int MaxResolutionBytes = 256 * 1024;
+    public const int MaxMetadataLength = 512;
 
     public static bool HasSemanticBoundaries(PresetCompatibility compatibility) =>
         compatibility.GameBuild is not null || compatibility.FormatVariant is not null
@@ -19,8 +24,9 @@ public static class PresetContractValidation
         || compatibility.FileRole is not null || compatibility.CapabilitySchemaVersion is not null
         || !string.Equals(compatibility.PresetKind, "toolkit.action-parameters", StringComparison.Ordinal);
 
-    public static string? ValidateCapture(PresetCapability? capability, PresetCaptureRequest request)
+    public static string? ValidateCapture(PresetCapability? capability, PresetCaptureRequest? request, ReferenceFieldService? references = null)
     {
+        if (request is null) return "The capture request is malformed.";
         if (!PresetScopeKinds.AllEligible.Equals(request.ScopeKind, StringComparison.Ordinal)
             && !PresetScopeKinds.AllCopies.Equals(request.ScopeKind, StringComparison.Ordinal)
             && !PresetScopeKinds.Document.Equals(request.ScopeKind, StringComparison.Ordinal)
@@ -46,40 +52,86 @@ public static class PresetContractValidation
                 || request.ScopeKind == PresetScopeKinds.Selected && request.SelectedRowKeys is { Count: 0 }
                 ? null
                 : "The document has no semantic preset capability for this scope.";
+        if (ValidateCapability(capability) is { } capabilityError) return capabilityError;
         var action = capability.Actions.FirstOrDefault(item => item.ActionId == request.ActionId);
-        return action is null ? "The action is not published by this preset capability." : ValidateParameters(action, request.Parameters, request.ScopeKind);
+        if (action is null) return "The action is not published by this preset capability.";
+        if (!action.SupportsCapture) return "This action does not support preset capture.";
+        return ValidateParameters(action, request.Parameters, request.ScopeKind, references);
     }
 
-    public static string? ValidateCapturedAction(PresetCapability? capability, PresetCaptureRequest request, PresetAction action)
+    public static string? ValidateCapturedAction(PresetCapability? capability, PresetCaptureRequest? request, PresetAction? action, ReferenceFieldService? references = null)
     {
+        if (request is null) return "The capture request is malformed.";
+        if (action is null) return "The capture adapter returned no action.";
         if (!string.Equals(action.ActionId, request.ActionId, StringComparison.Ordinal)) return "The adapter returned a different action.";
         if (!string.Equals(action.ScopeKind, request.ScopeKind, StringComparison.Ordinal)) return "The adapter changed the requested scope.";
+        if (capability is not null && ValidateCapability(capability) is { } capabilityError) return capabilityError;
         var contract = capability?.Actions.FirstOrDefault(item => item.ActionId == action.ActionId);
         if (capability is not null && contract is null) return "The adapter returned an unpublished action.";
-        var parameterError = contract is null ? null : ValidateParameters(contract, action.Parameters, action.ScopeKind);
+        if (contract is not null && !contract.SupportsCapture) return "The action does not support preset capture.";
+        var parameterError = contract is null ? null : ValidateParameters(contract, action.Parameters, action.ScopeKind, references);
         if (parameterError is not null) return parameterError;
-        if (action.Instances is { Count: > MaxSelectedRows }) return "Preset instance targets exceed the bounded limit.";
-        if (action.Instances is { } instances && instances.Any(instance => string.IsNullOrWhiteSpace(instance.Kind)
-            || string.IsNullOrWhiteSpace(instance.StableId) || instance.StableId.Length > MaxKeyLength))
-            return "Preset instance targets must use bounded stable identifiers.";
-        if (action.Instances is { } refs && refs.Select(reference => $"{reference.Kind}\0{reference.StableId}").Distinct(StringComparer.Ordinal).Count() != refs.Count)
-            return "Preset instance targets must be distinct.";
-        return null;
+        return ValidateInstances(action.Instances);
     }
 
-    public static string? ValidateActions(PresetCapability capability, IReadOnlyList<PresetAction> actions)
+    public static string? ValidateActions(PresetCapability? capability, IReadOnlyList<PresetAction>? actions, ReferenceFieldService? references = null)
     {
+        if (capability is null || actions is null) return "The preset contract is malformed.";
+        if (ValidateCapability(capability) is { } capabilityError) return capabilityError;
         if (actions.Count is < 1 or > 32 || actions.Count > capability.MaxActions) return "The preset action count is unsupported.";
         foreach (var action in actions)
         {
             var contract = capability.Actions.FirstOrDefault(item => item.ActionId == action.ActionId);
             if (contract is null) return $"Action '{action.ActionId}' is not published by this capability.";
-            if (ValidateParameters(contract, action.Parameters, action.ScopeKind) is { } error) return error;
-            if (action.Instances is { } refs && refs.Any(reference => string.IsNullOrWhiteSpace(reference.StableId)))
-                return "Preset instance targets must use stable identifiers.";
+            if (!contract.SupportsApply) return $"Action '{action.ActionId}' does not support preset apply.";
+            if (ValidateParameters(contract, action.Parameters, action.ScopeKind, references) is { } error) return error;
+            if (ValidateInstances(action.Instances) is { } instanceError) return instanceError;
         }
         return null;
     }
+
+    public static string? ValidateCapability(PresetCapability? capability)
+    {
+        if (capability is null) return "The document has no published preset capability.";
+        if (string.IsNullOrWhiteSpace(capability.SchemaVersion) || capability.Actions is null
+            || capability.MaxActions is < 1 or > 32) return "The preset capability metadata is malformed.";
+        if (capability.Actions.Any(action => action is null || string.IsNullOrWhiteSpace(action.ActionId)
+            || action.ParameterIds is null || action.ParameterIds.Count > MaxMapEntries
+            || action.ParameterIds.Distinct(StringComparer.Ordinal).Count() != action.ParameterIds.Count
+            || action.SupportedScopes is null || action.SupportedScopes.Count == 0
+            || action.SupportedScopes.Any(scope => !IsScope(scope)))) return "The preset capability metadata is malformed.";
+        if (capability.Actions.Select(action => action.ActionId).Distinct(StringComparer.Ordinal).Count() != capability.Actions.Count)
+            return "The preset capability contains duplicate action identifiers.";
+        return null;
+    }
+
+    public static string? ValidateResolution(PresetResolution? resolution, out byte[]? serialized)
+    {
+        serialized = null;
+        if (resolution?.Instances is null || resolution.Instances.Count > MaxSemanticInstances)
+            return "Preset resolution exceeds the bounded instance limit.";
+        foreach (var item in resolution.Instances)
+        {
+            if (item is null || ValidateReference(item.Requested) is not null)
+                return "Preset resolution contains an invalid requested target.";
+            var candidates = item.Candidates ?? [];
+            if (candidates.Count > MaxResolutionCandidates)
+                return "Preset resolution exceeds the bounded candidate limit.";
+            if (candidates.Any(candidate => ValidateReference(candidate) is not null))
+                return "Preset resolution contains invalid candidate metadata.";
+            if (candidates.Select(candidate => $"{candidate.Kind}\0{candidate.StableId}").Distinct(StringComparer.Ordinal).Count() != candidates.Count)
+                return "Preset resolution contains duplicate candidates.";
+            if (item.Message is { Length: > MaxMetadataLength }) return "Preset resolution messages exceed the bounded limit.";
+        }
+        try
+        {
+            serialized = JsonSerializer.SerializeToUtf8Bytes(resolution);
+            return serialized.Length > MaxResolutionBytes ? "Preset resolution exceeds the bounded serialized limit." : null;
+        }
+        catch (JsonException) { return "Preset resolution is not serializable."; }
+    }
+
+    public static string? ValidateInstanceReferences(IReadOnlyList<PresetInstanceReference>? instances) => ValidateInstances(instances);
 
     public static string? ValidateChoices(IReadOnlyDictionary<string, string>? choices)
     {
@@ -90,8 +142,9 @@ public static class PresetContractValidation
         return JsonSerializer.SerializeToUtf8Bytes(choices).Length > MaxRequestBytes ? "Preset choices exceed the bounded request size." : null;
     }
 
-    private static string? ValidateParameters(PresetActionCapability capability, IReadOnlyDictionary<string, JsonElement> parameters, string scope)
+    private static string? ValidateParameters(PresetActionCapability capability, IReadOnlyDictionary<string, JsonElement>? parameters, string scope, ReferenceFieldService? references)
     {
+        if (parameters is null) return "Preset parameters are missing.";
         if (!capability.SupportedScopes.Contains(scope, StringComparer.Ordinal)) return "The action does not support this preset scope.";
         if (parameters.Count != capability.ParameterIds.Count || parameters.Keys.Any(key => !capability.ParameterIds.Contains(key, StringComparer.Ordinal)))
             return "Preset parameters do not match the published action contract.";
@@ -100,9 +153,29 @@ public static class PresetContractValidation
         for (var index = 0; index < capability.ParameterIds.Count; index++)
         {
             var id = capability.ParameterIds[index];
-            var result = FieldValueCoercer.FromJson(parameters[id], capability.ParameterSpecs[index]);
+            var result = FieldValueCoercer.FromJson(parameters[id], capability.ParameterSpecs[index], references);
             if (!result.Ok) return $"Parameter '{id}' is invalid: {result.Error}";
         }
         return null;
     }
+
+    private static string? ValidateInstances(IReadOnlyList<PresetInstanceReference>? instances)
+    {
+        if (instances is null) return null;
+        if (instances.Count > MaxSemanticInstances) return "Preset instance targets exceed the bounded limit.";
+        if (instances.Any(reference => ValidateReference(reference) is not null)) return "Preset instance targets contain invalid bounded metadata.";
+        return instances.Select(reference => $"{reference.Kind}\0{reference.StableId}").Distinct(StringComparer.Ordinal).Count() == instances.Count
+            ? null : "Preset instance targets must be distinct.";
+    }
+
+    private static string? ValidateReference(PresetInstanceReference? reference) => reference is null
+        || string.IsNullOrWhiteSpace(reference.Kind) || string.IsNullOrWhiteSpace(reference.StableId)
+        || reference.Kind.Length > MaxKeyLength || reference.StableId.Length > MaxKeyLength
+        || reference.Label is { Length: > MaxMetadataLength } || reference.Role is { Length: > MaxMetadataLength }
+        || reference.Path is { Length: > MaxMetadataLength } || reference.Build is { Length: > MaxMetadataLength }
+        || reference.Provenance is { Length: > MaxMetadataLength }
+        ? "invalid reference" : null;
+
+    private static bool IsScope(string scope) => scope is PresetScopeKinds.Document or PresetScopeKinds.AllEligible
+        or PresetScopeKinds.AllCopies or PresetScopeKinds.Selected;
 }
