@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { MapMarker, MapNode } from "../../../api/spatial";
 import { useDocument } from "../../../state/documentStore";
 import { MapDiagram } from "./MapDiagram";
+import { useMapSelection } from "./useMapSelection";
 import { ExternalLink, JumpButton, MAX_SPATIAL_ITEMS, SpatialFilters, TextAlternative } from "./SpatialShared";
 
 const STATUSES = ["Found", "Missing", "Unknown"] as const;
@@ -18,7 +19,7 @@ function BoundedMap({ node }: { node: MapNode }) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("");
   const [category, setCategory] = useState("");
-  const [selected, setSelected] = useState<string | null>(null);
+  const { selected, heading, selectMarker, clearSelection } = useMapSelection();
   const [failedAsset, setFailedAsset] = useState<string | null>(null);
   const groups = [...new Set(node.markers.map(marker => marker.category))].sort();
   const needle = query.trim().toLowerCase();
@@ -41,7 +42,7 @@ function BoundedMap({ node }: { node: MapNode }) {
   const hasDiagram = validBounds && (canEmbed || node.markers.some(marker => position(marker)));
 
   return <section className="spatial" aria-label={node.title}>
-    <h3>{node.title}</h3><p>{node.textAlternative}</p>
+    <h3 ref={heading} tabIndex={-1}>{node.title}</h3><p>{node.textAlternative}</p>
     {node.externalSource && <ExternalLink link={node.externalSource} prominent />}
     <SpatialFilters query={query} onQuery={setQuery} status={status} onStatus={setStatus} statuses={STATUSES}
       group={category} onGroup={setCategory} groups={groups} groupLabel="Category" />
@@ -49,15 +50,15 @@ function BoundedMap({ node }: { node: MapNode }) {
       <span>Categories: {groups.join(", ") || "None"}</span></p>
     <p role="status">{markers.length} of {node.markers.length} locations shown.</p>
     {hasDiagram ? <MapDiagram node={node} workspaceId={workspaceId} documentId={documentId} markers={markers}
-      selected={selected} onSelect={setSelected} position={position} canEmbed={Boolean(canEmbed)}
+      selected={selected} onSelect={selectMarker} position={position} canEmbed={Boolean(canEmbed)}
       failedAsset={failedAsset} onAssetFailure={setFailedAsset} /> : <p>No embedded map data. Use the source link and location list.</p>}
     {background && !canEmbed && <p role="alert">Background unavailable: an embedding permission and a local pack asset are required.</p>}
     {selectedMarker && <aside className="spatial-detail" aria-label={`Selected location: ${selectedMarker.label}`}>
       <h4>{selectedMarker.label}</h4><MarkerText marker={selectedMarker} showPosition={Boolean(canPosition)} coordinateSpace={node.coordinateSpace} />
-      <button type="button" className="btn btn--small" onClick={() => setSelected(null)}>Clear selection</button>
+      <button type="button" className="btn btn--small" onClick={clearSelection}>Clear selection</button>
     </aside>}
     <TextAlternative summary={node.textAlternative} items={markers} renderItem={marker => <>
-      <button type="button" className="btn btn--quiet" aria-pressed={selected === marker.id} onClick={() => setSelected(marker.id)}>{marker.label}</button>
+      <button type="button" className="btn btn--quiet" aria-pressed={selected === marker.id} onClick={event => selectMarker(marker.id, event.currentTarget)}>{marker.label}</button>
       <MarkerText marker={marker} showPosition={Boolean(canPosition)} coordinateSpace={node.coordinateSpace} />
     </>} />
   </section>;

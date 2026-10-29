@@ -1,6 +1,29 @@
 import { test, expect } from "@playwright/test";
 import { fixture, importSave, openJson, savePath } from "./helpers";
 
+test("keyboard row selection exposes mixed state and retains focus when cleared (#40)", async ({ page }) => {
+  await importSave(page, { [savePath]: fixture("queryable.json") });
+  await openJson(page);
+  await page.getByRole("tab", { name: "Search", exact: true }).click();
+  const table = page.getByRole("table", { name: "Whole-tree search", exact: true });
+  const status = page.getByRole("status", { name: "Whole-tree search selection" });
+  await expect(status).toHaveText("No rows selected");
+  const row = table.getByRole("row").nth(1).getByRole("checkbox");
+  await row.focus();
+  await page.keyboard.press("Space");
+  await expect(row).toBeChecked();
+  const all = table.getByRole("checkbox", { name: "Select all rows on this page" });
+  await expect(all).toBeChecked({ indeterminate: true });
+  await expect(status).toHaveText("1 selected");
+  const clear = page.getByRole("button", { name: "Clear selection", exact: true });
+  await clear.focus();
+  await page.keyboard.press("Enter");
+  await expect(clear).toHaveCount(0);
+  await expect(all).toBeFocused();
+  await expect(all).not.toBeChecked();
+  await expect(status).toHaveText("No rows selected");
+});
+
 test("queryable search, column filters, sorting and paging cover unloaded rows", async ({ page }) => {
   await importSave(page, { [savePath]: fixture("queryable.json") });
   await openJson(page);

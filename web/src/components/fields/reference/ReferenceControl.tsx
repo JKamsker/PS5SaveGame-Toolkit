@@ -54,9 +54,9 @@ export function ReferenceControl(props: FieldControlProps & { spec: ReferenceSpe
   return <>
     {/* eslint-disable-next-line jsx-a11y/role-supports-aria-props -- This field's picker trigger retains the shared validation state and error description. */}
     <button ref={trigger} id={id} type="button" aria-invalid={props.invalid || undefined} className={`input reference-trigger${compact ? " input--compact" : ""}`}
-      aria-labelledby={labelledBy} aria-describedby={describedBy} aria-haspopup="dialog" disabled={!valueId} onClick={() => setOpen(true)}
+      aria-labelledby={labelledBy ? `${labelledBy} ${id}-value` : undefined} aria-describedby={describedBy} aria-haspopup="dialog" disabled={!valueId} onClick={() => setOpen(true)}
       title={`${current?.label ?? "Unknown ID"} (${rawId})`}>
-      {current?.label ? `${current.label} (${rawId})` : rawId || "Choose an item…"}
+      <span id={`${id}-value`}>{current?.label ? `${current.label} (${rawId})` : rawId || "Choose an item…"}</span>
     </button>
     {open && valueId && createPortal(<ReferencePicker {...props} valueId={valueId} browseOnly={Boolean(disabled || spec.readOnly)} current={current} onClose={close} />, document.body)}
   </>;

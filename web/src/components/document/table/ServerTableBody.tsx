@@ -29,7 +29,7 @@ export function ServerTableBody({ node, table }: ServerTablePartProps) {
         {indexedRows.map(({ row, rowIndex }) => <ServerRow key={row.key} row={row} emptyRows={node.emptyRows} columns={columns} showDetailsColumn={hasDetails}
           confidence={confidence} rowIndex={rowIndex} selected={selection.isSelected(row.key)} onToggle={selection.toggle} expanded={expanded.has(row.key)} onExpand={expandRow} onToggleDetails={toggleDetails} />)}
       </div>
-      {!page && !result.isError && <p role="status" className="table__empty">Loading rows…</p>}
+      {!page && !result.isError && <p role="status" aria-label={`${node.title} loading`} className="table__empty">Loading rows…</p>}
       {page && rows.length === 0 && <p className="table__empty">No rows match the current filters.</p>}
     </div>
   );

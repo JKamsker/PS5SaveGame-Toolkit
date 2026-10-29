@@ -109,12 +109,12 @@ describe("server table loaded-page presentation", () => {
     const pending = deferred<QueryablePage>();
     vi.spyOn(api, "queryCollection").mockReturnValue(pending.promise);
     const { client } = setup();
-    expect(screen.getByRole("status").textContent).toBe("Loading rows…");
+    expect(screen.getByRole("status", { name: "Items loading" }).textContent).toBe("Loading rows…");
     expect(screen.getByRole("table").getAttribute("aria-busy")).toBe("true");
     expect(screen.queryByText("No rows match the current filters.")).toBeNull();
     await act(async () => pending.resolve({ ...page, rows: [], filteredCount: 0 }));
     expect(await screen.findByText("No rows match the current filters.")).toBeTruthy();
-    expect(screen.queryByRole("status")).toBeNull();
+    expect(screen.queryByRole("status", { name: "Items loading" })).toBeNull();
     client.clear();
   });
 });

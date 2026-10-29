@@ -66,8 +66,12 @@ test("F8 review jumps to an unloaded page without writes and individually revert
   expect(writes).toEqual([]);
   await expect(page.getByRole("tab", { name: "Search", exact: true })).toHaveAttribute("aria-selected", "true");
 
-  await changed.getByRole("button", { name: `Revert ${label}`, exact: true }).click();
+  const reverting = changed.getByRole("button", { name: `Revert ${label}`, exact: true });
+  await reverting.focus();
+  await page.keyboard.press("Enter");
   await expect(review.getByText("No semantic changes.", { exact: true })).toBeVisible();
   await expect(review.getByRole("button", { name: `Revert ${label}`, exact: true })).toHaveCount(0);
+  await expect(review.locator("summary")).toBeFocused();
+  await expect(review.getByRole("status", { name: "Changes review" })).toHaveText("0 of 0 changed fields");
   expectFiles(await exportFiles(page, testInfo, "reverted-queryable.zip"), { [savePath]: original });
 });
