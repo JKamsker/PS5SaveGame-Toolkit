@@ -319,6 +319,10 @@ ordinal text with a stable row-key tie-break; queries use offsets, not cursors.
 
 ## Validation and development
 
+Performance review #40: [measurements, regression coverage and cache lifecycle](evidence/performance.md).
+Largest-sample Open + first-view allocation fell from 54.7 MB to 37.7 MB; repeated
+retail evidence pages now allocate about 19 KB. Timing remains diagnostic.
+
 Malformed-input correctness review (#40): **216 passed, 0 failed, 0 skipped**
 with all 12 supplied files; API build **0 warnings, 0 errors**. Three fixes
 preflight complete Mandarin block extents before plaintext allocation/decryption,
