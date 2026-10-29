@@ -125,6 +125,28 @@ class DocumentationTests(unittest.TestCase):
 
 
 
+    def test_plans_distinguish_the_original_baseline(self):
+        for name, _, _ in plugins():
+            with self.subTest(plugin=name):
+                text = document(f"docs/plans/{name}.md")
+                introduction = text.split("## Summary", 1)[0]
+                self.assertIn("Historical planning snapshot", introduction)
+                self.assertIn("../PLUGINS.md", introduction)
+                self.assertNotIn("## Current state (evidence)", text)
+
+
+    def test_reconnaissance_and_smoke_counts_are_historical(self):
+        for path in sorted((ROOT / "docs/formats").glob("*.md")):
+            with self.subTest(path=path.name):
+                text = path.read_text(encoding="utf-8")
+                self.assertIn("Historical reconnaissance", text.split("##", 1)[0])
+                self.assertIn("../PLUGINS.md", text.split("##", 1)[0])
+        introduction = document("docs/E2E_SMOKE_36.md").split("## Scope", 1)[0]
+        self.assertIn("Historical run report", introduction)
+        self.assertIn("#40", introduction)
+
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--code-ref", default="HEAD", help="Git ref for implementation checks (default: HEAD)")

@@ -1,10 +1,15 @@
 # FinalFantasy16 — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 The `ffxvi` plugin already preserves and edits existing main-inventory stacks, including gil, AP and renown, and repairs the PS5 Faith CRC; it is Experimental and has no documented console validation. A substantial improvement is achievable without replacing that foundation: named inventories, useful equipment and ability sheets, contextual limits, and eventually validated progression and collection controls. Independent research in this round matched all 172 distinct main-inventory IDs observed in the supplied saves to named published entries, but that does not establish complete game coverage or permission to redistribute the dataset. The three leading blockers are a licensed, versioned reference-data source; controlled saves proving active banks, limits and dependent gameplay state; and human PS5 load/save/reload validation. Rich pickers, transaction previews and reversible structural editing need framework/UI work, while useful read-only views and fixed-width actions can use today's contracts.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - Inspected 2026-10-28 against repository HEAD `885b2f8eec6ecbb9353794c3623b50ec45343e41` and the current shared files. Read the prescribed project documentation and [issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1). This round changed no repository files and ran no builds/tests/package managers; test statements below describe source assertions, not a fresh test run.
 - `plugins/FinalFantasy16/SaveToolkit.Plugins.FinalFantasy16/FinalFantasy16Plugin.cs`: supports only outer title IDs PPSA10665 retail and PPSA13803 demo, expected gameplay/system basenames and matching container versions. **PPSA01288 is Sackboy**, mentioned here only in the explicit foreign-title rejection test (`FaithFormatTests.cs`); `docs/formats/PPSA10665.md` records stale/generated SFO values as the reason for historical confusion. Do not add it as an FF16 title.

@@ -1,10 +1,15 @@
 # TalesOfArise — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 The `tales-of-arise` plugin already decrypts, validates and rewrites supplied PPSA02745 base-game slots while preserving unknown data; curated editing covers gald, six characters' level/HP/SP and 13 consumable IDs. A substantially better editor would provide named inventory and equipment, complete character sheets, artes and skill panels, and a completion tracker for owls, quests, cooking, fishing and NG+ artifacts. The three biggest blockers are **controlled PS5 differential saves**, **a licensed, versioned ID-to-game-data catalogue**, and **human console validation of edits and dependent state**. Existing framework primitives can deliver an initial read-only expansion and conservative scalar edits; rich pickers, locally supplied data packs and reversible structural operations require specific framework/UI work. Base-game crypto is not the current blocker, and an editable Grade currency must not be invented from internal class names.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - Inspected **2026-10-28**, HEAD `885b2f8eec6ecbb9353794c3623b50ec45343e41`. Read AGENTS, plugin guide/status/sample/format documentation, plugin source/tests, SDK, Core sessions/export, web renderers and [issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1) through `gh issue view 1`. This run made no repository edits, builds, .NET tests, commits or external posts.
 - `plugins/TalesOfArise/SaveToolkit.Plugins.TalesOfArise/TalesOfArisePlugin.cs`: supports PPSA02745 gameplay names, exact 760,856-byte size and PS5 mode, with Experimental maturity. Other regions/platforms, Beyond the Dawn and the opaque 4,096-byte `SystemSaveData.sav` are unsupported.

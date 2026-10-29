@@ -1,10 +1,15 @@
 # GenericJson — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 GenericJson (`format.json`) is already a careful UTF-8 token editor: it preserves untouched bytes, supports bounded lazy navigation and edits primitive values, but has no semantic overlays or structural editing. A substantially better product combines an exact JSON workbench with curated Cyberpunk settings, Ridge Racer emulator options and **It Takes Two (PPSA02343)** chapter/minigame views. The strongest immediate opportunity is Cyberpunk's self-describing settings: the actual PS5 file supplies option types, ranges, defaults and many enum lists. The top three blockers are **exact-number/nullable support across the editing protocol**, **reversible structural edits with stable identity and cache invalidation**, and **controlled PS5 evidence for semantic dependencies, ranges and in-game acceptance**. Build read-only interpretation first, then existing-value edits, and only later insertion/deletion and progression presets; a generic syntax editor must not imply gameplay compatibility.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - Inspected 2026-10-28 at local HEAD `885b2f8eec6ecbb9353794c3623b50ec45343e41`; read the requested guidance and [issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1) using `gh issue view`. Research only: no repository writes, builds, tests, dependency installs, commits or posts. Existing scratch extractions were reused; additional JSON snapshots were isolated in scratch. README test results below are historical claims, not a fresh execution result.
 - `plugins/GenericJson/SaveToolkit.Plugins.GenericJson/GenericJsonPlugin.cs`: content-detects complete valid JSON, score `Format=20`, empty title list, Experimental. Accepts root primitives; bounded at 16 MiB. A title ID or `.sav` suffix alone does not imply GVAS.

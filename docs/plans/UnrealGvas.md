@@ -1,10 +1,15 @@
 # UnrealGvas — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 UnrealGvas is a useful, lossless GVAS inspector and scalar editor, but its three verified PS5 title families expose little playable meaning and two deliberately block progression writes. A substantially better experience combines a bounded generic property explorer with title-specific character, inventory, equipment, progression, collectible and photo views, showing evidence and valid limits beside each control. The first blocker is a policy-compatible, correctly licensed Hogwarts Kraken/SQLite path; the second is unresolved Jedi and Sackboy integrity; the third is missing PS5-verified semantic mappings, reference-data rights and controlled console validation. Deliver useful read-only overlays first, then narrowly verified existing-value edits, and only later structural inventory changes. Complex titles should eventually have their own document implementations over a reusable GVAS component, with explicit framework-owner agreement on how that component is shared.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - Research date: 2026-10-28. Read the mandated project documentation, plugin source/tests, SDK, relevant Core/UI code and [issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1). Repository HEAD observed during research was `885b2f8eec6ecbb9353794c3623b50ec45343e41`; observations concern the shared working tree, which can contain concurrent changes. No repository files were changed and no build/test/npm commands were run. Existing scratch downloads were reused; downloaded code was read, never executed. Independent standard-library Python probes ran with `-I`; reproducible findings are in scratch `inspect.py`, `verify_evidence.py` and `verified-evidence.json`, without embedding private save data in this plan.
 - **Existing implementation:** `plugins/UnrealGvas/SaveToolkit.Plugins.UnrealGvas/UnrealGvasPlugin.cs` identifies actual raw GVAS or a supported envelope containing it, at engine confidence; filenames alone do not establish support. `Gvas/GvasParser.cs`, `GvasTag.cs` and `GvasPrimitives.cs` already support header versions 1–3, legacy/UE5.4 tags, scalar/FString/FText source values, tagged structs, struct arrays, primitive arrays/maps/sets and selected native structs. This is not a proposal to implement those features again. Legacy tag size and static index are separate uint32 values, not one uint64 size.

@@ -1,10 +1,15 @@
 # BaldursGate3 — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 The `bg3` plugin is an Experimental LSPK/LSF resource editor with read-only party metadata, not yet a live character or inventory editor. A substantially better plugin would show named items with descriptions and icons, trustworthy character sheets, inventories, equipment, camp, spells and journal progress, then offer narrowly validated edits and bulk operations. Preserve the existing container writers: most missing work is semantic LSMF/Osiris decoding and evidence. The top three blockers are controlled PS5 differential saves, version-matched reference data with a usable licensing/import route, and successful PS5 load/resave validation of gameplay edits. This extends [issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1) with stack-group details, ambiguous item resolution, icon extraction, multiplayer identity, dependency-aware edits and concrete framework requirements.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - Inspected 2026-10-28, read-only. Read `AGENTS.md`, `docs/PLUGIN_GUIDE.md`, `docs/PLUGINS.md`, `docs/SAMPLES.md`, `docs/formats/README.md` and the complete issue #1. `docs/formats/PPSA18463.md` does not exist; the formats index excludes BG3 from that reconnaissance. The plugin README and `INTEGRITY.md` are its existing format records.
 - `plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3/BaldursGate3Plugin.cs` claims PPSA18463, version 0.2.0, Experimental. `BaldursGate3Document.cs` provides Overview/Party/Resources/Raw and records primitive replacements by resource/attribute ID. No live LSMF decoder exists.

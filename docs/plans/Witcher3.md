@@ -1,10 +1,15 @@
 # Witcher3 — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 The `witcher3` plugin already has an Experimental, preserving writer for PPSA04018 saves with SAV3 tuple `64 / 23 / 163`, plus progression, Crowns and existing-stack quantity controls. A substantially better editor would show localized inventory/equipment, character skills/mutations, Gwent, Roach/stash, recipes, and readable quest/world progress. Independent checks found substantial unused structure already in every supplied save, including 102 skills, 16 skill slots and Gwent collection data. The three main blockers are the narrow early-game sample corpus, missing PS5 runtime validation and dependency rules, and a versioned reference-data/asset route with explicit redistribution rights. Deliver rich reads and conservative existing-record improvements first; item creation, build presets and story changes need separate evidence gates.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - Research date: **2026-10-28**. Read `AGENTS.md`, the plugin guide/status/sample/format docs, plugin source/tests/README, SDK contracts and relevant Core/UI code. [Issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1) was read through `gh` as the evidence/acceptance standard. This round made no repository changes, builds, test runs, installs, commits or external posts; existing scratch material was reused.
 - `plugins/Witcher3/SaveToolkit.Plugins.Witcher3/Witcher3Plugin.cs`: v0.2.0, Experimental; probe requires PPSA04018, `.sav` and `SNFHFZLC`. `PlayerData.cs` gates editing on the exact tuple, a unique `universe/Player/id : IdTag` match to the owning entity, and matching nested SXAP versions. Other player schemas retain the explorer when the outer parser can read them; arbitrary newer formats are not guaranteed to open.

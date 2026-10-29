@@ -1,10 +1,15 @@
 # AtomicHeart — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 AtomicHeart (`atomic-heart`, PPSA10695) is a careful ReadOnly SaveExtension inspector: it validates the outer container and SHA-1 but cannot inspect gameplay records. A substantially better editor would show P-3's resources, backpack/storage, named weapons and upgrades, Polymer abilities, blueprints, and regional collectible/progress checklists with evidence-backed limits. The top three blockers are a policy-compatible Oodle decode/write route, an unverified Atomic Heart record grammar, and the absence of controlled PS5 saves plus matching reference data. Oodle stored frames are a promising compressor-free experiment, not an established PS5 solution. Ship useful reads first, then existing-value edits, and defer structural and story changes until independent console observations establish their dependencies.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - Research date: 2026-10-28. Repository HEAD inspected: `885b2f8eec6ecbb9353794c3623b50ec45343e41`; shared working files may differ. Read the specified guidance and [issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1). `docs/SAMPLES.md` identifies PPSA10695; `docs/formats/README.md` explicitly excluded the six assigned Unreal titles. There is **no** `docs/formats/PPSA10695.md`; the plugin README is the detailed local format reference.
 - `plugins/AtomicHeart/SaveToolkit.Plugins.AtomicHeart/AtomicHeartPlugin.cs`: title-and-content probe; ReadOnly maturity; SDK-only dependency. No native codec, filesystem or network access.

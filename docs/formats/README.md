@@ -1,5 +1,9 @@
 # Remaining-title format reconnaissance
 
+> **Historical reconnaissance — 2026-10-28.** Measurements and unknowns below belong to the
+> original research pass. Later parsers, writers and policy decisions supersede its implementation
+> leads; see [current plugin status](../PLUGINS.md) and each plugin README for supported behavior.
+
 Research date: **2026-10-28**. All 23 assigned titles are identified below. Pragmata, BG3, Ghost titles and the six assigned `ue4savegame.*.sav` titles were not inspected. Shared `docs/SAMPLES.md` was left unchanged; corrected identities are recorded here.
 
 ## Ranked implementation opportunities
@@ -64,4 +68,4 @@ SFO MAINTITLE is often a role, translated quest name or generated placeholder. S
 
 ## Delivery boundary
 
-Only GenericJson is implemented here. It is Experimental after sample edit/reopen conformance; no console edit was tested. Other reports are implementation leads, with licence/platform scope and unknown integrity stated explicitly. PC/PS4 tool support never certifies PS5 compatibility. Common open work is proving game meanings/ranges, all integrity dependencies and successful in-game loading before any Stable designation.
+At this reconnaissance baseline, only GenericJson was implemented by that research pass. It was Experimental after sample edit/reopen conformance; no console edit was tested. The other reports were implementation leads, with licence/platform scope and unknown integrity stated explicitly. Subsequent plugins are listed in [current status](../PLUGINS.md). PC/PS4 tool support never certifies PS5 compatibility. Proving game meanings/ranges, integrity dependencies and successful in-game loading remains necessary before any Stable designation.

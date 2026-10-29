@@ -1,10 +1,15 @@
 # FinalFantasy7 — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 The `ff7r` plugin already preserves and explores the custom linked-record containers and edits gil, inventory quantities and materia AP for PS5 Remake Intergrade/INTERmission and retail Rebirth; the Rebirth demo remains read-only. A substantially better editor should provide named character sheets, inventory categories, owned-equipment and materia loadouts, and separate progress/collectible dashboards for each game. The strongest immediately usable research is the MIT Game Tools Collection schema and reference data, whose character and instance-reference layouts agree with meaningful values in our samples. The top three blockers are **controlled PS5 before/after saves plus console validation**, **unverified gameplay dependencies and item-specific limits**, and **a cleared source and delivery path for descriptions/icons together with richer UI controls**. Container decoding and an unknown mandatory encryption key are not the present blockers; richer writes must still preserve unknown data and prove their dependencies individually.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - Inspected 2026-10-28 against repository HEAD `885b2f8eec6ecbb9353794c3623b50ec45343e41` and the current shared working files. Read the required repository guides, three title reports, SDK, relevant Core/UI code and [issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1). This round ran only read-only sample analysis and source inspection: no builds, tests, package installs, commits or repository writes. Existing unrelated working-tree changes were left alone.
 - `plugins/FinalFantasy7/SaveToolkit.Plugins.FinalFantasy7/FinalFantasy7Plugin.cs`: plugin `ff7r` v0.2.0, Experimental, explicitly gates PPSA01911/PPSA08664/PPSA18936 by title, filename, size and framing. Optional `.sav` suffix supported. No general PC-to-PS5 conversion or other-region support is implemented.

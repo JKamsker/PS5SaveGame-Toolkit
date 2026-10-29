@@ -1,10 +1,15 @@
 # XorJson — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 XorJson currently losslessly edits primitive tokens in byte-minus-one settings JSON and synthetic XOR-1 JSON. In the supplied PPSA16064 archive it proves the 3,978-byte GlobalSaveDataDefault/ue4savegame.dpx.sav transform and exposes masterVolume, while the 40,062-byte Character*/ue4savegame.dpx.sav is deliberately declined as plain FCharacterSaveV1 JSON. “Massively better” means a version-aware semantic editor for the offline hero (stats, equipment, item effects, quests, collections and world state) plus curated settings, while retaining a raw lossless fallback and unknown fields. The top blockers are the single early-game PS5 snapshot with no differential or in-game acceptance evidence, the missing structural JSON editing model, and the licensing/asset route for names, descriptions, limits and icons. No checksum or cryptographic operation is visible in these decrypted JSON files, but that must be proved with controlled corruption and console tests before enabling broad writes.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - plugins/XorJson/SaveToolkit.Plugins.XorJson/XorJsonPlugin.cs probes any valid transformed JSON by format only; it does not require the PPSA16064 path and registers format.json-xor.
 - JsonEncoding.cs tries XOR-1 and byte-minus-one, rejects ambiguity, and fully parses the candidate. The sample establishes byte-minus-one for settings; XOR-1 support is synthetic.
