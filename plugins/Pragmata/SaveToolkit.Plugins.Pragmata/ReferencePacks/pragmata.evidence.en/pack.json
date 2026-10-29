@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "pragmata.evidence.en",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "title": "Pragmata observed identifiers (not a gameplay dictionary)",
   "plugins": [
     "pragmata"
@@ -162,6 +162,192 @@
         "licenseUrl": "https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json",
         "retrieved": "2026-10-28",
         "modifications": "Selected identifier spellings, class/field declarations and enum members/aliases; cross-indexed known save hashes. No localized game text, artwork or code."
+      }
+    },
+    {
+      "id": "pragmata-illustrated-reference",
+      "title": "Illustrated reference library (save IDs Unknown)",
+      "kind": "records",
+      "files": [
+        {
+          "path": "pragmata-illustrated-reference.json",
+          "sha256": "2b42e2879704623151af562d7ca0c1c0032e3f49e3e86a57f9a506a262ea1339"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://pragmata.fandom.com/wiki/Item?oldid=1830",
+        "author": "Pragmata Wiki contributors; Capcom (quoted game text)",
+        "license": "CC-BY-SA-3.0; Rights reserved by Capcom; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-29",
+        "modifications": "Selected nine short official-description excerpts and six wiki summaries. Other descriptions unavailable. Wiki file IDs are reference keys, never PS5 item IDs. Revision and image ledger in visual-reference.source.json. CC BY-SA adaptations retain that licence."
+      }
+    },
+    {
+      "id": "pragmata-map-locations",
+      "title": "Community escape-hatch locations",
+      "kind": "records",
+      "files": [
+        {
+          "path": "pragmata-map-locations.json",
+          "sha256": "835a57f7df9d5f568f29b525d4ce22a9e5391af3cddd1648e7f114c3fef85ab8"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://itemaps.com/maps/pragmata",
+        "author": "Capcom (game map art); Itemaps / Kevin Henrique (atlas and coordinates)",
+        "license": "Rights reserved by Capcom and Itemaps; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://itemaps.com/maps/pragmata",
+        "retrieved": "2026-10-29",
+        "modifications": "Retrieved snapshot pinned by SHA-256. Map resized from 7168x2048 to 2048x585 WebP quality 85. Selected 26 escape hatches; original top-left pixels transform by x*2048/7168, y*585/2048. No save-hash joins or completion states inferred."
+      }
+    },
+    {
+      "id": "item-icons",
+      "kind": "assets",
+      "files": [
+        {
+          "path": "icons/cabin-coin.webp",
+          "sha256": "16f3d6556d7841534b541321f49a7b22b34689cbb92322e18272e6ef311d97a5"
+        },
+        {
+          "path": "icons/cartridge-holder.webp",
+          "sha256": "f250dce65444ef41f205a6c515e2f455fafc0d1501e0fe3b1b531deaca3c332e"
+        },
+        {
+          "path": "icons/charge-piercer.webp",
+          "sha256": "7312b43220274427d3b28230bed9108c8ad41bd514946feaf0362e17b97b8a45"
+        },
+        {
+          "path": "icons/code-generator.webp",
+          "sha256": "dd22cb84aab18934f9280cd73b4475bb9fc888fd83dbc163f0459d55ed720a98"
+        },
+        {
+          "path": "icons/data-shard.webp",
+          "sha256": "fb963aaaff7e06ccc1845f983e3763d719ab8f5ce912b75f26f0510824fa4c0d"
+        },
+        {
+          "path": "icons/decoy-generator.webp",
+          "sha256": "ef1913334c4412ecaec800769cbf79cb939945084503551d015e68f8089fff87"
+        },
+        {
+          "path": "icons/drone-hive.webp",
+          "sha256": "2bec83b4b9d9051bcdeca2d62c528d091582e6a584aae276f66dd2bd0c961e00"
+        },
+        {
+          "path": "icons/gen-chip.webp",
+          "sha256": "9c98e0915f27d72d523dae1253dca15eb7faf584c15492935d4ac40dce6b90b3"
+        },
+        {
+          "path": "icons/grip-gun.webp",
+          "sha256": "e2c4490e6c01ce00cf7de92a295f75b629f48e3cb8e7518440bdbbce36398fb4"
+        },
+        {
+          "path": "icons/hacking-mines.webp",
+          "sha256": "047b191532cc52a739d0a75a5b9acc60f65635e029e50f04bf4d97947656d4bd"
+        },
+        {
+          "path": "icons/homing-missiles.webp",
+          "sha256": "3644fce283300606b4d6f3b7fdb08658d12ef00bac6a55ed5aa4e09adb7f48c8"
+        },
+        {
+          "path": "icons/impact-barrier.webp",
+          "sha256": "f72abc000d56700984350c74994ac62771f65bf0aadb2a8337771a1f0ab112fb"
+        },
+        {
+          "path": "icons/jackhammer.webp",
+          "sha256": "197af8a21435036305b53a6aa98b4bf19c47837bc4a3d4cef39cf0c5b0eb166f"
+        },
+        {
+          "path": "icons/lunafilament.webp",
+          "sha256": "255188b656137a9405489ea71081a202e00c14c097856c47e407d130f6f9bedf"
+        },
+        {
+          "path": "icons/photon-laser.webp",
+          "sha256": "48db782a4ce54b657d5d93e0092cba55fcace4fa18a7b346f2e1662564e2bbcb"
+        },
+        {
+          "path": "icons/pulse-carbine.webp",
+          "sha256": "3aa26f79d7f89b62ed89a589f789bd97200607d067073724027599d079a811aa"
+        },
+        {
+          "path": "icons/pure-lunum.webp",
+          "sha256": "8f79aa1ab9ebc15ba8b795f261947d7fa6fbd8f9360afdaf977e0d34c3fc036c"
+        },
+        {
+          "path": "icons/reactor.webp",
+          "sha256": "ac36a9b6d3699366efa3bc30cd4c0ca329df396e8b2dd597b50471a1ffb24512"
+        },
+        {
+          "path": "icons/red-gate-key.webp",
+          "sha256": "d92a9d556a3b467d9fccc322621e0f84d2ac0172520b859c56f6cb45c26c732a"
+        },
+        {
+          "path": "icons/repair-cartridge.webp",
+          "sha256": "bbde52ca2a0376782abc35fc2504461c82538ff43b55bda5c9966ceda5cbb882"
+        },
+        {
+          "path": "icons/repair-kit.webp",
+          "sha256": "7a7db974d75bcc77fd78de64b4ded96b2eb027b37528b9d9a12a78583b0e9dab"
+        },
+        {
+          "path": "icons/riot-blaster.webp",
+          "sha256": "f6fe3625cef348d35657cfd63ea2007ab18ca2530fe431e0e3886b8e894946d3"
+        },
+        {
+          "path": "icons/shelter-license-key.webp",
+          "sha256": "4bbcf32defd56b8f9de2291e7c4f7fcfacddcf38032c375a892d45bcbda13b02"
+        },
+        {
+          "path": "icons/shockwave-gun.webp",
+          "sha256": "c25f81acf32f727dd39641f9696a2ea6d90ebead77cf47f725e2fd0e28abf9d5"
+        },
+        {
+          "path": "icons/stasis-net.webp",
+          "sha256": "a7c0018b80e933333a7342029317e0c585c4c76bb687464fc32368d08cc8a61b"
+        },
+        {
+          "path": "icons/sticky-bombs.webp",
+          "sha256": "96f7c74065fdfa5eb8eb356e58721b4850db85bdbc2ed54f81b42a758a8e369b"
+        },
+        {
+          "path": "icons/storage-expander.webp",
+          "sha256": "a9209ffbb5491f1af85bfc4219158b07f402609ae5f19e3990f0a9bce7003b62"
+        },
+        {
+          "path": "icons/training-data.webp",
+          "sha256": "e8c2d7da393c53c53a6b16663221fd908096f85cd07331b3d56861d7290d28f4"
+        },
+        {
+          "path": "icons/upgrade-component.webp",
+          "sha256": "abfb81978b6f8e590888febba1feece27edfb0657f3e37301dcc8331308ffd9a"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://pragmata.fandom.com/wiki/Item?oldid=1830",
+        "author": "Capcom; Pragmata Wiki uploaders (see file histories in source ledger)",
+        "license": "Rights reserved by Capcom; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://pragmata.fandom.com/wiki/Item?oldid=1830",
+        "retrieved": "2026-10-29",
+        "modifications": "29 item/weapon images; browser-decoded, alpha-cropped and resized to transparent 64x64 PNG outside repository, then WebP quality 85. Pixel fingerprints, crops and PNG hashes in source ledger. No save-ID associations inferred."
+      }
+    },
+    {
+      "id": "map-art",
+      "kind": "assets",
+      "files": [
+        {
+          "path": "maps/cradle.webp",
+          "sha256": "d5d8fcaf400b35feda332b793bb6fe310c53eac4d2022839bbec82e513e8c0bd"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://itemaps.com/maps/pragmata",
+        "author": "Capcom (game map art); Itemaps / Kevin Henrique (atlas and coordinates)",
+        "license": "Rights reserved by Capcom and Itemaps; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://itemaps.com/maps/pragmata",
+        "retrieved": "2026-10-29",
+        "modifications": "Retrieved snapshot pinned by SHA-256. Map resized from 7168x2048 to 2048x585 WebP quality 85. Selected 26 escape hatches; original top-left pixels transform by x*2048/7168, y*585/2048. No save-hash joins or completion states inferred."
       }
     }
   ]

@@ -98,3 +98,21 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Asset round, 2026-10-29: Pragmata Wiki / Capcom / Itemaps
+https://pragmata.fandom.com/wiki/Item?oldid=1830
+https://pragmata.fandom.com/wiki/Template:Navbox/Weapons?oldid=3084
+https://itemaps.com/maps/pragmata
+Wiki contributors retain CC BY-SA 3.0 for text and adaptations:
+https://creativecommons.org/licenses/by-sa/3.0/
+Nine short game-description excerpts are wiki transcriptions; six descriptions
+are adapted wiki summaries. Exact article revisions and per-image file-history
+URLs are in ReferencePacks/pragmata.evidence.en/visual-reference.source.json.
+29 images were alpha-cropped/resized to 64x64 and encoded WebP outside the repo.
+Rights reserved by Capcom; used with attribution per owner decision 2026-10-29.
+The Cradle map is resized to 2048x585; only 26 community escape-hatch coordinate
+facts are retained. Itemaps / Kevin Henrique compiled the atlas and coordinates;
+Capcom owns the game map art. Rights reserved by Capcom and Itemaps; used with
+attribution per owner decision 2026-10-29. No source scripts/code were copied or
+executed. Full transformations, provenance, fingerprints and remaining exact-ID
+mapping gaps: visual-reference.source.md beside the datasets.

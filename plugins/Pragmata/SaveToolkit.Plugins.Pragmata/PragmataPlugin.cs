@@ -15,7 +15,7 @@ public sealed class PragmataPlugin : IGamePlugin, ISaveDecoderProvider
 
     public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = Array.AsReadOnly<ISaveDecoderHook>([new Diff.PragmataDecoder()]);
 
-    public PluginInfo Info { get; } = new("pragmata", "Pragmata", "0.5.1")
+    public PluginInfo Info { get; } = new("pragmata", "Pragmata", "0.6.0")
     {
         Description = "Experimental DSSS/Mandarin fixed-size editor with attributed item-ID replacement, queryable gameplay edits, planned quantities and synchronized clocks. Console acceptance and RSA trailer integrity are unverified.",
         Games = [new GameTitle("PPSA02530", "Pragmata")],
@@ -27,7 +27,11 @@ public sealed class PragmataPlugin : IGamePlugin, ISaveDecoderProvider
             "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31",
             "https://github.com/vaultic13/neuro-pragmata/tree/ae2ee572410e353ceae19bdc23f83f71687267dd",
             "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/tree/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b",
-            "https://pragmata.fandom.com/wiki/Category%3AItems", Views.CheckpointMap.ExternalMapUrl],
+            "https://pragmata.fandom.com/wiki/Category%3AItems",
+            "https://pragmata.fandom.com/wiki/Item?oldid=1830",
+            "https://pragmata.fandom.com/wiki/Template:Navbox/Weapons?oldid=3084",
+            "https://pragmata.fandom.com/wiki/Cartridge_Holder?oldid=998",
+            "https://itemaps.com/media/maps/pragmata/markers.json?v=20261024-icons", Views.CheckpointMap.ExternalMapUrl],
     };
 
     public ProbeResult Probe(ISaveFile file)

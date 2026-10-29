@@ -39,13 +39,13 @@ internal sealed class CheckpointMap(PragmataDocument document, LazyPages pages)
                 },
             });
         }
-        return [new MapNode("Checkpoint references and external map", new MapBounds(0, 0, 1, 1), markers,
+        return [document.References.WithAtlas(new MapNode("Checkpoint references and external map", new MapBounds(0, 0, 1, 1), markers,
             "Stored checkpoint hashes are listed with Unknown state and without coordinates. " +
             "The external community map is a separate manual reference; no checkpoint-to-marker mapping is claimed.")
         {
             CoordinateSpace = "External reference only; save locations unconfirmed",
             ExternalSource = new ExternalViewLink(ExternalMapUrl, "Open community Pragmata map",
-                "itemaps contributors. Licence unverified; link only. No map artwork, coordinates, descriptions or completion totals imported."),
-        }, new SectionNode(ValuesTitle, values)];
+                "Itemaps / Kevin Henrique; Capcom game art. Local references are attributed in Sources. Save-hash linkage and completion remain Unknown."),
+        }), new SectionNode(ValuesTitle, values)];
     }
 }

@@ -28,7 +28,7 @@ internal sealed class PragmataViews
         var tabs = new List<Tab> { new("Overview", Overview()) };
         if (_document.Layout.Inventory is not null)
         {
-            tabs.Add(new Tab("Inventory", _inventory.Build()));
+            tabs.Add(new Tab("Inventory", [.. _inventory.Build(), .. new IllustratedReferences(_document, _pages).Build()]));
             tabs.Add(new Tab("Gadgets", _evidence.Gadgets()));
             tabs.Add(new Tab("Loadout", _evidence.Family("app.WeaponManager.SaveData", "app.EnhanceManager.SaveData",
                 "app.EquipmentPresetManager.SaveData", "app.CharacterManager.GameSaveData")));
