@@ -117,14 +117,13 @@ public sealed class TsushimaEditingTests
         var bytes = Slot("suckerpunchUser1").ReadAllBytes();
         bytes[^1] = 0xA5;
         using var document = Open(WithBytes(bytes));
-        var blob = document.ReadBlob("content", 0, bytes.Length);
-        Assert.True(System.Runtime.InteropServices.MemoryMarshal.TryGetArray(blob, out var array));
-        array.Array![array.Offset] = 0;
+        WriteAssertions.FlipReturnedByte(document.ReadBlob("content", 7, 32));
+        Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(document.ApplyEdits([Edit(SuppliesId, 86)]).Succeeded);
         var output = Assert.Single(document.Serialize()).Content.ToArray();
         Assert.Equal(0xA5, output[^1]);
         Assert.Equal((uint)0x14E, Word(output, 0));
-        output[0] = 0;
-        Assert.Equal((uint)0x14E, Word(Assert.Single(document.Serialize()).Content.ToArray(), 0));
+        WriteAssertions.FlipReturnedByte(Assert.Single(document.Serialize()).Content);
+        Assert.Equal(output, Assert.Single(document.Serialize()).Content.ToArray());
     }
 }

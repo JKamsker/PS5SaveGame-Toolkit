@@ -36,26 +36,27 @@ public sealed class TsushimaCorruptionTests
     }
 
     [Theory]
-    [InlineData("count")]
-    [InlineData("length")]
-    [InlineData("name")]
-    [InlineData("duplicate")]
-    [InlineData("truncated")]
-    [InlineData("ambiguous")]
-    public void MalformedInventoryIsRejectedEvenWithAValidChecksum(string corruption)
+    [InlineData("count", "Tsushima counted inventory table is missing or ambiguous.")]
+    [InlineData("length", "Invalid Tsushima inventory name length.")]
+    [InlineData("name", "Invalid Tsushima inventory identifier.")]
+    [InlineData("duplicate", "Duplicate Tsushima inventory identifier.")]
+    [InlineData("truncated", "Tsushima inventory table is truncated.")]
+    [InlineData("ambiguous", "Tsushima inventory anchor is ambiguous.")]
+    public void MalformedInventoryIsRejectedEvenWithAValidChecksum(string corruption, string expected)
     {
         var bytes = Slot("suckerpunchUser0").ReadAllBytes();
         const int tableOffset = 0x4B92F;
+        var suppliesName = WriteAssertions.CountOffset(bytes, "Supplies") - sizeof(uint) - "Supplies".Length;
         switch (corruption)
         {
             case "count":
                 bytes[tableOffset] = 49;
                 break;
             case "length":
-                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(tableOffset + 4), uint.MaxValue);
+                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(suppliesName - sizeof(uint)), uint.MaxValue);
                 break;
             case "name":
-                bytes[tableOffset + 8] = 0xFF;
+                bytes[suppliesName] = 0xFF;
                 break;
             case "duplicate":
                 var offset = bytes.AsSpan().IndexOf("ArrowHeavy"u8);
@@ -67,10 +68,11 @@ public sealed class TsushimaCorruptionTests
             case "ambiguous":
                 "\x11\0\0\0LegendsInvestment"u8.CopyTo(bytes.AsSpan(16));
                 break;
+            default: throw new ArgumentOutOfRangeException(nameof(corruption));
         }
 
         RepairChecksum(bytes);
-        Assert.Throws<SaveFormatException>(() => Open(WithBytes(bytes)));
+        Assert.Equal(expected, Assert.Throws<SaveFormatException>(() => Open(WithBytes(bytes))).Message);
     }
 
     [Fact]
