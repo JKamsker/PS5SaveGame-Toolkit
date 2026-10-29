@@ -26,7 +26,24 @@ function contrast(first: string, second: string): number {
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
 
+function uiColor(selector: string, property: string, palette: Palette): string {
+  const escaped = selector.replaceAll(".", "\\.");
+  const block = new RegExp(`${escaped}\\s*\\{([^}]+)\\}`).exec(uiStyles)![1]!;
+  const value = new RegExp(`(?:^|;)\\s*${property}:\\s*([^;]+)`).exec(block)![1]!;
+  const token = /var\(--([\w-]+)\)/.exec(value)?.[1];
+  const color = token ? palette[token]! : value.trim();
+  return /^#[\da-f]{3}$/i.test(color) ? `#${[...color.slice(1)].map(channel => channel + channel).join("")}` : color;
+}
+
 describe.each([["light", light], ["dark", dark]] as const)("%s confidence contrast", (_name, palette) => {
+  it.each([".btn__count", ".toast", ".toast--error"])("keeps %s status text readable", selector => {
+    expect(contrast(uiColor(selector, "color", palette), uiColor(selector, "background", palette))).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it.each(["verified", "inferred", "unknown", "modified", "readonly", "experimental", "stable"])("keeps %s status tags readable", status => {
+    expect(contrast(uiColor(`.tag--${status}`, "color", palette), uiColor(".tag", "background", palette))).toBeGreaterThanOrEqual(4.5);
+  });
+
   it("keeps small hints and metadata readable across workspace surfaces", () => {
     for (const surface of ["ground", "surface", "surface-sunk", "modified-soft", "signal-soft", "row-hover"]) {
       expect(contrast(palette["ink-faint"]!, palette[surface]!), `ink-faint on ${surface}`).toBeGreaterThanOrEqual(4.5);

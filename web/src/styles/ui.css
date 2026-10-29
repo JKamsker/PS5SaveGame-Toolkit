@@ -52,8 +52,8 @@
   min-width: 20px;
   padding: 0 6px;
   border-radius: 999px;
-  background: var(--modified);
-  color: #fff;
+  background: var(--inferred);
+  color: var(--surface);
   font-size: var(--text-xs);
   line-height: 20px;
   text-align: center;
@@ -162,7 +162,7 @@
 }
 .toast--error {
   background: var(--danger);
-  color: #fff;
+  color: var(--surface);
 }
 @keyframes toast-in {
   from { opacity: 0; transform: translateY(8px); }
