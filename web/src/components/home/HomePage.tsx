@@ -8,7 +8,7 @@ import { fromInput } from "./collectFiles";
 import { GameLibrary } from "./GameLibrary";
 import { AppVersion } from "../ui/AppVersion";
 import { useEntryFocus } from "../ui/useEntryFocus";
-import { ImportTaskContext } from "./importTask";
+import { ImportIntentContext, ImportTaskContext } from "./importTask";
 import { useHomeImport } from "./useHomeImport";
 
 const maturityText = { ReadOnly: "view only", Experimental: "editing, untested on console", Stable: "editing, tested in-game" } as const;
@@ -20,7 +20,7 @@ export function HomePage() {
   const recent = useQuery({ queryKey: ["workspaces"], queryFn: api.workspaces });
   useEffect(() => void library.restore(), []);
   return (
-    <ImportTaskContext.Provider value={controller.importTask}><main className="home">
+    <ImportTaskContext.Provider value={controller.importTask}><ImportIntentContext.Provider value={controller.beginImportIntent}><main className="home">
       <div className="home__brand">
         <span className="bar__mark" aria-hidden="true" />
         Savebench
@@ -45,7 +45,7 @@ export function HomePage() {
         </div>
       </div>
       <AppVersion />
-    </main></ImportTaskContext.Provider>
+    </main></ImportIntentContext.Provider></ImportTaskContext.Provider>
   );
 }
 

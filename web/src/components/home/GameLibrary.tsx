@@ -122,21 +122,24 @@ function useGameImport(game: LibraryGame, name: string, snapshotId: number) {
     if (!isCurrent()) return;
     setError(null);
     setProgress(0);
-    const existing = library.importedWorkspace(game.key, snapshotId);
-    if (existing) {
-      const alive = await api.workspace(existing).then(() => true, () => false);
-      if (!isCurrent()) return;
-      if (alive) return navigate(`/w/${existing}`);
-    }
     try {
+      const existing = library.importedWorkspace(game.key, snapshotId);
+      if (existing) {
+        const alive = await api.workspace(existing).then(() => true, () => false);
+        if (!isCurrent()) return;
+        if (alive) return navigate(`/w/${existing}`);
+      }
       const ws = await api.upload(game.sources, name, progress => { if (isCurrent()) setProgress(progress); });
       void client.invalidateQueries({ queryKey: ["workspaces"] });
-      if (!isCurrent()) return;
+      // The snapshot owns reuse; source-selection intent separately owns navigation/feedback.
       library.rememberImport(game.key, ws.id, snapshotId);
+      if (!isCurrent()) return;
       void navigate(`/w/${ws.id}`);
     } catch (e) {
       if (!isCurrent()) return;
       setError(e instanceof ApiError ? e.message : "The import failed.");
+    } finally {
+      // This tile owns only its local progress; even a retired observer must release it.
       setProgress(null);
     }
   });

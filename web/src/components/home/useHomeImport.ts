@@ -8,7 +8,7 @@ import { walkEntries, type UploadFile } from "./collectFiles";
 import { useAsyncTask } from "../ui/useAsyncTask";
 import { useLatestRequest } from "../ui/useLatestRequest";
 
-function useHomeUpload() {
+function useHomeUpload(beginSelection: () => () => boolean) {
   const navigate = useNavigate();
   const client = useQueryClient();
   const { snapshotId } = useLibrary();
@@ -20,10 +20,13 @@ function useHomeUpload() {
   const setFailedUpload = (files: UploadFile[]) => setFailed({ snapshotId, files });
   const status = feedback.snapshotId === snapshotId ? feedback.status : null;
   const failedUpload = failed.snapshotId === snapshotId ? failed.files : [];
-  const upload = (files: UploadFile[]) => {
+  const upload = (files: UploadFile[], selectionIsCurrent?: () => boolean) => {
     if (files.length === 0) return;
     return importTask.run(async taskIsCurrent => {
-      const isCurrent = () => taskIsCurrent() && library.get().snapshotId === snapshotId;
+      // Acquire observer ownership only after the shared submit guard accepts this upload.
+      const sourceIsCurrent = selectionIsCurrent ?? beginSelection();
+      const isCurrent = () => taskIsCurrent() && sourceIsCurrent() && library.get().snapshotId === snapshotId;
+      if (!isCurrent()) return;
       setFailedUpload([]);
       const total = files.reduce((n, f) => n + f.file.size, 0);
       const label = files.length === 1 ? files[0]?.path : `${files.length} files`;
@@ -45,10 +48,10 @@ function useHomeUpload() {
   return { importTask, status, setStatus, failedUpload, setFailedUpload, upload };
 }
 
-/** Folder selection invalidates older drop enumeration without changing the shared import task. */
+/** Source selection retires older observers without releasing the shared import submit slot. */
 export function useHomeImport() {
-  const { importTask, status, setStatus, failedUpload, setFailedUpload, upload } = useHomeUpload();
   const beginRequest = useLatestRequest("home-folder");
+  const { importTask, status, setStatus, failedUpload, setFailedUpload, upload } = useHomeUpload(beginRequest);
   const [dragging, setDragging] = useState(false);
   const zipInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
@@ -81,7 +84,7 @@ export function useHomeImport() {
           const files = await walkEntries(entries);
           if (!isCurrent()) return;
           setStatus(null);
-          return await upload(files);
+          return await upload(files, requestIsCurrent);
         }
         const resolved = await handle;
         if (!isCurrent()) return;
@@ -103,9 +106,6 @@ export function useHomeImport() {
     })();
   };
 
-  const startUpload = (files: UploadFile[]) => {
-    beginRequest();
-    return upload(files);
-  };
-  return { importTask, status, failedUpload, upload: startUpload, beginFolderSelection, dragging, setDragging, zipInput, folderInput, chooseFolder, onDrop };
+  return { importTask, status, failedUpload, upload, beginFolderSelection, beginImportIntent: beginFolderSelection,
+    dragging, setDragging, zipInput, folderInput, chooseFolder, onDrop };
 }
