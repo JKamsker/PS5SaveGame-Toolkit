@@ -117,6 +117,7 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
                   spec={p.spec}
                   value={value === undefined ? p.value : value}
                   disabled={busy}
+                  invalid={Boolean(parameterErrors[p.valueId])}
                   onLocalError={message => setParameterErrors(previous => ({ ...previous, [p.valueId]: message }))}
                   onCommit={next => {
                     setValues(previous => ({ ...previous, [p.valueId]: next }));

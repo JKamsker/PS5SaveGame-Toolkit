@@ -74,6 +74,7 @@ it("focuses the rejected legacy parameter and restores the opener after success"
   await within(dialog).findByRole("alert");
   const input = within(dialog).getByRole("textbox", { name: "Target count", description: "Count rejected" });
   expect(document.activeElement).toBe(input);
+  expect(input.getAttribute("aria-invalid")).toBe("true");
   fireEvent.change(input, { target: { value: "2" } });
   fireEvent.keyDown(input, { key: "Enter" });
   fireEvent.click(within(dialog).getByRole("button", { name: "Refill" }));

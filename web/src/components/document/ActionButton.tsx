@@ -102,6 +102,7 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
                     spec={p.spec}
                     value={Object.hasOwn(values, p.valueId) ? values[p.valueId]! : p.value}
                     disabled={busy}
+                    invalid={Boolean(errors[p.valueId])}
                     onLocalError={message => setErrors(previous => ({ ...previous, [p.valueId]: message }))}
                     onCommit={(v) => {
                       setValues((prev) => ({ ...prev, [p.valueId]: v }));
