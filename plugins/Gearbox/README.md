@@ -241,7 +241,7 @@ counts against the intended model; transfer/import regressions assert persisted 
 | F4 reference pickers | Used | Added in the completion round: existing serial-part replacement with category/width eligibility and independent writer checks; browse-only asset/class/mission/skill references and attributed inspection actions |
 | F5 structural history | Used | Import/duplicate/remove and bank moves retain full wire bytes, duplicate identities and counters in snapshots |
 | F6 planning / #27 | Used | Item levels accept document scope (all member inventory containers), explicit rows or host-resolved F8 query rows. Duplicate/remove and F7 transfers require explicit or host-resolved rows; import uses document scope into backpack/bank. Plans preview changes/skips/warnings |
-| F7 groups | Used | Extended in the completion round: explicit character/profile transactions; graph/map links and query selections are namespaced to their owning member |
+| F7 groups / SDK-04 | Used | `DocumentMemberAdapter`, `DocumentMemberIdentityPolicy`, `DocumentMemberRouter` and `DocumentMemberEdits` share member identity mapping and dispatch; Gearbox retains collection-qualified rows, inventory/ammo scope validation, explicit character/profile transactions, transfers and whole-group snapshots |
 | F8 collections | Used | Backpack/bank/lost loot/balance/world catalogues, named skills, stored allocations and missions; equipment, SDUs, ammo, Guardian and Myth lists use F8 above 100 rows (F14). Full-set search/filter/sort with a 200-row query cap; duplicate item identities remain distinct |
 | F9 graph/map | Used | Added in the completion round: stored allocation graphs, calculator gate graphs, external-only mission checklist; bounded lazy pages, text alternatives and control links |
 | F10 exact / nullable / union | N/A | Exposed scalars are typed protobuf integers/float32, with no decimal lexemes, explicit null or scalar type union. Existing Int128-backed IntegerSpec / integer-string transport and FloatSpec.Single suffice; ExactNumberSpec, NullableSpec and UnionSpec are not used. Absent records are preserved except for the documented write-created records |
@@ -499,7 +499,10 @@ The full multi-plugin F1 CLI passed **2 fixtures, 0 failed, 0 skipped**, without
 `--warnaserror` passed with **0 warnings, 0 errors**. This audit also corrects factually wrong
 display/provenance strings about exact skill joins and duplicate pickup metadata, updates their
 existing test expectations and record-file hashes, and retains behavior, IDs and confidence labels.
-There are no pinned Gearbox view fingerprints to update.
+`GroupProtocolTests` pins the pre-SDK-04 group protocol/view fingerprints for both titles:
+synthetic edit-coverage plans, export bytes and snapshot restores, plus sample-backed views,
+lazy expansions and bounded query pages across all generations and backups. The adapter migration
+preserves those fingerprints; only hashes, not sample bytes or extracted values, are committed.
 The review totals and measurements below are dated historical runs, not the current test count.
 
 SDK helper migration ([#40](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40)), 2026-10-29:
