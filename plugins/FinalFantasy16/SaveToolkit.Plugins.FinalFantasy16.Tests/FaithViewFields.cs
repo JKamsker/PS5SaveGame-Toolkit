@@ -15,12 +15,5 @@ internal static class FaithViewFields
                     foreach (var field in row.Cells.Values.SelectMany(All)) yield return field;
     }
 
-    public static IEnumerable<FieldNode> All(ViewNode root) => root switch
-    {
-        FieldNode field => [field],
-        TabsNode tabs => tabs.Tabs.SelectMany(tab => tab.Children).SelectMany(All),
-        SectionNode section => section.Children.SelectMany(All),
-        TableNode table => table.Rows.SelectMany(row => row.Cells.Values).SelectMany(All),
-        _ => [],
-    };
+    public static IEnumerable<FieldNode> All(ViewNode root) => FaithViewNodes.All(root).OfType<FieldNode>();
 }
