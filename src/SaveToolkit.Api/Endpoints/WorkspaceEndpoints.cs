@@ -18,7 +18,7 @@ internal static class WorkspaceEndpoints
 
     public static void MapToolkitApi(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("/api");
+        var api = app.MapGroup("/api").AddEndpointFilter<ApiContractFilter>();
 
         api.MapGet("/plugins", (WorkspaceStore store) =>
             store.Catalog.Plugins.OrderBy(p => p.Info.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.ToDto()));
@@ -67,6 +67,7 @@ internal static class WorkspaceEndpoints
 
     private static void MapDocumentRoutes(RouteGroupBuilder doc)
     {
+        doc.AddEndpointFilter<DocumentRevisionFilter>();
         doc.MapActionReview();
         doc.MapGet("", (DocumentRef d) => d.Value.ToDto(d.Workspace));
         doc.MapDelete("", (DocumentRef d) => d.Workspace.Close(d.Value.Id) ? Results.NoContent() : Results.NotFound());
@@ -79,8 +80,8 @@ internal static class WorkspaceEndpoints
             ToResult(d.Value.ApplyEdits([.. request.Edits.Select(e => new IncomingEdit(e.ValueId, e.Value))], request.Revision)));
         doc.MapPost("/actions", (DocumentRef d, ActionRequest request) =>
             ToResult(d.Value.InvokeAction(request.ActionId, request.Parameters ?? [], request.Revision)));
-        doc.MapPost("/undo", (DocumentRef d) => ToResult(d.Value.Undo()));
-        doc.MapPost("/redo", (DocumentRef d) => ToResult(d.Value.Redo()));
+        doc.MapPost("/undo", (DocumentRef d, HistoryRequest? request) => ToResult(d.Value.Undo()));
+        doc.MapPost("/redo", (DocumentRef d, HistoryRequest? request) => ToResult(d.Value.Redo()));
         doc.MapGet("/assets", (DocumentRef d, [FromQuery] string id) =>
             d.Value.GetAsset(id) is { } asset ? Results.Bytes(asset.Content.ToArray(), asset.ContentType) : Results.NotFound());
         doc.MapGet("/blobs", (DocumentRef d, [FromQuery] string id, [FromQuery] long offset, [FromQuery] int count) =>
@@ -227,12 +228,7 @@ internal static class WorkspaceEndpoints
             return Results.BadRequest(new ErrorDto("Expected multipart/form-data with one or more files."));
         }
 
-        IFormCollection form;
-        try { form = await request.ReadFormAsync(ct); }
-        catch (IOException)
-        {
-            return Results.BadRequest(new ErrorDto("Could not read the upload. It may be incomplete; select the files and try again."));
-        }
+        var form = await MultipartUpload.ReadAsync(request, ct);
         if (form.Files.Count == 0)
         {
             return Results.BadRequest(new ErrorDto("No files uploaded."));

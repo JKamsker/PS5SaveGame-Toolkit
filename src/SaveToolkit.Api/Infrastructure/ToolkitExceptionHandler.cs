@@ -8,15 +8,15 @@ using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Api.Infrastructure;
 
-/// <summary>Maps domain exceptions to <c>{ "error": "..." }</c> responses; never leaks stack traces.</summary>
+/// <summary>Maps domain exceptions to problems with the legacy error fields; never leaks stack traces.</summary>
 internal sealed partial class ToolkitExceptionHandler(ILogger<ToolkitExceptionHandler> logger) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
     {
         if (exception is StaleViewException stale)
         {
-            context.Response.StatusCode = StatusCodes.Status409Conflict;
-            await context.Response.WriteAsJsonAsync(new ErrorDto(stale.Message, StaleViewException.Code), cancellationToken);
+            await ApiProblem.WriteAsync(context, StatusCodes.Status409Conflict,
+                new ErrorDto(stale.Message, StaleViewException.Code), cancellationToken);
             return true;
         }
 
@@ -38,8 +38,7 @@ internal sealed partial class ToolkitExceptionHandler(ILogger<ToolkitExceptionHa
             LogUnhandled(logger, exception, context.Request.Path);
         }
 
-        context.Response.StatusCode = status;
-        await context.Response.WriteAsJsonAsync(new ErrorDto(message), cancellationToken);
+        await ApiProblem.WriteAsync(context, status, new ErrorDto(message), cancellationToken);
         return true;
     }
 

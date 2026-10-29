@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
 
@@ -11,7 +12,8 @@ internal static class ActionReviewEndpoints
         doc.MapPost("/actions/plan", (DocumentRef d, PlanActionRequest request) =>
         {
             var preview = d.Value.PlanAction(request.ActionId, request.Parameters ?? [], request.Scope, request.Revision);
-            return preview.Stale ? Results.Conflict(preview) : Results.Ok(preview);
+            return preview.Stale ? Results.Conflict(preview)
+                : preview.Plan.Errors.Count > 0 ? Results.UnprocessableEntity(preview) : Results.Ok(preview);
         });
         doc.MapPost("/actions/apply", (DocumentRef d, ApplyActionPlanRequest request) =>
             Result(d.Value.ApplyActionPlan(request.PlanId, request.Revision)));
@@ -30,5 +32,5 @@ internal static class ActionReviewEndpoints
 /// </summary>
 public sealed record PlanActionRequest(string ActionId, Dictionary<string, JsonElement>? Parameters,
     ActionScope? Scope = null, long? Revision = null);
-public sealed record ApplyActionPlanRequest(string PlanId, long Revision);
-public sealed record RevertChangeRequest(string ValueId, long Revision);
+public sealed record ApplyActionPlanRequest(string PlanId, [property: JsonRequired] long Revision);
+public sealed record RevertChangeRequest(string ValueId, [property: JsonRequired] long Revision);

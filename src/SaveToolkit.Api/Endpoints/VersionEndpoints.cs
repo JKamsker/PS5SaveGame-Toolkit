@@ -8,6 +8,6 @@ internal static class VersionEndpoints
     {
         var version = typeof(Program).Assembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
-        app.MapGet("/api/version", () => new { version });
+        app.MapGet("/api/version", () => new { version }).AddEndpointFilter<Infrastructure.ApiContractFilter>();
     }
 }

@@ -61,7 +61,7 @@ public sealed class ExactNumberApiTests(WebApplicationFactory<Program> factory) 
         var ct = TestContext.Current.CancellationToken;
         var path = await OpenAsync();
         var missing = await _client.PostAsJsonAsync($"{path}/edits", new { edits = new[] { new { valueId = "optional" } } }, ct);
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, missing.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, missing.StatusCode);
         var invalid = await _client.PostAsJsonAsync($"{path}/edits", new { edits = new[] { new { valueId = "number", value = new { kind = "exactNumber", text = "01" } } } }, ct);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, invalid.StatusCode);
         var explicitNull = await _client.PostAsJsonAsync($"{path}/edits", new { edits = new[] { new { valueId = "optional", value = (string?)null } } }, ct);

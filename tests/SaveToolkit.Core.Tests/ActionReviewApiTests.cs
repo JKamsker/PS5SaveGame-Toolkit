@@ -66,7 +66,7 @@ public sealed class ActionReviewApiTests(WebApplicationFactory<Program> factory)
         var direct = await _client.PostAsJsonAsync($"{url}/actions", new { actionId = "refill" }, ct);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, direct.StatusCode);
         var response = await _client.PostAsJsonAsync($"{url}/actions/plan", new { actionId = "refill", scope = new { rowKeys = DuplicateA } }, ct);
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
         var preview = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
         Assert.False(preview.TryGetProperty("planId", out _));
         Assert.NotEmpty(preview.GetProperty("plan").GetProperty("errors").EnumerateArray());
