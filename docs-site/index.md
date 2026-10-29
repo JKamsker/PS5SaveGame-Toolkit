@@ -21,6 +21,21 @@ _layout: landing
 <a class="docs-path" href="reference/index.md"><span class="eyebrow">04 · GENERATED REFERENCE</span><strong>Find the exact contract</strong><span>Browse C# SDK types and the local HTTP API, rebuilt with the source.</span></a>
 </div>
 
+## Current SDK tutorials
+
+After the scaffold and collection walkthrough, continue through the shipped preservation and
+presentation contracts:
+
+- [Preserve JSON scalar spelling](tutorials/lossless-json.md) keeps BOM, trivia, duplicate keys
+  and exact numbers while bounding scalar patches and snapshots.
+- [Project canonical fields](tutorials/field-references.md) reuses one binding across projections
+  with canonical spec, confidence, warning and description metadata.
+- [Patch an existing SFO value](tutorials/sfo-substrate.md) plans a strict UTF-8 in-place update
+  while retaining every other byte.
+
+These are framework foundations. The central [SDK request ledger](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/SDK_REQUESTS.md)
+still tracks native adoption and evidence gates separately.
+
 ## Before you begin
 
 The toolkit works with **already decrypted** saves. It does not decrypt or re-sign console containers. The editor runs on your computer at `http://127.0.0.1:5180`; this website contains documentation only.
