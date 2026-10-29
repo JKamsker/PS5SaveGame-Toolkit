@@ -1,4 +1,6 @@
 using System.Text;
+using System.Text.Json;
+using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Testing;
@@ -7,12 +9,15 @@ namespace SaveToolkit.Plugins.GenericJson.Tests;
 
 public sealed class JsonResourceTests
 {
-    [Fact]
-    public void ScalarLengthPreflightRejectsEscapedGrowthBeforeReplacementAllocation()
+    [Theory]
+    [InlineData('é')]
+    [InlineData('+')]
+    [InlineData('`')]
+    public void ScalarLengthPreflightRejectsEscapedGrowthBeforeReplacementAllocation(char character)
     {
         // This is valid under the 16 MiB character budget, but default JSON escaping would
         // expand it to roughly 96 MiB before the final output-budget rejection.
-        var huge = JsonEditingTests.Text(new string('é', JsonTokenTree.MaxBytes - 1024));
+        var huge = JsonEditingTests.Text(new string(character, JsonTokenTree.MaxBytes - 1024));
         var allocation = AllocationProbe.Measure(() =>
         {
             using var document = new GenericJsonPlugin().Open(MemorySaveSet.SingleFile("limit.json", "[0]"u8.ToArray()));
@@ -21,15 +26,41 @@ public sealed class JsonResourceTests
             Assert.Equal("[0]", Encoding.UTF8.GetString(document.Serialize()[0].Content.Span));
         });
         allocation.AssertAtMost(10 * 1024 * 1024,
-            "A valid near-limit multibyte string must be rejected by scalar length preflight before JSON escaping.");
+            "A valid near-limit escaped string must be rejected by scalar length preflight before JSON escaping.");
 
         using var fixture = new JsonSessionFixture("[0]");
         var field = fixture.Fields()[0];
         var rejected = fixture.Edit(field.ValueId, huge);
         Assert.False(rejected.Ok);
         Assert.False(fixture.Session.State.CanUndo);
+        Assert.False(fixture.Session.State.CanRedo);
+        Assert.Equal(0, fixture.Session.State.Revision);
         Assert.Equal(JsonEditingTests.Number("0"), fixture.Document.GetValue(field.ValueId));
         Assert.Equal("[0]", Encoding.UTF8.GetString(fixture.Bytes));
+    }
+
+    [Fact]
+    public void ScalarLengthMatchesDefaultSerializerForEveryAsciiCodePoint()
+    {
+        for (var codePoint = 0; codePoint < 128; codePoint++)
+        {
+            var text = ((char)codePoint).ToString();
+            var expected = JsonSerializer.SerializeToUtf8Bytes(text).Length;
+            Assert.True(expected == JsonScalar.EncodedLength(JsonEditingTests.Text(text)),
+                $"Default serializer length disagrees for ASCII U+{codePoint:X4}.");
+        }
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("\"+`\\\b\f\n\r\t<>&'é漢字😀")]
+    [InlineData("\u007F\u0080\u00A0\u2028\u2029\uD7FF\uE000\uFFFF\U00010000\U0010FFFF")]
+    public void ScalarLengthMatchesDefaultSerializerForMixedUnicode(string text)
+    {
+        var expected = JsonSerializer.SerializeToUtf8Bytes(text);
+        var value = JsonEditingTests.Text(text);
+        Assert.Equal(expected.Length, JsonScalar.EncodedLength(value));
+        Assert.Equal(expected, JsonScalar.Encode(value));
     }
 
     [Theory]
@@ -58,6 +89,31 @@ public sealed class JsonResourceTests
         Assert.Equal(Encoding.UTF8.GetBytes("[\"bbb\",\"a\"]".PadRight(JsonTokenTree.MaxBytes)), document.Serialize()[0].Content.ToArray());
         Assert.True(document.ApplyEdits(fields.Select(field => new SaveToolkit.Sdk.ValueEdit(field.ValueId, field.Value)).ToArray()).Succeeded);
         Assert.Equal(Encoding.UTF8.GetBytes(source), document.Serialize()[0].Content.ToArray());
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void HexEscapedGrowthAndShrinkFitAtTheByteLimitInEitherEditOrder(bool reverse)
+    {
+        var source = "[\"aaaaaaaaaa\",\"bbbb\"]".PadRight(JsonTokenTree.MaxBytes);
+        using var fixture = new JsonSessionFixture(source);
+        var fields = fixture.Fields();
+        IncomingEdit[] edits = [
+            new(fields[0].ValueId, JsonSerializer.SerializeToElement(JsonEditingTests.Text("++"))),
+            new(fields[1].ValueId, JsonSerializer.SerializeToElement(JsonEditingTests.Text("bb"))),
+        ];
+        if (reverse) Array.Reverse(edits);
+        // The first token grows by two bytes despite the shorter decoded string; the second shrinks by two.
+        var expected = Encoding.UTF8.GetBytes("[\"\\u002B\\u002B\",\"bb\"]".PadRight(JsonTokenTree.MaxBytes));
+        Assert.True(fixture.Session.ApplyEdits(edits, fixture.Session.State.Revision,
+            cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.Equal(expected, fixture.Bytes);
+        Assert.True(fixture.Session.Undo().Ok);
+        Assert.Equal(Encoding.UTF8.GetBytes(source), fixture.Bytes);
+        Assert.True(fixture.Session.Redo().Ok);
+        Assert.Equal(expected, fixture.Bytes);
+        Assert.Equal(fields.Select(field => field.ValueId), fixture.Fields().Select(field => field.ValueId));
     }
 
     [Fact]

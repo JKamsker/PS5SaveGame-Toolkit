@@ -4,13 +4,13 @@
 
 - Consumer branch: `t3/genericjson-sdk06-adoption`
 - Consumer base before dependency merge: `e76e51035fec308a56e5c26b5d97a9c08089f881`
-- Consumer implementation head: `c78fa498` (`fix(genericjson): preflight scalar output size before encoding`)
+- Original R1 fix head: `c78fa498` (`fix(genericjson): preflight scalar output size before encoding`)
 - Reviewed dependency: SDK-06 PR #51, exact commit
   `72490fe8756627013c73c0b80fa874b563a0e652` (parent `a466a4b16ef271eb98e30f784cfcaba03e8654ae`)
 - Dependency branch/base: `t3/sdk06-lossless-json` / `e76e51035fec308a56e5c26b5d97a9c08089f881`
 - Consumer dependency merge: `5e452662` (ordinary `--no-ff` merge; no cherry-pick/rebase/squash)
-- Consumer PR target: `t3/sdk06-lossless-json` while PR #51 is pending main; parent must retarget to
-  `main` after PR #51 lands and rerun CI. Do not merge this consumer before that foundation.
+- Consumer PR target: `main`. PR #51 merged; ordinary consumer merges retain SDK06 and published
+  main `201dd690a48a93bf496f1825246bc6954cc5ec52`. Parent owns fresh review and hosted validation.
 - Consumer PR: https://github.com/JKamsker/PS5SaveGame-Toolkit/pull/62
 - Immutable dependency-to-consumer diff contains **11 changed paths**, all under `plugins/GenericJson`.
   The earlier 12-file note was incorrect and is superseded by this count.
@@ -62,8 +62,8 @@ removed. No private samples or values were read or copied.
 SDK-06 has no structural API, so structural trivia and history remain plugin-owned. Shared scalar
 patching is unavailable after topology/name changes and correctly falls back to the local writer.
 Title writes remain experimental, with existing Inferred/Unknown labels and external game-integrity
-warnings. PR #51's hosted Windows CI and eventual main merge remain parent-owned; after merge,
-retarget this consumer PR and rerun the full required checks.
+warnings. The foundation/main gate is satisfied; fresh independent consumer review and hosted
+combined-source validation remain parent-owned landing requirements.
 
 ## PR62-R1 response
 
@@ -85,3 +85,26 @@ HTML-sensitive and control escapes. Final-fitting grow/shrink order coverage rem
 Post-fix plugin validation: **463 total, 430 passed, 33 explicit missing-sample skips, 0 failed**;
 synthetic mutation fuzzing passed. The API Release build and documentation checks were rerun after
 the final follow-up commit; all build/cache/results remain under the assigned D: scratch root.
+
+## PR62-R3 response
+
+`PR62-R3-01` found an incomplete counter: the unchanged default serializer hex-escapes quote,
+plus and backtick to six bytes each. Their old two/one/one-byte counts permitted oversized
+replacement allocation and misordered a final-fitting atomic batch. The counter now uses six
+for all three; backslash remains two. Serializer options, output bytes, limits, checked aggregate
+accounting, source lock, SDK snapshot restoration and structural/history paths are unchanged.
+
+The new runtime serializer oracle covers every ASCII code point and mixed Unicode including
+controls, HTML-sensitive characters, BMP boundaries and supplementary pairs. Before the fix,
+the oracle failed at U+0022 and the exact-limit grow/shrink batch failed in both edit orders.
+After the fix, all 24 resource tests pass. Near-limit plus/backtick strings now join the existing
+non-ASCII allocation regression: rejection stays within the unchanged 10 MiB measured bound,
+with original bytes/value/revision and no undo/redo history. At exactly 16 MiB, replacing
+`["aaaaaaaaaa","bbbb"]` with decoded `["++","bb"]` succeeds in either edit order and emits
+the original default `\u002B` escapes, with byte-exact undo/redo and stable IDs.
+
+Current Release plugin evidence: **471 total, 438 passed, 33 explicit sample skips, 0 failed**;
+synthetic mutation fuzzing and API Release build pass. R1's preflight-before-encoding ordering
+closure and the reviewed SDK foundation fixes remain intact; R3 corrects the incomplete encoder
+coverage missed by R2. Fresh R4 and hosted checks are still required. The historical full-Core
+run at `736ded89` ended with runner exit -1 and is not a passing suite; no cause fix is claimed.

@@ -83,9 +83,10 @@ internal static class JsonScalar
                 throw new InvalidOperationException("Text contains an unpaired Unicode surrogate.");
             length = checked(length + character switch
             {
-                '"' or '\\' => 2,
+                '\\' => 2,
                 '\b' or '\f' or '\n' or '\r' or '\t' => 2,
-                < '\u0020' or '<' or '>' or '&' or '\'' or > '\u007E' => 6,
+                // Match JsonSerializer's default encoder, including its ASCII hex escapes.
+                < '\u0020' or '"' or '+' or '`' or '<' or '>' or '&' or '\'' or > '\u007E' => 6,
                 _ => 1,
             });
         }

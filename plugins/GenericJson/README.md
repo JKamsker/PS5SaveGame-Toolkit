@@ -296,3 +296,6 @@ used only when topology and member names remain imported. The streaming validato
 Probe, structural equality and exact diagnostic mapping; GenericJson retains its local structural
 trivia writer, stable IDs, snapshots, title semantics and warning labels. SDK-06 has no structural
 API, so no working GenericJson structural feature was removed.
+Scalar length preflight follows the unchanged default serializer, including six-byte quote,
+plus and backtick escapes. Serializer-oracle tests cover all ASCII code points and mixed Unicode;
+exact-limit batch/history and near-limit allocation tests cover that preflight's consumer boundary.
