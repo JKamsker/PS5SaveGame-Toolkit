@@ -8,6 +8,7 @@ internal sealed class GvasParser(byte[] bytes)
     private readonly List<SizeRegion> _sizes = [];
     private GvasHeader _header = null!;
     private int _nodeCount;
+    private int _typeNameCount;
 
     public GvasFile Parse()
     {
@@ -33,7 +34,7 @@ internal sealed class GvasParser(byte[] bytes)
         var nodes = new List<GvasNode>();
         while (true)
         {
-            var tag = GvasTag.Read(ref reader, _header);
+            var tag = GvasTag.Read(ref reader, _header, ref _typeNameCount);
             if (tag is null) return nodes;
             if (tag.Size > reader.Remaining) throw new SaveFormatException($"Truncated GVAS property '{tag.Name}'.");
             var start = reader.Position;
@@ -79,7 +80,12 @@ internal sealed class GvasParser(byte[] bytes)
                 node.Scalar = GvasPrimitives.Read(ref reader, "StrProperty");
             else
                 node.Scalar = GvasPrimitives.Read(ref reader, tag.Type);
-            if (reader.Remaining != 0) throw new UnsupportedGvasValueException("Payload layout is not fully understood.");
+            if (reader.Remaining != 0)
+            {
+                if (tag.Type == "StructProperty" && !IsKnownNativeStruct(tag.StructType))
+                    throw new UnsupportedGvasValueException("Payload layout is not fully understood.");
+                throw new GvasRejectionException($"GVAS property '{tag.Name}' size disagrees with its {tag.Type} contents ({reader.Remaining} trailing bytes).");
+            }
         }
         catch (UnsupportedGvasValueException ex)
         {
@@ -138,7 +144,16 @@ internal sealed class GvasParser(byte[] bytes)
             if (reader.ReadInt32LE() != 0) throw new UnsupportedGvasValueException("Container has removed entries.");
         }
         var byteArray = tag.Type == "ArrayProperty" && tag.InnerType is "ByteProperty" or "UInt8Property";
-        var count = reader.ReadCount(byteArray ? GvasFile.MaxFileLength : MaxNodesForRemainingBudget());
+        const int NodesPerMapEntry = 2;
+        var maximum = byteArray ? GvasFile.MaxFileLength :
+            MaxNodesForRemainingBudget() / (tag.Type == "MapProperty" ? NodesPerMapEntry : 1);
+        int count;
+        try { count = reader.ReadCount(maximum); }
+        catch (SaveFormatException ex)
+        {
+            // A recognized container's invalid count is not evidence of an unknown native layout.
+            throw new GvasRejectionException(GvasBinary.LegacyError(ex).Message);
+        }
         if (tag.Type == "ArrayProperty" && tag.InnerType is "ByteProperty" or "UInt8Property")
         {
             var blob = reader.Take(count);
@@ -149,10 +164,11 @@ internal sealed class GvasParser(byte[] bytes)
         SizeRegion? innerSize = null;
         if (tag.Type == "ArrayProperty" && tag.InnerType == "StructProperty" && !_header.CompleteTypeNames && _header.HasPropertyGuid)
         {
-            var inner = GvasTag.Read(ref reader, _header);
+            var inner = GvasTag.Read(ref reader, _header, ref _typeNameCount);
             if (inner is null || inner.Type != "StructProperty") throw new SaveFormatException("Missing struct array inner tag.");
             structType = inner.StructType;
-            if (inner.Size != reader.Remaining) throw new UnsupportedGvasValueException("Struct array inner size differs from payload length.");
+            if (inner.Size != reader.Remaining)
+                throw new GvasRejectionException($"GVAS struct array '{tag.Name}' inner size differs from payload length.");
             innerSize = new SizeRegion(inner.SizeOffset, reader.Position, inner.Size);
         }
         if (tag.InnerType == "StructProperty" && structType is null)
@@ -196,7 +212,7 @@ internal sealed class GvasParser(byte[] bytes)
 
     private GvasNode NewNode(string name, string type, int start, int length, GvasScalar? scalar = null, IReadOnlyList<GvasNode>? children = null)
     {
-        if (++_nodeCount > GvasFile.MaxNodes) throw new SaveFormatException("GVAS exceeds the 100,000-node safety limit.");
+        if (++_nodeCount > GvasFile.MaxNodes) throw new GvasRejectionException("GVAS exceeds the 100,000-node safety limit.");
         return new GvasNode(name, type, start, length) { Scalar = scalar, Children = children ?? [] };
     }
 
@@ -207,7 +223,7 @@ internal sealed class GvasParser(byte[] bytes)
 
     private static void CheckDepth(int depth)
     {
-        if (depth > GvasFile.MaxDepth) throw new SaveFormatException("GVAS exceeds the nesting safety limit.");
+        if (depth > GvasFile.MaxDepth) throw new GvasRejectionException("GVAS exceeds the nesting safety limit.");
     }
 
     private static string DescribeBlob(ReadOnlySpan<byte> blob) => blob.StartsWith(new byte[] { 0xC1, 0x83, 0x2A, 0x9E })

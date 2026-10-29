@@ -14,12 +14,12 @@ internal sealed record GvasTag(string Name, string Type, int SizeOffset, int Siz
     private const byte NativeSerialization = 8;
     private const byte KnownFlags = HasArrayIndex | HasPropertyGuid | HasPropertyExtensions | BoolTrue | NativeSerialization;
 
-    public static GvasTag? Read(ref BoundedBinaryCursor reader, GvasHeader header)
+    public static GvasTag? Read(ref BoundedBinaryCursor reader, GvasHeader header, ref int typeNameCount)
     {
         var name = reader.String();
         if (name == "None") return null;
         if (string.IsNullOrEmpty(name)) throw new SaveFormatException("Empty GVAS property name.");
-        if (header.CompleteTypeNames) return ReadComplete(ref reader, name);
+        if (header.CompleteTypeNames) return ReadComplete(ref reader, name, ref typeNameCount);
         var type = reader.String();
         var offset = reader.Position;
         var size = reader.ReadCount(GvasFile.MaxFileLength);
@@ -49,9 +49,9 @@ internal sealed record GvasTag(string Name, string Type, int SizeOffset, int Siz
         return new GvasTag(name, type, offset, size, inner, value, structure, BoolOffset: boolOffset, BoolValue: boolValue);
     }
 
-    private static GvasTag ReadComplete(ref BoundedBinaryCursor reader, string name)
+    private static GvasTag ReadComplete(ref BoundedBinaryCursor reader, string name, ref int typeNameCount)
     {
-        var root = ReadType(ref reader, 0);
+        var root = ReadType(ref reader, 0, ref typeNameCount);
         var offset = reader.Position;
         var size = reader.ReadCount(GvasFile.MaxFileLength);
         var flagOffset = reader.Position;
@@ -68,13 +68,15 @@ internal sealed record GvasTag(string Name, string Type, int SizeOffset, int Siz
             root.Name == "BoolProperty" ? flagOffset : null, (flags & BoolTrue) != 0, (flags & NativeSerialization) != 0);
     }
 
-    private static TypeName ReadType(ref BoundedBinaryCursor reader, int depth)
+    private static TypeName ReadType(ref BoundedBinaryCursor reader, int depth, ref int typeNameCount)
     {
-        if (depth > 16) throw new SaveFormatException("UE5 type name nesting exceeds the safety limit.");
+        if (depth > 16) throw new GvasRejectionException("UE5 type name nesting exceeds the safety limit.");
+        if (++typeNameCount > GvasFile.MaxNodes)
+            throw new GvasRejectionException("UE5 type names exceed the 100,000-name safety limit.");
         var name = reader.String();
         var count = reader.ReadCount(16);
         var children = new List<TypeName>();
-        for (var i = 0; i < count; i++) children.Add(ReadType(ref reader, depth + 1));
+        for (var i = 0; i < count; i++) children.Add(ReadType(ref reader, depth + 1, ref typeNameCount));
         return new TypeName(name, children);
     }
 

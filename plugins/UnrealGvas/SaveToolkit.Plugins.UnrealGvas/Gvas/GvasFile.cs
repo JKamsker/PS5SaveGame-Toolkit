@@ -29,6 +29,7 @@ public sealed class GvasFile
     {
         if (bytes.Length > MaxFileLength) throw new SaveFormatException("GVAS exceeds the 128 MiB safety limit.");
         try { return new GvasParser(bytes.ToArray()).Parse(); }
+        catch (GvasRejectionException ex) { throw new SaveFormatException(ex.Message, ex); }
         catch (SaveFormatException ex) { throw GvasBinary.LegacyError(ex); }
     }
 
@@ -41,6 +42,7 @@ public sealed class GvasFile
     {
         if (bytes.Length > MaxFileLength) throw new SaveFormatException("Headerless property stream exceeds the 128 MiB safety limit.");
         try { return new GvasParser(bytes.ToArray()).ParseHeaderless(header); }
+        catch (GvasRejectionException ex) { throw new SaveFormatException(ex.Message, ex); }
         catch (SaveFormatException ex) { throw GvasBinary.LegacyError(ex); }
     }
 

@@ -41,6 +41,43 @@ limits, malformed encoding and edit width choices. The full plugin suite retains
 Hogwarts/Jedi/Sackboy and generic byte-identical round trips, the Hogwarts
 allocation checks, lazy Jedi pages and consistency wording checks.
 
+## Malformed-input review (#40)
+
+Known primitive, fixed native-struct and fully understood container payloads must
+consume their declared sizes exactly. Extra bytes and inconsistent struct-array
+inner sizes reject with a contextual `SaveFormatException`, including inside
+tagged custom structs. A mismatched Jedi byte-array count therefore rejects during
+GVAS parsing before the actor overlay is constructed. Unsupported native/custom
+layouts keep their documented opaque, read-only fallback; bytes after the root
+`None` terminator remain game-owned and preserved.
+
+The 64-level parsing limit, UE5 complete-type nesting limit and 100,000-node
+budget reject even inside speculative custom structs. Collection counts are
+validated before reading entries, with both key and value charged for each map
+entry. Synthetic tests cover rejected over-budget streams and accepted exact
+depth/node boundaries through full and headerless parsing.
+Complete UE5 type names also have a separate file-wide budget of 100,000 names,
+including speculative/nested tags, so breadth cannot bypass the depth limit or
+the property-node allocation bound. Tests cover the exact budget and overflow
+spread over multiple individually bounded trees.
+
+The size interpretation was rechecked against the existing credited
+[uesave tag/array writer at revision 1917a22](https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs),
+which measures payload bytes separately from tags, and against the supplied PS5
+round trips. Regression fixtures contain synthetic bytes; sample mutations remain
+in memory and no private data is embedded.
+
+Additional coverage exercises every physical prefix of synthetic nested and UE5
+complete-tag saves, bounded custom-version rejection, and truncated property/header
+mutations of all 26 distinct claimed Hogwarts/Jedi/Sackboy payloads (including
+empty Sackboy image-set roots). Corrupt Hogwarts page sizes, WAL headers, B-trees,
+truncated SQLite images and invalid UE/Kraken frames keep the affected database
+overlay unavailable with a warning; the other image remains inspectable and the
+document stays read-only and byte-identical. Truncated or invalid Jedi zlib/Adler-32
+streams and inconsistent declared lengths similarly disable actor inspection and
+writes without changing the imported bytes. These overlay failure policies were
+already implemented; the new tests characterize them rather than claiming fixes.
+
 ## Framework feature adoption
 
 | Feature | Status | Concrete use / evidence or reason |
@@ -296,7 +333,8 @@ source-backed and synthetically tested, not console-verified. Hogwarts table/col
 storage and exact catalog-ID matches are checked against actual PS5 bytes; labels,
 state interpretation, image relationships and game effects remain Inferred/Unknown.
 
-Limits: 128 MiB unwrapped data; 100,000 decoded nodes; 64 nested parsing levels;
+Limits: 128 MiB unwrapped data; 100,000 decoded nodes and separately 100,000 UE5
+type names; 64 nested parsing levels and 16 levels within complete type names;
 1,048,576 FString units. Byte-array lengths use the file bound, not the node bound.
 Sample open-time tests enforce the approximately two-second target.
 
