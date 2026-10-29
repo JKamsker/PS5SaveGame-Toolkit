@@ -20,7 +20,7 @@ export function WorkspacePage() {
   const controller = useWorkspaceController();
   const { workspace, activity, beginSelection, closing, close, open, exportDialog, exportOpen, setExportOpen, notify, toast, setToast } = controller;
   if (workspace.isError && !workspace.data) return <WorkspaceError controller={controller} />;
-  if (!workspace.data) return <div role="status" className="empty">Loading…</div>;
+  if (!workspace.data) return <div ref={controller.focusHeading} tabIndex={-1} role="status" className="empty">Loading…</div>;
   const ws = workspace.data;
   const activeDoc = ws.documents.find(document => document.id === controller.documentId);
   const dirtyCount = ws.documents.filter(document => document.isDirty).length;
