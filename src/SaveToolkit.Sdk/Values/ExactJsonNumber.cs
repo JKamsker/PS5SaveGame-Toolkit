@@ -81,7 +81,7 @@ public static class ExactJsonNumber
             var exponentAt = text.IndexOfAny(['e', 'E']);
             var mantissa = exponentAt < 0 ? text : text[..exponentAt];
             var exponent = exponentAt < 0 ? 0 : long.Parse(text.AsSpan(exponentAt + 1), CultureInfo.InvariantCulture);
-            var point = mantissa.IndexOf('.');
+            var point = mantissa.IndexOf('.', StringComparison.Ordinal);
             var fractionLength = point < 0 ? 0 : mantissa.Length - point - 1;
             var digits = mantissa.TrimStart('-').Replace(".", "", StringComparison.Ordinal).TrimStart('0');
             return new(digits.Length == 0 ? 0 : text[0] == '-' ? -1 : 1, digits, exponent - fractionLength + digits.Length);

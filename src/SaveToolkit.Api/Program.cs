@@ -43,7 +43,7 @@ var app = builder.Build();
 app.UseExceptionHandler();
 app.UseStatusCodePages(async status =>
 {
-    if (status.HttpContext.Request.Path.StartsWithSegments("/api"))
+    if (status.HttpContext.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase))
         await ApiProblem.Create(status.HttpContext.Response.StatusCode).ExecuteAsync(status.HttpContext);
 });
 app.UseDefaultFiles();

@@ -206,6 +206,67 @@ Keep the checkout outside a sample tree when reproducing CI: SampleSaves can als
 hide such a directory. Workflow syntax is checked with [actionlint](https://github.com/rhysd/actionlint)
 on Linux; run `actionlint` locally after workflow edits too.
 
+## Culture matrix
+
+Framework culture tests opt in through `SAVETOOLKIT_TEST_CULTURE`. The shared test-assembly
+initializer calls `SaveToolkit.Testing.TestCulture.InitializeFromEnvironment()` before tests start,
+setting `DefaultThreadCurrentCulture`, `DefaultThreadCurrentUICulture` and the current cultures.
+With the variable absent, normal test behavior is unchanged. Individual regressions use
+`TestCulture` as a disposable, async-flow-local scope; they never change process defaults while
+other tests run. Its theory cases cover de-AT, tr-TR, ja-JP and ar-SA, or the invariant culture alone
+when named cultures are unavailable. SDK tests live in the Core test project.
+
+Configure samples, `SAVETOOLKIT_TEST_BUNDLE` (an extracted native bundle), and D: scratch as
+[above](#disk-and-scratch). Core's synthetic Counter conformance sample is `PPSA99999_saves_dec.zip`;
+for a strict zero-skip local audit, provide an authored Counter fixture alongside the private
+archives in an external sample overlay. Never add private saves to the checkout. Core also has an
+explicit-only hash printer; `--explicit on` runs it without updating any reviewed snapshot.
+
+Build normally first, then use `--no-build` for the invariant-runtime leg. Setting
+`DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1` during restore/build can make the SDK reject localized
+test-runner resources with NETSDK1188; that is not an application test failure. `LANG` alone does
+not reliably select a culture on Windows. Run this PowerShell matrix from the repository root
+after the normal full Release suite:
+
+```powershell
+$scratch = 'D:/Temp/saveeditor/test-scratch/culture-invariance'
+New-Item -ItemType Directory -Force $scratch | Out-Null
+$env:TEMP = $env:TMP = $env:TMPDIR = $scratch
+$env:SAVETOOLKIT_TEST_TEMP = $scratch
+$projects = @('SaveToolkit.Core.Tests', 'SaveToolkit.Api.Performance.Tests',
+    'SaveToolkit.Codecs.Tests', 'SaveToolkit.SaveDiff.Tests')
+try {
+    foreach ($culture in @('invariant', 'de-AT', 'tr-TR', 'ja-JP', 'ar-SA')) {
+        $env:DOTNET_SYSTEM_GLOBALIZATION_INVARIANT = if ($culture -eq 'invariant') { '1' } else { '0' }
+        $env:SAVETOOLKIT_TEST_CULTURE = if ($culture -eq 'invariant') { $null } else { $culture }
+        foreach ($project in $projects) {
+            $projectPath = "tests/$project"
+            dotnet test --project $projectPath -c Release --no-build --explicit on `
+                --results-directory "$scratch/$culture/$project" `
+                --report-xunit-trx --report-xunit-trx-filename results.trx
+            if ($LASTEXITCODE -ne 0) { throw "$culture / $project failed" }
+        }
+    }
+} finally {
+    Remove-Item Env:DOTNET_SYSTEM_GLOBALIZATION_INVARIANT, Env:SAVETOOLKIT_TEST_CULTURE -ErrorAction SilentlyContinue
+}
+```
+
+The source-only `.editorconfig` makes CA1304, CA1305, CA1307, CA1309, CA1310, CA1311 and CA1862
+warnings (the build treats warnings as errors). `src/Directory.Build.targets` removes their legacy
+root `NoWarn` entries only for source projects; plugin and test-project policy is unchanged.
+The audit found a manageable volume, so there is no source analyzer backlog. Wire numbers, IDs,
+save data, hashes, ISO/Gregorian attribution dates and deterministic ordering use invariant/ordinal
+rules. Human `N0` limit diagnostics deliberately follow the current culture and have culture cases.
+
+Web regressions mock a German locale for decimal-keyboard input and grouped row/selection counts,
+and Turkish casing for enum ID search. Float inputs accept the locale decimal separator or an
+invariant decimal point, without grouping/mixed separators; exact numbers and integer wire text
+retain their invariant syntax. Raw numeric drafts and ISO date values stay unlocalized, integer
+range hints explicitly use en-US, and human library/facet menus use locale collation. Graph layout
+and serialized selection/view keys use locale-independent ordering. Run the ordinary web lint,
+typecheck, Vitest and build commands; the locale mocks restore themselves after each test.
+
 ## Nightly mutation fuzz
 
 `.github/workflows/nightly-fuzz.yml` runs daily at **03:23 UTC**, or manually through
