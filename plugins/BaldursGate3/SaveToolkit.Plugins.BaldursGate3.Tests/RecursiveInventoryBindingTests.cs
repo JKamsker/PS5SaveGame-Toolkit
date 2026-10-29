@@ -33,7 +33,7 @@ public sealed class RecursiveInventoryBindingTests
         QueryableCollectionPage Query(string id, QueryableCollectionQuery query) =>
             session.QueryCollection(id, query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         AssertCurrentTables(Query, imported, keys);
-        Assert.Empty(session.GetChanges().Changes);
+        Assert.Empty(session.GetChanges(TestContext.Current.CancellationToken).Changes);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
 
         var scope = new ActionScope { RowKeys = pair.Select(slot => imported.Prefix + "/" + slot.Key).ToArray() };
@@ -61,7 +61,7 @@ public sealed class RecursiveInventoryBindingTests
 
         Assert.True(session.Undo().Ok);
         AssertCurrentTables(Query, imported, imported.Slots.ToDictionary(slot => slot.Key, slot => slot.Slot, StringComparer.Ordinal));
-        Assert.Empty(session.GetChanges().Changes);
+        Assert.Empty(session.GetChanges(TestContext.Current.CancellationToken).Changes);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.True(session.Redo().Ok);
         AssertCurrentTables(Query, imported, keys);
