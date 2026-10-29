@@ -29,7 +29,44 @@ enabled in this round with explicit rejection warnings; no bulk action is expose
 | F12 SaveDiff F8 traversal / decoder hook | Used | Shared `PluginViewDecoder` pages generic/named F8 views; `UnrealGvasPlugin.Decoders` registers the production SDK-only `unrealgvas.hogwarts.rows` evidence hook. |
 | F13 non-mutating inspection / catalogue browsing | Added | Attributed catalogue tabs and `Mutates = false` coverage/provenance actions work on writable and read-only documents; Hogwarts uses shared category filtering and Key/Name/Category sorting. |
 | F13 float duration hint | N/A | No exposed float timer has verified units; serialized time-like names alone do not justify a duration conversion. |
+| F14 empty inventory slots | Added this round | Each independent Hogwarts `InventoryDynamic` F8 table hides confirmed NULL item/variation + integer-zero slots before paging, with matching metadata, stable tuple keys and correct hidden counts. Named zero-count and unknown records remain visible; Jedi/Sackboy projections have no confirmed vacancy rule. |
 | F4 in F6 planned parameters (`63580dc`) | N/A | No planned action or enum parameter fallback is published; catalogue inspection actions have no parameters and cannot mutate saved IDs. |
+
+## F14 inventory presentation
+
+The table audit covered all eager schema/property/actor summaries, generic and
+title-specific F8 projections, and all Hogwarts SQLite tables. No inventory uses
+"Slots N–M" sections. Existing lazy raw-property pages and the bounded Jedi actor
+summary are diagnostics; their complete searchable F8 indexes remain available.
+
+Hogwarts retains **one `InventoryDynamic` table per independent database image**.
+Both its collection metadata and view declare the `ItemID` empty-slot label column.
+Only rows with SQL NULL `ItemID`, SQL NULL `Variation` and an integer `Count` of zero
+are marked empty. The shared browser hides them by default and displays **Empty
+slot** when shown, retaining the original cells and editable count in details.
+Queries apply search/column filters, count matching hidden slots, filter visibility,
+then sort/page. The native decoder explicitly includes all rows, as does shared
+SaveDiff view traversal. No record or slot is deleted or reordered in the save.
+
+The 15 distinct supplied gameplay saves contain 30 independently decoded images:
+44,572 inventory rows, including 21,387 rows with the exact vacant shape and 30
+named zero-count records that remain visible. The SQL NULL exclusion in the
+[pinned HLSGE-derived editor inventory queries](https://github.com/falker47/HogwartsLegacy-SaveEditor/blob/349c3f0b75e4d158e5b7d7920bded999b518de36/HLSE-src/src/client/resources/saveGameDB.ts)
+corroborates the missing-item interpretation; the complete three-part rule is
+verified against the PS5 bytes. Gameplay meaning remains Inferred. `GearVariation`
+equal to the string `None` does not prove an empty equipped slot: all 540 observed
+equipped records retain gear IDs. No empty rule is imposed on those records,
+gear instances, catalogue examples, Jedi actors or Sackboy property projections.
+
+Tests cover direct and host queries, full-list paging/search/filter/sort, default
+and explicit visibility, hidden counts, original slot keys, visible-slot writes,
+empty-count visibility changes and undo, both diff decoders, and F6 selection over
+unloaded pages. The F6 planner is a **test-only adapter**; no production bulk action
+is added. Count edits refresh slot markers and page selections. Original tuple
+identities and byte-identical no-op serialization are unchanged. Research and
+licence details are in the [slot-rule source note](SaveToolkit.Plugins.UnrealGvas/Hogwarts/InventorySlots.source.md).
+Validation: all 139 plugin tests passed (10 new regressions), with zero skips;
+the API build passed with zero warnings/errors. All changes stay in this plugin.
 
 ## F12/F13 adoption
 
@@ -358,6 +395,7 @@ upstream code was copied and no downloaded program was executed.
 
 | Dataset / implementation | Pinned source, author, license | Changes and display provenance |
 | --- | --- | --- |
+| Hogwarts vacant inventory slot presentation | [HLSGE-derived `saveGameDB.ts`, revision 349c3f0](https://github.com/falker47/HogwartsLegacy-SaveEditor/blob/349c3f0b75e4d158e5b7d7920bded999b518de36/HLSE-src/src/client/resources/saveGameDB.ts), HLSGE contributors / falker47; embedded package declares `UNLICENSED`: No licence published; reused with attribution per owner decision 2026-10-28; retrieved 2026-10-29 | Researched non-NULL item filtering; independently implemented a stricter PS5-observed NULL item/variation + integer-zero rule. No upstream code or dataset copied. Original rule/implementation GPL-3.0-or-later; [source note](SaveToolkit.Plugins.UnrealGvas/Hogwarts/InventorySlots.source.md), `Info.References` and inventory table descriptions retain attribution. |
 | GVAS header layout and probe validation | [uesave `Header::read` and `Root::read`, revision 1917a22](https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs), Truman Kilen / contributors; MIT; rechecked 2026-10-29 | Independently implemented shared C# header reader; no code copied. Header/string limits match this plugin's full parser. Actual PPSA01463/PPSA01493 header rejection and all 60 openable samples verified separately. |
 | Hogwarts 699 collectible IDs, type/region/index and guide links | [Legilimens 02525dde](https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/tree/02525dde0fd9bc0be72982478680377dccb41246), Malin001 and contributors; [MIT](https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/blob/02525dde0fd9bc0be72982478680377dccb41246/LICENSE); retrieved 2026-10-28 | Projected to F2 `hogwarts.legilimens` v1.1.0; labels combine type/region/index, table/column-qualified exact joins, no icons/video media in this dataset. License and [source sidecar](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/hogwarts.legilimens/collectibles.source.md) accompany data; manifest hash, `Info.References`, Sources panel and each F4 field carry attribution. MIT retained; no CC BY-SA data imported. |
 | Hogwarts gear descriptions and icons | [HogwartsLegacy.GamesRef.com gear database](https://hogwartslegacy.gamesref.com/gear), [EIP.GG gear icon mirror](https://cdn.eip.gg/hogwarts-legacy/icons/gear/); retrieved 2026-10-29 | Eight short game UI descriptions and eight 64x64 WebP gear icons. Friendly names and icon joins are Inferred and never asserted as PS5 saved-ID matches. Rights reserved by Warner Bros. Games / Portkey Games; used with attribution per owner decision 2026-10-29. [Asset sidecar](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/hogwarts.legilimens/assets.source.md) and manifest carry attribution. |

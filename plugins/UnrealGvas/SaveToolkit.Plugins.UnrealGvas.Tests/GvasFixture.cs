@@ -4,7 +4,8 @@ namespace SaveToolkit.Plugins.UnrealGvas.Tests;
 
 internal static class GvasFixture
 {
-    public static byte[] Build(Action<BinaryWriter> properties, int major = 4, int minor = 27, bool suffix = true)
+    public static byte[] Build(Action<BinaryWriter> properties, int major = 4, int minor = 27, bool suffix = true,
+        string saveClass = "/Script/Test.Save", int customVersions = 1)
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
@@ -18,10 +19,13 @@ internal static class GvasFixture
         writer.Write(42U);
         String(writer, "++Test");
         writer.Write(3);
-        writer.Write(1);
-        writer.Write(Enumerable.Range(0, 16).Select(i => (byte)i).ToArray());
-        writer.Write(7);
-        String(writer, "/Script/Test.Save");
+        writer.Write(customVersions);
+        for (int i = 0; i < customVersions; i++)
+        {
+            writer.Write(Enumerable.Range(0, 16).Select(value => (byte)value).ToArray());
+            writer.Write(7);
+        }
+        String(writer, saveClass);
         if (major >= 5 && minor >= 4) writer.Write((byte)0);
         properties(writer);
         String(writer, "None");

@@ -52,7 +52,7 @@ public sealed class HogwartsDatabase : IDisposable
         return new(Name, name, columns, identity, count, HogwartsTable.Hash(sql));
     }
 
-    public (SqliteResult Result, long Filtered, int Offset, int Limit) Query(HogwartsTable table, QueryableCollectionQuery query)
+    public (SqliteResult Result, long Filtered, int Offset, int Limit, long HiddenEmpty) Query(HogwartsTable table, QueryableCollectionQuery query)
     {
         if (query.Cursor is not null) throw new ArgumentException("Hogwarts tables use offset paging, not cursors.");
         if (query.Offset < 0 || query.Limit < 1 || query.Limit > QueryableCollectionLimits.MaxPageSize ||
@@ -77,18 +77,26 @@ public sealed class HogwartsDatabase : IDisposable
                 $"instr(lower(CAST({HogwartsTable.Quote(column)} AS TEXT)), lower($text)) > 0")) + ")");
             parameters["$text"] = query.Text;
         }
-        string where = clauses.Count == 0 ? "" : " WHERE " + string.Join(" AND ", clauses);
         string source = HogwartsTable.Quote(table.Name);
+        var countParameters = parameters.Where(pair => pair.Key is not ("$limit" or "$offset"))
+            .ToDictionary(pair => pair.Key, pair => pair.Value);
+        long hiddenEmpty = 0;
+        bool includeEmpty = query.IncludeEmpty ?? !(HogwartsInventorySlots.Presentation(table)?.HideByDefault ?? false);
+        if (HogwartsInventorySlots.Predicate(table) is { } empty && !includeEmpty)
+        {
+            string matchingEmpty = string.Join(" AND ", [.. clauses, "(" + empty + ")"]);
+            hiddenEmpty = (long)_database.Query($"SELECT count(*) FROM {source} WHERE {matchingEmpty}", countParameters).Rows[0][0]!;
+            clauses.Add("NOT (" + empty + ")");
+        }
+        string where = clauses.Count == 0 ? "" : " WHERE " + string.Join(" AND ", clauses);
         // A rowid tie-break guarantees stable pages even when the selected sort column repeats.
         string order = query.SortColumn is { } columnName
             ? HogwartsTable.Quote(columnName) + (query.Descending ? " DESC," : " ASC,") + "_rowid_"
             : "_rowid_";
-        var countParameters = parameters.Where(pair => pair.Key is not ("$limit" or "$offset"))
-            .ToDictionary(pair => pair.Key, pair => pair.Value);
         long filtered = where.Length == 0 ? table.Count :
             (long)_database.Query($"SELECT count(*) FROM {source}{where}", countParameters).Rows[0][0]!;
         var result = _database.Query($"SELECT _rowid_,* FROM {source}{where} ORDER BY {order} LIMIT $limit OFFSET $offset", parameters);
-        return (result, filtered, query.Offset, query.Limit);
+        return (result, filtered, query.Offset, query.Limit, hiddenEmpty);
     }
 
     public void SetCell(HogwartsTable table, long rowId, string column, object value)

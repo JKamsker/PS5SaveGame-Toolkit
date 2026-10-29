@@ -127,9 +127,10 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
             long rowId = Convert.ToInt64(row[0], System.Globalization.CultureInfo.InvariantCulture);
             var cells = table.Columns.Select((column, index) => (column, value: row[index + 1]))
                 .ToDictionary(cell => cell.column, cell => Cell(database, table, key, rowId, cell.column, cell.value), StringComparer.Ordinal);
-            return new TableRow(key, cells);
+            return new TableRow(key, cells) { IsEmpty = HogwartsInventorySlots.IsEmpty(table, row) };
         }).ToArray();
-        return new(collectionId, Metadata(table).Columns, rows, table.Count, page.Filtered, page.Offset, page.Limit);
+        return new(collectionId, Metadata(table).Columns, rows, table.Count, page.Filtered, page.Offset, page.Limit)
+        { HiddenEmptyCount = page.HiddenEmpty };
     }
 
     private ViewNode Cell(HogwartsDatabase database, HogwartsTable table, string rowKey, long rowId, string column, object? value)
@@ -187,14 +188,17 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
     private static QueryableCollection Metadata(HogwartsTable table) => new(table.Id, table.Image + " · " + table.Title,
         table.Columns.Select(column => new QueryableColumn(column, column)).ToArray(), table.Count)
     {
+        EmptyRows = HogwartsInventorySlots.Presentation(table),
         Description = NavigationAttribution + $" {table.Name}; schema SHA256 {table.SchemaHash}. " +
-            (table.IdentityColumns.Count == 0 ? "Rowid identity; cross-generation identity unproven." : "Observed unique identity: " + string.Join(" / ", table.IdentityColumns)),
+            (table.IdentityColumns.Count == 0 ? "Rowid identity; cross-generation identity unproven." : "Observed unique identity: " + string.Join(" / ", table.IdentityColumns)) +
+            (HogwartsInventorySlots.Presentation(table) is null ? "" : " " + HogwartsInventorySlots.Evidence),
     };
 
     private static QueryableTableNode TableNode(HogwartsTable table)
     {
         var metadata = Metadata(table);
-        return new(metadata.Id, metadata.Title, metadata.Columns, metadata.TotalCount) { Description = metadata.Description };
+        return new(metadata.Id, metadata.Title, metadata.Columns, metadata.TotalCount)
+        { Description = metadata.Description, EmptyRows = metadata.EmptyRows };
     }
 
     public override IReadOnlyList<FileOutput> Serialize() => !_dirty
@@ -214,7 +218,10 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
             _dirty = wasDirty;
             return EditOutcome.Rejected(edits[^1].ValueId, error.Message);
         }
-        return outcome with { Warnings = [WriteWarning] };
+        // Count edits can change vacancy. Rebuild slot markers and invalidate old page selections.
+        bool refreshSlots = outcome.Changes.Any(change => _tables.Values.Any(table =>
+            HogwartsInventorySlots.IsCountField(table, change.ValueId)));
+        return outcome with { Warnings = [WriteWarning], StructureChanged = refreshSlots };
     }
 
     private byte[] BuildEditedOutput()

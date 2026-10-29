@@ -20,6 +20,7 @@ public sealed class HogwartsSampleTests
             .Where(file => file.FileName == "ue4savegame.ps5.sav" && file.Directory.Name.StartsWith("HL00", StringComparison.Ordinal))
             .DistinctBy(file => file.Sha256).ToArray();
         Assert.Equal(15, files.Length);
+        long inventorySlots = 0, emptySlots = 0, namedZeroCounts = 0;
         foreach (var sample in files)
         {
             var file = GvasFile.Parse(sample.ReadAllBytes());
@@ -33,8 +34,37 @@ public sealed class HogwartsSampleTests
                 Assert.Equal(database.Tables.Select(table => table.Name), independent.ListTables());
                 Assert.Contains(database.Tables, table => table.Name == "InventoryDynamic" &&
                     table.IdentityColumns.SequenceEqual(InventoryIdentity));
+                var inventory = database.Tables.Single(table => table.Name == "InventoryDynamic");
+                int itemIndex = inventory.Columns.ToList().IndexOf("ItemID") + 1;
+                int variationIndex = inventory.Columns.ToList().IndexOf("Variation") + 1;
+                int countIndex = inventory.Columns.ToList().IndexOf("Count") + 1;
+                long imageEmptySlots = 0;
+                for (int offset = 0; offset < inventory.Count; offset += QueryableCollectionLimits.MaxPageSize)
+                {
+                    var page = database.Query(inventory, new() { Offset = offset, Limit = QueryableCollectionLimits.MaxPageSize, IncludeEmpty = true });
+                    Assert.Equal(inventory.Count, page.Filtered);
+                    Assert.Equal(0, page.HiddenEmpty);
+                    foreach (var row in page.Result.Rows)
+                    {
+                        inventorySlots++;
+                        if (row[itemIndex] is null)
+                        {
+                            Assert.Null(row[variationIndex]);
+                            Assert.Equal(0L, row[countIndex]);
+                            imageEmptySlots++;
+                        }
+                        else if (row[countIndex] is 0L) namedZeroCounts++;
+                    }
+                }
+                var hidden = database.Query(inventory, new());
+                Assert.Equal(imageEmptySlots, hidden.HiddenEmpty);
+                Assert.Equal(inventory.Count - imageEmptySlots, hidden.Filtered);
+                emptySlots += imageEmptySlots;
             }
         }
+        Assert.Equal(44_572, inventorySlots);
+        Assert.Equal(21_387, emptySlots);
+        Assert.Equal(30, namedZeroCounts);
     }
 
     [Fact]

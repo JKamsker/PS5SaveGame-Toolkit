@@ -58,7 +58,7 @@ public sealed class HogwartsSaveDecoder : ISaveDecoderHook
                 }
                 for (int offset = 0; offset < table.Count; offset += QueryableCollectionLimits.MaxPageSize)
                 {
-                    var page = database.Query(table, new() { Offset = offset, Limit = QueryableCollectionLimits.MaxPageSize });
+                    var page = database.Query(table, new() { Offset = offset, Limit = QueryableCollectionLimits.MaxPageSize, IncludeEmpty = true });
                     foreach (var row in page.Result.Rows)
                     {
                         if (visitedRows++ >= MaxRows)
