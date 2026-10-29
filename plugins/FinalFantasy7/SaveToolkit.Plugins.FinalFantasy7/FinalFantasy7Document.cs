@@ -101,7 +101,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
                 ? [new TextNode("Common-file settings have no substantiated gameplay mapping. Use the record explorer.")]
                 : _gameplay.Summary(Bind)),
         ]),
-        new Tab("Characters", _common ? [] : [.. _planning.CharacterViews(), _characters.Build()]),
+        new Tab("Characters", _common ? [] : [.. _planning.CharacterViews(), _characters.Build(_planning.CharacterViews())]),
         new Tab("Catalog", _collections?.CatalogViews() ?? []),
         new Tab("Inventory", _collections is null ? [] : [_planning.InventoryView(), _collections.View("inventory")]),
         new Tab("Materia", _collections is null ? [] : [.. _planning.MateriaViews(), _collections.View("materia")]),
