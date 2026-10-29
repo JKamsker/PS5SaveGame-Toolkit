@@ -2,11 +2,10 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace SaveToolkit.Core.Tests;
 
-public sealed class ApiTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public sealed class ApiTests(IsolatedApiFactory factory) : IClassFixture<IsolatedApiFactory>
 {
     private readonly HttpClient _client = factory.WithWebHostBuilder(b => b.UseSetting("Toolkit:DataRoot", TestZips.TempDir())).CreateClient();
 

@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.Tests.Fakes;
@@ -10,7 +9,7 @@ using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.Core.Tests;
 
-public sealed class QueryableSemanticReviewApiTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public sealed class QueryableSemanticReviewApiTests(IsolatedApiFactory factory) : IClassFixture<IsolatedApiFactory>
 {
     [Fact]
     public async Task ChangesTargetLoadsOpaqueRowAndRevertUsesRevisionOverHttp()

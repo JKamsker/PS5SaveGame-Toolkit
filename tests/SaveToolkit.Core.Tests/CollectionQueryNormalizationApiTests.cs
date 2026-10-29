@@ -2,12 +2,11 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace SaveToolkit.Core.Tests;
 
-public sealed class CollectionQueryNormalizationApiTests(WebApplicationFactory<Program> factory)
-    : IClassFixture<WebApplicationFactory<Program>>
+public sealed class CollectionQueryNormalizationApiTests(IsolatedApiFactory factory)
+    : IClassFixture<IsolatedApiFactory>
 {
     private readonly HttpClient _client = factory.WithWebHostBuilder(builder =>
         builder.UseSetting("Toolkit:DataRoot", TestZips.TempDir())).CreateClient();

@@ -2,11 +2,10 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace SaveToolkit.Core.Tests;
 
-public sealed class VersionApiTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public sealed class VersionApiTests(IsolatedApiFactory factory) : IClassFixture<IsolatedApiFactory>
 {
     [Fact]
     public async Task Version_ReturnsTheBuiltApiVersionWithoutOpeningAWorkspace()
