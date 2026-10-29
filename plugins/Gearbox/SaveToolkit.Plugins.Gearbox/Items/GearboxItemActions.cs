@@ -76,7 +76,7 @@ internal sealed class GearboxItemActions(GearboxDocument document)
                 if (actionId == "items/duplicate" && !document.Inventory.Info(entry.Id).Complete)
                 { skipped.Add(new(entry.Id, "Cannot create an item with an unknown or invalid layout.")); continue; }
                 changes.Add(new(entry.Id + "/presence", entry.Id + (actionId == "items/remove" ? " removed" : " duplicated"),
-                    FieldValue.Of(1), FieldValue.Of(actionId == "items/remove" ? 0 : 2)));
+                    FieldValue.Of(1), FieldValue.Of(actionId == "items/remove" ? 0 : 2)) { Derived = true });
             }
         }
         var skippedIds = skipped.Select(row => row.RowKey).ToHashSet(StringComparer.Ordinal);

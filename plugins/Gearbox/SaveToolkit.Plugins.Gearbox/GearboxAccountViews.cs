@@ -76,8 +76,9 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
                 if (!Has(hero, name)) continue;
                 var record = document.World.Find("hero:" + name);
                 fields.Add(AccountNumber("account/hero/" + name, record?.Name ?? name,
-                    () => document.Root.Child("hero_points_save_data")!, name, Math.Max(hero.Integer(name), 30)) with
-                { Description = record?.AttributionText + " " + SerialWrites.Warning, Warning = "Stored raw stat; backstory, budget and Myth bonuses are not recomputed. " + SerialWrites.Warning });
+                    () => document.Root.Child("hero_points_save_data")!, name, Math.Max(hero.Integer(name), 30),
+                    description: record?.AttributionText + " " + SerialWrites.Warning,
+                    warning: "Stored raw stat; backstory, budget and Myth bonuses are not recomputed. " + SerialWrites.Warning));
             }
             if (Has(hero, "player_aspect_data_path")) fields.Add(document.World.Label("account/hero/backstory", "Backstory", hero.Text("player_aspect_data_path")));
             nodes.Add(new SectionNode("Character Hero stats", fields));
@@ -151,9 +152,9 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         }
     }
 
-    private FieldNode AccountNumber(string id, string label, Func<ProtoMessage> get, string name, long maximum, bool writable = true) =>
-        document.Integer(id, label, get, name, maximum, document.Coordinated && writable, SerialWrites.Warning) with
-        { Confidence = Confidence.Inferred, Description = "Existing raw stored value; observed range plus conservative editor bound. Point budgets, mirror precedence and derived rewards are not inferred. " + SerialWrites.Warning };
+    private FieldNode AccountNumber(string id, string label, Func<ProtoMessage> get, string name, long maximum,
+        bool writable = true, string? description = null, string? warning = null) =>
+        document.AccountNumber(id, label, get, name, maximum, writable, description, warning);
 
     private FieldNode MythPoints(Func<ProtoMessage?> get, string id, int position, int value, string? upstreamCap, string? attribution)
     {

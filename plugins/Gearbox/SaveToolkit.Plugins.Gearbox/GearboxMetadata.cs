@@ -33,8 +33,16 @@ internal static class GearboxMetadata
                     NameLimit(document));
             return;
         }
-        if (id is "character/level") { if (!document.Profile) _ = document.Level(); return; }
-        if (id is "character/xp") { if (!document.Profile) _ = document.Experience(); return; }
+        if (id is "character/level" or "character/xp")
+        {
+            if (!document.Profile)
+            {
+                document.EnsureProgressionBindings();
+                if (id == "character/level") _ = document.Level();
+                else _ = document.Experience();
+            }
+            return;
+        }
         if (id is "character/skill-points" or "character/tree-grade")
         {
             if (!document.Profile && document.Root.Child("ability_data") is not null)
@@ -123,13 +131,11 @@ internal static class GearboxMetadata
         var split = id.Split('/');
         if (split.Length != 3 || split[0] != "world" || !int.TryParse(split[1], NumberStyles.None, CultureInfo.InvariantCulture, out var index)
             || split[2] is not ("difficulty" or "unlocked")) return false;
-        var rows = document.Root.All("game_state_save_data_for_playthrough").ToArray();
+        var rows = document.Root.Children("game_state_save_data_for_playthrough").ToArray();
         if ((uint)index >= (uint)rows.Length) return false;
         var field = split[2] == "difficulty" ? "mayhem_level" : "mayhem_unlocked_level";
-        if (split[2] == "unlocked" && !document.Root.Schema.Wonderlands || rows[index].Message is not { } row || !Has(row, field)) return false;
-        _ = document.Integer(id, split[2] == "difficulty" ? "Mayhem / Chaos level" : "Chaos unlocked",
-            () => document.Root.Children("game_state_save_data_for_playthrough").ElementAt(index), field,
-            document.Root.Schema.Wonderlands ? 100 : 11, warning: SerialWrites.Warning);
+        if (split[2] == "unlocked" && !document.Root.Schema.Wonderlands || !Has(rows[index], field)) return false;
+        _ = document.WorldDifficulty(index, split[2] == "unlocked");
         return true;
     }
 
@@ -148,7 +154,13 @@ internal static class GearboxMetadata
     private static bool TryAccount(GearboxDocument document, string id)
     {
         var split = id.Split('/');
-        if (split.Length < 3 || split[0] != "account") return false;
+        if (split.Length != 3 || split[0] != "account") return false;
+        var role = split[1];
+        if (document.Root.Schema.Wonderlands)
+        {
+            if (document.Profile ? role != "myth" : role is not ("hero" or "myth-mirror")) return false;
+        }
+        else if (document.Profile ? role != "profile" : role is not ("legacy" or "character")) return false;
         ProtoMessage? parent = split[1] switch
         {
             "hero" => document.Root.Child("hero_points_save_data"),
@@ -159,12 +171,41 @@ internal static class GearboxMetadata
             "myth-mirror" => document.Root.Child("profile_cloud_data")?.Child("player_prestige"),
             _ => null,
         };
-        if (parent is null || !Has(parent, split[^1]) || split.Length != 3) return false;
-        var label = split[^1].Replace('_', ' ');
-        _ = document.Integer(id, label, () => parent, split[^1], split[^1].Contains("enabled", StringComparison.Ordinal) ? 1 : Math.Max(parent.Integer(split[^1]), 1_000_000), writable: document.Coordinated,
-            warning: SerialWrites.Warning);
+        var name = split[2];
+        if (parent is null || !IntegerField(parent, name)) return false;
+        var (label, maximum, description, warning) = AccountPresentation(document, role, name, parent);
+        _ = document.AccountNumber(id, label, () => parent, name, maximum,
+            writable: name != "guardian_reward_random_seed", description: description, warning: warning);
         return true;
     }
+
+    private static (string Label, long Maximum, string Description, string Warning) AccountPresentation(
+        GearboxDocument document, string role, string name, ProtoMessage parent)
+    {
+        if (document.Root.Schema.Wonderlands && role == "hero")
+        {
+            var record = document.World.Find("hero:" + name);
+            return (record?.Name ?? name, Math.Max(parent.Integer(name), 30), record?.AttributionText + " " + SerialWrites.Warning,
+                "Stored raw stat; backstory, budget and Myth bonuses are not recomputed. " + SerialWrites.Warning);
+        }
+        if (document.Root.Schema.Wonderlands && name == "prestige_experience")
+            return ("Stored Myth XP", Math.Max(parent.Integer(name), 1_000_000), AccountDescription, SerialWrites.Warning);
+        if (document.Root.Schema.Wonderlands && name == "last_upgrade_tree_index")
+            return ("Last upgrade tree index (raw)", 3, AccountDescription, SerialWrites.Warning);
+        var label = name switch
+        {
+            "guardian_rank" => "Stored rank",
+            "guardian_experience" => "Legacy XP",
+            "new_guardian_experience" => "New XP",
+            "available_tokens" or "guardian_available_tokens" => "Available tokens",
+            "is_rank_system_enabled" => "Rank system enabled (raw)",
+            "guardian_reward_random_seed" => "Reward random seed (raw)",
+            _ => name.Replace('_', ' '),
+        };
+        return (label, name == "is_rank_system_enabled" ? 1 : Math.Max(parent.Integer(name), 1_000_000), AccountDescription, SerialWrites.Warning);
+    }
+
+    private const string AccountDescription = "Existing raw stored value; observed range plus conservative editor bound. Point budgets, mirror precedence and derived rewards are not inferred. " + SerialWrites.Warning;
 
     private static bool TryItem(GearboxDocument document, string id)
     {
@@ -209,6 +250,8 @@ internal static class GearboxMetadata
     }
 
     private static bool Has(ProtoMessage message, string name) => message.Fields.Any(field => field.Spec?.Name == name);
+    private static bool IntegerField(ProtoMessage message, string name) => message.Fields.Any(field =>
+        field.Spec?.Name == name && field.Value is ulong or long or uint or int);
     private static string SduList(string path) => path.Contains("SDU_Backpack.", StringComparison.Ordinal) ? GearboxInventory.Backpack
         : path.Contains("SDU_Bank.", StringComparison.Ordinal) ? GearboxInventory.Bank : GearboxInventory.LostLoot;
 }

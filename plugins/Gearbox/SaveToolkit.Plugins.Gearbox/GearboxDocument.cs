@@ -101,31 +101,99 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
 
     internal FieldNode Presence(string id, Func<FieldValue> get)
     {
-        return Bind(id, "Item presence", new IntegerSpec(0, 2), get,
-            _ => throw new SaveFormatException("Item presence is changed only by its structural action."),
-            _ => "Item presence is changed only by its structural action.");
+        var field = Bind(id, "Item presence", new IntegerSpec(0, 2), get, null,
+            warning: "Item presence is changed only by its structural action.", confidence: Confidence.Inferred,
+            description: "Current item identity is present. Duplicate and removal are structural actions; direct field edits are unavailable.");
+        RegisterField(new FieldMetadata(id, field.Label, field.Spec)
+        {
+            BindingKind = FieldBindingKind.Derived,
+            CanonicalValueId = id,
+            Presentation = new FieldPresentation
+            {
+                Confidence = field.Confidence,
+                Description = field.Description,
+                Warning = field.Warning,
+            },
+        }, get);
+        return field;
     }
 
-    internal FieldNode DerivedInteger(string id, string label, Func<ProtoMessage> parent, string name, long maximum)
+    internal FieldNode DerivedInteger(string id, string label, Func<ProtoMessage> parent, string name, long maximum, long minimum = -1)
     {
-        var field = Bind(id, label, new IntegerSpec(-1, Math.Max(maximum, parent().Integer(name))),
+        var field = Bind(id, label, new IntegerSpec(minimum, Math.Max(maximum, parent().Integer(name))),
             () => FieldValue.Of(parent().Integer(name)), null,
-            value => value.Kind != FieldValueKind.Integer || value.AsInteger() < -1 || value.AsInteger() > maximum
+            value => value.Kind != FieldValueKind.Integer || value.AsInteger() < minimum || value.AsInteger() > maximum
                 ? "Value is outside the supported range." : null);
-        RegisterField(new FieldMetadata(id, field.Label, field.Spec) { BindingKind = FieldBindingKind.Derived, CanonicalValueId = id },
-            () => FieldValue.Of(parent().Integer(name)));
+        RegisterField(new FieldMetadata(id, field.Label, field.Spec)
+        {
+            BindingKind = FieldBindingKind.Derived,
+            CanonicalValueId = id,
+            Presentation = new FieldPresentation
+            {
+                Confidence = field.Confidence,
+                Description = field.Description,
+                Warning = field.Warning,
+            },
+        }, () => FieldValue.Of(parent().Integer(name)));
         return field;
     }
 
     internal FieldNode Integer(string id, string label, Func<ProtoMessage> parent, string name,
-        long max = int.MaxValue, bool writable = true, string? warning = null)
+        long max = int.MaxValue, bool writable = true, string? warning = null,
+        Confidence confidence = Confidence.Verified, string? description = null)
     {
         var current = parent().Integer(name);
         return Bind(id, label, new IntegerSpec(Math.Min(0, current), Math.Max(max, current)), () => FieldValue.Of(parent().Integer(name)),
             writable && current >= 0 && current <= max ? v => parent().SetInteger(name, v.AsInt64()) : null,
             v => v.Kind != FieldValueKind.Integer || v.AsInteger() < 0 || v.AsInteger() > max ? "Value is outside the supported range." : null,
-            warning);
+            warning, confidence, description);
     }
+
+    internal FieldNode AccountNumber(string id, string label, Func<ProtoMessage> get, string name,
+        long maximum, bool writable = true, string? description = null, string? warning = null) =>
+        Integer(id, label, get, name, maximum, Coordinated && writable, warning ?? SerialWrites.Warning,
+            Confidence.Inferred, description ?? "Existing raw stored value; observed range plus conservative editor bound. Point budgets, mirror precedence and derived rewards are not inferred. " + SerialWrites.Warning);
+
+    internal FieldNode WorldDifficulty(int index, bool unlocked)
+    {
+        var wonderlands = Root.Schema.Wonderlands;
+        var label = unlocked ? $"Chaos unlocked (playthrough {index})" :
+            wonderlands ? $"Chaos level (playthrough {index})" : $"Mayhem level (playthrough {index})";
+        var description = unlocked ? "Raw unlocked ceiling; trial milestones and rewards are unchanged. " + SerialWrites.Warning :
+            "Existing playthrough difficulty only. Unlock challenges, modifier seeds and rewards are unchanged. " + SerialWrites.Warning;
+        return Integer($"world/{index}/{(unlocked ? "unlocked" : "difficulty")}", label,
+            () => Root.Children("game_state_save_data_for_playthrough").ElementAt(index),
+            unlocked ? "mayhem_unlocked_level" : "mayhem_level", wonderlands ? 100 : 11,
+            warning: SerialWrites.Warning, confidence: Confidence.Inferred, description: description);
+    }
+
+    internal void EnsureProgressionBindings()
+    {
+        if (Profile || !Has(Root, "experience_points")) return;
+        _ = Level();
+        _ = Experience();
+        if (Root.Child("ability_data") is { } ability)
+        {
+            if (Has(ability, "ability_points"))
+                _ = DerivedInteger("character/skill-points", "Unspent skill points", () => Root.Child("ability_data")!, "ability_points", int.MaxValue, 0);
+            if (Has(ability, "tree_grade"))
+                _ = DerivedInteger("character/tree-grade", "Skill tree grade", () => Root.Child("ability_data")!, "tree_grade", int.MaxValue, 0);
+        }
+        var stats = Root.Children("game_stats_data")
+            .Where(stat => stat.Text("stat_path") == CharacterProgression.LevelStat(Root.Schema.Wonderlands))
+            .Select((stat, index) => (stat, index))
+            .ToArray();
+        for (var i = 0; i < stats.Length; i++)
+        {
+            var statIndex = stats[i].index;
+            var id = stats.Length == 1 ? "character/recorded-level" : $"character/recorded-level/{statIndex}";
+            _ = DerivedInteger(id, "Recorded level statistic", () => Root.Children("game_stats_data")
+                .Where(stat => stat.Text("stat_path") == CharacterProgression.LevelStat(Root.Schema.Wonderlands))
+                .ElementAt(statIndex), "stat_value", int.MaxValue, 0);
+        }
+    }
+
+    private static bool Has(ProtoMessage message, string name) => message.Fields.Any(field => field.Spec?.Name == name);
 
     internal FieldNode Text(string id, string label, Func<ProtoMessage> parent, string name, bool writable = false, int limit = 64)
     {
@@ -224,6 +292,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
             if (changes.Length == 0) return result with { Changes = changes };
             // Scalar edits retain their bindings: direct SDK callers may edit again before rebuilding.
             _items = null;
+            _inventory?.Invalidate();
             var outcome = result with { Changes = changes, StructureChanged = true, Revert = snapshot };
             committed = true;
             return outcome;
@@ -265,6 +334,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     internal void InvalidateItems()
     {
         _items = null;
+        _inventory?.Invalidate();
         _readers.Clear();
     }
     private void SetExperience(int experience)

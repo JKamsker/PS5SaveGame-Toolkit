@@ -14,20 +14,58 @@ internal sealed class GearboxInventory
     private ProtoMessage? _indexedRoot;
     private InventoryEntry[] _entries = [];
     private Dictionary<string, InventoryEntry> _byId = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, InventoryEntry> _directEntries = new(StringComparer.Ordinal);
     private readonly Dictionary<string, (byte[] Bytes, SerialInfo Info)> _serials = new(StringComparer.Ordinal);
 
     public GearboxInventory(GearboxDocument document)
     {
         _document = document;
         _ids = (document.Profile ? new[] { Bank, LostLoot } : [Backpack]).ToDictionary(list => list,
-            list => document.Root.All(list).Select(_ => "item-" + _nextId++).ToList(), StringComparer.Ordinal);
+            list => Enumerable.Range(0, document.Root.Fields.Count(field => field.Spec?.Name == list))
+                .Select(_ => "item-" + _nextId++).ToList(), StringComparer.Ordinal);
     }
 
     public IEnumerable<InventoryEntry> Entries { get { Index(); return _entries; } }
     public InventoryEntry Find(string id)
     {
-        Index();
-        return _byId.GetValueOrDefault(id) ?? throw new SaveFormatException("The item identity is no longer present.");
+        if (ReferenceEquals(_indexedRoot, _document.Root) && _byId.TryGetValue(id, out var indexed)) return indexed;
+        if (TryFindDirect(id, out var entry)) return entry;
+        throw new SaveFormatException("The item identity is no longer present.");
+    }
+
+    private bool TryFindDirect(string id, out InventoryEntry entry)
+    {
+        entry = null!;
+        if (_directEntries.TryGetValue(id, out var cached)) { entry = cached; return true; }
+        var identity = id[(id.LastIndexOf(':') + 1)..];
+        if (!identity.StartsWith("item-", StringComparison.Ordinal) || !int.TryParse(identity[5..], out var number) || number < 0)
+            return false;
+        if (_document.Profile)
+        {
+            var bankCount = _ids[Bank].Count;
+            if (number < bankCount && _ids[Bank][number] == id && TryEntry(Bank, number, out entry)) return true;
+            var lostIndex = number - bankCount;
+            if (lostIndex >= 0 && lostIndex < _ids[LostLoot].Count && _ids[LostLoot][lostIndex] == id && TryEntry(LostLoot, lostIndex, out entry)) return true;
+        }
+        else if (number < _ids[Backpack].Count && _ids[Backpack][number] == id && TryEntry(Backpack, number, out entry)) return true;
+
+        // Structural removal can shift an identity away from its original numeric position.
+        foreach (var (list, ids) in _ids)
+        {
+            var index = ids.IndexOf(id);
+            if (index >= 0 && TryEntry(list, index, out entry)) return true;
+        }
+        return false;
+    }
+
+    private bool TryEntry(string list, int index, out InventoryEntry entry)
+    {
+        entry = null!;
+        var field = _document.Root.Fields.Where(field => field.Spec?.Name == list).ElementAtOrDefault(index);
+        if (field is null) return false;
+        entry = new InventoryEntry(_ids[list][index], list, index, field);
+        _directEntries[entry.Id] = entry;
+        return true;
     }
 
     private void Index()
@@ -36,6 +74,8 @@ internal sealed class GearboxInventory
         _entries = _ids.SelectMany(pair => _document.Root.All(pair.Key)
             .Select((record, index) => new InventoryEntry(pair.Value[index], pair.Key, index, record))).ToArray();
         _byId = _entries.ToDictionary(entry => entry.Id, StringComparer.Ordinal);
+        _directEntries.Clear();
+        foreach (var entry in _entries) _directEntries[entry.Id] = entry;
         _indexedRoot = _document.Root;
     }
     public InventoryIdentity Capture() => new(_ids.ToDictionary(p => p.Key, p => p.Value.ToArray(), StringComparer.Ordinal), _nextId);
@@ -56,6 +96,7 @@ internal sealed class GearboxInventory
         foreach (var (list, ids) in identity.Lists) _ids[list] = ids.ToList();
         _nextId = identity.NextId;
         _indexedRoot = null;
+        _directEntries.Clear();
         _serials.Clear();
     }
 
@@ -64,6 +105,13 @@ internal sealed class GearboxInventory
         var field = Find(id).Field;
         if (field.Message is { } message) message.Last("item_serial_number")!.Set(serial);
         else field.Set(serial);
+    }
+
+    internal void Invalidate()
+    {
+        _indexedRoot = null;
+        _directEntries.Clear();
+        _serials.Clear();
     }
 
     public void Remove(string id)
@@ -82,6 +130,7 @@ internal sealed class GearboxInventory
         _ids[entry.List].RemoveAt(entry.Index);
         _serials.Remove(id);
         _indexedRoot = null;
+        _directEntries.Clear();
     }
 
     public string Append(string list, ProtoField source, string? movedId = null)
@@ -115,6 +164,7 @@ internal sealed class GearboxInventory
         var id = movedId ?? "item-" + _nextId++;
         _ids[list].Add(id);
         _indexedRoot = null;
+        _directEntries.Clear();
         return id;
     }
 
