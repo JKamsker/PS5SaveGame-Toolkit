@@ -1,5 +1,4 @@
 using SaveToolkit.Codecs.Sqlite;
-using SaveToolkit.Core.Storage;
 using SaveToolkit.Plugins.UnrealGvas.Hogwarts;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Testing;
@@ -13,12 +12,7 @@ internal static class HogwartsInventoryFixture
     public const int EmptySlots = 203;
     private static readonly string[] ImageNames = ["RawDatabaseImage", "RawExclusiveImage"];
 
-    public static DiskSaveFile CreateDisk()
-    {
-        byte[] bytes = Create().ReadAllBytes();
-        string root = Path.Combine(Path.GetTempPath(), "unrealgvas-inventory-" + Guid.NewGuid().ToString("N"));
-        return SaveSetImporter.Import([new ImportSource("PPSA01603/sdimg_HL0000/save.sav", () => new MemoryStream(bytes))], root).AllDiskFiles.Single();
-    }
+    public static TestSaveImport CreateDisk() => new(Create().ReadAllBytes());
 
     public static ISaveFile Create()
     {

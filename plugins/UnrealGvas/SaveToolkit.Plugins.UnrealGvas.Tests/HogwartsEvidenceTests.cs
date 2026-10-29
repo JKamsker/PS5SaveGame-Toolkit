@@ -5,7 +5,7 @@ using SaveToolkit.Testing.Diff;
 
 namespace SaveToolkit.Plugins.UnrealGvas.Tests;
 
-public sealed class HogwartsEvidenceTests
+public sealed class HogwartsEvidenceTests(ITestOutputHelper output)
 {
     [Fact]
     public void AvailableSlotSnapshots_HaveReproducibleF1TableAndRowDifferences()
@@ -45,7 +45,7 @@ public sealed class HogwartsEvidenceTests
         Assert.True(changesByTable.GetValueOrDefault("InventoryDynamic") > 0);
         Assert.True(changesByTable.GetValueOrDefault("CollectionDynamic") > 0);
         // Only counts and public schema names, never row contents, names, account identifiers or save bytes.
-        File.WriteAllText(Path.Combine(Path.GetTempPath(), "hogwarts-f1-summary.json"), JsonSerializer.Serialize(new
+        output.WriteLine(JsonSerializer.Serialize(new
         {
             Caveat = "Uncontrolled slot snapshots, ordered by slot name; no event causality or chronology claimed.",
             Generations = samples.Select(file => file.Directory.Generation).Distinct(), Pairs = summaries, ChangesByTable = changesByTable,

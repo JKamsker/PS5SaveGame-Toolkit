@@ -104,7 +104,8 @@ public sealed class HogwartsEmptySlotTests
     [Fact]
     public void EditingShownEmptyCountRefreshesVisibilityAndUndoRestoresIt()
     {
-        var file = HogwartsInventoryFixture.CreateDisk();
+        using var import = HogwartsInventoryFixture.CreateDisk();
+        var file = import.File;
         var plugin = new UnrealGvasPlugin();
         using var session = new DocumentSession("empty-count", file, plugin, plugin.Open(file));
         _ = session.BuildView();
@@ -126,7 +127,8 @@ public sealed class HogwartsEmptySlotTests
     [InlineData(true, 409)]
     public void F6SelectAllMatchingExcludesHiddenSlotsAcrossUnloadedPages(bool includeEmpty, int expected)
     {
-        var file = HogwartsInventoryFixture.CreateDisk();
+        using var import = HogwartsInventoryFixture.CreateDisk();
+        var file = import.File;
         var plugin = new UnrealGvasPlugin();
         using var session = new DocumentSession("scope", file, plugin, new InventoryScopeDocument(plugin.Open(file)));
         _ = session.BuildView();

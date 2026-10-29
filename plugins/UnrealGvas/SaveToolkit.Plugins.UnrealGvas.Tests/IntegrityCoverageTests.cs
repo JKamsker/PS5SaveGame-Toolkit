@@ -4,7 +4,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.UnrealGvas.Tests;
 
-public sealed class IntegrityCoverageTests
+public sealed class IntegrityCoverageTests(ITestOutputHelper output)
 {
     private static readonly (string Name, uint Polynomial, bool Reflected)[] Crcs = [
         ("IEEE reflected", 0xEDB88320, true), ("CRC32C reflected", 0x82F63B78, true),
@@ -79,6 +79,6 @@ public sealed class IntegrityCoverageTests
             }
         }
         // Counts/hash/checksum results only. No original bytes, row contents or account identifiers.
-        File.WriteAllText(Path.Combine(Path.GetTempPath(), $"unrealgvas-r2-integrity-{title}.json"), JsonSerializer.Serialize(report));
+        output.WriteLine(JsonSerializer.Serialize(report));
     }
 }
