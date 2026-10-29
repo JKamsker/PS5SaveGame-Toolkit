@@ -20,7 +20,7 @@ internal sealed class LsmfLiveSource
     private const int MaxCharacterRows = 100_000;
     private const int MaxHealthCandidate = 1_000_000;
     internal const string Warning = "Not validated on console. PS5 storage joins are sample-proven, but gameplay authority and dependent caches remain unproven. " +
-        "Integrity unknown — the game may reject this save or overwrite the edited value. The known outer v18 digest is repaired.";
+        "Integrity unknown — the game may reject this save or overwrite the edited value. When this resource is nested in an LSPK v18 package, its outer digest is repaired.";
     private readonly Dictionary<int, uint> _patches = [];
     private readonly List<LsmfNumber> _numbers = [];
     private readonly List<string> _diagnostics = [];

@@ -75,6 +75,19 @@ public sealed class LiveNewAgeBoundaryTests
     }
 
     [Fact]
+    public void StandaloneNewAgeWarningDoesNotClaimAnOuterPackageDigest()
+    {
+        using var document = Assert.IsType<BaldursGate3Document>(new BaldursGate3Plugin().Open(
+            MemorySaveSet.SingleFile("Globals.lsf", LsmfFixture.Resource(LiveNewAgeFixture.Create()), "PPSA18463")));
+        _ = document.BuildView();
+
+        var row = Assert.Single(document.Query("live/0/0/values", new QueryableCollectionQuery { Limit = 1 }).Rows);
+        var field = Assert.IsType<FieldNode>(row.Cells["value"]);
+        Assert.DoesNotContain("known outer v18 digest is repaired", field.Warning, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("when this resource is nested", field.Warning, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void QuerySortAndExactFiltersUseCurrentValuesAndRemainBounded()
     {
         using var document = Open();

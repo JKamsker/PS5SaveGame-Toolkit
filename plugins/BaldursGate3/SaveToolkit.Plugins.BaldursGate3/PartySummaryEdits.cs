@@ -16,7 +16,7 @@ internal sealed class PartySummaryEdits
     // CC BY-SA 4.0: https://creativecommons.org/licenses/by-sa/4.0/; extracted only the number 12.
     private const long BaseGameMaxLevel = 12;
     internal const string Warning = "Not validated on console. Changes SaveInfo.json metadata only; live NewAge character values are unchanged. " +
-        "The v18 package digest is repaired, but other game consistency checks are unknown; the game may reject or overwrite the edited summary.";
+        "When nested in an LSPK v18 package, its outer digest is repaired; standalone resources have no outer package digest. Other game consistency checks are unknown; the game may reject or overwrite the edited summary.";
     private readonly byte[] _original;
     private readonly Dictionary<string, Number> _numbers;
     private readonly Dictionary<string, long> _edits = new(StringComparer.Ordinal);
