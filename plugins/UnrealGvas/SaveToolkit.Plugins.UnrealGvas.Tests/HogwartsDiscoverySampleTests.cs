@@ -83,6 +83,12 @@ public sealed class HogwartsDiscoverySampleTests
         Assert.Equal(original, gvas.Serialize());
 
         using var document = new UnrealGvasPlugin().Open(sample);
+        var overview = Assert.IsType<TabsNode>(document.BuildView()).Tabs[0];
+        var summary = Assert.Single(overview.Children.OfType<SectionNode>(), section =>
+            section.Title == imageName + " · talent storage");
+        var stats = Assert.Single(summary.Children.OfType<StatsNode>()).Items;
+        Assert.Equal("SQLite text: \"" + points + "\"", Assert.Single(stats, stat => stat.Label == "Stored talent points").Value);
+        Assert.Equal(perks.ToString(CultureInfo.InvariantCulture), Assert.Single(stats, stat => stat.Label == "Stored talent-record rows").Value);
         var query = Assert.IsAssignableFrom<IQueryableDocument>(document);
         string prefix = $"hogwarts/{imageName}/";
         var point = Assert.IsType<FieldNode>(Assert.Single(query.Query(prefix + "MiscDataDynamic", new()
