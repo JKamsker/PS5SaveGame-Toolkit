@@ -12,6 +12,8 @@ public static class FieldSpecMetadata
     public static FieldSpec Snapshot(FieldSpec spec)
     {
         ArgumentNullException.ThrowIfNull(spec);
+        if (!TryEstimate(spec, long.MaxValue, out _))
+            throw new InvalidOperationException("Field spec exceeds the bounded metadata snapshot limits.");
         return spec switch
         {
             EnumSpec choice => choice with { Options = Array.AsReadOnly(choice.Options.ToArray()) },
@@ -23,6 +25,90 @@ public static class FieldSpecMetadata
             },
             _ => spec with { },
         };
+    }
+
+    /// <summary>Estimates immutable spec storage without copying nested plugin-owned collections.</summary>
+    /// <remarks>The estimate is conservative and bounded by the supplied remaining budget.</remarks>
+    public static bool TryEstimate(FieldSpec spec, long limit, out long bytes)
+    {
+        ArgumentNullException.ThrowIfNull(spec);
+        bytes = 0;
+        if (limit < 0) return false;
+
+        var pending = new Stack<SpecFrame>();
+        pending.Push(new(spec, 0));
+        var nodes = 0;
+        while (pending.Count > 0)
+        {
+            var frame = pending.Pop();
+            if (frame.Depth > FieldMetadataLimits.MaxSpecDepth || ++nodes > FieldMetadataLimits.MaxClosureIds)
+                return false;
+
+            if (frame.NextUnionOption > 0 && frame.Spec is UnionSpec continuation)
+            {
+                var index = frame.NextUnionOption - 1;
+                if (index < continuation.Options.Count)
+                {
+                    var option = continuation.Options[index];
+                    if (!Add(ref bytes, 40, limit) || !AddString(ref bytes, option.Id, limit)
+                        || !AddString(ref bytes, option.Label, limit)) return false;
+                    pending.Push(frame with { NextUnionOption = frame.NextUnionOption + 1 });
+                    pending.Push(new(option.Spec, frame.Depth + 1));
+                }
+                continue;
+            }
+
+            if (!AddString(ref bytes, frame.Spec.Unit, limit)) return false;
+            switch (frame.Spec)
+            {
+                case EnumSpec choice:
+                    if (choice.Options.Count > FieldMetadataLimits.MaxClosureIds) return false;
+                    foreach (var option in choice.Options)
+                    {
+                        if (!Add(ref bytes, 40, limit) || !AddString(ref bytes, option.Value, limit)
+                            || !AddString(ref bytes, option.Label, limit)
+                            || !AddString(ref bytes, option.Description, limit)) return false;
+                    }
+                    break;
+                case FlagsSpec flags:
+                    if (flags.Bits.Count > FieldMetadataLimits.MaxClosureIds) return false;
+                    foreach (var bit in flags.Bits)
+                    {
+                        if (!Add(ref bytes, 32, limit) || !AddString(ref bytes, bit.Label, limit)
+                            || !AddString(ref bytes, bit.Description, limit)) return false;
+                    }
+                    break;
+                case ExactNumberSpec exact:
+                    if (!AddString(ref bytes, exact.Min, limit) || !AddString(ref bytes, exact.Max, limit)) return false;
+                    break;
+                case ReferenceSpec reference:
+                    if (!AddString(ref bytes, reference.CatalogId, limit)) return false;
+                    break;
+                case NullableSpec nullable:
+                    pending.Push(new(nullable.Inner, frame.Depth + 1));
+                    break;
+                case UnionSpec union:
+                    if (union.Options.Count > FieldMetadataLimits.MaxClosureIds) return false;
+                    if (union.Options.Count > 0)
+                    {
+                        pending.Push(new(union, frame.Depth, 1));
+                        pending.Push(new(union.Options[0].Spec, frame.Depth + 1));
+                    }
+                    break;
+            }
+        }
+
+        return true;
+
+        static bool Add(ref long total, long value, long maximum)
+        {
+            if (value < 0 || total > maximum - value) return false;
+            total += value;
+            return true;
+        }
+
+        static bool AddString(ref long total, string? value, long maximum) =>
+            value is null || (value.Length <= (maximum - total) / 2 && Add(ref total, 2L * value.Length, maximum));
     }
 
     /// <summary>Compares all wire properties structurally and reference callbacks by delegate equality.</summary>
@@ -43,4 +129,6 @@ public static class FieldSpecMetadata
             && a.Options.Zip(b.Options).All(pair => PoliciesAgree(pair.First.Spec, pair.Second.Spec)),
         _ => first.GetType() == second.GetType(),
     };
+
+    private readonly record struct SpecFrame(FieldSpec Spec, int Depth, int NextUnionOption = 0);
 }

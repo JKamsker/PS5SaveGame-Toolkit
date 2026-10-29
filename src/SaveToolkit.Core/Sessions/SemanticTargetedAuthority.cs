@@ -26,7 +26,7 @@ internal static class SemanticTargetedAuthority
         long maxBytes, CancellationToken cancellationToken)
     {
         if (document is not IFieldMetadataDocument || snapshot.Fields.Count == 0) return;
-        var index = new FieldMetadataIndex(document);
+        var index = new FieldMetadataIndex(document, Math.Max(0, maxBytes - snapshot.Bytes));
         foreach (var batch in snapshot.Fields.Keys.Chunk(FieldMetadataIndex.BatchSize))
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -60,9 +60,19 @@ internal static class SemanticTargetedAuthority
                     ReadOnly = metadata.Spec.ReadOnly,
                     CanonicalValueId = string.IsNullOrEmpty(metadata.CanonicalValueId) ? id : metadata.CanonicalValueId,
                     BindingKind = metadata.BindingKind,
-                    Spec = FieldSpecMetadata.Snapshot(metadata.Spec),
+                    Spec = metadata.Spec,
+                    Presentation = metadata.Presentation,
                 };
-                var additional = SemanticSnapshot.Estimate(updated) - SemanticSnapshot.Estimate(semantic);
+                if (!SemanticSnapshot.TryEstimate(updated, long.MaxValue, out var updatedCost)
+                    || !SemanticSnapshot.TryEstimate(semantic, long.MaxValue, out var existingCost))
+                {
+                    snapshot.Complete = false;
+                    snapshot.QueryWarnings = [.. snapshot.QueryWarnings,
+                        $"Canonical metadata coverage is incomplete: review metadata is too large for '{id}'."];
+                    continue;
+                }
+
+                var additional = updatedCost - existingCost;
                 if (additional > 0 && additional > maxBytes - snapshot.Bytes)
                 {
                     snapshot.Complete = false;
@@ -71,8 +81,8 @@ internal static class SemanticTargetedAuthority
                     continue;
                 }
 
-                snapshot.Bytes += additional;
-                snapshot.Fields[id] = updated;
+                snapshot.Bytes += Math.Max(0, additional);
+                snapshot.Fields[id] = updated with { Spec = FieldSpecMetadata.Snapshot(metadata.Spec) };
             }
         }
     }

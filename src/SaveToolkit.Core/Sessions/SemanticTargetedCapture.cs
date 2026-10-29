@@ -4,41 +4,45 @@ using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Core.Sessions;
 
-internal sealed record TargetedCaptureResult(bool Succeeded, string? Diagnostic = null);
+internal sealed record TargetedCaptureResult(bool Succeeded, IReadOnlyList<string> CapturedIds,
+    IReadOnlyList<string> IncompleteIds, string? Diagnostic = null);
 
 /// <summary>Stages bounded metadata values before publishing them into a semantic snapshot.</summary>
 internal sealed class SemanticTargetedCapture(long maxBytes)
 {
     public TargetedCaptureResult Capture(ISaveDocument document, SemanticSnapshot snapshot,
-        IEnumerable<string> valueIds, CancellationToken cancellationToken)
+        IReadOnlyList<string> valueIds, CancellationToken cancellationToken)
     {
-        var ids = valueIds.Where(id => !string.IsNullOrEmpty(id)).Distinct(StringComparer.Ordinal).ToArray();
-        if (ids.Length == 0) return new(true);
+        if (valueIds.Count == 0) return new(true, [], []);
         if (document is not IFieldMetadataDocument)
-            return Failure("Targeted metadata is unavailable for this document.");
+            return Failure("Targeted metadata is unavailable for this document.", valueIds);
 
         var working = snapshot.Clone();
+        var captured = new HashSet<string>(StringComparer.Ordinal);
         try
         {
-            CaptureCore(document, working, ids, cancellationToken);
+            CaptureCore(document, working, valueIds, captured, cancellationToken);
             snapshot.ReplaceWith(working);
-            return new(true);
+            var incomplete = valueIds.Where(id => !captured.Contains(id)).ToArray();
+            return new(true, captured.ToArray(), incomplete,
+                incomplete.Length == 0 ? null : "Targeted metadata coverage is incomplete for one or more affected IDs.");
         }
         catch (OperationCanceledException) { throw; }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            return Failure($"Targeted metadata coverage is incomplete: {ex.Message}");
+            return Failure($"Targeted metadata coverage is incomplete: {ex.Message}", valueIds);
         }
 
-        TargetedCaptureResult Failure(string message) => new(false, message);
+        TargetedCaptureResult Failure(string message, IReadOnlyList<string> ids) => new(false, [], ids, message);
     }
 
     private void CaptureCore(ISaveDocument document, SemanticSnapshot snapshot, IReadOnlyList<string> ids,
-        CancellationToken cancellationToken)
+        ISet<string> captured, CancellationToken cancellationToken)
     {
-        var index = new FieldMetadataIndex(document);
-        foreach (var batch in ids.Chunk(FieldMetadataLimits.MaxBatchSize))
+        var index = new FieldMetadataIndex(document, Math.Max(0, maxBytes - snapshot.Bytes));
+        for (var offset = 0; offset < ids.Count && snapshot.Bytes < maxBytes; offset += FieldMetadataLimits.MaxBatchSize)
         {
+            var batch = ids.Skip(offset).Take(FieldMetadataLimits.MaxBatchSize).ToArray();
             cancellationToken.ThrowIfCancellationRequested();
             var requested = batch.ToHashSet(StringComparer.Ordinal);
             index.ResolveAll(batch, cancellationToken);
@@ -54,23 +58,32 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                 var canonical = string.IsNullOrEmpty(field.CanonicalValueId) ? field.ValueId : field.CanonicalValueId;
                 if (snapshot.Fields.TryGetValue(field.ValueId, out var existing))
                 {
-                    snapshot.Fields[field.ValueId] = existing with
+                    var candidate = existing with
                     {
                         ReadOnly = field.Spec.ReadOnly, CanonicalValueId = canonical, BindingKind = field.BindingKind,
-                        Spec = FieldSpecMetadata.Snapshot(field.Spec), Label = field.Label,
+                        Spec = field.Spec, Presentation = field.Presentation, Label = field.Label,
                         Path = field.Path?.ToArray() ?? existing.Path,
-                        Presentation = field.Presentation, MetadataPublished = true,
+                        MetadataPublished = true,
                     };
+                    if (!SemanticSnapshot.TryEstimate(candidate, long.MaxValue, out var candidateCost)
+                        || !SemanticSnapshot.TryEstimate(existing, long.MaxValue, out var existingCost)
+                        || candidateCost - existingCost > maxBytes - snapshot.Bytes)
+                    {
+                        snapshot.Complete = false;
+                        continue;
+                    }
+
+                    snapshot.Bytes += Math.Max(0, candidateCost - existingCost);
+                    snapshot.Fields[field.ValueId] = candidate with { Spec = FieldSpecMetadata.Snapshot(field.Spec) };
+                    captured.Add(field.ValueId);
                     continue;
                 }
 
                 var semantic = new SemanticField(field.ValueId, field.Label, field.Path?.ToArray() ?? [],
                     document.GetValue(field.ValueId), field.Spec.ReadOnly,
                     CanonicalValueId: canonical, BindingKind: field.BindingKind,
-                    Spec: FieldSpecMetadata.Snapshot(field.Spec), Presentation: field.Presentation,
-                    MetadataPublished: true);
-                var cost = SemanticSnapshot.Estimate(semantic);
-                if (cost > maxBytes - snapshot.Bytes)
+                    Spec: field.Spec, Presentation: field.Presentation, MetadataPublished: true);
+                if (!SemanticSnapshot.TryEstimate(semantic, maxBytes - snapshot.Bytes, out var cost))
                 {
                     snapshot.Complete = false;
                     snapshot.OmittedCount++;
@@ -78,7 +91,8 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                 }
 
                 snapshot.Bytes += cost;
-                snapshot.Fields.Add(field.ValueId, semantic);
+                snapshot.Fields.Add(field.ValueId, semantic with { Spec = FieldSpecMetadata.Snapshot(field.Spec) });
+                captured.Add(field.ValueId);
             }
 
             if (seen.Count != requested.Count)
