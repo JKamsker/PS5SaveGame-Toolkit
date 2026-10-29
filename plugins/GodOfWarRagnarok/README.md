@@ -58,6 +58,11 @@ opaque regions and trailing bytes are preserved. Structural inventory edits, gea
 quest completion, difficulty and settings writers remain **unimplemented**: their structure/dependency
 repair or field meaning/range is not established. They are not waiting solely on console permission.
 
+The wallet length prefix must follow the complete directory/secondary arrays. Counted arrays,
+legacy wallet rows and the complete nested wallet/link/flag sequence must end before the separate
+EOF sentinel. Overlapping layouts are rejected before editable bindings are exposed; exact adjacent
+boundaries remain supported. Malformed-layout and boundary-control tests cover these write guards.
+
 ## Titles and file roles
 
 Catalogued Ragnarök PS5 IDs: **PPSA08329, PPSA08330, PPSA08331, PPSA08332, PPSA08333, PPSA08334,

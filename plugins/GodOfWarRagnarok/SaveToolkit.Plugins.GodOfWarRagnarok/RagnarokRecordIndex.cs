@@ -49,9 +49,11 @@ internal sealed class RagnarokRecordIndex
             throw new SaveFormatException("Invalid Ragnarök metadata, directory marker or observed trailing sentinel.");
         }
 
-        var count = RagnarokFormat.CheckedCount(bytes, RagnarokFormat.DirectoryCountOffset, sizeof(ulong));
+        // The observed EOF sentinel is a separate record, never part of a counted array.
+        var payload = bytes[..^sizeof(uint)];
+        var count = RagnarokFormat.CheckedCount(payload, RagnarokFormat.DirectoryCountOffset, sizeof(ulong));
         var flagsOffset = RagnarokFormat.DirectoryItemsOffset + count * sizeof(ulong);
-        RagnarokFormat.RequireRange(bytes, flagsOffset, (uint)count, sizeof(uint));
+        RagnarokFormat.RequireRange(payload, flagsOffset, (uint)count, sizeof(uint));
         var ids = new HashSet<ulong>();
         ulong previous = 0;
         for (var row = 0; row < count; row++)
@@ -67,7 +69,7 @@ internal sealed class RagnarokRecordIndex
         }
 
         var secondaryCountOffset = flagsOffset + count * sizeof(uint);
-        var secondaryCount = RagnarokFormat.CheckedCount(bytes, secondaryCountOffset, sizeof(ulong));
+        var secondaryCount = RagnarokFormat.CheckedCount(payload, secondaryCountOffset, sizeof(ulong));
         var secondaryOffset = secondaryCountOffset + sizeof(uint);
         for (var row = 0; row < secondaryCount; row++)
         {
@@ -86,8 +88,14 @@ internal sealed class RagnarokRecordIndex
             throw new SaveFormatException("Expected exactly one bounded Ragnarök hero-wallet record.");
         }
 
+        var secondaryEnd = secondaryOffset + secondaryCount * sizeof(ulong);
+        if (wallet - sizeof(uint) < secondaryEnd)
+        {
+            throw new SaveFormatException("Ragnarök wallet length prefix overlaps metadata or directory arrays.");
+        }
+
         var walletCount = RagnarokFormat.UInt32(bytes, wallet + sizeof(ulong));
-        RagnarokFormat.RequireRange(bytes, wallet + RagnarokFormat.WalletHeaderSize, walletCount, RagnarokFormat.WalletRowSize);
+        RagnarokFormat.RequireRange(payload, wallet + RagnarokFormat.WalletHeaderSize, walletCount, RagnarokFormat.WalletRowSize);
         var index = new RagnarokRecordIndex
         {
             Description = RagnarokFormat.Description(bytes),
@@ -97,7 +105,7 @@ internal sealed class RagnarokRecordIndex
             SecondaryOffset = secondaryOffset,
             WalletOffset = wallet,
             WalletCount = (int)walletCount,
-            Nested = RagnarokNestedRecords.Parse(bytes, wallet),
+            Nested = RagnarokNestedRecords.Parse(payload, wallet),
             Regions =
             [
                 new("Outer header", 0, RagnarokFormat.HeaderSize, 1, "Observed constants; integrity unknown"),
