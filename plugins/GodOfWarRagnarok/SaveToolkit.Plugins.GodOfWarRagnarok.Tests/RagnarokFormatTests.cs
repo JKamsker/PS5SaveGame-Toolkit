@@ -113,11 +113,18 @@ public sealed class RagnarokFormatTests
     public void InvalidEditsAreAtomicAndOutputAndBlobAreIsolated()
     {
         var original = SyntheticGameplay();
+        Write(original, 0x190, 10);
         using var document = _plugin.Open(File(original));
         var fields = Flatten(document.BuildView()).OfType<FieldNode>().ToArray();
         Assert.True(document.CanEdit);
         Assert.All(fields.Where(f => f.ValueId != "metadata/play-seconds"), f => Assert.True(f.Spec.ReadOnly));
-        Assert.False(document.ApplyEdits([new(fields[0].ValueId, FieldValue.Of(1L)), new("unknown", FieldValue.Of(2L))]).Succeeded);
+        var writable = Assert.Single(fields, field => field.ValueId == "metadata/play-seconds");
+        Assert.False(writable.Spec.ReadOnly);
+        var rejected = document.ApplyEdits([new(writable.ValueId, FieldValue.Of(0L)), new("unknown", FieldValue.Of(2L))]);
+        Assert.False(rejected.Succeeded);
+        Assert.Equal("unknown", Assert.Single(rejected.Errors).ValueId);
+        Assert.Empty(rejected.Changes);
+        Assert.Equal(writable.Value, document.GetValue(writable.ValueId));
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
         var blob = document.ReadBlob("save", 0, 64);
         Assert.True(System.Runtime.InteropServices.MemoryMarshal.TryGetArray(blob, out var array));
