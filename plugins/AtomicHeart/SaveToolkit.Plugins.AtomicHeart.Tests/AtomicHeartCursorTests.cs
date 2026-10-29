@@ -5,6 +5,61 @@ namespace SaveToolkit.Plugins.AtomicHeart.Tests;
 
 public sealed class AtomicHeartCursorTests
 {
+    [Theory]
+    [InlineData("byte", 1)]
+    [InlineData("ushort", 2)]
+    [InlineData("int", 4)]
+    [InlineData("long", 8)]
+    [InlineData("ulong", 8)]
+    [InlineData("float", 4)]
+    [InlineData("double", 8)]
+    [InlineData("count", 4)]
+    [InlineData("string", 4)]
+    public void EveryPrimitivePrefixKeepsAbsoluteTruncationOffsetAndPosition(string kind, int width)
+    {
+        for (var available = 0; available < width; available++)
+        {
+            var position = -1;
+            var error = Assert.Throws<SaveFormatException>(() =>
+            {
+                var cursor = new SaveCursor(new byte[16], start: 3, end: 3 + available);
+                try { _ = ReadPrimitive(cursor, kind); }
+                finally { position = cursor.Position; }
+            });
+            Assert.Equal("Truncated SaveExtension data at 0x3.", error.Message);
+            Assert.Equal(3, position);
+        }
+    }
+
+    [Fact]
+    public void PrimitivesRetainLittleEndianValuesAndExactWidths()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, leaveOpen: true))
+        {
+            writer.Write((byte)0xAB); writer.Write((ushort)0xABCD); writer.Write(-123456789);
+            writer.Write(-1234567890123456789L); writer.Write(0xFEDCBA9876543210UL);
+            writer.Write(1.25f); writer.Write(-2.5);
+        }
+        var cursor = new SaveCursor(stream.ToArray());
+        Assert.Equal((byte)0xAB, cursor.Byte());
+        Assert.Equal((ushort)0xABCD, cursor.UInt16());
+        Assert.Equal(-123456789, cursor.Int32());
+        Assert.Equal(-1234567890123456789L, cursor.Int64());
+        Assert.Equal(0xFEDCBA9876543210UL, cursor.UInt64());
+        Assert.Equal(1.25f, cursor.Single());
+        Assert.Equal(-2.5, cursor.Double());
+        Assert.Equal(0, cursor.Remaining);
+    }
+
+    private static object ReadPrimitive(SaveCursor cursor, string kind) => kind switch
+    {
+        "byte" => cursor.Byte(), "ushort" => cursor.UInt16(), "int" => cursor.Int32(),
+        "long" => cursor.Int64(), "ulong" => cursor.UInt64(), "float" => cursor.Single(),
+        "double" => cursor.Double(), "count" => cursor.Count(3), "string" => cursor.String(),
+        _ => throw new ArgumentException("Unknown test primitive.", nameof(kind)),
+    };
+
     public static TheoryData<byte[], string> ValidStrings => new()
     {
         { [0, 0, 0, 0], "" },

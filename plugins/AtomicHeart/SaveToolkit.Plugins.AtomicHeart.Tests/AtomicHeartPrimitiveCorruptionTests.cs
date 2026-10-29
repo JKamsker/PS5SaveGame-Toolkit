@@ -19,8 +19,8 @@ public sealed class AtomicHeartPrimitiveCorruptionTests
     {
         var plain = Plain(Primitive(type, size));
         var error = Assert.Throws<SaveFormatException>(() => WriteTestData.Open(SlotFixture.Create(plain: plain)));
-        Assert.Contains(type, error.Message, StringComparison.Ordinal);
-        Assert.Contains("payload size", error.Message, StringComparison.Ordinal);
+        var expected = type == "BoolProperty" ? 0 : type is "IntProperty" or "UInt32Property" or "FloatProperty" ? 4 : 8;
+        Assert.Equal($"Invalid {type} payload size: expected {expected} bytes, got {size}.", error.Message);
     }
 
     [Theory]
@@ -33,7 +33,9 @@ public sealed class AtomicHeartPrimitiveCorruptionTests
     {
         var error = Assert.Throws<SaveFormatException>(() => WriteTestData.Open(
             SlotFixture.Create(metadataPayload: Primitive(type, size, detail))));
-        Assert.Contains("payload size", error.Message, StringComparison.Ordinal);
+        var expected = type == "BoolProperty" ? 0 : type == "IntProperty" ? 4 : 8;
+        var label = detail is null ? type : $"{type} ({detail})";
+        Assert.Equal($"Invalid {label} payload size: expected {expected} bytes, got {size}.", error.Message);
     }
 
     [Theory]
@@ -43,7 +45,7 @@ public sealed class AtomicHeartPrimitiveCorruptionTests
     {
         var error = Assert.Throws<SaveFormatException>(() => WriteTestData.Open(
             SlotFixture.Create(metadataPayload: Primitive("BoolProperty", 0, boolean: value))));
-        Assert.Contains("boolean", error.Message, StringComparison.Ordinal);
+        Assert.Equal("Invalid SlotInfo property boolean.", error.Message);
     }
 
     [Theory]
