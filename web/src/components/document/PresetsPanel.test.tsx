@@ -72,3 +72,23 @@ it("shows server-owned saved and current compatibility boundaries", async () => 
   expect(screen.getByText("saved-pack → current-pack")).not.toBeNull();
   expect(screen.getByText("remake → rebirth")).not.toBeNull();
 });
+
+it("keeps host rename available when the document is read-only", async () => {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([{
+    preset: { schemaVersion: "1", id: "p", name: "Saved", compatibility: { pluginId: "test", pluginVersion: "1", titleIds: ["PPSA00001"] },
+      actions: [{ actionId: "capture", parameters: {}, scopeKind: "document" }], createdAt: "", updatedAt: "" },
+    compatibility: { compatible: true, readOnly: true, canPreview: false, presetKind: "toolkit.action-parameters", savedPluginVersion: "1", currentPluginVersion: "1", unsupportedActions: [] },
+  }]);
+  const rename = vi.spyOn(api, "renamePreset").mockResolvedValue({
+    schemaVersion: "1", id: "p", name: "Renamed", compatibility: { pluginId: "test", pluginVersion: "1", titleIds: ["PPSA00001"] },
+    actions: [{ actionId: "capture", parameters: {}, scopeKind: "document" }], createdAt: "", updatedAt: "",
+  });
+  renderSpatial(<PresetsPanel document={{ ...document, canEdit: false }} onToast={vi.fn()} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  const button = await screen.findByRole("button", { name: "Rename" });
+  expect(button.hasAttribute("disabled")).toBe(false);
+  fireEvent.click(button);
+  fireEvent.change(screen.getByLabelText("Preset name"), { target: { value: "Renamed" } });
+  fireEvent.click(screen.getByRole("button", { name: "Save name" }));
+  await waitFor(() => expect(rename).toHaveBeenCalledWith("p", "Renamed"));
+});

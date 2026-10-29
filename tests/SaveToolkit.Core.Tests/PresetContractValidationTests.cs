@@ -47,6 +47,26 @@ public sealed class PresetContractValidationTests
         Assert.Null(serialized);
     }
 
+    [Fact]
+    public void ResolutionMustMatchRequestedTargetsAndChoices()
+    {
+        var requested = new PresetInstanceReference("owned", "target");
+        var candidate = new PresetInstanceReference("owned", "candidate");
+        var omitted = new PresetResolution([]);
+        Assert.Contains("every requested", PresetContractValidation.ValidateResolution(omitted, [requested], null, false, out _), StringComparison.OrdinalIgnoreCase);
+
+        var injected = new PresetResolution([
+            new(requested, PresetInstanceResolutionStatus.Resolved),
+            new(new PresetInstanceReference("owned", "extra"), PresetInstanceResolutionStatus.Resolved)]);
+        Assert.Contains("exactly one result", PresetContractValidation.ValidateResolution(injected, [requested], null, false, out _), StringComparison.OrdinalIgnoreCase);
+
+        var ambiguous = new PresetResolution([new(requested, PresetInstanceResolutionStatus.Ambiguous, [candidate])]);
+        Assert.Contains("current ambiguous", PresetContractValidation.ValidateResolution(ambiguous, [requested],
+            new Dictionary<string, string> { [requested.StableId] = "forged" }, false, out _), StringComparison.OrdinalIgnoreCase);
+        var forged = new PresetResolution([new(requested, PresetInstanceResolutionStatus.Resolved, [candidate])]);
+        Assert.Contains("unchosen", PresetContractValidation.ValidateResolution(forged, [requested], null, false, out _), StringComparison.OrdinalIgnoreCase);
+    }
+
     private static PresetCapability Capability(PresetActionCapability action) =>
         new("1", null, [action], 1, "fixture", "sha256:fixture", "toolkit.action-parameters", "schema", "save");
 }

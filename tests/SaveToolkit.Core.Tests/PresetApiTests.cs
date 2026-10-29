@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
+using SaveToolkit.Api.Infrastructure;
 using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.Tests.Fakes;
 
@@ -160,6 +161,24 @@ public sealed class PresetApiTests(IsolatedApiFactory factory) : IClassFixture<I
     }
 
     [Fact]
+    public async Task GenericRowsUseTheCurrentPlanningActionIndex()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var document = await OpenAsync(ct);
+        var create = await _client.PostAsJsonAsync("/api/presets", new
+        {
+            name = "Unknown action",
+            compatibility = new { pluginId = "test.planning", pluginVersion = "1.0.0", titleIds = CounterTitle },
+            actions = new[] { new { actionId = "does-not-exist", parameters = new { } } },
+        }, ct);
+        Assert.Equal(HttpStatusCode.OK, create.StatusCode);
+        var rows = await _client.GetFromJsonAsync<JsonElement[]>($"{document}/presets", ct);
+        var summary = Assert.Single(rows!).GetProperty("compatibility");
+        Assert.False(summary.GetProperty("canPreview").GetBoolean());
+        Assert.Equal("actionUnsupported", summary.GetProperty("previewCode").GetString());
+    }
+
+    [Fact]
     public async Task GenericPreviewErrorsKeepThePresetPreviewEnvelope()
     {
         var ct = TestContext.Current.CancellationToken;
@@ -217,6 +236,23 @@ public sealed class PresetApiTests(IsolatedApiFactory factory) : IClassFixture<I
     }
 
     [Fact]
+    public async Task OversizedPresetEnvelopeIsRejectedBeforeJsonBinding()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        using var below = new ByteArrayContent(new byte[PresetRequestBodyLimits.CreateBytes]);
+        below.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+        var exact = await _client.PostAsync("/api/presets", below, ct);
+        Assert.NotEqual(HttpStatusCode.RequestEntityTooLarge, exact.StatusCode);
+
+        using var above = new ByteArrayContent(new byte[PresetRequestBodyLimits.CreateBytes + 1]);
+        above.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+        var rejected = await _client.PostAsync("/api/presets", above, ct);
+        Assert.Equal(HttpStatusCode.RequestEntityTooLarge, rejected.StatusCode);
+        var body = await rejected.Content.ReadFromJsonAsync<JsonElement>(ct);
+        Assert.Equal("presetPayloadTooLarge", body.GetProperty("code").GetString());
+    }
+
+    [Fact]
     public async Task CaptureRouteUsesDocumentCompatibilityAndNeverStoresRowKeys()
     {
         var ct = TestContext.Current.CancellationToken;
@@ -237,7 +273,7 @@ public sealed class PresetApiTests(IsolatedApiFactory factory) : IClassFixture<I
     }
 
     [Fact]
-    public async Task CaptureRoutePreservesExplicitSelectedScopeWithoutPromotingEmptySelection()
+    public async Task GenericCaptureRejectsExplicitSelectedScopeWithoutSemanticCapability()
     {
         var ct = TestContext.Current.CancellationToken;
         var document = await OpenAsync(ct);
@@ -249,10 +285,8 @@ public sealed class PresetApiTests(IsolatedApiFactory factory) : IClassFixture<I
             scopeKind = "selected",
             selectedRowKeys = Array.Empty<string>(),
         }, ct);
-        Assert.Equal(HttpStatusCode.OK, captured.StatusCode);
-        var body = await captured.Content.ReadFromJsonAsync<JsonElement>(ct);
-        Assert.Equal("selected", body.GetProperty("actions")[0].GetProperty("scopeKind").GetString());
-        Assert.False(body.GetProperty("actions")[0].TryGetProperty("selectedRowKeys", out _));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, captured.StatusCode);
+        Assert.Empty(await _client.GetFromJsonAsync<JsonElement[]>("/api/presets", ct) ?? []);
     }
 
     private async Task<string> OpenAsync(CancellationToken ct)

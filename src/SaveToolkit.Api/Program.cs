@@ -52,6 +52,7 @@ app.UseStatusCodePages(async status =>
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseMiddleware<PresetRequestBodyLimitMiddleware>();
 app.MapToolkitApi();
 app.MapPresetApi();
 app.MapReferenceApi();

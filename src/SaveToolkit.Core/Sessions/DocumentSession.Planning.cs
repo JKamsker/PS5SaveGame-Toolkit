@@ -23,6 +23,20 @@ public sealed partial class DocumentSession
     private PendingAction? _pendingAction;
     private Action? _startAtomicApply;
 
+    /// <summary>Checks the same indexed planning policy used by PlanAction without invoking a plugin.</summary>
+    public string? GenericPresetActionError(string actionId) => Locked(() =>
+    {
+        if (_index.Action(actionId) is not { } action)
+            return "The saved action is not present in the current document view.";
+        if (!action.SupportsPlanning)
+            return "The saved action is inspection-only and cannot be previewed as a preset.";
+        if (!action.Mutates)
+            return "The saved action does not mutate the document and cannot be applied as a preset.";
+        if (Document is not IActionPlanningDocument)
+            return "The current document does not support action planning.";
+        return null;
+    });
+
     public ActionPreview PlanAction(string actionId, IReadOnlyDictionary<string, JsonElement> parameters,
         ActionScope? scope = null, long? expectedRevision = null) =>
         PlanAction(actionId, parameters, scope, expectedRevision, CancellationToken.None);
