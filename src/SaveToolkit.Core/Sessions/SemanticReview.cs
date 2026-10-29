@@ -10,6 +10,9 @@ internal sealed record SemanticField(string ValueId, string Label, string[] Path
     SemanticCollectionTarget? Target = null, string? CanonicalValueId = null,
     FieldBindingKind BindingKind = FieldBindingKind.Primary);
 
+internal sealed record SemanticReviewState(SemanticSnapshot? Original,
+    IReadOnlyList<string> TargetedIds, IReadOnlyList<string> CaptureDiagnostics);
+
 /// <summary>
 /// A separate original-value baseline survives history eviction. Both baseline and current walks
 /// are bounded, including lazy expansion and navigation metadata. Partial coverage is never
@@ -26,6 +29,7 @@ internal sealed class SemanticReview
     private bool _capturingOriginal;
     private readonly List<string> _captureDiagnostics = [];
     private readonly SemanticSnapshotCapture _capture;
+    private readonly SemanticTargetedCapture _targetedCapture;
     private readonly long _maxBytes;
 
     // Preflight can populate the baseline, but cancellation must leave it uncached.
@@ -52,8 +56,12 @@ internal sealed class SemanticReview
         ArgumentOutOfRangeException.ThrowIfNegative(limits.MaxReviewQueryPages);
         ArgumentOutOfRangeException.ThrowIfNegative(limits.MaxReviewQueryBytes);
         _capture = new SemanticSnapshotCapture(limits);
+        _targetedCapture = new SemanticTargetedCapture(limits.MaxOriginalBytes);
         _maxBytes = limits.MaxOriginalBytes;
     }
+
+    internal SemanticReviewState CaptureState() => new(
+        _original?.Clone(), _targeted.ToArray(), _captureDiagnostics.ToArray());
 
     public void Observe(IReadOnlyList<ValueChange> changes, bool structural, Func<string, bool> indexed)
     {
@@ -221,19 +229,26 @@ internal sealed class SemanticReview
         long revision, CancellationToken cancellationToken)
     {
         var original = _original ?? throw new InvalidOperationException("Capture the original before querying changes.");
-        var current = _capture.Capture(document, index, expandedLazy, cancellationToken);
-        ApplyCanonicalMetadata(document, current, cancellationToken);
+        var current = new SemanticSnapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal), true, 0);
+        var targetedCaptured = CaptureTargeted(document, current, _targeted, revokeOnFailure: true, cancellationToken);
+        var walked = _capture.Capture(document, index, expandedLazy, cancellationToken);
         if (_targetedOnly)
         {
-            var walkWarnings = current.QueryWarnings.ToArray();
-            current.Fields.Clear();
-            current.Bytes = 0;
-            current.Complete = false;
-            current.QueryWarnings = [.. walkWarnings,
+            current.QueryWarnings = [.. current.QueryWarnings, .. walked.QueryWarnings,
                 "Legacy current view coverage is incomplete; targeted values do not prove whole-document coverage."];
+            current.Complete = false;
         }
-        CaptureTargeted(document, current, _targeted, revokeOnFailure: true, cancellationToken);
-        ValidateTargetedAuthority(original, current);
+        else
+        {
+            current.Merge(walked, _maxBytes);
+            SemanticTargetedAuthority.ApplyCanonicalMetadata(document, current, cancellationToken);
+        }
+        if (!targetedCaptured)
+        {
+            foreach (var id in _targeted) current.Fields.Remove(id);
+            current.Complete = false;
+        }
+        SemanticTargetedAuthority.Validate(original, current);
         foreach (var id in _reported.Where(id => !current.Fields.ContainsKey(id)))
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -261,20 +276,6 @@ internal sealed class SemanticReview
             [.. warnings, .. _captureDiagnostics, .. original.QueryWarnings.Concat(current.QueryWarnings).Distinct(StringComparer.Ordinal)], revision);
     }
 
-    private static void ValidateTargetedAuthority(SemanticSnapshot original, SemanticSnapshot current)
-    {
-        foreach (var (id, before) in original.Fields)
-        {
-            if (before.CanonicalValueId is null || !current.Fields.TryGetValue(id, out var after)) continue;
-            if (string.Equals(before.CanonicalValueId, after.CanonicalValueId, StringComparison.Ordinal)
-                && before.BindingKind == after.BindingKind && before.ReadOnly == after.ReadOnly) continue;
-            current.Fields.Remove(id);
-            current.Complete = false;
-            current.QueryWarnings = [.. current.QueryWarnings,
-                $"Targeted metadata coverage is incomplete: authority changed for '{id}'; revert is unavailable."];
-        }
-    }
-
     public bool TryOriginal(string id, out FieldValue value)
     {
         if (_original?.Fields.GetValueOrDefault(id) is { } field)
@@ -292,112 +293,19 @@ internal sealed class SemanticReview
     {
         var ids = valueIds.Where(id => !string.IsNullOrEmpty(id)).Distinct(StringComparer.Ordinal).ToArray();
         if (ids.Length == 0) return true;
-        if (document is not IFieldMetadataDocument)
+        var result = _targetedCapture.Capture(document, snapshot, ids, cancellationToken);
+        if (result.Succeeded) return true;
+        if (revokeOnFailure)
         {
+            foreach (var id in ids) snapshot.Fields.Remove(id);
             snapshot.Complete = false;
-            snapshot.QueryWarnings = [.. snapshot.QueryWarnings, "Targeted metadata is unavailable for this document."];
-            return false;
+            snapshot.QueryWarnings = [.. snapshot.QueryWarnings, result.Diagnostic!];
         }
-
-        var working = snapshot.Clone();
-        try
+        else if (result.Diagnostic is { } diagnostic)
         {
-            CaptureTargetedCore(document, working, ids, cancellationToken);
-            snapshot.ReplaceWith(working);
-            return true;
+            _captureDiagnostics.Add(diagnostic);
         }
-        catch (OperationCanceledException) { throw; }
-        catch (Exception ex) when (ex is not OutOfMemoryException)
-        {
-            if (revokeOnFailure)
-                foreach (var id in ids) snapshot.Fields.Remove(id);
-            snapshot.Complete = false;
-            snapshot.QueryWarnings = [.. snapshot.QueryWarnings,
-                $"Targeted metadata coverage is incomplete: {ex.Message}"];
-            return false;
-        }
-    }
-
-    private void CaptureTargetedCore(ISaveDocument document, SemanticSnapshot snapshot, IReadOnlyList<string> ids,
-        CancellationToken cancellationToken)
-    {
-        var index = new FieldMetadataIndex(document);
-        foreach (var batch in ids.Chunk(FieldMetadataLimits.MaxBatchSize))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            var requested = batch.ToHashSet(StringComparer.Ordinal);
-            index.ResolveAll(batch, cancellationToken);
-            var descriptors = batch.Select(index.Cached).Where(field => field is not null).Cast<FieldMetadata>().ToArray();
-            var seen = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var field in descriptors)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (!requested.Contains(field.ValueId) || !seen.Add(field.ValueId) || string.IsNullOrEmpty(field.Label)
-                    || field.Spec is null || !Enum.IsDefined(field.BindingKind))
-                    throw new InvalidOperationException("Invalid targeted field metadata.");
-                if (snapshot.Fields.TryGetValue(field.ValueId, out var existing))
-                {
-                    snapshot.Fields[field.ValueId] = existing with
-                    {
-                        ReadOnly = field.Spec.ReadOnly,
-                        CanonicalValueId = string.IsNullOrEmpty(field.CanonicalValueId) ? field.ValueId : field.CanonicalValueId,
-                        BindingKind = field.BindingKind,
-                    };
-                    continue;
-                }
-
-                var semantic = new SemanticField(field.ValueId, field.Label,
-                    field.Path?.ToArray() ?? [], Value: document.GetValue(field.ValueId),
-                    ReadOnly: field.Spec.ReadOnly,
-                    CanonicalValueId: string.IsNullOrEmpty(field.CanonicalValueId) ? field.ValueId : field.CanonicalValueId,
-                    BindingKind: field.BindingKind);
-                var cost = SemanticSnapshot.Estimate(semantic);
-                if (cost > _maxBytes - snapshot.Bytes)
-                {
-                    snapshot.Complete = false;
-                    continue;
-                }
-
-                snapshot.Bytes += cost;
-                snapshot.Fields.Add(field.ValueId, semantic);
-            }
-
-            if (seen.Count != requested.Count) snapshot.Complete = false;
-        }
-    }
-
-    private static void ApplyCanonicalMetadata(ISaveDocument document, SemanticSnapshot snapshot,
-        CancellationToken cancellationToken)
-    {
-        if (document is not IFieldMetadataDocument || snapshot.Fields.Count == 0) return;
-        var index = new FieldMetadataIndex(document);
-        foreach (var batch in snapshot.Fields.Keys.Chunk(FieldMetadataIndex.BatchSize))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            try
-            {
-                index.ResolveAll(batch, cancellationToken);
-            }
-            catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
-            {
-                snapshot.Complete = false;
-                snapshot.QueryWarnings = [.. snapshot.QueryWarnings,
-                    $"Canonical metadata coverage is incomplete: {ex.Message}"];
-                continue;
-            }
-
-            foreach (var id in batch)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (snapshot.Fields[id] is not { } semantic || index.Cached(id) is not { } metadata) continue;
-                snapshot.Fields[id] = semantic with
-                {
-                    ReadOnly = metadata.Spec.ReadOnly,
-                    CanonicalValueId = string.IsNullOrEmpty(metadata.CanonicalValueId) ? id : metadata.CanonicalValueId,
-                    BindingKind = metadata.BindingKind,
-                };
-            }
-        }
+        return false;
     }
 
 }
