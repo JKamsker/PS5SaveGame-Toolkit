@@ -93,3 +93,20 @@ it("restores the opener after a native close while a plan is pending", async () 
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(document.activeElement).toBe(trigger);
 });
+
+it.each([true, false])("preserves focus elsewhere when a non-modal action completes (ok: %s)", async ok => {
+  let finish!: (value: EditResult) => void;
+  render(<DocumentContext.Provider value={{ workspaceId: "w", documentId: "d", canEdit: true,
+    store: new DocumentStore(result.state), structureVersion: 0, refresh: vi.fn(), acceptResult: vi.fn(), commit: vi.fn(),
+    runAction: () => new Promise(resolve => { finish = resolve; }) }}>
+    <ActionButton node={{ type: "action", actionId: "inspect", label: "Inspect", mutates: false }} />
+    <button type="button">Other control</button>
+  </DocumentContext.Provider>);
+  const trigger = screen.getByRole("button", { name: "Inspect" });
+  trigger.focus();
+  fireEvent.click(trigger);
+  const other = screen.getByRole("button", { name: "Other control" });
+  other.focus();
+  await act(async () => { finish({ ...result, ok }); });
+  expect(document.activeElement).toBe(other);
+});

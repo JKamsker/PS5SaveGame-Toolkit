@@ -12,6 +12,10 @@ export function useActionDialog(busy: boolean) {
 
   useEffect(() => {
     if (busy || !focusTarget) return;
+    if (!dialog.current) {
+      requestFocus(null);
+      return;
+    }
     if (focusTarget === "trigger" || !dialog.current?.open) {
       trigger.current?.focus();
     } else {
