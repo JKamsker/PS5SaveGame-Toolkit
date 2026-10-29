@@ -76,3 +76,18 @@ it.each(["envelope", "exception"])("preserves Unicode parameters and focuses a s
   expect(plan).toHaveBeenLastCalledWith("w1", "d1", "rename", { caption: "🎮" }, {}, 1);
   expect(apply).toHaveBeenCalledTimes(1);
 });
+
+it.each([undefined, "conflict"])("does not mislabel a thrown non-stale 409 in the action hook (code=%s)", async code => {
+  vi.spyOn(actionReview, "plan").mockResolvedValue(preview);
+  vi.spyOn(actionReview, "apply").mockRejectedValue(new ApiError("Action conflicts with current settings", 409, code === undefined ? undefined : { code }));
+  setup();
+  fireEvent.click(screen.getByRole("button", { name: "Preview" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Apply" }));
+  const reason = await screen.findByRole("alert");
+  await waitFor(() => expect(document.activeElement).toBe(reason));
+  expect(reason.textContent).toBe("Action conflicts with current settings");
+  expect(screen.getAllByRole("alert")).toHaveLength(1);
+  expect(screen.getByRole("textbox", { name: "Caption" })).toHaveProperty("value", "🎮");
+  expect(screen.queryByRole("button", { name: "Preview again" })).toBeNull();
+  expect(screen.getByRole("button", { name: "Preview" })).toHaveProperty("disabled", false);
+});

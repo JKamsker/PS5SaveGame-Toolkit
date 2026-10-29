@@ -1,6 +1,6 @@
 import { useId, useMemo, useState } from "react";
 import { actionReview, type ActionPreview, type ActionScope } from "../../../api/actionReview";
-import { ApiError } from "../../../api/client";
+import { isStaleError } from "../../../api/client";
 import type { ActionNode, FieldValue } from "../../../api/protocol";
 import { useDocument, useDocumentState } from "../../../state/documentStore";
 import { useActionDialog } from "../../ui/useActionDialog";
@@ -104,7 +104,7 @@ function createActionApply(state: PlannedState, selection: PlannedScope) {
     } catch (failure) {
       if (!isCurrent()) return;
       state.setPreview(null);
-      state.setRejectedStale(failure instanceof ApiError && failure.status === 409);
+      state.setRejectedStale(isStaleError(failure));
       state.setError(failure instanceof Error ? failure.message : "Could not apply this action.");
       state.requestFocus("error");
     }

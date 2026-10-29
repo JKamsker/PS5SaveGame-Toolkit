@@ -52,9 +52,11 @@ session's clean-document override list may legitimately be empty.
 Planned-action dialogs announce **No changes. No undo step will be created.** for
 a successful empty plan and disable Apply. Warnings/skipped rows remain visible.
 Cancel and native Escape close without applying and return focus to the trigger.
-A stale 409 apply keeps the dialog and parameter values, focuses the reason, and
-requires **Preview again**. It does not reuse the rejected token or create local
-history. The focused dialog alert owns apply failures, avoiding a duplicate
+A typed stale apply response or an apply failure with HTTP 409 and `code: "stale"` refreshes the document snapshot
+before keeping the dialog and parameter values, focusing the reason, and offering
+**Preview again** with the refreshed revision. Other HTTP 409 failures retain their
+ordinary error message without being labeled stale. Recovery does not reuse the
+rejected token or create local history. The focused dialog alert owns apply failures, avoiding a duplicate
 background error toast; ordinary field edits retain their existing toast feedback.
 Read-only documents can preview but cannot apply.
 

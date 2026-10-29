@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/refs, react-hooks/immutability -- Preserve the identity-scoped request controller and render-time store snapshot used by the editor. */
 import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
-import { api, ApiError } from "../../api/client";
+import { api, ApiError, isStaleError } from "../../api/client";
 import type { EditResult, FieldValue, SaveDocument, Workspace } from "../../api/protocol";
 import { DocumentStore, type DocumentContextValue, type DocumentMutationOptions, type FieldCommitOutcome, type FieldDiagnosticReceipt } from "../../state/documentStore";
 import { sameValue } from "../../lib/values";
@@ -77,6 +77,7 @@ function useDocumentResult(workspaceId: string, documentId: string, query: Docum
 function useDocumentMutation(workspaceId: string, documentId: string, query: DocumentQuery, store: DocumentStore | null,
   session: SessionLifetime, handleResult: ReturnType<typeof useDocumentResult>["handleResult"], onToast: Notify) {
   const queryClient = useQueryClient();
+  const { refetch } = query;
   const activity = useContext(WorkspaceActivityContext);
   const { lifetime, currentStore, enqueue } = session;
   const run = useCallback(
@@ -107,14 +108,18 @@ function useDocumentMutation(workspaceId: string, documentId: string, query: Doc
           // A failed/ambiguous write must not release already queued intents against an uncertain state.
           lifetime.generation++;
           const message = error instanceof ApiError ? error.message : "The server could not be reached.";
+          const stale = isStaleError(error);
+          // Already inside the mutation queue: public refresh would enqueue behind this request.
+          // Replace the revision/view before the dialog offers its first Preview again.
+          if (lifetime.active && stale) await refetch();
           if (lifetime.active && options?.failureFeedback !== "dialog") onToast(message, true);
           // Action dialogs need this diagnostic inside the modal, where background toasts are inert.
-          return { ...rejected(message), stale: error instanceof ApiError && error.status === 409 };
+          return { ...rejected(message), stale };
         }
       });
       return activity?.track(request) ?? request;
     },
-    [handleResult, onToast, queryClient, workspaceId, documentId, store, query.data, enqueue, lifetime, currentStore, activity],
+    [handleResult, onToast, queryClient, refetch, workspaceId, documentId, store, query.data, enqueue, lifetime, currentStore, activity],
   );
 
   return run;
