@@ -121,7 +121,13 @@ def main():
     item_path = "section[class=3a83076c]/3185b7a5[]/1b5a30c0"
     items = [{"id": row["id"], "name": f"Unmapped item 0x{int(row['id']):08x}", "category": "unmapped",
               "description": "Observed inventory ID. Player-facing name, description, legal limit and unlock dependencies are unknown.",
+              "source": "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21",
               "attributes": {"confidence": "Unknown"}} for row in evidence["identifiers"] if row["path"] == item_path]
+    resource_labels = json.loads((pack / "currency-labels.source.json").read_text(encoding="utf-8"))
+    named_items = {record["id"]: record for record in resource_labels["records"]}
+    if not named_items.keys() <= {record["id"] for record in items}:
+        raise ValueError("Named resources must already occur in the observed inventory ID list")
+    items = [named_items.get(record["id"], record) for record in items]
     raw_missions = args.missions.read_bytes()
     if hashlib.sha256(raw_missions).hexdigest() != "f51e68117901a9bdf0ea24ae0154962e327499fc0986d4561ddb641bf0489fc7":
         raise ValueError("Mission data does not match the pinned MIT source revision")
@@ -180,10 +186,11 @@ def main():
                          "attribution": {"sourceUrl": source, "author": author, "license": license_name,
                                          "licenseUrl": license_url, "retrieved": "2026-10-28",
                                          "modifications": modifications}})
+    next(dataset for dataset in datasets if dataset["id"] == "pragmata-items")["attribution"] = resource_labels["attribution"]
     write(pack / "pack.json", {"schema": 1, "id": "pragmata.evidence.en", "version": "1.3.0",
                                "title": "Pragmata observed identifiers (not a gameplay dictionary)", "plugins": ["pragmata"],
                                "titleIds": ["PPSA02530"], "gameBuilds": [], "locale": "en", "datasets": datasets})
-    print(f"Built {len(identifiers)} identifiers, {len(sections)} sections, {len(items)} unknown item IDs, {len(mission_items)} mission item cross-references, {len(mission_records)} missions.")
+    print(f"Built {len(identifiers)} identifiers, {len(sections)} sections, {len(items)} item IDs ({len(named_items)} Inferred names), {len(mission_items)} mission item cross-references, {len(mission_records)} missions.")
     for dataset in datasets:
         if dataset["attribution"]["license"] == COMMUNITY_LICENSE:
             record_count = len(json.loads((pack / dataset['files'][0]['path']).read_bytes())["records"])

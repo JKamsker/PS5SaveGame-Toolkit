@@ -25,6 +25,7 @@ public sealed class PragmataPlugin : IGamePlugin, ISaveDecoderProvider
             Format.HashNames.CommunityRoot + "rszpragmata.json", Format.HashNames.CommunityRoot + "enumspragmata.json",
             "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21",
             "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31",
+            "https://github.com/jestelf/PragmataTrainer/blob/570400495c8d29106b84caea43de2ba8aee7bfff/src/PragmataTrainer.cs",
             "https://github.com/vaultic13/neuro-pragmata/tree/ae2ee572410e353ceae19bdc23f83f71687267dd",
             "https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/tree/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b",
             "https://pragmata.fandom.com/wiki/Category%3AItems",

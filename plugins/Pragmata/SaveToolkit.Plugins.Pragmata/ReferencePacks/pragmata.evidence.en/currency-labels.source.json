@@ -1,0 +1,43 @@
+{
+  "sourceSha256": "20fe1c5c5d4d2eb361262febf82f094b5cfda9009dc4f2599a57d86b71935ead",
+  "attribution": {
+    "sourceUrl": "https://github.com/jestelf/PragmataTrainer/blob/570400495c8d29106b84caea43de2ba8aee7bfff/src/PragmataTrainer.cs",
+    "author": "jestelf (three resource ID/name pairs); Save Toolkit contributors (PS5 cross-check and unmapped-ID descriptions)",
+    "license": "MIT (three resource ID/name pairs); CC0-1.0 (original unmapped-ID descriptions)",
+    "licenseUrl": "https://github.com/jestelf/PragmataTrainer/blob/570400495c8d29106b84caea43de2ba8aee7bfff/LICENSE",
+    "retrieved": "2026-10-29",
+    "modifications": "Selected three ID/name pairs from Currencies and the English translation dictionary; normalized capitalization. Inferred against all 11 PS5 gameplay saves. Remaining 87 names Unknown; original placeholder descriptions are CC0-1.0. No trainer code, caps, actions or write permissions imported."
+  },
+  "records": [
+    {
+      "id": "2227368435",
+      "name": "Lunafilament",
+      "category": "resource",
+      "description": "Inferred PC trainer ID/name crosswalk, consistent with a unique nonnegative quantity record in every supplied PS5 gameplay save. Raw ID 0x84c2f1f3. No controlled gain/spend capture; legal limits and gameplay effects remain unverified.",
+      "source": "https://github.com/jestelf/PragmataTrainer/blob/570400495c8d29106b84caea43de2ba8aee7bfff/src/PragmataTrainer.cs",
+      "attributes": {
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "187746965",
+      "name": "Upgrade Components",
+      "category": "resource",
+      "description": "Inferred PC trainer ID/name crosswalk, consistent with a unique nonnegative quantity record in every supplied PS5 gameplay save. Raw ID 0x0b30ca95. No controlled gain/spend capture; legal limits and gameplay effects remain unverified.",
+      "source": "https://github.com/jestelf/PragmataTrainer/blob/570400495c8d29106b84caea43de2ba8aee7bfff/src/PragmataTrainer.cs",
+      "attributes": {
+        "confidence": "Inferred"
+      }
+    },
+    {
+      "id": "2107318115",
+      "name": "Pure Lunum",
+      "category": "resource",
+      "description": "Inferred PC trainer ID/name crosswalk, consistent with a unique nonnegative quantity record in every supplied PS5 gameplay save. Raw ID 0x7d9b1f63. No controlled gain/spend capture; legal limits and gameplay effects remain unverified.",
+      "source": "https://github.com/jestelf/PragmataTrainer/blob/570400495c8d29106b84caea43de2ba8aee7bfff/src/PragmataTrainer.cs",
+      "attributes": {
+        "confidence": "Inferred"
+      }
+    }
+  ]
+}

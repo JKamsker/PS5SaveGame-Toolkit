@@ -116,3 +116,30 @@ Capcom owns the game map art. Rights reserved by Capcom and Itemaps; used with
 attribution per owner decision 2026-10-29. No source scripts/code were copied or
 executed. Full transformations, provenance, fingerprints and remaining exact-ID
 mapping gaps: visual-reference.source.md beside the datasets.
+
+Currency discovery, 2026-10-29: three factual ID/name pairs only.
+https://github.com/jestelf/PragmataTrainer/blob/570400495c8d29106b84caea43de2ba8aee7bfff/src/PragmataTrainer.cs
+No trainer code copied or executed. English names and ID pairs extracted and
+capitalization normalized; PS5 meaning remains Inferred.
+
+MIT License
+
+Copyright (c) 2026 jestelf
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

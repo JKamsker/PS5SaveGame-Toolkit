@@ -112,7 +112,7 @@ def build(scratch, pack):
     record_file = write_json(pack / "pragmata-illustrated-reference.json", {"records": records})
     location_file = write_json(pack / "pragmata-map-locations.json", {"records": locations})
     manifest = json.loads((pack / "pack.json").read_text(encoding="utf-8"))
-    manifest["version"] = "1.4.0"
+    manifest["version"] = "1.5.0"
     new_ids = {"pragmata-illustrated-reference", "pragmata-map-locations", "item-icons", "map-art"}
     manifest["datasets"] = [d for d in manifest["datasets"] if d["id"] not in new_ids]
     wiki_attribution = attribution(WIKI_URL, "Pragmata Wiki contributors; Capcom (quoted game text)",

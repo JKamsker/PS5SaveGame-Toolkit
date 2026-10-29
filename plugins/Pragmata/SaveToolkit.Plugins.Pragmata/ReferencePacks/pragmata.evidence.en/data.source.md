@@ -1,4 +1,4 @@
-# Pragmata reference pack 1.4.0
+# Pragmata reference pack 1.5.0
 
 The three community datasets have their own
 [source/hash/transformation sidecar](community.source.md). They do not change
@@ -13,11 +13,14 @@ checked Murmur3 hashes, extracted 27 section names, wrote group labels and expli
 unverified-semantics descriptions. No executable upstream code, icons or game text.
 The full MIT notice is in `plugins/Pragmata/THIRD_PARTY_NOTICES.txt`.
 
-`pragmata-items.json` contains 90 observed numeric IDs and original placeholder
-descriptions, by Save Toolkit contributors, [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/).
+`pragmata-items.json` contains 90 observed numeric IDs: three Inferred MIT resource
+names and 87 original Unknown placeholder descriptions by Save Toolkit contributors,
+[CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/).
 Source: [issue #21 / the plugin evidence manifest](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21).
 Retrieved/generated: 2026-10-28. Modifications: decimal ID keys, hex placeholder
-names, explicit Unknown confidence; no player-facing names or guessed limits.
+names and explicit Unknown confidence. The 2026-10-29
+[resource-name ledger](currency-labels.source.md) supplies three separately
+attributed ID/name pairs; there are no guessed limits or save-ID/icon joins.
 
 `pragmata-item-evidence.json` derives from [PRAGMATA-MaximumTimeLimit mission JSON,
 revision cfa68e987bf126daa3ce62d589ac2b7ef05abf2b](https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json).
@@ -33,7 +36,7 @@ The numeric cross-reference is verified against the source and all eleven PS5
 inventories. Its gameplay interpretation is **Inferred**: the PC build/platform
 equivalence and PS5 effects are unverified. Player-facing names and stack limits
 remain **Unknown**. Mission reward/clear counts are never used as inventory limits.
-This MIT dataset remains separate from the CC0 item placeholders.
+This MIT dataset remains separate from the mixed MIT/CC0 item catalogue.
 
 `pragmata-missions.json` uses the same author, pinned mission source, retrieval
 date, SHA-256 and MIT licence/notice above. Modifications: extract all 43 mission
@@ -57,7 +60,7 @@ python -I plugins/Pragmata/scripts/build-reference-pack.py --rsz <reviewed-MIT-s
 
 All five source SHA-256 values are checked; record-file hashes use LF newlines.
 This generator writes the base/community 1.3.0 manifest. Then run the visual-pack
-builder as documented in the linked sidecar to restore the complete 1.4.0 manifest
+builder as documented in the linked sidecar to restore the complete 1.5.0 manifest
 and assets. Pack version must change when semantic content changes.
 
 External F2 packs can supply names/descriptions/icons under catalog `pragmata-items`
