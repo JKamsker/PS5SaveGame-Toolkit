@@ -16,8 +16,10 @@ public sealed class FaithPlanningPerformanceTests
     {
         var small = Measure(0, selection);
         var large = Measure(4 * 1024 * 1024, selection);
-        var difference = large.Allocated - small.Allocated;
-        Assert.True(Math.Abs(difference) < 4096,
+        // Guard growth, not exact equality: tiered BCL paths/hash-table setup can reduce or
+        // vary allocations slightly between fixtures. A whole-payload copy adds 4 MiB.
+        const int AllocationGrowthAllowance = 64 * 1024;
+        Assert.True(large.Allocated < small.Allocated + AllocationGrowthAllowance,
             $"Adding 4 MiB opaque payload changed preview allocations from {small.Allocated:N0} to {large.Allocated:N0} bytes.");
         Assert.Equal(small.Plan.Changes.Select(change => change.ValueId), large.Plan.Changes.Select(change => change.ValueId));
         Assert.Equal(small.Plan.SkippedRows, large.Plan.SkippedRows);

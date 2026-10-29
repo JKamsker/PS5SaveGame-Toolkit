@@ -6,6 +6,23 @@ namespace SaveToolkit.Plugins.FinalFantasy16.Tests;
 public sealed class FaithCatalogPerformanceTests
 {
     [Fact]
+    public void InspectingManyDistinctIdsKeepsThePresentationCacheBounded()
+    {
+        const int FirstUnknownId = 60000;
+        var plugin = new FinalFantasy16Plugin();
+        var references = new FaithCountingReferences(new ReferencePackStore([plugin]).Pin(plugin, "PPSA10665"));
+        var catalog = new FaithCatalog(references);
+        var first = catalog.Name(FirstUnknownId);
+        var lastId = FirstUnknownId + 4 * FaithInventory.Capacity;
+        for (var id = FirstUnknownId + 1; id <= lastId; id++) _ = catalog.Name(id);
+        var finds = references.FindCalls;
+        Assert.Equal(first, catalog.Name(FirstUnknownId));
+        Assert.Equal(finds, references.FindCalls);
+        Assert.Equal($"Unknown item {lastId}", catalog.Name(lastId));
+        Assert.True(references.FindCalls > finds, "New IDs beyond the bounded cache must not be retained indefinitely.");
+    }
+
+    [Fact]
     public void InventoryAndCharacterViewsShareDocumentCatalogResolution()
     {
         var plugin = new FinalFantasy16Plugin();

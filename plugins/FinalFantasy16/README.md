@@ -11,6 +11,24 @@ retains an Inferred/Unknown label and a console-validation warning. System and
 unsupported schemas remain read-only; empty gameplay saves may expose independent
 supported context fields. No-op output preserves every byte.
 
+## Performance review (#40, 2026-10-29)
+
+Document construction registers unloaded main-bank storage bindings without
+building discarded inventory labels/descriptions. Pinned catalogs are resolved
+once by the document's shared adapter; item presentation caches retain at most
+2,400 IDs, including misses, and respect each document's pinned reference context.
+Unfiltered slot pages slice the native model directly. Filter/search/sort reads
+only the required columns and renders the requested page; quantity reads stay
+live across edits and undo. Empty/unchanged quantity previews skip CRC work;
+changed previews hash original ranges and replacement stacks without copying
+opaque payloads. Fixed policy warnings reuse compile-time strings.
+
+See the [reproducible D: harness and measurements](research/PERFORMANCE.md).
+Regression tests assert allocation bounds or reference lookup counts, never
+elapsed time. All-column paging/ties, independent preview CRCs, complete filtered
+actions, byte preservation and existing history remain covered. The review does
+not change Experimental maturity, write bounds, attribution or console warnings.
+
 ## Game assets (#15, 2026-10-29)
 
 The owner-approved asset round adds **140 icons**: 92 exact-name item records
@@ -562,3 +580,10 @@ still needs a substantiated format/dependency model, not another API. Primary
 quantity/identity bindings are registered at document construction so unloaded-row
 actions and undo work today. Owner validation (#31) does not gate the enabled
 experimental fixed-width writes.
+
+Performance follow-up (#40): minimal storage bindings avoid rich presentation
+work during opening, but `BoundSaveDocument.Field` still creates a `FieldNode`
+for every registration. A separate registration method preserving the same
+spec/getter/setter/validator contract could remove these remaining temporary
+nodes. Shared pack resource read buffers are a Core optimization opportunity;
+neither helper was changed in this plugin-scoped review.
