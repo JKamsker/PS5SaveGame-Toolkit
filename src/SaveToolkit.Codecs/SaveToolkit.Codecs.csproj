@@ -3,6 +3,7 @@
     <RootNamespace>SaveToolkit.Codecs</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="SaveToolkit.Codecs.Tests" />
     <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="SQLitePCLRaw.core" />
   </ItemGroup>
