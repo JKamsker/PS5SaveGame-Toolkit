@@ -62,7 +62,7 @@ public sealed class SerialPartTests
     public void PickerEdit_ReopensRejectsInvalidIdsAndUndoRestoresExactBytes(string title)
     {
         var plugin = new GearboxPlugin();
-        var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1" && !f.Directory.IsBackup);
+        var file = GearboxTestData.PrimaryCharacter(title);
         var store = new ReferencePackStore([plugin]);
         var references = store.Pin(plugin, title);
         using var document = (GearboxDocument)plugin.Open(file, references);

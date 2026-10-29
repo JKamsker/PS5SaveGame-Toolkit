@@ -78,7 +78,7 @@ public sealed class LargeBankTests(ITestOutputHelper output)
 
     private static (byte[] Serial, ProtoMessage? Message) SampleItem(string title)
     {
-        var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1" && !f.Directory.IsBackup);
+        var file = GearboxTestData.PrimaryCharacter(title);
         using var character = (GearboxDocument)new GearboxPlugin().Open(file);
         var entry = character.Inventory.Entries.First(entry => character.Inventory.Info(entry.Id).Complete);
         return (entry.Serial, entry.Field.Message?.Clone());

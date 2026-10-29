@@ -26,7 +26,7 @@ public sealed class SpatialProgressionTests
         Assert.Contains("no save-subobject", record.Attributes["join"]);
         Assert.NotEmpty(record.Description!);
         Assert.Equal("5", record.Attributes["maxPoints"]);
-        var file = Character(title);
+        var file = GearboxTestData.PrimaryCharacter(title);
         using var document = (GearboxDocument)plugin.Open(file, references);
         var page = document.Query(GearboxSkills.CatalogId, new() { Text = name, Limit = 1 });
         var field = Assert.IsType<FieldNode>(Assert.Single(page.Rows).Cells["name"]);
@@ -89,7 +89,7 @@ public sealed class SpatialProgressionTests
     public void GroupSpatialTargets_AreNamespacedAndResolveToTheOwningMember(string title)
     {
         var plugin = new GearboxPlugin();
-        var file = Character(title);
+        var file = GearboxTestData.PrimaryCharacter(title);
         var proposal = Assert.Single(plugin.ProposeGroups(file));
         using var group = plugin.OpenGroup(GearboxGroupTests.Input(file.Directory.SaveSet, proposal), IReferenceContext.Empty);
         var nodes = GearboxGroupTests.Walk(group, group.BuildView()).ToArray();
@@ -119,7 +119,7 @@ public sealed class SpatialProgressionTests
     public void LargeProgressionCollections_SearchFilterSortBeyondTheFirstPage(string title)
     {
         var plugin = new GearboxPlugin();
-        var file = Character(title);
+        var file = GearboxTestData.PrimaryCharacter(title);
         var container = GearboxContainer.Parse(file.ReadAllBytes(), title, false);
         var root = container.Decode();
         var ability = root.Child("ability_data")!;
@@ -179,6 +179,4 @@ public sealed class SpatialProgressionTests
         populate(child);
         parent.Add(new ProtoField(schema.Tag(parent.Type, list), 2, spec, [], Array.Empty<byte>(), child));
     }
-
-    private static SaveToolkit.Sdk.Saves.ISaveFile Character(string title) => SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1" && !f.Directory.IsBackup);
 }

@@ -87,7 +87,7 @@ public sealed class ProgressionWriteTests
     public void WonderlandsRepeatedLevelChanges_DoNotMultiplyAwardedPointsAndUndoRestoresPolicy()
     {
         var plugin = new GearboxPlugin();
-        var file = SampleSaves.Load("PPSA01493").AllDiskFiles.First(f => f.FileName == "1" && !f.Directory.IsBackup);
+        var file = GearboxTestData.PrimaryCharacter("PPSA01493");
         using var document = (GearboxDocument)plugin.Open(file);
         _ = document.BuildView();
         Assert.True(document.ApplyEdits([new("character/level", FieldValue.Of(20))]).Succeeded);

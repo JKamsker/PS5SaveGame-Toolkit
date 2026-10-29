@@ -1,13 +1,11 @@
 using System.Text.Json;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
-using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Gearbox.Tests;
 
@@ -56,7 +54,7 @@ public sealed class ItemBrowserTests
                 or "Rights reserved by Gearbox Software / 2K; used with attribution per owner decision 2026-10-29");
             Assert.Contains(dataset.Attribution.Retrieved.ToString("yyyy-MM-dd"), dataset.Attribution.ToShortText());
         });
-        var file = Character(title);
+        var file = GearboxTestData.PrimaryCharacter(title);
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("gearbox-picker", file, plugin, document, references: references);
         var view = Assert.IsType<TabsNode>(session.BuildView());
@@ -87,7 +85,7 @@ public sealed class ItemBrowserTests
     [InlineData("PPSA01493")]
     public void FullInventoryAndCatalogueQueries_PageFilterSortAndExpandReadOnlyDetails(string title)
     {
-        var file = Character(title);
+        var file = GearboxTestData.PrimaryCharacter(title);
         var plugin = new GearboxPlugin();
         var references = new ReferencePackStore([plugin]).Pin(plugin, title);
         using var document = plugin.Open(file, references);
@@ -141,7 +139,7 @@ public sealed class ItemBrowserTests
     public void DuplicateAndInvalidSerials_KeepDistinctStableRowsAndUnrelatedEditing(bool wonderlands)
     {
         var title = wonderlands ? "PPSA01493" : "PPSA01463";
-        var file = Character(title);
+        var file = GearboxTestData.PrimaryCharacter(title);
         var container = GearboxContainer.Parse(file.ReadAllBytes(), title, false);
         var root = container.Decode();
         var items = root.Children("inventory_items").ToArray();
@@ -167,7 +165,4 @@ public sealed class ItemBrowserTests
         Assert.True(document.ApplyEdits([new("currency/618814354", originalMoney)]).Succeeded);
         Assert.Equal(syntheticFile, document.Serialize().Single().Content.ToArray());
     }
-
-    private static DiskSaveFile Character(string title) => SampleSaves.Load(title).AllDiskFiles
-        .First(f => f.FileName == "1" && !f.Directory.IsBackup);
 }

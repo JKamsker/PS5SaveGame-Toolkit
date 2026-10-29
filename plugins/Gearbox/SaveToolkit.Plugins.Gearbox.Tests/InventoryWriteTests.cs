@@ -3,7 +3,6 @@ using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Gearbox.Tests;
 
@@ -15,7 +14,7 @@ public sealed class InventoryWriteTests
     public void F6BulkLevel_QuerySelectionPreviewApplyStaleUndoRedoAndSkippedRows(string title)
     {
         var plugin = new GearboxPlugin();
-        var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1" && !f.Directory.IsBackup);
+        var file = GearboxTestData.PrimaryCharacter(title);
         using var document = (GearboxDocument)plugin.Open(file);
         using var session = new DocumentSession("bulk", file, plugin, document);
         _ = session.BuildView();
@@ -50,7 +49,7 @@ public sealed class InventoryWriteTests
     public void F5RemoveDuplicateAndImport_ArePlannedAtomicAndKeepSurvivingIdentities(string title)
     {
         var plugin = new GearboxPlugin();
-        var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1" && !f.Directory.IsBackup);
+        var file = GearboxTestData.PrimaryCharacter(title);
         using var document = (GearboxDocument)plugin.Open(file);
         using var session = new DocumentSession("structural", file, plugin, document);
         _ = session.BuildView();
@@ -104,7 +103,7 @@ public sealed class InventoryWriteTests
     public void EquipmentRemoval_RebasesIndicesAndRejectsOverflowWithoutMutation(string title)
     {
         var plugin = new GearboxPlugin();
-        var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1" && !f.Directory.IsBackup);
+        var file = GearboxTestData.PrimaryCharacter(title);
         using var document = (GearboxDocument)plugin.Open(file);
         _ = document.BuildView();
         var entries = document.Inventory.Entries.ToArray();
