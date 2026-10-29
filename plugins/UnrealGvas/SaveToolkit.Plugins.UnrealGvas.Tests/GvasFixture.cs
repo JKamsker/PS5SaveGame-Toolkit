@@ -1,9 +1,32 @@
+using System.Buffers.Binary;
+using System.IO.Compression;
 using System.Text;
 
 namespace SaveToolkit.Plugins.UnrealGvas.Tests;
 
 internal static class GvasFixture
 {
+    public static byte[] Compress(byte[] plain, CompressionLevel level)
+    {
+        using var output = new MemoryStream();
+        using (var zlib = new ZLibStream(output, level, leaveOpen: true)) zlib.Write(plain);
+        return output.ToArray();
+    }
+
+    public static byte[] Wrap(byte[] bytes, bool astroneer = false)
+    {
+        using var stream = new MemoryStream();
+        if (astroneer)
+        {
+            stream.Write(new byte[] { 0xBE, 0x40, 0x37, 0x4A, 0xEE, 0x0B, 0x74, 0xA3, 1, 0, 0, 0 });
+            Span<byte> length = stackalloc byte[sizeof(int)];
+            BinaryPrimitives.WriteInt32LittleEndian(length, bytes.Length);
+            stream.Write(length);
+        }
+        stream.Write(Compress(bytes, CompressionLevel.Optimal));
+        return stream.ToArray();
+    }
+
     public static byte[] Build(Action<BinaryWriter> properties, int major = 4, int minor = 27, bool suffix = true,
         string saveClass = "/Script/Test.Save", int customVersions = 1, int patch = 2, int packageVersion = 524)
     {

@@ -4,7 +4,7 @@ using SaveToolkit.Sdk.Collections;
 
 namespace SaveToolkit.Plugins.UnrealGvas.Hogwarts;
 
-/// <summary>One independent, memory-only image. Only read methods escape to the document.</summary>
+/// <summary>One independent, memory-only image with bounded queries and tracked existing-cell edits.</summary>
 public sealed class HogwartsDatabase : IDisposable
 {
     private const int MaxTables = 256;

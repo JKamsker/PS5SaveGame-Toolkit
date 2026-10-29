@@ -12,7 +12,7 @@ public sealed class HogwartsEnvelopeTests
     [InlineData(true)]
     public void WrappedDatabaseDocumentRemainsReadOnly(bool astroneer)
     {
-        byte[] wrapped = GvasEnvelopeTests.Wrap(HogwartsInventoryFixture.Create().ReadAllBytes(), astroneer);
+        byte[] wrapped = GvasFixture.Wrap(HogwartsInventoryFixture.Create().ReadAllBytes(), astroneer);
         using var document = new UnrealGvasPlugin().Open(MemorySaveSet.SingleFile("wrapped.sav", wrapped, "PPSA01603"));
 
         Assert.False(document.CanEdit);

@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System.Buffers.Binary;
 using SaveToolkit.Plugins.UnrealGvas.Gvas;
 using SaveToolkit.Sdk;
@@ -13,7 +14,7 @@ public sealed class TitleMalformedInputTests
     public void EveryTruncatedJediZlibStreamDisablesTheOverlayWithoutLosingBytes()
     {
         byte[] plain = TitleFixture.ActorProperties();
-        byte[] compressed = TitleFixture.Compress(plain);
+        byte[] compressed = GvasFixture.Compress(plain, CompressionLevel.SmallestSize);
         for (var length = 0; length < compressed.Length; length++)
             AssertInvalidJedi(TitleFixture.Jedi(compressed[..length], (uint)plain.Length));
         using var valid = new UnrealGvasPlugin().Open(MemorySaveSet.SingleFile("save", TitleFixture.Jedi(compressed, (uint)plain.Length)));
@@ -32,7 +33,7 @@ public sealed class TitleMalformedInputTests
     public void InvalidJediStreamsAndLengthsFailBoundedValidation(string corruption)
     {
         byte[] plain = TitleFixture.ActorProperties();
-        byte[] compressed = TitleFixture.Compress(plain);
+        byte[] compressed = GvasFixture.Compress(plain, CompressionLevel.SmallestSize);
         uint declared = (uint)plain.Length;
         switch (corruption)
         {
@@ -41,8 +42,8 @@ public sealed class TitleMalformedInputTests
             case "short": declared--; break;
             case "long": declared++; break;
             case "huge": declared = uint.MaxValue; break;
-            case "empty": compressed = TitleFixture.Compress([]); declared = 0; break;
-            case "no-tags": compressed = TitleFixture.Compress(new byte[32]); declared = 32; break;
+            case "empty": compressed = GvasFixture.Compress([], CompressionLevel.SmallestSize); declared = 0; break;
+            case "no-tags": compressed = GvasFixture.Compress(new byte[32], CompressionLevel.SmallestSize); declared = 32; break;
         }
         AssertInvalidJedi(TitleFixture.Jedi(compressed, declared));
     }

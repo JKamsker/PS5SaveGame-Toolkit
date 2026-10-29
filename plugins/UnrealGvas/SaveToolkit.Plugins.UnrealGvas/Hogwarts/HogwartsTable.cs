@@ -75,7 +75,7 @@ public sealed record HogwartsTable(string Image, string Name, IReadOnlyList<stri
     public string RowKey(IReadOnlyList<object?> row)
     {
         // Column zero is SQLite rowid. Unknown/duplicate logical keys retain rowid, which is stable
-        // within this read-only document but is explicitly not a cross-generation semantic identity.
+        // across existing-cell edits but is explicitly not a cross-generation semantic identity.
         if (IdentityColumns.Count == 0) return "rowid:" + Text(row[0]);
         var identity = IdentityColumns.Select(column => row[Columns.ToList().IndexOf(column) + 1]).ToArray();
         return "key:" + Convert.ToHexStringLower(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(identity)));
