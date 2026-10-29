@@ -79,7 +79,7 @@ public sealed class DocumentGroupOwnershipTests : IDisposable
         Assert.False(result.Ok);
         Assert.False(session.State.IsDirty);
         Assert.Equal(0, session.State.Revision);
-        Assert.Throws<InvalidOperationException>(() => WorkspaceExporter.Plan(workspace, new()));
+        Assert.Throws<ExportException>(() => WorkspaceExporter.Plan(workspace, new()));
     }
 
     [Fact]

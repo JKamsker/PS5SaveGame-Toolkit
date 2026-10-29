@@ -1,4 +1,5 @@
 using SaveToolkit.Sdk.Saves;
+using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Core.Storage;
 
@@ -8,6 +9,7 @@ namespace SaveToolkit.Core.Storage;
 /// </summary>
 public sealed class OverlaySaveSet : ISaveSet
 {
+    private const int MaxOverlaySfoBytes = 1024 * 1024;
     private readonly List<OverlayDirectory> _directories;
 
     public OverlaySaveSet(ISaveSet inner, IReadOnlyDictionary<string, ReadOnlyMemory<byte>> overrides)
@@ -38,6 +40,7 @@ public sealed class OverlaySaveSet : ISaveSet
             _inner = inner;
             Files = WrapFiles(inner.Files, overrides, cancellationToken);
             SystemFiles = WrapFiles(inner.SystemFiles, overrides, cancellationToken);
+            ParamSfo = ParseOverriddenSfo(inner, overrides, cancellationToken);
         }
 
         public string Id => _inner.Id;
@@ -47,7 +50,7 @@ public sealed class OverlaySaveSet : ISaveSet
         public string RawName => _inner.RawName;
         public bool IsBackup => _inner.IsBackup;
         public int Generation => _inner.Generation;
-        public ParamSfo? ParamSfo => _inner.ParamSfo;
+        public ParamSfo? ParamSfo { get; }
         public IReadOnlyList<ISaveFile> Files { get; }
         public IReadOnlyList<ISaveFile> SystemFiles { get; }
 
@@ -61,6 +64,31 @@ public sealed class OverlaySaveSet : ISaveSet
                 wrapped.Add(Wrap(file, overrides));
             }
             return wrapped;
+        }
+
+        private static ParamSfo? ParseOverriddenSfo(ISaveDirectory directory,
+            IReadOnlyDictionary<string, ReadOnlyMemory<byte>> overrides, CancellationToken cancellationToken)
+        {
+            var source = directory.SystemFiles.FirstOrDefault(file =>
+                string.Equals(file.PathInDirectory, "sce_sys/param.sfo", StringComparison.OrdinalIgnoreCase));
+            if (source is null || !overrides.TryGetValue(source.RelativePath, out var content))
+                return directory.ParamSfo;
+            cancellationToken.ThrowIfCancellationRequested();
+            if (content.Length > MaxOverlaySfoBytes)
+                throw new SaveFormatException($"Overridden '{source.RelativePath}' exceeds the bounded metadata limit.");
+            try
+            {
+                return ParamSfo.TryParse(content.Span)
+                    ?? throw new SaveFormatException($"Overridden '{source.RelativePath}' is not a valid param.sfo.");
+            }
+            catch (SaveFormatException)
+            {
+                throw;
+            }
+            catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
+            {
+                throw new SaveFormatException($"Overridden '{source.RelativePath}' could not be parsed as param.sfo.", ex);
+            }
         }
 
         // The explicit nullable type matters: `? content : null` would type the conditional as
