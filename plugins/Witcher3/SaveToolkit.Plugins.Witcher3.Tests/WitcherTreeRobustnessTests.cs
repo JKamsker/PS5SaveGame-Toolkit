@@ -84,7 +84,7 @@ public sealed class WitcherTreeRobustnessTests
         var tree = Sav3Tree.Parse(payload, Sav3Directory.Parse(container));
         var stream = Assert.Single(tree.Nodes, n => n.Tag == "SS");
         Assert.Equal(["BLCK", "BLCK", "Opaque"], stream.Children.Select(i => tree.Nodes[i].Tag));
-        using var document = RobustnessSave.OpenContainer(bytes);
+        using var document = WitcherTestFiles.Open(bytes);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 

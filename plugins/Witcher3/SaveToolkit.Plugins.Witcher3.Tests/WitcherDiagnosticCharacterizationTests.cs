@@ -2,7 +2,6 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using SaveToolkit.Sdk;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Witcher3.Tests;
 
@@ -52,7 +51,7 @@ public sealed class WitcherDiagnosticCharacterizationTests
     {
         try
         {
-            using var document = new Witcher3Plugin().Open(MemorySaveSet.SingleFile("Manual.sav", bytes, "PPSA04018"));
+            using var document = WitcherTestFiles.Open(bytes);
             _ = document.BuildView();
             Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
             return $"accepted:{document.CanEdit}";

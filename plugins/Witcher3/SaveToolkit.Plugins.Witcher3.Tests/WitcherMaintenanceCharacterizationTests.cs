@@ -2,7 +2,6 @@ using System.Buffers.Binary;
 using System.Security.Cryptography;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Witcher3.Tests;
 
@@ -14,7 +13,7 @@ public sealed class WitcherMaintenanceCharacterizationTests
     public void ProgressionAndInventoryEditsKeepTheirExactEncodedOutput(bool storedPoints, string expectedHash)
     {
         var input = SyntheticPlayerSave.Create(storedPoints);
-        using var document = new Witcher3Plugin().Open(MemorySaveSet.SingleFile("Manual.sav", input, "PPSA04018"));
+        using var document = WitcherTestFiles.Open(input);
         _ = document.BuildView();
         Assert.Equal(input, Assert.Single(document.Serialize()).Content.ToArray());
         var outcome = document.ApplyEdits([

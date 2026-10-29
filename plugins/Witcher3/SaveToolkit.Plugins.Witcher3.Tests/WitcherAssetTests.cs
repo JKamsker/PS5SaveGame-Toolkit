@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
@@ -19,7 +18,7 @@ public sealed class WitcherAssetTests
     [Fact]
     public void EveryEmbeddedAssetMatchesItsAuditHashHeaderDimensionsAndBudget()
     {
-        var context = Context();
+        var context = ReferencePackFixture.Pin();
         using var audit = Audit();
         var assets = audit.RootElement.GetProperty("assets").EnumerateArray().ToArray();
         Assert.Equal(376, assets.Length);
@@ -63,7 +62,7 @@ public sealed class WitcherAssetTests
     [InlineData("gwent", 225, 0)]
     public void CatalogImagesResolveAndExpandedTextKeepsItsOwnProvenance(string id, int imageCount, int descriptionCount)
     {
-        var context = Context();
+        var context = ReferencePackFixture.Pin();
         var catalog = context.Catalog(id)!;
         var records = Enumerable.Range(0, (catalog.Count + ReferenceQuery.MaxLimit - 1) / ReferenceQuery.MaxLimit)
             .SelectMany(page => catalog.Search(new() { Offset = page * ReferenceQuery.MaxLimit, Limit = ReferenceQuery.MaxLimit }).Items).ToArray();
@@ -93,7 +92,7 @@ public sealed class WitcherAssetTests
     [Fact]
     public void SampleSavedItemAbilityAndCardRowsShowLocalImagesWithoutChangingBytes()
     {
-        var context = Context();
+        var context = ReferencePackFixture.Pin();
         var plugin = new Witcher3Plugin();
         foreach (var file in EnabledWriteFixture.Files())
         {
@@ -115,7 +114,7 @@ public sealed class WitcherAssetTests
     [Fact]
     public void RegionalArtIsLazyAttributedAndNeverPlotsUnmappedSavedTags()
     {
-        var context = Context();
+        var context = ReferencePackFixture.Pin();
         var plugin = new Witcher3Plugin();
         var file = EnabledWriteFixture.Files()[0];
         using var document = plugin.Open(file, context);
@@ -151,19 +150,11 @@ public sealed class WitcherAssetTests
     [Fact]
     public void MissingImageProvenanceRetainsRawCatalogAndSavedIdentities()
     {
-        var context = Context();
+        var context = ReferencePackFixture.Pin();
         var bread = context.Catalog("items")!.Find("Bread")!;
         Assert.IsType<TextNode>(ReferenceImages.Cell(bread, _ => null));
         Assert.IsType<TextNode>(ReferenceImages.Cell(null, context.AssetProvenance));
         Assert.Empty(ReferenceImages.Sources(bread, _ => null));
-    }
-
-    private static ReferenceContext Context()
-    {
-        var plugin = new Witcher3Plugin();
-        var store = new ReferencePackStore([plugin]);
-        Assert.Empty(store.LoadErrors); // Includes every manifest SHA-256 and framework image-type validation.
-        return store.Pin(plugin, "PPSA04018");
     }
 
     private static JsonDocument Audit()

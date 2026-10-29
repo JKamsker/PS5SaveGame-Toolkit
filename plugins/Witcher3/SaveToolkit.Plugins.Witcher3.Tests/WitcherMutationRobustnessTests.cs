@@ -23,7 +23,7 @@ public sealed class WitcherMutationRobustnessTests
             var bytes = mutateExpanded ? SyntheticSave.Wrap(changed) : changed;
             try
             {
-                using var document = RobustnessSave.OpenContainer(bytes);
+                using var document = WitcherTestFiles.Open(bytes);
                 _ = document.BuildView();
                 _ = Assert.IsAssignableFrom<IQueryableDocument>(document).Collections;
                 Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());

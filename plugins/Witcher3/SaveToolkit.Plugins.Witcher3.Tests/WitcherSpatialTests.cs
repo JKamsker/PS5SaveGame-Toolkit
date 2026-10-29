@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
@@ -14,7 +13,7 @@ public sealed class WitcherSpatialTests
     public void EverySamplePublishesAttributedGraphsAndNavigableReadOnlyMapsWithoutChangingBytes()
     {
         var plugin = new Witcher3Plugin();
-        var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA04018");
+        var references = ReferencePackFixture.Pin(plugin);
         foreach (var file in EnabledWriteFixture.Files())
         {
             using var document = plugin.Open(file, references);

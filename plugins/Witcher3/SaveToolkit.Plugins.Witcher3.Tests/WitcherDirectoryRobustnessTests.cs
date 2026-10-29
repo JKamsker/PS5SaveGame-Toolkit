@@ -27,7 +27,7 @@ public sealed class WitcherDirectoryRobustnessTests
     {
         var payload = RobustnessSave.Payload([1, 2, 3, 4], new Sav3Entry(16, 4));
         var bytes = SyntheticSave.Wrap(payload);
-        using var document = RobustnessSave.OpenContainer(bytes);
+        using var document = WitcherTestFiles.Open(bytes);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
         var container = WitcherContainer.Parse(bytes);
         var directory = Sav3Directory.Parse(container);

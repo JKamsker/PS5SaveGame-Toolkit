@@ -54,12 +54,12 @@ public sealed class WitcherContainerRobustnessTests
         var end = container.Chunks[^1].Offset + container.Chunks[^1].StoredSize;
         for (var length = 0; length < end; length++)
         {
-            Assert.Throws<SaveFormatException>(() => RobustnessSave.OpenContainer(bytes[..length]));
+            Assert.Throws<SaveFormatException>(() => WitcherTestFiles.Open(bytes[..length]));
         }
         // The optional two-byte opaque trailer can be absent, partial, or complete.
         for (var length = end; length <= bytes.Length; length++)
         {
-            using var document = RobustnessSave.OpenContainer(bytes[..length]);
+            using var document = WitcherTestFiles.Open(bytes[..length]);
             Assert.Equal(bytes[..length], Assert.Single(document.Serialize()).Content.ToArray());
         }
     }

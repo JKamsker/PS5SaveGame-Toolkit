@@ -2,7 +2,6 @@ using System.Buffers.Binary;
 using K4os.Compression.LZ4;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Witcher3.Tests;
 
@@ -14,7 +13,7 @@ public sealed class WitcherWriteTests
     public void SyntheticPlayerEditsRelocateTablesPreserveUnknownsAndUndoExactly(bool storedPoints)
     {
         var input = SyntheticPlayerSave.Create(storedPoints);
-        using var document = Open(input);
+        using var document = WitcherTestFiles.Open(input);
         Assert.True(document.CanEdit);
         _ = document.BuildView();
         Assert.Equal(input, Assert.Single(document.Serialize()).Content.ToArray());
@@ -24,7 +23,7 @@ public sealed class WitcherWriteTests
         var outcome = document.ApplyEdits(edits);
         Assert.True(outcome.Succeeded);
         var output = Assert.Single(document.Serialize()).Content.ToArray();
-        using var reopened = Open(output);
+        using var reopened = WitcherTestFiles.Open(output);
         _ = reopened.BuildView();
         foreach (var edit in edits)
         {
@@ -53,7 +52,7 @@ public sealed class WitcherWriteTests
     public void AtomicBatchWithReadonlyFieldLeavesNoEdits()
     {
         var input = SyntheticPlayerSave.Create();
-        using var document = Open(input);
+        using var document = WitcherTestFiles.Open(input);
         _ = document.BuildView();
         Assert.False(document.ApplyEdits([new("inventory/1/quantity", FieldValue.Of(500)), new("header/0", FieldValue.Of(1))]).Succeeded);
         Assert.Equal(250, document.GetValue("inventory/1/quantity").AsInt32());
@@ -66,19 +65,19 @@ public sealed class WitcherWriteTests
         var container = WitcherContainer.Parse(SyntheticPlayerSave.Create());
         var data = container.Payload.ToArray();
         BinaryPrimitives.WriteInt32LittleEndian(data.AsSpan(8), 24);
-        using var newer = Open(SyntheticSave.Wrap(data));
+        using var newer = WitcherTestFiles.Open(SyntheticSave.Wrap(data));
         Assert.False(newer.CanEdit);
         var directory = Sav3Directory.Parse(container);
         var tree = Sav3Tree.Parse(container.Payload, directory);
         var archiveVersion = Assert.Single(tree.Nodes, n => n.Tag == "SXAP");
         var incompatibleArchive = container.Payload.ToArray();
         BinaryPrimitives.WriteInt32LittleEndian(incompatibleArchive.AsSpan(archiveVersion.Offset + 8), 24);
-        using var differentInnerVersion = Open(SyntheticSave.Wrap(incompatibleArchive));
+        using var differentInnerVersion = WitcherTestFiles.Open(SyntheticSave.Wrap(incompatibleArchive));
         Assert.False(differentInnerVersion.CanEdit);
         var identity = Assert.Single(tree.Nodes, n => n.Name == "id" && n.Type == "IdTag");
         container.Payload[identity.ValueOffset + 1] = 0x42;
         var mismatchedBytes = SyntheticSave.Wrap(container.Payload);
-        using var mismatched = Open(mismatchedBytes);
+        using var mismatched = WitcherTestFiles.Open(mismatchedBytes);
         Assert.False(mismatched.CanEdit);
         Assert.Equal(mismatchedBytes, Assert.Single(mismatched.Serialize()).Content.ToArray());
     }
@@ -87,8 +86,8 @@ public sealed class WitcherWriteTests
     public void SetterFailureRollsBackEarlierEditsAndDocumentsAreIsolated()
     {
         var bytes = SyntheticPlayerSave.Create();
-        using var first = Open(bytes);
-        using var second = Open(bytes);
+        using var first = WitcherTestFiles.Open(bytes);
+        using var second = WitcherTestFiles.Open(bytes);
         _ = first.BuildView();
         _ = second.BuildView();
         var rejected = first.ApplyEdits([new("player/level", FieldValue.Of(2)), new("inventory/1/quantity", FieldValue.Of(65536))]);
@@ -230,7 +229,7 @@ public sealed class WitcherWriteTests
             BinaryPrimitives.WriteInt32LittleEndian(data.AsSpan(mutation), int.MaxValue);
         }
 
-        Assert.Throws<SaveFormatException>(() => Open(SyntheticSave.Wrap(data)));
+        Assert.Throws<SaveFormatException>(() => WitcherTestFiles.Open(SyntheticSave.Wrap(data)));
     }
 
     private static byte[] UnknownProperty(WitcherContainer container)
@@ -242,6 +241,4 @@ public sealed class WitcherWriteTests
         var manager = TaggedRecord.Read(container.Payload, ref position, node.Offset + node.Size, directory.Names);
         return manager.Find("unknownProperty")!.Value.ToArray();
     }
-
-    private static ISaveDocument Open(byte[] bytes) => new Witcher3Plugin().Open(MemorySaveSet.SingleFile("Manual.sav", bytes, "PPSA04018"));
 }

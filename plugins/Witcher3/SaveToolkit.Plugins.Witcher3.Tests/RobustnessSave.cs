@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.Text;
 using SaveToolkit.Sdk;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Witcher3.Tests;
 
@@ -78,6 +77,5 @@ internal static class RobustnessSave
     public static int Names(byte[] payload) => BinaryData.Int32(payload, Table(payload) - 10) - SyntheticSave.HeaderSize;
     public static int Roots(byte[] payload) => BinaryData.Int32(payload, Table(payload) - 6) - SyntheticSave.HeaderSize;
     public static void WriteInt(byte[] bytes, int offset, int value) => BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(offset), value);
-    public static ISaveDocument Open(byte[] payload) => OpenContainer(SyntheticSave.Wrap(payload));
-    public static ISaveDocument OpenContainer(byte[] bytes) => new Witcher3Plugin().Open(MemorySaveSet.SingleFile("Manual.sav", bytes, "PPSA04018"));
+    public static ISaveDocument Open(byte[] payload) => WitcherTestFiles.Open(SyntheticSave.Wrap(payload));
 }

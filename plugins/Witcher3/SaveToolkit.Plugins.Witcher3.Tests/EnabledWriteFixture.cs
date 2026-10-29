@@ -23,10 +23,7 @@ internal static class EnabledWriteFixture
 
     public static (WitcherContainer Container, Sav3Directory Directory, Sav3Tree Tree, PlayerData Player, ObservedFeatures Features) Read(byte[] bytes)
     {
-        var container = WitcherContainer.Parse(bytes);
-        var directory = Sav3Directory.Parse(container);
-        var tree = Sav3Tree.Parse(container.Payload, directory);
-        var player = Assert.IsType<PlayerData>(PlayerData.Read(container, directory, tree));
+        var (container, directory, tree, player) = PlayerSaveFixture.Read(bytes);
         return (container, directory, tree, player, new ObservedFeatures(player, tree, container.Payload, directory.Names));
     }
 

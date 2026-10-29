@@ -1,10 +1,8 @@
-using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Witcher3.Tests;
 
@@ -13,7 +11,7 @@ public sealed class WitcherCatalogTests
     [Fact]
     public void CompleteCatalogsHaveUniqueNativeKeysDescriptionsAndPinnedAttribution()
     {
-        var context = Context();
+        var context = ReferencePackFixture.Pin();
         foreach (var (id, count, license) in new[] { ("items", 4011, "CC-BY-SA-3.0"),
             ("abilities", 107, "CC-BY-SA-3.0"), ("gwent", 225, "MIT") })
         {
@@ -60,7 +58,7 @@ public sealed class WitcherCatalogTests
     [Fact]
     public void CatalogQueriesSearchTheWholeDatasetAndKeepStableBoundedPages()
     {
-        var view = new CatalogViews(Context(), "sav3-64.23.163", () => [new GwentCard(108, 1)]);
+        var view = new CatalogViews(ReferencePackFixture.Pin(), "sav3-64.23.163", () => [new GwentCard(108, 1)]);
         var collection = "catalog/items";
         var first = view.Query(collection, new QueryableCollectionQuery { Limit = 200 });
         Assert.Equal(4011, first.TotalCount);
@@ -96,7 +94,7 @@ public sealed class WitcherCatalogTests
     [Fact]
     public void EverySampleJoinsNamedAbilitiesAndAllGwentIndicesWithoutChangingBytes()
     {
-        var context = Context();
+        var context = ReferencePackFixture.Pin();
         foreach (var file in EnabledWriteFixture.Files())
         {
             var container = WitcherContainer.Parse(file.ReadAllBytes());
@@ -126,14 +124,6 @@ public sealed class WitcherCatalogTests
             Assert.Contains("CC-BY-SA-3.0", lookup.Message!, StringComparison.Ordinal);
             Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
         }
-    }
-
-    private static IReferenceContext Context()
-    {
-        var plugin = new Witcher3Plugin();
-        var store = new ReferencePackStore([plugin]);
-        Assert.Empty(store.LoadErrors);
-        return store.Pin(plugin, "PPSA04018");
     }
 
     private static IReadOnlyList<ReferenceRecord> All(IReferenceCatalog catalog) => Enumerable.Range(0, (catalog.Count + 199) / 200)

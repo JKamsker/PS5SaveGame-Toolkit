@@ -1,4 +1,3 @@
-using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
@@ -50,9 +49,7 @@ public sealed class WitcherRichSampleTests
     public void PinnedPackFlowsThroughRichCellsPickerAndCoreQueryableBindings()
     {
         var plugin = new Witcher3Plugin();
-        var store = new ReferencePackStore([plugin]);
-        Assert.Empty(store.LoadErrors);
-        var references = store.Pin(plugin, "PPSA04018");
+        var references = ReferencePackFixture.Pin(plugin);
         var catalog = Assert.IsAssignableFrom<SaveToolkit.Sdk.References.IReferenceCatalog>(references.Catalog("items"));
         Assert.Equal(4011, catalog.Count);
         var file = SampleSaves.Load("PPSA04018").AllDiskFiles.First(f => f.FileName.StartsWith("Manual.", StringComparison.Ordinal) && f.FileName.EndsWith(".sav", StringComparison.Ordinal));
@@ -82,7 +79,7 @@ public sealed class WitcherRichSampleTests
     public void EveryStarterCatalogIdOccursInSamplesAndZeroQuantityIsRejectedAtomically()
     {
         var plugin = new Witcher3Plugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA04018");
+        var context = ReferencePackFixture.Pin(plugin);
         string[] starterIds = ["Bread", "Bottled water", "Crowns", "Torch", "Long Steel Sword", "Witcher Silver Sword",
             "Starting Armor", "Starting Boots", "Starting Pants", "Starting Gloves", "Bodkin Bolt", "Wolf Hour", "Tawny Owl 1",
             "q001_letter_from_yenn", "Monstrous eye", "Monstrous claw", "Venom extract", "Ghoul blood"];
