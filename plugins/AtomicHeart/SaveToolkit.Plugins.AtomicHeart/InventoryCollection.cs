@@ -10,7 +10,7 @@ internal sealed class InventoryCollection(InventoryState state, InventoryViews v
 {
     internal const string Id = "atomic-heart.inventory";
     private static readonly IReadOnlyList<QueryableColumn> Columns = [
-        new("container", "Container", new TextSpec()), new("asset", "Item reference", new TextSpec()),
+        new("container", "Container", new TextSpec()), new("icon", "Icon"), new("asset", "Item reference", new TextSpec()),
         new("category", "Category", new TextSpec()), new("raw", "Saved object path", new TextSpec()),
         new("instance", "ItemId", IntegerSpec.Int64), new("amount", "Amount", IntegerSpec.Int64),
         new("action", "Bulk edit"), new("details", "Details"), new("span", "Original decoded span"),

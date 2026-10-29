@@ -142,23 +142,23 @@ public sealed class AtomicHeartEvidenceTests
         var context = packs.Pin(plugin, "PPSA10695");
         var catalog = context.Catalog("items");
         Assert.NotNull(catalog);
-        Assert.Equal(45, catalog.Count);
-        Assert.Equal("GPL-3.0-or-later", catalog.Dataset.Attribution.License);
+        Assert.Equal(48, catalog.Count);
+        Assert.Contains("GPL-3.0+", catalog.Dataset.Attribution.License, StringComparison.Ordinal);
         var swede = catalog.Find("DA_Item_Shved");
         Assert.NotNull(swede);
         Assert.Contains("Skorchekd", swede.AttributionText, StringComparison.Ordinal);
         Assert.Contains("Encryqed", swede.AttributionText, StringComparison.Ordinal);
         Assert.Null(catalog.Find("DA_Unknown_Item"));
         Assert.Null(swede.Limit);
-        Assert.Null(swede.AssetId);
+        Assert.NotNull(swede.AssetId);
         foreach (var file in SampleSaves.Load("PPSA10695").AllDiskFiles.Where(f => !f.IsSystemFile))
         {
             using var named = plugin.Open(file, context);
             var table = Assert.IsType<TableNode>(Assert.Single(named.ExpandNode("inventory/0")));
             Assert.NotEmpty(table.Rows);
             var fields = table.Rows.Select(r => Assert.IsType<FieldNode>(r.Cells["asset"])).ToArray();
-            Assert.Contains(fields, f => f.Value.AsString() == "DA_Item_Shved" && f.Label == "Swede / Shved" && f.Confidence == Confidence.Inferred);
-            Assert.Contains(fields, f => f.Value.AsString() == "DA_Item_ShotgunKS23" && f.Label == "KS-23 Shotgun");
+            Assert.Contains(fields, f => f.Value.AsString() == "DA_Item_Shved" && f.Label == "Swede" && f.Confidence == Confidence.Inferred);
+            Assert.Contains(fields, f => f.Value.AsString() == "DA_Item_ShotgunKS23" && f.Label == "KS-23");
             Assert.Contains(fields, f => f.Confidence == Confidence.Unknown);
             Assert.All(fields, f => {
                 Assert.IsType<ReferenceSpec>(f.Spec);

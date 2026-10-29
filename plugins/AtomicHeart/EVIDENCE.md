@@ -158,3 +158,34 @@ environment variable exported in the same command. Full API build: **0 warnings,
 0 errors**. No file outside `plugins/AtomicHeart` changed. See README's complete
 AH-R1–R19 audit and F1–F13 adoption table; missing owner evidence remains #31 and
 unavailable F12/F13 remain pending framework issues #32/#33.
+
+
+## Asset round (2026-10-29)
+
+Sample-ID inspection found `DA_Item_Resources_Metal_Parts`,
+`DA_Item_Synthetic_Material_Resource` and `DA_Consumable_aid_small`; they now have
+Inferred source-backed labels and icons. `DA_Item_Jelly_Resource` stays unmapped.
+Existing weapon asset joins now show official English names/renders/excerpts.
+Reference-only additions are ineligible for asset replacement, while original
+Amount specs and warnings are identical with/without the pack.
+
+NORA screenshots establish the Small Neuromed 50-health effect and 2 Synthetic
+Material + 4 Biomaterials recipe, KS-23 Basic Grip level-1 Additional Gas Vent
+cost of 19 Metal Parts, and basic Cartridge Module cost of 25 Metal Parts +
+12 Synthetic Material + 3 Chemistry. These facts describe the source screenshots;
+no maximum level, console build match or installed state follows from them.
+
+Separate reference catalogues contain six resource labels without native joins,
+two module references and nine Shok name/cost summaries. Their authored
+`reference/...` keys cannot be confused with native skill/module IDs; the saved
+skill graphs retain Unknown states/edges/costs. No supported geographic transform
+exists for the 262-level location list, so no background/coordinates were added.
+
+Pack audit: 23 unique 64x64 WebP icons, exactly 12,624 bytes. Every hash and MIME
+signature validates; all 23 record asset IDs resolve. Attribution is in sidecars,
+manifest, README, PluginInfo and visible record/Sources metadata. Image processing
+occurred outside the repository with isolated Python; no downloaded code executed.
+Sample-backed suite: 66 passed, 0 failed, 0 skipped. API build: 0 warnings/errors.
+README records three-run median first-load and pinned-load diagnostics, including
+allocations and measurement scope; timing is diagnostic only. No console/Stable
+claim, new cap, prerequisite, native mapping or writer is implied.

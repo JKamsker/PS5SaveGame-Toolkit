@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "id": "atomic-heart.items.en",
-  "version": "1.1.0",
-  "title": "Atomic Heart public runtime item labels (inferred on PS5)",
+  "version": "1.2.0",
+  "title": "Atomic Heart English item art, names and reference costs (inferred on PS5)",
   "plugins": [
     "atomic-heart"
   ],
@@ -15,20 +15,178 @@
     {
       "id": "items",
       "kind": "records",
-      "title": "Public weapon and ammunition labels",
+      "title": "Weapons, ammunition and sample resource/consumable references",
       "files": [
         {
           "path": "items.json",
-          "sha256": "b3f8ad1ca61d86fd61a366c56daabb7e90d3f989a317930675d24833da03c028"
+          "sha256": "dc297b89e94366813e9f3042150fe8dd9c70a4132ebca5b5c8134b7c9376d6ba"
         }
       ],
       "attribution": {
         "sourceUrl": "https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp",
-        "author": "Skorchekd (Atomic Heart Menu); credits: Dumper-7 / Encryqed, MinHook / Tsuda Kageyu, Dear ImGui / Omar Cornut (ocornut)",
-        "license": "GPL-3.0-or-later",
+        "author": "Skorchekd (Atomic Heart Menu); credits: Dumper-7 / Encryqed, MinHook / Tsuda Kageyu, Dear ImGui / Omar Cornut (ocornut); Slimao Ltd. / Mundfish; Bilawal Bashir / WhatIfGaming (NORA screenshots)",
+        "license": "GPL-3.0+; Rights reserved by Slimao Ltd.; used with attribution per owner decision 2026-10-29",
         "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.html",
-        "retrieved": "2026-10-28",
-        "modifications": "Selected all 37 weapon and 8 ammunition label/object-name pairs; normalized duplicated object names to exact short asset IDs; added categories and original caution text. No runtime code, offsets, limits or images copied."
+        "retrieved": "2026-10-29",
+        "modifications": "Retained 45 GPL runtime pairs and credits; 12 official English names/excerpts and renders; exact sample-ID joins for two resources and small Neuromed. Screenshots and publisher art have separate asset attribution; no cap or build compatibility asserted."
+      }
+    },
+    {
+      "id": "guide",
+      "kind": "records",
+      "title": "Resource and KS-23 module screenshot reference",
+      "files": [
+        {
+          "path": "guide.json",
+          "sha256": "cc465582d54800feb0434566be709d7277f9dd363c23d84edde7f0870f74fc6f"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://whatifgaming.com/atomic-heart-crafting-guide/",
+        "author": "Bilawal Bashir / WhatIfGaming (2023-02-22); Slimao Ltd. / Mundfish (game UI)",
+        "license": "Rights reserved by Slimao Ltd. and WhatIfGaming; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://whatifgaming.com/atomic-heart-crafting-guide/",
+        "retrieved": "2026-10-29",
+        "modifications": "Selected six resource labels and two module names/costs from NORA screenshots; authored module summaries. Authored reference/... keys are not save IDs. No ownership, prerequisites or cap claims."
+      }
+    },
+    {
+      "id": "skills",
+      "kind": "records",
+      "title": "Nine Shok reference names and costs; no native save joins",
+      "files": [
+        {
+          "path": "skills.json",
+          "sha256": "ee9a3c7fd5a249136260d541007cf08627e53bf5eadc198559ff637f607e897e"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://gameriv.com/all-abilities-atomic-heart/",
+        "author": "Md Obyead / GameRiv (2023-03-09)",
+        "license": "Rights reserved by GameRiv; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://gameriv.com/all-abilities-atomic-heart/",
+        "retrieved": "2026-10-29",
+        "modifications": "Selected nine Shok names/costs; authored concise effect summaries. Authored reference/... keys are not save IDs. No ownership, prerequisite or cap claims."
+      }
+    },
+    {
+      "id": "weapon-art",
+      "kind": "assets",
+      "files": [
+        {
+          "path": "icons/railgun.webp",
+          "sha256": "ee453b3cf0988834f4103dca343bc7898af36c0bb691a34c2cd59c556e2f3500"
+        },
+        {
+          "path": "icons/fat_boy.webp",
+          "sha256": "3753f4d7e7ca4fb5af1e04a15a185a1c9362969c558f674fe65f7ba5184a8d63"
+        },
+        {
+          "path": "icons/dominator.webp",
+          "sha256": "9dfe97eb2ee0b8aa5a030dfd2995f68c4f40db20687757672c68af75e8314f76"
+        },
+        {
+          "path": "icons/kalash.webp",
+          "sha256": "92fe35e9e4ddaa0040f12a4101aa424625ca13d487be71acc1d44139f229b8c4"
+        },
+        {
+          "path": "icons/pm.webp",
+          "sha256": "a7e1fab2aa9ccc050033dc5db7a928abc32c4d6c96de56b30d531941118334f6"
+        },
+        {
+          "path": "icons/shotgun.webp",
+          "sha256": "27fa69797024b27a2be8c3aa72c37e6f24715827716fd4a4f189ad71fc4da53b"
+        },
+        {
+          "path": "icons/fox.webp",
+          "sha256": "f7d893618b6ba6abdc4bf9f2e3f441d1de94d610f7d20bdda6c5560fefe59065"
+        },
+        {
+          "path": "icons/pashtet.webp",
+          "sha256": "242052d3ca9a2a8c1413e07c05e18077463a6c770e84f14503ce5761ea51cf70"
+        },
+        {
+          "path": "icons/snowball.webp",
+          "sha256": "55f66c7cc0bda151844a6564627001a86c753e413543a1441bd1714998f949db"
+        },
+        {
+          "path": "icons/zvezdochka.webp",
+          "sha256": "89275b7b640eaddad40d88aac935892557825f254a912b4c85b1b13e1d4cc9c4"
+        },
+        {
+          "path": "icons/electro.webp",
+          "sha256": "ea48a957131f8ea21197b93466f69b976428dc92b014385c1f174e9b613dd750"
+        },
+        {
+          "path": "icons/swede.webp",
+          "sha256": "67d55ffc383732df109cdaf305b39573d25973f784e4cf01afe63ef949735888"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://ah.mundfish.com/weapons/",
+        "author": "Slimao Ltd. / Mundfish",
+        "license": "Rights reserved by Slimao Ltd.; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://ah.mundfish.com/weapons/",
+        "retrieved": "2026-10-29",
+        "modifications": "Twelve official weapon renders; transparent bounds cropped when present, fitted to 64x64 and compact encoded. Exact URLs and original SHA-256 in assets.source.md."
+      }
+    },
+    {
+      "id": "game-ui-art",
+      "kind": "assets",
+      "files": [
+        {
+          "path": "icons/metal-parts.webp",
+          "sha256": "2502198c0338c1e2fade86dabc4d58a9cc90d9f8484c7696d9b7b229710485a0"
+        },
+        {
+          "path": "icons/synthetic-material.webp",
+          "sha256": "544943c1cc8eea232061fb1306d24bf0df38fb9ef5fbdae3500235ebd8d1400a"
+        },
+        {
+          "path": "icons/biomaterials.webp",
+          "sha256": "36cae2f3a09a47bed04f32de6a05664b0e091b5e66709003ec33a196576064d4"
+        },
+        {
+          "path": "icons/superconductor.webp",
+          "sha256": "53be9854b57aafae892d9b0787d5b0d48d8f8883ff984a958e56aa349c133ea9"
+        },
+        {
+          "path": "icons/chemistry.webp",
+          "sha256": "69ee811a72848b09344694c4be2caa5096f14c314eed7d3cadc52f1a869ffd6f"
+        },
+        {
+          "path": "icons/microelectronics.webp",
+          "sha256": "d1bdf04875c87a86d0da2c5bff90a9094b56ce459616d3e3f434c87159df4a1f"
+        },
+        {
+          "path": "icons/energy-module.webp",
+          "sha256": "1ddbda139d88ef563835374df0670bac05e4e62b16c8f68374946a5869b84dca"
+        },
+        {
+          "path": "icons/neuromodule.webp",
+          "sha256": "b3266d17e02a01dc1cdd730269ad9a0fa9f7166d16b029beda4fc3c14b2a57f1"
+        },
+        {
+          "path": "icons/small-neuromed.webp",
+          "sha256": "4ed561aa37c9036a69f629633ea316be38ffca5ddf4c7cb9f2b75245a6f6c2cf"
+        },
+        {
+          "path": "icons/ks23-additional-gas-vent.webp",
+          "sha256": "aab69a955d8dcab1486247a0823127916a9b656fdb42f196b14e59363ee14179"
+        },
+        {
+          "path": "icons/ks23-cartridge-module.webp",
+          "sha256": "e564fb2d32b6c4933f888c28bf66f75ea725f330609a0cceb762b474948942c4"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://whatifgaming.com/atomic-heart-crafting-guide/",
+        "author": "Slimao Ltd. / Mundfish; Bilawal Bashir / WhatIfGaming (screenshots)",
+        "license": "Rights reserved by Slimao Ltd. and WhatIfGaming; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://whatifgaming.com/atomic-heart-crafting-guide/",
+        "retrieved": "2026-10-29",
+        "modifications": "Eight NORA resource glyphs, two KS-23 module glyphs and one small Neuromed render cropped from screenshots; max 64x64; no full screenshots embedded."
       }
     }
   ]

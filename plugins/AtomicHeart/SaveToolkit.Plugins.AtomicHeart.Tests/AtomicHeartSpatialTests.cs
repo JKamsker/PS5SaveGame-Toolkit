@@ -35,7 +35,7 @@ public sealed class AtomicHeartSpatialTests
         Assert.True(document.ApplyEdits([new(asset.ValueId, FieldValue.Of("DA_Item_ShotgunKS23"))]).StructureChanged);
         var changed = Assert.IsType<GraphNode>(Assert.Single(document.ExpandNode("spatial/weapons/0")));
         Assert.Equal(weapons.Items.Select(i => i.Id), changed.Items.Select(i => i.Id));
-        Assert.All(changed.Items, i => Assert.Equal("KS-23 Shotgun", i.Label));
+        Assert.All(changed.Items, i => Assert.Equal("KS-23", i.Label));
         Assert.True(document.ApplyEdits([new(asset.ValueId, asset.Value)]).Succeeded);
         var restored = Assert.IsType<GraphNode>(Assert.Single(document.ExpandNode("spatial/weapons/0")));
         Assert.Equal(weapons.Items.Select(i => (i.Id, i.Label, i.State)), restored.Items.Select(i => (i.Id, i.Label, i.State)));

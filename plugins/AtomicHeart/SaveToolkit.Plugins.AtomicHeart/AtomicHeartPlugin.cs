@@ -8,12 +8,15 @@ namespace SaveToolkit.Plugins.AtomicHeart;
 public sealed class AtomicHeartPlugin : IGamePlugin, ISaveDecoderProvider
 {
     private const int ProbeHeaderBytes = 4096;
-    public PluginInfo Info { get; } = new("atomic-heart", "Atomic Heart", "0.4.0")
+    public PluginInfo Info { get; } = new("atomic-heart", "Atomic Heart", "0.5.0")
     {
         Description = "Experimental inventory editor with paged queries, attributed item choices, skill/weapon evidence graphs and an external location index. Stored Kraken output retains console-compatibility warnings.",
         Games = [new GameTitle("PPSA10695", "Atomic Heart")],
         Maturity = PluginMaturity.Experimental,
         References = [
+            "https://ah.mundfish.com/weapons/",
+            "https://whatifgaming.com/atomic-heart-crafting-guide/",
+            "https://gameriv.com/all-abilities-atomic-heart/",
             "https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/FileAdapter.cpp",
             "https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/Serialization/Records.cpp",
             "https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/SlotData.cpp",

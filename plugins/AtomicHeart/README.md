@@ -8,7 +8,7 @@ not been supplied. Broader versions are not validated.
 The plugin uses `SaveToolkit.Sdk` and the shared managed Kraken decoder in
 `SaveToolkit.Codecs`. It performs no filesystem/network I/O and loads no game DLL.
 Unchanged compressed chunks and all unrelated decoded bytes are retained. No save
-bytes, extracted records, game images or private asset dumps are embedded.
+bytes, extracted records or private asset dumps are embedded. Attributed compact public game artwork is bundled as described below.
 
 ## Capabilities and confidence
 
@@ -20,7 +20,7 @@ bytes, extracted records, game images or private asset dumps are embedded.
 - Query 90 serialized inventory slots through F8: resources, special resources, ammunition,
   auxiliary items, quest items and the player grid. Empty slots stay visible.
   Storage has no populated inspected slot records in this snapshot.
-- F2 supplies 45 attributed public weapon/ammunition labels (37 weapons, 8 ammunition).
+- F2 supplies 48 item references: the original 45 weapon/ammunition pairs plus two sample resources and a Small Neuromed Capsule. Twelve weapon labels now use official English names/excerpts. Twenty-three compact icons cover weapons, resources, modules and a consumable; separate read-only guide catalogues add six unmapped resources, two KS-23 modules and nine Shok reference costs.
   F3 details show descriptions, raw identifiers, provenance and original bytes.
   Unknown identifiers get explicitly authored formatting in details; inferred
   container/path categories never pretend to be localized game labels.
@@ -101,8 +101,8 @@ enabled paths.
 | Feature | Status | Adoption or concrete limit |
 | --- | --- | --- |
 | F1 SaveDiff | Used | `PluginViewDecoder` and the production `atomic-heart.saveextension-v1` F12 hook expose stable scalar tag identities; real twin/generation evidence and authored relocated-property fixtures remain in the evidence tests. |
-| F2 reference packs | Used; expanded this round | Immutable host-loaded, hashed 45-entry GPL-3.0-or-later catalog with per-field provenance and Sources-panel attribution. No per-view pack loading. |
-| F3 rich cells | Added this round | Inventory details, descriptions/provenance/hex; existing action cells and field confidence badges. Images omitted because no safely licensed item artwork was established. |
+| F2 reference packs | Used; expanded this round | Host-loaded, hashed 48-entry item catalogue plus 8 screenshot resource/module and 9 Shok guide entries. Original GPL notices retained; game art/text and guide additions use the 2026-10-29 owner policy. Twenty-three cached icons; reference tables expand lazily. |
+| F3 rich cells | Added this round | Inventory details, descriptions/provenance/hex; existing action cells and field confidence badges. Inventory/query rows and reference tables now show attributed F2 icons; missing images retain text fallbacks. |
 | F4 reference pickers | Used; expanded this round | Existing inventory asset replacements plus browse-only `ReferenceSpec` fields for read-only catalog-matched asset IDs in the record explorer and catalogue inspection action. Unknown IDs remain raw and never become invented choices. |
 | F5 structural undo | N/A | No safe add/remove/move/split writer exists: opaque instance allocation, grid/indices, equipment and ownership references cannot be reconstructed from this snapshot. Scalar edits use normal undo. |
 | F6 planned actions | Used; query scopes added this round | `inventory/set-amount` previews selected, document and #27 F8 whole-query scopes with skipped rows, exclusions, warnings and grouped undo. Its only parameter is numeric target Amount, so no item parameter needs a `ReferenceSpec`. Skill/loadout/spend/refund presets have no safe underlying writer. |
@@ -112,7 +112,7 @@ enabled paths.
 | F10 exact/nullable/union values | N/A | The decoded UE tags use fixed-width signed/unsigned integers and IEEE floating-point scalars; no JSON numeric lexemes, nullable scalar storage or tagged union is rewritten. Existing Int128 SDK values preserve all integer bits. |
 | F11 shared codecs | Used; optimized this round | `SaveToolkit.Codecs` Kraken decode/stored encode; retained compressed frames, exact output allocation, validated serialization cache and byte-identical no-op. No local codec. |
 | F12 SaveDiff F8 traversal/hooks | Used | Registered `atomic-heart.saveextension-v1`, a bounded SDK-only decoder for stable scalar tag paths; shared `PluginViewDecoder` now traverses the inventory F8 collection. |
-| F13 inspect/browse/filter/duration | Used | Catalogue item inspection is `Mutates = false`; read-only asset references use browse-only pickers, and the pinned 45-entry catalogue supports category filtering and declared category/key/name sorting. Duration hints are N/A because no timer field is published. |
+| F13 inspect/browse/filter/duration | Used | Catalogue item inspection is `Mutates = false`; read-only asset references use browse-only pickers, and the pinned 48-entry item catalogue supports category filtering and declared category/key/name sorting. Duration hints are N/A because no timer field is published. |
 
 ## Completion audit against the plan
 
@@ -120,7 +120,7 @@ enabled paths.
 | --- | --- |
 | AH-R1, AH-R2; exact decoding, integrity, spans and unknown retention | Shared codec/grammar/preservation implementation complete; serialization optimized and regression tested. Independent original compressed-Kraken agreement and unknown inner integrity/duplicate-state investigation remain validation items in #31. |
 | AH-R3, AH-R5, AH-R18; known-state observations and console/patch coverage | Owner-blocked (#31): controlled captures, exact effects/bounds, independent states/builds/DLC and restore/use/resave/reload observations. No Stable claim. |
-| AH-R4, AH-R8; catalog/reference enrichment | Public licensed catalog expanded to 45; formatting and inferred categories cover uncataloged IDs without importing private data. Exact localized resource/consumable/skill/module names, descriptions, caps, costs, prerequisites, DLC and icons require a matching attributed asset/localization pack. No cleared source for those exact joins was established. |
+| AH-R4, AH-R8; catalog/reference enrichment | Imported official English weapon names/short excerpts and icons, two sample resource labels/icons, Small Neuromed Capsule effect/recipe, two screenshot KS-23 module costs and nine guide Shok names/costs. Unmapped native skill/module/resource IDs, full build-matched localization, caps, prerequisites and DLC rules remain evidence gaps. No exact localization or cap is inferred from a guide. |
 | AH-R6, AH-R7 | Won't do: conditional native/proprietary codec infrastructure is unnecessary because F11's bounded managed route works. |
 | AH-R9, AH-R10, AH-R13; pickers/rich cells/bulk review | Implemented with F2/F3/F4/F6/F8, including query scopes, live search, exclusions and group undo. Coupled equipment/skill presets await the owner-backed serialization/dependency model. |
 | AH-R11, AH-R12; structural/story rollback | Owner-blocked on exact empty/new/drop/transfer/skill/story pairs and dependent-state mapping. Warning text cannot make invented opaque instances safe. F5/F7 exist centrally but there is no safe writer to adopt here. |
@@ -245,7 +245,10 @@ The repository and derived public-tool label dataset are GPL-3.0-or-later.
 
 | Dataset / reference | Source and author | Licence / changes and use |
 | --- | --- | --- |
-| Embedded weapon/ammunition names | [AtomicHeartMenu features.cpp, fe36f468](https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp), Copyright (C) 2026 Skorchekd | [GPL-3.0-or-later](https://www.gnu.org/licenses/gpl-3.0.html), including [upstream attribution terms](https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/NOTICE). All 37 weapon and 8 ammunition label/object-name pairs; normalized repeated object names to exact short keys; added categories and original caution text, including unused/debug/DLC warnings. No runtime code/offsets, limits, artwork or game descriptions copied. Credits retained: Skorchekd; Dumper-7 by Encryqed; MinHook by Tsuda Kageyu; Dear ImGui by Omar Cornut (ocornut). Dataset stays GPL-3.0-or-later. |
+| Embedded weapon/ammunition names | [AtomicHeartMenu features.cpp, fe36f468](https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/src/features/features.cpp), Copyright (C) 2026 Skorchekd | [GPL-3.0-or-later](https://www.gnu.org/licenses/gpl-3.0.html), including [upstream attribution terms](https://github.com/Skorchekd/AtomicHeartMenu/blob/fe36f468baacc996c252a1d3231d0d20009127bd/NOTICE). Original 37 weapon and 8 ammunition label/object-name pairs retained; normalized repeated object names to exact short keys; categories and cautions retained. Twelve labels now use official English names; original runtime aliases remain attributes. No runtime code/offsets or limits copied from the tool. Credits retained: Skorchekd; Dumper-7 by Encryqed; MinHook by Tsuda Kageyu; Dear ImGui by Omar Cornut (ocornut). Dataset stays GPL-3.0-or-later. |
+| Publisher weapon art and English excerpts | [Mundfish weapons](https://ah.mundfish.com/weapons/), individual page URLs in records and `assets.source.md`; Slimao Ltd. / Mundfish; retrieved 2026-10-29 | `Rights reserved by Slimao Ltd.; used with attribution per owner decision 2026-10-29`. Twelve 64x64 WebP renders and short English excerpts; no full official descriptions. Original image fingerprints, crops and output hashes in the sidecar. |
+| NORA resource, consumable and module UI | [Crafting guide](https://whatifgaming.com/atomic-heart-crafting-guide/), Bilawal Bashir / WhatIfGaming, 2023-02-22; game content Slimao Ltd. / Mundfish; retrieved 2026-10-29 | `Rights reserved by Slimao Ltd. and WhatIfGaming; used with attribution per owner decision 2026-10-29`. Eight resource glyphs, two module glyphs, one Small Neuromed render; names/effects/recipe facts transcribed and descriptions paraphrased. No screenshots or logos embedded. |
+| Shok name/cost reference | [All Abilities](https://gameriv.com/all-abilities-atomic-heart/), Md Obyead / GameRiv, 2023-03-09; retrieved 2026-10-29 | `Rights reserved by GameRiv; used with attribution per owner decision 2026-10-29`. Selected nine unambiguous Shok name/cost rows; authored short effect summaries. Guide English spellings are Inferred, not build-matched localization; no saved IDs, ownership or prerequisites asserted. |
 | Identifier formatting and container/path categories | Toolkit-authored algorithms in `InventoryLabels.cs`; current save tags only | Original GPL-3.0-or-later presentation logic, not localized game text or an extracted private dataset. Raw IDs and Unknown confidence are retained. |
 | External location/skill guides | [Atomic Heart Wiki locations](https://atomicheart.fandom.com/wiki/Locations), [skills](https://atomicheart.fandom.com/wiki/Skills), wiki contributors | Links only. Fetches were restricted (402); no page text, costs, prerequisites, images or coordinates imported. These links are not evidence of PS5 field semantics or embedding rights. |
 | SaveExtension format research | [FileAdapter.cpp](https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/FileAdapter.cpp), [Records.cpp](https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/Serialization/Records.cpp), [SlotData.cpp](https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/SlotData.cpp), [LevelRecords.cpp](https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/Serialization/LevelRecords.cpp); Copyright 2015–2020 Piperift | [Apache-2.0](https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/LICENSE). Structural reference for original C# implementation; fork order and boundaries measured independently. No verbatim C++ port. |
@@ -254,7 +257,7 @@ The repository and derived public-tool label dataset are GPL-3.0-or-later.
 | SHA-1 reference | [RFC 3174](https://www.rfc-editor.org/rfc/rfc3174) | Algorithm/vector reference; hashing uses .NET. |
 
 Attribution lives beside the data in `ReferencePacks/atomic-heart.items.en/items.source.md`,
-in the pack manifest, this table, `PluginInfo.References`, per-field descriptions
+in `assets.source.md` / `guide.source.md`, the pack manifest, this table, `PluginInfo.References`, per-field descriptions
 and the host's Sources panel. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 The Atomic Heart Fandom pages checked declare CC BY-NC-SA; their text/images are
 not embedded. No permission decision is pending for the shipped catalog.
@@ -308,7 +311,36 @@ and stored writer are used directly. Non-Kraken variants remain unsupported.
 Independent compressed-codec agreement and console captures are validation
 requests. Coupled skill/loadout, structural and story operations need a safe
 serialization/dependency model; no framework changes are requested here.
+F2 attribution licence fields are limited to 100 characters. The mixed item dataset uses `GPL-3.0+` shorthand alongside the complete Slimao owner-decision notice; original GPL-3.0-or-later terms and full screenshot rights remain in author/modification metadata and sidecars. The source-specific guide catalogues keep each rights notice within that limit. No framework change was needed.
 No SDK requests remain for F12/F13. The original bounded lazy inspection path
 remains reachable for F1/conformance, while the main inventory uses F8 and the
 production decoder hook covers native scalar evidence. No framework files were
 changed.
+
+
+## Asset round results (2026-10-29)
+
+- **23 unique icons, exactly 12,624 new binary asset bytes**, all 64x64 WebP; well below the 4 MB plugin budget. No full screenshots or source renders are embedded. Text JSON is minified. Twelve official weapon excerpts plus 20 authored/screenshot/guide summaries were added or replaced (32 enriched descriptions).
+- Items and inventory F3/F8 cells show icons; the F4 picker receives each record's pack-qualified `assetId`. Reference guide tables expand lazily and display descriptions, costs, raw/authored IDs and source/rights text. Host F2 loading validates and caches the pack once; repeated asset resolution returns the cached object.
+- Exact sample-ID joins: Metal Parts, Synthetic Material, Small Neuromed Capsule. Those enrichment records cannot be used for item replacement. All prior Amount bounds and warnings remain. Unmapped `DA_Item_Jelly_Resource` is not guessed to be Neuropolymer.
+- KS-23 **Additional Gas Vent**, Basic Grip level 1: **19 Metal Parts**. KS-23 **Cartridge Module**, basic installation: **25 Metal Parts, 12 Synthetic Material, 3 Chemistry**. Small Neuromed screenshot effect: **50 health**, recipe **2 Synthetic Material, 4 Biomaterials**. These are screenshot reference facts, not verified PS5 rules or new caps.
+- Nine Shok guide costs are reference-only. Their authored `reference/shok/...` keys cannot replace native skill IDs. The saved three empty skill collections retain Unknown state and no prerequisite edges. Other branches contain source ambiguities and were not imported. Full exact localized skill text and build-matched limits remain unavailable.
+- **No map backgrounds**: the evidence view lists 262 saved levels without coordinates or a supported transform. It keeps the text/external-guide fallback; art cannot establish marker positions.
+
+First-load diagnostic, Release .NET 10, largest/sole unique 126,214-byte sample, three alternating fresh-process runs before/after; no timing assertions or speedup claim. The before project was reconstructed from the original tracked plugin in a temporary folder, using the same SDK/Core/codec dependencies. The stopwatch covers `ReferencePackStore` construction/pinning, plugin Open, BuildView and the first complete 90-slot inventory query; current-thread allocations use `GC.GetAllocatedBytesForCurrentThread`. Sample loading happens before the stopwatch. Medians:
+
+- Cold pack + Open + view + inventory: **274.94 ms / 37,834,744 allocated bytes before**, **250.69 ms / 40,119,880 bytes after**.
+- Reusing the pinned pack, Open + view + inventory: **113.33 ms / 36,987,624 bytes before**, **97.75 ms / 37,079,032 bytes after**.
+
+Timings vary with JIT and scheduling. The new cold allocation cost is about 2.29 MB; repeat-open overhead is about 91 KB. The reference guide does not materialize rows until expanded. Hash/type/rights resolution, duplicate rejection, live icon replacement/undo, reference-only joins, unchanged Amount bounds, byte-identical no-op/undo, unknown spatial state and missing-pack fallbacks are covered by tests.
+
+Validation: **66 passed, 0 failed, 0 skipped**, with `SAVETOOLKIT_ARTIFACTS=C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts` exported in the same test command. Full API build: **0 warnings, 0 errors**. Image audit verifies 23 unique 64x64 WebP files and every manifest hash. All handwritten C# files stay below 300 lines. All changed repository files are under `plugins/AtomicHeart`.
+
+## Licence exclusions
+
+| Source URL and revision | Licence found | Refused material / reason | Current approach | What would unblock reuse |
+| --- | --- | --- | --- | --- |
+| [Wiki locations](https://atomicheart.fandom.com/wiki/Locations), unpinned, checked 2026-10-29 | Previously recorded CC BY-NC-SA; version not recorded; fetch still inaccessible (402/403) | NC wiki prose/images remain excluded under rule 9; publisher assets from other sources are now imported under the owner decision. | Existing external-only level index; no background because native coordinate alignment is unknown. | Compatible wiki terms and accessible content, plus supported native level/coordinate joins for a background. |
+| [Wiki skills](https://atomicheart.fandom.com/wiki/Skills), unpinned, checked 2026-10-29 | Previously recorded CC BY-NC-SA; version not recorded; fetch still inaccessible (402/403) | NC wiki text/cost/prerequisite dataset remains excluded. | Attributed GameRiv Shok subset in a separate reference guide; saved graph states remain Unknown. | Compatible wiki terms and build-matched skill/native ID mapping. |
+
+The two central register rows already record these NC exclusions; they remain applicable. Publisher art and all-rights-reserved guide sources are resolved by the 2026-10-29 owner decision and imported above. No central register file was edited because this worker is confined to its plugin folder.

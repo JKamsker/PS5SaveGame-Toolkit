@@ -34,7 +34,7 @@ internal static class CatalogueInspection
         return new ActionOutcome
         {
             Message = $"{record.Name} · {record.Key} · {record.Category ?? "Unknown category"}\n" +
-                $"{record.Description}\n{record.AttributionText}\nInspection only; the save was not changed.",
+                $"{record.Description}\n{ReferencePresentation.Attributes(record)}\n{record.AttributionText}\nInspection only; the save was not changed.",
             Warnings = ["Catalogue metadata is attributed reference material; it does not prove PS5 ownership, availability or gameplay effects."],
         };
     }

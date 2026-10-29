@@ -21,6 +21,7 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
     private readonly InventoryCollection inventoryCollection;
     private readonly SpatialViews spatial;
     private readonly SlotSerialization serialization;
+    private readonly ReferencePresentation referencePresentation;
 
     internal AtomicHeartDocument(string path, byte[] bytes, SaveExtensionFile parsed, RecordIndex index, IReferenceContext references)
     {
@@ -29,6 +30,7 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
         this.parsed = parsed;
         this.index = index;
         this.references = references;
+        referencePresentation = new ReferencePresentation(references);
         state = new InventoryState(index, references.Catalog(InventoryViews.CatalogId));
         records = new RecordViews(index, BindReadOnly, state.Current, state.Catalog);
         inventory = new InventoryViews(state, BindInventory);
@@ -59,6 +61,7 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
         ]),
         new Tab("Inventory inspection", inventory.BuildView()),
         new Tab("Skills and world", spatial.BuildView()),
+        new Tab("Reference guide", referencePresentation.BuildView()),
         new Tab("Slot metadata", [SectionNode.Lazy("Tagged properties", "metadata/0")]),
         new Tab("Record explorer", [collection.View, .. records.BuildView()]),
         new Tab("Raw data", [SectionNode.Lazy("Compression chunks", "chunks/0"),
@@ -68,6 +71,7 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
+        if (lazyId.StartsWith("references/", StringComparison.Ordinal)) return referencePresentation.Expand(lazyId);
         if (lazyId.StartsWith("inspect/", StringComparison.Ordinal)) return records.Expand(lazyId);
         if (lazyId.StartsWith("inventory/", StringComparison.Ordinal)) return inventory.Expand(lazyId);
         if (lazyId.StartsWith("spatial/", StringComparison.Ordinal)) return spatial.Expand(lazyId);
