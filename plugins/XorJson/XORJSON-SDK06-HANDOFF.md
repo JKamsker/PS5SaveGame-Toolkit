@@ -96,6 +96,20 @@ disabled or Debug-only assertion.
   write, and structural undo/redo. Existing mixed-write, group-candidate and resource
   atomicity tests remain in the suite.
 
+## R5 response matrix
+
+- **Host diagnostic comment 4417857874:** `JsonTokenTree.Parse` now wraps the
+  SDK's bounded `LosslessJsonException` message in `SaveFormatException`, keeps
+  the SDK exception as the inner exception, and appends its byte offset when the
+  SDK message does not already include one. The plugin caps copied diagnostic
+  text at 256 characters, so limit, depth, malformed syntax and invalid UTF-8
+  failures remain distinguishable without exposing source content or creating an
+  unbounded error message. `ParserDiagnosticTests` covers oversized input,
+  malformed syntax and invalid UTF-8 location/inner-exception behavior.
+- **Host wording comment 4417857902:** readiness characterization now states
+  explicitly that malformed UTF-8, comments and trailing commas are rejected,
+  while duplicate members are accepted and retained as distinct identities.
+
 ## Dependency and branch
 
 - SDK dependency PR: [#51](https://github.com/JKamsker/PS5SaveGame-Toolkit/pull/51)
@@ -138,13 +152,13 @@ Validation from the sample-free run:
 
 `dotnet run --project plugins/XorJson/SaveToolkit.Plugins.XorJson.Tests/SaveToolkit.Plugins.XorJson.Tests.csproj --no-build -- -noLogo -noColor`
 
-passed **306 tests**, with **19 sample-dependent skips** and **0 failures** in
+passed **309 tests**, with **19 sample-dependent skips** and **0 failures** in
 both sample-free Debug and Release runs. Both configurations build with zero
 warnings, including the calibrated Release opening-allocation guard.
 The plugin project also builds with zero warnings. Missing `PPSA16064` samples
 were skipped by the existing test harness; no private sample bytes were copied.
 PR CI metadata: SDK PR #51 is merged into `main` at `1322ddfa8ca5c46af15d14fd4ad0c5c1b16adaac`;
-parent owns the next initial CI snapshot and fresh R4/CI revalidation.
+parent owns the next initial CI snapshot and fresh R5/CI revalidation.
 
 ## Remaining limits
 

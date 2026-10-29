@@ -10,7 +10,7 @@ transaction policy are plugin-owned and must remain so.
 
 The decoded UTF-8 parser currently lives in `JsonTokenTree`. It accepts one JSON
 value, an optional UTF-8 BOM, and JSON whitespace; it rejects malformed UTF-8,
-duplicate-free assumptions, comments and trailing commas. It bounds input to
+comments and trailing commas. It accepts duplicate members. It bounds input to
 16 MiB, depth to 64 and values to 250,000. Each value retains its source byte
 array, UTF-8 offset and length. Object members retain their decoded name,
 source key/colon span and a per-name occurrence number, so duplicate properties

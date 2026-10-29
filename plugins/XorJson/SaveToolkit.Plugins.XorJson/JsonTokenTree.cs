@@ -34,9 +34,9 @@ internal sealed class JsonTokenTree
                 MaxAbsoluteExponent = ExactJsonNumber.HardMaxAbsoluteExponent,
             });
         }
-        catch (LosslessJsonException)
+        catch (LosslessJsonException ex)
         {
-            throw new SaveFormatException("Invalid JSON or UTF-8 text (maximum depth: 64).");
+            throw new SaveFormatException(ParseDiagnostic(ex), ex);
         }
 
         var tree = new JsonTokenTree { Lossless = document };
@@ -73,6 +73,18 @@ internal sealed class JsonTokenTree
             tree.Nodes.Add(token);
         }
         return tree;
+    }
+
+    private static string ParseDiagnostic(LosslessJsonException exception)
+    {
+        const int maxDiagnosticLength = 256;
+        var detail = exception.Message.Length <= maxDiagnosticLength
+            ? exception.Message
+            : exception.Message[..maxDiagnosticLength] + "...";
+        if (exception.ByteOffset is { } offset &&
+            !detail.Contains("byte offset", StringComparison.OrdinalIgnoreCase))
+            detail += $" (byte offset {offset})";
+        return $"Invalid JSON or UTF-8 text: {detail}";
     }
 
     private static byte[] SourceArray(ReadOnlyMemory<byte> original, byte[] fallback)
