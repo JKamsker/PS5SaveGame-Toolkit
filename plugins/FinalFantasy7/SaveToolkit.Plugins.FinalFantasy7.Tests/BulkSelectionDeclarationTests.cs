@@ -13,7 +13,7 @@ public sealed class BulkSelectionDeclarationTests
     [InlineData(BulkSelectionFixture.Remake)]
     [InlineData(BulkSelectionFixture.Rebirth)]
     [InlineData(BulkSelectionFixture.Demo)]
-    public void OnlyInventoryAndMateriaSiblingsBindToTheirPublishedTables(string title)
+    public void EveryPublishedBulkActionBindsToItsPublishedTable(string title)
     {
         using var fixture = new BulkSelectionFixture(title, InventoryPlanning.ActionId);
         var root = fixture.Document.BuildView();
@@ -32,6 +32,8 @@ public sealed class BulkSelectionDeclarationTests
                 [InventoryPlanning.ActionId] = "inventory",
                 [MateriaPlanning.ActionId] = "materia",
                 [MateriaPlanning.StarActionId] = "materia",
+                [CharacterPlanning.RecoveryActionId] = CharacterPlanning.SelectionTableId,
+                [CharacterPlanning.LevelActionId] = CharacterPlanning.SelectionTableId,
             };
             var actions = tabs.Tabs.SelectMany(tab => tab.Children).OfType<ActionNode>().ToArray();
             Assert.Equal(expected.Count, actions.Count(action => action.SelectionTableId is not null));
@@ -42,13 +44,15 @@ public sealed class BulkSelectionDeclarationTests
                 Assert.True(action.SupportsPlanning);
                 Assert.True(action.Mutates);
                 Assert.Equal(collection, action.SelectionTableId);
-                Assert.Equal(collection, Assert.Single(tab.Children.OfType<QueryableTableNode>()).CollectionId);
+                if (collection != CharacterPlanning.SelectionTableId)
+                    Assert.Equal(collection, Assert.Single(tab.Children.OfType<QueryableTableNode>()).CollectionId);
             }
             var characters = Assert.Single(tabs.Tabs, tab => tab.Title == "Characters");
-            Assert.All(characters.Children.OfType<ActionNode>(), action => Assert.Null(action.SelectionTableId));
+            Assert.All(characters.Children.OfType<ActionNode>(), action => Assert.Equal(CharacterPlanning.SelectionTableId, action.SelectionTableId));
             var characterTable = Assert.Single(characters.Children.OfType<TableNode>());
+            Assert.Equal(CharacterPlanning.SelectionTableId, characterTable.SelectionId);
             Assert.All(characterTable.Rows.SelectMany(row => row.Cells.Values).OfType<ActionNode>(),
-                action => Assert.Null(action.SelectionTableId));
+                action => Assert.Equal(CharacterPlanning.SelectionTableId, action.SelectionTableId));
         }
     }
 

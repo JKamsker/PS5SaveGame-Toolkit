@@ -70,6 +70,7 @@ internal sealed class CharacterView
         if (actions is not null) columns.AddRange(actions.Select(action => new TableColumn(action.ActionId, action.Label)));
         return new(columns, rows)
         {
+            SelectionId = CharacterPlanning.SelectionTableId,
             Title = "Character sheets",
             Description = WriteWarnings.Progression + "HP/MP are bounded by the original stored maxima. Maxima remain read-only caches. " +
                 "Select rows, then use a table action to preview only that selection; an empty selection changes nothing. " +
