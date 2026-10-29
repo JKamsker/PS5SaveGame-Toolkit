@@ -32,3 +32,29 @@ The plugin references SaveToolkit.Codecs. Its adapted Kraken implementation is
 GPL-3.0-or-later, derived from AaryanKh/TekkenMusicModManager and Powzix/ooz.
 See ../../src/SaveToolkit.Codecs/README.md and ../../THIRD-PARTY-NOTICES.
 No codec source is duplicated in this folder.
+
+
+## Publisher artwork and English reference additions (2026-10-29)
+
+Official weapon renders, names and short excerpts: Slimao Ltd. / Mundfish,
+https://ah.mundfish.com/weapons/ (individual page and image URLs/fingerprints in
+`ReferencePacks/atomic-heart.items.en/assets.source.md`). Licence:
+`Rights reserved by Slimao Ltd.; used with attribution per owner decision 2026-10-29`.
+Twelve cropped/downscaled 64x64 renders; short excerpts, not full descriptions.
+
+NORA screenshots: game content Slimao Ltd. / Mundfish; screenshot source Bilawal
+Bashir / WhatIfGaming, https://whatifgaming.com/atomic-heart-crafting-guide/,
+2023-02-22, retrieved 2026-10-29. Licence: `Rights reserved by Slimao Ltd. and WhatIfGaming; used with attribution per owner decision 2026-10-29`.
+Eight resource glyphs, two KS-23 module glyphs and one Small Neuromed render,
+source English names/effects/recipe facts; descriptions paraphrased. Only crops
+are embedded, no screenshots/site logos. Full URL/crop/hash audit in the sidecar.
+
+Nine Shok name/cost rows: Md Obyead / GameRiv,
+https://gameriv.com/all-abilities-atomic-heart/, 2023-03-09, retrieved 2026-10-29.
+Licence: `Rights reserved by GameRiv; used with attribution per owner decision 2026-10-29`.
+Names/costs selected and descriptions summarized; authored reference keys are not
+native save IDs. See `guide.source.md`. No NC Fandom content is included.
+
+These additions retain the named holders' rights. The original runtime-label
+subset retains GPL-3.0-or-later and all credits above; adding publisher content
+does not relicense it or claim a publisher redistribution grant.

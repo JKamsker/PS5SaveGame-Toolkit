@@ -22,7 +22,7 @@ public sealed class AtomicHeartInventoryQueryTests
         Assert.Equal(0, all.Offset);
         var amounts = all.Rows.Select(r => WriteTestData.Field(r, "amount").Value.AsInt64()).ToArray();
         Assert.Equal(amounts.OrderDescending(), amounts);
-        Assert.Contains(all.Rows, r => Assert.IsType<TextNode>(r.Cells["category"]).Text == "consumable (inferred)");
+        Assert.Contains(all.Rows, r => Assert.IsType<TextNode>(r.Cells["category"]).Text == "consumable");
         Assert.Contains(all.Rows, r => Assert.IsType<TextNode>(r.Cells["category"]).Text == "quest item (inferred)");
         var query = new QueryableCollectionQuery { Text = "Swede", Limit = 1, Filters = new Dictionary<string, string> { ["category"] = "weapon" } };
         var before = Assert.Single(queryable.Query(InventoryCollection.Id, query).Rows);

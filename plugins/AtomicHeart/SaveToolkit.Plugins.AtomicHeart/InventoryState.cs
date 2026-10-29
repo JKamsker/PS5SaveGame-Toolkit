@@ -10,6 +10,7 @@ internal sealed record InventoryItem(string Key, string Container, TaggedPropert
 /// <summary>Existing slot values only. No allocation, identity, equipment or ownership changes.</summary>
 internal sealed class InventoryState
 {
+    private const string ReferenceOnlyAttribute = "referenceOnly";
     internal const string WriteWarning = "Not validated on console. Stored Kraken blocks and unknown inner integrity mean the game may reject the edited save. Gameplay effects, ownership and safe limits are unverified; validate on a disposable copy (issue #31).";
     private readonly Dictionary<int, FieldValue> values = [];
     private readonly Dictionary<string, string> savedAssets = new(StringComparer.Ordinal);
@@ -87,7 +88,9 @@ internal sealed class InventoryState
     {
         var original = Catalog?.Find(ShortId(item.RawAsset));
         var candidate = Catalog?.Find(id);
-        var eligible = original?.Category is not null && candidate is not null && candidate.Category == original.Category &&
+        var eligible = original?.Category is not null && candidate is not null &&
+            !original.Attributes.ContainsKey(ReferenceOnlyAttribute) && !candidate.Attributes.ContainsKey(ReferenceOnlyAttribute) &&
+            candidate.Category == original.Category &&
             savedAssets.ContainsKey(id) && !ambiguousAssets.Contains(id);
         return new ReferenceEligibility { Eligible = eligible,
             Reasons = eligible ? [] : ["Choose a same-category catalog asset whose complete object path already occurs in this save. No path, DLC availability or dependent item state is invented."] };

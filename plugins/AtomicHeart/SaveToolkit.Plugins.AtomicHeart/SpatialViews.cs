@@ -16,7 +16,7 @@ internal sealed class SpatialViews(RecordIndex index, InventoryState state,
     private readonly IReadOnlyList<Entry> entries = Entries(index, state);
 
     internal IReadOnlyList<ViewNode> BuildView() => [
-        new TextNode("Saved skill collections and weapon references are inspection evidence. Ownership, upgrade levels, costs and prerequisites are unknown; no prerequisite edges or unlocked states are inferred. Community guides are external links only.") { Tone = Tone.Warning },
+        new TextNode("Saved skill collections and weapon references are inspection evidence. Ownership, upgrade levels, costs and prerequisites are unknown; no prerequisite edges or unlocked states are inferred. The separate Reference guide does not establish saved-state joins.") { Tone = Tone.Warning },
         SectionNode.Lazy("Skills", "spatial/skills/0"),
         SectionNode.Lazy("Weapon upgrades", "spatial/weapons/0"),
         SectionNode.Lazy(DetailsTitle, "spatial/detail-pages/0"),
@@ -69,7 +69,7 @@ internal sealed class SpatialViews(RecordIndex index, InventoryState state,
                 "All level statuses are unknown. The list links to saved level records and an external community guide; no art, coordinates, completion or prerequisite data is imported.")
             {
                 CoordinateSpace = "External guide only; no coordinates",
-                ExternalSource = new(MapUrl, "Open community locations", "Atomic Heart Wiki contributors; reuse terms do not establish permission for map art or coordinates. Link only."),
+                ExternalSource = new(MapUrl, "Open community locations", "Atomic Heart Wiki contributors; link only. No supported saved-level coordinate transform has been established."),
             };
             var nodes = new List<ViewNode> { map };
             More(nodes, start, index.Levels.Count, "map");
