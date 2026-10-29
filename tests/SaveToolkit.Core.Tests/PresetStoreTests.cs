@@ -50,4 +50,36 @@ public sealed class PresetStoreTests
         Assert.Throws<ArgumentException>(() => store.Create("x", compatibility, [action]));
         Assert.Empty(store.List());
     }
+
+    [Fact]
+    public void ReturnedAndInputGraphsAreDeepIsolatedAndJsonLifetimeSafe()
+    {
+        var root = TestZips.TempDir();
+        var titleIds = new List<string> { "PPSA00001" };
+        using var document = JsonDocument.Parse("42");
+        var created = new PresetStore(new() { StorageRoot = root }).Create("safe", new("p", "1", titleIds),
+            [new PresetAction("set", new Dictionary<string, JsonElement> { ["value"] = document.RootElement })]);
+        titleIds[0] = "MUTATED";
+        var found = new PresetStore(new() { StorageRoot = root }).Find(created.Id)!;
+        Assert.Equal("PPSA00001", found.Compatibility.TitleIds.Single());
+        Assert.Equal(42, found.Actions.Single().Parameters["value"].GetInt32());
+        Assert.Throws<NotSupportedException>(() => ((IList<string>)found.Compatibility.TitleIds)[0] = "MUTATED");
+        Assert.Throws<NotSupportedException>(() => ((IDictionary<string, JsonElement>)found.Actions.Single().Parameters)["value"] = JsonDocument.Parse("9").RootElement);
+    }
+
+    [Fact]
+    public void WholeStoreAndPreReadFileBoundsAreEnforced()
+    {
+        var root = TestZips.TempDir();
+        var store = new PresetStore(new() { StorageRoot = root, MaxPayloadBytes = 2048 });
+        var payload = new PresetAction("set", new Dictionary<string, JsonElement>
+        {
+            ["value"] = JsonDocument.Parse("\"" + new string('x', 450) + "\"").RootElement.Clone(),
+        });
+        _ = store.Create("one", new("p", "1", ["T"]), [payload]);
+        Assert.Throws<InvalidOperationException>(() => store.Create("two", new("p", "1", ["T"]), [payload]));
+        Assert.Single(store.List());
+        File.WriteAllBytes(Path.Combine(root, "presets.json"), new byte[2049]);
+        Assert.Throws<InvalidDataException>(() => new PresetStore(new() { StorageRoot = root, MaxPayloadBytes = 2048 }));
+    }
 }

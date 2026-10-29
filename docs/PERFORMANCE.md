@@ -31,6 +31,10 @@ DocumentEditor CSS chunk without CSS source changes.
 | index.css | 37478 | 9943 | 37478 | 9943 |
 | WorkspacePage.js | 156784 | 45486 | 14267 | 5131 |
 | DocumentEditor.js (new split) | — | — | 143127 | 41652 |
+| PresetsPanel.js (lazy preset flow) | — | — | 16081 | 5249 |
+| PresetsPanel.css (lazy preset flow) | — | — | 1446 | 523 |
+| documentStore.js (shared lazy dependency) | — | — | 2802 | 1015 |
+| values.js (shared initial dependency) | — | — | 13967 | 5391 |
 | Workspace/editor CSS | 5131 | 1504 | 5131 | 1504 |
 | GraphView.js | 4146 | 1748 | 4142 | 1747 |
 | MapView.js | 5133 | 2127 | 5134 | 2129 |
@@ -46,7 +50,9 @@ DocumentEditor CSS chunk without CSS source changes.
   editor, tables, virtualizer and reference-picker code immediately (**45486 gzip bytes**).
   JS for home plus the empty workspace falls from **164181 to 123718 gzip bytes** (24.6%).
 - Selecting a document, or opening a `?doc=...` deep link, additionally loads DocumentEditor JS
-  (**41652 gzip bytes**) and its CSS (**1504**). The existing Opening status covers the code load.
+  (**42271 gzip bytes**) and its CSS (**1504**). The preset leaf is loaded as a separate
+  **5249-byte** JS/**523-byte** CSS chunk behind the same accessible Suspense status. The existing
+  Opening status covers the editor code load.
   Eager/queryable tables, hex virtualization, the reference picker and TanStack Virtual stay together
   in this chunk; they are deferred with the editor, not independently split. Their recursive renderer
   and shared field/state imports make further boundaries a less clear safe win at this size.
@@ -90,6 +96,10 @@ output-directory behavior, so the check never removes or rewrites output.
 | WorkspacePage.js | 5131 | 5700 |
 | DocumentEditor.js | 41652 | 45900 |
 | DocumentEditor.css | 1504 | 1660 |
+| PresetsPanel.js | 5249 | 5800 |
+| PresetsPanel.css | 523 | 580 |
+| documentStore.js | 1015 | 1130 |
+| values.js | 5391 | 6000 |
 | GraphView.js | 1747 | 1930 |
 | MapView.js | 2129 | 2350 |
 | SpatialShared.js | 1788 | 1970 |

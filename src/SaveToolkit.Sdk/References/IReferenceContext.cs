@@ -22,13 +22,24 @@ public interface IReferenceContext
     IReadOnlyList<ReferencePackInfo> Packs { get; }
 
     /// <summary>
+    /// Locale preferences and selection-policy inputs used by the pinned context. Hosts override this
+    /// with the effective ordered preferences; the conservative default remains explicitly unknown.
+    /// </summary>
+    IReadOnlyList<string> PreferredLocales => [];
+
+    /// <summary>
     /// Deterministic identity of the pinned pack contents, suitable for a host compatibility
     /// boundary. It is null when no pack is pinned; plugins must not manufacture it from file I/O.
     /// </summary>
-    string? ContentIdentity => Packs.Count == 0 ? null : string.Join("|", Packs
+    string? ContentIdentity => Packs.Count == 0 ? null : string.Join("|", [
+        $"selection:v1;locales={string.Join(",", PreferredLocales.Select(locale => locale ?? "unknown"))};origin=user-over-embedded;build=exact-over-neutral",
+        .. Packs
         .OrderBy(pack => pack.Id, StringComparer.Ordinal)
+        .ThenBy(pack => pack.Version, StringComparer.Ordinal)
+        .ThenBy(pack => pack.Origin)
+        .ThenBy(pack => pack.Locale, StringComparer.Ordinal)
         .ThenBy(pack => pack.ContentFingerprint, StringComparer.Ordinal)
-        .Select(pack => $"{pack.Id}@{pack.Version}:{pack.ContentFingerprint ?? "unknown"}"));
+        .Select(pack => $"pack:{pack.Id}@{pack.Version};origin={pack.Origin};locale={pack.Locale ?? "neutral"};content={pack.ContentFingerprint ?? "unknown"}")]);
 
     /// <summary>
     /// Best catalog with this id for the document, or null. With <paramref name="gameBuild"/> set,
@@ -47,6 +58,7 @@ public interface IReferenceContext
 internal sealed class EmptyReferenceContext : IReferenceContext
 {
     public IReadOnlyList<ReferencePackInfo> Packs => [];
+    public IReadOnlyList<string> PreferredLocales => [];
     public string? ContentIdentity => null;
 
     public IReferenceCatalog? Catalog(string catalogId, string? gameBuild = null) => null;

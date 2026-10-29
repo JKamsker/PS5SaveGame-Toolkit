@@ -68,6 +68,8 @@ public sealed record DocumentDto(
     ViewNode View)
 {
     public IReadOnlyList<GroupMemberInfo>? GroupMembers { get; init; }
+    public PresetCapability? PresetCapability { get; init; }
+    public string? TitleId { get; init; }
 }
 
 public sealed record OpenRequest(string? PluginId);

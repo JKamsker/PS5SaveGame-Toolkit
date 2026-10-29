@@ -32,12 +32,14 @@ internal static class PresetEndpoints
 
     private static IResult Capture(DocumentRef document, CapturePresetRequest request, PresetStore store)
     {
-        var capability = document.Value.PresetDocument?.PresetCapability;
+        var capability = document.Value.PresetCapability;
         var action = document.Value.CapturePreset(new SaveToolkit.Sdk.PresetCaptureRequest(
             request.ActionId,
             request.Parameters ?? [],
             request.ScopeKind,
-            request.SelectedRowKeys ?? [],
+            string.Equals(request.ScopeKind, PresetScopeKinds.Selected, StringComparison.Ordinal)
+                ? request.SelectedRowKeys ?? []
+                : null,
             request.AllMatches));
         var compatibility = new PresetCompatibility(
             document.Value.Plugin.Info.Id,
@@ -49,7 +51,8 @@ internal static class PresetEndpoints
             true,
             capability?.PresetKind ?? "toolkit.action-parameters",
             capability?.SchemaFingerprint,
-            capability?.FileRole);
+            capability?.FileRole,
+            capability?.SchemaVersion);
         return Results.Ok(store.Create(request.Name, compatibility, [action]).ToDto());
     }
 
@@ -71,10 +74,12 @@ internal static class PresetEndpoints
         var action = preset.Actions[0];
         if (action.ScopeKind != "document" || action.Instances is { Count: > 0 })
             return Results.UnprocessableEntity(new ErrorDto("This preset needs explicit owned-instance resolution from the plugin."));
-        var preview = document.Value.PlanAction(action.ActionId, action.Parameters, new ActionScope(), request.Revision, cancellationToken);
-        if (preview.Stale) return Results.Conflict(preview);
-        if (preview.Plan.Errors.Count > 0) return Results.UnprocessableEntity(preview);
-        return Results.Ok(new PresetPreviewDto(preset.ToDto(), preview));
+        var fingerprint = PresetStore.PayloadFingerprint(preset);
+        var preview = document.Value.PlanAction(action.ActionId, action.Parameters, new ActionScope(), request.Revision, preset.Id, fingerprint, cancellationToken);
+        var dto = new PresetPreviewDto(preset.ToDto(), preview);
+        if (preview.Stale) return Results.Conflict(dto);
+        if (preview.Plan.Errors.Count > 0) return Results.UnprocessableEntity(dto);
+        return Results.Ok(dto);
     }
 
     private static IResult Apply(DocumentRef document, string presetId, ApplyPresetRequest request,
@@ -83,11 +88,12 @@ internal static class PresetEndpoints
         var preset = store.Find(presetId) ?? throw new KeyNotFoundException("Preset not found.");
         var compatibility = PresetStore.CheckCompatibility(preset, document.Value);
         if (!compatibility.Compatible) return Results.UnprocessableEntity(new ErrorDto(compatibility.Message!, compatibility.Code));
+        var fingerprint = PresetStore.PayloadFingerprint(preset);
         if (document.Value.PresetDocument is not null)
-            return SessionEditResponse.Create(document.Value.ApplyPresetPlan(request.PlanId, request.Revision, cancellationToken));
+            return SessionEditResponse.Create(document.Value.ApplyPresetPlan(request.PlanId, request.Revision, preset.Id, fingerprint, cancellationToken));
         if (preset.Actions.Count != 1)
             return Results.UnprocessableEntity(new ErrorDto("This document has no multi-action preset adapter yet."));
-        var result = document.Value.ApplyActionPlan(request.PlanId, request.Revision, cancellationToken);
+        var result = document.Value.ApplyActionPlan(request.PlanId, request.Revision, preset.Id, fingerprint, cancellationToken);
         return SessionEditResponse.Create(result);
     }
 }

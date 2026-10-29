@@ -15,15 +15,19 @@ record contains a human name, a compatibility boundary, and semantic action para
     "gameBuild": "1.03",
     "formatVariant": "retail",
     "referencePackIdentity": "example-items@2026-10",
+    "capabilitySchemaVersion": "1",
     "requiresExplicitInstanceResolution": true
   },
   "actions": [{ "actionId": "restock", "parameters": { "quantity": 10 } }]
 }
 ```
 
-`PresetCompatibility` is intentionally stricter than a file name or byte length. A plugin that has
-variant or reference-pack evidence should publish those values through `IPresetDocument` and include
-them when creating a preset. `ReferencePackInfo.ContentFingerprint` and
+`PresetCompatibility` is intentionally stricter than a file name or byte length. For an opt-in
+`IPresetDocument`, every boundary the current capability publishes must be present and equal in the
+preset; omission is incompatible. Unknown current build or reference identity remains unknown and
+blocks a preset that requires it. `CapabilitySchemaVersion` is persisted separately from the host
+storage `ToolkitPreset.SchemaVersion` and is compared exactly. The host owns the pinned reference
+identity and ignores an unverified plugin string. `ReferencePackInfo.ContentFingerprint` and
 `IReferenceContext.ContentIdentity` are host-computed SHA-256 identities over the validated manifest
 and every listed file hash; they distinguish same-id/version/locale overlays and embedded/user content
 without plugin I/O. A missing or ambiguous owned instance must return
@@ -31,7 +35,10 @@ without plugin I/O. A missing or ambiguous owned instance must return
 type id, physical slot, or a session id. `PresetInstanceReference.StableId` is a semantic identifier,
 never an ephemeral document/session identifier.
 
-Plugins opt in by implementing `IPresetDocument`. `CapturePreset(PresetCaptureRequest)` receives
+Plugins opt in by implementing `IPresetDocument`. `PresetActionCapability.ScopeKinds` advertises all
+supported semantic scopes; `ScopeKind` remains the legacy single-scope field. The host capture UI
+exposes only those advertised scopes and passes current table selection keys only for `Selected`.
+An empty `Selected` selection stays empty and cannot become document scope. `CapturePreset(PresetCaptureRequest)` receives
 ephemeral selected row keys and scope intent, and must return semantic targets; those row keys are never
 persisted. The implementation remains stateless and performs no I/O. It resolves instance references and
 calculates an `ActionPlan` without mutation, then applies that plan atomically. The host owns persistence,
@@ -58,19 +65,21 @@ For the planned FF7 adapter, the stable action identifiers and typed parameter c
 
 | action | parameters | supported semantic scopes |
 | --- | --- | --- |
-| `inventory/restock-existing` | `quantity` (integer 1..99), `inventoryTable` (string), `itemTypeIds` (array of mapped ordinary-item type ids) | `Document`, `AllEligible`, `Selected` |
+| `inventory/restock-existing` | `quantity` (integer 1..99) | `Document`, `AllEligible`, `Selected` |
 | `materia/set-ap-within-tier` | `type` (raw catalogue id), `ap` (bounded integer) | `Document`, `AllCopies`, `Selected` |
 | `materia/set-stars` | `type` (raw catalogue id), `stars` (integer 1..5) | `Document`, `AllCopies`, `Selected` |
 | `character/recover-current-vitals` | no parameters | `Document`, `AllEligible`, `Selected` |
-| `character/set-level` | `level` (bounded integer), `derivedXpSourceCurve` (string identity) | `Document`, `AllEligible`, `Selected` |
+| `character/set-level` | `level` (bounded integer) | `Document`, `AllEligible`, `Selected` |
 
-`CapturePreset` converts the selected physical row keys into these semantic parameters and
-`PresetInstanceReference` values. A selected row key is a request-time input only. Rebirth owned rows
+`CapturePreset` converts the selected physical row keys into semantic target references; those
+references and any plugin-owned scope metadata are separate from the F6 parameter values above and
+are never positional save selectors. The resulting `PresetInstanceReference` values are persisted only
+when they are stable semantic identities. A selected row key is a request-time input only. Rebirth owned rows
 must resolve through the adapter's detail identity: zero candidates is `Missing`, multiple candidates is
 `Ambiguous` with explicit `PresetInstanceChoice` values, and one candidate is `Resolved`. Remake
 materia has no proven portable owned-instance identity, so an adapter should reject `Selected` for that
-case and offer `AllCopies` where supported. `game/playtime` and `gil/count` remain bounded scalar
-extensions when an adapter advertises them; they are not native loadout support.
+case and offer `AllCopies` where supported. Native socket/materia loadouts and structural writers are
+outside this initial action contract.
 
 FF7 compatibility must pin title id, `formatVariant` (`Remake`, `Rebirth`, or `RebirthDemo`), plugin
 version, schema/file role, and `referencePackIdentity`. Retail and demo saves have shared dimensions but

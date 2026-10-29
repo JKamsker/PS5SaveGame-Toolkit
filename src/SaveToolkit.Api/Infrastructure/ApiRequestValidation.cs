@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SaveToolkit.Api.Contracts;
 using SaveToolkit.Api.Endpoints;
+using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Api.Infrastructure;
 
@@ -27,6 +28,22 @@ internal static class ApiRequestValidation
         PlanActionRequest { Revision: < 0 } => "Revision cannot be negative.",
         ApplyActionPlanRequest r when Missing(r.PlanId) => "PlanId is required.",
         ApplyActionPlanRequest { Revision: < 0 } => "Revision cannot be negative.",
+        CreatePresetRequest r when Missing(r.Name) => "Preset name is required.",
+        CreatePresetRequest r when r.Name.Trim().Length > 100 => "Preset name cannot exceed 100 characters.",
+        CreatePresetRequest r when r.Compatibility is null || Missing(r.Compatibility.PluginId)
+            || Missing(r.Compatibility.PluginVersion) || r.Compatibility.TitleIds is null || r.Compatibility.TitleIds.Count == 0
+            || r.Compatibility.TitleIds.Any(Missing) => "Preset compatibility requires plugin, version and at least one title id.",
+        CreatePresetRequest r when r.Actions is null || r.Actions.Count is < 1 or > 32 => "Preset actions must contain between 1 and 32 actions.",
+        CreatePresetRequest r when r.Actions.Any(action => action is null || Missing(action.ActionId) || action.Parameters is null || action.Parameters.Count > 128 || Missing(action.ScopeKind) || !ValidScope(action.ScopeKind)) => "Every preset action requires an id, at most 128 parameters and a supported scope.",
+        RenamePresetRequest r when Missing(r.Name) => "Preset name is required.",
+        RenamePresetRequest r when r.Name.Trim().Length > 100 => "Preset name cannot exceed 100 characters.",
+        CapturePresetRequest r when Missing(r.Name) || Missing(r.ActionId) => "Preset name and action id are required.",
+        CapturePresetRequest r when r.Name.Trim().Length > 100 => "Preset name cannot exceed 100 characters.",
+        CapturePresetRequest r when !ValidScope(r.ScopeKind) => "Preset capture requires a supported scope.",
+        CapturePresetRequest r when r.SelectedRowKeys is { Count: > 5000 } => "Preset capture selection cannot contain more than 5000 rows.",
+        PresetPlanRequest { Revision: < 0 } => "Revision cannot be negative.",
+        ApplyPresetRequest r when Missing(r.PlanId) => "PlanId is required.",
+        ApplyPresetRequest { Revision: < 0 } => "Revision cannot be negative.",
         RevertChangeRequest r when Missing(r.ValueId) => "ValueId is required.",
         RevertChangeRequest { Revision: < 0 } => "Revision cannot be negative.",
         HistoryRequest { Revision: < 0 } => "Revision cannot be negative.",
@@ -36,4 +53,7 @@ internal static class ApiRequestValidation
     };
 
     private static bool Missing(string? value) => string.IsNullOrWhiteSpace(value);
+
+    private static bool ValidScope(string? scope) => scope is PresetScopeKinds.Document or PresetScopeKinds.AllEligible
+        or PresetScopeKinds.AllCopies or PresetScopeKinds.Selected;
 }

@@ -164,6 +164,8 @@ export interface SaveDocument {
   canEdit: boolean;
   state: DocumentState;
   view: ViewNode;
+  presetCapability?: PresetCapability;
+  titleId?: string;
 }
 
 export interface ValueChange { valueId: string; oldValue: FieldValue; newValue: FieldValue }
@@ -211,7 +213,9 @@ export type ExportScope = "ChangedFiles" | "ChangedDirectories" | "Everything";
 
 export interface ExportPlan { files: { relativePath: string; length: number; reason: string }[]; changedCount: number }
 
-export interface PresetCompatibility { pluginId: string; pluginVersion: string; titleIds: string[]; gameBuild?: string; formatVariant?: string; referencePackIdentity?: string; requiresExplicitInstanceResolution?: boolean; presetKind?: string; schemaFingerprint?: string; fileRole?: string }
+export interface PresetCompatibility { pluginId: string; pluginVersion: string; titleIds: string[]; gameBuild?: string; formatVariant?: string; referencePackIdentity?: string; requiresExplicitInstanceResolution?: boolean; presetKind?: string; schemaFingerprint?: string; fileRole?: string; capabilitySchemaVersion?: string }
+export interface PresetActionCapability { actionId: string; label: string; parameterIds: string[]; supportsCapture?: boolean; supportsApply?: boolean; parameterSpecs?: FieldSpec[]; scopeKind?: string; scopeKinds?: string[] }
+export interface PresetCapability { schemaVersion: string; gameBuild?: string; actions: PresetActionCapability[]; maxActions: number; formatVariant?: string; referencePackIdentity?: string; presetKind?: string; schemaFingerprint?: string; fileRole?: string }
 export interface PresetInstanceReference { kind: string; stableId: string; label?: string }
 export interface PresetAction { actionId: string; parameters: Record<string, unknown>; instances?: PresetInstanceReference[]; scopeKind?: string }
 export interface ToolkitPreset {

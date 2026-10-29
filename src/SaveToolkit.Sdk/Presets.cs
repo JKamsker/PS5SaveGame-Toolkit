@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SaveToolkit.Sdk;
 
@@ -13,7 +14,8 @@ public sealed record PresetCompatibility(
     bool RequiresExplicitInstanceResolution = true,
     string PresetKind = "toolkit.action-parameters",
     string? SchemaFingerprint = null,
-    string? FileRole = null);
+    string? FileRole = null,
+    string? CapabilitySchemaVersion = null);
 
 /// <summary>A semantic instance reference. Stable ids are supplied by a plugin; session ids are forbidden.</summary>
 public sealed record PresetInstanceReference(string Kind, string StableId, string? Label = null);
@@ -30,7 +32,7 @@ public sealed record PresetCaptureRequest(
     string ActionId,
     IReadOnlyDictionary<string, JsonElement> Parameters,
     string ScopeKind = PresetScopeKinds.Document,
-    IReadOnlyList<string> SelectedRowKeys = null!,
+    IReadOnlyList<string>? SelectedRowKeys = null,
     bool AllMatches = false);
 
 /// <summary>Stable semantic scope names; none of these values is a session row key.</summary>
@@ -64,7 +66,13 @@ public sealed record PresetActionCapability(
     bool SupportsCapture = true,
     bool SupportsApply = true,
     IReadOnlyList<Values.FieldSpec> ParameterSpecs = null!,
-    string ScopeKind = PresetScopeKinds.Document);
+    string ScopeKind = PresetScopeKinds.Document,
+    IReadOnlyList<string> ScopeKinds = null!)
+{
+    /// <summary>All semantic scopes advertised by this action, with legacy ScopeKind as fallback.</summary>
+    [JsonIgnore]
+    public IReadOnlyList<string> SupportedScopes => ScopeKinds is { Count: > 0 } ? ScopeKinds : [ScopeKind];
+}
 
 /// <summary>Optional plugin capability for semantic preset capture, instance resolution and atomic apply.</summary>
 public sealed record PresetCapability(

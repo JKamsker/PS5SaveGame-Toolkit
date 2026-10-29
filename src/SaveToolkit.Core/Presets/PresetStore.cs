@@ -1,5 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Security.Cryptography;
+using System.Collections.ObjectModel;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
 
@@ -38,12 +40,20 @@ public sealed class PresetStore
 
     public IReadOnlyList<ToolkitPreset> List()
     {
-        lock (_gate) return [.. _presets.Values.OrderByDescending(p => p.UpdatedAt)];
+        lock (_gate) return [.. _presets.Values.OrderByDescending(p => p.UpdatedAt).Select(ClonePreset)];
     }
 
     public ToolkitPreset? Find(string id)
     {
-        lock (_gate) return _presets.GetValueOrDefault(id);
+        lock (_gate) return _presets.TryGetValue(id, out var preset) ? ClonePreset(preset) : null;
+    }
+
+    /// <summary>Stable fingerprint of the reviewed preset payload, excluding mutable timestamps.</summary>
+    public static string PayloadFingerprint(ToolkitPreset preset)
+    {
+        ArgumentNullException.ThrowIfNull(preset);
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(new { preset.SchemaVersion, preset.Name, preset.Compatibility, preset.Actions }, JsonOptions);
+        return Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
     }
 
     public ToolkitPreset Create(string name, PresetCompatibility compatibility, IReadOnlyList<PresetAction> actions)
@@ -54,12 +64,12 @@ public sealed class PresetStore
         {
             if (_presets.Count >= _options.MaxPresets) throw new InvalidOperationException("The preset limit has been reached.");
             var now = DateTimeOffset.UtcNow;
-            var preset = new ToolkitPreset(CurrentSchemaVersion, Guid.NewGuid().ToString("N"), name.Trim(), compatibility,
-                CloneActions(actions), now, now);
+            var preset = ClonePreset(new ToolkitPreset(CurrentSchemaVersion, Guid.NewGuid().ToString("N"), name.Trim(), compatibility,
+                CloneActions(actions), now, now));
             _presets.Add(preset.Id, preset);
             try { Persist(); }
             catch { _presets.Remove(preset.Id); throw; }
-            return preset;
+            return ClonePreset(preset);
         }
     }
 
@@ -73,7 +83,7 @@ public sealed class PresetStore
             _presets[id] = updated;
             try { Persist(); }
             catch { _presets[id] = current; throw; }
-            return updated;
+            return ClonePreset(updated);
         }
     }
 
@@ -104,26 +114,37 @@ public sealed class PresetStore
             return new(false, "This preset was created for a different plugin version.", "pluginUnavailable");
         if (!preset.Compatibility.TitleIds.Contains(document.File.Directory.TitleId, StringComparer.OrdinalIgnoreCase))
             return new(false, "This preset belongs to a different title.", "titleMismatch");
-        var build = document.PresetDocument?.PresetCapability.GameBuild;
+        var capability = document.PresetCapability;
+        var build = capability?.GameBuild;
         if (preset.Compatibility.GameBuild is { } expected
             && !string.Equals(expected, build, StringComparison.Ordinal))
             return new(false, build is null ? "The current game build is unknown." : "This preset belongs to a different game build.", "buildMismatch");
-        var capability = document.PresetDocument?.PresetCapability;
-        if (preset.Compatibility.FormatVariant is { } variant
-            && !string.Equals(variant, capability?.FormatVariant, StringComparison.Ordinal))
-            return new(false, capability?.FormatVariant is null ? "The current save variant is unknown." : "This preset belongs to a different save variant.", "schemaMismatch");
-        if (preset.Compatibility.ReferencePackIdentity is { } referencePack
-            && !string.Equals(referencePack, capability?.ReferencePackIdentity, StringComparison.Ordinal))
-            return new(false, capability?.ReferencePackIdentity is null ? "The required reference pack is unavailable." : "This preset requires a different reference pack.", "referencePackMismatch");
         if (!string.Equals(preset.Compatibility.PresetKind, capability?.PresetKind ?? "toolkit.action-parameters", StringComparison.Ordinal))
             return new(false, "This preset kind is not supported by the current document.", "schemaMismatch");
-        if (preset.Compatibility.SchemaFingerprint is { } fingerprint
-            && !string.Equals(fingerprint, capability?.SchemaFingerprint, StringComparison.Ordinal))
-            return new(false, capability?.SchemaFingerprint is null ? "The current schema fingerprint is unknown." : "This preset belongs to a different schema.", "schemaMismatch");
-        if (preset.Compatibility.FileRole is { } fileRole
-            && !string.Equals(fileRole, capability?.FileRole, StringComparison.Ordinal))
-            return new(false, "This preset targets a different save-file role.", "schemaMismatch");
+        if (capability is not null)
+        {
+            if (MissingOrDifferent(preset.Compatibility.GameBuild, build, "game build", "buildMismatch") is { } buildCheck)
+                return buildCheck;
+            if (MissingOrDifferent(preset.Compatibility.FormatVariant, capability.FormatVariant, "save variant", "schemaMismatch") is { } variantCheck)
+                return variantCheck;
+            if (MissingOrDifferent(preset.Compatibility.ReferencePackIdentity, capability.ReferencePackIdentity, "reference pack", "referencePackMismatch") is { } referenceCheck)
+                return referenceCheck;
+            if (MissingOrDifferent(preset.Compatibility.SchemaFingerprint, capability.SchemaFingerprint, "schema", "schemaMismatch") is { } schemaCheck)
+                return schemaCheck;
+            if (MissingOrDifferent(preset.Compatibility.FileRole, capability.FileRole, "save-file role", "schemaMismatch") is { } roleCheck)
+                return roleCheck;
+            if (MissingOrDifferent(preset.Compatibility.CapabilitySchemaVersion, capability.SchemaVersion, "preset capability schema", "schemaMismatch") is { } capabilitySchemaCheck)
+                return capabilitySchemaCheck;
+        }
         return PresetCompatibilityCheck.Success;
+
+        static PresetCompatibilityCheck? MissingOrDifferent(string? expected, string? actual, string label, string code)
+        {
+            if (actual is null) return expected is null ? null : new(false, $"The current {label} is unknown.", code);
+            if (expected is null) return new(false, $"This preset is missing the required {label} boundary.", code);
+            return string.Equals(expected, actual, StringComparison.Ordinal)
+                ? null : new(false, $"This preset belongs to a different {label}.", code);
+        }
     }
 
     private ToolkitPreset FindRequired(string id) => _presets.TryGetValue(id, out var preset)
@@ -135,13 +156,19 @@ public sealed class PresetStore
         if (!File.Exists(path)) return;
         try
         {
-            var records = JsonSerializer.Deserialize<List<ToolkitPreset>>(File.ReadAllBytes(path), JsonOptions) ?? [];
+            var fileLength = new FileInfo(path).Length;
+            if (fileLength > _options.MaxPayloadBytes)
+                throw new InvalidDataException("Preset storage exceeds the configured size limit.");
+            var bytes = File.ReadAllBytes(path);
+            if (bytes.LongLength > _options.MaxPayloadBytes)
+                throw new InvalidDataException("Preset storage exceeds the configured size limit.");
+            var records = JsonSerializer.Deserialize<List<ToolkitPreset>>(bytes, JsonOptions) ?? [];
             if (records.Count > _options.MaxPresets) throw new InvalidDataException("Preset storage exceeds the configured limit.");
             foreach (var preset in records)
             {
                 if (preset.SchemaVersion != CurrentSchemaVersion || string.IsNullOrWhiteSpace(preset.Id)) continue;
                 ValidatePayload(preset.Compatibility, preset.Actions);
-                _presets[preset.Id] = preset;
+                _presets[preset.Id] = ClonePreset(preset);
             }
         }
         catch (JsonException ex)
@@ -155,10 +182,18 @@ public sealed class PresetStore
         var path = Path.Combine(_options.StorageRoot, FileName);
         var temp = path + ".tmp";
         var bytes = JsonSerializer.SerializeToUtf8Bytes(_presets.Values.OrderBy(p => p.Id), JsonOptions);
-        if (bytes.Length > _options.MaxPayloadBytes * _options.MaxPresets)
+        if (bytes.LongLength > _options.MaxPayloadBytes)
             throw new InvalidOperationException("Preset storage exceeds the configured size limit.");
-        File.WriteAllBytes(temp, bytes);
-        File.Move(temp, path, overwrite: true);
+        try
+        {
+            File.WriteAllBytes(temp, bytes);
+            File.Move(temp, path, overwrite: true);
+        }
+        catch (IOException ex)
+        {
+            try { if (File.Exists(temp)) File.Delete(temp); } catch (IOException) { }
+            throw new PresetStorageException("Preset storage is temporarily unavailable. Retry the operation.", ex);
+        }
     }
 
     private void ValidatePayload(PresetCompatibility compatibility, IReadOnlyList<PresetAction> actions)
@@ -177,7 +212,23 @@ public sealed class PresetStore
     }
 
     private static IReadOnlyList<PresetAction> CloneActions(IReadOnlyList<PresetAction> actions) =>
-        actions.Select(action => action with { Parameters = new Dictionary<string, JsonElement>(action.Parameters, StringComparer.Ordinal), Instances = [.. action.Instances ?? []] }).ToArray();
+        Array.AsReadOnly(actions.Select(CloneAction).ToArray());
+
+    private static PresetAction CloneAction(PresetAction action) => action with
+    {
+        Parameters = new ReadOnlyDictionary<string, JsonElement>(
+            action.Parameters.ToDictionary(pair => pair.Key, pair => pair.Value.Clone(), StringComparer.Ordinal)),
+        Instances = Array.AsReadOnly((action.Instances ?? []).Select(instance => instance with { }).ToArray()),
+    };
+
+    private static ToolkitPreset ClonePreset(ToolkitPreset preset) => preset with
+    {
+        Compatibility = preset.Compatibility with
+        {
+            TitleIds = Array.AsReadOnly(preset.Compatibility.TitleIds.ToArray()),
+        },
+        Actions = CloneActions(preset.Actions),
+    };
 
     private static void ValidateName(string name)
     {

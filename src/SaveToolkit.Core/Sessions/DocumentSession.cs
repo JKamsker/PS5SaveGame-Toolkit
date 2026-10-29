@@ -78,6 +78,16 @@ public sealed partial class DocumentSession : IDisposable
     public bool CanEdit => Locked(() => Document.CanEdit);
     /// <summary>Optional semantic preset capability published by the opened plugin document.</summary>
     public IPresetDocument? PresetDocument => Locked(() => Document as IPresetDocument);
+    /// <summary>Host-authoritative preset capability with the pinned reference identity applied.</summary>
+    public PresetCapability? PresetCapability => Locked(() => EffectivePresetCapability());
+    /// <summary>The immutable reference context pinned when this document opened.</summary>
+    public IReferenceContext PinnedReferences => _references;
+
+    private PresetCapability? EffectivePresetCapability()
+    {
+        if (Document is not IPresetDocument adapter) return null;
+        return adapter.PresetCapability with { ReferencePackIdentity = ((IReferenceContext)_references).ContentIdentity };
+    }
 
     private ISaveDocument Document { get; }
 

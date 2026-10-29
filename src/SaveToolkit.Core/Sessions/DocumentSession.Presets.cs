@@ -1,4 +1,5 @@
 using System.Text.Json;
+using SaveToolkit.Core.Presets;
 using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Core.Sessions;
@@ -28,7 +29,11 @@ public sealed partial class DocumentSession
         IReadOnlyDictionary<string, string>? choices = null, CancellationToken cancellationToken = default) => Locked(() => RunPreflight(_ => PlanPresetCore(preset, expectedRevision, choices, cancellationToken), cancellationToken), cancellationToken);
 
     public SessionEditResult ApplyPresetPlan(string planId, long expectedRevision, CancellationToken cancellationToken = default) =>
-        Locked(() => RunPreflight(startApply => ApplyPresetCore(planId, expectedRevision, startApply, cancellationToken), cancellationToken), cancellationToken);
+        ApplyPresetPlan(planId, expectedRevision, null, null, cancellationToken);
+
+    public SessionEditResult ApplyPresetPlan(string planId, long expectedRevision, string? expectedPresetId,
+        string? expectedPresetFingerprint, CancellationToken cancellationToken = default) =>
+        Locked(() => RunPreflight(startApply => ApplyPresetCore(planId, expectedRevision, startApply, expectedPresetId, expectedPresetFingerprint, cancellationToken), cancellationToken), cancellationToken);
 
     private PresetActionPreview PlanPresetCore(ToolkitPreset preset, long? expectedRevision, IReadOnlyDictionary<string, string>? choices, CancellationToken cancellationToken)
     {
@@ -58,7 +63,7 @@ public sealed partial class DocumentSession
             if (plan.Errors.Count > 0) return new(null, _revision, preset, resolution, plan);
             var id = Guid.NewGuid().ToString("N");
             var resolutionBytes = JsonSerializer.SerializeToUtf8Bytes(resolution);
-            _pendingPreset = new PendingPreset(id, _revision, preset, resolution, bytes, resolutionBytes, selected);
+            _pendingPreset = new PendingPreset(id, _revision, preset, PresetStore.PayloadFingerprint(preset), resolution, bytes, resolutionBytes, selected);
             return new(id, _revision, preset, resolution, plan);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException and not OperationCanceledException)
@@ -70,11 +75,13 @@ public sealed partial class DocumentSession
             new(null, _revision, item, resolutionResult, new ActionPlan { Errors = [new("preset", message)] });
     }
 
-    private SessionEditResult ApplyPresetCore(string planId, long expectedRevision, Action startApply, CancellationToken cancellationToken)
+    private SessionEditResult ApplyPresetCore(string planId, long expectedRevision, Action startApply,
+        string? expectedPresetId, string? expectedPresetFingerprint, CancellationToken cancellationToken)
     {
         var pending = _pendingPreset;
         _pendingPreset = null;
-        if (pending is null || pending.Id != planId || pending.Revision != expectedRevision || expectedRevision != _revision)
+        if (pending is null || pending.Id != planId || pending.Revision != expectedRevision || expectedRevision != _revision
+            || expectedPresetId is not null && (pending.Preset.Id != expectedPresetId || pending.PresetFingerprint != expectedPresetFingerprint))
             return Rejected(string.Empty, "The preset preview is stale. Preview it again.") with { Stale = true };
         if (!Document.CanEdit) return Rejected("preset", "This document is read-only.");
         if (Document is not IPresetDocument planner) return Rejected("preset", "This plugin has no semantic preset adapter.");
@@ -108,6 +115,6 @@ public sealed partial class DocumentSession
         resolution.Instances.Where(item => item.Status != PresetInstanceResolutionStatus.Resolved)
             .Select(item => new FieldError(item.Requested.StableId, item.Message ?? $"Preset instance is {item.Status.ToString().ToLowerInvariant()}.")).ToArray();
 
-    private sealed record PendingPreset(string Id, long Revision, ToolkitPreset Preset, PresetResolution Resolution,
+    private sealed record PendingPreset(string Id, long Revision, ToolkitPreset Preset, string PresetFingerprint, PresetResolution Resolution,
         byte[] PlanBytes, byte[] ResolutionBytes, IReadOnlyDictionary<string, string> Choices);
 }

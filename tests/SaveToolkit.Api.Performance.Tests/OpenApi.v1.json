@@ -467,11 +467,27 @@
           "plugin": {
             "$ref": "#/components/schemas/PluginDto"
           },
+          "presetCapability": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PresetCapability"
+              }
+            ]
+          },
           "state": {
             "$ref": "#/components/schemas/DocumentState"
           },
           "title": {
             "type": "string"
+          },
+          "titleId": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "view": {
             "$ref": "#/components/schemas/ViewNode"
@@ -2256,9 +2272,124 @@
         ],
         "type": "object"
       },
+      "PresetActionCapability": {
+        "description": "Published action metadata a plugin is willing to capture or apply through presets.",
+        "properties": {
+          "actionId": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "parameterIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "parameterSpecs": {
+            "items": {
+              "$ref": "#/components/schemas/FieldSpec"
+            },
+            "type": "array"
+          },
+          "scopeKind": {
+            "default": "document",
+            "type": "string"
+          },
+          "scopeKinds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "supportsApply": {
+            "default": true,
+            "type": "boolean"
+          },
+          "supportsCapture": {
+            "default": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "actionId",
+          "label",
+          "parameterIds"
+        ],
+        "type": "object"
+      },
+      "PresetCapability": {
+        "description": "Optional plugin capability for semantic preset capture, instance resolution and atomic apply.",
+        "properties": {
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/PresetActionCapability"
+            },
+            "type": "array"
+          },
+          "fileRole": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "formatVariant": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "gameBuild": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "maxActions": {
+            "default": 32,
+            "format": "int32",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "presetKind": {
+            "default": "toolkit.action-parameters",
+            "type": "string"
+          },
+          "referencePackIdentity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "schemaFingerprint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "schemaVersion": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "actions"
+        ],
+        "type": "object"
+      },
       "PresetCompatibility": {
         "description": "Stable title, plugin and optional game-build identity used by an external toolkit preset.",
         "properties": {
+          "capabilitySchemaVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "fileRole": {
             "type": [
               "null",
