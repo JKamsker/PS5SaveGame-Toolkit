@@ -17,7 +17,7 @@ public sealed class AtomicHeartInventoryQueryTests
         using var document = WriteTestData.Plugin.Open(WriteTestData.Sample(), WriteTestData.References());
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
         Assert.Equal(90, Assert.Single(queryable.Collections, c => c.Id == InventoryCollection.Id).TotalCount);
-        var all = queryable.Query(InventoryCollection.Id, new() { Limit = int.MaxValue, Offset = -10, SortColumn = "amount", Descending = true });
+        var all = queryable.Query(InventoryCollection.Id, new() { IncludeEmpty = true, Limit = int.MaxValue, Offset = -10, SortColumn = "amount", Descending = true });
         Assert.Equal(90, all.Rows.Count);
         Assert.Equal(0, all.Offset);
         var amounts = all.Rows.Select(r => WriteTestData.Field(r, "amount").Value.AsInt64()).ToArray();
@@ -40,8 +40,11 @@ public sealed class AtomicHeartInventoryQueryTests
         Assert.Throws<ArgumentException>(() => queryable.Query(InventoryCollection.Id, new() { Filters = new Dictionary<string, string> { ["missing"] = "bad" } }));
     }
 
-    [Fact]
-    public void WholeQueryPreviewIncludesUnloadedRowsHonorsExclusionsAndUndoesAsOneGroup()
+    [Theory]
+    [InlineData(null)]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void WholeQueryPreviewIncludesUnloadedRowsHonorsExclusionsAndUndoesAsOneGroup(bool? includeEmpty)
     {
         var file = Assert.IsType<DiskSaveFile>(WriteTestData.Sample());
         var references = Assert.IsType<ReferenceContext>(WriteTestData.References());
@@ -50,11 +53,13 @@ public sealed class AtomicHeartInventoryQueryTests
         _ = session.BuildView();
         var first = session.QueryCollection(InventoryCollection.Id, new() { Limit = 1 });
         var excluded = Assert.Single(first.Rows).Key;
-        var scope = new ActionScope { QueryScope = new(InventoryCollection.Id, new(), session.State.Revision) { ExcludedRowKeys = [excluded] } };
+        var scope = new ActionScope { QueryScope = new(InventoryCollection.Id, new() { IncludeEmpty = includeEmpty }, session.State.Revision) { ExcludedRowKeys = [excluded] } };
         var parameters = new Dictionary<string, JsonElement> { ["amount"] = JsonSerializer.SerializeToElement(0) };
         var preview = session.PlanAction(InventoryPlanning.ActionId, parameters, scope, session.State.Revision);
         Assert.NotNull(preview.PlanId);
-        Assert.Equal(89, preview.Scope.RowKeys!.Count);
+        Assert.Equal(includeEmpty is true ? 89 : 10, preview.Scope.RowKeys!.Count);
+        Assert.Equal(includeEmpty ?? false, preview.Scope.QueryScope!.Query.IncludeEmpty);
+        Assert.Equal(includeEmpty is true ? 79 : 0, preview.Plan.SkippedRows.Count);
         Assert.NotEmpty(preview.Plan.Changes);
         Assert.DoesNotContain(preview.Plan.Changes, c => c.ValueId.StartsWith(excluded + "/", StringComparison.Ordinal));
         Assert.True(session.ApplyActionPlan(preview.PlanId!, session.State.Revision).Ok);

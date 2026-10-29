@@ -130,6 +130,10 @@ public sealed class AtomicHeartEvidenceTests
         Assert.False(after.Truncated);
         Assert.Empty(before.Warnings);
         Assert.True(before.Values.Count > 1000, $"Decoded fields: {before.Values.Count}");
+        using var document = WriteTestData.Plugin.Open(files[0]);
+        var emptyKeys = WriteTestData.Table(document).Rows.Where(row => row.IsEmpty).Select(row => row.Key).ToArray();
+        Assert.Equal(79, emptyKeys.Length);
+        Assert.All(emptyKeys, key => Assert.Contains(before.Values, value => value.Path == key + "/amount" && value.Value == "0"));
         Assert.Equal(0, SemanticDiffer.Compare(before, after).Total);
     }
 
@@ -154,7 +158,7 @@ public sealed class AtomicHeartEvidenceTests
         foreach (var file in SampleSaves.Load("PPSA10695").AllDiskFiles.Where(f => !f.IsSystemFile))
         {
             using var named = plugin.Open(file, context);
-            var table = Assert.IsType<TableNode>(Assert.Single(named.ExpandNode("inventory/0")));
+            var table = WriteTestData.Table(named);
             Assert.NotEmpty(table.Rows);
             var fields = table.Rows.Select(r => Assert.IsType<FieldNode>(r.Cells["asset"])).ToArray();
             Assert.Contains(fields, f => f.Value.AsString() == "DA_Item_Shved" && f.Label == "Swede" && f.Confidence == Confidence.Inferred);
@@ -170,7 +174,7 @@ public sealed class AtomicHeartEvidenceTests
             Assert.False(named.ApplyEdits([new(target.ValueId, FieldValue.Of("DA_Unknown_Item"))]).Succeeded);
             Assert.Equal(file.ReadAllBytes(), Assert.Single(named.Serialize()).Content.ToArray());
             using var raw = plugin.Open(file);
-            var rawTable = Assert.IsType<TableNode>(Assert.Single(raw.ExpandNode("inventory/0")));
+            var rawTable = WriteTestData.Table(raw);
             Assert.Contains(rawTable.Rows, row => row.Cells["asset"] is FieldNode { Label: "DA_Item_Shved" });
         }
     }

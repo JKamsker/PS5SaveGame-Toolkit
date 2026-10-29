@@ -37,7 +37,7 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
         inventoryCollection = new InventoryCollection(state, inventory);
         spatial = new SpatialViews(index, state, BindReadOnly);
         serialization = new SlotSerialization(bytes, parsed, index);
-        // Register eligible fields even when a whole-document action precedes lazy expansion.
+        // Register eligible fields even when a whole-document action precedes inventory queries.
         inventory.RegisterBindings();
         collection = new RecordCollection(index);
     }
@@ -73,7 +73,6 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
     {
         if (lazyId.StartsWith("references/", StringComparison.Ordinal)) return referencePresentation.Expand(lazyId);
         if (lazyId.StartsWith("inspect/", StringComparison.Ordinal)) return records.Expand(lazyId);
-        if (lazyId.StartsWith("inventory/", StringComparison.Ordinal)) return inventory.Expand(lazyId);
         if (lazyId.StartsWith("spatial/", StringComparison.Ordinal)) return spatial.Expand(lazyId);
         var parts = lazyId.Split('/');
         if (parts.Length != 2 || !int.TryParse(parts[1], out var start) || start < 0) throw new KeyNotFoundException(lazyId);

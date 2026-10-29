@@ -3,6 +3,7 @@ using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -74,7 +75,7 @@ public sealed class AtomicHeartPlanningTests
         var document = WriteTestData.Plugin.Open(file, context);
         using var session = new DocumentSession("atomic-bulk", file, WriteTestData.Plugin, document, references: context);
         _ = session.BuildView();
-        _ = session.Expand("inventory/0");
+        _ = session.QueryCollection(InventoryCollection.Id, new() { IncludeEmpty = true, Limit = QueryableCollectionLimits.MaxPageSize });
         var rows = WriteTestData.Table(document).Rows.Where(r => !WriteTestData.Field(r, "amount").Spec.ReadOnly).Take(3).ToArray();
         Assert.Equal(3, rows.Length);
         var selected = new ActionScope(rows.Select(r => r.Key).ToArray());
@@ -106,7 +107,7 @@ public sealed class AtomicHeartPlanningTests
         var document = WriteTestData.Plugin.Open(file, context);
         using var session = new DocumentSession("atomic-scalar", file, WriteTestData.Plugin, document, references: context);
         _ = session.BuildView();
-        _ = session.Expand("inventory/0");
+        _ = session.QueryCollection(InventoryCollection.Id, new() { IncludeEmpty = true, Limit = QueryableCollectionLimits.MaxPageSize });
         var row = WriteTestData.Table(document).Rows.First(r => column == "asset"
             ? WriteTestData.Field(r, column).Value.AsString() == "DA_Item_Shved"
             : !WriteTestData.Field(r, column).Spec.ReadOnly);

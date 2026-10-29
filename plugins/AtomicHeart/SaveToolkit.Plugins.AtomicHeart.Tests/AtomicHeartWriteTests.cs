@@ -102,8 +102,8 @@ public sealed class AtomicHeartWriteTests
             Assert.Equal(field.Value, document.GetValue(field.ValueId));
         }
         Assert.Contains(table.Rows, r => WriteTestData.Field(r, "amount").Spec.ReadOnly);
-        var asset = table.Rows.Select(r => WriteTestData.Field(r, "asset")).First(f => !f.Spec.ReadOnly);
-        foreach (var invalid in new[] { "None", "DA_Unknown_Item", "DA_Item_Zvezdochka", "" })
+        var asset = table.Rows.Select(r => WriteTestData.Field(r, "asset")).Single(f => f.Value.AsString() == "DA_Item_Shved");
+        foreach (var invalid in new[] { "None", "DA_Unknown_Item", "DA_Item_Synthetic_Material_Resource", "" })
             Assert.False(document.ApplyEdits([new(asset.ValueId, FieldValue.Of(invalid))]).Succeeded);
         var differentCategory = table.Rows.Select(r => WriteTestData.Field(r, "asset")).First(f => f.Value.AsString().Contains("Ammo", StringComparison.Ordinal));
         Assert.False(document.ApplyEdits([new(asset.ValueId, differentCategory.Value)]).Succeeded);
