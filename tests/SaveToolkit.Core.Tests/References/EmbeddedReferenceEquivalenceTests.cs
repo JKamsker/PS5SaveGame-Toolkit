@@ -45,7 +45,7 @@ public sealed class EmbeddedReferenceEquivalenceTests
             }
             packCount++;
         }
-        Assert.Equal(39, packCount);
+        Assert.Equal(40, packCount);
     }
 
     private static void CompareCatalog(IReferenceCatalog? expected, IReferenceCatalog? actual)

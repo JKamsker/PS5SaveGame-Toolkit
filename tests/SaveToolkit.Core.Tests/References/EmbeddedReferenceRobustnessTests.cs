@@ -188,7 +188,7 @@ public sealed class EmbeddedReferenceRobustnessTests
         Assert.NotSame(contexts[0].Catalog("items"), contexts[1].Catalog("items"));
     }
 
-    [Fact(Skip = "#40 bug: normalized embedded resource-name collisions silently overwrite the earlier resource")]
+    [Fact]
     public void NormalizedResourceNameCollisionRejectsInsteadOfSilentlyChoosingOne()
     {
         var files = Resources(PackBuilder.WithItems()).Files.ToDictionary();
@@ -196,14 +196,14 @@ public sealed class EmbeddedReferenceRobustnessTests
         var otherManifest = JsonNode.Parse(files[path])!;
         otherManifest["id"] = "other.items";
         files.Add(path.Replace('/', '\\'), System.Text.Encoding.UTF8.GetBytes(otherManifest.ToJsonString()));
-        Assert.Throws<EmbeddedReferencePackException>(() => EmbeddedReferenceContext.Load(new ResourceAssembly(files)));
+        EmbeddedReferenceAmbiguityTests.AssertRejected(new ResourceAssembly(files), path, path.Replace('/', '\\'));
     }
 
-    [Fact(Skip = "#40 bug: duplicate JSON records properties silently discard the earlier record array")]
+    [Fact]
     public void DuplicateJsonPropertiesCannotSilentlyDiscardEarlierRecords()
     {
         var builder = new PackBuilder().Records("items.json",
             """{"records":[{"id":"1","name":"Lost"}],"records":[{"id":"2","name":"Kept"}]}""");
-        Assert.Throws<EmbeddedReferencePackException>(() => EmbeddedReferenceContext.Load(Resources(builder)));
+        EmbeddedReferenceAmbiguityTests.AssertRejected(Resources(builder), "records", "items.json", "$.records");
     }
 }
