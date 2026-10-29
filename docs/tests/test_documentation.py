@@ -379,23 +379,85 @@ class DocumentationTests(unittest.TestCase):
 
     def test_release_job_inventory_matches_all_workflow_keys(self):
         expected = set()
-        for path in source_paths():
-            if re.fullmatch(r"\.github/workflows/[\w-]+\.ya?ml", path):
-                jobs = source(path).split("\njobs:\n", 1)[1]
-                expected.update((path, job) for job in re.findall(r"(?m)^  ([\w-]+):\s*$", jobs))
+        for file in (ROOT / ".github/workflows").glob("*.yml"):
+            path = file.relative_to(ROOT).as_posix()
+            jobs = document(path).split("\njobs:\n", 1)[1]
+            expected.update((path, job) for job in re.findall(r"(?m)^  ([\w-]+):\s*$", jobs))
         section = markdown_section(document("docs/RELEASING.md"), "## Continuous integration")
         actual = re.findall(r"(?m)^\| \[[^\]]+\]\(\.\./([^\s)]+)\) \| `([\w-]+)` \|", section)
         self.assertCountEqual(expected, actual)
 
+    def test_workflow_jobs_have_explicit_bounds_and_consistent_action_pins(self):
+        for file in (ROOT / ".github/workflows").glob("*.yml"):
+            workflow = file.read_text(encoding="utf-8")
+            with self.subTest(workflow=file.name):
+                self.assertIn("permissions:\n  contents: read", workflow)
+                self.assertIn("concurrency:\n", workflow)
+                for job in re.split(r"(?m)^  [\w-]+:\s*\n", workflow.split("\njobs:\n", 1)[1])[1:]:
+                    if "    runs-on:" in job:
+                        self.assertRegex(job, r"(?m)^    timeout-minutes: [1-9][0-9]*$")
+                for action in re.findall(r"(?m)^\s+(?:- )?uses: (\S+)", workflow):
+                    if not action.startswith("./"):
+                        self.assertRegex(action, r"^[\w.-]+/[\w./-]+@v[1-9][0-9]*$")
+                self.assertNotRegex(workflow, r"(?m)^\s+paths(?:-ignore)?:")
+
+    def test_ci_preserves_gates_and_cancels_only_superseded_branch_validations(self):
+        workflow = document(".github/workflows/ci.yml")
+        for fragment in ("workflow_dispatch:", "backend_filter:", "github.workflow == 'CI'",
+                         "github.ref_type == 'branch'", "github.ref != 'refs/heads/main'", "|| github.run_id",
+                         "./scripts/test.ps1", "./scripts/self-test.ps1", "npm run e2e",
+                         "npm run typecheck", "npm run lint --if-present", "npm run build"):
+            self.assertIn(fragment, workflow)
+        self.assertEqual(2, workflow.count("fail-fast: false"))
+        release = document(".github/workflows/release.yml")
+        self.assertIn("cancel-in-progress: false", release)
+        self.assertIn("uses: ./.github/workflows/ci.yml", release)
+        self.assertNotIn("backend_filter", release)
+
+    def test_ci_caches_match_dependency_inputs_and_keep_browser_system_dependencies(self):
+        for path in ("ci.yml", "nightly-fuzz.yml", "release.yml"):
+            workflow = document(f".github/workflows/{path}")
+            for setup in workflow.split("uses: actions/setup-dotnet@v6")[1:]:
+                setup = setup.split("\n      - ", 1)[0]
+                for fragment in ("cache: true", "Directory.Packages.props", "**/*.csproj", ".config/dotnet-tools.json"):
+                    self.assertIn(fragment, setup)
+        workflow = document(".github/workflows/ci.yml")
+        self.assertIn("npx playwright install-deps chromium", workflow)
+        self.assertIn("steps.chromium-cache.outputs.cache-hit != 'true'", workflow)
+        self.assertIn("hashFiles('web/package-lock.json')", workflow)
+        script_job = workflow.split("\n  script-tests:\n", 1)[1].split("\n  validate:\n", 1)[0]
+        self.assertIn("uses: actions/setup-dotnet@v6", script_job)
+        self.assertIn('6>&1 | Tee-Object', script_job)
+
+    def test_dependabot_groups_keep_major_upgrades_separate(self):
+        config = document(".github/dependabot.yml")
+        self.assertEqual(3, config.count("interval: weekly"))
+        self.assertEqual(3, config.count("update-types: [minor, patch]"))
+        for ecosystem in ("nuget", "npm", "github-actions"):
+            self.assertIn(f"package-ecosystem: {ecosystem}", config)
+        self.assertIn("directory: /web", config)
+
+    def test_dependency_drift_is_weekly_informational_and_secret_free(self):
+        workflow = document(".github/workflows/dependency-drift.yml")
+        self.assertIn("cron: '41 5 * * 1'", workflow)
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertIn("continue-on-error: true", workflow)
+        self.assertNotIn("secrets.", workflow)
+        self.assertNotIn("contents: write", workflow)
+        self.assertNotIn("pull_request:", workflow)
+        self.assertNotIn("push:", workflow)
+        self.assertIn("retention-days: 14", workflow)
+        self.assertIn("report-only", document("docs/RELEASING.md"))
+
     def test_coverage_platforms_and_nightly_fuzz_match_workflows(self):
-        workflow = source(".github/workflows/ci.yml")
+        workflow = document(".github/workflows/ci.yml")
         self.assertIn("-Coverage:($IsWindows)", workflow)
         self.assertIn("if ($IsLinux)", workflow)
         self.assertIn("--coverage.reportsDirectory=", workflow)
         releasing = document("docs/RELEASING.md")
         self.assertIn(".NET coverage on Windows", releasing)
         self.assertIn("web coverage", releasing)
-        nightly = source(".github/workflows/nightly-fuzz.yml")
+        nightly = document(".github/workflows/nightly-fuzz.yml")
         self.assertIn("cron: '23 3 * * *'", nightly)
         self.assertIn("03:23 UTC", releasing)
         self.assertIn("default: '5000'", nightly)
@@ -406,6 +468,7 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("30-minute job timeout", releasing)
         self.assertIn("--filter-method '*MutationFuzz'", nightly)
         self.assertNotIn("--coverage", nightly)
+        self.assertNotIn("The other 15 plugins currently skip", nightly)
         options = source("src/SaveToolkit.Testing/MutationFuzzOptions.cs")
         report = source("src/SaveToolkit.Testing/MutationFuzzReport.cs")
         for variable in re.findall(r"`(SAVETOOLKIT_FUZZ_\w+)`", releasing):
