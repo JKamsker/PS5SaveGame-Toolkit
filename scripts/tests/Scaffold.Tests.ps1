@@ -107,11 +107,11 @@ Invoke-Case 'scaffold builds warning-free and runs conformance with absent and s
                 Assert-True ($LASTEXITCODE -eq 0) "Generated tests failed ($name, samples $mode)."
                 [xml]$report = Get-Content -LiteralPath (Join-Path $results 'results.trx') -Raw
                 $counters = $report.TestRun.ResultSummary.Counters
-                Assert-True ([int]$counters.failed -eq 0 -and [int]$counters.total -eq 15) 'Every generated test must be discovered without failures.'
-                $expectedSkips = if ($mode -eq 'absent') { 5 } else { 0 }
+                Assert-True ([int]$counters.failed -eq 0 -and [int]$counters.total -eq 16) 'Every generated test must be discovered without failures.'
+                $expectedSkips = if ($mode -eq 'absent') { 6 } else { 0 }
                 Assert-True ([int]$counters.notExecuted -eq $expectedSkips) "Expected $expectedSkips skips ($name, samples $mode)."
                 # MutationFuzz is inherited from the conformance base (69e2f47) and needs a sample seed.
-                foreach ($method in @('Open_BuildsValidSerializableView', 'Probe_ClaimsSampleFiles', 'Serialize_WithoutEdits_IsByteIdentical', 'Sample_OpensRecognizedFile', 'MutationFuzz')) {
+                foreach ($method in @('Open_BuildsValidSerializableView', 'Probe_ClaimsSampleFiles', 'Serialize_WithoutEdits_IsByteIdentical', 'Sample_OpensRecognizedFile', 'MutationFuzz', 'Open_ReportsHonestLabelAdvisories')) {
                     $result = @($report.TestRun.Results.UnitTestResult | Where-Object { $_.testName -like "*.$method" })
                     $expectedOutcome = if ($mode -eq 'absent') { 'NotExecuted' } else { 'Passed' }
                     Assert-True ($result.Count -eq 1 -and $result[0].outcome -eq $expectedOutcome) "Unexpected $method result ($mode)."
