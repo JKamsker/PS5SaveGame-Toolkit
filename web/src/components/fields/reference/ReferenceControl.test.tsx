@@ -58,6 +58,7 @@ async function openPicker() {
 
 describe("reference field picker", () => {
   it("preserves an unknown raw id and supports keyboard selection with full attribution", async () => {
+    vi.useFakeTimers();
     const context = renderField();
     expect(screen.getByRole("button", { name: /^Item/ }).textContent).toBe("9999");
     await openPicker();
@@ -70,9 +71,9 @@ describe("reference field picker", () => {
     expect(screen.getAllByRole("link", { name: "CC0" })[0]?.getAttribute("href")).toBe("https://example.org/license");
     expect(screen.getByText("Icon attribution")).toBeTruthy();
     expect(document.querySelectorAll("img.reference-icon").length).toBeGreaterThan(0);
-    fireEvent.keyDown(search, { key: "Enter" });
-    await waitFor(() => expect(context.commit).toHaveBeenCalledWith("item/id", "1001"));
-    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await act(async () => { fireEvent.keyDown(search, { key: "Enter" }); });
+    expect(context.commit).toHaveBeenCalledExactlyOnceWith("item/id", "1001");
+    expect(screen.queryByRole("dialog")).toBeNull();
     expect(document.activeElement).toBe(screen.getByRole("button", { name: /^Item/ }));
   });
 

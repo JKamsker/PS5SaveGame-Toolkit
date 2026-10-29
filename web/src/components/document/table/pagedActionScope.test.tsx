@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { api } from "../../../api/client";
 import { actionReview } from "../../../api/actionReview";
@@ -23,6 +23,8 @@ it("submits all explicitly selected row keys across collection pages", async () 
   fireEvent.click(screen.getByRole("button", { name: "Next" }));
   fireEvent.click(await screen.findByRole("checkbox", { name: "Select Ether" }));
   expect(screen.getByText("2 selected")).toBeTruthy();
-  fireEvent.click(screen.getByRole("button", { name: /Refill/ }));
-  await waitFor(() => expect(plan).toHaveBeenCalledWith("w1", "d1", "refill", {}, { rowKeys: ["a", "b"] }, 0));
-});
+  fireEvent.click(screen.getByRole("button", { name: "Refill: Ether" }));
+  const dialog = within(await screen.findByRole("dialog", { name: "Preview: Refill" }));
+  await dialog.findByText("0 field changes · 0 skipped rows · one undo step");
+  expect(plan).toHaveBeenCalledExactlyOnceWith("w1", "d1", "refill", {}, { rowKeys: ["a", "b"] }, 0);
+}, 10_000); // Two server pages and a completed action preview; 1.2 s in the full Windows suite.

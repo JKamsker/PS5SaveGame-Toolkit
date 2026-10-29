@@ -28,7 +28,7 @@ describe("spatial navigation", () => {
       expect(await screen.findByRole("region", { name: "Skills" })).toBeTruthy();
       expect(screen.getAllByText(/Text alternative/)).toHaveLength(2);
     } finally { restore(); }
-  });
+  }, 10_000); // Virtual row details lazy-load both diagrams; 1.8 s in the full Windows suite.
 
   it("jumps from a graph card into a collapsed section and inactive tab without editing", async () => {
     const { context } = renderSpatial(<><ViewRenderer node={graph} /><ViewRenderer node={controls} /></>);
