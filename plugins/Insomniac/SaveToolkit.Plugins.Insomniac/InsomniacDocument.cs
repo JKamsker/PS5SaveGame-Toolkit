@@ -71,37 +71,10 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument,
     {
         _lazy.Clear();
         var tabs = new List<Tab>();
-        if (_player.HasCampaign)
-        {
-            var player = _player.Build(BindScalar);
-            tabs.Add(new Tab("Player", _planning.Build() is { } action ? [.. player, action] : player));
-        }
-        if (_player.HasCampaign)
-        {
-            tabs.Add(new Tab("Loadout", _readOnly.Loadout()));
-            tabs.Add(new Tab("Weapons", _arsenal.Weapons()));
-            tabs.Add(new Tab("Armour", _armour.Build()));
-            tabs.Add(new Tab("Upgrades", _arsenal.Upgrades()));
-            var guideMaps = RiftGuideMaps.Build(_guideMarkers, _references, _lazy);
-            tabs.Add(new Tab("Collectibles", guideMaps is null ? _collectibles : [.. _collectibles, guideMaps]));
-            tabs.Add(new Tab("Inventory", _inventory.Build()));
-            tabs.Add(new Tab("World", [.. _progress, .. _world.Build()]));
-            tabs.Add(new Tab("Campaign details", _readOnly.CampaignDetails()));
-        }
+        if (_player.HasCampaign) AddCampaignTabs(tabs);
         if (_sections.Roots.ContainsKey(DdlSections.PreferencesTag))
             tabs.Add(new Tab("Preferences", _readOnly.Preferences()));
-        tabs.Add(new Tab("Systems", _sections.Roots.Select(root =>
-        {
-            var id = $"system/{root.Key:x8}";
-            _lazy[id] = () => _tree.Fields($"ddl/{root.Key:x8}", root.Value);
-            return (ViewNode)new SectionNode(_sections.Label(root.Key), [])
-            {
-                LazyId = id,
-                Collapsed = true,
-                Badge = $"{root.Value.Count} root fields",
-                Description = DdlSections.Attribution,
-            };
-        }).ToArray()));
+        tabs.Add(BuildSystemsTab());
         tabs.AddRange([
             new Tab("Overview", [
                 new StatsNode([
@@ -121,6 +94,34 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument,
         ]);
         return new TabsNode(tabs);
     }
+
+    private void AddCampaignTabs(List<Tab> tabs)
+    {
+        var player = _player.Build(BindScalar);
+        tabs.Add(new Tab("Player", _planning.Build() is { } action ? [.. player, action] : player));
+        tabs.Add(new Tab("Loadout", _readOnly.Loadout()));
+        tabs.Add(new Tab("Weapons", _arsenal.Weapons()));
+        tabs.Add(new Tab("Armour", _armour.Build()));
+        tabs.Add(new Tab("Upgrades", _arsenal.Upgrades()));
+        var guideMaps = RiftGuideMaps.Build(_guideMarkers, _references, _lazy);
+        tabs.Add(new Tab("Collectibles", guideMaps is null ? _collectibles : [.. _collectibles, guideMaps]));
+        tabs.Add(new Tab("Inventory", _inventory.Build()));
+        tabs.Add(new Tab("World", [.. _progress, .. _world.Build()]));
+        tabs.Add(new Tab("Campaign details", _readOnly.CampaignDetails()));
+    }
+
+    private Tab BuildSystemsTab() => new("Systems", _sections.Roots.Select(root =>
+    {
+        var id = $"system/{root.Key:x8}";
+        _lazy[id] = () => _tree.Fields($"ddl/{root.Key:x8}", root.Value);
+        return (ViewNode)new SectionNode(_sections.Label(root.Key), [])
+        {
+            LazyId = id,
+            Collapsed = true,
+            Badge = $"{root.Value.Count} root fields",
+            Description = DdlSections.Attribution,
+        };
+    }).ToArray());
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) =>
         _lazy.TryGetValue(lazyId, out var load)
