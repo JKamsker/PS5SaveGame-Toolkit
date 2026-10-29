@@ -32,7 +32,8 @@ internal sealed class BulkSelectionFixture : IDisposable
     private readonly string _storageRoot;
     private readonly FinalFantasy7Plugin _plugin = new();
 
-    public BulkSelectionFixture(string title, string actionId, DocumentSessionOptions? options = null)
+    public BulkSelectionFixture(string title, string actionId, DocumentSessionOptions? options = null,
+        Action<byte[], Ff7Schema>? arrange = null)
     {
         ActionId = actionId;
         CollectionId = actionId == InventoryPlanning.ActionId ? "inventory" : "materia";
@@ -66,6 +67,7 @@ internal sealed class BulkSelectionFixture : IDisposable
                 CultureInfo.InvariantCulture);
             Assert.True(TargetAp > 1);
         }
+        arrange?.Invoke(bytes, schema);
         Original = bytes;
         _storageRoot = Path.Combine(TestScratch.ProcessFolder, "ff7-bulk-" + Guid.NewGuid().ToString("N"));
         var set = SaveSetImporter.Import([new ImportSource($"{title}/sdimg_TEST/{schema.Prefix}000",
