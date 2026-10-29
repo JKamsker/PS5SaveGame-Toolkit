@@ -37,7 +37,7 @@ public sealed class ProgressionWriteTests
                 var changed = session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(next.ToString(System.Globalization.CultureInfo.InvariantCulture)))]);
                 Assert.True(changed.Ok, string.Join("; ", changed.Errors.Select(e => e.Message)));
                 var edited = document.Serialize().Single().Content.ToArray();
-                using var reopened = (GearboxDocument)plugin.Open(SerialWriteTests.Overlay(file, edited));
+                using var reopened = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, edited));
                 _ = reopened.BuildView();
                 _ = reopened.ExpandNode(field.ValueId.StartsWith("sdu/", StringComparison.Ordinal) ? "sdus" : "difficulty");
                 Assert.Equal(next, reopened.GetValue(field.ValueId).AsInt64());

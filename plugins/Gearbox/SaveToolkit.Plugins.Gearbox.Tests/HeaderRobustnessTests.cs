@@ -16,7 +16,7 @@ public sealed class HeaderRobustnessTests
     [InlineData(true, true, true)]
     public void EveryIncompleteContainerPrefix_IsRejected(bool wonderlands, bool profile, bool unicode)
     {
-        var bytes = ContainerTests.Create(wonderlands, profile, unicode);
+        var bytes = GearboxTestData.CreateContainer(wonderlands, profile, unicode);
         var title = wonderlands ? "PPSA01493" : "PPSA01463";
         for (var length = 0; length < bytes.Length; length++)
         {
@@ -35,7 +35,7 @@ public sealed class HeaderRobustnessTests
     [InlineData(int.MaxValue)]
     public void CustomVersionCount_IsBoundedBeforeReadingRecords(int count)
     {
-        var bytes = ContainerTests.Create(false, false);
+        var bytes = GearboxTestData.CreateContainer(false, false);
         var countOffset = CountOffset(bytes);
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(countOffset), count);
         var error = Assert.Throws<SaveFormatException>(() => GearboxContainer.Parse(bytes, "PPSA01463", false));
@@ -48,7 +48,7 @@ public sealed class HeaderRobustnessTests
     public void CustomVersionTable_ExactSupportedBoundariesAreLossless(int count)
     {
         const int recordSize = 20;
-        var original = ContainerTests.Create(false, false);
+        var original = GearboxTestData.CreateContainer(false, false);
         var offset = CountOffset(original);
         byte[] bytes = [.. original[..offset], .. new byte[sizeof(int)],
             .. new byte[count * recordSize], .. original[(offset + sizeof(int) + recordSize)..]];
@@ -70,7 +70,7 @@ public sealed class HeaderRobustnessTests
     [InlineData(int.MaxValue)]
     public void InvalidPayloadLength_IsRejected(int length)
     {
-        var bytes = ContainerTests.Create(false, false);
+        var bytes = GearboxTestData.CreateContainer(false, false);
         var offset = GearboxContainer.Parse(bytes, "PPSA01463", false).PayloadOffset;
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(offset - sizeof(int)), length);
         Assert.Throws<SaveFormatException>(() => GearboxContainer.Parse(bytes, "PPSA01463", false));

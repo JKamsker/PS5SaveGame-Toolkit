@@ -100,7 +100,7 @@ public sealed class AccountEvidenceTests
         var prestige = ProtoMessage.Parse(payload.ToArray(), GearboxSchema.Tina, "PlayerPrestigeProfileData");
         Assert.Equal(values, GearboxAccountViews.Integers(prestige, "points_spent_by_index_order"));
         var root = new ProtoMessage(GearboxSchema.Tina, "Profile", [new(208, 2, GearboxSchema.Tina.Spec("Profile", "player_prestige"), [], payload.ToArray(), prestige)]);
-        var container = GearboxContainer.Parse(ContainerTests.Create(true, true), "PPSA01493", true);
+        var container = GearboxContainer.Parse(GearboxTestData.CreateContainer(true, true), "PPSA01493", true);
         using var document = new GearboxDocument("profile", "PPSA01493", container, root, IReferenceContext.Empty);
         var lazy = new GearboxLazyViews();
         var view = new GearboxAccountViews(document, lazy).Build();

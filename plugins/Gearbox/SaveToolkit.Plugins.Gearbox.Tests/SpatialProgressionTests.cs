@@ -141,7 +141,7 @@ public sealed class SpatialProgressionTests
                 message.SetInteger("status", index % 4);
             });
         }
-        using var document = (GearboxDocument)plugin.Open(SerialWriteTests.Overlay(file, container.Encode(root)));
+        using var document = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, container.Encode(root)));
         _ = document.BuildView();
         var skills = document.Query(GearboxSkills.AllocationsId, new() { Text = "/Game/Test/Skill1199" });
         Assert.Equal(1200, skills.TotalCount);

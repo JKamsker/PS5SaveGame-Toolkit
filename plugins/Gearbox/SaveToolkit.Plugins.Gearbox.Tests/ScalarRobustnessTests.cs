@@ -19,7 +19,7 @@ public sealed class ScalarRobustnessTests
     {
         var (container, root) = Create(wonderlands);
         root.SetInteger(name, value);
-        var file = File(wonderlands, container.Encode(root));
+        var file = GearboxTestData.File(Title(wonderlands), container.Encode(root));
         var error = Assert.Throws<SaveFormatException>(() => new GearboxPlugin().Open(file));
         Assert.Equal(name == "experience_points"
             ? "Gearbox experience_points is outside the supported nonnegative Int32 range."
@@ -35,7 +35,7 @@ public sealed class ScalarRobustnessTests
         root.SetInteger("experience_points", int.MaxValue);
         root.SetInteger("time_played_seconds", uint.MaxValue);
         var bytes = container.Encode(root);
-        using var document = new GearboxPlugin().Open(File(wonderlands, bytes));
+        using var document = new GearboxPlugin().Open(GearboxTestData.File(Title(wonderlands), bytes));
         _ = document.BuildView();
         Assert.Equal(bytes, document.Serialize().Single().Content.ToArray());
     }
@@ -48,11 +48,11 @@ public sealed class ScalarRobustnessTests
     public void UnsupportedSduLevel_IsReadOnlyAndLossless(bool wonderlands, long value)
     {
         var (container, root) = Create(wonderlands);
-        var sdu = WriteAtomicityTests.AddMessage(root, "sdu_list");
+        var sdu = GearboxTestData.AddMessage(root, "sdu_list");
         sdu.SetText("sdu_data_path", "/Game/Pickups/SDU/SDU_Backpack.SDU_Backpack");
         sdu.SetInteger("sdu_level", value);
         var bytes = container.Encode(root);
-        using var document = new GearboxPlugin().Open(File(wonderlands, bytes));
+        using var document = new GearboxPlugin().Open(GearboxTestData.File(Title(wonderlands), bytes));
         _ = document.BuildView();
         _ = document.ExpandNode("sdus");
         Assert.Equal(value, document.GetValue("sdu/0").AsInt64());
@@ -62,12 +62,9 @@ public sealed class ScalarRobustnessTests
 
     private static (GearboxContainer Container, ProtoMessage Root) Create(bool wonderlands)
     {
-        var container = GearboxContainer.Parse(ContainerTests.Create(wonderlands, false), Title(wonderlands), false);
+        var container = GearboxContainer.Parse(GearboxTestData.CreateContainer(wonderlands, false), Title(wonderlands), false);
         return (container, container.Decode());
     }
-
-    private static SaveToolkit.Sdk.Saves.ISaveFile File(bool wonderlands, byte[] bytes) =>
-        new MemorySaveSet().With(Title(wonderlands), "TEST", new Dictionary<string, byte[]> { ["1"] = bytes }).Directories[0].Files[0];
 
     private static string Title(bool wonderlands) => wonderlands ? "PPSA01493" : "PPSA01463";
 }

@@ -26,7 +26,7 @@ public sealed class LargeBankTests(ITestOutputHelper output)
         foreach (var field in root.All(GearboxInventory.Bank).ToArray()) root.Remove(field);
         for (var index = 0; index < ItemCount; index++) root.Add(template.Clone());
         var original = container.Encode(root);
-        using var document = (GearboxDocument)plugin.Open(SerialWriteTests.Overlay(file, original));
+        using var document = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, original));
         var timer = Stopwatch.StartNew();
         var allocated = GC.GetAllocatedBytesForCurrentThread();
         _ = document.BuildView();

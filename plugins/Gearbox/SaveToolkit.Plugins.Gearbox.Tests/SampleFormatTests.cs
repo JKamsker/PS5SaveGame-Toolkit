@@ -64,7 +64,7 @@ public sealed class SampleFormatTests
                 ? [new("keys/2420693941", FieldValue.Of(11L))]
                 : [new("currency/618814354", FieldValue.Of(123_456_789L)), new("character/level", FieldValue.Of(20L))];
             Assert.True(document.ApplyEdits(edits).Succeeded);
-            using var reopened = _plugin.Open(Overlay(file, document.Serialize().Single().Content));
+            using var reopened = _plugin.Open(GearboxTestData.Overlay(file, document.Serialize().Single().Content));
             _ = reopened.BuildView();
             foreach (var edit in edits) Assert.Equal(edit.Value, reopened.GetValue(edit.ValueId));
             if (!profile)
@@ -128,7 +128,7 @@ public sealed class SampleFormatTests
             if (i == 3) b[container.PayloadOffset] ^= 0xFF;
             return b;
         }))
-            Assert.Throws<SaveFormatException>(() => _plugin.Open(Overlay(file, bytes)));
+            Assert.Throws<SaveFormatException>(() => _plugin.Open(GearboxTestData.Overlay(file, bytes)));
     }
 
     [Fact]
@@ -176,6 +176,4 @@ public sealed class SampleFormatTests
 
     private IEnumerable<DiskSaveFile> Files(string title) => SampleSaves.Load(title).AllDiskFiles.Where(f => _plugin.Probe(f).IsMatch);
     private DiskSaveFile Character(string title, int generation) => Files(title).Single(f => !f.Directory.IsBackup && f.Directory.Generation == generation && f.FileName == "1");
-    internal static ISaveFile Overlay(ISaveFile file, ReadOnlyMemory<byte> bytes) => ((ISaveSet)new OverlaySaveSet(file.Directory.SaveSet,
-        new Dictionary<string, ReadOnlyMemory<byte>> { [file.RelativePath] = bytes })).FindFile(file.RelativePath)!;
 }

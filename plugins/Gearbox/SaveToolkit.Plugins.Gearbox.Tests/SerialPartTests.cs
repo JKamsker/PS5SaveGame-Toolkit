@@ -89,7 +89,7 @@ public sealed class SerialPartTests
         var before = document.Root.Clone();
         Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(candidate))]).Ok);
         var output = document.Serialize().Single().Content;
-        using var reopened = (GearboxDocument)plugin.Open(SerialWriteTests.Overlay(file, output));
+        using var reopened = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, output));
         Assert.Equal(candidate, SerialParts.Slot(reopened.Inventory.Info(entry.Id), slotIndex).Key);
         SerialWriteTests.AssertUnrelated(before, reopened.Root, entry.List);
         Assert.NotSame(originalInfo, document.Inventory.Info(entry.Id));

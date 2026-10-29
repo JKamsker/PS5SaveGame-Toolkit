@@ -52,7 +52,7 @@ public sealed class GroupWriteTests
         foreach (var output in changed)
         {
             var source = ((ISaveSet)set).FindFile(output.Key)!;
-            using var reopened = (GearboxDocument)plugin.Open(SerialWriteTests.Overlay(source, output.Value));
+            using var reopened = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(source, output.Value));
             Assert.Equal(output.Value, reopened.Serialize().Single().Content.ToArray());
             Assert.Equal(source.FileName == "profile" ? originalBankCount + 1 : page.TotalCount - 1, reopened.Inventory.Entries
                 .Count(entry => entry.List == (source.FileName == "profile" ? GearboxInventory.Bank : GearboxInventory.Backpack)));

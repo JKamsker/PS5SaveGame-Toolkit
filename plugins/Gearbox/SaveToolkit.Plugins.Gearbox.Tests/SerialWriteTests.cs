@@ -41,7 +41,7 @@ public sealed class SerialWriteTests
                     Assert.Contains("Not validated on console", detail.Description);
                     Assert.True(document.ApplyEdits([new(detail.ValueId, FieldValue.Of(next))]).Succeeded);
                     var output = document.Serialize().Single().Content;
-                    using var reopened = (GearboxDocument)plugin.Open(Overlay(file, output));
+                    using var reopened = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, output));
                     var changed = reopened.Inventory.Entries.Single(e => e.List == entry.List && e.Index == entry.Index).Serial;
                     Assert.Equal(next, SerialWrites.Value(new SerialReader(wonderlands).Read(changed), property));
                     Assert.Equal(entry.Serial[..5], changed[..5]);
@@ -142,12 +142,10 @@ public sealed class SerialWriteTests
         var root = container.Decode();
         root.Children("inventory_items").First().Last("item_serial_number")!.Set(corrupt);
         var originalCorrupt = container.Encode(root);
-        using var preserved = plugin.Open(Overlay(file, originalCorrupt));
+        using var preserved = plugin.Open(GearboxTestData.Overlay(file, originalCorrupt));
         Assert.Equal(originalCorrupt, preserved.Serialize().Single().Content.ToArray());
     }
 
-    internal static ISaveFile Overlay(ISaveFile file, ReadOnlyMemory<byte> bytes) => ((ISaveSet)new OverlaySaveSet(file.Directory.SaveSet,
-        new Dictionary<string, ReadOnlyMemory<byte>> { [file.RelativePath] = bytes })).FindFile(file.RelativePath)!;
 
     internal static void AssertUnrelated(ProtoMessage before, ProtoMessage after, params string[] changedLists)
     {

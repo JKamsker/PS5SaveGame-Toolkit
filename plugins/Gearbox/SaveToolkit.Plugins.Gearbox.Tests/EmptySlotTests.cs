@@ -13,14 +13,17 @@ namespace SaveToolkit.Plugins.Gearbox.Tests;
 
 public sealed class EmptySlotTests : IDisposable
 {
-    private readonly string _scratch = Path.Combine(Path.GetTempPath(), "GearboxF14-" + Guid.NewGuid().ToString("N"));
+    private readonly string _scratch = Path.Combine(TestScratch.ProcessFolder, "GearboxF14-" + Guid.NewGuid().ToString("N"));
+
     public void Dispose()
     {
         if (Directory.Exists(_scratch)) Directory.Delete(_scratch, recursive: true);
     }
 
+    // DocumentSession requires a DiskSaveFile. The shared process folder also cleans up on exit.
     private DiskSaveFile Import(string title, byte[] bytes) => SaveSetImporter.Import(
         [new ImportSource(title + "/sdimg_F14/1", () => new MemoryStream(bytes))], _scratch).AllDiskFiles.Single();
+
     [Theory]
     [InlineData("PPSA01463")]
     [InlineData("PPSA01493")]
@@ -64,16 +67,15 @@ public sealed class EmptySlotTests : IDisposable
     public void EquipmentQueries_FilterVisibilityBeforePagingAndResolveF6Selection(bool wonderlands, int count)
     {
         var title = wonderlands ? "PPSA01493" : "PPSA01463";
-        var container = GearboxContainer.Parse(ContainerTests.Create(wonderlands, false), title, false);
+        var container = GearboxContainer.Parse(GearboxTestData.CreateContainer(wonderlands, false), title, false);
         var root = container.Decode();
         for (var i = 0; i < count; i++)
         {
-            var slot = new ProtoMessage(root.Schema, root.Schema.Spec(root.Type, "equipped_inventory_list").Type, []);
+            var slot = GearboxTestData.AddMessage(root, "equipped_inventory_list");
             // Only -1 is confirmed vacant: zero, disabled slots and unknown negatives remain visible.
             slot.SetInteger("inventory_list_index", i % 3 == 0 ? -1 : i == 2 ? -2 : 0);
             slot.SetInteger("enabled", 0);
             slot.SetText("slot_data_path", "Synthetic/slot/" + i);
-            Add(root, "equipped_inventory_list", slot);
         }
         var bytes = container.Encode(root);
         var file = Import(title, bytes);
@@ -131,14 +133,13 @@ public sealed class EmptySlotTests : IDisposable
     public void LargeAmmoList_IsOneSearchableTableAndVisibleEditWritesItsOriginalRecord(bool wonderlands)
     {
         var title = wonderlands ? "PPSA01493" : "PPSA01463";
-        var container = GearboxContainer.Parse(ContainerTests.Create(wonderlands, false), title, false);
+        var container = GearboxContainer.Parse(GearboxTestData.CreateContainer(wonderlands, false), title, false);
         var root = container.Decode();
         for (var i = 0; i < 205; i++)
         {
-            var pool = new ProtoMessage(root.Schema, root.Schema.Spec(root.Type, "resource_pools").Type, []);
+            var pool = GearboxTestData.AddMessage(root, "resource_pools");
             pool.SetText("resource_path", "Synthetic/pool/" + i);
             pool.SetFloat("amount", i);
-            Add(root, "resource_pools", pool);
         }
         var original = container.Encode(root);
         var file = Import(title, original);
@@ -167,7 +168,4 @@ public sealed class EmptySlotTests : IDisposable
         var zero = document.Query("ammo", new() { Filters = new Dictionary<string, string> { ["amount"] = "0" } });
         Assert.False(Assert.Single(zero.Rows).IsEmpty);
     }
-
-    private static void Add(ProtoMessage root, string list, ProtoMessage child) =>
-        root.Add(new(root.Schema.Tag(root.Type, list), 2, root.Schema.Spec(root.Type, list), [], Array.Empty<byte>(), child));
 }

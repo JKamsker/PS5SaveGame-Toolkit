@@ -21,7 +21,7 @@ public sealed class ReferenceCompatibilityTests
         var resolver = new ItemReferences(wonderlands, context);
         Assert.Equal(original, resolver.Balance(original.Key));
         var title = wonderlands ? "PPSA01493" : "PPSA01463";
-        var container = GearboxContainer.Parse(ContainerTests.Create(wonderlands, false), title, false);
+        var container = GearboxContainer.Parse(GearboxTestData.CreateContainer(wonderlands, false), title, false);
         using var document = new GearboxDocument("1", title, container, container.Decode(), context);
         var tabs = Assert.IsType<TabsNode>(document.BuildView());
         var action = tabs.Tabs.Single(t => t.Title == "Inventory").Children.OfType<ActionNode>().Single(a => a.ActionId == "catalogue/inspect");

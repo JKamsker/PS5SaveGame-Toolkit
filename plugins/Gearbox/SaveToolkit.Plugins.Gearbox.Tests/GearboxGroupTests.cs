@@ -157,8 +157,8 @@ public sealed class GearboxGroupTests
     [Fact]
     public void MissingUnsupportedAmbiguousAndMultipleCharacters_AreExplicit()
     {
-        var bytes = ContainerTests.Create(false, false);
-        var profile = ContainerTests.Create(false, true);
+        var bytes = GearboxTestData.CreateContainer(false, false);
+        var profile = GearboxTestData.CreateContainer(false, true);
         var missing = MemorySaveSet.SingleFile("1", bytes, "PPSA01463");
         Assert.NotEmpty(Assert.Single(_plugin.ProposeGroups(missing)).Errors);
         Assert.Empty(_plugin.ProposeGroups(MemorySaveSet.SingleFile("1", bytes, "PPSA01494")));
