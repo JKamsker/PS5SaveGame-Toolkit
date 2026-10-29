@@ -33,9 +33,13 @@ public sealed class GroupAdapterTests
         Assert.NotEmpty(planner.PlanAction(ActionId, Parameters, new()).Changes);
         Assert.NotEmpty(planner.PlanAction(ActionId, Parameters, scope with { RowKeys = null }).Errors);
 
+        var foreignRows = scope with { RowKeys = ["character/value/1"] };
+        Assert.Contains(planner.PlanAction(ActionId, Parameters, foreignRows).Errors,
+            error => error.Message.Contains("character/value/1", StringComparison.Ordinal));
+        Assert.False(planner.ApplyActionPlan(ActionId, Parameters, foreignRows, plan).Succeeded);
+        fixture.AssertOriginalBytes(fixture.Group);
         var foreignScopes = new[]
         {
-            scope with { RowKeys = ["character/value/1"] },
             scope with { QueryScope = queryScope with { CollectionId = "character/character/inventory" } },
             scope with { QueryScope = queryScope with { ExcludedRowKeys = ["character/value/1"] } },
         };
