@@ -11,6 +11,20 @@ catalogs, corrected Jedi actor decoding and extended checksum evidence. See
 [round-2 evidence and exact owner checklist](ROUND2.md). Existing-value writes are
 enabled in this round with explicit rejection warnings; no bulk action is exposed.
 
+## Performance review (#40)
+
+Hogwarts framing now validates all declarations before allocating one exact-size
+SQLite result, avoiding full-image stream/prefix copies. Property queries retain
+ordinal default ordering and cache immutable pinned catalogue captions while
+reading scalar values live. Raw child pages load only when expanded; Jedi's
+100-row summary no longer constructs the complete actor index.
+
+The largest supplied Hogwarts/Jedi samples, measured before and after, show lower
+managed allocation: Hogwarts open 127.6 to 85.5 MB, Jedi first page 3.80 to 0.073 MB,
+and repeated actor summary 9.97 to 0.066 MB. Timing variation prevents a reliable
+end-to-end latency claim. Eager decode/integrity checks and serialization reparse
+validation remain in place. See [method, results and regression evidence](PERFORMANCE.md).
+
 ## Framework feature adoption
 
 | feature | status | where / reason |
