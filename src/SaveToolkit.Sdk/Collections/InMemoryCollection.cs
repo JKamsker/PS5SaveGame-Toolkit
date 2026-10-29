@@ -7,7 +7,7 @@ public sealed class InMemoryCollection<T>
 {
     private readonly Func<IEnumerable<T>> _source;
     private readonly Func<T, string> _key;
-    private readonly IReadOnlyDictionary<string, InMemoryColumn<T>> _columns;
+    private readonly Dictionary<string, InMemoryColumn<T>> _columns;
     private readonly Func<T, TableRow> _renderRow;
     private readonly InMemoryCollectionOptions<T> _options;
 
@@ -46,42 +46,83 @@ public sealed class InMemoryCollection<T>
         if (text?.Length > QueryableCollectionLimits.MaxQueryLength)
             throw new ArgumentException("Normalized search text exceeds the supported bound.", nameof(query));
 
-        // Snapshot keys once, so tie-breaking and row identities cannot depend on page offsets.
-        var all = _source().Select(item => new Entry(item, _key(item))).ToArray();
-        var keys = new HashSet<string>(StringComparer.Ordinal);
-        if (all.Any(entry => string.IsNullOrEmpty(entry.Key) || !keys.Add(entry.Key)))
-            throw new InvalidOperationException("Collection row keys must be nonempty and unique across the complete model.");
-
-        var matching = all.Where(entry => (string.IsNullOrEmpty(text) ||
-                _columns.Values.Any(column => column.SearchText is { } get && _options.SearchMatches(get(entry.Item), text)) ||
-                _options.ExtraSearchText is { } extra && _options.SearchMatches(extra(entry.Item), text)) &&
-            query.Filters.All(filter => _options.FilterMatches(_columns[filter.Key].FilterText!(entry.Item), filter.Value)))
-            .Select(entry => entry with { IsEmpty = _options.IsEmpty?.Invoke(entry.Item) == true }).ToArray();
+        // Capture/validate every native key before matching, including off-page and hidden rows.
+        // Reuse the same value-type buffer for matching and ordering; projections remain live per query.
+        var entries = Snapshot();
+        var total = entries.Count;
+        var filters = ResolveFilters(query.Filters);
         var includeEmpty = query.IncludeEmpty ?? Metadata.EmptyRows?.HideByDefault != true;
-        var hidden = includeEmpty ? 0 : matching.Count(entry => entry.IsEmpty);
-        var visible = includeEmpty ? matching : matching.Where(entry => !entry.IsEmpty);
+        var hidden = 0;
+        var visible = 0;
+        for (var i = 0; i < total; i++)
+        {
+            var entry = entries[i];
+            if (!Matches(entry.Item, text, filters)) continue;
+            var isEmpty = _options.IsEmpty?.Invoke(entry.Item) == true;
+            if (!includeEmpty && isEmpty) { hidden++; continue; }
+            entries[visible++] = entry with { IsEmpty = isEmpty };
+        }
+        entries.RemoveRange(visible, total - visible);
 
         var comparer = query.SortColumn is { } sort ? _columns[sort].Comparer : _options.DefaultComparer;
         var descending = query.Descending && (query.SortColumn is not null || _options.ReverseDefaultOrderWhenDescending);
-        IOrderedEnumerable<Entry> ordered;
-        if (comparer is null)
-            ordered = descending ? visible.OrderByDescending(entry => entry.Key, StringComparer.Ordinal)
-                : visible.OrderBy(entry => entry.Key, StringComparer.Ordinal);
-        else
-            ordered = (descending ? visible.OrderByDescending(entry => entry.Item, comparer)
-                : visible.OrderBy(entry => entry.Item, comparer)).ThenBy(entry => entry.Key, StringComparer.Ordinal);
+        entries.Sort(new EntryComparer(comparer, descending));
 
         var offset = Math.Max(0, query.Offset);
         var limit = Math.Clamp(query.Limit, 1, QueryableCollectionLimits.MaxPageSize);
-        var rows = ordered.Skip(offset).Take(limit).Select(entry =>
+        var rowCount = Math.Min(limit, Math.Max(0, visible - offset));
+        var rows = rowCount == 0 ? [] : new TableRow[rowCount];
+        for (var i = 0; i < rowCount; i++)
         {
+            var entry = entries[offset + i];
             var row = _renderRow(entry.Item);
             if (!string.Equals(row.Key, entry.Key, StringComparison.Ordinal))
                 throw new InvalidOperationException("Rendered row keys must match their native model keys.");
-            return _options.IsEmpty is null ? row : row with { IsEmpty = entry.IsEmpty };
-        }).ToArray();
-        return new(Metadata.Id, Metadata.Columns, rows, all.Length, matching.Length - hidden, offset, limit)
+            rows[i] = _options.IsEmpty is null || row.IsEmpty == entry.IsEmpty ? row : row with { IsEmpty = entry.IsEmpty };
+        }
+        return new(Metadata.Id, Metadata.Columns, rows, total, visible, offset, limit)
         { HiddenEmptyCount = hidden };
+    }
+
+    private List<Entry> Snapshot()
+    {
+        var source = _source();
+        var capacity = source.TryGetNonEnumeratedCount(out var count) ? count : 0;
+        var entries = new List<Entry>(capacity);
+        var keys = new HashSet<string>(capacity, StringComparer.Ordinal);
+        foreach (var item in source)
+        {
+            var key = _key(item);
+            if (string.IsNullOrEmpty(key) || !keys.Add(key))
+                throw new InvalidOperationException("Collection row keys must be nonempty and unique across the complete model.");
+            entries.Add(new(item, key));
+        }
+        return entries;
+    }
+
+    private ColumnFilter[] ResolveFilters(IReadOnlyDictionary<string, string> filters)
+    {
+        if (filters.Count == 0) return [];
+        var resolved = new ColumnFilter[filters.Count];
+        var index = 0;
+        foreach (var filter in filters)
+            resolved[index++] = new(_columns[filter.Key].FilterText!, filter.Value);
+        return resolved;
+    }
+
+    private bool Matches(T item, string? text, ColumnFilter[] filters)
+    {
+        if (!string.IsNullOrEmpty(text) && !MatchesSearch(item, text)) return false;
+        foreach (var filter in filters)
+            if (!_options.FilterMatches(filter.GetText(item), filter.Value)) return false;
+        return true;
+    }
+
+    private bool MatchesSearch(T item, string text)
+    {
+        foreach (var column in _columns.Values)
+            if (column.SearchText is { } get && _options.SearchMatches(get(item), text)) return true;
+        return _options.ExtraSearchText is { } extra && _options.SearchMatches(extra(item), text);
     }
 
     private void Validate(QueryableCollectionQuery query)
@@ -100,8 +141,19 @@ public sealed class InMemoryCollection<T>
         }
     }
 
-    private sealed record Entry(T Item, string Key)
+    private readonly record struct ColumnFilter(Func<T, string?> GetText, string Value);
+    private readonly record struct Entry(T Item, string Key, bool IsEmpty = false);
+
+    private sealed class EntryComparer(IComparer<T>? comparer, bool descending) : IComparer<Entry>
     {
-        public bool IsEmpty { get; init; }
+        public int Compare(Entry left, Entry right)
+        {
+            if (comparer is null)
+                return descending ? StringComparer.Ordinal.Compare(right.Key, left.Key)
+                    : StringComparer.Ordinal.Compare(left.Key, right.Key);
+            // Swap operands rather than negating: a native comparer may return int.MinValue.
+            var order = descending ? comparer.Compare(right.Item, left.Item) : comparer.Compare(left.Item, right.Item);
+            return order != 0 ? order : StringComparer.Ordinal.Compare(left.Key, right.Key);
+        }
     }
 }
