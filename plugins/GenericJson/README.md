@@ -124,6 +124,13 @@ Duplicate object names, including equivalent escaped names, are intentionally ac
 
 ## Validation
 
+Performance review, 2026-10-29 (#40): **402 passed, 0 failed, 0 skipped**; API Release build **0 warnings, 0 errors**.
+Six findings fixed, with allocation/call-count regressions and unchanged view/page fingerprints.
+Largest-sample Open + first view: **3,393,344 → 2,092,920 allocated bytes**; 50k-array deep whole-tree page:
+**8,439,632 → 41,952 bytes**. See [measurements, reproduction and preservation checks](PERFORMANCE.md), including
+the primary .NET reader/Unicode API sources used for streaming validation. Byte-identical no-op exports,
+duplicate-key occurrences, huge numbers and all original test cases remain covered.
+
 Malformed-input review, 2026-10-29 (#40): **267 passed, 0 failed, 0 skipped** with private samples configured (baseline: 204); API build **0 warnings, 0 errors**. The 63 added synthetic cases cover every truncated prefix of representative nested/BOM/Unicode documents, invalid UTF-8 in values/member names/trailing data, malformed syntax and surrogate escapes, BOM variants, 10,000-level nesting rejection, exact depth/node/byte boundaries, huge integer/fraction/exponent preservation, and escaped duplicate-name occurrence edits. Five diagnostic regressions failed before the fix; the remaining 50 initial corruption cases already passed. No wall-clock assertions or sample payloads were added.
 
 Completion validation, 2026-10-28: **198 passed, 0 failed, 0 skipped** with private artifacts configured; API build **0 warnings, 0 errors**. New tests cover the 250,000-node bound with a large exact-number array, depth 63/64/65 and truncation, direct array paging/live selection/exclusions/reset/undo, retired collections, native decoder limits and deterministic real samples, pinned pack attribution/version/fallback, atomic picker-choice/index edits, nonmutating inspection/history, stable native map identities and every real profile map target. No timing assertions are used. Structural hashing streams its input, occurrence dictionaries are allocated only for objects, and valid numeric lexemes are decoded once. Private samples are not copied into the repository.
