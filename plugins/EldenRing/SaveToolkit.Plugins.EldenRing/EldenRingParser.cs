@@ -39,33 +39,38 @@ internal static class EldenRingParser
         var slots = new CharacterSlot[EldenRingLayout.SlotCount];
         for (var index = 0; index < slots.Length; index++)
         {
-            var active = bytes[activeOffset + index];
-            if (active > 1)
-            {
-                throw new SaveFormatException($"Slot {index}: invalid active-profile flag.");
-            }
-
-            var offset = EldenRingLayout.HeaderSize + index * EldenRingLayout.SlotSize;
-            var version = ReadUInt32(bytes, offset);
-            var profile = profilesOffset + index * EldenRingLayout.ProfileSize;
-            int? player = null;
-            if (active != 0)
-            {
-                if (version == 0)
-                {
-                    throw new SaveFormatException($"Slot {index}: active profile has an empty character block.");
-                }
-
-                var data = bytes.Slice(offset, EldenRingLayout.SlotSize);
-                player = offset + ItemMapReader.Read(data, version).PlayerOffset;
-                ValidateCharacter(bytes, index, offset, player.Value, profile);
-            }
-
-            // Inactive slots may retain deleted-character bytes; never interpret or clear them.
-            slots[index] = new CharacterSlot(index, offset, version, player, profile);
+            slots[index] = ReadSlot(bytes, index, activeOffset, profilesOffset);
         }
 
         return new ParsedSave(profileVersion, slots);
+    }
+
+    private static CharacterSlot ReadSlot(ReadOnlySpan<byte> bytes, int index, int activeOffset, int profilesOffset)
+    {
+        var active = bytes[activeOffset + index];
+        if (active > 1)
+        {
+            throw new SaveFormatException($"Slot {index}: invalid active-profile flag.");
+        }
+
+        var offset = EldenRingLayout.HeaderSize + index * EldenRingLayout.SlotSize;
+        var version = ReadUInt32(bytes, offset);
+        var profile = profilesOffset + index * EldenRingLayout.ProfileSize;
+        int? player = null;
+        if (active != 0)
+        {
+            if (version == 0)
+            {
+                throw new SaveFormatException($"Slot {index}: active profile has an empty character block.");
+            }
+
+            var data = bytes.Slice(offset, EldenRingLayout.SlotSize);
+            player = offset + ItemMapReader.Read(data, version).PlayerOffset;
+            ValidateCharacter(bytes, index, offset, player.Value, profile);
+        }
+
+        // Inactive slots may retain deleted-character bytes; never interpret or clear them.
+        return new CharacterSlot(index, offset, version, player, profile);
     }
 
     public static uint ReadUInt32(ReadOnlySpan<byte> bytes, int offset) =>
