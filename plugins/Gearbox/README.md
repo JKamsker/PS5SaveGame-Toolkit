@@ -353,6 +353,45 @@ known. Controlled game captures and console acceptance are tracked separately in
 | 20. Existing Myth last-tree index | Inferred | Known profile scalar; 0–3 policy | F7 only; rotation not recomputed | Next allocation tree [#31][owner-validation] |
 | 21. Existing named Myth allocation | Inferred | Upstream indices/caps; packed/unpacked exact-varint tests | F7 only; other bytes/noncanonical values retained | XP budget, caps, rotation, each tree [#31][owner-validation] |
 | 22. Existing serial part slot | Inferred | Located index in a fully mapped layout; immutable category/width validation; independent sample bit/CRC checks | Original seed/counts/tail unchanged; CRC repaired; output reparsed | Allowed pools, stats, duplicate/excluded parts, DLC and rejection/removal after reload [#31][owner-validation] |
+| 23. Match selected gear to current character level (#40 shortlist 2) | Inferred | Existing XP threshold lookup composed with the existing serial-level setter; synthetic bit checks and BL3/TTWL sample host/group history tests | Explicit selection only; clip to existing 72/40 title policy; preserve seed/tail, repair folded CRC and reparse envelope | Owned item/card and character-level relation before/after, equip/use and load/resave/reload [#31][owner-validation] |
+| 24. Restore imported ammo amounts (#40 shortlist 3) | Verified pool schema; Experimental workflow | Immutable opening float32 amounts, pinned finite ammo paths, existing 0–100,000 scalar policy; synthetic and sample history/reopen tests | Only lower current values increase; unknown/ambiguous/missing/nonfinite/out-of-policy pools skipped; signed-zero no-ops retain bytes; no SDU or pool creation | Isolated firing/reload/native refill captures, reserve display and capacity clamping [#31][owner-validation] |
+| 25. Batch ordinary/favourite/junk marks (#40 shortlist 10) | Inferred | Existing mark setter; pinned flags 2/4; explicit raw old/new flag preview; synthetic unknown-bit/conflict tests and sample history/reopen tests | Only selected complete known serial records with mark metadata; conflicting flags/unsupported records skipped; unknown bits and serial bytes unchanged | Separate mark/unmark captures for each title, UI and sale protection after resave [#31][owner-validation] |
+
+### Edit coverage actions (#40)
+
+Select the intended rows in the backpack/bank table, open a row's **Serial and parts** details,
+then use **Match selected gear to character level** or **Mark selected items**. The controls live
+inside the table's selection context, so explicit selections (including hidden selected rows) and
+resolved full-query selections reach the preview. Empty selections change nothing. Gear matching
+is character-only: it uses the current character's XP, including staged XP edits, never a profile
+or another character. Existing level-bit eligibility is retained, including preservation of an
+uninterpreted serial tail when the header is safely mapped; missing/invalid headers and current
+levels outside policy are skipped. No part, rarity or stat synthesis is performed.
+
+**Restore imported ammo amounts** is in Progression and previews all existing pools in document
+scope (the API also accepts explicit/resolved ammo-row selections). Its baseline is captured when
+the document opens and survives edits, undo/redo and grouped member reconstruction. It is neither
+the last edited value nor a game maximum, and cannot recover amounts lost before import. Reopening
+an exported save establishes a new baseline. Already equal/higher amounts stay unchanged. Only
+unique pinned ammo paths with one existing path/amount field in both the opening and current record
+qualify; indices and paths must still match. Nonfinite, negative, above-policy, missing, duplicate
+and unrecognized pools are reported as skips. Capacity remains governed by the game's SDUs.
+
+All three actions are pure previews until Apply; Cancel discards the plan. Apply revalidates the
+reviewed content with shared `ActionPlans`, uses the existing atomic snapshot edit path, serializes
+and verifies the output, and records one undo step. Group actions localize prefixed plans and
+selections without changing member ownership. Batch marks reuse the scalar mark implementation:
+0 clears the two known bits, 1 chooses favourite, 2 chooses junk, and every other flag bit is retained.
+BL3 byte-only bank records and lost loot have no mark metadata and are skipped; TTWL bank messages
+can qualify. This does not create/remove/sell items. No shortlist item was deferred. These workflows
+remain **Experimental**, retain the common “Not validated on console” warning, and require the
+owner captures/console checks above before any Stable claim.
+
+Research rechecked 2026-10-29 against the already pinned primary sources:
+[BL3 XP lookup and item flags](https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/bl3save.py),
+[TTWL item flags][ttwl-serial], [BL3 ammo paths][bl3-constants], [TTWL ammo paths][ttwl-constants]
+and the [serial level/envelope implementation][bl3-serial]. These are original convenience-action
+compositions of existing attributed policies; no new external datasets or downloaded code were added.
 
 Reroll/Chaos edits require a fully located tail; level patches can preserve an unknown remainder.
 Imports and duplicates require complete pinned layouts; wrong-game, corrupt and unsupported imports
@@ -441,6 +480,17 @@ key creation is supported by the schema/hash and edit/reopen tests, with console
 Samples/decoded payloads were inspected only in external scratch storage and are never committed.
 
 ## Validation
+
+Edit-coverage implementation (#40 shortlist 2/3/10), 2026-10-29: the complete Release Gearbox
+suite passed **361 tests, 0 failed, 0 skipped**, using task-owned external D: copies of the BL3,
+TTWL and BL4 archives. This includes the existing serial codec/write/CRC/envelope and byte-identical
+sample round trips, plus pure preview/cancel, explicit/query selection, unchanged unknown bits,
+opening-ammo baseline, limits/skips, stale/forged plan rejection, export/reopen and exact undo/redo
+tests for the new actions (standalone host sessions and coordinated groups). The Release API build
+with `--warnaserror` passed with **0 warnings, 0 errors**. The branch's documentation audit
+(`--code-ref HEAD`) passed **27 checks**; `--code-ref main` mixed this checkout's older documentation
+with a newer main and failed its obsolete `test.fixme` expectation. Central documentation remains
+outside this plugin-only change. Console validation is still required under [#31][owner-validation].
 
 Documentation audit, 2026-10-29, against implementation at `6169d14`: the full Release Gearbox
 suite passed **330 tests, 0 failed, 0 skipped** with the prescribed external sample archives.
