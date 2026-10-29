@@ -36,6 +36,11 @@ public sealed class SerialPartTests
                     var changed = SerialParts.Set(entry.Serial, wonderlands, index, candidate);
                     var before = IndependentSerialProbe.Decode(entry.Serial);
                     var after = IndependentSerialProbe.Decode(changed); // independently checks folded CRC
+                    var bits = new ProbeBits(after);
+                    for (var bit = 0; bit < slot.Offset; bit++) _ = bits.Take(1);
+                    Assert.Equal(int.Parse(candidate.Split(':')[1], CultureInfo.InvariantCulture), bits.Take(slot.Width));
+                    Assert.NotEqual(entry.Serial, changed);
+                    Assert.Equal(candidate, SerialParts.Slot(new SerialReader(wonderlands).Read(changed), index).Key);
                     Assert.Equal(before.Length, after.Length);
                     Assert.Equal(entry.Serial[..5], changed[..5]);
                     for (var bit = 0; bit < before.Length * 8; bit++)
