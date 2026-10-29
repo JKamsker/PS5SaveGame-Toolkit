@@ -25,7 +25,11 @@ public sealed class JsonEvidenceTests(ITestOutputHelper output)
             return json.RootElement.GetProperty("Profile").EnumerateObject().Count();
         }));
         foreach (var tree in trees)
-            Assert.All(tree.Values.Where(v => v.Path.StartsWith("Profile/", StringComparison.Ordinal)), v => Assert.Equal("string", v.Kind));
+        {
+            var gameplay = tree.Values.Where(v => v.Path.StartsWith("Profile/", StringComparison.Ordinal)).ToArray();
+            Assert.NotEmpty(gameplay);
+            Assert.All(gameplay, v => Assert.Equal("string", v.Kind));
+        }
         foreach (var file in main)
         {
             var backup = Assert.Single(files, f => f.Directory.IsBackup && f.Directory.Generation == file.Directory.Generation);
@@ -52,7 +56,9 @@ public sealed class JsonEvidenceTests(ITestOutputHelper output)
     public void KnownSamplesGetReadOnlyInterpretationAlongsideRawJson(string title, string name, string tabTitle)
     {
         var plugin = new GenericJsonPlugin();
-        foreach (var file in SampleSaves.Load(title).AllDiskFiles.Where(f => f.FileName == name))
+        var files = SampleSaves.Load(title).AllDiskFiles.Where(f => f.FileName == name).ToArray();
+        Assert.NotEmpty(files);
+        foreach (var file in files)
         {
             using var document = plugin.Open(file);
             var tabs = Assert.IsType<TabsNode>(document.BuildView());

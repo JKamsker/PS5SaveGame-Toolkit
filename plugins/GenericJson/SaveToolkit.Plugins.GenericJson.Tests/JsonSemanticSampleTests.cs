@@ -14,7 +14,9 @@ public sealed class JsonSemanticSampleTests(ITestOutputHelper output)
     {
         var tested = 0;
         var singleValueRanges = 0;
-        foreach (var file in SampleSaves.Load(title).AllDiskFiles.Where(f => f.FileName == name))
+        var files = SampleSaves.Load(title).AllDiskFiles.Where(f => f.FileName == name).ToArray();
+        Assert.NotEmpty(files);
+        foreach (var file in files)
         {
             var source = file.ReadAllBytes();
             using var fixture = new JsonSessionFixture(Encoding.UTF8.GetString(source), title: title, fileName: name);
@@ -66,7 +68,9 @@ public sealed class JsonSemanticSampleTests(ITestOutputHelper output)
     public void RealSamplePresetsPlanSkippedRowsAndApplyAsOneUndoUnit(string title, string name, string id)
     {
         var edits = 0;
-        foreach (var file in SampleSaves.Load(title).AllDiskFiles.Where(f => f.FileName == name))
+        var files = SampleSaves.Load(title).AllDiskFiles.Where(f => f.FileName == name).ToArray();
+        Assert.NotEmpty(files);
+        foreach (var file in files)
         {
             using var fixture = new JsonSessionFixture(Encoding.UTF8.GetString(file.ReadAllBytes()), title: title, fileName: name);
             var actions = JsonSemanticTestHelper.Actions(fixture);

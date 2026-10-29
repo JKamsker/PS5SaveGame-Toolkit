@@ -71,7 +71,9 @@ public sealed class JsonReferenceMapTests
     {
         var plugin = new GenericJsonPlugin();
         var store = new ReferencePackStore([plugin]);
-        foreach (var file in SampleSaves.Load(title).AllDiskFiles.Where(f => f.FileName == name))
+        var files = SampleSaves.Load(title).AllDiskFiles.Where(f => f.FileName == name).ToArray();
+        Assert.NotEmpty(files);
+        foreach (var file in files)
         {
             var context = store.Pin(plugin, title);
             using var document = plugin.Open(file, context);

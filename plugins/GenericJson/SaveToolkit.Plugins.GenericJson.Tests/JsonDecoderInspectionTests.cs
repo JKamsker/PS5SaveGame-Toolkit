@@ -36,7 +36,9 @@ public sealed class JsonDecoderInspectionTests
     public void NativeHookReadsAllSampleGenerationsDeterministically(string title, string name)
     {
         var decoder = new HookSaveDecoder(Assert.Single(new GenericJsonPlugin().Decoders));
-        foreach (var file in SampleSaves.Load(title).AllDiskFiles.Where(f => f.FileName == name))
+        var files = SampleSaves.Load(title).AllDiskFiles.Where(f => f.FileName == name).ToArray();
+        Assert.NotEmpty(files);
+        foreach (var file in files)
         {
             Assert.True(decoder.CanDecode(file));
             var first = decoder.Decode(file, new());

@@ -56,7 +56,9 @@ public sealed class JsonRichOverlayTests
     [InlineData("PPSA07696", "imgui_emu_option.json", "Upscaling factor")]
     public void EveryRealGenerationHasBoundedRichOverlayPlannedWritesAndIdenticalRoundTrip(string title, string name, string label)
     {
-        foreach (var file in SampleSaves.Load(title).AllDiskFiles.Where(f => f.FileName == name))
+        var files = SampleSaves.Load(title).AllDiskFiles.Where(f => f.FileName == name).ToArray();
+        Assert.NotEmpty(files);
+        foreach (var file in files)
         {
             using var document = new GenericJsonPlugin().Open(file);
             var nodes = OverlayNodes(document);

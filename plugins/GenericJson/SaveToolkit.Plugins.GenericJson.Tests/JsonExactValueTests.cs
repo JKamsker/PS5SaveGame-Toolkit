@@ -79,6 +79,7 @@ public sealed class JsonExactValueTests
         var source = "[1e1000000001," + new string('9', ExactJsonNumber.HardMaxLength + 1) + "]";
         using var document = Open(source);
         var fields = JsonEditingTests.Fields(document);
+        Assert.Equal(2, fields.Count);
         Assert.All(fields, f => Assert.True(f.Spec.ReadOnly));
         Assert.Equal(Encoding.UTF8.GetBytes(source), document.Serialize()[0].Content.ToArray());
     }
