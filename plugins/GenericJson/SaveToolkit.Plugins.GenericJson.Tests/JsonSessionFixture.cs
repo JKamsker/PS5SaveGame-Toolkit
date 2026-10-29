@@ -44,25 +44,7 @@ internal sealed class JsonSessionFixture : IDisposable
     public SessionEditResult Edit(string id, FieldValue value, long? revision = null) =>
         Session.ApplyEdits([new IncomingEdit(id, JsonSerializer.SerializeToElement(value))], revision ?? Session.State.Revision);
 
-    public IReadOnlyList<FieldNode> Fields()
-    {
-        var fields = new List<FieldNode>();
-        Visit(Session.BuildView());
-        return fields;
-        void Visit(ViewNode node)
-        {
-            switch (node)
-            {
-                case FieldNode field: if (!field.ValueId.StartsWith("structure/", StringComparison.Ordinal)) fields.Add(field); break;
-                case TabsNode tabs:
-                    foreach (var child in tabs.Tabs.SelectMany(t => t.Children)) Visit(child);
-                    break;
-                case SectionNode section:
-                    foreach (var child in section.LazyId is { } id ? Session.Expand(id) : section.Children) Visit(child);
-                    break;
-            }
-        }
-    }
+    public IReadOnlyList<FieldNode> Fields() => JsonTestViews.Fields(Session.BuildView(), id => Session.Expand(id));
 
     public void Dispose()
     {

@@ -10,19 +10,9 @@ namespace SaveToolkit.Plugins.GenericJson.Tests;
 
 internal static class JsonSemanticTestHelper
 {
-    public static IReadOnlyList<ActionNode> Actions(JsonSessionFixture fixture)
-    {
-        var result = new List<ActionNode>();
-        Visit(fixture.Session.BuildView());
-        return result.DistinctBy(a => a.ActionId).ToArray();
-        void Visit(ViewNode node)
-        {
-            if (node is ActionNode action) result.Add(action);
-            if (node is TabsNode tabs) foreach (var child in tabs.Tabs.SelectMany(t => t.Children)) Visit(child);
-            if (node is SectionNode section)
-                foreach (var child in section.LazyId is { } id ? fixture.Session.Expand(id) : section.Children) Visit(child);
-        }
-    }
+    public static IReadOnlyList<ActionNode> Actions(JsonSessionFixture fixture) =>
+        JsonTestViews.Walk(fixture.Session.BuildView(), id => fixture.Session.Expand(id))
+            .OfType<ActionNode>().DistinctBy(action => action.ActionId).ToArray();
 
     public static ActionNode SetFor(JsonSessionFixture fixture, string rawLabel) => Actions(fixture).Single(a =>
         a.ActionId.StartsWith("semantic/", StringComparison.Ordinal) && a.ActionId.EndsWith("/set", StringComparison.Ordinal)

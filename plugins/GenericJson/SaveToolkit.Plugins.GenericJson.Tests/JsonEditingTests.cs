@@ -117,28 +117,6 @@ public sealed class JsonEditingTests
 
     private ISaveDocument Open(string source) => _plugin.Open(MemorySaveSet.SingleFile("any.bin", Encoding.UTF8.GetBytes(source)));
 
-    internal static IReadOnlyList<FieldNode> Fields(ISaveDocument document)
-    {
-        var fields = new List<FieldNode>();
-        Visit(document.BuildView());
-        return fields;
-
-        void Visit(ViewNode node)
-        {
-            switch (node)
-            {
-                case FieldNode field:
-                    if (!field.ValueId.StartsWith("structure/", StringComparison.Ordinal)) fields.Add(field);
-                    break;
-                case TabsNode tabs:
-                    foreach (var child in tabs.Tabs.SelectMany(t => t.Children)) Visit(child);
-                    break;
-                case SectionNode section:
-                    var children = section.LazyId is { } id ? document.ExpandNode(id) : section.Children;
-                    Assert.True(children.Count <= 128);
-                    foreach (var child in children) Visit(child);
-                    break;
-            }
-        }
-    }
+    internal static IReadOnlyList<FieldNode> Fields(ISaveDocument document) =>
+        JsonTestViews.Fields(document.BuildView(), document.ExpandNode, maxChildren: 128);
 }
