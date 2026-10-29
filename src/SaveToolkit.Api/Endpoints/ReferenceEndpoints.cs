@@ -9,8 +9,10 @@ namespace SaveToolkit.Api.Endpoints;
 /// <summary>Reference packs (import/list/remove) and per-document sources, lookups and assets.</summary>
 internal static class ReferenceEndpoints
 {
+    private const long MultipartEnvelopeAllowanceBytes = 1024 * 1024;
+
     /// <summary>Default archive limit plus room for the multipart envelope; checked again against the store's limits.</summary>
-    private static readonly long MaxImportBody = new ReferencePackLimits().MaxArchiveBytes + (1024 * 1024);
+    private static readonly long MaxImportBody = new ReferencePackLimits().MaxArchiveBytes + MultipartEnvelopeAllowanceBytes;
 
     public static void MapReferenceApi(this IEndpointRouteBuilder app)
     {

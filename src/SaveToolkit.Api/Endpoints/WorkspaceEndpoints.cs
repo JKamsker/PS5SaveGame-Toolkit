@@ -15,6 +15,7 @@ namespace SaveToolkit.Api.Endpoints;
 internal static class WorkspaceEndpoints
 {
     private const int MaxBlobPage = 64 * 1024;
+    private const int MaxFilterKeyLength = 128;
 
     public static void MapToolkitApi(this IEndpointRouteBuilder app)
     {
@@ -74,11 +75,11 @@ internal static class WorkspaceEndpoints
             QueryCollection(request, document, collectionId));
         doc.MapGet("/collections/{collectionId}", QueryCollection);
         doc.MapPost("/edits", (DocumentRef d, EditRequest request) =>
-            ToResult(d.Value.ApplyEdits([.. request.Edits.Select(e => new IncomingEdit(e.ValueId, e.Value))], request.Revision)));
+            SessionEditResponse.Create(d.Value.ApplyEdits([.. request.Edits.Select(e => new IncomingEdit(e.ValueId, e.Value))], request.Revision)));
         doc.MapPost("/actions", (DocumentRef d, ActionRequest request) =>
-            ToResult(d.Value.InvokeAction(request.ActionId, request.Parameters ?? [], request.Revision)));
-        doc.MapPost("/undo", (DocumentRef d, HistoryRequest? request) => ToResult(d.Value.Undo()));
-        doc.MapPost("/redo", (DocumentRef d, HistoryRequest? request) => ToResult(d.Value.Redo()));
+            SessionEditResponse.Create(d.Value.InvokeAction(request.ActionId, request.Parameters ?? [], request.Revision)));
+        doc.MapPost("/undo", (DocumentRef d, HistoryRequest? request) => SessionEditResponse.Create(d.Value.Undo()));
+        doc.MapPost("/redo", (DocumentRef d, HistoryRequest? request) => SessionEditResponse.Create(d.Value.Redo()));
         doc.MapGet("/assets", (DocumentRef d, [FromQuery] string id) =>
             d.Value.GetAsset(id) is { } asset ? Results.Bytes(asset.Content, asset.ContentType) : Results.NotFound());
         doc.MapGet("/blobs", (DocumentRef d, [FromQuery] string id, [FromQuery] long offset, [FromQuery] int count) =>
@@ -99,32 +100,34 @@ internal static class WorkspaceEndpoints
 
     private static IResult QueryCollection(HttpRequest request, DocumentRef document, string collectionId)
     {
-        if (!TryInt(request, "offset", 0, out var offset) || !TryInt(request, "limit", QueryableCollectionLimits.DefaultPageSize, out var limit))
+        var (query, revision) = BindCollectionQuery(request);
+        QueryableCollectionPage page;
+        try
         {
-            return Results.BadRequest(new ErrorDto("Offset and limit must be integers."));
+            page = document.Value.QueryCollection(collectionId, query, revision);
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new ErrorDto(ex.Message));
         }
 
-        if (limit is < 1 or > QueryableCollectionLimits.MaxPageSize)
-        {
-            return Results.BadRequest(new ErrorDto($"Page size must be between 1 and {QueryableCollectionLimits.MaxPageSize}."));
-        }
+        return CollectionPageResponse.Create(QueryablePageDto.From(page));
+    }
 
-        if (offset < 0)
-        {
-            return Results.BadRequest(new ErrorDto("Offset cannot be negative."));
-        }
-
+    private static (QueryableCollectionQuery Query, long? Revision) BindCollectionQuery(HttpRequest request)
+    {
+        var (offset, limit) = ReadCollectionPaging(request);
         if (!TryBool(request, "descending", false, out var descending)
             || !TryBool(request, "includeEmpty", false, out var includeEmpty)
             || !TryLong(request, "revision", out var revision))
         {
-            return Results.BadRequest(new ErrorDto("Descending, includeEmpty and revision must be valid values."));
+            throw new BadHttpRequestException("Descending, includeEmpty and revision must be valid values.");
         }
 
         var filters = ParseFilters(request);
         if (filters is null)
         {
-            return Results.BadRequest(new ErrorDto("Filters must be a JSON object of string values."));
+            throw new BadHttpRequestException("Filters must be a JSON object of string values.");
         }
 
         var query = new QueryableCollectionQuery
@@ -142,26 +145,36 @@ internal static class WorkspaceEndpoints
             || query.Cursor is { Length: 0 or > QueryableCollectionLimits.MaxCursorLength }
             || query.Cursor is not null && offset != 0
             || query.Filters.Count > QueryableCollectionLimits.MaxFilterCount
-            || query.Filters.Any(f => f.Key.Length == 0 || f.Key.Length > 128 || f.Value.Length > QueryableCollectionLimits.MaxFilterLength))
+            || query.Filters.Any(f => f.Key.Length == 0 || f.Key.Length > MaxFilterKeyLength || f.Value.Length > QueryableCollectionLimits.MaxFilterLength))
         {
-            return Results.BadRequest(new ErrorDto("Collection query exceeds the protocol limits."));
+            throw new BadHttpRequestException("Collection query exceeds the protocol limits.");
         }
 
         // Apply clearing after all overrides and bounds checks, preserving nonempty/whitespace values.
         foreach (var key in filters.Where(filter => filter.Value.Length == 0).Select(filter => filter.Key).ToArray())
             filters.Remove(key);
 
-        QueryableCollectionPage page;
-        try
+        return (query, revision);
+    }
+
+    private static (int Offset, int Limit) ReadCollectionPaging(HttpRequest request)
+    {
+        if (!TryInt(request, "offset", 0, out var offset) || !TryInt(request, "limit", QueryableCollectionLimits.DefaultPageSize, out var limit))
         {
-            page = document.Value.QueryCollection(collectionId, query, revision);
-        }
-        catch (ArgumentException ex)
-        {
-            return Results.BadRequest(new ErrorDto(ex.Message));
+            throw new BadHttpRequestException("Offset and limit must be integers.");
         }
 
-        return CollectionPageResponse.Create(QueryablePageDto.From(page));
+        if (limit is < 1 or > QueryableCollectionLimits.MaxPageSize)
+        {
+            throw new BadHttpRequestException($"Page size must be between 1 and {QueryableCollectionLimits.MaxPageSize}.");
+        }
+
+        if (offset < 0)
+        {
+            throw new BadHttpRequestException("Offset cannot be negative.");
+        }
+
+        return (offset, limit);
     }
 
     private static Dictionary<string, string>? ParseFilters(HttpRequest request)
@@ -240,11 +253,6 @@ internal static class WorkspaceEndpoints
         var workspace = await Task.Run(() => store.Create(name, sources), ct);
         return Results.Ok(WorkspaceRef.Retain(request.HttpContext, store, workspace.Id).ToDto(store.Catalog));
     }
-
-    private static IResult ToResult(SessionEditResult result) =>
-        result.Ok ? Results.Ok(result)
-        : result.Stale ? Results.Conflict(result)
-        : Results.UnprocessableEntity(result);
 
     private static ExportOptions ToOptions(ExportRequest r) => new() { Scope = r.Scope, MirrorBackups = r.MirrorBackups };
 

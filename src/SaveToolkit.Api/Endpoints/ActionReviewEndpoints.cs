@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SaveToolkit.Core.Sessions;
+using SaveToolkit.Api.Infrastructure;
 using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Api.Endpoints;
@@ -16,14 +16,11 @@ internal static class ActionReviewEndpoints
                 : preview.Plan.Errors.Count > 0 ? Results.UnprocessableEntity(preview) : Results.Ok(preview);
         });
         doc.MapPost("/actions/apply", (DocumentRef d, ApplyActionPlanRequest request) =>
-            Result(d.Value.ApplyActionPlan(request.PlanId, request.Revision)));
+            SessionEditResponse.Create(d.Value.ApplyActionPlan(request.PlanId, request.Revision)));
         doc.MapGet("/changes", (DocumentRef d) => d.Value.GetChanges());
         doc.MapPost("/changes/revert", (DocumentRef d, RevertChangeRequest request) =>
-            Result(d.Value.RevertChange(request.ValueId, request.Revision)));
+            SessionEditResponse.Create(d.Value.RevertChange(request.ValueId, request.Revision)));
     }
-
-    private static IResult Result(SessionEditResult result) => result.Ok ? Results.Ok(result)
-        : result.Stale ? Results.Conflict(result) : Results.UnprocessableEntity(result);
 }
 
 /// <summary>

@@ -54,6 +54,36 @@ public sealed class CollectionQueryNormalizationApiTests(WebApplicationFactory<P
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Theory]
+    [InlineData("offset=bad&limit=201", "Offset and limit must be integers.")]
+    [InlineData("offset=-1&limit=201", "Page size must be between 1 and 200.")]
+    [InlineData("offset=-1&descending=bad", "Offset cannot be negative.")]
+    [InlineData("descending=bad&filters=null", "Descending, includeEmpty and revision must be valid values.")]
+    [InlineData("revision=bad&filters=null", "Descending, includeEmpty and revision must be valid values.")]
+    [InlineData("filters=null&cursor=", "Filters must be a JSON object of string values.")]
+    [InlineData("cursor=", "Collection query exceeds the protocol limits.")]
+    public async Task TransportValidation_PreservesProblemDetailsAndDiagnosticOrder(string query, string diagnostic)
+    {
+        using var response = await _client.GetAsync($"{await OpenAsync()}?{query}", TestContext.Current.CancellationToken);
+        var problem = await ApiProblemContractTests.AssertProblemAsync(response, HttpStatusCode.BadRequest);
+        Assert.Equal(diagnostic, problem.GetProperty("detail").GetString());
+    }
+
+    [Theory]
+    [InlineData(128, 200)]
+    [InlineData(129, 400)]
+    public async Task ClearedFilterKeys_StillRespectTheDocumentedLengthBound(int length, int status)
+    {
+        string key = new('x', length);
+        using var response = await _client.GetAsync($"{await OpenAsync()}?filter.{key}=", TestContext.Current.CancellationToken);
+        Assert.Equal((HttpStatusCode)status, response.StatusCode);
+        if (status == 400)
+        {
+            var problem = await ApiProblemContractTests.AssertProblemAsync(response, HttpStatusCode.BadRequest);
+            Assert.Equal("Collection query exceeds the protocol limits.", problem.GetProperty("detail").GetString());
+        }
+    }
+
     private async Task<string> OpenAsync()
     {
         var ct = TestContext.Current.CancellationToken;
