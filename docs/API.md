@@ -50,7 +50,16 @@ deliberately; these fields also appear on structured edit and preview failures.
 | 413 Content Too Large | Server/request size rejection, reference batch exceeds 256 pairs, or serialized collection page exceeds 2 MiB. Host/proxy rejections before application execution may have their own error body. |
 | 415 Unsupported Media Type | Non-JSON content type on a JSON-body endpoint. |
 | 422 Unprocessable Entity | Valid request with invalid save/archive/pack contents, export verification failure, rejected field/action/preview/history operation, or nothing to export. |
+| 499 Client Closed Request | Cancelled operation; connected callers receive the shared error envelope, while aborted connections may receive no body. |
 | 500 Internal Server Error | Unexpected failure; generic diagnostic, details logged on the server. |
+
+Request aborts cancel import, export planning/verification/spooling, semantic review and collection
+traversal at host checkpoints. Temporary files are cleaned and cancelled preflight retains the
+document and its preview. Individual synchronous plugin calls finish before cancellation is
+observed. The final check immediately before atomic mutation is the point of no return: apply,
+undo/revision bookkeeping and any rollback finish together, even if the client disconnects.
+Import similarly checks immediately before publishing a complete workspace. Refetch state after
+an aborted mutation; a disconnected client cannot infer whether that final check was passed.
 
 An **EditResult** has `ok`, `errors: [{valueId,message}]`, `changes:
 [{valueId,oldValue,newValue}]`, `warnings: string[]`, optional `message`,

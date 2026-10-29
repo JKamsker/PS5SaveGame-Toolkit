@@ -46,20 +46,20 @@ internal static class WorkspaceEndpoints
 
         MapDocumentRoutes(ws.MapGroup("/documents/{documentId}"));
 
-        ws.MapPost("/export/plan", (WorkspaceRef w, ExportRequest request) =>
+        ws.MapPost("/export/plan", (WorkspaceRef w, ExportRequest request, CancellationToken ct) =>
         {
-            var plan = WorkspaceExporter.Plan(w.Value, ToOptions(request));
+            var plan = WorkspaceExporter.Plan(w.Value, ToOptions(request), ct);
             return new ExportPlanDto(plan.Files, plan.Overrides.Count);
         });
-        ws.MapPost("/export", (WorkspaceRef w, ExportRequest request) =>
+        ws.MapPost("/export", (WorkspaceRef w, ExportRequest request, CancellationToken ct) =>
         {
-            var plan = WorkspaceExporter.Plan(w.Value, ToOptions(request));
+            var plan = WorkspaceExporter.Plan(w.Value, ToOptions(request), ct);
             if (plan.Overrides.Count == 0 && request.Scope != ExportScope.Everything)
             {
                 return Results.UnprocessableEntity(new ErrorDto("Nothing has been changed yet."));
             }
 
-            return WorkspaceExportResponse.Create(plan, $"{SafeName(w.Value.Name)}-edited.zip");
+            return WorkspaceExportResponse.Create(plan, $"{SafeName(w.Value.Name)}-edited.zip", ct);
         });
     }
 
@@ -74,10 +74,10 @@ internal static class WorkspaceEndpoints
         doc.MapGet("/collections", (HttpRequest request, DocumentRef document, [FromQuery] string collectionId) =>
             QueryCollection(request, document, collectionId));
         doc.MapGet("/collections/{collectionId}", QueryCollection);
-        doc.MapPost("/edits", (DocumentRef d, EditRequest request) =>
-            SessionEditResponse.Create(d.Value.ApplyEdits([.. request.Edits.Select(e => new IncomingEdit(e.ValueId, e.Value))], request.Revision)));
-        doc.MapPost("/actions", (DocumentRef d, ActionRequest request) =>
-            SessionEditResponse.Create(d.Value.InvokeAction(request.ActionId, request.Parameters ?? [], request.Revision)));
+        doc.MapPost("/edits", (DocumentRef d, EditRequest request, CancellationToken ct) =>
+            SessionEditResponse.Create(d.Value.ApplyEdits([.. request.Edits.Select(e => new IncomingEdit(e.ValueId, e.Value))], request.Revision, ct)));
+        doc.MapPost("/actions", (DocumentRef d, ActionRequest request, CancellationToken ct) =>
+            SessionEditResponse.Create(d.Value.InvokeAction(request.ActionId, request.Parameters ?? [], request.Revision, ct)));
         doc.MapPost("/undo", (DocumentRef d, HistoryRequest? request) => SessionEditResponse.Create(d.Value.Undo()));
         doc.MapPost("/redo", (DocumentRef d, HistoryRequest? request) => SessionEditResponse.Create(d.Value.Redo()));
         doc.MapGet("/assets", (DocumentRef d, [FromQuery] string id) =>
@@ -86,12 +86,12 @@ internal static class WorkspaceEndpoints
             offset < 0
                 ? (IResult)Results.BadRequest(new ErrorDto("Offset cannot be negative."))
                 : Results.Bytes(d.Value.ReadBlob(id, offset, Math.Clamp(count, 0, MaxBlobPage)), "application/octet-stream"));
-        doc.MapGet("/download", (DocumentRef d) =>
+        doc.MapGet("/download", (DocumentRef d, CancellationToken ct) =>
         {
             var session = d.Value;
             if (d.Workspace.DocumentGroups.Any(g => g.Session.Id == session.Id))
                 return Results.Conflict(new ErrorDto("Use workspace export to download all group members atomically."));
-            var own = session.Serialize().FirstOrDefault(o => o.RelativePath == session.File.RelativePath);
+            var own = session.Serialize(ct).FirstOrDefault(o => o.RelativePath == session.File.RelativePath);
             return own is null
                 ? Results.Stream(session.File.OpenRead(), "application/octet-stream", session.File.FileName)
                 : Results.Bytes(own.Content, "application/octet-stream", session.File.FileName);
@@ -104,7 +104,7 @@ internal static class WorkspaceEndpoints
         QueryableCollectionPage page;
         try
         {
-            page = document.Value.QueryCollection(collectionId, query, revision);
+            page = document.Value.QueryCollection(collectionId, query, revision, request.HttpContext.RequestAborted);
         }
         catch (ArgumentException ex)
         {
@@ -250,7 +250,7 @@ internal static class WorkspaceEndpoints
 
         var name = form["name"].FirstOrDefault() is { Length: > 0 } n ? n : Path.GetFileNameWithoutExtension(form.Files[0].FileName);
         var sources = form.Files.Select(f => new ImportSource(f.FileName, f.OpenReadStream)).ToList();
-        var workspace = await Task.Run(() => store.Create(name, sources), ct);
+        var workspace = await Task.Run(() => store.Create(name, sources, ct), ct);
         return Results.Ok(WorkspaceRef.Retain(request.HttpContext, store, workspace.Id).ToDto(store.Catalog));
     }
 

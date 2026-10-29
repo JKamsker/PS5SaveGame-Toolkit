@@ -13,6 +13,17 @@ internal sealed partial class ToolkitExceptionHandler(ILogger<ToolkitExceptionHa
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
     {
+        if (exception is OperationCanceledException)
+        {
+            // An aborted connection cannot receive JSON. A connected caller still gets the
+            // shared error envelope, without exposing cancellation diagnostics or logging errors.
+            context.Response.StatusCode = StatusCodes.Status499ClientClosedRequest;
+            if (!context.RequestAborted.IsCancellationRequested)
+                await ApiProblem.WriteAsync(context, StatusCodes.Status499ClientClosedRequest,
+                    new ErrorDto("Request cancelled."), CancellationToken.None);
+            return true;
+        }
+
         if (exception is StaleViewException stale)
         {
             await ApiProblem.WriteAsync(context, StatusCodes.Status409Conflict,
