@@ -257,6 +257,37 @@ folder. Native platform prerequisites still apply (e.g. current supported .NET L
 versions and Linux ICU/OpenSSL). Bundles are not signed or notarized. Unix bundles made on
 Windows require `chmod +x start.sh SaveToolkit.Api`; releases package on their native OS.
 
+The API binds the `Toolkit` section to startup-only typed options. Command-line arguments override
+environment variables, which override `appsettings.json` (and its environment-specific variant).
+The three existing settings are:
+
+| Setting | Environment variable | Default for direct apphost/source runs |
+| --- | --- | --- |
+| `Toolkit:DataRoot` | `Toolkit__DataRoot` | System temp directory + `SaveToolkit/workspaces`; wiped when the workspace store starts. |
+| `Toolkit:PackRoot` | `Toolkit__PackRoot` | Local application data directory + `SaveToolkit/reference-packs`; retained across restarts. |
+| `Toolkit:Locales` | `Toolkit__Locales` | `en`; comma-separated, ordered preferences, with whitespace trimmed and empty entries removed. |
+
+Absent or empty values use these defaults. Whitespace-only locale lists yield no preferences;
+duplicates remain in order. Paths may be relative and need not exist yet. Whitespace-only or
+malformed paths fail startup with an error naming `Toolkit:DataRoot` or `Toolkit:PackRoot`.
+Settings are captured at startup; changes require a restart. Upload/form limits remain fixed constants.
+
+Launchers supply their own command-line settings and do not forward extra arguments. To change
+the URL or storage location, invoke the apphost directly, as in the
+[user guide](USER_GUIDE.md#where-your-data-lives), with `--urls`, `--Toolkit:DataRoot` and
+`--Toolkit:PackRoot`. The standard URL default remains `http://127.0.0.1:5180`.
+
+To test the real bundle's configuration providers and `--urls` override, extract a matching native
+archive into scratch, set `SAVETOOLKIT_TEST_BUNDLE` to its top-level bundle directory, and run:
+
+```powershell
+dotnet test --project tests/SaveToolkit.Core.Tests --configuration Release --filter-class '*ApiBundleConfigurationTests'
+```
+
+These three cases exercise appsettings, environment and command-line storage settings through
+the packaged apphost, including actual workspace/pack writes. They skip explicitly when the bundle
+variable is absent. Keep the [scratch environment](#disk-and-scratch) configured for this command.
+
 `smoke-package.ps1` verifies the archive checksum, extracts into a unique scratch folder, starts
 the actual apphost on a free loopback port, checks `/api/version`, HTML and its JavaScript entry
 point, stops the server and removes the extraction. Supply `-ExpectedVersion 1.2.3` to require a
