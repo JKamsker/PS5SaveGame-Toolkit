@@ -1,4 +1,4 @@
-# Catalogue and schema evidence — 2026-10-28
+# Catalogue and schema evidence — 2026-10-28, updated 2026-10-29
 
 ## Scope and confidence
 
@@ -8,8 +8,12 @@ capture actions and chronological order are unknown. No edited save has been tes
 on PS5. The plugin remains Experimental; catalogue labels are read-only and ownership actions
 are now enabled with explicit warnings under the owner's write-round decision (see #31).
 
-No private payload, account metadata, screenshots or extracted game assets are
-committed. `fixtures.json` stores exact schema paths and non-sensitive primitive
+No private payload or account metadata is committed. The original catalogue round
+contained no media; the current publisher pack includes attributed screenshot derivatives
+and short official captions under owner decision 2026-10-29. See the README's
+[publisher-assets inventory](README.md#publisher-assets-050--owner-decision-2026-10-29)
+and the pack's `assets.source.md` for rights, sources and transformations.
+`fixtures.json` stores exact schema paths and non-sensitive primitive
 expectations, as supported by F1. It is explicitly observational, not a controlled
 capture manifest. No churn rules are asserted without a control pair.
 
@@ -40,14 +44,21 @@ F1 command (report output belongs in private scratch, never in the repository):
 
 ```powershell
 $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
+$scratch='D:/Temp/saveeditor/test-scratch/docs-accuracy-astroplayroom'
+New-Item -ItemType Directory -Force -Path $scratch | Out-Null
+$env:SAVETOOLKIT_TEST_TEMP=$scratch
+$env:TEMP=$scratch; $env:TMP=$scratch
 dotnet run --project tools/SaveToolkit.SaveDiff -- compare "$env:SAVETOOLKIT_ARTIFACTS/PPSA01325_saves_dec.zip" "$env:SAVETOOLKIT_ARTIFACTS/PPSA01325_saves_dec.zip" --before-gen 0 --after-gen 1 --semantic astro-playroom --format json --out "$env:TEMP/astro-observed.json"
 ```
 
-The compare command returns 1 when changes are present. The committed fixture and
+The compare command returns 1 when changes are present. It uses the shared
+`PluginViewDecoder`, including bounded production F8 collection traversal; there is no
+plugin-native decoder hook. The committed fixture and
 `AstroDifferentialEvidenceTests` verify all 94 original primitive transitions,
 27,999 changed byte positions, zero added/removed semantic values, zero semantic
-errors/truncation and collapsed identical backups. Catalogue metadata can add
-immutable semantic fields to F1's view walk; it does not add save primitives.
+errors/truncation and collapsed identical backups. The current view decoder reports
+107 semantic changes: 94 original primitive transitions plus 13 derived catalogue
+ownership-status changes. These extra view fields do not add save primitives.
 
 | Group | Changed primitive values |
 | --- | ---: |
@@ -126,10 +137,13 @@ fields, without deriving cinematic/progression/reward state. Both primary/backup
 an independent literal-span byte oracle for the 25 Memory Meadow records; F8 query exclusions and
 one-step undo/redo are verified through Core. These are software guarantees, not new gameplay proof.
 The gatcha-budget preset independently uses the externally sourced factual 100-coin cost and
-restricts attempts to 0–17, preserving higher balances and remaining within observed target values.
+restricts attempts to 0–17. The requested budget is at most 1700, within the observed 0–1749
+range; an existing higher balance is preserved, so the final target may exceed that range.
 All four records pass exact coin-only byte/reopen tests; actual cost/cap/persistence remain unverified.
-F12/F13 are pending #32/#33. The F4/F6 browser parameter-binding reproduction and enum fallback are
-documented under README SDK requests.
+F12 uses the shared view decoder and bounded F8 traversal; F13 exposes the read-only
+`collectibles/inspect` action and browse-only reference picker. The F4/F6 planned-reference
+binding fix (`63580dc`) is adopted through the candidate-world `ReferenceSpec` with mapped-world
+eligibility; no enum fallback or outstanding plugin-specific SDK request remains.
 
 The README's exact capture checklist covers control/coin gain/spend pairs, named
 artifact/prop/puzzle pickups including all four ambiguous boundaries, stage/boss

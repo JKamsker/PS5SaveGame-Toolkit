@@ -7,6 +7,8 @@ no edited save has been loaded on a console. Only a human should promote this to
 
 The game document is `memory.dat` in `sce_sdmemory` (archive directory `sdimg_sce_sdmemory`),
 with an identical console backup under `sdimg_sce_bu_sdmemory` in each supplied generation.
+Probe requires PPSA01325, the root-relative `memory.dat` path (case-insensitive), the exact
+allocation size and the zero-preamble/CRLF/`<PreInstall>` signature; the folder name is not a probe gate.
 The plugin returns only its own file. The framework's default export mirrors matching primary
 files to their same-generation backups; it does not require plugin-specific backup writes.
 System files are untouched. The plugin has no filesystem/network access and depends only on the SDK.
@@ -31,7 +33,8 @@ CDATA are unsupported and rejected inside the root rather than rewritten incorre
 
 Raw sections load lazily and page at 64 immediate entries plus a continuation. Parsing is bounded
 to 64 levels, 4,096 elements and 4,096 values. Collections over 100 records use server-backed F8
-tables (200 rows maximum per request); F9 maps page at 64 markers. Value IDs
+tables (200 rows maximum per request); F9 schematic/collectible lists page at 64 markers.
+The separate world-selection artwork shows all eligible world markers in one map. Value IDs
 use tag names and sibling occurrence numbers, never byte offsets, so length-changing edits retain
 their IDs. Empty elements remain visible as tree sections without inventing a text value.
 
@@ -39,7 +42,7 @@ Unexpected boolean scalars on the `Progress` or `World` group itself remain read
 Unknown confidence. Only flags beneath those groups qualify for experimental flag editing;
 an unfamiliar group shape must remain inspectable and preserve its bytes.
 
-### Malformed-input review (#40)
+### Malformed-input review (#40, historical validation 2026-10-29)
 
 Malformed allocations and unsupported grammar are rejected with `SaveFormatException`;
 tokenizer failures include the byte offset. Encoding and allocation-envelope failures have
@@ -134,9 +137,9 @@ the 18 prop identities remain unresolved and receive no speculative images. All 
 **52 unique WebP images / 155,296 bytes**: 64,884 bytes for the 51 artifact/puzzle images;
 90,412 bytes for the 1140x930 map. Artifact thumbnails are at most 96x96 (the detailed-hardware
 exception); the puzzle image is 64x60. No source JPEGs or private save data are committed.
-The new caption JSON is 9,581 bytes; the complete embedded pack (including manifests and source
-sidecars) is 308,286 bytes. JSON is minified. The exact source URLs, crop boxes, processing settings, rights and limitations
-are in [assets.source.md](SaveToolkit.Plugins.AstroPlayroom/ReferencePacks/astro.catalogue.en/assets.source.md).
+JSON is minified; text-resource byte totals vary with checkout line endings. Exact source URLs,
+crop boxes, processing settings, rights and limitations are in
+[assets.source.md](SaveToolkit.Plugins.AstroPlayroom/ReferencePacks/astro.catalogue.en/assets.source.md).
 
 The artwork map lazily resolves `references.GetAsset` and `AssetProvenance`; original screenshot
 pixels map to the cropped background with `MapTransform(1,1,-40,-50)`. Manually digitized stage
@@ -159,7 +162,7 @@ and validates each embedded pack once and shares its immutable asset buffers; pl
 I/O. Map construction and browser image loads are lazy. Physical-location and console evidence
 requirements in #31 are unchanged.
 
-### Asset-round verification and load measurement
+### Asset-round verification and load measurement (historical, 2026-10-29)
 
 With `SAVETOOLKIT_ARTIFACTS=C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts`:
 **76 passed / 0 failed / 0 skipped** (both generations, all primary/backup records). Coverage includes
@@ -199,15 +202,22 @@ packs are cached once and repeated asset requests return the same AssetContent i
 | F2 reference packs | Used | Offline schema-qualified English catalogue, 49 official-caption records, 52 attributed WebP assets, Sources panel and pinned context; no plugin I/O. Pack 1.1.0; assets shared by host cache. |
 | F3 rich cells | Used | Read-only name/confidence fields, provenance/details and selected-row planned action; F3/F8 thumbnail cells for 50 artifacts and 96 puzzles (one shared puzzle illustration). Unresolved props retain a text fallback. |
 | F4 reference picker | Used | F6's planned candidate-world parameter uses `ReferenceSpec("astro_worlds")` with eligibility restricted to worlds that have existing mapped records. Read-only catalogue inspection parameters use the browse-only picker with attribution. |
-| F5 structural undo | N/A | Writer patches existing primitive spans only. Record creation/removal/reorder lacks a known game grammar/dependency repair; this round adds no structural writer. Existing batches use ordinary grouped value history. |
-| F6 planned actions / #27 | Added this round | Existing coins/collect-all plus candidate-world ownership and bounded gatcha-budget top-up presets. Core resolves all-matching F8 scopes and exclusions; preview/apply/one-step undo/redo are tested. |
+| F5 structural undo | N/A | Writer patches existing primitive spans only. Record creation/removal/reorder lacks a known game grammar/dependency repair; no structural writer exists. Existing batches use ordinary grouped value history. |
+| F6 planned actions / #27 | Used | Coins/collect-all plus candidate-world ownership and bounded gatcha-budget top-up presets. Core resolves all-matching F8 scopes and exclusions; preview/apply/one-step undo/redo are tested. `AstroPlanning.Apply` uses shared `ActionPlans.Revalidate` to compare reviewed and fresh plans before applying scalar edits. |
 | F7 document groups | N/A | One gameplay allocation; no distinct coupled file/invariant identified. Identical backups are handled by same-generation framework export mirroring, not an independently editable partner document. |
-| F8 queryable tables | Added this round | Combined 164-record collection, whole-save search/exact filters/deterministic sort/paging, stable keys and rich cells. Individual groups switch to F8 above 100 records. |
-| F9 maps / graphs | Added this round | Lazy world-selection artwork with Inferred stage anchors, original level schematic plus no-coordinate collectible maps and accessible marker lists; every supported marker links to an existing field/row. No prerequisite graph: no skill/perk tree or proven prerequisite edge exists in this format. |
+| F8 queryable tables | Used | Combined 164-record sample collection and per-type collections use shared `InMemoryCollection<QueryRecord>` in `AstroCollectionQuery`: whole-model search/exact filters/deterministic sort/paging, native occurrence-qualified row keys and page-only rich-cell rendering. Projections are cached per document with live ownership reads; individual groups switch to F8 above 100 records. |
+| F9 maps / graphs | Used | Lazy world-selection artwork with Inferred stage anchors, original level schematic plus no-coordinate collectible maps and accessible marker lists; markers navigate to existing fields, rows or the collect-existing action when a large unknown record has no field. No prerequisite graph: no skill/perk tree or proven prerequisite edge exists in this format. |
 | F10 exact values | Used | SDK integer transport preserves exact signed values with `IntegerSpec`/`FieldValue.Integer`; boolean flags use BoolSpec. There are no JSON numeric lexemes, nullable values or union discriminators requiring the additional specs. |
 | F11 shared codecs | N/A | The observed 1 MiB payload is uncompressed readable UTF-8; no Kraken/Oodle/SQLite content or local codec exists to replace. |
-| F12 | N/A | Astro has no plugin-owned test/research decoder: F1 uses the shared `PluginViewDecoder`, and the production view already publishes the bounded F8 collections. No decoder hook would add independent evidence. |
-| F13 | Used / N/A | Catalogue rows now expose `Mutates = false` inspection actions with read-only browseable reference parameters; the existing F8 catalogue provides bounded category/status/text filtering and deterministic sorting. Float duration is N/A because the observed schema has no floating-point timer fields. |
+| F12 decoder / bounded traversal | Used | F1 uses the shared `PluginViewDecoder`, including bounded production F8 view traversal. No plugin-native decoder hook is registered; it would not add independent evidence for this text-span format. |
+| F13 read-only inspection | Used | The All saved collectibles section exposes `collectibles/inspect` with `Mutates = false` and a read-only browseable `ReferenceSpec`; F8 supplies bounded category/status/text filtering and deterministic sorting. Float duration is inapplicable because the observed schema has no floating-point timer fields. |
+| F14 empty slots | N/A | Collectibles are existing saved records, not vacant inventory slots. A false `IsGot` means unowned; absent/ambiguous/nonboolean ownership means Unknown. No `EmptyRows` metadata or `IsEmpty` markers are published, so every record remains visible regardless of `IncludeEmpty`; `AstroQueryCharacterizationTests` covers this policy. |
+
+The shared-helper migration uses `InMemoryCollection<T>` and `ActionPlans.Revalidate`.
+Reference joins use direct `Find` lookups; local image/inspection code does not use
+`ReferenceCatalogReader`, `ReferenceViews.Icon` or `ReferenceInspection`. Binary cursor/FString/CRC
+helpers are inapplicable to the production UTF-8 span tokenizer and unknown integrity algorithm;
+the independent CRC/Adler research routines remain test-only.
 
 ## Spatial navigation and candidate-world presets
 
@@ -239,9 +249,10 @@ missing and are tested through exact-byte oracle, serialization/reopen and group
 
 `common/top-up-gatcha` computes max(current coins, attempts × 100); it never repeatedly adds a budget
 or reduces a higher balance. Gage/PowerPyx reports the factual 100-coin cost (external research link,
-no guide prose/media copied). Attempts are restricted to **0–17**, keeping the calculated target at
-most 1700 within the sample-observed 0–1749 range. This is a conservative experimental policy, not
-a proven coin cap; actual cost/acceptance still need #31 validation. Random prizes cannot guarantee
+no guide prose/media copied by the arithmetic implementation). Attempts are restricted to **0–17**,
+keeping the requested budget at most 1700 within the sample-observed 0–1749 range. An existing
+higher balance is retained, so the resulting target can exceed 1700. This is a conservative
+experimental policy, not a proven coin cap; actual cost/acceptance still need #31 validation. Random prizes cannot guarantee
 completion. The F6 preview/outcome retains integrity/console warnings and the exact coin change.
 
 ## Enabled writes and their evidence
@@ -255,8 +266,8 @@ Serialization reparses the output and checks all primitive values; this does not
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
 | `collectibles/collect-all`: set missing existing `Artifact/*/IsGot`, `Puzzle/*/IsGot`, `Prop/*/IsGot` to true, document-wide, selected rows or all matching query rows | Inferred | Existing boolean spans; mixed-event samples show 3/9/1 ownership transitions. Tests apply 164 flags in generation 0 and 151 in generation 1, reopen, verify exact untouched bytes with F1, and undo/redo the whole batch. Query exclusions are tested. | Unknown game integrity; output reparsed, all other primitives and opaque suffix preserved. Game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): independent artifact/puzzle/prop grants and full/selected/query batches; museum, notifications, cinematic/reward behavior, resave and second reload. |
-| **Added this round:** `collectibles/collect-world`, existing mapped ownership only | Inferred | Same existing-span writer; schema-qualified world/stage joins. Tests grant only the 25 Memory Meadow records and preserve every unrelated byte; query/explicit exclusions and grouped undo/redo covered. | Same unknown game integrity; no derived dependency repair. Game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): verify candidate-world membership and selected/query preset effects, museum/puzzles, rewards/cinematics/notifications, gameplay/resave/second reload. |
-| **Added this round:** `common/top-up-gatcha`, existing coin span only | Inferred | Gage/PowerPyx reports 100 coins per attempt; independent bounded arithmetic for 0–17 attempts. All four samples verify exact unrelated-byte preservation/reopen; Core one-step undo/redo and invalid/overflow-sized request rejection pass. | Same unknown integrity; only NumCoin changes, higher balances preserved. Game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): spare-slot top-up, actual per-attempt cost, spend/resave/reload, cap/clamping and unrelated flags. |
+| `collectibles/collect-world`, existing mapped ownership only | Inferred | Same existing-span writer; schema-qualified world/stage joins. Tests grant only the 25 Memory Meadow records and preserve every unrelated byte; query/explicit exclusions and grouped undo/redo covered. | Same unknown game integrity; no derived dependency repair. Game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): verify candidate-world membership and selected/query preset effects, museum/puzzles, rewards/cinematics/notifications, gameplay/resave/second reload. |
+| `common/top-up-gatcha`, existing coin span only | Inferred | Gage/PowerPyx reports 100 coins per attempt; independent bounded arithmetic for 0–17 attempts. All four samples verify exact unrelated-byte preservation/reopen; Core one-step undo/redo and invalid/overflow-sized request rejection pass. | Same unknown integrity; only NumCoin changes, higher balances preserved. Game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): spare-slot top-up, actual per-attempt cost, spend/resave/reload, cap/clamping and unrelated flags. |
 | Existing individual ownership/cinematic/Progress/World booleans | Inferred | Literal saved names and booleans; flags vary independently between samples. No dependency relationship is proven. | Same unverified integrity; no inserted fields or guessed repairs. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): each flag's effect, dependencies and persistence. |
 | Existing `Common/NumCoin` field and F6 `common/set-coins` | Verified name; Inferred gameplay range/effects | Observed 0/1749, preserving serializer tests. Bounds 0…2,147,483,647 are signed-storage policy; only 0…1749 is observed, not a proven game cap. | Same unverified integrity; reparsed after edit. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): gain/spend, cap/clamp, independent edit and persistence. |
 | Existing `Common/PlayCount` | Verified name; Unknown increment semantics | Observed 1/2; nonnegative signed-storage bound, not a verified gameplay limit. | Same unverified integrity; reparsed after edit. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): event semantics, accepted values and persistence. |
@@ -335,6 +346,17 @@ contradict this evidence. No control-pair churn masks or unsupported gameplay ca
 
 ## Validation
 
+Documentation accuracy pass (#40, 2026-10-29), checked against main `d81942e`:
+**262 passed / 0 failed / 0 skipped** in the sample-backed Release plugin suite, including
+conformance, asset inventory, no-op identity, exact writes, export and grouped undo/redo.
+API Release build with warnings as errors: **0 warnings / 0 errors**.
+Core export checks: **15 passed / 0 failed / 0 skipped**.
+`python docs/tests/test_documentation.py`: **14 passed**. Documentation only; production behavior,
+user-visible strings, IDs, confidence labels and pinned view fingerprints are unchanged.
+
+The review and browser results below are historical runs at their respective round versions;
+their test counts and timings are not the current suite size or a performance guarantee.
+
 Maintainability review (#40, 2026-10-29): **262 passed / 0 failed / 0 skipped** in Release
 with external samples (baseline 236). The **26 added characterization cases** passed before
 and after extracting tokenizer content readers and field classification. They pin mixed-content
@@ -369,9 +391,15 @@ build with warnings as errors: **0 warnings / 0 errors**. No production code cha
   folders remained after the runs. Scratch and reports stayed on D:.
 
 ```powershell
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
-$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/AstroPlayroom/SaveToolkit.Plugins.AstroPlayroom.Tests
-$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project tests/SaveToolkit.Core.Tests -- --filter-class '*Export*'
+$scratch='D:/Temp/saveeditor/test-scratch/docs-accuracy-astroplayroom'
+New-Item -ItemType Directory -Force -Path $scratch | Out-Null
+$env:SAVETOOLKIT_TEST_TEMP=$scratch
+$env:TEMP=$scratch; $env:TMP=$scratch
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj --configuration Release --warnaserror
+dotnet test --project plugins/AstroPlayroom/SaveToolkit.Plugins.AstroPlayroom.Tests --configuration Release
+dotnet test --project tests/SaveToolkit.Core.Tests --configuration Release --filter-class '*Export*'
+python docs/tests/test_documentation.py
 ```
 
 Completion-round validation (2026-10-28): **72 plugin tests passed, 0 failed, 0 skipped**; **11 Core
@@ -453,7 +481,7 @@ Additional format research (no implementation copied):
   updating the backup, and successfully reloading. Anecdotal supporting evidence only; none of
   those flags or proposed values were copied into these older samples.
   The write-round web search rechecked this first-person report on 2026-10-28; it supplies no
-  collectible dependency or checksum algorithm. No new external data/code was embedded this round.
+  collectible dependency or checksum algorithm. That write-enable research imported no external data/code.
 - [zlib manual, checksum functions](https://zlib.net/manual.html#Checksum): candidate CRC32 and
   Adler-32 conventions for the integrity investigation; also cross-checked with Python standard
   library `zlib` in scratch analysis. No zlib package is needed by the plugin.
@@ -545,4 +573,5 @@ the private artifacts folder; never include account identifiers in manifests or 
 
 No outstanding plugin-specific SDK requests. The planned-action reference binding fix from #11
 (`63580dc`) is on main and this plugin now uses its `ReferenceSpec("astro_worlds")` path with
-mapped-world eligibility.
+mapped-world eligibility. F12 uses shared bounded view traversal and F13 inspection is implemented;
+neither remains pending on #32/#33. Shared collection/action-plan helper adoption is recorded above.
