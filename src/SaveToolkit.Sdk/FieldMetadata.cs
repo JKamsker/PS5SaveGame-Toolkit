@@ -30,7 +30,10 @@ public sealed record FieldMetadata(string ValueId, string Label, FieldSpec Spec)
     /// <summary>Optional real view navigation path. Null means no known navigation target.</summary>
     public IReadOnlyList<string>? Path { get; init; }
 
-    /// <summary>Optional authoritative presentation annotations for unloaded field references.</summary>
+    /// <summary>
+    /// Complete canonical annotations for unloaded presentations. Null leaves them unspecified:
+    /// field references then need a loaded canonical FieldNode before exposing an editor.
+    /// </summary>
     public FieldPresentation? Presentation { get; init; }
 }
 

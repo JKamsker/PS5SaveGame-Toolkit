@@ -115,12 +115,51 @@ public sealed class SemanticReviewR6Tests
         Assert.True(FieldSpecMetadata.Agree(spec, FieldSpecMetadata.Snapshot(spec)));
     }
 
+    [Fact]
+    public void FailedOriginalMetadataRetriesOnTheNextReviewAndClearsOnlyThatFailure()
+    {
+        var fail = true;
+        var calls = 0;
+        using var current = new RetryMetadataDocument(() => fail);
+        var review = new SemanticReview(new());
+
+        review.CaptureTargetedOriginals(() => new RetryMetadataDocument(() => { calls++; return fail; }), ["hidden"],
+            CancellationToken.None);
+        Func<ISaveDocument> openOriginal = () => new RetryMetadataDocument(() => { calls++; return fail; });
+        Assert.False(review.Query(openOriginal, current, _ => { }, _ => { }, 1, CancellationToken.None).Complete);
+
+        fail = false;
+        current.SetValue(2);
+        var retry = review.Query(openOriginal, current, _ => { }, _ => { }, 2, CancellationToken.None);
+
+        Assert.True(retry.Complete);
+        Assert.Equal("Canonical hidden", Assert.Single(retry.Changes).Label);
+        Assert.Empty(review.CaptureState().CaptureDiagnostics);
+        Assert.True(review.TryOriginal("hidden", out var original));
+        Assert.Equal("1", original.ToString());
+    }
+
+    [Fact]
+    public void FailedCurrentTargetedMetadataContributesBoundedOmissionEvidence()
+    {
+        using var document = new RetryMetadataDocument(() => true);
+        var snapshot = new SemanticSnapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal), true, 0);
+        var result = SemanticTargetedReview.Capture(new SemanticTargetedCapture(4096), document, snapshot,
+            ["hidden"], revokeOnFailure: true, (_, _) => { }, CancellationToken.None);
+
+        Assert.False(result.Complete);
+        Assert.Equal(1, snapshot.OmittedCount);
+        Assert.True(snapshot.OmittedCountIsLowerBound);
+        Assert.False(snapshot.Complete);
+    }
+
     private static string Id(int index) => $"field-{index:0000}";
 
     private sealed class MetadataBatchDocument : BoundSaveDocument, IFieldMetadataDocument
     {
         private readonly Dictionary<string, int> _values = new(StringComparer.Ordinal);
         private readonly FieldPresentation? _presentation;
+        public int ResolveCalls { get; private set; }
 
         public MetadataBatchDocument(int count, FieldPresentation? presentation = null)
         {
@@ -135,7 +174,6 @@ public sealed class SemanticReviewR6Tests
         }
 
         public bool FailAfterFirstBatch { get; set; }
-        public int ResolveCalls { get; private set; }
         public int GetValueCalls { get; private set; }
         public override string Title => "Metadata batch";
         public override ViewNode BuildView() => new TextNode("No rendered fields");
@@ -149,6 +187,34 @@ public sealed class SemanticReviewR6Tests
             {
                 Path = ["canonical", id], Presentation = _presentation,
             }).ToArray();
+        }
+    }
+
+    private sealed class RetryMetadataDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        private readonly Func<bool> _failResolver;
+        private int _value = 1;
+        public int ResolveCalls { get; private set; }
+
+        public RetryMetadataDocument(Func<bool> failResolver)
+        {
+            _failResolver = failResolver;
+            RegisterField(new FieldMetadata("hidden", "Canonical hidden", IntegerSpec.Int32)
+            {
+                Presentation = new FieldPresentation { Confidence = Confidence.Inferred, Warning = "Review" },
+                Path = ["canonical", "hidden"],
+            }, () => FieldValue.Of(_value), value => _value = value.AsInt32());
+        }
+
+        public override string Title => "Retry metadata";
+        public void SetValue(int value) => _value = value;
+        public override ViewNode BuildView() => new TextNode("No rendered fields");
+        public override IReadOnlyList<FileOutput> Serialize() => [];
+        public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+        {
+            ResolveCalls++;
+            if (_failResolver()) throw new InvalidOperationException("transient metadata resolver failure");
+            return base.ResolveFieldMetadata(valueIds);
         }
     }
 }

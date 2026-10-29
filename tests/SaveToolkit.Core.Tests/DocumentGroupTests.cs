@@ -262,6 +262,44 @@ public sealed class DocumentGroupTests : IDisposable
     }
 
     [Fact]
+    public void RejectedPlannedApply_PreservesPluginErrorWhenCandidateCleanupFails()
+    {
+        var workspace = Create();
+        var session = Open(workspace).Session;
+        var preview = session.PlanAction("transfer", new Dictionary<string, JsonElement>());
+        _plugin.RejectApply = true;
+        _plugin.ThrowOnRejectedCandidateDispose = true;
+
+        var result = session.ApplyActionPlan(preview.PlanId!, preview.Revision);
+
+        Assert.False(result.Ok);
+        Assert.Contains(result.Errors, error => error.Message.Contains("Second member rejected", StringComparison.Ordinal));
+        Assert.Contains(result.Errors, error => error.Message.Contains("candidate cleanup", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(0, session.State.Revision);
+        Assert.False(session.State.IsDirty);
+        AssertOriginalLiveModel(workspace);
+    }
+
+    [Fact]
+    public void NoOpAction_PreservesNoOpStateWhenCandidateCleanupSucceedsAndReportsFailureWhenItDoesNot()
+    {
+        var workspace = Create();
+        var session = Open(workspace).Session;
+        Assert.True(session.InvokeAction("inspect", new Dictionary<string, JsonElement>()).Ok);
+        Assert.Equal(0, session.State.Revision);
+        Assert.False(session.State.IsDirty);
+
+        _plugin.ThrowOnDispose = true;
+        var result = session.InvokeAction("inspect", new Dictionary<string, JsonElement>());
+
+        Assert.False(result.Ok);
+        Assert.Contains(result.Errors, error => error.Message.Contains("candidate cleanup", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(0, session.State.Revision);
+        Assert.False(session.State.IsDirty);
+        AssertOriginalLiveModel(workspace);
+    }
+
+    [Fact]
     public void FailedUndo_DoesNotPublishPartialRestore()
     {
         var session = Open(Create()).Session;

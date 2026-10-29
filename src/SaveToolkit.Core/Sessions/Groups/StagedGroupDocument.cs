@@ -9,7 +9,8 @@ namespace SaveToolkit.Core.Sessions.Groups;
 /// Runs mutations and restores on independent candidates. The owning DocumentSession serializes calls
 /// and supplies F5 history/F6 plans. A failed plugin call never reaches the published group model.
 /// </summary>
-internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocument, IActionPlanningDocument, IQueryableDocument
+internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocument, IActionPlanningDocument,
+    IQueryableDocument, IAdditionalOutputOwner
 {
     private const int MaxRememberedQueries = 256;
     private readonly Func<IGroupedSaveDocument> _open;
@@ -34,11 +35,17 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         _maxSnapshotBytes = maxSnapshotBytes;
         _current = open();
         try { _outputs = verify(_current); }
-        catch { _current.Dispose(); throw; }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(_current, failure, "Initial group verification and cleanup failed.");
+            throw;
+        }
     }
 
     public string Title => _current.Title;
     public bool CanEdit => _current.CanEdit;
+    public IReadOnlyList<string> AdditionalOutputPaths =>
+        _current is IAdditionalOutputOwner owner ? owner.AdditionalOutputPaths : [];
     public ViewNode BuildView() => _current.BuildView();
     public FieldValue GetValue(string valueId) => _current.GetValue(valueId);
 
@@ -109,10 +116,21 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         cancellationToken.ThrowIfCancellationRequested();
         var memento = _current.CaptureMemento();
         cancellationToken.ThrowIfCancellationRequested();
-        using var candidate = CreateCandidate(memento, rebind: true, cancellationToken);
-        var plan = Planner(candidate).PlanAction(actionId, parameters, scope);
-        cancellationToken.ThrowIfCancellationRequested();
-        return plan;
+        var candidate = CreateCandidate(memento, rebind: true, cancellationToken);
+        try
+        {
+            var plan = Planner(candidate).PlanAction(actionId, parameters, scope);
+            cancellationToken.ThrowIfCancellationRequested();
+            var completed = candidate;
+            candidate = null!;
+            completed.Dispose();
+            return plan;
+        }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(candidate, failure, "Group action planning and cleanup failed.");
+            throw;
+        }
     }
 
     internal Action CancellationRollback()
@@ -148,7 +166,11 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         var candidate = CreateCandidate(memento, rebind: false);
         IReadOnlyList<FileOutput> outputs;
         try { outputs = _verify(candidate); }
-        catch { candidate.Dispose(); throw; }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(candidate, failure, "Group restore verification and cleanup failed.");
+            throw;
+        }
         Publish(candidate, outputs);
         return inverse;
     }
@@ -163,7 +185,11 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         {
             var outcome = mutation(candidate);
             if (!outcome.Succeeded || outcome.Changes.Count == 0 && !outcome.StructureChanged && outcome.Revert is null)
-                return outcome;
+            {
+                var discarded = candidate;
+                candidate = null;
+                return DisposeDiscarded(discarded, outcome);
+            }
             CheckSnapshotBudget(before);
             var outputs = _verify(candidate);
             // A group promises both undo and redo. Refuse the candidate before publication if
@@ -176,13 +202,34 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
             candidate = null;
             return outcome with { Revert = before, StructureChanged = true };
         }
-        finally { candidate?.Dispose(); }
+        catch (Exception failure)
+        {
+            if (candidate is not null)
+                SessionCleanup.DisposeAfterFailure(candidate, failure, "Group mutation verification and cleanup failed.");
+            throw;
+        }
     }
 
     private void CheckSnapshotBudget(DocumentMemento memento)
     {
         if (memento.SizeBytes < 0 || memento.SizeBytes > _maxSnapshotBytes)
             throw new SaveFormatException("The group snapshot exceeds its undo budget. No changes were published.");
+    }
+
+    private static EditOutcome DisposeDiscarded(IGroupedSaveDocument candidate, EditOutcome outcome)
+    {
+        // EditOutcome is the only structured rejection channel; ActionOutcome has no error list.
+        // A discarded candidate therefore keeps the plugin errors and appends cleanup failure.
+        try
+        {
+            candidate.Dispose();
+            return outcome;
+        }
+        catch (Exception cleanup) when (cleanup is not OutOfMemoryException)
+        {
+            var error = new FieldError(string.Empty, $"Group candidate cleanup failed: {cleanup.Message}");
+            return outcome with { Errors = [.. outcome.Errors, error] };
+        }
     }
 
     private IGroupedSaveDocument CreateCandidate(DocumentMemento memento, bool rebind = true,
@@ -214,7 +261,11 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
                 }
             return candidate;
         }
-        catch { candidate.Dispose(); throw; }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(candidate, failure, "Group candidate construction and cleanup failed.");
+            throw;
+        }
     }
 
     private void Publish(IGroupedSaveDocument candidate, IReadOnlyList<FileOutput> outputs)

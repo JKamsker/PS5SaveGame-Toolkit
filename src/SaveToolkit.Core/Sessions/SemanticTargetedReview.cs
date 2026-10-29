@@ -14,6 +14,11 @@ internal static class SemanticTargetedReview
         var result = capture.Capture(document, snapshot, valueIds, cancellationToken);
         if (result.IncompleteIds.Count > 0)
         {
+            if (revokeOnFailure)
+            {
+                snapshot.OmittedCount = checked(snapshot.OmittedCount + result.IncompleteIds.Count);
+                snapshot.OmittedCountIsLowerBound |= result.Diagnostic is not null;
+            }
             foreach (var id in result.IncompleteIds)
             {
                 if (revokeOnFailure) snapshot.Fields.Remove(id);
