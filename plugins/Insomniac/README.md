@@ -11,6 +11,20 @@ The completion round adds F9 storage diagrams/link-only maps, F6 calculated-bala
 target planning, more F4 ID references, F8 raw inventory paging and robustness fixes.
 See [COMPLETION-AUDIT.md](COMPLETION-AUDIT.md) for every requirement and acceptance gap.
 
+## File roles
+
+| File | Role and writable scope |
+| --- | --- |
+| `i29-s.save` | Gameplay DAT1: campaign, gold-bolt options, inventory and world state. Only the existing bolt counters and seven option booleans are writable. |
+| `i29-userprefs.save` | Preferences DAT1: existing scalar booleans are writable; numeric and string settings remain read-only. |
+| Other DAT1 filenames | Recognized by framing; supported DDL/inventory can be inspected if it parses. Writes require PPSA01474 and eligible scalar layouts, independently of filename. No additional title support is established. |
+
+Each document exports only its opened file, retaining its relative path. Backup and
+ZIP-generation handling belongs to Core; the plugin does not rewrite siblings.
+Files outside PPSA01474 remain read-only, even when DAT1 framing matches.
+The supplied files are already decrypted and expose uncompressed DAT1/DDL/TVNI
+data. No decryption, decompression or encryption step is implemented here.
+
 ## Views
 
 Measured opening/query allocation bounds and the cold-sort tradeoff are documented
@@ -200,9 +214,9 @@ The additional F6 action exposes the same career atom, rather than a new storage
 | F5 structural undo | **N/A** | No lossless record constructor/remover/string relocation/dependency repair exists. Existing writes preserve size and use scalar undo; speculative structure mutation would violate data preservation. |
 | F6 action planning | **Used** | Added in the completion round: explicit calculated-bolt target, primary/derived previews, warnings, no-op explanation, stale/forged-plan rejection and Core grouped undo. #27 query scopes are inapplicable to a document-wide wallet target; row/query scopes reject explicitly. Ammo/refill/loadout/upgrade actions lack ownership, legal caps and dependency recipes. |
 | F7 document groups | **N/A** | Gameplay and preferences have no identified coupled invariant; each writer affects one existing file. No transaction over unrelated files is invented. |
-| F8 queryable tables | **Used** | Extended in the completion round: arsenal/armour/upgrades/collectibles/objectives/dimensions/globals plus upgrade-diagram lists and every populated raw inventory container; bounded pages, search/filter/sort and lazy cell bindings. Raw DDL arrays retain bounded diagnostic pages. |
+| F8 queryable tables | **Used** | Local `RiftCollections` serves arsenal/armour/upgrades/collectibles/objectives/dimensions/globals, upgrade-diagram lists and every populated raw inventory container. Complete-model substring search, exact column filters, numeric/text sorting and ordinal row-key ties precede bounded offset pages (1–200 rows); cursors reject. Raw DDL arrays retain separate 100-entry diagnostic pages. |
 | F9 maps/graphs | **Used** | Added in the completion round and extended in the community-map/asset rounds: read-only stored upgrade-row graphs with field targets; spybot storage map/list plus nine lazy regional community maps with aligned local backgrounds (403 markers), text alternatives and explicit Unknown semantics. Save-to-guide joins, fog transforms and prerequisites require owner captures. |
-| F10 exact/nullable numbers | **Used** | Width-specific integer specs and exact UInt64/128-bit transport preserve IDs/masks above 2^53 (including UInt64.MaxValue vectors). DDL floats retain their actual binary precision. DDL type-19 is an empty array, not a nullable scalar or union; no artificial nullable/union control. |
+| F10 exact/nullable numbers | **N/A** | The supported binary wire kinds map to `IntegerSpec` / `FloatSpec`; no exact-decimal lexeme, nullable scalar or tagged-union model is established. There is no `ExactNumberSpec`, `NullableSpec` or `UnionSpec` integration. Existing integer-string transport through `FieldValue` preserves UInt64 IDs/masks above 2^53 (including UInt64.MaxValue vectors). DDL floats retain binary precision, and type-19 represents an empty array. |
 | F11 shared codecs | **N/A** | These measured DAT1/DDL/TVNI files are uncompressed, with no Kraken or SQLite payload; no local codec implementation exists to replace. |
 | F12 SaveDiff F8 traversal/hooks | **Used** | Production `ISaveDecoderProvider` exposes SDK-only `insomniac-evidence`; existing F1 tests use a thin `HookSaveDecoder` adapter. Host sink/file/depth bounds stop decoding; the ordinary `insomniac` view decoder also benefits from bounded F8 traversal. |
 | F13 browse/inspect/filter/duration | **Used** | Existing read-only F4 IDs open browse-only pickers; all seven F2 catalogs use framework category filtering and declared Key/Name/Category sorting. Playtime publishes a float duration hint with inferred seconds and unchanged float32 precision. Inspection actions are N/A: current inspection is already represented by views; the only action changes bolts and remains mutating. |
@@ -244,22 +258,40 @@ its numeric value, float32 precision, read-only policy and unit warning are unch
 The timer interpretation still comes from the measured corpus, rather than the PC
 schema's different declared numeric width; see [EVIDENCE.md](EVIDENCE.md).
 
+## Shared SDK helpers
+
+`InsomniacDocument` derives from `BoundSaveDocument` for bindings, scalar edit
+rollback and read-only enforcement. It implements the shared `IQueryableDocument`
+and `IActionPlanningDocument` contracts, and the production decoder uses
+`ISaveDecoderProvider` / `ISaveDecoderHook`. F13 catalogue browsing is supplied by
+the framework's reference-pack implementation.
+
+The binary readers remain local (`Dat1Container`, `DdlReader`, `InventoryReader`);
+they do not use `BoundedBinaryCursor`. Query execution uses local
+`RiftCollections`, with immutable rows and one cached column ordering per collection.
+`BoundedBinaryCursor` and `InMemoryCollection<T>` are available SDK helpers, but
+these readers and queries have not adopted them. The measured allocation budgets
+for these local implementations are documented in [PERFORMANCE.md](PERFORMANCE.md).
+
 ## Validation
 
 Use the environment assignment and test command in the **same shell invocation**:
 
 ```powershell
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
-$env:SAVETOOLKIT_TEST_TEMP = 'D:/Temp/saveeditor/test-scratch'
-$env:TEMP = 'D:/Temp/saveeditor/test-scratch/insomniac'
+$env:SAVETOOLKIT_TEST_TEMP = 'D:/Temp/saveeditor/test-scratch/docs/accuracy-insomniac'
+$env:TEMP = $env:SAVETOOLKIT_TEST_TEMP
 $env:TMP = $env:TEMP
 New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
 dotnet test --project plugins/Insomniac/SaveToolkit.Plugins.Insomniac.Tests --configuration Release
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj --configuration Release --warnaserror
 ```
 
-Maintainability review (2026-10-29): **298 passed, 0 failed, 0 skipped**, from a
-**279-test** baseline. Nineteen added characterizations pin validation precedence,
+Documentation accuracy check (2026-10-29): **298 passed, 0 failed, 0 skipped** in
+Release with the external samples; documentation checks: **14 passed**; API Release
+build with `--warnaserror`: **0 warnings / 0 errors**.
+
+Maintainability characterizations pin validation precedence,
 complete initial-view/first-page protocols and ordered evidence for early/late gameplay
 and preferences, sink refusal and eager field traversal. Existing allocation budgets
 and exact robustness diagnostics remain unchanged. All **76** game
@@ -387,10 +419,15 @@ Only the attributed, processed reference assets documented in ASSETS.md belong i
 
 None blocking this release. F2/F4 support the attributed read-only path references;
 F3 renders nested cells and confidence/details. INSOMNIAC-R8/R9 and the old R5 blank
-cell concern are covered for this scope. F6/F9 are now adopted directly. Accurate
+cell concern are **resolved** for this scope. F5 structural mementos, F6 planning,
+F7 document groups and F9 spatial views are available in the SDK; F6/F9 are adopted
+directly, while the F5/F7 evidence limits are recorded in the adoption table. Accurate
 physical maps, prerequisite edges and purchase/refill recipes need the R6/R7/R12
 owner captures; the lack of those joins is not an SDK bug. F12/F13 are adopted from
 [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32) /
 [#33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33). The `63580dc`
 planned-reference fix is N/A: the sole planned action takes a numeric bolt target,
 with no EnumSpec reference fallback to replace.
+
+The available shared binary/query helpers and this plugin's actual adoption are
+listed in [Shared SDK helpers](#shared-sdk-helpers); they require no SDK request.

@@ -1,6 +1,10 @@
 # Insomniac asset round — 0.8.0 / issue #20
 
-Branch: `plugin/insomniac-assets`. All changes are inside `plugins/Insomniac/`.
+Historical asset-round report, 2026-10-29, branch `plugin/insomniac-assets`.
+Measurements and validation below describe that round, before the performance and
+maintainability reviews. See [README.md](README.md#validation) for current validation
+and [PERFORMANCE.md](PERFORMANCE.md) for the later allocation measurements.
+All asset-round changes were inside `plugins/Insomniac/`.
 
 The current evidenced title/catalogues are Rift Apart PPSA01474. Spider-Man has no
 mapped item catalogue or title-specific views in this plugin, so adding unreferenced
@@ -85,6 +89,7 @@ was assigned in the same invocation as the plugin tests:
 - `dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj`: **0 warnings, 0 errors**.
 - Whitespace checks pass; every non-generated plugin C# file remains below 300 lines.
 
-No changes outside the plugin. No push or merge. The central licence register still
-has historical Insomniac rows; updating that shared file belongs to the coordinating
-agent because this implementation is restricted to the plugin folder.
+No changes outside the plugin. No push or merge in that round. The
+[central licence register](../../docs/LICENCE_EXCLUSIONS.md) now records both
+Insomniac source decisions as resolved imports: factual markers under the
+2026-10-28 decision, and backgrounds/wiki images under the 2026-10-29 decision.
