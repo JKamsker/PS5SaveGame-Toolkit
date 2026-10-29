@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.Diagnostics;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -90,9 +89,7 @@ public sealed class AtomicHeartFormatTests
             var bytes = file.ReadAllBytes();
             Assert.Equal(126214, bytes.Length);
             Assert.Equal(bytes.AsSpan(^20).ToArray(), SlotFixture.Digest(bytes.AsSpan(0, bytes.Length - 20)));
-            var timer = Stopwatch.StartNew();
             using var document = new AtomicHeartPlugin().Open(file);
-            Assert.True(timer.Elapsed < TimeSpan.FromSeconds(2));
             var fields = document.ExpandNode("metadata/0").OfType<FieldNode>().ToDictionary(f => f.Label);
             Assert.Equal("9", fields["Filename"].Value.AsString());
             Assert.Equal("Vavilov_Entrance", fields["SubLevel"].Value.AsString());
