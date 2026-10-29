@@ -1,0 +1,167 @@
+{
+  "schema": 1,
+  "id": "talesofarise.catalog",
+  "version": "2.0.0",
+  "title": "Tales of Arise reference catalogs",
+  "plugins": [
+    "tales-of-arise"
+  ],
+  "titleIds": [
+    "PPSA02745"
+  ],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "items",
+      "kind": "records",
+      "title": "Items",
+      "files": [
+        {
+          "path": "items.json",
+          "sha256": "b75b9423053045ad440269c773670102d44def5902711cf4e9af8d2db98b6e60"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://example.invalid/wiki/ToA_-_Accessory_Materials",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
+      }
+    },
+    {
+      "id": "equipment",
+      "kind": "records",
+      "title": "Equipment",
+      "files": [
+        {
+          "path": "equipment.json",
+          "sha256": "d5895d9acf6834014d7829cfe7e5f7bfbc405cfec2e07fb532d37049353cf038"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://example.invalid/wiki/ToA_-_Accessories",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
+      }
+    },
+    {
+      "id": "artes",
+      "kind": "records",
+      "title": "Artes",
+      "files": [
+        {
+          "path": "artes.json",
+          "sha256": "46b7f5c7f634e97e5b5500758689255e2f047446e8945eabd20de78b4a139b9a"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://example.invalid/wiki/ToA_-_Alphen:_Artes",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
+      }
+    },
+    {
+      "id": "skills",
+      "kind": "records",
+      "title": "Skills",
+      "files": [
+        {
+          "path": "skills.json",
+          "sha256": "ba5c080cb67656e00f774237bb500d79d57fffe0a727bf08715aaa3c637b1005"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://example.invalid/wiki/ToA_-_Skills",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
+      }
+    },
+    {
+      "id": "titles",
+      "kind": "records",
+      "title": "Title panels",
+      "files": [
+        {
+          "path": "titles.json",
+          "sha256": "d45bba1cb653804c81ef881c888a4ddbca334d76d23295a929929b1d537f515c"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://example.invalid/wiki/ToA_-_Alphen:_Titles",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
+      }
+    },
+    {
+      "id": "skill-nodes",
+      "kind": "records",
+      "title": "Title skill nodes",
+      "files": [
+        {
+          "path": "skill-nodes.json",
+          "sha256": "3c6c29cc5cd38d6d79352933cf6f3e0f1eb7d11bee6aa3b9e4b31cbbacf8f1b6"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://example.invalid/wiki/ToA_-_Alphen:_Titles",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
+      }
+    },
+    {
+      "id": "characters",
+      "kind": "records",
+      "title": "Characters",
+      "files": [
+        {
+          "path": "characters.json",
+          "sha256": "834c0147bcfa9e129d4b1f89d0bfe306c836144b96f757cc53581e9f341d1dca"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://example.invalid/wiki/Template:ToA_Characters",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
+      }
+    },
+    {
+      "id": "progress",
+      "kind": "records",
+      "title": "Recipe, fish and artifact guides",
+      "files": [
+        {
+          "path": "progress.json",
+          "sha256": "b520d3011df8c027efed9a28f74922880f964306858ff8b8ac7dced202dea207"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://example.invalid/wiki/ToA_-_Artifacts",
+        "author": "Aselia Wiki contributors",
+        "license": "CC-BY-SA-3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved": "2026-10-28",
+        "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."
+      }
+    }
+  ]
+}

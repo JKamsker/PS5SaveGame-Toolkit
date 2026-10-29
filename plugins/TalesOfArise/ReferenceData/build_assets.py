@@ -71,13 +71,7 @@ def encode_image(content, is_map):
         return (png, ".png", image.size) if len(png) < len(webp) else (webp, ".webp", image.size)
 
 
-def build(scratch):
-    repository = PLUGIN.parents[1]
-    scratch = scratch.resolve()
-    if scratch == repository or repository in scratch.parents:
-        raise ValueError("Image processing must stay outside the repository")
-    scratch.mkdir(parents=True, exist_ok=True)
-    ledger = json.loads((PACK / "asset-sources.json").read_text(encoding="utf-8"))
+def encode_assets(ledger, scratch):
     assets, remap, unique = [], {}, {}
     for asset in ledger["assets"]:
         content, extension, dimensions = encode_image(download(asset, scratch), asset["role"] == "map")
@@ -94,13 +88,17 @@ def build(scratch):
     total = sum(a["bytes"] for i, a in enumerate(assets) if a["path"] not in {x["path"] for x in assets[:i]})
     if total > ASSET_BUDGET:
         raise ValueError("Asset overlay exceeds four million bytes")
+    return assets, remap, len(unique), total
+
+
+def copy_assets(assets, scratch):
     for asset in assets:
         target = PACK / asset["path"]
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((scratch / target.name).read_bytes())
-    ledger["assets"] = assets
-    for mapping in ledger["records"]:
-        mapping["asset"] = remap[mapping["asset"]]
+
+
+def apply_record_overlay(ledger, assets):
     for file in PACK.glob("*.json"):
         dataset = json.loads(file.read_text(encoding="utf-8"))
         if not isinstance(dataset, dict) or "records" not in dataset:
@@ -120,7 +118,9 @@ def build(scratch):
                     record["description"] = prefix + record["description"]
                 record["attributes"]["descriptionSource"] = description["source"]
         write_json(file, dataset)
-    write_json(PACK / "asset-sources.json", ledger)
+
+
+def write_manifest(assets, retrieved):
     manifest = json.loads((PACK / "pack.json").read_text(encoding="utf-8"))
     manifest["version"] = "3.0.0"
     manifest["datasets"] = [d for d in manifest["datasets"] if d["kind"] != "assets"]
@@ -137,9 +137,26 @@ def build(scratch):
         manifest["datasets"].append({"id": "game-" + role + "s", "kind": "assets", "files": list(files.values()),
             "attribution": {"sourceUrl": source, "author": "Bandai Namco Entertainment Inc.; hosted by Aselia Wiki / Gamer Guides" if role == "icon" else "Bandai Namco Entertainment Inc.; hosted by Tales terminology dictionary (atwiki)",
             "license": MEDIA_LICENSE, "licenseUrl": "https://www.bandainamcoent.com/legal/terms",
-            "retrieved": ledger["retrieved"], "modifications": "Downscaled icons to at most 64x64; PNG-8 or lossless WebP, deduplicated. Map converted to WebP quality 78 without crop. Sources and hashes: asset-sources.json. Map is decorative behind a schematic; markers are not geographic."}})
+            "retrieved": retrieved, "modifications": "Downscaled icons to at most 64x64; PNG-8 or lossless WebP, deduplicated. Map converted to WebP quality 78 without crop. Sources and hashes: asset-sources.json. Map is decorative behind a schematic; markers are not geographic."}})
     write_json(PACK / "pack.json", manifest)
-    print(f"Embedded artwork: {len(unique)} unique images, {total} bytes; {len(ledger['records'])} icon records; {len(ledger['descriptions'])} description records")
+
+
+def build(scratch):
+    repository = PLUGIN.parents[1]
+    scratch = scratch.resolve()
+    if scratch == repository or repository in scratch.parents:
+        raise ValueError("Image processing must stay outside the repository")
+    scratch.mkdir(parents=True, exist_ok=True)
+    ledger = json.loads((PACK / "asset-sources.json").read_text(encoding="utf-8"))
+    assets, remap, image_count, total = encode_assets(ledger, scratch)
+    copy_assets(assets, scratch)
+    ledger["assets"] = assets
+    for mapping in ledger["records"]:
+        mapping["asset"] = remap[mapping["asset"]]
+    apply_record_overlay(ledger, assets)
+    write_json(PACK / "asset-sources.json", ledger)
+    write_manifest(assets, ledger["retrieved"])
+    print(f"Embedded artwork: {image_count} unique images, {total} bytes; {len(ledger['records'])} icon records; {len(ledger['descriptions'])} description records")
 
 
 if __name__ == "__main__":

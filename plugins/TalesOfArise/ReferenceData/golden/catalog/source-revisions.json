@@ -1,0 +1,200 @@
+[
+  {
+    "title": "ToA - Consumables",
+    "revision": 100,
+    "url": "https://example.invalid/wiki/ToA_-_Consumables",
+    "cache": "0.json",
+    "sha256": "c610671f3e3f12528d0bd38e10eea26b5a307894610275586bc71e03194fc74f",
+    "publishedNames": 2,
+    "wikitextSha256": "0a635de61036817985676ab82bcf397b79c8b5c411f58a37f407baec74ff68da",
+    "extractedRecords": 2
+  },
+  {
+    "title": "ToA - Materials",
+    "revision": 101,
+    "url": "https://example.invalid/wiki/ToA_-_Materials",
+    "cache": "1.json",
+    "sha256": "742594d0a767ffa47da32a0794276a8bd51f8b899e3ab376d7aac961a5a4cb88",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 1
+  },
+  {
+    "title": "ToA - Accessory Materials",
+    "revision": 102,
+    "url": "https://example.invalid/wiki/ToA_-_Accessory_Materials",
+    "cache": "2.json",
+    "sha256": "9bbf33404b6159b4a394711f5db504a017244c2b03f2084eae07acd6c5914be1",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 1
+  },
+  {
+    "title": "ToA - Valuables",
+    "revision": 103,
+    "url": "https://example.invalid/wiki/ToA_-_Valuables",
+    "cache": "3.json",
+    "sha256": "6e18a6cb2dd44af290a87129103df915fa7d8572031dbde0c04f13ccfaabbf7c",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 1
+  },
+  {
+    "title": "ToA - Fishing Items",
+    "revision": 104,
+    "url": "https://example.invalid/wiki/ToA_-_Fishing_Items",
+    "cache": "4.json",
+    "sha256": "61c4f2f8f627f4b9b56bbfd3c45371acb1685f5bc4c327fc1122129b12d8ee58",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 1
+  },
+  {
+    "title": "ToA - Weapons (Swords)",
+    "revision": 105,
+    "url": "https://example.invalid/wiki/ToA_-_Weapons_(Swords)",
+    "cache": "5.json",
+    "sha256": "13737d552d4f3cdcbd6b01b39712571f673ab88b2bdb352ec8ee676f01e04fd3",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 2
+  },
+  {
+    "title": "ToA - Armor (Capes)",
+    "revision": 106,
+    "url": "https://example.invalid/wiki/ToA_-_Armor_(Capes)",
+    "cache": "6.json",
+    "sha256": "caa631ce9175f172cb7a46c6f72e9fa07740d3eebc95b2c3f728c43d49a1945f",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 1
+  },
+  {
+    "title": "ToA - Accessories",
+    "revision": 107,
+    "url": "https://example.invalid/wiki/ToA_-_Accessories",
+    "cache": "7.json",
+    "sha256": "b6b3f9ab5a1c912e254053467a4b7554147acc1820fb0ca1fc0b10ddd4fa7cc9",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 1
+  },
+  {
+    "title": "ToA - Alphen: Costumes",
+    "revision": 108,
+    "url": "https://example.invalid/wiki/ToA_-_Alphen:_Costumes",
+    "cache": "8.json",
+    "sha256": "a275cf350cb3f252b8426fe04bf6a3edc57bd0b55db57c67d8c3c7683090cef4",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 1
+  },
+  {
+    "title": "ToA - Shionne Imeris: Haircut, Style",
+    "revision": 109,
+    "url": "https://example.invalid/wiki/ToA_-_Shionne_Imeris:_Haircut,_Style",
+    "cache": "9.json",
+    "sha256": "e71079407f310284bb57d73b16d72d3353819e917962f95b4c19c155515f2d48",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 1
+  },
+  {
+    "title": "ToA - Attachments",
+    "revision": 110,
+    "url": "https://example.invalid/wiki/ToA_-_Attachments",
+    "cache": "10.json",
+    "sha256": "dc41d08904eca829730c3f55ec8670bd4587285278f4849875d44b26b200c05d",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 1
+  },
+  {
+    "title": "ToA - Alphen: Artes",
+    "revision": 111,
+    "url": "https://example.invalid/wiki/ToA_-_Alphen:_Artes",
+    "cache": "11.json",
+    "sha256": "4b15a4b7928902b28e684c11fa4f01c8301bef6135b84ee8a1e414a3bc910163",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 2
+  },
+  {
+    "title": "ToA - Dohalim il Qaras: Artes",
+    "revision": 112,
+    "url": "https://example.invalid/wiki/ToA_-_Dohalim_il_Qaras:_Artes",
+    "cache": "12.json",
+    "sha256": "c7e6ae9527cc1d4f2d733221c7777de5429f3109bdae75d04bc3119124484bfd",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 1
+  },
+  {
+    "title": "ToA - Skills",
+    "revision": 113,
+    "url": "https://example.invalid/wiki/ToA_-_Skills",
+    "cache": "13.json",
+    "sha256": "2f5f83b1eab3b23eab7a8890eea504349dab0829f31a7c97486f25b9f2737345",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 1
+  },
+  {
+    "title": "ToA - Alphen: Titles",
+    "revision": 114,
+    "url": "https://example.invalid/wiki/ToA_-_Alphen:_Titles",
+    "cache": "14.json",
+    "sha256": "076f9790240625453b78e98dcc2aa6f8fb029f3cb4825f400c6d09713f496745",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 6
+  },
+  {
+    "title": "ToA - Cooking",
+    "revision": 115,
+    "url": "https://example.invalid/wiki/ToA_-_Cooking",
+    "cache": "15.json",
+    "sha256": "64834c21ddb7a35df923b890cd5f7ba048ea8548536db79155b32611abb7deb7",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 1
+  },
+  {
+    "title": "ToA - Fishing",
+    "revision": 116,
+    "url": "https://example.invalid/wiki/ToA_-_Fishing",
+    "cache": "16.json",
+    "sha256": "a9352e67c5053a4712ca2072f2df1ebf7a9ff17b5a97043425408b565314a19a",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 1
+  },
+  {
+    "title": "ToA - Artifacts",
+    "revision": 117,
+    "url": "https://example.invalid/wiki/ToA_-_Artifacts",
+    "cache": "17.json",
+    "sha256": "21100825d72a6e69bedccab6f96ec0e90254f20e3ad9215f569d7e2c63d2d283",
+    "publishedNames": 0,
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 2
+  },
+  {
+    "title": "ToA - Boost Strikes",
+    "revision": 118,
+    "url": "https://example.invalid/wiki/ToA_-_Boost_Strikes",
+    "cache": "18.json",
+    "sha256": "d7118d28706eea71129a8fb7502db0409d08bc40fb6670a461f9d1e7c875be26",
+    "wikitextSha256": "5c9ad1eb3337ccf4b5bf37ce34f41c3f8f88410ae432d276cbf77235cf0fecfa",
+    "extractedRecords": 0
+  },
+  {
+    "title": "Template:ToA Characters",
+    "revision": 119,
+    "url": "https://example.invalid/wiki/Template:ToA_Characters",
+    "cache": "19.json",
+    "sha256": "d73524fea24b10c3568232d3f4500509f7bbb573cda598262a6bd9db1e18dd87",
+    "wikitextSha256": "3306cd394686ca1cb65c955e618e0eef3de4f5f859cf0b39d12e4a467cf5189d",
+    "extractedRecords": 5
+  }
+]

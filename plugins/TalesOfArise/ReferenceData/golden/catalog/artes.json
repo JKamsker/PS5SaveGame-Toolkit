@@ -1,0 +1,49 @@
+{
+  "records": [
+    {
+      "id": "arte:dohalim:example-spell",
+      "name": "Example Spell",
+      "category": "Arte",
+      "source": "https://example.invalid/wiki/ToA_-_Dohalim_il_Qaras:_Artes",
+      "description": "Requirements: Unknown",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "112",
+        "section": "",
+        "character": "Dohalim",
+        "requirements": "Unknown"
+      }
+    },
+    {
+      "id": "hidden-artes:alphen:example-strike",
+      "name": "Example Strike",
+      "category": "Hidden Artes",
+      "source": "https://example.invalid/wiki/ToA_-_Alphen:_Artes",
+      "description": "Partner: Shionne\nRequirements: Level 4",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "111",
+        "section": "Hidden Artes (base)",
+        "character": "Alphen",
+        "requirements": "Level 4",
+        "partner": "Shionne"
+      }
+    },
+    {
+      "id": "hidden-artes:alphen:example-strike:variant:0555ad8c3faf",
+      "name": "Example Strike",
+      "category": "Hidden Artes",
+      "source": "https://example.invalid/wiki/ToA_-_Alphen:_Artes",
+      "description": "Partner: Law\nRequirements: Level 8",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "111",
+        "section": "Hidden Artes (base)",
+        "character": "Alphen",
+        "requirements": "Level 8",
+        "partner": "Law",
+        "sourceVariant": "Duplicate published name; kept separately, not a new save ID."
+      }
+    }
+  ]
+}

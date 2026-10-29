@@ -1,0 +1,93 @@
+{
+  "records": [
+    {
+      "id": "1",
+      "name": "Apple Gel",
+      "category": "Consumable",
+      "source": "https://example.invalid/wiki/ToA_-_Consumables",
+      "description": "Effect: Restore & retain\nCommunity crosswalk: https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt (SHA-256 64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c). No licence published; reused with attribution per owner decision 2026-10-28",
+      "attributes": {
+        "serializedId": "1",
+        "sourceRevision": "100",
+        "section": "Examples",
+        "identityEvidence": "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation.",
+        "identitySource": "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",
+        "identitySourceSha256": "64a899111a579d7744d8dde91df6bd2fd70d1c8ce4efac021a51b7355d45657c",
+        "identitySourceLicense": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "editingGuardrail": "15 (plugin policy; not a proven effective cap)"
+      }
+    },
+    {
+      "id": "accessory-material:example-mineral",
+      "name": "Example Mineral",
+      "category": "Accessory material",
+      "source": "https://example.invalid/wiki/ToA_-_Accessory_Materials",
+      "description": "Reference only; save-state identity is not established.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "102",
+        "section": "Examples"
+      }
+    },
+    {
+      "id": "artifact:example-artifact",
+      "name": "Example Artifact",
+      "category": "Artifact",
+      "source": "https://example.invalid/wiki/ToA_-_Artifacts",
+      "description": "Artifact: symbol\nEffect: Unknown",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "117",
+        "section": "Examples"
+      }
+    },
+    {
+      "id": "consumable:example-tonic",
+      "name": "Example Tonic",
+      "category": "Consumable",
+      "source": "https://example.invalid/wiki/ToA_-_Consumables",
+      "description": "Effect: Unknown",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "100",
+        "section": "Examples"
+      }
+    },
+    {
+      "id": "fishing-item:example-rod",
+      "name": "Example Rod",
+      "category": "Fishing item",
+      "source": "https://example.invalid/wiki/ToA_-_Fishing_Items",
+      "description": "Rod: symbol",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "104",
+        "section": "Examples"
+      }
+    },
+    {
+      "id": "material:example-ore",
+      "name": "Éxample Ore",
+      "category": "Material",
+      "source": "https://example.invalid/wiki/ToA_-_Materials",
+      "description": "Value: 12",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "101",
+        "section": "Examples"
+      }
+    },
+    {
+      "id": "valuable:example-key",
+      "name": "Example Key",
+      "category": "Valuable",
+      "source": "https://example.invalid/wiki/ToA_-_Valuables",
+      "description": "Reference only; save-state identity is not established.",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "103",
+        "section": "Examples"
+      }
+    }
+  ]
+}

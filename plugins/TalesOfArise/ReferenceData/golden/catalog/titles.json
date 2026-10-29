@@ -1,0 +1,19 @@
+{
+  "records": [
+    {
+      "id": "title:alphen:example-panel",
+      "name": "Example Panel",
+      "category": "Title",
+      "source": "https://example.invalid/wiki/ToA_-_Alphen:_Titles",
+      "description": "Title: symbol\nSkills: Node 0 Node 1 Node 2 Node 3 Node 4\nSP: 0 10 20 30 40\nBonus: Attack +5\nRequirements: Story event",
+      "attributes": {
+        "serializedId": "Unknown",
+        "sourceRevision": "114",
+        "section": "Examples",
+        "character": "Alphen",
+        "requirements": "Story event",
+        "completionBonus": "Attack +5"
+      }
+    }
+  ]
+}

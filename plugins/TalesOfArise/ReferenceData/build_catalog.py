@@ -82,30 +82,9 @@ def extract_table(output, source, headers, section, table):
             category = section.split(" (")[0] or "Arte"
             add(output, "artes", source, label, category, attrs, description)
         elif first == "Icon" and headers[1] == "Skill Name":
-            # The first header spans Base and DLC columns; read the physical columns explicitly.
-            attrs["character"] = "; ".join(lines(cells[2]))
-            attrs["baseStacks"] = "; ".join(lines(cells[3]))
-            attrs["dlcStacks"] = "; ".join(lines(cells[4]))
-            description = "Users: " + attrs["character"] + "\nBase stacks (same user order): " + attrs["baseStacks"]
-            description += "\nDLC stacks (same user order): " + attrs["dlcStacks"] + "\n" + text(cells[5])
-            add(output, "skills", source, label, section, attrs, description, key="skill:" + slug(label))
+            extract_skill(output, source, label, section, cells, attrs)
         elif first == "Title":
-            attrs["character"] = character_for(title)
-            attrs["requirements"] = text(cells[5])
-            attrs["completionBonus"] = text(cells[4])
-            panel = add(output, "titles", source, label, "Title", attrs, description)
-            nodes = cells[2].find_all("li")
-            costs = lines(cells[3])
-            if len(nodes) != 5 or len(costs) != len(nodes):
-                raise ValueError("Unexpected skill panel/cost shape: " + title + ": " + label)
-            for index, (node, cost) in enumerate(zip(nodes, costs)):
-                node_attrs = {**attrs, "title": label, "titleKey": panel["id"], "spCost": cost,
-                              "position": str(index), "state": "Unknown"}
-                add(output, "skill-nodes", source, text(node), "Title skill", node_attrs,
-                    "Title: " + label + "\nSP cost as published: " + cost + "\nRequirements: " + attrs["requirements"]
-                    + "\nPanel bonus: " + attrs["completionBonus"]
-                    + "\nTitle unlock, node purchase and panel completion are separate, unproven save states.",
-                    key=panel["id"] + ":node:" + str(index))
+            extract_title(output, source, label, cells, attrs, description)
         elif title == "ToA - Cooking" or title == "ToA - Fishing":
             category = "Recipe" if title.endswith("Cooking") else "Fish"
             add(output, "progress", source, label, category, attrs, description)
@@ -123,20 +102,53 @@ def extract_table(output, source, headers, section, table):
             attrs["character"] = character_for(title) if ":" in title else "All"
             add(output, "equipment", source, label, category, attrs, description)
         else:
-            category = {"ToA - Consumables": "Consumable", "ToA - Materials": "Material",
-                        "ToA - Accessory Materials": "Accessory material", "ToA - Valuables": "Valuable",
-                        "ToA - Fishing Items": "Fishing item"}.get(title)
-            if category is None:
-                raise ValueError("Unclassified table: " + title + ": " + str(headers))
-            key = LEGACY_ITEMS.get(label) if category == "Consumable" else None
-            if key is not None:
-                attrs["serializedId"] = key
-                attrs["identityEvidence"] = "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation."
-                attrs["identitySource"] = CONSUMABLE_ID_SOURCE["url"]
-                attrs["identitySourceSha256"] = CONSUMABLE_ID_SOURCE["sha256"]
-                attrs["identitySourceLicense"] = UNLICENSED_REUSE
-                attrs["editingGuardrail"] = "15 (plugin policy; not a proven effective cap)"
-            add(output, "items", source, label, category, attrs, description, key=key)
+            extract_item(output, source, headers, label, attrs, description)
+
+
+def extract_skill(output, source, label, section, cells, attrs):
+    # The first header spans Base and DLC columns; read the physical columns explicitly.
+    attrs["character"] = "; ".join(lines(cells[2]))
+    attrs["baseStacks"] = "; ".join(lines(cells[3]))
+    attrs["dlcStacks"] = "; ".join(lines(cells[4]))
+    description = "Users: " + attrs["character"] + "\nBase stacks (same user order): " + attrs["baseStacks"]
+    description += "\nDLC stacks (same user order): " + attrs["dlcStacks"] + "\n" + text(cells[5])
+    add(output, "skills", source, label, section, attrs, description, key="skill:" + slug(label))
+
+
+def extract_title(output, source, label, cells, attrs, description):
+    attrs["character"] = character_for(source["title"])
+    attrs["requirements"] = text(cells[5])
+    attrs["completionBonus"] = text(cells[4])
+    panel = add(output, "titles", source, label, "Title", attrs, description)
+    nodes = cells[2].find_all("li")
+    costs = lines(cells[3])
+    if len(nodes) != 5 or len(costs) != len(nodes):
+        raise ValueError("Unexpected skill panel/cost shape: " + source["title"] + ": " + label)
+    for index, (node, cost) in enumerate(zip(nodes, costs)):
+        node_attrs = {**attrs, "title": label, "titleKey": panel["id"], "spCost": cost,
+                      "position": str(index), "state": "Unknown"}
+        add(output, "skill-nodes", source, text(node), "Title skill", node_attrs,
+            "Title: " + label + "\nSP cost as published: " + cost + "\nRequirements: " + attrs["requirements"]
+            + "\nPanel bonus: " + attrs["completionBonus"]
+            + "\nTitle unlock, node purchase and panel completion are separate, unproven save states.",
+            key=panel["id"] + ":node:" + str(index))
+
+
+def extract_item(output, source, headers, label, attrs, description):
+    category = {"ToA - Consumables": "Consumable", "ToA - Materials": "Material",
+                "ToA - Accessory Materials": "Accessory material", "ToA - Valuables": "Valuable",
+                "ToA - Fishing Items": "Fishing item"}.get(source["title"])
+    if category is None:
+        raise ValueError("Unclassified table: " + source["title"] + ": " + str(headers))
+    key = LEGACY_ITEMS.get(label) if category == "Consumable" else None
+    if key is not None:
+        attrs["serializedId"] = key
+        attrs["identityEvidence"] = "Legacy inferred PS4 mapping; only Apple Gel has a PS5 acquisition observation."
+        attrs["identitySource"] = CONSUMABLE_ID_SOURCE["url"]
+        attrs["identitySourceSha256"] = CONSUMABLE_ID_SOURCE["sha256"]
+        attrs["identitySourceLicense"] = UNLICENSED_REUSE
+        attrs["editingGuardrail"] = "15 (plugin policy; not a proven effective cap)"
+    add(output, "items", source, label, category, attrs, description, key=key)
 
 
 def extract_characters(output, source, parsed):
@@ -162,51 +174,52 @@ def extract_characters(output, source, parsed):
                 key="character:" + slug(short))
 
 
-def build(cache, output_directory, sources_path):
-    sources = json.loads(Path(sources_path).read_text(encoding="utf-8"))
-    output = defaultdict(list)
-    counts = {}
-    for source in sources:
-        parsed, soup = load_source(source, cache)
-        for element in soup.select("style, sup.reference, .mw-editsection"):
-            element.decompose()
-        before = sum(map(len, output.values()))
-        if source["title"] == "Template:ToA Characters":
-            extract_characters(output, source, parsed)
-        elif source["title"] != "ToA - Boost Strikes":
-            for headers, section, table in tables(soup):
-                extract_table(output, source, headers, section, table)
-            # Independent coverage check against named source templates, not the HTML row parser.
-            # Comments contain expressly unpublished/unnamed-animation guesses and are excluded.
-            published = re.sub(r"<!--.*?-->", "", parsed["wikitext"]["*"], flags=re.DOTALL)
-            expected = {label.strip() for label in re.findall(
-                r"\{\{(?:Item|Arte|Skill|Title)\s*\|\s*([^|}\n]+)", published, flags=re.IGNORECASE)}
-            exported = {record["name"] for rows in output.values() for record in rows if record["source"] == source["url"]}
-            if missing := expected - exported:
-                raise ValueError("Named source rows were omitted: " + source["title"] + ": " + repr(sorted(missing)))
-            source["publishedNames"] = len(expected)
-        # Boost strikes occur in each participating character's page, with that character's requirements.
-        counts[source["title"]] = sum(map(len, output.values())) - before
-        source["wikitextSha256"] = hashlib.sha256(parsed["wikitext"]["*"].encode()).hexdigest()
+def extract_source(output, source, cache):
+    parsed, soup = load_source(source, cache)
+    for element in soup.select("style, sup.reference, .mw-editsection"):
+        element.decompose()
+    before = sum(map(len, output.values()))
+    if source["title"] == "Template:ToA Characters":
+        extract_characters(output, source, parsed)
+    elif source["title"] != "ToA - Boost Strikes":
+        for headers, section, table in tables(soup):
+            extract_table(output, source, headers, section, table)
+        # Independent coverage check against named source templates, not the HTML row parser.
+        # Comments contain expressly unpublished/unnamed-animation guesses and are excluded.
+        published = re.sub(r"<!--.*?-->", "", parsed["wikitext"]["*"], flags=re.DOTALL)
+        expected = {label.strip() for label in re.findall(
+            r"\{\{(?:Item|Arte|Skill|Title)\s*\|\s*([^|}\n]+)", published, flags=re.IGNORECASE)}
+        exported = {record["name"] for rows in output.values() for record in rows if record["source"] == source["url"]}
+        if missing := expected - exported:
+            raise ValueError("Named source rows were omitted: " + source["title"] + ": " + repr(sorted(missing)))
+        source["publishedNames"] = len(expected)
+    # Boost strikes occur in each participating character's page, with that character's requirements.
+    count = sum(map(len, output.values())) - before
+    source["wikitextSha256"] = hashlib.sha256(parsed["wikitext"]["*"].encode()).hexdigest()
+    return count
 
-    destination = Path(output_directory)
-    destination.mkdir(parents=True, exist_ok=True)
+
+def unique_records(dataset, records):
+    unique = {}
+    for record in records:
+        if record["id"] in unique:
+            old = unique[record["id"]]
+            if old["name"] != record["name"]:
+                raise ValueError("Catalog key collision: " + record["id"])
+            # Character groups can be repeated in different navigation roles.
+            if dataset != "characters":
+                raise ValueError("Duplicate record requiring explicit reconciliation: " + record["id"])
+            continue
+        unique[record["id"]] = record
+    return sorted(unique.values(), key=lambda r: r["id"])
+
+
+def write_catalogs(output, destination):
     manifest = {"schema": 1, "id": "talesofarise.catalog", "version": "2.0.0",
                 "title": "Tales of Arise reference catalogs", "plugins": ["tales-of-arise"],
                 "titleIds": ["PPSA02745"], "locale": "en", "datasets": []}
     for dataset, title in TITLES.items():
-        unique = {}
-        for record in output[dataset]:
-            if record["id"] in unique:
-                old = unique[record["id"]]
-                if old["name"] != record["name"]:
-                    raise ValueError("Catalog key collision: " + record["id"])
-                # Character groups can be repeated in different navigation roles.
-                if dataset != "characters":
-                    raise ValueError("Duplicate record requiring explicit reconciliation: " + record["id"])
-                continue
-            unique[record["id"]] = record
-        rows = sorted(unique.values(), key=lambda r: r["id"])
+        rows = unique_records(dataset, output[dataset])
         path = destination / (dataset + ".json")
         write_json(path, {"records": rows})
         urls = sorted({r["source"] for r in rows})
@@ -217,6 +230,17 @@ def build(cache, output_directory, sources_path):
                 "retrieved": "2026-10-28", "modifications": "Extracted complete named table rows from pinned revisions; normalized whitespace, retained published facts and unknowns, omitted images, added symbolic identities. All sources are listed per record and in source-revisions.json. Derived data remains CC BY-SA 3.0. Legacy numeric consumables retain inferred identity, not newly verified IDs. Numeric consumable and playable status-index crosswalks carry separately attributed, no-licence community research."}})
         print(dataset, len(rows))
     write_json(destination / "pack.json", manifest)
+
+
+def build(cache, output_directory, sources_path):
+    sources = json.loads(Path(sources_path).read_text(encoding="utf-8"))
+    output = defaultdict(list)
+    counts = {}
+    for source in sources:
+        counts[source["title"]] = extract_source(output, source, cache)
+    destination = Path(output_directory)
+    destination.mkdir(parents=True, exist_ok=True)
+    write_catalogs(output, destination)
     write_json(destination / "source-revisions.json", [{**s, "extractedRecords": counts[s["title"]]} for s in sources])
 
 
