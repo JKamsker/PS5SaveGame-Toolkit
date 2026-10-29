@@ -47,7 +47,7 @@ public sealed class GroupHistoryTests
         var proposal = Assert.Single(workspace.ProposeGroups(anchor.Id, plugin.Info.Id));
         Assert.Empty(proposal.Errors);
         var session = workspace.OpenGroup(proposal.Token).Session;
-        var fields = Expand(session).OfType<FieldNode>().ToArray();
+        var fields = ViewTraversal.Nodes(session).OfType<FieldNode>().ToArray();
         var level = fields.Single(field => field.Label == "Level");
         var volume = fields.Single(field => field.Label == "volume");
         var online = fields.Single(field => field.Label == "IsOnline");
@@ -133,17 +133,4 @@ public sealed class GroupHistoryTests
         foreach (var (path, bytes) in expected) Assert.Equal(bytes, actual[path]);
     }
 
-    private static IReadOnlyList<ViewNode> Expand(DocumentSession session)
-    {
-        var nodes = new List<ViewNode>();
-        Visit(session.BuildView());
-        return nodes;
-        void Visit(ViewNode node)
-        {
-            nodes.Add(node);
-            if (node is TabsNode tabs) foreach (var child in tabs.Tabs.SelectMany(tab => tab.Children)) Visit(child);
-            if (node is SectionNode section)
-                foreach (var child in section.LazyId is { } id ? session.Expand(id) : section.Children) Visit(child);
-        }
-    }
 }

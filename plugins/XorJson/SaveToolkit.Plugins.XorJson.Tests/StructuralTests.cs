@@ -172,17 +172,5 @@ public sealed class StructuralTests
         Assert.Equal(original, document.Serialize()[0].Content.ToArray());
     }
 
-    internal static IReadOnlyList<ViewNode> Nodes(ISaveDocument document)
-    {
-        var result = new List<ViewNode>();
-        Visit(document.BuildView());
-        return result;
-        void Visit(ViewNode node)
-        {
-            result.Add(node);
-            if (node is TabsNode tabs) foreach (var child in tabs.Tabs.SelectMany(t => t.Children)) Visit(child);
-            if (node is SectionNode section)
-                foreach (var child in section.LazyId is { } id ? document.ExpandNode(id) : section.Children) Visit(child);
-        }
-    }
+    internal static IReadOnlyList<ViewNode> Nodes(ISaveDocument document) => ViewTraversal.Nodes(document);
 }
