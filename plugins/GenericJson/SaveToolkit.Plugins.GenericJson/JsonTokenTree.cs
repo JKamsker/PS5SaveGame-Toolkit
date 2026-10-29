@@ -42,66 +42,8 @@ internal sealed class JsonTokenTree
         try
         {
             _ = StrictUtf8.GetCharCount(bytes);
-            var bom = bytes.AsSpan().StartsWith("\uFEFF"u8) ? 3 : 0;
-            var reader = new Utf8JsonReader(bytes.AsSpan(bom), new JsonReaderOptions { MaxDepth = MaxDepth });
             var tree = new JsonTokenTree();
-            var parents = new Stack<JsonValueToken>();
-            string? property = null;
-            var propertyOffset = 0;
-            var propertyLength = 0;
-            while (reader.Read())
-            {
-                tokenOffset = reader.TokenStartIndex + bom;
-                if (reader.TokenType == JsonTokenType.PropertyName)
-                {
-                    property = reader.GetString();
-                    propertyOffset = checked((int)reader.TokenStartIndex + bom);
-                    propertyLength = reader.ValueSpan.Length + 2;
-                    continue;
-                }
-
-                if (reader.TokenType is JsonTokenType.EndObject or JsonTokenType.EndArray)
-                {
-                    var container = parents.Pop();
-                    container.Length = checked((int)reader.BytesConsumed + bom - container.Offset);
-                    container.OriginalChildIds = Array.AsReadOnly(container.Children.Select(child => child.Index).ToArray());
-                    continue;
-                }
-
-                if (tree.Nodes.Count >= MaxNodes)
-                {
-                    throw new SaveFormatException("JSON exceeds the 250,000 value safety limit.");
-                }
-
-                var parent = parents.TryPeek(out var current) ? current : null;
-                var label = property ?? (parent is null ? "$" : $"[{parent.Children.Count}]");
-                property = null;
-                var node = new JsonValueToken(tree.Nodes.Count, label, reader.TokenType,
-                    checked((int)reader.TokenStartIndex + bom), checked((int)(reader.BytesConsumed - reader.TokenStartIndex)))
-                {
-                    Source = bytes, Parent = parent,
-                    MemberOffset = parent?.Kind == JsonTokenType.StartObject ? propertyOffset : checked((int)reader.TokenStartIndex + bom),
-                    MemberNameLength = parent?.Kind == JsonTokenType.StartObject ? propertyLength : 0,
-                    Position = parent?.Children.Count ?? 0,
-                };
-                tree.Nodes.Add(node);
-                parent?.Children.Add(node);
-                if (node.IsContainer)
-                {
-                    parents.Push(node);
-                }
-                else
-                {
-                    ReadValue(node, ref reader);
-                    node.Original = node.Current;
-                }
-            }
-
-            if (tree.Nodes.Count == 0)
-            {
-                throw new SaveFormatException("JSON must contain one value.");
-            }
-
+            tree.ReadTokens(bytes, ref tokenOffset);
             tree.InitializeSpans(bytes);
             tree.NextId = tree.Nodes.Count;
             tree.Reindex();
@@ -120,6 +62,57 @@ internal sealed class JsonTokenTree
         {
             throw new SaveFormatException($"Invalid JSON string or Unicode escape at byte offset {tokenOffset}.", ex);
         }
+    }
+
+    private void ReadTokens(byte[] bytes, ref long tokenOffset)
+    {
+        var bom = bytes.AsSpan().StartsWith("\uFEFF"u8) ? 3 : 0;
+        var reader = new Utf8JsonReader(bytes.AsSpan(bom), new JsonReaderOptions { MaxDepth = MaxDepth });
+        var parents = new Stack<JsonValueToken>();
+        MemberName property = default;
+        while (reader.Read())
+        {
+            tokenOffset = reader.TokenStartIndex + bom;
+            if (reader.TokenType == JsonTokenType.PropertyName)
+            {
+                property = new(reader.GetString(), checked((int)reader.TokenStartIndex + bom), reader.ValueSpan.Length + 2);
+                continue;
+            }
+            if (reader.TokenType is JsonTokenType.EndObject or JsonTokenType.EndArray)
+            {
+                var container = parents.Pop();
+                container.Length = checked((int)reader.BytesConsumed + bom - container.Offset);
+                container.OriginalChildIds = Array.AsReadOnly(container.Children.Select(child => child.Index).ToArray());
+                continue;
+            }
+            if (Nodes.Count >= MaxNodes)
+                throw new SaveFormatException("JSON exceeds the 250,000 value safety limit.");
+            var parent = parents.TryPeek(out var current) ? current : null;
+            var node = CreateNode(bytes, ref reader, bom, parent, property);
+            property = default;
+            Nodes.Add(node);
+            parent?.Children.Add(node);
+            if (node.IsContainer) parents.Push(node);
+            else
+            {
+                ReadValue(node, ref reader);
+                node.Original = node.Current;
+            }
+        }
+        if (Nodes.Count == 0) throw new SaveFormatException("JSON must contain one value.");
+    }
+
+    private JsonValueToken CreateNode(byte[] bytes, ref Utf8JsonReader reader, int bom, JsonValueToken? parent, MemberName property)
+    {
+        var label = property.Name ?? (parent is null ? "$" : $"[{parent.Children.Count}]");
+        return new JsonValueToken(Nodes.Count, label, reader.TokenType,
+            checked((int)reader.TokenStartIndex + bom), checked((int)(reader.BytesConsumed - reader.TokenStartIndex)))
+        {
+            Source = bytes, Parent = parent,
+            MemberOffset = parent?.Kind == JsonTokenType.StartObject ? property.Offset : checked((int)reader.TokenStartIndex + bom),
+            MemberNameLength = parent?.Kind == JsonTokenType.StartObject ? property.Length : 0,
+            Position = parent?.Children.Count ?? 0,
+        };
     }
 
     private void InitializeSpans(byte[] bytes)
@@ -239,4 +232,6 @@ internal sealed class JsonTokenTree
             CultureInfo.InvariantCulture, out var exponent)
             && exponent >= -ExactJsonNumber.HardMaxAbsoluteExponent && exponent <= ExactJsonNumber.HardMaxAbsoluteExponent;
     }
+
+    private readonly record struct MemberName(string? Name, int Offset, int Length);
 }
