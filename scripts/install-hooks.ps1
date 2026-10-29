@@ -22,6 +22,17 @@ $source = Join-Path $repoRoot '.githooks/pre-commit'
 $target = Join-Path $hookDirectory 'pre-commit'
 $original = Join-Path $hookDirectory 'pre-commit.savetoolkit-original'
 function Get-ExistingEntry([string]$path) {
+    if (!$IsWindows) {
+        $kind = & $script:pythonCommand.Source -B -c 'import os, stat, sys; p=sys.argv[1]; s=os.lstat(p); print("directory" if stat.S_ISDIR(s.st_mode) else "symlink" if stat.S_ISLNK(s.st_mode) else "regular" if stat.S_ISREG(s.st_mode) else "other")' $path 2>$null
+        if ($LASTEXITCODE -ne 0 -or !$kind) { return $null }
+        return [pscustomobject]@{
+            PSIsContainer = ($kind | Out-String).Trim() -eq 'directory'
+            Attributes = if (($kind | Out-String).Trim() -eq 'symlink') {
+                [IO.FileAttributes]::ReparsePoint
+            }
+            else { [IO.FileAttributes]::Normal }
+        }
+    }
     return Get-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue
 }
 
@@ -46,6 +57,17 @@ function Test-RegularFile([object]$entry, [string]$path) {
     return $LASTEXITCODE -eq 0
 }
 
+function Test-ExecutableFile([string]$path) {
+    if ($IsWindows) { return $true }
+    try {
+        $mode = [IO.File]::GetUnixFileMode($path)
+        $executeBits = [IO.UnixFileMode]::UserExecute -bor
+            [IO.UnixFileMode]::GroupExecute -bor [IO.UnixFileMode]::OtherExecute
+        return ($mode -band $executeBits) -ne [IO.UnixFileMode]::None
+    }
+    catch { return $false }
+}
+
 function Test-ToolkitWrapper([string]$path, [string]$expectedHash, [string]$expectedObjectId) {
     $entry = Get-ExistingEntry $path
     if (!(Test-RegularFile $entry $path)) { return $false }
@@ -63,6 +85,9 @@ function Test-ActivationMode([string]$sourcePath, [string]$targetPath) {
 
 $sourceEntry = Get-ExistingEntry $source
 if (!(Test-RegularFile $sourceEntry $source)) { throw "Missing or unsupported checked-in hook: $source" }
+if (!(Test-ExecutableFile $source)) {
+    throw "The checked-in hook must remain executable on POSIX before installation: $source"
+}
 $committedObjectId = (& git -C $repoRoot rev-parse --verify 'HEAD:.githooks/pre-commit' 2>$null | Out-String).Trim()
 if ($LASTEXITCODE -ne 0 -or !$committedObjectId) {
     throw 'The committed hook blob HEAD:.githooks/pre-commit is unavailable.'

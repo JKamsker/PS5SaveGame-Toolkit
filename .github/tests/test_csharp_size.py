@@ -385,12 +385,26 @@ class SizeGuardTests(unittest.TestCase):
             self.assertIn("already installed", second.stdout + second.stderr)
             self.assertEqual("#!/bin/sh\nexit 9\n", backup.read_text(encoding="utf-8"))
             if os.name != "nt":
+                self.assertNotEqual(0, stat.S_IMODE(target.stat().st_mode) & 0o111)
+                target_before_mode_only_dirty = target.read_bytes()
+                target_before_mode_only_dirty_mode = stat.S_IMODE(target.stat().st_mode)
+                source.chmod(0o644)
+                for arguments in ((), ("-WhatIf",)):
+                    with self.subTest(mode_only_dirty=True, arguments=arguments):
+                        mode_only_dirty = self._run_installer_bounded(pwsh, root, *arguments)
+                        self.assertNotEqual(0, mode_only_dirty.returncode)
+                        self.assertIn("must remain executable", mode_only_dirty.stderr + mode_only_dirty.stdout)
+                        self.assertEqual(target_before_mode_only_dirty, target.read_bytes())
+                        self.assertEqual(target_before_mode_only_dirty_mode,
+                                         stat.S_IMODE(target.stat().st_mode))
+                source.chmod(0o755)
                 target.chmod(0o644)
                 before_mode_reset = target.read_bytes()
                 mode_reset = self._run_installer(pwsh, root)
                 self.assertEqual(0, mode_reset.returncode, mode_reset.stdout + mode_reset.stderr)
                 self.assertEqual(before_mode_reset, target.read_bytes())
                 self.assertEqual(stat.S_IMODE(source.stat().st_mode), stat.S_IMODE(target.stat().st_mode))
+                self.assertNotEqual(0, stat.S_IMODE(target.stat().st_mode) & 0o111)
             what_if = self._run_installer(pwsh, root, "-WhatIf")
             self.assertEqual(0, what_if.returncode, what_if.stdout + what_if.stderr)
             self.assertIn("What if", what_if.stdout + what_if.stderr)
@@ -461,6 +475,70 @@ class SizeGuardTests(unittest.TestCase):
                         self.assertEqual(before_mode, stat.S_IMODE(backup.stat().st_mode))
                         self.assertEqual([], list(hooks.glob(".pre-commit.savetoolkit-*.tmp")))
                 backup.unlink()
+
+    def test_installer_rejects_disabled_source_before_fresh_install(self):
+        if os.name == "nt":
+            self.skipTest("POSIX executable mode is required for this regression")
+        pwsh = shutil.which("pwsh")
+        if not pwsh:
+            self.skipTest("PowerShell 7 is required to exercise the installer")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".githooks").mkdir()
+            (root / "scripts").mkdir()
+            source = root / ".githooks/pre-commit"
+            self._copy_committed_hook(source)
+            shutil.copy(ROOT / "scripts/install-hooks.ps1", root / "scripts/install-hooks.ps1")
+            self._git(root, "init")
+            self._git(root, "add", ".")
+            self._git(root, "commit", "-m", "committed hook")
+            source.chmod(0o644)
+            hooks = root / ".git/hooks"
+            for arguments in ((), ("-WhatIf",)):
+                with self.subTest(arguments=arguments):
+                    refused = self._run_installer_bounded(pwsh, root, *arguments)
+                    self.assertNotEqual(0, refused.returncode)
+                    self.assertIn("must remain executable", refused.stderr + refused.stdout)
+                    self.assertFalse((hooks / "pre-commit").exists())
+                    self.assertFalse((hooks / "pre-commit.savetoolkit-original").exists())
+                    self.assertEqual([], list(hooks.glob(".pre-commit.savetoolkit-*.tmp")))
+
+    def test_git_dispatches_executable_installed_hook(self):
+        if os.name == "nt":
+            self.skipTest("POSIX Git hook activation is required for this regression")
+        pwsh = shutil.which("pwsh")
+        if not pwsh:
+            self.skipTest("PowerShell 7 is required to exercise the installer")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".githooks").mkdir()
+            (root / "scripts").mkdir()
+            self._copy_committed_hook(root / ".githooks/pre-commit")
+            shutil.copy(ROOT / "scripts/check_csharp_size.py", root / "scripts/check_csharp_size.py")
+            shutil.copy(ROOT / ".csharp-size-policy.json", root / ".csharp-size-policy.json")
+            shutil.copy(ROOT / "scripts/install-hooks.ps1", root / "scripts/install-hooks.ps1")
+            self._git(root, "init")
+            self._git(root, "add", ".")
+            self._git(root, "commit", "-m", "committed hook")
+            installed = self._run_installer(pwsh, root)
+            self.assertEqual(0, installed.returncode, installed.stdout + installed.stderr)
+            target = root / ".git/hooks/pre-commit"
+            self.assertNotEqual(0, stat.S_IMODE(target.stat().st_mode) & 0o111)
+            oversized = root / "TooLarge.cs"
+            oversized.write_text("line\n" * 501, encoding="utf-8")
+            self._git(root, "add", "TooLarge.cs")
+            environment = {
+                **os.environ,
+                "GIT_AUTHOR_NAME": "C# size guard tests",
+                "GIT_AUTHOR_EMAIL": "csharp-size-guard-tests@example.invalid",
+                "GIT_COMMITTER_NAME": "C# size guard tests",
+                "GIT_COMMITTER_EMAIL": "csharp-size-guard-tests@example.invalid",
+            }
+            blocked = subprocess.run(["git", "-C", str(root), "commit", "-m", "blocked"],
+                                     env=environment, stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE, text=True)
+            self.assertNotEqual(0, blocked.returncode, blocked.stdout + blocked.stderr)
+            self.assertIn("hard limit", blocked.stdout + blocked.stderr)
 
     def test_installer_copy_failure_keeps_active_hook_and_does_not_create_backup(self):
         pwsh = shutil.which("pwsh")
@@ -637,6 +715,8 @@ class SizeGuardTests(unittest.TestCase):
             raise subprocess.CalledProcessError(result.returncode, command,
                                                 output=result.stdout, stderr=result.stderr)
         destination.write_bytes(result.stdout)
+        if os.name != "nt":
+            destination.chmod(0o755)
 
     @staticmethod
     def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
@@ -664,7 +744,7 @@ class SizeGuardTests(unittest.TestCase):
     def _run_installer_bounded(self, pwsh: str, root: Path, *args: str) -> subprocess.CompletedProcess:
         return subprocess.run([pwsh, "-NoProfile", "-File", str(root / "scripts/install-hooks.ps1"), *args],
                               cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
-                              timeout=5)
+                              timeout=15)
 
     def _run_installer_with_copy_failure(self, pwsh: str, root: Path) -> subprocess.CompletedProcess:
         script = str(root / "scripts/install-hooks.ps1").replace("'", "''")
