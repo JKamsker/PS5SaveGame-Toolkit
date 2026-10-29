@@ -88,8 +88,14 @@ public sealed class WitcherRefillTests
             new("Bread", 5, 0, 5, false) { Tags = ["quest"] }, new("Bread", 6, 0, 5, false) { Slot = "food" }];
         foreach (var item in items) { item.Quantity = 1; }
         var plan = new RefillPlanning(items, true).Plan(new Dictionary<string, FieldValue>(), new());
-        Assert.Equal(items[0].ValueId, Assert.Single(plan.Changes).ValueId);
-        Assert.Equal(5, plan.SkippedRows.Count);
+        Assert.Empty(plan.Errors);
+        var change = Assert.Single(plan.Changes);
+        Assert.Equal(items[0].ValueId, change.ValueId);
+        Assert.Equal(FieldValue.Of(1), change.OldValue);
+        Assert.Equal(FieldValue.Of(5), change.NewValue);
+        Assert.Equal(["2", "3", "4", "5", "6"], plan.SkippedRows.Select(row => row.RowKey));
+        Assert.All(plan.SkippedRows, row => Assert.NotEmpty(row.Reason));
+        Assert.All(items, item => Assert.Equal(1, item.Quantity));
         items[0].Quantity = 8;
         Assert.Empty(new RefillPlanning(items, true).Plan(new Dictionary<string, FieldValue>(), new()).Changes);
         Assert.NotEmpty(new RefillPlanning(items, false).Plan(new Dictionary<string, FieldValue>(), new()).Errors);
