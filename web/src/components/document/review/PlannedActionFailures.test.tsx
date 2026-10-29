@@ -20,8 +20,9 @@ const failures = [new ApiError("Preview rejected", 422), new ApiError("Unknown d
   new ApiError("Action service unavailable", 503), new ApiError("Request failed (502).", 502), new TypeError("Failed to fetch")];
 
 function setup() {
-  const fixture = renderDocument(<ActionButton node={{ type: "action", actionId: "refill", label: "Refill", supportsPlanning: true,
-    parameters: [{ type: "field", valueId: "quantity", label: "Target quantity", spec: { kind: "integer", min: "0", max: "99" }, value: "10" }] }} />);
+  const fixture = renderDocument(<><ActionButton node={{ type: "action", actionId: "refill", label: "Refill", supportsPlanning: true,
+    parameters: [{ type: "field", valueId: "quantity", label: "Target quantity", spec: { kind: "integer", min: "0", max: "99" }, value: "10" }] }} />
+    <button type="button">Keep working</button></>);
   fireEvent.click(screen.getByRole("button", { name: "Refill" }));
   const input = screen.getByRole("textbox", { name: "Target quantity" });
   fireEvent.change(input, { target: { value: "15" } });
@@ -84,4 +85,65 @@ it.each(["success", "failure"])("retires a pending preview observer after naviga
   expect(apply).not.toHaveBeenCalled();
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(screen.queryByRole("alert")).toBeNull();
+});
+
+it.each(["success", "failure"])("does not steal focus when a cancelled preview settles (%s)", async outcome => {
+  const pending = deferred<ActionPreview>();
+  vi.spyOn(actionReview, "plan").mockReturnValue(pending.promise);
+  setup();
+  fireEvent.click(screen.getByRole("button", { name: "Preview" }));
+  const dialog = screen.getByRole("dialog") as HTMLDialogElement;
+  // Native Escape closes a dialog even while its Cancel button is disabled.
+  act(() => dialog.close());
+  const other = screen.getByRole("button", { name: "Keep working" });
+  other.focus();
+  await act(async () => {
+    if (outcome === "success") pending.resolve(preview);
+    else pending.reject(new Error("Cancelled preview failure"));
+    await pending.promise.catch(() => {});
+  });
+  expect(screen.queryByRole("dialog")).toBeNull();
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(document.activeElement).toBe(other);
+});
+
+it("allows a new preview after cancellation and ignores the older response", async () => {
+  const older = deferred<ActionPreview>();
+  const plan = vi.spyOn(actionReview, "plan").mockReturnValueOnce(older.promise).mockResolvedValue({ ...preview, planId: "fresh" });
+  const apply = vi.spyOn(actionReview, "apply").mockResolvedValue(applied);
+  setup();
+  fireEvent.click(screen.getByRole("button", { name: "Preview" }));
+  act(() => (screen.getByRole("dialog") as HTMLDialogElement).close());
+  const trigger = screen.getByRole("button", { name: "Refill" });
+  expect(trigger).toHaveProperty("disabled", false);
+  fireEvent.click(trigger);
+  fireEvent.click(screen.getByRole("button", { name: "Preview" }));
+  await screen.findByRole("button", { name: "Apply" });
+  await act(async () => { older.resolve(preview); await older.promise; });
+  fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  expect(plan).toHaveBeenCalledTimes(2);
+  expect(apply).toHaveBeenCalledExactlyOnceWith("w1", "d1", "fresh", 1);
+});
+
+it.each(["success", "failure"])("accepts a pending apply's document outcome after dialog cancellation (%s)", async outcome => {
+  const pending = deferred<EditResult>();
+  vi.spyOn(actionReview, "plan").mockResolvedValue(preview);
+  vi.spyOn(actionReview, "apply").mockReturnValue(pending.promise);
+  const { store, context } = setup();
+  fireEvent.click(screen.getByRole("button", { name: "Preview" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Apply" }));
+  act(() => (screen.getByRole("dialog") as HTMLDialogElement).close());
+  const other = screen.getByRole("button", { name: "Keep working" });
+  other.focus();
+  await act(async () => {
+    if (outcome === "success") pending.resolve(applied);
+    else pending.reject(new Error("Cancelled apply failure"));
+    await pending.promise.catch(() => {});
+  });
+  expect(screen.queryByRole("dialog")).toBeNull();
+  expect(document.activeElement).toBe(other);
+  expect(store.state.revision).toBe(outcome === "success" ? 2 : 1);
+  if (outcome === "success") expect(context.acceptResult).toHaveBeenCalledExactlyOnceWith(applied);
+  else expect(context.acceptResult).not.toHaveBeenCalled();
 });
