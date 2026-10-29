@@ -16,9 +16,10 @@ generic historical entries below do not establish a source-specific restriction.
 ## Upstream licence requests
 
 The owner requested MIT or GPL-3.0 terms from the following upstream repositories. These links
-track requests, not granted licences; both owner decisions and remaining refusals still
-apply. Community code/data licences do not relicense publisher assets; their reuse follows the
-separate 2026-10-29 attribution policy. This request log also covers sources not listed as exclusions below.
+track requests; verified grants are recorded with pinned licence evidence below. Both owner decisions
+and remaining refusals still apply. Community code/data licences do not relicense publisher assets;
+their reuse follows the separate 2026-10-29 attribution policy. This request log also covers sources
+not listed as exclusions below.
 
 | Upstream repository | Licence requested | Request / note | Upstream state |
 | --- | --- | --- | --- |
@@ -31,7 +32,7 @@ separate 2026-10-29 attribution policy. This request log also covers sources not
 | `Serofix-code/bg3-save-editor` | MIT or GPL-3.0 | [#1](https://github.com/Serofix-code/bg3-save-editor/issues/1) | Open |
 | `Sora3100/Tales_of_Cheat_Tables` | MIT or GPL-3.0 | [#120](https://github.com/Sora3100/Tales_of_Cheat_Tables/issues/120) | Open |
 | `aschleg/witcher-3-enemy-scaling-and-other-changes` | MIT or GPL-3.0 | [#2](https://github.com/aschleg/witcher-3-enemy-scaling-and-other-changes/issues/2) | Open |
-| `kainotoa/GOWTool` | MIT or GPL-3.0 | [#14](https://github.com/kainotoa/GOWTool/issues/14) | Open |
+| `kainotoa/GOWTool` | MIT or GPL-3.0 | [#14](https://github.com/kainotoa/GOWTool/issues/14); [verified MIT grant](#gowtool-mit-verification--2026-10-29) | Closed, completed 2026-10-29; MIT added |
 | `kvasszn/ree-save-editor` | MIT or GPL-3.0 | [#52](https://github.com/kvasszn/ree-save-editor/issues/52) | Open |
 | `soulsmods/Paramdex` | MIT or GPL-3.0 | [#10](https://github.com/soulsmods/Paramdex/issues/10) | Open |
 | `ClayAmore/ER-Save-Lib` | MIT or GPL-3.0 | [#6](https://github.com/ClayAmore/ER-Save-Lib/issues/6); requested 2026-10-29 after the EldenRing unblock round imported its sparse mappings | Open |
@@ -40,11 +41,43 @@ separate 2026-10-29 attribution policy. This request log also covers sources not
 | `mooofin/God-of-War-Ragnarok` | MIT or GPL-3.0 | [#2](https://github.com/mooofin/God-of-War-Ragnarok/issues/2); requested 2026-10-29 after the GodOfWarRagnarok unblock round imported its runtime IDs | Open |
 | `The-Grand-Archives/Elden-Ring-CT-TGA` | MIT or GPL-3.0 | [#158](https://github.com/The-Grand-Archives/Elden-Ring-CT-TGA/issues/158); existing request, owner added a +1 | Open |
 
-All 17 linked requests were checked with `gh issue view <url>` on 2026-10-29; all remain
-open. No upstream state change or new licence grant was recorded.
+At the earlier 2026-10-29 check with `gh issue view <url>`, all 17 linked requests were open,
+with no new grant recorded. The follow-up verification below supersedes that state for GOWTool;
+the other 16 request states retain the earlier check and were not rechecked in this follow-up.
 
 **Already licensed:** [Wahkah/BG3SE states MIT in its README](https://github.com/Wahkah/BG3SE/blob/main/README.md).
 It is not an unlicensed-source exclusion; any reuse retains the applicable notices and attribution.
+
+### GOWTool MIT verification — 2026-10-29
+
+The historical missing-licence record for `kainotoa/GOWTool` is **resolved**. The actual
+[MIT licence](https://github.com/kainotoa/GOWTool/blob/f0e92b0c720fd5abc44023a0d01b55d416516088/LICENSE)
+added in commit `f0e92b0c720fd5abc44023a0d01b55d416516088` states
+`Copyright (c) 2026 kainotoa`. It covers the software and associated documentation files and
+requires retention of the copyright and permission notice in copies or substantial portions.
+The verified [code revision](https://github.com/kainotoa/GOWTool/tree/f2899f6c89cb85bf0f313f8a844fb1884ff23633)
+merges that commit and contains the identical licence text. GitHub's MIT metadata corroborates
+the file; the owner's [“Done” reply](https://github.com/kainotoa/GOWTool/issues/14#issuecomment-6498123214)
+and completed issue closure were also checked on 2026-10-29.
+
+Scope remains source-specific. The pinned
+[submodule declarations](https://github.com/kainotoa/GOWTool/blob/f2899f6c89cb85bf0f313f8a844fb1884ff23633/.gitmodules)
+lead to DirectXTex `e6e4ac513e5146a91d3f9e9172923a751feae929`
+([MIT, copyright (c) 2011-2021 Microsoft Corp](https://github.com/microsoft/DirectXTex/blob/e6e4ac513e5146a91d3f9e9172923a751feae929/LICENSE))
+and glTF-SDK `05718d5c36f70c385c1ac649d297abed8862eaea`
+([MIT, copyright (c) Microsoft Corporation. All rights reserved.](https://github.com/microsoft/glTF-SDK/blob/05718d5c36f70c385c1ac649d297abed8862eaea/LICENSE)).
+The inspected glTF-SDK [third-party notices](https://github.com/microsoft/glTF-SDK/blob/05718d5c36f70c385c1ac649d297abed8862eaea/thirdPartyNotices.txt)
+also list MIT, BSD-style, Apache-2.0, Boost and JSON_checker terms (including its Good, not Evil
+condition); they are not all MIT. GOWTool's
+[README](https://github.com/kainotoa/GOWTool/blob/f2899f6c89cb85bf0f313f8a844fb1884ff23633/README.md)
+requires an external Oodle DLL, and its
+[asset serializer](https://github.com/kainotoa/GOWTool/blob/f2899f6c89cb85bf0f313f8a844fb1884ff23633/src/glTFSerializer.cpp#L289)
+credits Santa Monica Studios. The new grant does not relicense that runtime or publisher assets.
+
+The recorded Toolkit use remains an asset/WAD research lead, with no GOWTool code or dataset
+import identified. This documentation follow-up imports no upstream material and adds no bundled
+MIT notice. The licence resolves the missing terms; save applicability and PS5 save-integrity
+validation remain separate evidence gaps.
 
 ## Register scope
 
@@ -187,7 +220,7 @@ in the XorJson README. Git history retains the earlier register.
 | GenericJson | [steliosc UserSettings.json](https://github.com/steliosc/Cyberpunk-2077-Custom-Controls-Guide/blob/main/UserSettings.json), `main`, no commit recorded | none found in recorded evidence; rights not relied upon | Not used | Self-describing vocabulary was corroborated against PS5 bytes; no source data/code copied. [Sidecar](../plugins/GenericJson/SaveToolkit.Plugins.GenericJson/JsonOverlay.source.md). [README evidence](../plugins/GenericJson/README.md). | See disposition and README evidence. | File-derived vocabulary is sufficient; no required import. |
 | GodOfWarRagnarok | [Codes Prince PC editor](https://codesprince.com/2024/09/24/pc-editor-for-gow-ragnarok/), 2024-09-24, unpinned | none found in recorded evidence | Not used | Platform/version capability research only; no public parser or integrity algorithm was obtained, and no implementation was imported. [README research table](../plugins/GodOfWarRagnarok/README.md). [README evidence](../plugins/GodOfWarRagnarok/README.md). | See disposition and README evidence. | No required code import; a lack of public format evidence is not a licence refusal. |
 | GodOfWarRagnarok | [Codes Prince PS4/PS5 editor](https://codesprince.com/2022/12/06/ps4-ps5-save-editor-for-gow-ragnarok/), 2022-12-06, unpinned | none found in recorded evidence | Not used | Platform/version capability research only; no public parser or integrity algorithm was obtained, and no implementation was imported. [README research table](../plugins/GodOfWarRagnarok/README.md). [README evidence](../plugins/GodOfWarRagnarok/README.md). | See disposition and README evidence. | No required code import; a lack of public format evidence is not a licence refusal. |
-| GodOfWarRagnarok | [GOWTool](https://github.com/kainotoa/GOWTool), revision not recorded | none found in recorded evidence | Not used | Asset/WAD research lead only; no evidence that asset hashing or WTOC/LZ4 applies to saves. Existing independent save readers need no implementation from this source. [README research table](../plugins/GodOfWarRagnarok/README.md). [README evidence](../plugins/GodOfWarRagnarok/README.md). | See disposition and README evidence. | No licence refusal; establish save applicability before any future reuse. |
+| GodOfWarRagnarok | [GOWTool](https://github.com/kainotoa/GOWTool), original research revision not recorded; licence/code verified at `f2899f6c89cb85bf0f313f8a844fb1884ff23633` on 2026-10-29 | [MIT](https://github.com/kainotoa/GOWTool/blob/f0e92b0c720fd5abc44023a0d01b55d416516088/LICENSE), copyright (c) 2026 kainotoa; previously none found in recorded evidence | Not used | Historical missing terms resolved; see [verification and dependency/asset scope](#gowtool-mit-verification--2026-10-29). Asset/WAD research lead only; no GOWTool code/data imported and no save-integrity validation established. [README research table](../plugins/GodOfWarRagnarok/README.md). [README evidence](../plugins/GodOfWarRagnarok/README.md). | Existing independent save readers; see README evidence. | No missing-licence blocker; establish save applicability before any future reuse. |
 | GodOfWarRagnarok | [MapGenie Ragnarök / Midgard](https://mapgenie.io/god-of-war-ragnarok/maps/midgard), retrieved 2026-10-29; tile processing in sidecar | Rights reserved by MapGenie / Sony Interactive Entertainment / Santa Monica Studio; used with attribution per owner decision 2026-10-29 | Imported | Resolved: imported (2026-10-29 decision): 512x512 Midgard background from four public z9 tiles. [Sidecar](../plugins/GodOfWarRagnarok/SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.assets.en/assets.source.md); MapGenie / Sony Interactive Entertainment / Santa Monica Studio, retrieved 2026-10-29. [README evidence](../plugins/GodOfWarRagnarok/README.md). | See disposition and README evidence. | No MapGenie coordinates or saved ownership/location join imported. |
 | GodOfWarRagnarok | [smpack](https://github.com/iArtorias/smpack), revision not recorded | none found in recorded evidence | Not used | Asset/WAD research lead only; no evidence that asset hashing or WTOC/LZ4 applies to saves. Existing independent save readers need no implementation from this source. [README research table](../plugins/GodOfWarRagnarok/README.md). [README evidence](../plugins/GodOfWarRagnarok/README.md). | See disposition and README evidence. | No licence refusal; establish save applicability before any future reuse. |
 | Pragmata | [itemaps Pragmata map](https://itemaps.com/maps/pragmata), checked 2026-10-28, unpinned | Rights reserved by Capcom and Itemaps; used with attribution per owner decision 2026-10-29 | Imported | Resolved: imported (2026-10-29 decision): Cradle map background and 26 escape-hatch reference coordinates. [Sidecar](../plugins/Pragmata/SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/visual-reference.source.md); Capcom art / Itemaps / Kevin Henrique; map `v=20260916-1`, markers `v=20261024-icons`, SHA-pinned, retrieved 2026-10-29. | Raw checkpoint evidence and the text list remain separate from reference coordinates. | No checkpoint-hash crosswalk or saved discovery/completion states. |
