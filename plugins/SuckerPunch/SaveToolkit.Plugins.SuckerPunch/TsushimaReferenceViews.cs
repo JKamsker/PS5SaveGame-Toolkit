@@ -38,9 +38,11 @@ internal sealed class TsushimaReferenceViews(
             ["quantity"] = quantity(record),
             ["copy"] = record.IsAmmo ? mirror(record) : new TextNode("—"),
             ["mapping"] = new TextNode(MappingConfidence(catalog?.Find(record.Name)).ToString()),
+            ["restore"] = TsushimaQuantityPlanning.RestoreSelectedAmmoView,
         })).ToArray();
         return new TableNode([new("raw", "Raw ID"), new("item", "Item"), new("category", "Category"),
-            new("quantity", "Quantity"), new("copy", "Ammo count copy"), new("mapping", "Name mapping")], rows)
+            new("quantity", "Quantity"), new("copy", "Ammo count copy"), new("mapping", "Name mapping"),
+            new("restore", "Selected ammo restoration")], rows)
         {
             Title = "Existing inventory",
             Description = "48 length-prefixed records. Name confidence is separate from quantity confidence and write safety. " +
