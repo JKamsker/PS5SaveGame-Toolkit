@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { api } from "../../api/client";
+import { api, ApiError } from "../../api/client";
 import type { SectionNode, ViewNode } from "../../api/protocol";
 import { DocumentContext, DocumentStore } from "../../state/documentStore";
 import { ViewList } from "./ViewRenderer";
@@ -28,6 +28,33 @@ it("announces section loading and non-stale failures", async () => {
   await act(async () => { fail(new Error("Inventory unavailable")); await vi.advanceTimersByTimeAsync(8000); });
   expect(loadingText).toContain("Loading");
   expect(screen.getByRole("alert").textContent).toBe("Inventory unavailable");
+});
+
+it("retries only the failed section while preserving an independently loaded draft", async () => {
+  const expand = vi.spyOn(api, "expand").mockImplementation(async (_w, _d, id) => {
+    if (id === "Unavailable") throw new ApiError("Section unavailable", 400);
+    return [{ type: "field", valueId: "quantity", label: "Quantity", spec: { kind: "integer", min: "0", max: "99" }, value: "2" }];
+  });
+  mount([lazy("Available"), lazy("Unavailable")]);
+  const input = await screen.findByRole<HTMLInputElement>("textbox", { name: "Quantity" });
+  fireEvent.change(input, { target: { value: "9" } });
+  expect(await screen.findByRole("alert")).toHaveProperty("textContent", "Section unavailable");
+  expect(expand.mock.calls.map(call => call[2])).toEqual(["Available", "Unavailable"]);
+  expand.mockResolvedValueOnce([field("Recovered field")]);
+  fireEvent.click(screen.getByRole("button", { name: "Retry section" }));
+  await screen.findByRole("switch", { name: "Recovered field" });
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(screen.getByRole("textbox", { name: "Quantity" })).toBe(input);
+  expect(input.value).toBe("9");
+  expect(expand.mock.calls.map(call => call[2])).toEqual(["Available", "Unavailable", "Unavailable"]);
+});
+
+it("does not automatically retry a cancelled section request", async () => {
+  const expand = vi.spyOn(api, "expand").mockRejectedValue(new ApiError("The request was cancelled.", 0));
+  mount([lazy("Inventory")]);
+  expect(await screen.findByRole("alert")).toHaveProperty("textContent", "The request was cancelled.");
+  expect(expand).toHaveBeenCalledOnce();
+  expect(screen.getByRole("button", { name: "Retry section" })).toBeTruthy();
 });
 
 function mount(nodes: ViewNode[], strict = false, cachedNodes: Record<string, ViewNode[]> = {}) {

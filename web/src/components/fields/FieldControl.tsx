@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FieldSpec, FieldValue } from "../../api/protocol";
 import { displayValue, parseDraft, sameValue, toDraft } from "../../lib/values";
 import { EnumControl } from "./EnumControl";
@@ -83,11 +83,16 @@ function FlagsControl({ id, spec, value, onCommit, labelledBy, describedBy, inva
 /** Integer, float, text and datetime: typed draft, commit on Enter or blur, Escape reverts. */
 function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labelledBy, describedBy, invalid: parentInvalid }: FieldControlProps) {
   const [draft, setDraft] = useState(() => String(toDraft(spec, value)));
+  const previousValue = useRef(draft);
   const [localInvalid, setInvalid] = useState(false);
   const invalid = localInvalid || Boolean(parentInvalid);
   useEffect(() => {
-    setDraft(String(toDraft(spec, value)));
-    setInvalid(false);
+    const previous = previousValue.current;
+    const next = String(toDraft(spec, value));
+    previousValue.current = next;
+    // A refresh or an earlier acknowledgement must not replace a newer/rejected draft.
+    // Escape still explicitly restores the latest server value.
+    setDraft(current => current === previous ? next : current);
   }, [spec, value]);
 
   const commit = async () => {

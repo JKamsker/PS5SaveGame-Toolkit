@@ -1,11 +1,19 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { api, ApiError, request } from "./client";
+import { retryRead } from "./http";
 
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 const problem = { title: "Export unavailable", detail: "The dump is busy. Wait for the current operation to finish." };
 const response = (body: unknown, status = 503) => new Response(JSON.stringify(body), {
   status, headers: { "content-type": "application/problem+json" },
+});
+
+it("bounds read retries and skips permanent responses, cancellations and ambiguous transport failures", () => {
+  for (const status of [0, 400, 404, 409, 422]) expect(retryRead(0, new ApiError("Rejected", status))).toBe(false);
+  expect(retryRead(0, new ApiError("Unavailable", 503))).toBe(true);
+  expect(retryRead(1, new ApiError("Unavailable", 503))).toBe(true);
+  expect(retryRead(2, new ApiError("Unavailable", 503))).toBe(false);
 });
 
 describe("HTTP error diagnostics", () => {

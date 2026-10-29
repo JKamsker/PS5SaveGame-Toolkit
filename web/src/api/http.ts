@@ -59,7 +59,7 @@ export async function fetchApi<T>(path: string, init: RequestInit | undefined,
 }
 
 /** Permanent failures and cancellations need an explicit retry, rather than repeated requests. */
-export function retryRead(failureCount: number, error: unknown): boolean {
+export function retryRead(failureCount: number, error: Error): boolean {
   if (error instanceof ApiError && (error.status < 500)) return false;
   return failureCount < 2;
 }

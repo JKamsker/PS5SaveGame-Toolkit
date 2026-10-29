@@ -101,7 +101,8 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
     return (
       <div className="empty">
         <h2 ref={focusHeading} tabIndex={-1}>This file could not be opened</h2>
-        <p>{query.error?.message ?? "Unknown error."}</p>
+        <p role="alert">{query.error?.message ?? "Unknown error."}</p>
+        <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={() => void refresh()}>Retry document</button>
       </div>
     );
   }

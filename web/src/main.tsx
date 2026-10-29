@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { retryRead } from "./api/http";
 import { HomePage } from "./components/home/HomePage";
 import "./styles/tokens.css";
 import "./styles/ui.css";
@@ -11,7 +12,7 @@ import "./styles/view.css";
 import "./styles/fields.css";
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { refetchOnWindowFocus: false, staleTime: 30_000 } },
+  defaultOptions: { queries: { refetchOnWindowFocus: false, staleTime: 30_000, retry: retryRead } },
 });
 
 const router = createBrowserRouter([

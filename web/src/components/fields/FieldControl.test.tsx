@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
 import type { FieldSpec, FieldValue } from "../../api/protocol";
 import { DocumentContext, DocumentStore } from "../../state/documentStore";
@@ -8,6 +8,38 @@ import { FieldControl } from "./FieldControl";
 import { ActionButton } from "../document/ActionButton";
 
 afterEach(cleanup);
+
+describe("failed edit drafts", () => {
+  it("keeps a rejected draft and its error when a refreshed snapshot replaces an equivalent spec", async () => {
+    const commit = vi.fn(async () => false);
+    const spec = { kind: "integer" as const, min: "0", max: "99" };
+    const { rerender } = render(<FieldControl id="field" spec={spec} value="2" onCommit={commit} />);
+    const input = screen.getByRole<HTMLInputElement>("textbox");
+    fireEvent.change(input, { target: { value: "9" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    await waitFor(() => expect(input.getAttribute("aria-invalid")).toBe("true"));
+    rerender(<FieldControl id="field" spec={{ ...spec }} value="3" onCommit={commit} />);
+    expect(input.value).toBe("9");
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+    fireEvent.keyDown(input, { key: "Escape" });
+    expect(input.value).toBe("3");
+  });
+
+  it("keeps text entered while an earlier commit is in flight", async () => {
+    let finish!: (accepted: boolean) => void;
+    const spec = { kind: "text" as const };
+    const commit = vi.fn(() => new Promise<boolean>(resolve => { finish = resolve; }));
+    const { rerender } = render(<FieldControl id="field" spec={spec} value="old" onCommit={commit} />);
+    const input = screen.getByRole<HTMLInputElement>("textbox");
+    fireEvent.change(input, { target: { value: "first" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    fireEvent.change(input, { target: { value: "newer draft" } });
+    rerender(<FieldControl id="field" spec={spec} value="first" onCommit={commit} />);
+    await act(async () => finish(true));
+    expect(input.value).toBe("newer draft");
+    expect(commit).toHaveBeenCalledExactlyOnceWith("first");
+  });
+});
 
 function LiveControl({ spec, initial, commit = () => true }: { spec: FieldSpec; initial: FieldValue; commit?: (v: FieldValue) => boolean }) {
   const [value, setValue] = useState(initial);
