@@ -47,7 +47,7 @@ deliberately; these fields also appear on structured edit and preview failures.
 | 405 Method Not Allowed | Path exists but does not support the HTTP method. |
 | 409 Conflict | Stale JSON/query revision or retired ID (`code: "stale"`), dirty/owned document, invalid group confirmation, immutable embedded-pack removal, or other conflicting domain state. |
 | 412 Precondition Failed | Document `If-Match` does not strongly match (`code: "stale"`). |
-| 413 Content Too Large | Server/request size rejection, or serialized collection page exceeds 2 MiB. Host/proxy rejections before application execution may have their own error body. |
+| 413 Content Too Large | Server/request size rejection, reference batch exceeds 256 pairs, or serialized collection page exceeds 2 MiB. Host/proxy rejections before application execution may have their own error body. |
 | 415 Unsupported Media Type | Non-JSON content type on a JSON-body endpoint. |
 | 422 Unprocessable Entity | Valid request with invalid save/archive/pack contents, export verification failure, rejected field/action/preview/history operation, or nothing to export. |
 | 500 Internal Server Error | Unexpected failure; generic diagnostic, details logged on the server. |
@@ -430,8 +430,10 @@ full dataset provenance. Missing catalog/record: 404. Does not edit the document
 ### `GET /api/workspaces/{workspaceId}/documents/{documentId}/reference-fields/candidates`
 
 Required query `valueId`; optional `actionId` resolves an action parameter instead
-of a document field. Optional exact `revision`. Other queries match catalog
-search (`q,category,sortBy,descending,offset,limit`), with the same clamping bounds.
+of a document field. Document fields can resolve through SDK-02 metadata without a
+rendered page; action parameters require a published action. Optional exact `revision`.
+Other queries match catalog search (`q,category,sortBy,descending,offset,limit`),
+with the same clamping bounds.
 Returns `{catalogId,items,total,offset,limit,categories,revision,sortKeys}`. Items
 are candidates with `rawId,label?,description?,category?,assetId?,source?,dataset?,
 assetDataset?,eligibility:{available,eligible,reasons,selectable}}`. Policies
