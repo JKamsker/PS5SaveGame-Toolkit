@@ -1,0 +1,67 @@
+/* Keep the built-in responsive navigation, search, syntax highlighting and theme switch. */
+:root {
+  --bs-font-sans-serif: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --bs-font-monospace: "Cascadia Code", Consolas, "Liberation Mono", monospace;
+  --bs-link-color-rgb: 29, 78, 216;
+  --bs-link-hover-color-rgb: 30, 64, 175;
+  --bs-primary-rgb: 29, 78, 216;
+  --docs-accent: #1d4ed8;
+  --docs-panel: #f8fafc;
+  --docs-border: #dbe3ef;
+  --docs-muted: #475569;
+  --docs-ink: #1e293b;
+}
+
+[data-bs-theme="dark"] {
+  --bs-link-color-rgb: 147, 197, 253;
+  --bs-link-hover-color-rgb: 191, 219, 254;
+  --docs-accent: #93c5fd;
+  --docs-panel: #182235;
+  --docs-border: #3b4a60;
+  --docs-muted: #cbd5e1;
+  --docs-ink: #f1f5f9;
+}
+
+body { font-size: 1rem; line-height: 1.65; }
+article { max-width: 80ch; margin-inline: auto; }
+article h1 { font-weight: 750; letter-spacing: -0.035em; line-height: 1.15; }
+article h2 { margin-top: 2.25rem; letter-spacing: -0.02em; }
+article p, article li { overflow-wrap: break-word; }
+article pre { border: 1px solid var(--docs-border); border-radius: 0.6rem; }
+article a:not(.docs-button):not(.docs-path):not(.docs-secondary) { text-underline-offset: 0.2em; }
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible {
+  outline: 3px solid var(--docs-accent) !important;
+  outline-offset: 4px;
+}
+.navbar-brand { font-weight: 700; letter-spacing: -0.025em; }
+.navbar-brand img { width: 36px; height: 36px; margin-right: 0.5rem; }
+.docs-hero { padding: 2.5rem 0 1.5rem; max-width: 850px; }
+.docs-hero h1 { font-size: clamp(2.5rem, 5vw, 4.2rem); margin-block: 0.9rem 1.25rem; }
+.eyebrow { color: var(--docs-accent); font-size: 0.75rem; font-weight: 750; letter-spacing: 0.13em; }
+.docs-hero .lead { max-width: 660px; color: var(--docs-muted); font-size: 1.15rem; }
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-block: 1.75rem; }
+.docs-button { display: inline-flex; align-items: center; min-height: 44px; padding: 0.7rem 1.2rem; background: #1d4ed8; border-radius: 0.4rem; color: #fff !important; font-weight: 650; text-decoration: none; }
+.docs-button:hover { background: #1e40af; }
+.docs-secondary { display: inline-flex; align-items: center; min-height: 44px; font-weight: 650; }
+.docs-paths { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-block: 1rem 2.5rem; }
+.docs-path { display: flex; flex-direction: column; gap: 0.6rem; padding: 1.5rem; border: 1px solid var(--docs-border); border-radius: 0.65rem; background: var(--docs-panel); color: var(--docs-muted); text-decoration: none; }
+.docs-path strong { color: var(--docs-ink); font-size: 1.2rem; letter-spacing: -0.015em; }
+.docs-path:hover { border-color: var(--docs-accent); color: var(--docs-muted); }
+.docs-skip { position: fixed; left: 1rem; top: -6rem; z-index: 2000; padding: 0.65rem 1rem; background: var(--bs-body-bg); color: var(--docs-accent); border: 2px solid var(--docs-accent); border-radius: 0.3rem; }
+.docs-skip:focus { top: 0.5rem; }
+body:has(#http-reference) article { width: 100%; max-width: 100%; min-width: 0; }
+#http-reference { min-height: 500px; margin-top: 2rem; }
+/* Use the site-wide theme control, and keep Redoc typography local. */
+#http-reference [data-testid="color-mode-switcher"] { display: none; }
+:root {
+  --font-family-base: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-family-monospaced: "Cascadia Code", Consolas, "Liberation Mono", monospace;
+}
+@media (max-width: 650px) {
+  .docs-paths { grid-template-columns: 1fr; }
+  .docs-hero { padding-top: 1rem; }
+  .docs-path { padding: 1.2rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+}

@@ -1,0 +1,6 @@
+- name: Choose a reference
+  href: index.md
+- name: HTTP API (OpenAPI)
+  href: http.md
+- name: Plugin SDK (C#)
+  href: ../api/

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [{
+    "src": [{ "files": ["SaveToolkit.Sdk.dll"], "src": "sdk-input" }],
+    "dest": "api",
+    "disableGitFeatures": true
+  }],
+  "build": {
+    "content": [{ "files": [
+      "index.md", "toc.yml", "getting-started/*.md", "getting-started/toc.yml",
+      "guides/*.md", "guides/toc.yml", "tutorials/*.md", "tutorials/toc.yml",
+      "reference/*.md", "reference/toc.yml", "contributing/*.md", "contributing/toc.yml",
+      "api/*.yml"
+    ] }],
+    "resource": [{ "files": ["assets/**", "reference/openapi.json", ".nojekyll"] }],
+    "dest": "_site",
+    "template": ["default", "modern", "theme"],
+    "globalMetadata": {
+      "_appTitle": "PS5 Save Game Toolkit",
+      "_appName": "Save Toolkit Docs",
+      "_appLogoPath": "assets/toolkit.svg",
+      "_appFaviconPath": "assets/toolkit.svg",
+      "_appFooter": "PS5 Save Game Toolkit · GPL-3.0-or-later · Local tools, documented contracts.",
+      "_enableSearch": true,
+      "_disableContribution": true,
+      "_disableNewTab": true,
+      "_lang": "en"
+    },
+    "sitemap": { "baseUrl": "https://jkamsker.github.io/PS5SaveGame-Toolkit/" }
+  }
+}

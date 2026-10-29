@@ -1,0 +1,17 @@
+- name: Start here
+  href: getting-started/
+  homepage: getting-started/quickstart.md
+- name: Use the toolkit
+  href: guides/
+  homepage: guides/working-with-saves.md
+- name: Build a plugin
+  href: tutorials/
+  homepage: tutorials/first-plugin.md
+- name: Reference
+  href: reference/
+  homepage: reference/index.md
+- name: SDK API
+  href: api/
+- name: Contribute
+  href: contributing/
+  homepage: contributing/docs.md

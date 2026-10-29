@@ -18,3 +18,8 @@ src/SaveToolkit.Api/wwwroot/
 # Python bytecode from docs/ and plugin tooling checks.
 __pycache__/
 *.pyc
+
+# Documentation site outputs (the build script normally keeps these in scratch).
+docs-site/_site/
+docs-site/api/
+docs-site/obj/

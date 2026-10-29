@@ -2,6 +2,10 @@
 
 [![CI](https://github.com/JKamsker/PS5SaveGame-Toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/JKamsker/PS5SaveGame-Toolkit/actions/workflows/ci.yml)
 
+[Documentation](https://jkamsker.github.io/PS5SaveGame-Toolkit/) ·
+[First plugin tutorial](https://jkamsker.github.io/PS5SaveGame-Toolkit/tutorials/first-plugin.html) ·
+[Generated API references](https://jkamsker.github.io/PS5SaveGame-Toolkit/reference/index.html)
+
 A local, web-based editor for **decrypted** PS5 save games. Drop a save dump (zip or folder),
 the toolkit detects the game, and a game plugin describes the data as an abstract view that the
 browser renders: stats, typed fields, tables, actions. Edits are validated and can be undone within
@@ -68,7 +72,7 @@ not imply support for every game build or region.
 ## Using the toolkit
 
 Download the bundle for your OS from [GitHub Releases](https://github.com/JKamsker/PS5SaveGame-Toolkit/releases)
-(repository access is required while this project is private). Verify its SHA-256 checksum, extract
+and verify its SHA-256 checksum. Extract
 the whole archive into a writable folder, open its inner `SaveToolkit-<version>-<runtime>` folder,
 and run `start.cmd` on Windows or `./start.sh` on macOS/Linux. Leave the server terminal running.
 On macOS/Linux, run `chmod +x start.sh SaveToolkit.Api` first if needed. Open
