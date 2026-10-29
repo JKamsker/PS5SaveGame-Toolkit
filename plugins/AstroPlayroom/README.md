@@ -67,6 +67,10 @@ The documented valid UTF-8 opaque suffix and final-byte NUL remain supported and
 
 ## Editing and confidence
 
+Performance review #40: [measurements, allocation/call-count regressions and reproduction](PERFORMANCE.md).
+Plugin-side query projections, structural flags and candidate joins are cached per document; saved
+ownership remains live. Raw paging constructs only visible nodes, and world previews plan once.
+
 - **Verified name matches:** `Common/NumCoin` (coins) and `Common/PlayCount` (play count).
   Observed values are 0/1 in generation 0 and 1749/2 in generation 1 respectively. What event
   increments PlayCount, and the game's actual coin limit, have not been established. The editable
