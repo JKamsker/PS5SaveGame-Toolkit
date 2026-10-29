@@ -10,6 +10,8 @@ internal sealed class SavedWorldViews(SavedWorldData data, IReferenceCatalog? it
 {
     private const string Prefix = "saved/";
     private const int DetailPageSize = 64;
+    // These projections cannot be edited. Build metadata only for queried kinds, once per document.
+    private readonly Dictionary<string, IReadOnlyList<SavedRow>> _rows = new(StringComparer.Ordinal);
     private static IReadOnlyList<QueryableColumn> Columns => [new("id", "Saved identity"), new("kind", "Kind"),
         new("state", "Encoded state"), new("details", "Saved details")];
     private static IReadOnlyList<string> Kinds => ["recipes", "facts", "journal"];
@@ -42,9 +44,7 @@ internal sealed class SavedWorldViews(SavedWorldData data, IReferenceCatalog? it
             throw new ArgumentException("Unsupported saved-data query.");
         }
 
-        var rows = Rows(kind).Where(row => (string.IsNullOrWhiteSpace(query.Text) ||
-            $"{row.Id}\n{row.Kind}\n{row.State}\n{row.Search}".Contains(query.Text, StringComparison.OrdinalIgnoreCase)) && query.Filters.All(filter =>
-                string.IsNullOrEmpty(filter.Value) || string.Equals(Cell(row, filter.Key), filter.Value, StringComparison.OrdinalIgnoreCase)));
+        var rows = Rows(kind).Where(row => Matches(row, query));
         var ordered = (query.Descending ? rows.OrderByDescending(r => Cell(r, query.SortColumn), StringComparer.OrdinalIgnoreCase) :
             rows.OrderBy(r => Cell(r, query.SortColumn), StringComparer.OrdinalIgnoreCase)).ThenBy(r => r.Key, StringComparer.Ordinal).ToArray();
         var limit = Math.Clamp(query.Limit, 1, QueryableCollectionLimits.MaxPageSize);
@@ -83,14 +83,24 @@ internal sealed class SavedWorldViews(SavedWorldData data, IReferenceCatalog? it
     private int Count(string kind) => kind switch { "recipes" => data.Recipes?.Count ?? 0, "facts" => data.Facts?.Count ?? 0, _ => data.Journal?.Count ?? 0 };
     private static string Title(string kind) => kind switch { "recipes" => "Saved recipes and schematics", "facts" => "Saved facts", _ => "Saved journal entries" };
 
-    private IEnumerable<SavedRow> Rows(string kind)
+    private IReadOnlyList<SavedRow> Rows(string kind)
+    {
+        if (!_rows.TryGetValue(kind, out var rows))
+        {
+            rows = CreateRows(kind).ToArray();
+            _rows.Add(kind, rows);
+        }
+        return rows;
+    }
+
+    private IEnumerable<SavedRow> CreateRows(string kind)
     {
         if (kind == "recipes")
         {
             return (data.Recipes ?? []).Select(recipe => {
                 var reference = items?.Find(recipe.NativeId);
                 return new SavedRow($"{recipe.Kind}/{recipe.NativeId}", recipe.NativeId, recipe.Kind, "Recorded in player array",
-                    reference is null ? new TextNode("Unmapped native recipe ID; no grant or initialization assumptions.") :
+                    () => reference is null ? new TextNode("Unmapped native recipe ID; no grant or initialization assumptions.") :
                         new SectionNode(reference.Name, [new TextNode(reference.Description ?? ""), new TextNode(reference.AttributionText)]) { Badge = "Inferred mapping" },
                     $"{recipe.NativeId}\n{recipe.Kind}\n{reference?.Name}\n{reference?.Description}");
             });
@@ -100,19 +110,34 @@ internal sealed class SavedWorldViews(SavedWorldData data, IReferenceCatalog? it
         {
             return (data.Facts ?? []).Select((fact, index) => new SavedRow(fact.Name, fact.Name, "Fact stream",
                 $"{fact.Entries.Count} entries; opaque 0x{fact.OpaqueWord:X4}; opaque name={fact.OpaqueName}",
-                SectionNode.Lazy("Raw value/time/expiry entries", $"fact/{index}/0"), fact.Name));
+                () => SectionNode.Lazy("Raw value/time/expiry entries", $"fact/{index}/0"), fact.Name));
         }
 
         return (data.Journal ?? []).Select(entry => new SavedRow(entry.Key, entry.Path[^1].Resource + " | " + entry.Path[^1].Guid.ToString("D"),
-            "Journal path", $"{entry.Status}; unread={entry.Unread}", SectionNode.Lazy("Full saved path", $"journal/{entry.Key}/0"),
+            "Journal path", $"{entry.Status}; unread={entry.Unread}", () => SectionNode.Lazy("Full saved path", $"journal/{entry.Key}/0"),
             $"{entry.Status}\n{string.Join('\n', entry.Path.Select(link => $"{link.Resource}\n{link.Guid:D}"))}"));
     }
 
     private static string Cell(SavedRow row, string? column) => column switch { "kind" => row.Kind, "state" => row.State, "details" => row.Search, _ => row.Id };
+    private static bool Matches(SavedRow row, QueryableCollectionQuery query)
+    {
+        if (!string.IsNullOrWhiteSpace(query.Text) && !row.Contains(query.Text)) { return false; }
+        if (query.Filters.Count == 0) { return true; }
+        foreach (var filter in query.Filters)
+        {
+            if (!string.IsNullOrEmpty(filter.Value) && !string.Equals(Cell(row, filter.Key), filter.Value, StringComparison.OrdinalIgnoreCase)) { return false; }
+        }
+        return true;
+    }
+
     private static TableRow Row(SavedRow row) => new(row.Key, new Dictionary<string, ViewNode> {
-        ["id"] = new TextNode(row.Id), ["kind"] = new TextNode(row.Kind), ["state"] = new TextNode(row.State), ["details"] = row.Details,
+        ["id"] = new TextNode(row.Id), ["kind"] = new TextNode(row.Kind), ["state"] = new TextNode(row.State), ["details"] = row.Details(),
     });
     private static IEnumerable<ViewNode> Next(string prefix, int start, int count) => start + DetailPageSize < count
         ? [SectionNode.Lazy("Next saved entries", $"{prefix}/{start + DetailPageSize}")] : [];
-    private sealed record SavedRow(string Key, string Id, string Kind, string State, ViewNode Details, string Search);
+    private sealed record SavedRow(string Key, string Id, string Kind, string State, Func<ViewNode> Details, string Search)
+    {
+        private string? _text;
+        public bool Contains(string text) => (_text ??= $"{Id}\n{Kind}\n{State}\n{Search}").Contains(text, StringComparison.OrdinalIgnoreCase);
+    }
 }
