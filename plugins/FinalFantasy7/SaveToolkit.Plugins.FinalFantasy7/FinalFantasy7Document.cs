@@ -34,7 +34,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
     private readonly CollectionQuery _recordCollection;
     private bool _spatialPublished;
 
-    public FinalFantasy7Document(string path, string name, byte[] bytes, Ff7Schema schema, bool common,
+    public FinalFantasy7Document(string path, string name, byte[] bytes, string titleId, Ff7Schema schema, bool common,
         IReadOnlyList<LinkedRecord> records, IReferenceContext? references = null)
     {
         _path = path;
@@ -49,6 +49,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
         _explorer = new(bytes, records, Bind);
         _characters = new(bytes, schema, _references, Bind, _progression);
         _planning = new(schema, _gameplay, _references, _characters);
+        Presets = new(_planning, new(schema, _gameplay, _references, new(bytes, schema, _references)), common, titleId, schema.Variant);
         _ownedRelations = !common && !schema.IsRemake ? new(bytes, _references, Bind) : null;
         if (!common)
         {
@@ -83,6 +84,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
 
     public override string Title { get; }
     public override bool CanEdit => !_common;
+    internal SemanticPresets Presets { get; }
 
     public override ViewNode BuildView() => new TabsNode(
     [

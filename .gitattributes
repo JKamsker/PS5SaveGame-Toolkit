@@ -2,3 +2,4 @@
 *.png binary
 *.bin binary
 *.zip binary
+.githooks/pre-commit text eol=lf
