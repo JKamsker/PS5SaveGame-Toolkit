@@ -81,7 +81,7 @@ it.each([false, true])("carries includeEmpty=%s and exclusions into select-all-m
   const count = includeEmpty ? 150 : 100;
   fireEvent.click(screen.getByRole("button", { name: `Select all ${count} filtered rows` }));
   fireEvent.click(screen.getByRole("checkbox", { name: "Select Potion" }));
-  expect(screen.getByText(`${count - 1} selected`)).toBeTruthy();
+  expect(screen.getByRole("status", { name: "Items selection" }).textContent).toContain(`${count - 1} selected`);
   fireEvent.click(screen.getByRole("button", { name: "Refill: Potion" }));
   await waitFor(() => expect(plan).toHaveBeenCalled());
   expect(plan).toHaveBeenLastCalledWith("w", "d", "refill", {}, { queryScope: {

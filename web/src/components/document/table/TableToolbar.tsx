@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { TableNode } from "../../../api/protocol";
 import type { TableSelection } from "./selection";
+import { clearTableSelection } from "./clearSelection";
 import { FILTER_THRESHOLD, type ColumnFacet, type FacetSelection } from "./useTableRows";
 
 interface TableToolbarProps {
@@ -23,7 +24,7 @@ export function TableToolbar({ node, shown, selection, visibleSelected, query, o
   const total = node.rows.length;
   return (
     <div className="table__toolbar">
-      {node.title && <h3 className="table__title">{node.title}</h3>}
+      {node.title && <h3 tabIndex={-1} className="table__title">{node.title}</h3>}
       <span className="table__count" aria-live="polite">
         {shown === total ? `${total} rows` : `${shown} of ${total} rows`}
       </span>
@@ -35,7 +36,7 @@ export function TableToolbar({ node, shown, selection, visibleSelected, query, o
             `${selection.count} selected${selection.count > visibleSelected ? ` (${selection.count - visibleSelected} hidden by filters)` : ""}`}
         </span>
         {selection.count > 0 && (
-          <button type="button" className="btn btn--quiet btn--small" onClick={selection.clear}>
+          <button type="button" className="btn btn--quiet btn--small" onClick={event => clearTableSelection(event, selection.clear)}>
             Clear selection
           </button>
         )}

@@ -1,4 +1,4 @@
-import { useEffect, useId } from "react";
+import { useEffect, useId, useRef } from "react";
 import type { Confidence, QueryableTableNode, TableColumn, TableRow } from "../../../api/protocol";
 import { ReviewPath, useNextReviewPath, useViewJump } from "../review/navigation";
 import { RowDetails, rowHasDetails } from "./RowDetails";
@@ -10,10 +10,15 @@ import { ColumnHeading } from "./ColumnHeading";
 
 export function ServerTableHeader({ columns, rows, confidence, hasDetails, selected, selection }: { columns: readonly TableColumn[]; rows: readonly TableRow[]; confidence: ReadonlyMap<string, Confidence>; hasDetails: boolean; selected: number; selection: ReturnType<typeof useQueryableSelection> }) {
   const all = rows.length > 0 && selected === rows.length;
+  const box = useRef<HTMLInputElement>(null);
+  const some = selected > 0 && !all;
+  useEffect(() => {
+    if (box.current) box.current.indeterminate = some;
+  }, [some]);
   const numbers = numericColumns(columns, rows);
   return (
     <div className="table__row" role="row" aria-rowindex={1}>
-      <div className="table__head table__head--control" role="columnheader"><input type="checkbox" aria-label="Select all rows on this page" checked={all} disabled={rows.length === 0} onChange={() => selection.setMany(rows.map((row) => row.key), !all)} /></div>
+      <div className="table__head table__head--control" role="columnheader"><input ref={box} type="checkbox" aria-label="Select all rows on this page" checked={all} disabled={rows.length === 0} onChange={() => selection.setMany(rows.map((row) => row.key), !all)} /></div>
       {hasDetails && <div className="table__head table__head--control" role="columnheader"><span className="visually-hidden">Details</span></div>}
       {columns.map((column) => <ColumnHeading key={column.key} column={column} numeric={numbers.has(column.key)} confidence={confidence.get(column.key)} />)}
     </div>
