@@ -39,9 +39,22 @@ public sealed class NestedDdlTests
         void Write(int offset, uint value) => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), value);
     }
 
-    [Fact]
-    public void ExcessiveObjectDepthIsRejectedWithAFormatError() =>
-        Assert.Throws<SaveFormatException>(() => Read(Fixture(34)));
+    [Theory]
+    [InlineData(32)]
+    [InlineData(33)]
+    public void ObjectDepthAcceptsTheLimitAndRejectsTheFirstExcessiveLevel(int depth)
+    {
+        var bytes = Fixture(depth);
+        if (depth > 32)
+        {
+            var error = Assert.Throws<SaveFormatException>(() => Read(bytes));
+            Assert.Contains("Object depth or node budget exceeded", error.Message);
+            return;
+        }
+        var fields = Read(bytes);
+        for (var index = 0; index < depth; index++) fields = Assert.Single(fields["Child"].Objects).Fields;
+        Assert.Equal(123456, Assert.Single(fields["Value"].Values).AsInt64());
+    }
 
     internal static IReadOnlyDictionary<string, DdlField> Read(byte[] bytes)
     {
