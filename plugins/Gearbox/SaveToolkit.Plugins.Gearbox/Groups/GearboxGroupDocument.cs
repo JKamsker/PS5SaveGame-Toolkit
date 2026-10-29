@@ -78,6 +78,15 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
         {
             foreach (DocumentMemberEdits batch in _router.PartitionEdits(edits))
             {
+                // Staging replaces member documents before dispatch. Re-register every requested
+                // live binding on that candidate so unloaded item/account fields never retain an
+                // adapter or setter from the published model.
+                if (batch.Member.Document is GearboxDocument member)
+                {
+                    var localIds = batch.Edits.Select(edit => batch.Member.Local(edit.ValueId))
+                        .Distinct(StringComparer.Ordinal).ToArray();
+                    _ = member.ResolveFieldMetadata(localIds);
+                }
                 var outcome = batch.Member.ApplyEdits(batch.Edits);
                 if (!outcome.Succeeded)
                 {

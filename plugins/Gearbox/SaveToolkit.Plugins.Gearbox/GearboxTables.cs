@@ -82,10 +82,8 @@ internal sealed class GearboxTables(GearboxDocument document, GearboxLazyViews l
                 var current = document.Root.Children(list).ElementAt(index);
                 current.SetInteger("sdu_level", value);
                 var path = current.Text("sdu_data_path");
-                var inventory = path.Contains("SDU_Backpack.", StringComparison.Ordinal) ? GearboxInventory.Backpack :
-                    path.Contains("SDU_Bank.", StringComparison.Ordinal) ? GearboxInventory.Bank :
-                    path.Contains("SDU_LostLoot.", StringComparison.Ordinal) ? GearboxInventory.LostLoot : null;
-                if (inventory is not null) document.Inventory.EnsureCapacity(inventory, 0);
+                if (GearboxWritePolicies.StorageList(path) is { } inventory)
+                    document.Inventory.EnsureCapacity(inventory, 0);
             });
     }
 

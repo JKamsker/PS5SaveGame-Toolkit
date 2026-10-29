@@ -27,4 +27,12 @@ internal static class GearboxWritePolicies
         GearboxInventory.Bank => tier <= 5 ? 10 + 5 * tier : 40 + 20 * (tier - 6),
         _ => 0,
     };
+
+    public static string? StorageList(string path) => path.Contains("SDU_Backpack.", StringComparison.Ordinal)
+        ? GearboxInventory.Backpack
+        : path.Contains("SDU_Bank.", StringComparison.Ordinal)
+            ? GearboxInventory.Bank
+            : path.Contains("SDU_LostLoot.", StringComparison.Ordinal)
+                ? GearboxInventory.LostLoot
+                : null;
 }

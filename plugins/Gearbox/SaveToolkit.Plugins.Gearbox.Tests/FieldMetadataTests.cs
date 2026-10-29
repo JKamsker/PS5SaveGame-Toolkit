@@ -173,6 +173,54 @@ public sealed class FieldMetadataTests
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
     }
 
+    [Fact]
+    public void TargetedAccountAndMarkBindingsFollowClonedRootAcrossConsecutiveWrites()
+    {
+        using var document = EditCoverageData.Create(false, root =>
+        {
+            var guardian = GearboxTestData.AddMessage(root, "guardian_rank");
+            guardian.SetInteger("guardian_rank", 4);
+        }, coordinated: true);
+        Assert.Equal(2, ((IFieldMetadataDocument)document).ResolveFieldMetadata(["account/legacy/guardian_rank", "item-0/mark"]).Count);
+        var first = document.ApplyEdits([
+            new("account/legacy/guardian_rank", FieldValue.Of(5)),
+            new("item-0/mark", FieldValue.Of(1)),
+        ]);
+        Assert.True(first.Succeeded);
+        Assert.Equal(5, document.Root.Child("guardian_rank")!.Integer("guardian_rank"));
+        Assert.Equal(1, GearboxItemMarks.Get(document.Inventory.Find("item-0").Field.Message!));
+        var second = document.ApplyEdits([
+            new("account/legacy/guardian_rank", FieldValue.Of(6)),
+            new("item-0/mark", FieldValue.Of(2)),
+        ]);
+        Assert.True(second.Succeeded);
+        Assert.Equal(6, document.Root.Child("guardian_rank")!.Integer("guardian_rank"));
+        Assert.Equal(2, GearboxItemMarks.Get(document.Inventory.Find("item-0").Field.Message!));
+        var changed = document.Serialize().Single().Content.ToArray();
+        var undo = document.RestoreMemento(second.Revert!);
+        Assert.Equal(5, document.Root.Child("guardian_rank")!.Integer("guardian_rank"));
+        Assert.Equal(1, GearboxItemMarks.Get(document.Inventory.Find("item-0").Field.Message!));
+        _ = document.RestoreMemento(undo);
+        Assert.Equal(changed, document.Serialize().Single().Content.ToArray());
+    }
+
+    [Fact]
+    public void QualifiedForeignItemCollectionsAreOmittedAndValidAliasesAreReadOnly()
+    {
+        using var document = EditCoverageData.Create(false);
+        var metadata = ((IFieldMetadataDocument)document).ResolveFieldMetadata([
+            "bank_inventory_list/item-0/level", "inventory_items/item-0/level"]);
+
+        var field = Assert.Single(metadata);
+        Assert.Equal("inventory_items/item-0/level", field.ValueId);
+        Assert.Equal("item-0/level", field.CanonicalValueId);
+        Assert.Equal(FieldBindingKind.Derived, field.BindingKind);
+        Assert.True(field.Spec.ReadOnly);
+        var before = document.Serialize().Single().Content.ToArray();
+        Assert.False(document.ApplyEdits([new(field.ValueId, FieldValue.Of(3))]).Succeeded);
+        Assert.Equal(before, document.Serialize().Single().Content.ToArray());
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

@@ -49,8 +49,8 @@ internal sealed class GearboxItemActions(GearboxDocument document)
         var list = document.Profile ? GearboxInventory.Bank : GearboxInventory.Backpack;
         document.Inventory.EnsureCapacity(list, 1);
         var count = document.Root.All(list).Count();
-        changes.Add(new(list + "/count", "Import one validated-layout serial", FieldValue.Of(count), FieldValue.Of(count + 1)));
-        changes.Add(new("import/serial", "New serial (game legality unverified)", FieldValue.Null, FieldValue.Of(Convert.ToBase64String(serial))) { OldExists = false });
+        changes.Add(new(list + "/count", "Import one validated-layout serial", FieldValue.Of(count), FieldValue.Of(count + 1)) { Derived = true });
+        changes.Add(new("import/serial", "New serial (game legality unverified)", FieldValue.Null, FieldValue.Of(Convert.ToBase64String(serial))) { OldExists = false, Derived = true });
     }
 
     private void PlanSelected(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope,

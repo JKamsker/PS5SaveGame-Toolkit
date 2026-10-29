@@ -26,6 +26,7 @@ internal static class GearboxMetadata
 
     private static void Ensure(GearboxDocument document, string id)
     {
+        if (TryActionObservation(document, id)) return;
         if (id is "character/name")
         {
             if (!document.Profile && Has(document.Root, "preferred_character_name"))
@@ -114,7 +115,8 @@ internal static class GearboxMetadata
                 {
                     var current = document.Root.Children(list).ElementAt(index);
                     current.SetInteger("sdu_level", value);
-                    document.Inventory.EnsureCapacity(SduList(current.Text("sdu_data_path")), 0);
+                    if (GearboxWritePolicies.StorageList(current.Text("sdu_data_path")) is { } storageList)
+                        document.Inventory.EnsureCapacity(storageList, 0);
                 });
         return true;
     }
@@ -161,7 +163,7 @@ internal static class GearboxMetadata
             if (document.Profile ? role != "myth" : role is not ("hero" or "myth-mirror")) return false;
         }
         else if (document.Profile ? role != "profile" : role is not ("legacy" or "character")) return false;
-        ProtoMessage? parent = split[1] switch
+        Func<ProtoMessage?> parent = () => split[1] switch
         {
             "hero" => document.Root.Child("hero_points_save_data"),
             "profile" => document.Root.Child("guardian_rank"),
@@ -172,9 +174,9 @@ internal static class GearboxMetadata
             _ => null,
         };
         var name = split[2];
-        if (parent is null || !IntegerField(parent, name)) return false;
-        var (label, maximum, description, warning) = AccountPresentation(document, role, name, parent);
-        _ = document.AccountNumber(id, label, () => parent, name, maximum,
+        if (parent() is not { } current || !IntegerField(current, name)) return false;
+        var (label, maximum, description, warning) = AccountPresentation(document, role, name, current);
+        _ = document.AccountNumber(id, label, () => parent()!, name, maximum,
             writable: name != "guardian_reward_random_seed", description: description, warning: warning);
         return true;
     }
@@ -210,7 +212,8 @@ internal static class GearboxMetadata
     private static bool TryItem(GearboxDocument document, string id)
     {
         var split = id.Split('/');
-        var itemId = split.Length == 2 ? split[0] : split.Length == 3 && split[0] is GearboxInventory.Backpack or GearboxInventory.Bank or GearboxInventory.LostLoot ? split[1] : null;
+        var requestedList = split.Length == 3 && split[0] is GearboxInventory.Backpack or GearboxInventory.Bank or GearboxInventory.LostLoot ? split[0] : null;
+        var itemId = split.Length == 2 ? split[0] : requestedList is not null ? split[1] : null;
         var property = split.Length == 2 ? split[1] : split.Length == 3 ? split[2] : null;
         if (itemId is null || property is null) return false;
         if (property == "presence")
@@ -218,28 +221,64 @@ internal static class GearboxMetadata
             try
             {
                 _ = document.Inventory.Find(itemId);
+                if (requestedList is not null && document.Inventory.Find(itemId).List != requestedList) return false;
                 _ = document.Presence(id, () => FieldValue.Of(1));
                 return true;
             }
             catch (SaveFormatException) { return false; }
         }
-        if (property is not ("level" or "rerolls" or "chaos" or "mark")) return false;
+        if (property is not ("level" or "rerolls" or "chaos" or "mark" or "flags")) return false;
         InventoryEntry entry;
         try { entry = document.Inventory.Find(itemId); } catch (SaveFormatException) { return false; }
+        if (requestedList is not null && entry.List != requestedList) return false;
         var info = document.Inventory.Info(entry.Id);
         if (property == "mark" && entry.Field.Message is { } message && GearboxItemMarks.Supported(message))
         {
-            _ = document.ItemNumber(id, "Mark (0 ordinary, 1 favourite, 2 junk)", 0, 2,
-                () => GearboxItemMarks.Get(message), value => GearboxItemMarks.Set(message, value));
+            var label = "Mark (0 ordinary, 1 favourite, 2 junk)";
+            Func<int> get = () => GearboxItemMarks.Get(document.Inventory.Find(entry.Id).Field.Message!);
+            Action<int> set = value => GearboxItemMarks.Set(document.Inventory.Find(entry.Id).Field.Message!, value);
+            if (requestedList is null) _ = document.ItemNumber(id, label, 0, 2, get, set);
+            else
+            {
+                var canonical = entry.Id + "/mark";
+                _ = document.ItemNumber(canonical, label, 0, 2, get, set);
+                _ = document.DerivedItemNumber(id, canonical, label, 0, 2, get);
+            }
+            return true;
+        }
+        if (property == "flags" && entry.Field.Message is not null)
+        {
+            var label = "Item flags";
+            Func<ProtoMessage> get = () => document.Inventory.Find(entry.Id).Field.Message!;
+            if (requestedList is null)
+                _ = document.Integer(id, label, get, "flags", long.MaxValue,
+                    warning: "Raw item flags; favourite and junk state is preserved by the shared mark policy.");
+            else
+            {
+                var canonical = entry.Id + "/flags";
+                _ = document.Integer(canonical, label, get, "flags", long.MaxValue,
+                    warning: "Raw item flags; favourite and junk state is preserved by the shared mark policy.");
+                _ = document.DerivedItemNumber(id, canonical, label, 0, int.MaxValue,
+                    () => checked((int)get().Integer("flags")));
+            }
             return true;
         }
         var located = property == "level" ? info.LevelOffset : property == "rerolls" ? info.RerollOffset : info.ChaosOffset;
         if (located is null || property == "chaos" && !document.Root.Schema.Wonderlands) return false;
         var value = SerialWrites.Value(info, property);
         if (value is null) return false;
-        _ = document.ItemNumber(id, "Item " + property, property == "level" ? 1 : 0,
-            SerialWrites.Maximum(document.Root.Schema.Wonderlands, property), () => SerialWrites.Value(document.Inventory.Info(entry.Id), property)!.Value,
-            next => document.Inventory.SetSerial(entry.Id, SerialWrites.Set(document.Inventory.Find(entry.Id).Serial, document.Root.Schema.Wonderlands, property, next)));
+        var minimum = property == "level" ? 1 : 0;
+        var maximum = SerialWrites.Maximum(document.Root.Schema.Wonderlands, property);
+        Func<int> read = () => SerialWrites.Value(document.Inventory.Info(entry.Id), property)!.Value;
+        Action<int> write = next => document.Inventory.SetSerial(entry.Id,
+            SerialWrites.Set(document.Inventory.Find(entry.Id).Serial, document.Root.Schema.Wonderlands, property, next));
+        if (requestedList is null) _ = document.ItemNumber(id, "Item " + property, minimum, maximum, read, write);
+        else
+        {
+            var canonical = entry.Id + "/" + property;
+            _ = document.ItemNumber(canonical, "Item " + property, minimum, maximum, read, write);
+            _ = document.DerivedItemNumber(id, canonical, "Item " + property, minimum, maximum, read);
+        }
         return true;
     }
 
@@ -252,6 +291,25 @@ internal static class GearboxMetadata
     private static bool Has(ProtoMessage message, string name) => message.Fields.Any(field => field.Spec?.Name == name);
     private static bool IntegerField(ProtoMessage message, string name) => message.Fields.Any(field =>
         field.Spec?.Name == name && field.Value is ulong or long or uint or int);
-    private static string SduList(string path) => path.Contains("SDU_Backpack.", StringComparison.Ordinal) ? GearboxInventory.Backpack
-        : path.Contains("SDU_Bank.", StringComparison.Ordinal) ? GearboxInventory.Bank : GearboxInventory.LostLoot;
+
+    private static bool TryActionObservation(GearboxDocument document, string id)
+    {
+        if (id == "import/serial")
+        {
+            _ = document.ActionObservation(id, "Imported serial", new TextSpec { ReadOnly = true },
+                () => FieldValue.Null, "Structural import payload; the validated serial is applied by the import action.");
+            return true;
+        }
+        var split = id.Split('/');
+        if (split.Length == 2 && split[1] == "count" && split[0] is GearboxInventory.Backpack or GearboxInventory.Bank or GearboxInventory.LostLoot)
+        {
+            var list = split[0];
+            if (!document.Root.All(list).Any()) return false;
+            _ = document.ActionObservation(id, list + " item count", new IntegerSpec(0, int.MaxValue),
+                () => FieldValue.Of(document.Root.All(list).Count()),
+                "Structural item cardinality; import, transfer, duplicate and removal actions own the write.");
+            return true;
+        }
+        return false;
+    }
 }

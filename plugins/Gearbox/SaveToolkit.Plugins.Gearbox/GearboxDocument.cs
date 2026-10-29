@@ -84,13 +84,46 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     internal FieldNode ItemNumber(string id, string label, int minimum, int maximum, Func<int> get, Action<int> set) =>
         Bind(id, label, new IntegerSpec(Math.Min(minimum, get()), Math.Max(maximum, get())), () => FieldValue.Of(get()),
             value => set(value.AsInt32()), value => value.Kind != FieldValueKind.Integer || value.AsInteger() < minimum || value.AsInteger() > maximum
-                ? "Value is outside the supported editor policy." : null, SerialWrites.Warning)
-            with { Confidence = Confidence.Inferred, Description = SerialWrites.Warning };
+                ? "Value is outside the supported editor policy." : null, SerialWrites.Warning,
+            Confidence.Inferred, SerialWrites.Warning);
+
+    internal FieldNode DerivedItemNumber(string id, string canonicalId, string label, int minimum, int maximum, Func<int> get)
+    {
+        var field = Field(id, label, new IntegerSpec(Math.Min(minimum, get()), Math.Max(maximum, get())), () => FieldValue.Of(get()));
+        RegisterField(new FieldMetadata(id, label, field.Spec)
+        {
+            BindingKind = FieldBindingKind.Derived,
+            CanonicalValueId = canonicalId,
+            Presentation = new FieldPresentation
+            {
+                Confidence = Confidence.Inferred,
+                Description = SerialWrites.Warning,
+                Warning = SerialWrites.Warning,
+            },
+        }, () => FieldValue.Of(get()));
+        return field with { Confidence = Confidence.Inferred, Description = SerialWrites.Warning, Warning = SerialWrites.Warning };
+    }
 
     internal FieldNode PartReference(string id, Func<string> get, Action<string> set, Func<ReferenceRecord, ReferenceEligibility> assess, string source) =>
         Bind(id, "Serial part", new ReferenceSpec(ItemCatalogs.Indices) { Assess = assess }, () => FieldValue.Of(get()),
-            value => set(value.AsString()), value => value.Kind == FieldValueKind.Text ? null : "Choose a serial part ID.", SerialParts.Warning)
-            with { Confidence = Confidence.Inferred, Description = SerialParts.Warning + source };
+            value => set(value.AsString()), value => value.Kind == FieldValueKind.Text ? null : "Choose a serial part ID.",
+            SerialParts.Warning, Confidence.Inferred, SerialParts.Warning + source);
+
+    internal FieldNode ActionObservation(string id, string label, FieldSpec spec, Func<FieldValue> get, string description) {
+        var field = Field(id, label, spec with { ReadOnly = true }, get);
+        RegisterField(new FieldMetadata(id, label, field.Spec)
+        {
+            BindingKind = FieldBindingKind.Derived,
+            CanonicalValueId = id,
+            Presentation = new FieldPresentation
+            {
+                Confidence = Confidence.Inferred,
+                Description = description,
+                Warning = SerialWrites.Warning,
+            },
+        }, get);
+        return field with { Confidence = Confidence.Inferred, Description = description, Warning = SerialWrites.Warning };
+    }
 
     internal FieldNode AssetLabel(string id, string label, string path)
     {
@@ -175,9 +208,11 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         if (Root.Child("ability_data") is { } ability)
         {
             if (Has(ability, "ability_points"))
-                _ = DerivedInteger("character/skill-points", "Unspent skill points", () => Root.Child("ability_data")!, "ability_points", int.MaxValue, 0);
+                _ = Integer("character/skill-points", "Unspent skill points", () => Root.Child("ability_data")!, "ability_points",
+                    warning: "Spent points are preserved; levelling down does not refund them.");
             if (Has(ability, "tree_grade"))
-                _ = DerivedInteger("character/tree-grade", "Skill tree grade", () => Root.Child("ability_data")!, "tree_grade", int.MaxValue, 0);
+                _ = Integer("character/tree-grade", "Skill tree grade", () => Root.Child("ability_data")!, "tree_grade",
+                    warning: "Advanced progression value; keep the existing value unless repairing a level-one character.");
         }
         var stats = Root.Children("game_stats_data")
             .Where(stat => stat.Text("stat_path") == CharacterProgression.LevelStat(Root.Schema.Wonderlands))
@@ -187,9 +222,10 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         {
             var statIndex = stats[i].index;
             var id = stats.Length == 1 ? "character/recorded-level" : $"character/recorded-level/{statIndex}";
-            _ = DerivedInteger(id, "Recorded level statistic", () => Root.Children("game_stats_data")
+            _ = Integer(id, "Recorded level statistic", () => Root.Children("game_stats_data")
                 .Where(stat => stat.Text("stat_path") == CharacterProgression.LevelStat(Root.Schema.Wonderlands))
-                .ElementAt(statIndex), "stat_value", int.MaxValue, 0);
+                .ElementAt(statIndex), "stat_value", int.MaxValue,
+                warning: "Updated with XP; this statistic alone does not change level.");
         }
     }
 
