@@ -15,7 +15,7 @@ internal sealed record CollectionEntry(string Key, IReadOnlyDictionary<string, s
 }
 
 /// <summary>FFVII query policies over the shared full-model, page-only rendering engine.</summary>
-internal sealed class CollectionQuery(QueryableCollection metadata, Func<IEnumerable<CollectionEntry>> entries)
+internal sealed class CollectionQuery(QueryableCollection metadata, Func<IEnumerable<CollectionEntry>> entries) : ICollectionProjection
 {
     private readonly InMemoryCollection<CollectionEntry> _collection = new(metadata, entries, entry => entry.Key,
         [.. metadata.Columns.Select(Column)], entry => entry.Row(), new()
@@ -31,20 +31,23 @@ internal sealed class CollectionQuery(QueryableCollection metadata, Func<IEnumer
 
     public QueryableCollectionPage Query(QueryableCollectionQuery query)
     {
+        Validate(Metadata, query);
+        return _collection.Query(query);
+    }
+
+    internal static void Validate(QueryableCollection metadata, QueryableCollectionQuery query)
+    {
         if (query.Offset < 0 || query.Limit is < 1 or > QueryableCollectionLimits.MaxPageSize || query.Cursor is not null ||
             query.Text?.Length > QueryableCollectionLimits.MaxQueryLength || query.Filters.Count > QueryableCollectionLimits.MaxFilterCount)
         {
             throw new ArgumentException("Use bounded offset paging for FFVII collections.");
         }
 
-        var columns = Metadata.Columns.ToDictionary(column => column.Key, StringComparer.Ordinal);
-        if (query.Filters.Any(filter => !columns.ContainsKey(filter.Key) || filter.Value.Length > QueryableCollectionLimits.MaxFilterLength) ||
-            query.SortColumn is not null && !columns.ContainsKey(query.SortColumn))
+        if (query.Filters.Any(filter => !metadata.Columns.Any(column => column.Key == filter.Key) || filter.Value.Length > QueryableCollectionLimits.MaxFilterLength) ||
+            query.SortColumn is not null && !metadata.Columns.Any(column => column.Key == query.SortColumn))
         {
             throw new ArgumentException("Unknown FFVII collection column or oversized filter.");
         }
-
-        return _collection.Query(query);
     }
 
     private static InMemoryColumn<CollectionEntry> Column(QueryableColumn column)

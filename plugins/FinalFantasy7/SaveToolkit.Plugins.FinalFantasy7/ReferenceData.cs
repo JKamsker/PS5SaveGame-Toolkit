@@ -15,6 +15,7 @@ internal sealed class ReferenceData(IReferenceContext context, Ff7Schema schema)
     public ReferenceDatasetInfo? AssetProvenance(string assetId) => context.AssetProvenance(assetId) ?? EmbeddedCatalogs.AssetProvenance(assetId);
     private readonly Dictionary<string, IReadOnlyList<ReferenceRecord>> _catalogs = new(StringComparer.Ordinal);
     private readonly Dictionary<string, IReadOnlyDictionary<uint, ReferenceRecord>> _byId = new(StringComparer.Ordinal);
+    private readonly Dictionary<(bool Materia, uint Id), string> _descriptions = new();
 
     public string Item(uint id) => Record("ff7r-items", id)?.Name ?? Ff7Catalog.Item(schema, id);
     public string Materia(uint id) => Record("ff7r-materia", id)?.Name ?? Ff7Catalog.Materia(schema, id);
@@ -61,8 +62,11 @@ internal sealed class ReferenceData(IReferenceContext context, Ff7Schema schema)
 
     public string Describe(bool materia, uint id)
     {
+        if (_descriptions.TryGetValue((materia, id), out var description)) return description;
         var record = Record(materia ? "ff7r-materia" : "ff7r-items", id);
-        return record is null ? "Unknown type; raw bytes are preserved." : $"{record.Description} {record.AttributionText}";
+        description = record is null ? "Unknown type; raw bytes are preserved." : $"{record.Description} {record.AttributionText}";
+        _descriptions.Add((materia, id), description);
+        return description;
     }
 
     // Retained lazy endpoint for old sessions and bounded explorer tests.
