@@ -19,6 +19,7 @@ builder.Services.Configure<FormOptions>(o =>
 builder.Services.ConfigureHttpJsonOptions(o => ToolkitJson.Configure(o.SerializerOptions));
 // Route binding must reach our error handler in Production as well as Development.
 builder.Services.Configure<RouteHandlerOptions>(o => o.ThrowOnBadRequest = true);
+builder.Services.Configure<RouteOptions>(o => o.ConstraintMap[SpaPathConstraint.Name] = typeof(SpaPathConstraint));
 
 var dataRoot = builder.Configuration["Toolkit:DataRoot"] is { Length: > 0 } configured
     ? configured
@@ -45,12 +46,20 @@ builder.Services.AddProblemDetails();
 var app = builder.Build();
 
 app.UseExceptionHandler();
+app.UseStatusCodePages(async status =>
+{
+    if (status.HttpContext.Request.Path.StartsWithSegments("/api"))
+        await ApiProblem.Create(status.HttpContext.Response.StatusCode).ExecuteAsync(status.HttpContext);
+});
 app.UseDefaultFiles();
 app.UseStaticFiles();
+app.UseRouting();
 app.MapToolkitApi();
 app.MapReferenceApi();
 app.MapVersionApi();
-app.MapFallbackToFile("index.html");
+// Only browser navigation falls back to the SPA; HEAD must retain API method rejection.
+app.MapFallbackToFile(SpaPathConstraint.Pattern, "index.html")
+    .WithMetadata(new HttpMethodMetadata([HttpMethods.Get]));
 
 app.Run();
 

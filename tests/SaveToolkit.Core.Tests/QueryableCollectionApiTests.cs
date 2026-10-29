@@ -98,7 +98,7 @@ public sealed class QueryableCollectionApiTests(WebApplicationFactory<Program> f
             actionId = "increment", revision,
             scope = new { queryScope = new { collectionId = "items", query = new { }, revision } },
         }, ct);
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
         var preview = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
         Assert.False(preview.TryGetProperty("planId", out _));
         Assert.Contains("5000 matching rows", preview.GetProperty("plan").GetProperty("errors")[0].GetProperty("message").GetString(), StringComparison.Ordinal);

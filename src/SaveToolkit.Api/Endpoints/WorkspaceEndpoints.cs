@@ -18,7 +18,7 @@ internal static class WorkspaceEndpoints
 
     public static void MapToolkitApi(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("/api");
+        var api = app.MapGroup("/api").AddEndpointFilter<ApiContractFilter>();
 
         api.MapGet("/plugins", (WorkspaceStore store) =>
             store.Catalog.Plugins.OrderBy(p => p.Info.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.ToDto()));
@@ -227,12 +227,7 @@ internal static class WorkspaceEndpoints
             return Results.BadRequest(new ErrorDto("Expected multipart/form-data with one or more files."));
         }
 
-        IFormCollection form;
-        try { form = await request.ReadFormAsync(ct); }
-        catch (IOException)
-        {
-            return Results.BadRequest(new ErrorDto("Could not read the upload. It may be incomplete; select the files and try again."));
-        }
+        var form = await MultipartUpload.ReadAsync(request, ct);
         if (form.Files.Count == 0)
         {
             return Results.BadRequest(new ErrorDto("No files uploaded."));

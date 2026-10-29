@@ -14,7 +14,7 @@ internal static class ReferenceEndpoints
 
     public static void MapReferenceApi(this IEndpointRouteBuilder app)
     {
-        var packs = app.MapGroup("/api/reference-packs");
+        var packs = app.MapGroup("/api/reference-packs").AddEndpointFilter<ApiContractFilter>();
         packs.MapGet("", (ReferencePackStore store) => new ReferencePacksDto([.. store.Packs.Select(p => p.Info)], store.LoadErrors));
         packs.MapPost("", ImportPack)
             .DisableAntiforgery()
@@ -22,7 +22,8 @@ internal static class ReferenceEndpoints
         packs.MapDelete("/{packId}", (string packId, HttpRequest request, ReferencePackStore store) =>
             IsCrossSite(request) ? CrossSiteRejected() : store.Remove(packId) ? Results.NoContent() : Results.NotFound());
 
-        var doc = app.MapGroup("/api/workspaces/{workspaceId}/documents/{documentId}");
+        var doc = app.MapGroup("/api/workspaces/{workspaceId}/documents/{documentId}")
+            .AddEndpointFilter<ApiContractFilter>();
         doc.MapReferenceFieldApi();
         doc.MapGet("/sources", (DocumentRef d) =>
             new DocumentSourcesDto([.. d.Workspace.References(d.Value.Id).Datasets().Select(s => s.ToDto())]));
@@ -89,7 +90,7 @@ internal static class ReferenceEndpoints
             return Results.BadRequest(new ErrorDto("Expected multipart/form-data with one pack archive (.zip)."));
         }
 
-        var form = await request.ReadFormAsync(ct);
+        var form = await MultipartUpload.ReadAsync(request, ct);
         if (form.Files is not [var file])
         {
             return Results.BadRequest(new ErrorDto("Upload exactly one pack archive."));
