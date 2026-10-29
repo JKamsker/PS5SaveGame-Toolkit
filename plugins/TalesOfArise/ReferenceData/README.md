@@ -17,14 +17,23 @@ From the repository root, in PowerShell:
 
 ```powershell
 $pack = 'plugins/TalesOfArise/SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog'
-$scratch = Join-Path $env:TEMP 'toa-r2-research'
+$taskScratch = 'D:/Temp/saveeditor/test-scratch/docs/accuracy-talesofarise'
+New-Item -ItemType Directory -Force -Path $taskScratch | Out-Null
+$env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
+$env:SAVETOOLKIT_TEST_TEMP = $taskScratch
+$env:TEMP = $taskScratch
+$env:TMP = $taskScratch
+$scratch = Join-Path $taskScratch 'catalog-sources'
 python -I -X utf8 plugins/TalesOfArise/ReferenceData/fetch_catalog.py --sources "$pack/source-revisions.json" --cache $scratch
 python -I -X utf8 plugins/TalesOfArise/ReferenceData/test_wiki_tables.py
 python -I -X utf8 plugins/TalesOfArise/ReferenceData/build_catalog.py --cache $scratch --sources "$pack/source-revisions.json" --output $pack
-$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/TalesOfArise/SaveToolkit.Plugins.TalesOfArise.Tests
+python -I -X utf8 plugins/TalesOfArise/ReferenceData/build_assets.py --scratch "$taskScratch/publisher-assets"
+dotnet test --project plugins/TalesOfArise/SaveToolkit.Plugins.TalesOfArise.Tests -c Release
 ```
 
-Run the fetch/import sequence again and require no data diff for a reproducible
+The base builder emits the text-only v2 manifest; the overlay must then restore the
+v3 assets, descriptions, mappings and manifest before testing or comparing outputs.
+Run this complete sequence again and require no data diff for a reproducible
 regeneration. The importer independently checks every published named Item/Arte/Skill/
 Title template against the extracted labels; commented-out unnamed-animation guesses
 are deliberately excluded. Inspect the source-specific table headings, first/last named rows,
@@ -48,7 +57,7 @@ the same author, licence link, retrieval date, modifications and immutable revis
 After regenerating the base catalogs, reapply the reviewed overlay:
 
 ```powershell
-python -I -X utf8 plugins/TalesOfArise/ReferenceData/build_assets.py --scratch "$env:TEMP/toa-assets"
+python -I -X utf8 plugins/TalesOfArise/ReferenceData/build_assets.py --scratch "$taskScratch/publisher-assets"
 ```
 
 The builder reads the reviewed `asset-sources.json` ledger, downloads pinned image

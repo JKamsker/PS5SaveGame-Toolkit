@@ -8,7 +8,7 @@ Licence: [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 CC BY-SA 3.0. Numeric IDs are the previous plugin's inferred PS4 mapping, not wiki
 IDs. Only Apple Gel has the current PS5 acquisition observation; do not describe all
 13 identities as independently verified by samples. The conservative quantity cap
-of 15 is plugin policy, not a proven game/effective cap. The v2 pack covers all 28
+of 15 is plugin policy, not a proven game/effective cap. The bundled pack covers all 28
 named consumables using symbolic keys for the remaining entries.
 
 Numeric identity crosswalk: [ロード, attachment 31135](https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt),

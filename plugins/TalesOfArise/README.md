@@ -11,13 +11,13 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
   slots 000–002 and all three console backup twins.
 - Verifies SHA1 before decryption; follows and validates the shuffled section chain;
   rejects bad alignment, bounds, overlap, cycles, counts, IDs, sizes and versions.
-- Curated gald, six character levels/current HP/SP, existing recognised consumable
+- Curated gald, six status blocks' levels/current HP/SP, existing recognised consumable
   quantities, and read-only play time, experience and base HP. All gameplay meanings
   carry **Inferred** confidence for the PS5 mapping.
 - Party stats and character table, one lazy F8 inventory table, lazy read-only explorer of
   all 30 sections / 138,832 primitive uint32 words, and paged plaintext/outer hex views.
-  Primitive pages contain at most 256 rows. Opening and building the initial view
-  stays below two seconds in the sample tests.
+  Primitive pages contain at most 256 rows. First-view timings are diagnostic;
+  see the dated [performance measurements](PERFORMANCE.md).
 - Serializes fixed-size patches, re-encrypts in chain order, recomputes SHA1, then
   decrypts and validates the output and compares every plaintext byte after the header.
   Even no-op serialization runs the actual cipher and is byte-identical on all six files.
@@ -35,7 +35,8 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
   Pages contain at most 200 rows; filtering does not truncate after the first 200.
 - Read-only character sheets show the existing inferred level/HP/XP/SP/base-HP fields.
   Recruitment, equipped gear and skill state remain Unknown. Two unmapped status
-  blocks expose raw bytes only. Read-only aliases stay current after supported edits.
+  blocks have read-only numeric cells with Unknown meanings in the Party table and
+  raw evidence in the character sheets. Read-only aliases stay current after supported edits.
 - Arte/skill views show published requirements, costs and effects for 309 character-
   specific artes, 64 skill definitions, 108 title panels and 540 individual nodes.
   Usage, proficiency, title unlock, purchase and panel-completion joins are Unknown.
@@ -68,19 +69,26 @@ only returns its own file, without silently changing the console backup twin.
 | Feature | Status | Concrete adoption or reason |
 | --- | --- | --- |
 | F1 SaveDiff | Used | `AriseDiff` aligns decrypted sections by schema ID and relative offsets; twin and slot tests prove the alignment. The shared `PluginViewDecoder` can traverse the plugin without plugin I/O; private sample bytes stay outside git. |
-| F2 reference packs | Used | The embedded `talesofarise.catalog` v3 pack is opened through `IReferenceContext`; dataset and per-record attribution appear in catalog descriptions and the Sources panel. |
+| F2 reference packs | Used | The embedded `talesofarise.catalog` v3 pack is opened through `IReferenceContext`; dataset and per-record attribution appear in catalog descriptions and the Sources panel. Without a matching pinned pack, catalog sections show an unavailable message, catalog queries are empty, local inferred labels and raw IDs remain available, and the map omits its background. |
 | F3 rich table cells | Used | Catalog and inventory rows expose read-only inspect actions, detail/provenance text and confidence badges. Local F2 icons appear in catalog and inventory image cells, with shared category symbols labelled explicitly. |
 | F4 reference pickers | Used | Inventory ID fields and all catalog identity columns use read-only `ReferenceSpec` browse-only pickers, preserve unknown numeric IDs and allow custom fallback. Standalone inspection parameters select an existing reference without changing saved IDs. |
 | F5 structural edits | N/A | No safe add/remove/reorder writer exists: allocation, inverse records and acquisition invariants are unproven, so fixed-slot scalar writes remain the only structural-safe scope. |
-| F6 planned actions | Used | `inventory/set-quantity` previews changes, skips unsupported rows, revalidates at apply and records one undo group. Core-resolved F8 query scopes are accepted and tested. |
+| F6 planned actions | Used | `inventory/set-quantity` previews changes and skips unsupported rows. Shared `ActionPlans.ApplyScalar` replans and compares the preview, binds only changed scalar fields and merges application/plan warnings with `ActionPlanWarningPolicy.Merge`. Document, explicit and Core-resolved F8 query scopes are tested; the batch records one undo group. |
 | F7 document groups | N/A | `SystemSaveData.sav` is opaque and the console backup twin has no proven independent ownership contract; this plugin intentionally edits one selected gameplay file only. |
 | F8 queryable collections | Used | Catalogs page and sort all 2,157 records; the inventory collection supplies stable fixed-slot rows for search and query-scoped planning. |
 | F9 maps and graphs | Used | Skill-panel and arte prerequisite DAGs plus an attributed Dahna background behind the schematic map use bounded `GraphNode`/`MapNode` views, text alternatives, stable targets and spatial validation. |
 | F10 exact numbers / nullable unions | N/A | The supported PS5 schema is fixed-width integers and bytes; it contains no JSON numeric lexemes or nullable/union fields requiring F10. |
 | F11 shared codecs | N/A | Tales of Arise uses its measured AES/XOR/SHA1 format; it has no Kraken or SQLite payload, so `SaveToolkit.Codecs` does not apply. |
 | F12 SaveDiff F8 traversal and decoder hooks | Used | `TalesOfArisePlugin` registers `AriseDiff` through `ISaveDecoderProvider` as `tales-of-arise.sections-v1`; section-relative uint32 evidence has stable schema identities, explicit bounds and no Testing dependency. The shared view decoder also traverses rich F8 evidence with explicit test budgets. |
-| F13 inspect/picker/filter and float-duration improvements | Used | Every reference inspection declares `Mutates = false`; read-only item/arte/skill identities retain browse-only `ReferenceSpec` pickers. Standard category filtering and declared Key/Name/Category sorting delegate to F2; rich facts/character/title filters retain plugin policy. Float durations are N/A: the supported counters are integers and retain integer duration formatting. |
+| F13 inspect/picker/filter and float-duration improvements | Used | Shared `ReferenceInspection.Create` declares `Mutates = false` and builds the attributed picker; `ResolveSelection` enforces pinned membership and fixed-row identity on fresh inspection documents. Read-only identities retain browse-only `ReferenceSpec` pickers. Standard category filtering and declared Key/Name/Category sorting delegate to F2; rich facts/character/title filters retain plugin policy. Float durations are N/A: only play seconds use integer duration formatting; play ticks remain a labelled integer counter. |
 | F14 empty inventory slots | Used | One F8 inventory table retains all 934 fixed slots; zero-ID rows carry `IsEmpty`, matching `EmptyRows` metadata and default hiding. Queries filter before visibility/paging and report matching hidden counts. F6 query scopes preserve visibility/exclusions and skip empty rows even when shown. |
+
+Among the extracted SDK helpers, this plugin uses the action-plan and reference-inspection
+helpers above. Collections, linked binary traversal and catalog enumeration retain their local
+implementations; `InMemoryCollection`, the binary cursor/range helpers and
+`ReferenceCatalogReader.ReadBounded` are not used. `AriseAssets.Icon` also remains
+local; its exact alt-text and asset-availability policy differ from `ReferenceViews.Icon`
+(see [SDK requests](#sdk-requests)). These are implementation choices, not missing SDK APIs.
 
 ## Publisher assets (2026-10-29)
 
@@ -108,11 +116,13 @@ Gamer Guides and the Tales terminology dictionary (atwiki). Media licence field:
 **Rights reserved by Bandai Namco Entertainment; used with attribution per owner decision 2026-10-29**.
 Aselia adapted text/transcriptions retain **CC BY-SA 3.0**; official wording is
 identified as a wiki transcription, not an independently verified game dump.
-Attribution also appears in `Info.References`, catalog inspection/details, image alt
-text, the map's provenance and the framework Sources panel. These media permissions
+Attribution appears in `Info.References`, catalog inspection/details, the map's
+provenance and the framework Sources panel; image alt text includes the publisher
+notice and icon role. These media permissions
 resolve this plugin's former publisher-art exclusion; save-state joins still need evidence.
 
-Quick stopwatch, Release build, largest supplied slot `SaveData_002.sav` (760,856 bytes),
+Historical asset-overlay stopwatch (2026-10-29), Release build, `SaveData_002.sav`
+(760,856 bytes; all six gameplay samples have the same size),
 with sample import excluded: cold pack load + pin + open + initial view changed from
 **113.76 ms / 22,432,928 allocated bytes** to **177.71 ms / 30,514,600 bytes**.
 A second document using the same pinned pack changed from **12.23 ms / 6,179,920 bytes**
@@ -122,10 +132,10 @@ loading remains once per store; documents reuse the same immutable image buffers
 The plugin performs no runtime downloads or image decoding. Processing occurred under
 `%TEMP%` with `python -I`, Pillow 12.2.0, header validation and pinned SHA-256 checks.
 
-Asset-round validation: **89 plugin tests passed, 0 failed, 0 skipped** with the external
-sample directory configured; **3 Python parser tests passed**. API build: **0 warnings,
-0 errors**. Regenerating the overlay leaves every pack byte unchanged; an independent
-JSON comparison preserved every original fact and identity across all 2,157 records.
+The asset round reported byte-identical overlay regeneration and an independent
+JSON comparison preserving every original fact and identity across all 2,157 records.
+These are historical results; this documentation pass does not rerun the downloads.
+Current local validation is listed under [Validation](#validation).
 
 ## Enabled writes and their evidence
 
@@ -137,9 +147,9 @@ before promoting any feature or plugin to Stable.
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
 | PartyProfile gald (`party/gald`) | Inferred | Body `+0x18` matches the cited PS4 mapping; fixed-width samples and atomic edit/reopen tests. All supplied samples are zero, so no in-game value change is proven. | Known ciphertext SHA1 is recomputed; AES/XOR re-encryption reparses and compares plaintext. | Buy and consume one item, then save/reload and test normal acquisition; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
-| Existing active-character level, current HP and SP (six fixed status blocks) | Inferred | Body offsets match the cited PS4/PC layout and sample values; edit/reopen and unrelated-byte preservation tests. Level dependencies and effective stats are intentionally untouched. | Known ciphertext SHA1 is recomputed and self-checked; load-screen preview and dependent caches are preserved. | Load a spare edited slot, verify menus, perform a normal level/HP/SP event, save/reload; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
-| Existing recognised consumable quantity (IDs 1–13, 0–15) | Inferred | 13 legacy numeric mappings; Apple Gel is observed once in slot 002. Fixed record offsets, flags/IDs/order preservation, range rejection and edit/reopen tests. | Known ciphertext SHA1 is recomputed and self-checked; no records, IDs, flags or padding are changed. | Buy/use an item, test zero and later acquisition, and validate normal/effective stack caps; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
-| `inventory/set-quantity` F6 action over selected or document-scoped existing recognised rows | Inferred | Deterministic preview, skipped unsupported rows, bounded target 0–15, apply-time revalidation and one grouped undo. No record creation or grant behavior. | Same known SHA1/AES self-check as scalar edits; the game may reject inferred semantics. | Restore a spare slot, apply a preview, verify the effect and later acquisition after reload; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
+| Level, current HP and SP in status blocks 000–005 with nonzero level | Inferred | Body offsets match the cited PS4/PC layout and sample values; edit/reopen and unrelated-byte preservation tests. Nonzero level permits these bindings; it does not prove recruitment or active-party membership. Level dependencies and effective stats are intentionally untouched. | Known ciphertext SHA1 is recomputed and self-checked; load-screen preview and dependent caches are preserved. | Load a spare edited slot, verify menus, perform a normal level/HP/SP event, save/reload; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
+| Existing recognised consumable quantity (IDs 1–13, current and target quantity 0–15) | Inferred | 13 legacy numeric mappings; Apple Gel is observed once in slot 002. Fixed record offsets, flags/IDs/order preservation, range rejection and edit/reopen tests. Existing quantities above 15 are read-only. | Known ciphertext SHA1 is recomputed and self-checked; no records, IDs, flags or padding are changed. | Buy/use an item, test zero and later acquisition, and validate normal/effective stack caps; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
+| `inventory/set-quantity` F6 action over explicit, document or Core-resolved inventory-query scope | Inferred | Deterministic preview, skipped empty/unknown/over-bound/unchanged rows, bounded target 0–15, apply-time revalidation and one grouped undo. Document/explicit scopes require inventory expansion; query scope supplies resolved fixed-slot keys. No record creation or grant behavior. | Same known SHA1/AES self-check as scalar edits; the game may reject inferred semantics. | Restore a spare slot, apply a preview, verify the effect and later acquisition after reload; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
 
 Equipment replacement, item insertion/removal, structural changes, HP/CP restore,
 growth/XP edits, skill/title/arte writes and progression/completion mutations remain
@@ -224,7 +234,7 @@ offset discrepancy above.
 | same | `0x10` | Experience, uint32 | Read-only; PS4 source ID +`0x1C` |
 | same | `0x30` | SP, uint32 | Editable 0–999,999; PS4 source ID +`0x3C`; consistent PC layout |
 | same | `0x50` | Base HP, uint32 | Read-only; PS4 source ID +`0x5C` |
-| SaveData_ItemManager | `i * 16` | Stack quantity byte | Editable only for existing IDs 1–13, 0–15; F6 can set selected/document-scoped recognised rows |
+| SaveData_ItemManager | `i * 16` | Stack quantity byte | Editable only for existing IDs 1–13 whose current quantity is 0–15; targets are 0–15. F6 accepts explicit, document and Core-resolved query scopes. |
 | same | `i * 16 + 1` | Flags byte | Raw, preserved |
 | same | `i * 16 + 2` | Item ID, uint16 | Read-only; 934-record scan from cited PS4 patch |
 
@@ -232,7 +242,10 @@ Character names and the 13 consumable IDs are embedded reference tables; unknown
 item IDs retain numeric labels. Zero-ID records are retained as empty slots and hidden
 by default; there is no item
 insertion, flag editing, accessory editing or bulk grant action. Existing values
-outside the supported editing guardrails remain visible but read-only. IDs 6/7 of the
+outside the supported editing guardrails remain visible but read-only. Character
+level/HP/SP bindings also require a nonzero level in status blocks 000–005;
+the checked scalar must already be within its supported range. This gate does not
+establish recruitment or active-party membership. Indices 6/7 of the
 character sections are unmapped and read-only, not assumed to be active party members.
 Their scalar meanings, and quantities attached to empty or unrecognised item IDs,
 are labelled **Unknown**. Recognised consumable quantities retain **Inferred** confidence.
@@ -298,126 +311,61 @@ byte-identical no-op serialization retain the original slot identities.
 
 ## Validation
 
+From the repository root, with the private sample archive stored outside this checkout:
+
 ```powershell
-$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
-$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/TalesOfArise/SaveToolkit.Plugins.TalesOfArise.Tests
+$taskScratch = 'D:/Temp/saveeditor/test-scratch/docs/accuracy-talesofarise'
+New-Item -ItemType Directory -Force -Path $taskScratch | Out-Null
+$env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
+$env:SAVETOOLKIT_TEST_TEMP = $taskScratch
+$env:TEMP = $taskScratch
+$env:TMP = $taskScratch
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj -c Release --warnaserror
+dotnet test --project plugins/TalesOfArise/SaveToolkit.Plugins.TalesOfArise.Tests -c Release
 python -I -X utf8 plugins/TalesOfArise/ReferenceData/test_wiki_tables.py
+python docs/tests/test_documentation.py
 ```
 
-Round-2 plugin suite (historical): **59 passed, 0 failed, 0 skipped**, including the inherited
-conformance suite and a Core F8 session integration test. Python parser suite:
-**3 passed**. API build: **zero warnings/errors**. Earlier standalone Core-suite
-counts are historical; this round does not claim to have rerun that suite.
-Tests cover independent cipher vectors with short feedback updates and key evolution,
-SHA1 `abc`, independently calculated whole-plaintext SHA256 digests, all six real
-gameplay records, known values, no-op, edits/reopen/undo, exact preservation of every
-other plaintext byte and outer bytes, atomic rejection, corruption, valid-SHA1
-malformed encrypted structures, unsupported modes/schema, and every explorer page.
-Sample tests use `SampleSaves` and skip when the archive is unavailable.
-The original missing-archive run passed 9 independent tests and skipped 30 sample tests.
-The embedded catalog contains attributed names, reference facts and adapted descriptions;
-no sample data or downloaded reference implementation is embedded. New tests cover all
-catalog pages, pinned licence attribution, title-node relations, source duplicates and
-unknowns, tail searches, character/title filters, deterministic sorting, bound read-only
-query fields, live aliases, and byte-identical read-only views on all six gameplay files.
+Documentation accuracy check, **2026-10-29**: the full Release rerun passed
+**347 tests, 0 failed, 0 skipped** with samples. The first full run had one
+intermittent allocation-guard failure in
+`CipherSetupAllocationsDoNotGrowWithTheNumberOfFeedbackChunks`; the unchanged
+full rerun passed. No runtime code, test, view string, ID or confidence label
+was changed by this documentation pass.
+API Release build with warnings as errors: **0 warnings, 0 errors**;
+documentation checks: **14 passed**; Python table-parser checks: **3 passed**.
 
-F12/F13 follow-up: **84 passed, 0 failed, 0 skipped**, using the external artifacts
-directory above. API build: **0 warnings, 0 errors**. SaveDiff `list-decoders --format json`
-lists the registered native hook; comparing the sample archive with itself using that hook
-reports 0 changes and 0 decode failures. No files outside this plugin were changed.
+The suite covers independent chained cipher vectors and SHA1 `abc`, pinned
+whole-plaintext SHA256 digests, all three gameplay slots and their backup twins,
+byte-identical no-op serialization, known sample values, atomic edits, reopen,
+unrelated-byte preservation, numeric aliases and grouped undo/redo. Sample tests
+use `SampleSaves` and skip when the archive is absent; a run without samples is
+not evidence that the sample-backed checks passed.
 
-Follow-up tests additionally cover SDK hook registration, all 138,832 words,
-backup equivalence, physical section relocation, a controlled single-word edit, output/depth/
-file limits, corruption rejection, read-only and edited Core inspection sessions with unchanged
-bytes/revision/undo/redo, browse-only picker metadata and unknown IDs, and delegated catalogue
-category/sort/page queries with rich-search and custom-catalog fallbacks.
+Authored in-memory containers exercise normal and physically reversed section
+chains. Corruption tests cover envelope cuts, every partial AES-block length,
+repaired-SHA1 structural mutations, directory bounds, section IDs/versions/sizes,
+first/middle/last links, overlap, cycles, early termination and unexpected tails.
+Malformed fixtures retain an independent captured encryption schedule rather than
+using the validating writer. Generated fixtures do not establish gameplay meanings.
 
-F14 adoption: **96 passed, 0 failed, 0 skipped**, including seven new empty-slot
-cases covering all sample slots, default/direct/Core queries, matching hidden counts,
-show/hide paging, sentinel/zero-count distinctions, exact visible-slot writes,
-reopen/undo/redo and F6 all-matching visibility/exclusions. API build: **0 warnings,
-0 errors**. All source changes are inside this plugin.
+Reference/view coverage checks catalog counts and source pins, title/node joins,
+unknown identities, full-model search/filter/sort/paging, read-only inspections on
+fresh documents, fixed-record selection, missing-pack fallback, bounded spatial
+views, every explorer page, decoder budgets and empty-slot visibility. F6 tests
+cover scope/diagnostic precedence, quantity boundaries, skipped rows, stale
+previews, derived word effects, unloaded bindings and Core-resolved query scopes.
+Allocation/call-count guards cover cipher setup, verified serialization, raw evidence
+pages and single-row planned apply. Sample correctness has no elapsed-time deadline;
+[the dated performance report](PERFORMANCE.md) records diagnostic timings,
+baselines and the allocation guards. Its historical test counts are not current totals.
 
-Test-quality review (#40): generated in-memory fixtures now cover valid and physically reversed
-section chains, envelope integrity, directory bounds, first/middle/last section headers,
-cycles, early termination and unexpected tails without private samples. Malformed fixtures
-use a fixed encryption schedule rather than the validating production writer, and assert
-the expected rejection stage. Existing independent cipher vectors and sample digests remain
-the crypto/schema oracles; generated fixtures do not establish new gameplay semantics.
-F6 characterizations cover empty and mixed selections, malformed requests, quantity boundaries,
-exact effects and byte preservation, reopen and undo. Core redo checks the restored value and
-ciphertext. Sample correctness tests retain digest/round-trip assertions without a wall-clock
-deadline that depends on machine load. Fixtures use memory only; sample imports use the shared
-process-owned scratch cleanup.
-Validation: **157 passed, 0 failed, 0 skipped** with samples; with `SAVETOOLKIT_ARTIFACTS`
-unset, **81 passed, 0 failed, 76 skipped**, exit 0. The 47 added cases are sample-independent
-characterizations of existing behavior. Python parser: **3 passed**; API build: **0 warnings/errors**.
-
-Consistency follow-up (#40): **158 passed, 0 failed, 0 skipped** with samples;
-API build: **0 warnings/errors**. A generated-fixture regression pins the console warning
-on the overview, editable fields, edit outcome and quantity preview, retaining mapping,
-integrity, level-dependency and acquisition qualifications.
-
-SDK helper migration (#40): **190 passed, 0 failed, 0 skipped** with external samples and
-D: test scratch; API build: **0 warnings/errors**. Before production changes, 23 added
-characterizations passed on the local helpers (181 tests total). Nine further regression cases
-cover fixed-record selection and fresh-document/Core inspection; the five direct-call cases
-failed before migration. Existing byte-identical no-op, edits/reopen, aliases and undo/redo
-tests still pass. Only `plugins/TalesOfArise` changed.
-
-Malformed-input robustness review (#40): **312 passed, 0 failed, 0 skipped** in Release
-with external samples; API Release build with warnings as errors: **0 warnings/errors**.
-The 122 additional cases extend the existing corruption suites and fixture. They cover
-generated and all-six-sample encrypted-prefix cuts around the envelope, SHA1, AES,
-directory, section-header and body boundaries; all final partial-block lengths; and
-in-body deletions with repaired SHA1. Public `Probe` declines wrong-size files and
-`Open` rejects them with the documented `SaveFormatException`, before decryption.
-
-Every schema section now has invalid version/ID/size words, signed/unsigned integer
-edges, a valid encrypted header whose body overruns EOF, and ciphertext-header damage
-with repaired SHA1. Directory counts, first links and payload-length declarations
-also have explicit bounded-allocation assertions (8 MiB per warmed-up public rejection,
-including fixed-size file copies). Real-sample structural mutations cover every slot
-and backup and first/middle/last sections; captured encryption schedules have exact
-no-op controls. Mutations and synthetic fixtures stay in memory, never in the repository.
-
-Integrity tests pin every stored SHA1 byte and each encrypted region's boundaries.
-Opaque outer/alignment bytes remain preserved outside the hash. The supported PS5
-container uses AES without PKCS padding and fixed-schema linked tables, not a generic
-GVAS/FString parser: padding-like final plaintext blocks remain byte-identical. Inner
-body words with unknown semantics are not interpreted as allocation counts or strings.
-These cases pass against unchanged production code; no runtime defect or failing-first
-production regression is claimed. The two review findings were test-coverage gaps;
-neither is deferred. Existing write warnings, Experimental maturity, sample digests,
-byte-identical no-op output and edited reopen/undo/redo behavior remain covered.
-The generated corruption suite also passes **147/147, 0 skipped** with the artifacts
-environment variable unset, independently of private samples.
-
-Performance review (#40): **332 passed, 0 failed, 0 skipped** in Release; API build
-has **0 warnings/errors**. Three medium findings are fixed: repeated AES setup
-and a redundant payload copy, eager raw-evidence page work, and full-inventory
-rendering during single-row planned apply. See [measurements, reproduction and
-allocation/call-count regressions](PERFORMANCE.md). The D: harness selects the
-largest input from six equal-size samples and measures first views, search/sort
-and actions; timings remain diagnostics. All 147 generated corruption cases and
-existing sample digests, exact no-op/write/reopen/undo checks remain green.
-
-Maintainability review (#40): **347 passed, 0 failed, 0 skipped** in Release;
-API build **0 warnings/errors** and Python parser **3 passed**. Quantity request
-validation, selection planning and skip policy are separate methods; section-header
-validation and evidence matching are extracted without changing traversal or paging
-algorithms. All C# production methods are at most 50 lines. Test reference-context
-creation and catalog enumeration share helpers while retaining independent usage
-tracking. Fifteen added characterizations pass against the original behavior and
-after refactoring, covering diagnostic/skip precedence, page-only field callbacks,
-metadata, context isolation and catalog boundaries. All original 332 cases remain,
-including the 147 generated corruption cases and unchanged allocation bounds.
-
-Deferred maintainability work: `ReferenceData/build_catalog.py` (`extract_table`
-and `build`) and `ReferenceData/build_assets.py` (`build`) exceed 50 lines. These
-offline utilities retain their existing output policy until complete pinned-source
-catalog/asset regeneration has golden coverage; the three Python tests currently
-cover HTML table parsing. They are never invoked by the runtime plugin.
+Deferred maintainability work from the 2026-10-29 review:
+`ReferenceData/build_catalog.py` (`extract_table` and `build`) and
+`ReferenceData/build_assets.py` (`build`) exceed 50 lines. These offline utilities
+retain their output policy until complete pinned-source catalog/asset regeneration
+has golden coverage; the Python suite currently covers HTML table parsing. They
+are never invoked by the runtime plugin.
 
 ### Native SaveDiff evidence
 
@@ -475,7 +423,7 @@ decision on 2026-10-28 allows reuse of community facts from sources that publish
 no licence, with attribution. Exact hashes and transformations are in
 [`UnlicensedSources.source.md`](SaveToolkit.Plugins.TalesOfArise/Resources/UnlicensedSources.source.md).
 
-- [ItsAllAboutTheCode/save-converters notes](https://github.com/ItsAllAboutTheCode/save-converters/blob/main/save_convert/tales_of/arise/save_NOTES.md):
+- [ItsAllAboutTheCode/save-converters notes, revision 6632390](https://github.com/ItsAllAboutTheCode/save-converters/blob/663239063e7c1cc8550f4248f772ee9dd47ed5b0/save_convert/tales_of/arise/save_NOTES.md):
   PS5 AES/XOR material, section names/order, pointer base, platform differences.
 - [Converter implementation, inspected revision 6632390](https://github.com/ItsAllAboutTheCode/save-converters/blob/663239063e7c1cc8550f4248f772ee9dd47ed5b0/save_convert/tales_of/arise/tales_of_arise_save_converter.py):
   authoritative computed offsets, feedback byte swapping/partial updates, plaintext
@@ -488,15 +436,15 @@ no licence, with attribution. Exact hashes and transformations are in
 - [PS4 discussion](https://web.save-editor.com/bbs/patchcode/ps4/bbs.cgi?list=pickup&num=30162),
   posts 30214, 30222, 30223, 30245 and 30246: character IDs, quantity/flags/item ID
   layout and Japanese consumable names (English labels supplied here).
-- [Sora3100 Arise.CT](https://github.com/Sora3100/Tales_of_Cheat_Tables/blob/master/Arise.CT):
+- [Sora3100 Arise.CT, revision c928710](https://github.com/Sora3100/Tales_of_Cheat_Tables/blob/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT):
   character index/name ordering and PC level/HP/experience/SP/base-HP layout.
   PC runtime addresses are not used as save-file addresses.
 - [Gald Editor author page](https://www.nexusmods.com/talesofarise/mods/407):
   consulted for existing tools; this is a PC memory table, not PS5 save-layout evidence.
 - [Local reconnaissance](../../docs/formats/PPSA02745.md) and
   [method](../../docs/formats/README.md): initial archive measurements and offset discrepancy.
-The following derived data is by **Aselia Wiki contributors**, retrieved **2026-10-28**,
-and remains **[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)**.
+The wiki-derived datasets below are by **Aselia Wiki contributors**, retrieved **2026-10-28**,
+and remain **[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)**.
 Names and published facts/descriptions were extracted, whitespace normalized, images
 and navigation omitted, and symbolic keys added. Unknowns/source duplicates were
 retained. Every record has its own revision URL; every source is also in `Info.References`
@@ -516,7 +464,7 @@ and UI descriptions/provenance. Dataset attribution appears in the Sources panel
 | `Characters.csv` and playable status-index attributes | Six short names plus unmapped placeholders and six inferred status-index joins; no recruitment claim | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Characters.source.md), including the no-licence Sora3100 ordering reused with attribution per owner decision 2026-10-28 |
 | `Consumables.csv` | 13 legacy inferred numeric mappings; no newly established IDs | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Consumables.source.md), including the no-licence PS4 patch crosswalk reused with attribution per owner decision 2026-10-28 |
 | `Sections.csv` | Published section labels plus independently measured schema facts; GPL-3.0 format research, no code port | [Adjacent attribution](SaveToolkit.Plugins.TalesOfArise/Resources/Sections.source.md) |
-| F9 schematic coordinates and external map links | Original plugin-authored grouping positions over separately attributed Dahna art; no geographic alignment claimed | [Repository licence](https://github.com/JKamsker/PS5SaveGame-Toolkit), [Tales of Arise guide index](https://aselia.fandom.com/wiki/Tales_of_Arise), [Owls](https://aselia.fandom.com/wiki/ToA_-_Owls), [Camps](https://aselia.fandom.com/wiki/ToA_-_Camps); background artwork is attributed separately below and Aselia text remains CC BY-SA 3.0 |
+| F9 schematic coordinates and external map links | Original plugin-authored grouping positions over separately attributed Dahna art; no geographic alignment claimed | PS5 Save Game Toolkit contributors, GPL-3.0-or-later, 2026-10-28; [repository](https://github.com/JKamsker/PS5SaveGame-Toolkit). [Tales of Arise guide index](https://aselia.fandom.com/wiki/Tales_of_Arise), [Owls](https://aselia.fandom.com/wiki/ToA_-_Owls), [Camps](https://aselia.fandom.com/wiki/ToA_-_Camps) are external references; background artwork has separate publisher attribution in the asset sidecar and Aselia text remains CC BY-SA 3.0. |
 
 The [data sidecar](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/data.source.md)
 lists all **62 immutable revision URLs**, author/licence/date/modifications and coverage
@@ -524,10 +472,12 @@ limits. `source-revisions.json` pins rendered response and wikitext SHA-256s; th
 manifest pins all record files. [Maintenance scripts](ReferenceData/README.md) reproduce
 the extraction from hash-checked downloads held outside the repository. The pack also
 pins the two reused no-licence community crosswalks in per-record attributes and the
-sidecar. The v3 publisher-media overlay is separately attributed below. Proprietary tools, patch
-instructions and downloaded implementations remain excluded.
+sidecar. The v3 publisher-media overlay has separate attribution in the linked asset sidecar.
+Proprietary tools, patch instructions and downloaded implementations are not bundled;
+these are implementation/research choices, not recorded licence refusals.
 Wiki references include DLC/expansion facts; the supported save schema remains base-game
-PPSA02745 only. No complete licensed owl/quest identity table or save join was established.
+PPSA02745 only. No complete owl/quest identity table or native save join was established;
+this is an evidence gap, not a licence blocker under the owner policy.
 
 ## Licence exclusions
 
@@ -535,7 +485,7 @@ No current source-specific licence-based refusal is recorded for this plugin.
 Historical exclusions and research-only choices are distinguished below; none
 establishes that a named source has GPL-2.0-only or no-redistribution terms.
 
-| Source / revision | Licence found | Disposition | Alternative | Unblock |
+| Source URL / revision | Exact licence found | Refused material / reason | Alternative used | What would unblock reuse |
 | --- | --- | --- | --- | --- |
 | [ItsAllAboutTheCode/save-converters, `663239063e7c1cc8550f4248f772ee9dd47ed5b0`](https://github.com/ItsAllAboutTheCode/save-converters/tree/663239063e7c1cc8550f4248f772ee9dd47ed5b0/save_convert/tales_of/arise), retrieved 2026-10-28 | GPL-3.0, as recorded in the research and [section sidecar](SaveToolkit.Plugins.TalesOfArise/Resources/Sections.source.md); no more specific licence variant is recorded here. | Format research used; converter implementation not copied. This is an implementation choice, not a recorded licence refusal. | Independently written C# AES/XOR/SHA1 implementation and measured section schema. | No licence blocker recorded; any future code port must retain the recorded upstream notices and terms. |
 | [ロード, PS4 attachment 31135 (2022-04-03)](https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt), retrieved 2026-10-28; response SHA-256 pinned in the [crosswalk sidecar](SaveToolkit.Plugins.TalesOfArise/Resources/UnlicensedSources.source.md) | No licence published; reused with attribution per owner decision 2026-10-28 | Resolved: 13 legacy numeric consumable mappings imported as Inferred F2 attributes; patch instructions are not redistributed. | Attributed facts and independently implemented bounded quantity writes. | Unblocked by owner decision 2026-10-28; import complete. PS5 mapping validation remains an evidence gap. |
@@ -555,33 +505,31 @@ establishes that a named source has GPL-2.0-only or no-redistribution terms.
 
 ## SDK requests
 
-SDK helper migration (#40): inventory application uses `ActionPlans.ApplyScalar` with
-`ActionPlanWarningPolicy.Merge`; eligibility, scope validation, unopened bindings and preview-only
-derived aliases remain plugin policy. Reference picker creation and selection use
-`ReferenceInspection`. Fixed row actions include their exact record key in the action ID so
-`ResolveSelection` enforces it even on Core's fresh inspection document; catalog-wide pickers
-retain their existing action IDs and allow choosing other pinned records. Labels, descriptions,
-result messages, warning order and Experimental maturity are unchanged. The shared selection
-helper requires exactly one text parameter and supplies its own invalid-selection diagnostics.
+Resolved and adopted: F12 native decoder hooks, F13 read-only inspection and
+browse/category/sort contracts, shared `ActionPlans.ApplyScalar` and
+`ReferenceInspection`. Quantity application uses `ActionPlanWarningPolicy.Merge`;
+eligibility, scope validation, unopened bindings and preview-only derived aliases
+remain plugin policy. Fixed row actions encode their record key so
+`ResolveSelection` enforces it on Core's fresh inspection document. Catalog-wide
+pickers retain their action IDs and allow choosing other pinned records.
 
-`AriseAssets.Icon` remains local under the migration brief's behavior-preservation exception.
-`ReferenceViews.Icon` always composes record/image attribution in its alt text and falls back
-when image bytes or provenance are absent. The existing renderer preserves exact icon-role and
-publisher-notice text and emits an image whenever a record has an asset ID. Adopting that helper
-would change these behaviors; an exact-alt/availability-policy option would be needed for a
-strict migration. Map artwork, rich catalog filtering and reference detail prose also remain local.
-
-F14 exposes an existing Core semantic-review limitation: its original/current view
-walk does not traverse F8 collections. Quantity changes remain listed by value ID,
-but query-only inventory fields have no semantic-review jump or individual Revert;
+Remaining request: bounded F8 traversal in Core semantic review. Its original/current
+view walk still does not query F8 collections. Quantity changes are listed by value
+ID, but query-only inventory fields have no semantic-review jump or individual Revert;
 use undo/redo or edit the loaded quantity field. F6 previews still include named
-old/new quantities and apply as one undo group. Bounded F8 traversal in semantic
-review is a framework request; no Core changes or duplicate eager editor were added.
+old/new quantities and apply as one undo group. No duplicate eager editor is added.
 
-F12 decoder hooks and F13 inspection/browse/category/sort contracts are adopted.
-The `63580dc` F6 reference-parameter fix needs no migration: the only planned-action parameter
-is an integer quantity, with no `EnumSpec` identity fallback. Float-duration hints do not apply
-to the supported integer counters. The existing bindings, queryable tables, reference picker,
-lazy sections and paged blobs support this plugin. Evidence, rather than a missing framework contract, gates equipment,
-arte/skill and progression writes. F6 planning and F8 query-scope resolution are available
-when the owner captures establish safe bulk operations; no plugin-local substitute was added.
+Optional helper extension: an exact-alt/availability-policy option for
+`ReferenceViews.Icon`. `AriseAssets.Icon` remains local because the shared helper
+always composes record/image attribution and falls back when image bytes or
+provenance are absent; the local renderer preserves exact icon-role/publisher text
+and emits an image whenever a record has an asset ID. The shared helper already
+exists; this is a behavior-preserving adoption constraint, not an unavailable icon API.
+Map artwork, rich catalog filtering and reference detail prose also remain local.
+
+The F6 reference-parameter fix needs no migration: the only planned-action parameter
+is an integer quantity. Float-duration hints do not apply to the integer counters.
+There is no `docs/SDK_REQUESTS.md` register in this checkout. Existing bindings,
+reference packs, queryable tables, F6 planning/query resolution, lazy sections and
+paged blobs support the current plugin. Evidence, rather than a missing framework
+contract, gates equipment, arte/skill and progression writes.

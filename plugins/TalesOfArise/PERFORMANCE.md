@@ -6,10 +6,11 @@ All three findings are medium severity and fixed; none are deferred.
 
 ## Measurements
 
-The external harness is preserved at
+The historical external harness is preserved at
 `D:/Temp/saveeditor/review-results/perf-talesofarise/harness/` (`Harness.csproj`,
-`Program.cs`). It references this checkout's plugin and Testing projects and links
-the existing authored `AriseTestContainer` fixture. No sample bytes are written
+`Program.cs`). Its project references and linked `AriseTestContainer` fixture use
+absolute paths into the original review worktree (`t3-89aad582`), not whichever
+checkout is current. No sample bytes are written
 by the harness. The imported archive uses the shared process-owned D: scratch.
 
 Release .NET 10.0.11, Windows 10.0.26200, three warmups followed by eleven
@@ -46,16 +47,19 @@ revalidation, binding, atomic edits and disposal. The small inventory-page
 allocation increase comes from the extracted quantity-binding closure; it is
 about 1.8 KB for 20 rows, while avoiding megabytes of unrelated action rendering.
 
-Rerun from this checkout (the project references in the preserved harness point
-here):
+Before rerunning, copy the harness into your own D: scratch and update all three
+paths in `Harness.csproj` (plugin, Testing and the linked fixture) to the intended
+checkout. Retain its assembly name so the fixture can use the plugin's internal APIs.
+The following command assumes that prepared copy is under `$taskScratch/harness`:
 
 ```powershell
+$taskScratch = 'D:/Temp/saveeditor/test-scratch/docs/accuracy-talesofarise'
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
-$env:SAVETOOLKIT_TEST_TEMP = 'D:/Temp/saveeditor/test-scratch'
-$env:TEMP = 'D:/Temp/saveeditor/test-scratch/review-perf-talesofarise'
+$env:SAVETOOLKIT_TEST_TEMP = $taskScratch
+$env:TEMP = $taskScratch
 $env:TMP = $env:TEMP
 New-Item -ItemType Directory -Force $env:TEMP | Out-Null
-dotnet run --project D:/Temp/saveeditor/review-results/perf-talesofarise/harness/Harness.csproj -c Release
+dotnet run --project "$taskScratch/harness/Harness.csproj" -c Release
 ```
 
 `before.txt` and `after.txt` retain the complete reported measurements; intermediate
