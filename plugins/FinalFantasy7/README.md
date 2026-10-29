@@ -404,6 +404,19 @@ Tests check complete record walks, byte-identical round trips and an initial vie
 Correctness tests do not gate on wall-clock speed, which varies with CI scheduling and machine load.
 No framework changes, runtime file/network access or extra NuGet dependencies are required.
 
+Collection queries use the shared SDK `InMemoryCollection<CollectionEntry>` engine. The thin
+`CollectionQuery` adapter retains FFVII's validation messages, signed-64-bit numeric comparer with
+ordinal text fallback, whitespace-only search normalization and ascending ordinal key tie breaks
+(also for descending column sorts). F14 still uses the native slot predicates; only requested page
+rows render bindings. Characterization tests pin these policies before the helper migration (#40).
+
+Imported reference indexes use `ReferenceCatalogReader.ReadBounded` with an explicit 250,000-record
+budget, matching the host's default per-catalog limit. Numeric ID normalization, source-order
+overrides, embedded fallback and numeric result ordering stay local. The helper advances short
+pages by actual progress and rejects budget exhaustion or inconsistent paging with
+`InvalidOperationException`; neither overrides nor fallback are cached as a complete index on failure.
+These helper-required failures replace the old loop's silent acceptance of incomplete catalogues.
+
 ## Research log and validation
 
 Research date: 2026-10-28. Read upstream code as untrusted text; no downloaded code was executed.

@@ -14,15 +14,20 @@ internal sealed record CollectionEntry(string Key, IReadOnlyDictionary<string, s
         with { IsEmpty = IsEmpty };
 }
 
-/// <summary>Filters the full bounded model before rendering bindings for the requested page.</summary>
+/// <summary>FFVII query policies over the shared full-model, page-only rendering engine.</summary>
 internal sealed class CollectionQuery(QueryableCollection metadata, Func<IEnumerable<CollectionEntry>> entries)
 {
+    private readonly InMemoryCollection<CollectionEntry> _collection = new(metadata, entries, entry => entry.Key,
+        [.. metadata.Columns.Select(Column)], entry => entry.Row(), new()
+        {
+            ClampPaging = false,
+            ReverseDefaultOrderWhenDescending = false,
+            NormalizeSearchText = text => string.IsNullOrWhiteSpace(text) ? null : text,
+            IsEmpty = entry => entry.IsEmpty,
+        });
+
     public QueryableCollection Metadata { get; } = metadata;
-    public QueryableTableNode View() => new(Metadata.Id, Metadata.Title, Metadata.Columns, Metadata.TotalCount)
-    {
-        Description = Metadata.Description,
-        EmptyRows = Metadata.EmptyRows,
-    };
+    public QueryableTableNode View() => Metadata.ToTableNode();
 
     public QueryableCollectionPage Query(QueryableCollectionQuery query)
     {
@@ -39,39 +44,19 @@ internal sealed class CollectionQuery(QueryableCollection metadata, Func<IEnumer
             throw new ArgumentException("Unknown FFVII collection column or oversized filter.");
         }
 
-        var all = entries().ToArray();
-        IEnumerable<CollectionEntry> matches = all;
-        if (!string.IsNullOrWhiteSpace(query.Text))
-        {
-            matches = matches.Where(entry => entry.Values.Values.Any(value => value.Contains(query.Text, StringComparison.OrdinalIgnoreCase)));
-        }
+        return _collection.Query(query);
+    }
 
-        foreach (var filter in query.Filters)
+    private static InMemoryColumn<CollectionEntry> Column(QueryableColumn column)
+    {
+        IComparer<string> comparer = column.Spec is IntegerSpec ? NumericComparer.Instance : StringComparer.OrdinalIgnoreCase;
+        return new(column.Key)
         {
-            matches = matches.Where(entry => entry.Values.TryGetValue(filter.Key, out var value) &&
-                string.Equals(value, filter.Value, StringComparison.OrdinalIgnoreCase));
-        }
-
-        var matching = matches.ToArray();
-        var includeEmpty = query.IncludeEmpty ?? !(Metadata.EmptyRows?.HideByDefault ?? false);
-        var hiddenEmptyCount = includeEmpty ? 0 : matching.Count(entry => entry.IsEmpty);
-        var filtered = includeEmpty ? matching : [.. matching.Where(entry => !entry.IsEmpty)];
-        IOrderedEnumerable<CollectionEntry> sorted;
-        if (query.SortColumn is { } key)
-        {
-            IComparer<string> comparer = columns[key].Spec is IntegerSpec ? NumericComparer.Instance : StringComparer.OrdinalIgnoreCase;
-            sorted = query.Descending
-                ? filtered.OrderByDescending(entry => entry.Values.GetValueOrDefault(key, ""), comparer)
-                : filtered.OrderBy(entry => entry.Values.GetValueOrDefault(key, ""), comparer);
-            sorted = sorted.ThenBy(entry => entry.Key, StringComparer.Ordinal);
-        }
-        else
-        {
-            sorted = filtered.OrderBy(entry => entry.Key, StringComparer.Ordinal);
-        }
-
-        return new(Metadata.Id, Metadata.Columns, [.. sorted.Skip(query.Offset).Take(query.Limit).Select(entry => entry.Row())],
-            all.Length, filtered.Length, query.Offset, query.Limit) { HiddenEmptyCount = hiddenEmptyCount };
+            SearchText = entry => entry.Values.GetValueOrDefault(column.Key),
+            FilterText = entry => entry.Values.GetValueOrDefault(column.Key),
+            Comparer = Comparer<CollectionEntry>.Create((left, right) => comparer.Compare(
+                left.Values.GetValueOrDefault(column.Key, ""), right.Values.GetValueOrDefault(column.Key, ""))),
+        };
     }
 
     private sealed class NumericComparer : IComparer<string>
