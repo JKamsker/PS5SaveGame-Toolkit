@@ -28,6 +28,12 @@ internal sealed class FaithQuantityPlanning(byte[] bytes, FaithInventory invento
         if (parameters.Count != 1 || !parameters.TryGetValue(QuantityParameter, out var target) ||
             target.Kind != FieldValueKind.Integer || target.AsInteger() < 0 || target.AsInteger() > MaximumTarget)
             return Error(QuantityParameter, $"Target quantity must be an integer in 0..{MaximumTarget}; this is not a proven gameplay cap.");
+        return PlanTargets(actionId, scope, _ => target.AsInt32());
+    }
+
+    internal ActionPlan PlanTargets(string actionId, ActionScope scope, Func<FaithItem, int> targetFor,
+        Func<FaithItem, int, string?>? skipReason = null)
+    {
         if (!inventory.IsSupported) return Error(actionId, "Main inventory schema/allocation is unsupported or ambiguous.");
         if (scope.QueryScope is { } query && (query.CollectionId != FaithInventoryView.CollectionId || scope.RowKeys is null))
             return Error(actionId, "Main-inventory query scopes must be resolved to explicit rows by Core before planning.");
@@ -40,13 +46,19 @@ internal sealed class FaithQuantityPlanning(byte[] bytes, FaithInventory invento
             return Error(actionId, "Selection contains duplicate, foreign or unknown main-bank rows.");
         var changes = new List<PlannedChange>();
         var skipped = new List<SkippedActionRow>();
-        var offsets = new List<int>();
-        var quantity = target.AsInt32();
+        var replacements = new List<(int Offset, int Quantity)>();
         foreach (var key in selected)
         {
             var item = rows[key];
             var offset = item.Offset + QuantityOffset;
             var old = BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(offset));
+            if (skipReason?.Invoke(item, old) is { } reason)
+            {
+                skipped.Add(new(key, reason));
+                continue;
+            }
+            var quantity = targetFor(item);
+            var target = FieldValue.Of(quantity);
             if (old < 0)
             {
                 skipped.Add(new(key, "Negative stack has unknown semantics; unchanged."));
@@ -61,26 +73,26 @@ internal sealed class FaithQuantityPlanning(byte[] bytes, FaithInventory invento
             if (FaithCapacityContext.IsUpgrade(item.Id)) changes.Add(new(FaithDerivedValues.UpgradeId(item, "main"),
                 $"{catalog.Name(item.Id)} — raw upgrade quantity diagnostic", FieldValue.Of(old), target) { Derived = true });
             warnings.Add(FaithStackPolicy.Warning(item.Id, catalog.Category(item.Id)));
-            offsets.Add(offset);
+            replacements.Add((offset, quantity));
         }
         var oldCrc = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(FaithContainer.CrcOffset));
-        var newCrc = offsets.Count == 0 ? oldCrc : PreviewCrc(offsets, quantity);
+        var newCrc = replacements.Count == 0 ? oldCrc : PreviewCrc(replacements);
         if (newCrc != oldCrc) changes.Add(new("integrity/crc32", "Derived payload CRC32", FieldValue.Of((ulong)oldCrc),
             FieldValue.Of((ulong)newCrc)) { Derived = true });
         return new ActionPlan { Changes = changes, SkippedRows = skipped, Warnings = warnings.Distinct(StringComparer.Ordinal).ToArray() };
     }
 
-    private uint PreviewCrc(List<int> offsets, int quantity)
+    private uint PreviewCrc(List<(int Offset, int Quantity)> replacements)
     {
         // Hash the exact candidate payload without copying opaque blocks. Selection order is
         // user-controlled; only checksum traversal is sorted, never the reported changes.
-        offsets.Sort();
+        replacements.Sort((left, right) => left.Offset.CompareTo(right.Offset));
         Span<byte> replacement = stackalloc byte[sizeof(int)];
-        BinaryPrimitives.WriteInt32LittleEndian(replacement, quantity);
         var crc = new Crc32Ieee();
         var position = FaithContainer.HeaderSize;
-        foreach (var offset in offsets)
+        foreach (var (offset, quantity) in replacements)
         {
+            BinaryPrimitives.WriteInt32LittleEndian(replacement, quantity);
             crc.Append(bytes.AsSpan(position, offset - position));
             crc.Append(replacement);
             position = offset + sizeof(int);
