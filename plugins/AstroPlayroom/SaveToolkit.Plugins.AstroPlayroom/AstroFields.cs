@@ -42,34 +42,7 @@ internal static class AstroFields
             var primitiveElement = element.Children.Count == 0 && element.Values.Count(value => !value.IsAttribute) == 1;
             foreach (var token in element.Values)
             {
-                var raw = allocation.Read(token);
-                FieldSpec spec = new TextSpec();
-                var initial = FieldValue.Of(raw);
-                if (raw is "true" or "false")
-                {
-                    spec = new BoolSpec();
-                    initial = FieldValue.Of(raw == "true");
-                }
-                else if (long.TryParse(raw, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var number))
-                {
-                    spec = IntegerSpec.Int64;
-                    initial = FieldValue.Of(number);
-                }
-
-                var primitive = !token.IsAttribute && primitiveElement;
-                var common = primitive && (path is "PreInstall/Common/NumCoin" or "PreInstall/Common/PlayCount") &&
-                    spec is IntegerSpec && initial.AsInteger() >= 0 && initial.AsInteger() <= int.MaxValue;
-                // A group-level scalar is unknown data, not a flag beneath that group.
-                var flag = primitive && spec is BoolSpec && (parent != "PreInstall" && group is ("Progress" or "World") ||
-                    ((group is "Artifact" or "Puzzle" or "Prop") && (element.Name is "IsGot" or "IsCinematicsPlayed")));
-                if (common)
-                {
-                    // A storage limit, not a claim about the game's accepted coin/play-count range.
-                    spec = new IntegerSpec(0, int.MaxValue);
-                }
-
-                result.Add(new AstroField(element, token, path, group, spec, initial,
-                    common ? Confidence.Verified : flag ? Confidence.Inferred : Confidence.Unknown, common || flag));
+                result.Add(Classify(element, token, allocation.Read(token), path, parent, group, primitiveElement));
             }
 
             foreach (var child in element.Children)
@@ -77,5 +50,37 @@ internal static class AstroFields
                 Visit(child, path, group);
             }
         }
+    }
+
+    private static AstroField Classify(AstroElement element, AstroValue token, string raw,
+        string path, string parent, string group, bool primitiveElement)
+    {
+        FieldSpec spec = new TextSpec();
+        var initial = FieldValue.Of(raw);
+        if (raw is "true" or "false")
+        {
+            spec = new BoolSpec();
+            initial = FieldValue.Of(raw == "true");
+        }
+        else if (long.TryParse(raw, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var number))
+        {
+            spec = IntegerSpec.Int64;
+            initial = FieldValue.Of(number);
+        }
+
+        var primitive = !token.IsAttribute && primitiveElement;
+        var common = primitive && (path is "PreInstall/Common/NumCoin" or "PreInstall/Common/PlayCount") &&
+            spec is IntegerSpec && initial.AsInteger() >= 0 && initial.AsInteger() <= int.MaxValue;
+        // A group-level scalar is unknown data, not a flag beneath that group.
+        var flag = primitive && spec is BoolSpec && (parent != "PreInstall" && group is ("Progress" or "World") ||
+            ((group is "Artifact" or "Puzzle" or "Prop") && (element.Name is "IsGot" or "IsCinematicsPlayed")));
+        if (common)
+        {
+            // A storage limit, not a claim about the game's accepted coin/play-count range.
+            spec = new IntegerSpec(0, int.MaxValue);
+        }
+
+        return new AstroField(element, token, path, group, spec, initial,
+            common ? Confidence.Verified : flag ? Confidence.Inferred : Confidence.Unknown, common || flag);
     }
 }
