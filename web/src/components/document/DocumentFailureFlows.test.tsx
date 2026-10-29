@@ -69,6 +69,33 @@ it.each(failures)("preserves edit drafts and history after $name, then retries o
 });
 
 describe.each(["undo", "redo"] as const)("%s failures", kind => {
+  it.each(["click", "shortcut"])("keeps focus at the document heading while disabling a focused history control (%s)", async initiation => {
+    const pending = deferred<Response>();
+    vi.stubGlobal("fetch", vi.fn().mockReturnValue(pending.promise));
+    const { toast } = await mount();
+    const button = screen.getByRole("button", { name: kind === "undo" ? "Undo" : "Redo" });
+    button.focus();
+    if (initiation === "click") fireEvent.click(button);
+    else fireEvent.keyDown(window, { key: "z", ctrlKey: true, shiftKey: kind === "redo" });
+    await waitFor(() => expect(button).toHaveProperty("disabled", true));
+    expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Save" }));
+    await act(async () => { pending.resolve(response({ error: "History unavailable; try again" }, 422)); });
+    await waitFor(() => expect(toast).toHaveBeenCalledWith("History unavailable; try again", true));
+    expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Save" }));
+  });
+
+  it("does not interrupt focus outside the history toolbar during a programmatic request", async () => {
+    const pending = deferred<Response>();
+    vi.stubGlobal("fetch", vi.fn().mockReturnValue(pending.promise));
+    const { toast, input } = await mount();
+    input.focus();
+    fireEvent.click(screen.getByRole("button", { name: kind === "undo" ? "Undo" : "Redo" }));
+    expect(document.activeElement).toBe(input);
+    await act(async () => { pending.resolve(response({ error: "History unavailable; try again" }, 422)); });
+    await waitFor(() => expect(toast).toHaveBeenCalledWith("History unavailable; try again", true));
+    expect(document.activeElement).toBe(input);
+  });
+
   it.each(failures)("retains local state through $name and explicit retry", async ({ fail, message }) => {
     const fetch = vi.fn().mockImplementationOnce(fail).mockResolvedValueOnce(response(accepted("3")));
     vi.stubGlobal("fetch", fetch);
