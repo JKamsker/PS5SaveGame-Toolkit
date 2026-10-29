@@ -9,7 +9,8 @@ namespace SaveToolkit.Plugins.UnrealGvas;
 internal sealed class UnrealGvasDocument : BoundSaveDocument
 {
     private const int PageSize = 100;
-    private const string EditWarning = "Serialized property name and type are verified. Game constraints and effects are unverified; keep a backup.";
+    private const string ConsoleWarning = "Not validated on console. The game may reject or overwrite the edited save.";
+    private const string EditWarning = ConsoleWarning + " Serialized property name and type are verified. Game constraints and effects are unverified; keep a backup.";
     internal const string UnknownIntegrityWarning = "Not validated on console. Checksum coverage is unproven; the game may reject or overwrite this edited save. Keep a backup.";
     private readonly string _path;
     private readonly GvasEnvelope _envelope;
@@ -79,7 +80,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
                 new TextNode($"Branch: {header.EngineBranch}. {_envelope.Label}."),
                 new TextNode($"Schema: {_schema.Name} ({_schema.Confidence}). {_schema.Evidence}") { Tone = _schema.IsTitleSchema ? Tone.Info : Tone.Muted },
                 .. ImageSetNotes(header.SaveClass),
-                new TextNode(_readOnlyReason ?? _integrityWarning ?? "Experimental. Embedded compressed payloads and unknown native structures are preserved read-only.") { Tone = Tone.Warning },
+                new TextNode(_readOnlyReason ?? _integrityWarning ?? (ConsoleWarning + " Experimental. Embedded compressed payloads and unknown native structures are preserved read-only.")) { Tone = Tone.Warning },
             ]),
             new Tab("Properties", [Lazy("Property tree", "tree", () => TreePage(file.Properties, 0, "tree"))]),
             new Tab("Search", [Lazy("Top-level primitive properties", "search", () => SearchPage(primitives, 0))]),
