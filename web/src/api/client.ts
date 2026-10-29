@@ -12,6 +12,8 @@ import type {
   ReferenceSortKey,
   ReferenceCandidate,
   ReferenceCandidatePage,
+  ReferenceRecordPair,
+  ReferenceRecordsResponse,
   SaveDocument,
   TitleInfo,
   ViewNode,
@@ -149,6 +151,8 @@ export const api = {
     request<ReferenceCandidatePage>(`${doc(wsId, docId)}/reference-fields/candidates?${referenceParams(query)}`),
   referenceCandidate: (wsId: string, docId: string, query: { valueId: string; rawId: string; actionId?: string; revision?: number }) =>
     request<ReferenceCandidate>(`${doc(wsId, docId)}/reference-fields/record?${referenceParams(query)}`),
+  referenceRecords: (wsId: string, docId: string, pairs: ReferenceRecordPair[], revision?: number, signal?: AbortSignal) =>
+    request<ReferenceRecordsResponse>(`${doc(wsId, docId)}/reference-fields/records`, { ...json({ pairs, revision }), signal }),
   referencePacks: () => request<ReferencePacks>("/reference-packs"),
   importReferencePack: (file: File) => {
     const form = new FormData();

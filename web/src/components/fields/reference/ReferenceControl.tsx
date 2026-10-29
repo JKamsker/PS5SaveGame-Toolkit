@@ -1,11 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { ReferenceCandidate, ReferenceSpec } from "../../../api/protocol";
-import { api, isStaleError } from "../../../api/client";
+import { isStaleError } from "../../../api/client";
+import { queueReferenceRecord } from "../../../api/referenceBatch";
 import { useDocument } from "../../../state/documentStore";
 import type { FieldControlProps } from "../FieldControl";
 import { ReferencePicker } from "./ReferencePicker";
 import "../../../styles/reference-picker.css";
+
+// One stale batch can affect an entire page. Share its recovery while the
+// document refresh is in flight, so cells do not enqueue a refetch each.
+const recoveries = new WeakMap<() => Promise<void>, Promise<void>>();
+function refreshLabels(refresh: () => Promise<void>) {
+  if (recoveries.has(refresh)) return;
+  const recovery = refresh().catch(() => {}).finally(() => recoveries.delete(refresh));
+  recoveries.set(refresh, recovery);
+}
 
 export function ReferenceControl(props: FieldControlProps & { spec: ReferenceSpec }) {
   const { id, valueId, actionId, value, spec, disabled, labelledBy, describedBy, compact } = props;
@@ -16,20 +26,22 @@ export function ReferenceControl(props: FieldControlProps & { spec: ReferenceSpe
   const trigger = useRef<HTMLButtonElement>(null);
   const wasOpen = useRef(false);
   const recoveryAttempted = useRef(false);
-  const revision = store.state.revision;
+  const revision = store.state.revision ?? 0;
 
   useEffect(() => {
     let active = true;
     setCurrent(undefined);
-    if (valueId) void api.referenceCandidate(workspaceId, documentId, { valueId, actionId, rawId, revision })
-      .then((candidate) => { if (active) { setCurrent(candidate); recoveryAttempted.current = false; } })
+    const lookup = valueId ? queueReferenceRecord(workspaceId, documentId, revision, structureVersion,
+      { fieldId: valueId, actionId, recordKey: rawId }) : undefined;
+    if (lookup) void lookup.result
+      .then((candidate) => { if (active && candidate) { setCurrent(candidate); recoveryAttempted.current = false; } })
       .catch((error: unknown) => {
         if (active && isStaleError(error) && !recoveryAttempted.current) {
           recoveryAttempted.current = true;
-          void refresh().catch(() => {});
+          refreshLabels(refresh);
         }
       });
-    return () => { active = false; };
+    return () => { active = false; lookup?.cancel(); };
   }, [workspaceId, documentId, valueId, actionId, rawId, revision, structureVersion, refresh]);
 
   useEffect(() => {
