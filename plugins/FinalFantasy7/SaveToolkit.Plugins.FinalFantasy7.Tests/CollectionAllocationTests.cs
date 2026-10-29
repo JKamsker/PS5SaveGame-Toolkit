@@ -67,6 +67,50 @@ public sealed class CollectionAllocationTests
         Assert.InRange(allocated, 1, budget);
     }
 
+    [Fact]
+    public void RestockPlanDoesNotRebuildTheSameAttributionForEveryStack()
+    {
+        using var document = new FinalFantasy7Plugin().Open(Input());
+        var planner = (SaveToolkit.Sdk.IActionPlanningDocument)document;
+        var parameters = new Dictionary<string, FieldValue> { ["quantity"] = FieldValue.Of(99L) };
+        _ = planner.PlanAction(InventoryPlanning.ActionId, parameters, new());
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        var plan = planner.PlanAction(InventoryPlanning.ActionId, parameters, new());
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        Assert.Empty(plan.Errors);
+        Assert.Equal(GameplayFields.InventoryCount, plan.Changes.Count);
+        Assert.Empty(plan.SkippedRows);
+        Assert.Equal(2, plan.Warnings.Count);
+        Assert.All(plan.Changes, change =>
+        {
+            Assert.Equal(1, change.OldValue.AsInt32());
+            Assert.Equal(99, change.NewValue.AsInt32());
+        });
+        Assert.InRange(allocated, 1, 2_000_000);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void PlannersKeepCanonicalKeysAndRejectMalformedOrOutOfRangeSelections(bool materia)
+    {
+        using var document = new FinalFantasy7Plugin().Open(Input());
+        var planner = (SaveToolkit.Sdk.IActionPlanningDocument)document;
+        var prefix = materia ? "materia/" : "inventory/";
+        string[] invalid = ["", "00", "01", "+1", "-0", "1\0", "1/", "1.0", " 1", "1 ", "1\n", "١", "9999999", "1000000000000"];
+        var invalidKeys = invalid.Select(suffix => prefix + suffix).Append("other/1").ToArray();
+        var parameters = materia
+            ? new Dictionary<string, FieldValue> { ["type"] = FieldValue.Of("10020"), ["ap"] = FieldValue.Of(10L) }
+            : new Dictionary<string, FieldValue> { ["quantity"] = FieldValue.Of(99L) };
+        var plan = planner.PlanAction(materia ? MateriaPlanning.ActionId : InventoryPlanning.ActionId, parameters,
+            new() { RowKeys = [prefix + "1", .. invalidKeys, prefix + "0", prefix + "1"] });
+        Assert.Empty(plan.Errors);
+        Assert.Equal([prefix + "0/" + (materia ? "ap" : "quantity"), prefix + "1/" + (materia ? "ap" : "quantity")],
+            plan.Changes.Select(change => change.ValueId));
+        Assert.Equal(invalidKeys.Order(StringComparer.Ordinal), plan.SkippedRows.Select(row => row.RowKey));
+        Assert.All(plan.SkippedRows, row => Assert.Equal(materia ? "Not a current materia slot." : "Not a current inventory slot.", row.Reason));
+    }
+
     private static SaveToolkit.Sdk.Saves.ISaveFile Input()
     {
         const string title = "PPSA08664";

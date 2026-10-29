@@ -16,6 +16,7 @@ internal sealed class ReferenceData(IReferenceContext context, Ff7Schema schema)
     private readonly Dictionary<string, IReadOnlyList<ReferenceRecord>> _catalogs = new(StringComparer.Ordinal);
     private readonly Dictionary<string, IReadOnlyDictionary<uint, ReferenceRecord>> _byId = new(StringComparer.Ordinal);
     private readonly Dictionary<(bool Materia, uint Id), string> _descriptions = new();
+    private readonly Dictionary<(string Catalog, uint Id), string> _sources = new();
 
     public string Item(uint id) => Record("ff7r-items", id)?.Name ?? Ff7Catalog.Item(schema, id);
     public string Materia(uint id) => Record("ff7r-materia", id)?.Name ?? Ff7Catalog.Materia(schema, id);
@@ -26,7 +27,15 @@ internal sealed class ReferenceData(IReferenceContext context, Ff7Schema schema)
     public string CharacterSource(int index) => context.Catalog("ff7r-characters", schema.Name)?
         .Find(index.ToString(CultureInfo.InvariantCulture))?.AttributionText ?? EmbeddedCatalogs.Attribution;
 
-    public string Source(string catalogId, uint id) => Record(catalogId, id)?.AttributionText ?? EmbeddedCatalogs.Attribution;
+    public string Source(string catalogId, uint id)
+    {
+        if (_sources.TryGetValue((catalogId, id), out var source)) return source;
+        var record = Record(catalogId, id);
+        if (record is null) return EmbeddedCatalogs.Attribution;
+        source = record.AttributionText;
+        _sources.Add((catalogId, id), source);
+        return source;
+    }
 
     public ReferenceRecord? Record(string catalogId, uint id)
     {
@@ -64,7 +73,8 @@ internal sealed class ReferenceData(IReferenceContext context, Ff7Schema schema)
     {
         if (_descriptions.TryGetValue((materia, id), out var description)) return description;
         var record = Record(materia ? "ff7r-materia" : "ff7r-items", id);
-        description = record is null ? "Unknown type; raw bytes are preserved." : $"{record.Description} {record.AttributionText}";
+        description = record is null ? "Unknown type; raw bytes are preserved." :
+            $"{record.Description} {Source(materia ? "ff7r-materia" : "ff7r-items", id)}";
         _descriptions.Add((materia, id), description);
         return description;
     }

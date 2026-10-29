@@ -81,9 +81,7 @@ internal sealed class MateriaPlanning(Ff7Schema schema, GameplayFields gameplay,
         var skipped = new List<SkippedActionRow>();
         foreach (var key in keys.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
-            var parts = key.Split('/');
-            if (parts.Length != 2 || parts[0] != "materia" || !int.TryParse(parts[1], NumberStyles.None,
-                CultureInfo.InvariantCulture, out var slot) || slot < 0 || slot >= GameplayFields.MateriaCount || key != $"materia/{slot}")
+            if (!ActionSlotKeys.TryParse(key, ActionSlotKeys.MateriaPrefix, GameplayFields.MateriaCount, out var slot))
             {
                 skipped.Add(new(key, "Not a current materia slot."));
                 continue;

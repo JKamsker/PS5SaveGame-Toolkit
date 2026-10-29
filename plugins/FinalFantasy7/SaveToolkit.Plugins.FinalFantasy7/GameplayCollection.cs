@@ -98,8 +98,9 @@ internal sealed class GameplayCollection : ICollectionProjection
         var cells = row.Cells.ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         cells["category"] = new TextNode(Text(slot, "category")!);
         cells["description"] = new TextNode(Text(slot, "description")!);
+        var type = _gameplay.TypeId(_materia, slot);
         cells["details"] = row.IsEmpty ? cells["description"] :
-            DocumentCollections.Details(_references.Record(_catalog, _gameplay.TypeId(_materia, slot)));
+            DocumentCollections.Details(_references.Record(_catalog, type), _references.Source(_catalog, type));
         return row with { Cells = cells };
     }
 }
