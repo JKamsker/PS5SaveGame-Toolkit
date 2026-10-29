@@ -31,9 +31,7 @@ internal sealed class RagnarokWrites
             "Continue? PC reader (Alexsander720, GPL-3.0), revision 51e19b2a: " +
             "https://github.com/Alexsander720/continue/blob/51e19b2a292c60f9acdf3c13c561809657104ea2/plugin/py_modules/ddsaves/god_of_war_ragnarok.py; " +
             "PS5 word and units inferred from the supplied corpus.", Resource: false));
-        var wallets = index.Nested.Wallets.Count > 0 ? index.Nested.Wallets :
-            [new RagnarokWallet(RagnarokFormat.HeroWalletId, index.WalletOffset, index.WalletCount, 0, 0)];
-        foreach (var wallet in wallets)
+        foreach (var wallet in index.GetResourceWallets())
         {
             var occurrences = new Dictionary<ulong, int>();
             for (var row = 0; row < wallet.ResourceCount; row++)

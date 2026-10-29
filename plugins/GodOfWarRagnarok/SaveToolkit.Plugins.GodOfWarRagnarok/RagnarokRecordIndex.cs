@@ -22,6 +22,10 @@ internal sealed class RagnarokRecordIndex
     public RagnarokGrammarEvidence Evidence { get; private set; } = new([], [], [], []);
     public RagnarokNestedRecords Nested { get; private init; } = RagnarokNestedRecords.Empty;
 
+    // Legacy consumers expose hero resources without claiming any nested container framing.
+    public IReadOnlyList<RagnarokWallet> GetResourceWallets() => Nested.Wallets.Count > 0 ? Nested.Wallets :
+        [new RagnarokWallet(RagnarokFormat.HeroWalletId, WalletOffset, WalletCount, 0, 0)];
+
     public static RagnarokRecordIndex Parse(ReadOnlySpan<byte> bytes, bool preferences)
     {
         if (!RagnarokFormat.MatchesHeader(bytes, bytes.Length, preferences))

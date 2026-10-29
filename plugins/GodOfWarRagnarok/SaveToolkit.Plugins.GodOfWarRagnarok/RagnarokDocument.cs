@@ -92,6 +92,13 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
             return [RagnarokIntegrityView.Build(bytes, index)];
         }
 
+        if (ExpandRawNode(lazyId) is { } raw) return raw;
+        if (!index.Preferences && ExpandRecordNode(lazyId) is { } records) return records;
+        throw new KeyNotFoundException($"Unknown lazy node '{lazyId}'.");
+    }
+
+    private IReadOnlyList<ViewNode>? ExpandRawNode(string lazyId)
+    {
         if (lazyId == "raw")
         {
             return Enumerable.Range(0, (bytes.Length + RawGroupSize - 1) / RawGroupSize)
@@ -112,26 +119,28 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
             return [RagnarokTables.Words(this, start, Math.Min(PageSize, bytes.Length - start), index.Preferences)];
         }
 
-        if (!index.Preferences)
-        {
-            foreach (var (kind, count) in new[] { ("directory", index.DirectoryCount), ("secondary", index.SecondaryCount),
-                ("wallet", index.WalletCount), ("anchors", index.Occurrences.Count) })
-            {
-                if (lazyId == kind)
-                {
-                    return Enumerable.Range(0, (count + RowsPerPage - 1) / RowsPerPage)
-                        .Select(page => (ViewNode)SectionNode.Lazy($"Rows {page * RowsPerPage}–{Math.Min(count, (page + 1) * RowsPerPage) - 1}", $"{kind}/{page}"))
-                        .ToArray();
-                }
+        return null;
+    }
 
-                if (TryPage(lazyId, kind, (count + RowsPerPage - 1) / RowsPerPage, out var page))
-                {
-                    return [RagnarokTables.Records(this, index, references, kind, page * RowsPerPage, Math.Min(RowsPerPage, count - page * RowsPerPage))];
-                }
+    private IReadOnlyList<ViewNode>? ExpandRecordNode(string lazyId)
+    {
+        foreach (var (kind, count) in new[] { ("directory", index.DirectoryCount), ("secondary", index.SecondaryCount),
+            ("wallet", index.WalletCount), ("anchors", index.Occurrences.Count) })
+        {
+            if (lazyId == kind)
+            {
+                return Enumerable.Range(0, (count + RowsPerPage - 1) / RowsPerPage)
+                    .Select(page => (ViewNode)SectionNode.Lazy($"Rows {page * RowsPerPage}–{Math.Min(count, (page + 1) * RowsPerPage) - 1}", $"{kind}/{page}"))
+                    .ToArray();
+            }
+
+            if (TryPage(lazyId, kind, (count + RowsPerPage - 1) / RowsPerPage, out var page))
+            {
+                return [RagnarokTables.Records(this, index, references, kind, page * RowsPerPage, Math.Min(RowsPerPage, count - page * RowsPerPage))];
             }
         }
 
-        throw new KeyNotFoundException($"Unknown lazy node '{lazyId}'.");
+        return null;
     }
 
     public override IReadOnlyList<FileOutput> Serialize()
