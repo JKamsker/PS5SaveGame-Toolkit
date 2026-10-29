@@ -10,6 +10,18 @@ import { ActionButton } from "../document/ActionButton";
 afterEach(cleanup);
 
 describe("failed edit drafts", () => {
+  it("retains a rejected stepped value for explicit retry", async () => {
+    const commit = vi.fn(async () => false);
+    render(<FieldControl id="field" spec={{ kind: "integer", min: "0", max: "99" }} value="2" onCommit={commit} />);
+    const input = screen.getByRole<HTMLInputElement>("textbox");
+    fireEvent.keyDown(input, { key: "ArrowUp" });
+    await waitFor(() => expect(input.getAttribute("aria-invalid")).toBe("true"));
+    expect(input.value).toBe("3");
+    fireEvent.keyDown(input, { key: "Enter" });
+    await waitFor(() => expect(commit).toHaveBeenCalledTimes(2));
+    expect(commit.mock.calls).toEqual([["3"], ["3"]]);
+  });
+
   it("keeps a rejected draft and its error when a refreshed snapshot replaces an equivalent spec", async () => {
     const commit = vi.fn(async () => false);
     const spec = { kind: "integer" as const, min: "0", max: "99" };

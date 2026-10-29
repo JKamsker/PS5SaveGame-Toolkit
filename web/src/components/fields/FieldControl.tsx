@@ -115,12 +115,14 @@ function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labe
     onLocalError?.(undefined);
   };
 
-  const step = (delta: bigint) => {
+  const step = async (delta: bigint) => {
     const parsed = parseDraft(spec, draft);
     if (!parsed.ok || spec.kind !== "integer") return;
     const next = BigInt(String(parsed.value)) + delta;
     if (next < BigInt(spec.min) || next > BigInt(spec.max)) return;
-    void onCommit(next.toString());
+    setDraft(next.toString());
+    onLocalError?.(undefined);
+    setInvalid(!(await onCommit(next.toString())));
   };
 
   const className = ["input", spec.kind === "integer" || spec.kind === "float" || spec.kind === "exactNumber" ? "input--number" : "", compact ? "input--compact" : "", invalid ? "input--invalid" : ""]

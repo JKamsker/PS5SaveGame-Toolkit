@@ -79,9 +79,11 @@ it("distinguishes integer stepper buttons by field and retains keyboard stepping
   fireEvent.click(increase);
   expect(commit).toHaveBeenCalledWith("level", "3");
   const input = screen.getByRole("textbox", { name: "Item count" });
+  // Stepping retains the requested draft while this fixture's server value remains unchanged.
+  expect(input).toHaveProperty("value", "1");
   input.focus();
   fireEvent.keyDown(input, { key: "ArrowUp" });
-  expect(commit).toHaveBeenLastCalledWith("count", "3");
+  expect(commit).toHaveBeenLastCalledWith("count", "2");
 });
 
 describe("field supporting text", () => {
