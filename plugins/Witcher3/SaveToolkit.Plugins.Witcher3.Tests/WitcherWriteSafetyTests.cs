@@ -7,6 +7,23 @@ namespace SaveToolkit.Plugins.Witcher3.Tests;
 
 public sealed class WitcherWriteSafetyTests
 {
+    [Fact]
+    public void WriteWarningsStateConsoleRiskAndRetainFormatSpecificQualifications()
+    {
+        const string consoleRisk = "Not validated on console. The game may reject or overwrite the edited save.";
+        Assert.StartsWith(consoleRisk, WriteFields.ConsoleWarning, StringComparison.Ordinal);
+        Assert.Contains("The game may rebuild dependent state.", WriteFields.ConsoleWarning, StringComparison.Ordinal);
+        Assert.All(new[] { WriteFields.DurabilityWarning, WriteFields.SkillWarning, WriteFields.GwentWarning,
+            RepairPlanning.Action.Description!, RefillPlanning.Action.Description! },
+            warning => Assert.StartsWith(consoleRisk, warning, StringComparison.Ordinal));
+        Assert.Contains("The -1 sentinel is preserved.", WriteFields.DurabilityWarning, StringComparison.Ordinal);
+        Assert.Contains("not a proven PS5 limit", WriteFields.DurabilityWarning, StringComparison.Ordinal);
+        Assert.Contains("not an in-game purchase or respec", WriteFields.SkillWarning, StringComparison.Ordinal);
+        Assert.Contains("decreasing a count may invalidate a deck", WriteFields.GwentWarning, StringComparison.Ordinal);
+        Assert.Contains("not a proven legal cap", WriteFields.GwentWarning, StringComparison.Ordinal);
+        Assert.Contains("only up to their imported quantity", RefillPlanning.Action.Description!, StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

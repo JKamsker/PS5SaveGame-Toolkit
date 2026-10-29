@@ -19,7 +19,7 @@ internal sealed class WriteFields(FieldBinding bind)
     };
     private const string ConverterSource = "Source: cahian, MIT, https://github.com/cahian/witcher3-remastered-to-nextgen-save-converter/tree/7ae8b6fe71c4b36e571246ad25629d03c7ec8219/w3save . ";
     private const string GwentSource = "Source: Vishal Gupta / rfvgyhn, MIT, https://github.com/vishalgupta-git/GwentTracker/blob/d8eab8c25c409be42a0ea7b43b901a43dfefed18/src/lib/save/parse.ts . ";
-    public const string ConsoleWarning = "Not validated on console. The game may reject the edited save or rebuild dependent state.";
+    public const string ConsoleWarning = "Not validated on console. The game may reject or overwrite the edited save. The game may rebuild dependent state.";
     public const string DurabilityWarning = ConsoleWarning + " Float32 at native item +19; 0..100 is a conservative range, not a proven PS5 limit. " +
         "Repair changes stored durability only; Crowns and repair achievements are not changed. The -1 sentinel is preserved.";
     public const string SkillWarning = ConsoleWarning + " Changes the stored rank only. Costs, path spending, prerequisites, " +
