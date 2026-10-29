@@ -78,7 +78,10 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
         if (duplicates.Length > 0) { return new EditOutcome { Errors = duplicates }; }
 
         var outcome = base.ApplyEdits(edits);
-        return outcome with { StructureChanged = outcome.Succeeded && outcome.Changes.Any(c => c.ValueId.StartsWith("abilities/skills/", StringComparison.Ordinal)) };
+        return outcome with {
+            StructureChanged = outcome.Succeeded && outcome.Changes.Any(c => c.ValueId.StartsWith("abilities/skills/", StringComparison.Ordinal)),
+            Warnings = outcome.Succeeded && outcome.Changes.Count > 0 ? [.. outcome.Warnings, WriteFields.ConsoleWarning] : outcome.Warnings,
+        };
     }
 
     public override ViewNode BuildView()
