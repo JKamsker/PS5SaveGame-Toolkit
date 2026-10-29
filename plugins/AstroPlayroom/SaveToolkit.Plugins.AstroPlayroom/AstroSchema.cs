@@ -66,14 +66,21 @@ internal sealed class AstroSchema
 
 internal sealed record AstroCollectionRecord(string Group, AstroElement Element, IReadOnlyList<AstroField> Fields)
 {
-    public AstroField? Ownership => Flag("IsGot");
-    public AstroField? Cinematic => Flag("IsCinematicsPlayed");
+    // Structure never changes in this writer; only the values behind these fields can change.
+    public string Key { get; } = $"{Group}/{Element.Name}";
+    public AstroField? Ownership { get; } = Flag(Fields, "IsGot");
+    public AstroField? Cinematic { get; } = Flag(Fields, "IsCinematicsPlayed");
 
-    private AstroField? Flag(string name)
+    private static AstroField? Flag(IReadOnlyList<AstroField> fields, string name)
     {
-        var candidates = Fields.Where(f => f.Element.Name == name).ToArray();
-        return candidates.Length == 1 && candidates[0].Spec is SaveToolkit.Sdk.Values.BoolSpec &&
-            !candidates[0].Token.IsAttribute && candidates[0].Element.Children.Count == 0 &&
-            candidates[0].Element.Values.Count == 1 ? candidates[0] : null;
+        AstroField? candidate = null;
+        foreach (var field in fields)
+        {
+            if (field.Element.Name != name) continue;
+            if (candidate is not null) return null;
+            candidate = field;
+        }
+        return candidate?.Spec is SaveToolkit.Sdk.Values.BoolSpec && !candidate.Token.IsAttribute &&
+            candidate.Element.Children.Count == 0 && candidate.Element.Values.Count == 1 ? candidate : null;
     }
 }
