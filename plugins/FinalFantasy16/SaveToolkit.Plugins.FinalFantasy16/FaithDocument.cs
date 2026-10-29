@@ -35,7 +35,7 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
         _explorer = new FaithExplorer(bytes, container);
         _references = references;
         _catalog = new FaithCatalog(references);
-        _context = new FaithCharacterContext(bytes, container, schema, references);
+        _context = new FaithCharacterContext(bytes, container, schema, references, _catalog);
         _writes = new FaithWriteMap(bytes, container, schema, _inventory);
         // Register primary storage bindings independently of paging. F6/undo can address unloaded
         // rows, and the original document can resolve their values without building eager tables.
