@@ -23,6 +23,8 @@ export function WorkspacePage() {
   const notify = useCallback((text: string, isError = false) => setToast({ text, isError, at: Date.now() }), []);
 
   const close = async () => {
+    const hasEdits = workspace.data?.documents.some(document => document.isDirty);
+    if (hasEdits && !window.confirm("Discard the edits in this dump and close it? Export a zip first if you want to keep them.")) return;
     setClosing(true);
     try {
       await api.deleteWorkspace(workspaceId);

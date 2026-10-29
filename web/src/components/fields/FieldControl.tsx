@@ -16,6 +16,8 @@ export interface FieldControlProps {
   /** Reports local validation problems while typing. */
   onLocalError?: (message: string | undefined) => void;
   labelledBy?: string;
+  /** IDs of help, warnings and validation feedback belonging to this editor. */
+  describedBy?: string;
   /** Published binding used for field-specific candidate queries (not the DOM id). */
   valueId?: string;
   actionId?: string;
@@ -44,7 +46,7 @@ export function FieldControl(props: FieldControlProps) {
   }
 }
 
-function BoolControl({ id, value, onCommit, labelledBy }: FieldControlProps) {
+function BoolControl({ id, value, onCommit, labelledBy, describedBy }: FieldControlProps) {
   const checked = value === true;
   return (
     <button
@@ -53,17 +55,18 @@ function BoolControl({ id, value, onCommit, labelledBy }: FieldControlProps) {
       role="switch"
       aria-checked={checked}
       aria-labelledby={labelledBy}
+      aria-describedby={describedBy}
       className="switch"
       onClick={() => void onCommit(!checked)}
     />
   );
 }
 
-function FlagsControl({ id, spec, value, onCommit }: FieldControlProps & { spec: Extract<FieldSpec, { kind: "flags" }> }) {
+function FlagsControl({ id, spec, value, onCommit, labelledBy, describedBy }: FieldControlProps & { spec: Extract<FieldSpec, { kind: "flags" }> }) {
   const bits = value === null ? 0n : BigInt(String(value));
   const toggle = (bit: number) => void onCommit((bits ^ (1n << BigInt(bit))).toString());
   return (
-    <div className="flags" id={id} role="group">
+    <div className="flags" id={id} role="group" aria-labelledby={labelledBy} aria-describedby={describedBy}>
       {spec.bits.map((b) => (
         <label key={b.bit} title={b.description}>
           <input type="checkbox" checked={(bits & (1n << BigInt(b.bit))) !== 0n} onChange={() => toggle(b.bit)} />
@@ -75,7 +78,7 @@ function FlagsControl({ id, spec, value, onCommit }: FieldControlProps & { spec:
 }
 
 /** Integer, float, text and datetime: typed draft, commit on Enter or blur, Escape reverts. */
-function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labelledBy }: FieldControlProps) {
+function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labelledBy, describedBy }: FieldControlProps) {
   const [draft, setDraft] = useState(() => String(toDraft(spec, value)));
   const [invalid, setInvalid] = useState(false);
   useEffect(() => {
@@ -119,6 +122,7 @@ function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labe
     className,
     value: draft,
     "aria-labelledby": labelledBy,
+    "aria-describedby": [describedBy, spec.unit && !(spec.kind === "text" && spec.multiline) && `${id}-unit`].filter(Boolean).join(" ") || undefined,
     "aria-invalid": invalid,
     onChange: (e: { target: { value: string } }) => setDraft(e.target.value),
     onBlur: () => void commit(),
@@ -138,7 +142,11 @@ function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labe
         spellCheck={spec.kind === "text"}
         className={`${className}${spec.kind === "integer" && spec.format === "Hex" ? " mono" : ""}`}
         onKeyDown={(e) => {
-          if (e.key === "Enter") void commit();
+          if (e.key === "Enter") {
+            // Enter commits this draft; action forms must not submit a previous value implicitly.
+            e.preventDefault();
+            void commit();
+          }
           if (e.key === "Escape") revert();
           if (spec.kind === "integer" && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
             e.preventDefault();
@@ -156,7 +164,7 @@ function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labe
           </button>
         </span>
       )}
-      {spec.unit && <span className="field__hint">{spec.unit}</span>}
+      {spec.unit && <span id={`${id}-unit`} className="field__hint">{spec.unit}</span>}
     </div>
   );
 }

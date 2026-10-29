@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import type { ActionNode, FieldValue } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
 import { PlannedActionButton } from "./review/PlannedActionButton";
@@ -25,9 +25,11 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   // Unique per instance: the same action may be rendered in several table rows and the detail row.
   const idPrefix = useId();
-  const parameters = node.parameters ?? [];
+  const parameters = useMemo(() => (node.parameters ?? []).map(parameter => ({
+    ...parameter, spec: { ...parameter.spec, readOnly: false },
+  })), [node.parameters]);
   const [values, setValues] = useState<Record<string, FieldValue>>(() => Object.fromEntries(parameters.map((p) => [p.valueId, p.value])));
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const [boundTo, setBoundTo] = useState(node);
   if (boundTo !== node) {
     // A structural change rebuilt the view: defaults may reference records that no longer exist.
@@ -36,9 +38,11 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
     setErrors({});
   }
   const [busy, setBusy] = useState(false);
+  const invalid = parameters.some(parameter => Boolean(errors[parameter.valueId]));
   const needsDialog = parameters.length > 0 || Boolean(node.confirm);
 
   const run = async () => {
+    if (busy || invalid) return;
     setBusy(true);
     try {
       const result = await runAction(node.actionId, values);
@@ -82,22 +86,26 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
               {node.confirm && <p className="notice notice--Warning">{node.confirm}</p>}
               {parameters.map((p) => (
                 <div className="field" key={p.valueId}>
-                  <label className="field__label" htmlFor={`${idPrefix}-${p.valueId}`}>
+                  <label className="field__label" id={`${idPrefix}-${p.valueId}-label`} htmlFor={`${idPrefix}-${p.valueId}`}>
                     {p.label}
                   </label>
                   <FieldControl
                     id={`${idPrefix}-${p.valueId}`}
+                    labelledBy={`${idPrefix}-${p.valueId}-label`}
+                    describedBy={[errors[p.valueId] && `${idPrefix}-${p.valueId}-error`, p.description && `${idPrefix}-${p.valueId}-description`].filter(Boolean).join(" ") || undefined}
                     valueId={p.valueId}
                     actionId={node.actionId}
-                    spec={{ ...p.spec, readOnly: false }}
+                    spec={p.spec}
                     value={Object.hasOwn(values, p.valueId) ? values[p.valueId]! : p.value}
+                    disabled={busy}
+                    onLocalError={message => setErrors(previous => ({ ...previous, [p.valueId]: message }))}
                     onCommit={(v) => {
                       setValues((prev) => ({ ...prev, [p.valueId]: v }));
                       return true;
                     }}
                   />
-                  {errors[p.valueId] && <span className="field__error">{errors[p.valueId]}</span>}
-                  {p.description && <span className="field__description">{p.description}</span>}
+                  {errors[p.valueId] && <span id={`${idPrefix}-${p.valueId}-error`} className="field__error" role="alert">{errors[p.valueId]}</span>}
+                  {p.description && <span id={`${idPrefix}-${p.valueId}-description`} className="field__description">{p.description}</span>}
                 </div>
               ))}
               {errors[node.actionId] && <p className="notice notice--Danger">{errors[node.actionId]}</p>}
@@ -106,7 +114,7 @@ function LegacyActionButton({ node, compact, ariaLabel }: ActionButtonProps) {
               <button type="button" className="btn btn--quiet" onClick={() => dialog.current?.close()}>
                 Cancel
               </button>
-              <button type="submit" className={`btn ${node.tone === "Danger" ? "btn--danger" : "btn--primary"}`} disabled={busy}>
+              <button type="submit" className={`btn ${node.tone === "Danger" ? "btn--danger" : "btn--primary"}`} disabled={busy || invalid}>
                 {node.label}
               </button>
             </div>

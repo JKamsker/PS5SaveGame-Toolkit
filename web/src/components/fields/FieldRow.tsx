@@ -16,6 +16,8 @@ export function FieldRow({ node }: { node: FieldNode }) {
   const shownError = localError ?? error;
   const duration = node.spec.kind === "integer" || node.spec.kind === "float" ? describeDuration(node.spec, value) : null;
   const rangeHint = node.spec.kind === "integer" && !node.spec.readOnly && canEdit && node.spec.format !== "Duration" ? describeRange(node.spec) : null;
+  const describedBy = [shownError && `${id}-error`, node.warning && `${id}-warning`, duration && `${id}-duration`,
+    node.description ? `${id}-description` : rangeHint && `${id}-range`].filter(Boolean).join(" ") || undefined;
 
   return (
     <div className={`field${modified ? " field--modified" : ""}${shownError ? " field--error" : ""}`}>
@@ -30,17 +32,18 @@ export function FieldRow({ node }: { node: FieldNode }) {
         id={id}
         valueId={node.valueId}
         labelledBy={labelId}
+        describedBy={describedBy}
         spec={node.spec}
         value={value}
         disabled={!canEdit}
         onCommit={commit}
         onLocalError={setLocalError}
       />
-      {shownError && <span className="field__error" role="alert">{shownError}</span>}
-      {node.warning && <span className="field__warning">{node.warning}</span>}
-      {duration && <span className="field__hint">{duration}</span>}
-      {node.description && <span className="field__description">{node.description}</span>}
-      {!node.description && rangeHint && <span className="field__hint">Range {rangeHint}</span>}
+      {shownError && <span id={`${id}-error`} className="field__error" role="alert">{shownError}</span>}
+      {node.warning && <span id={`${id}-warning`} className="field__warning">{node.warning}</span>}
+      {duration && <span id={`${id}-duration`} className="field__hint">{duration}</span>}
+      {node.description && <span id={`${id}-description`} className="field__description">{node.description}</span>}
+      {!node.description && rangeHint && <span id={`${id}-range`} className="field__hint">Range {rangeHint}</span>}
     </div>
   );
 }

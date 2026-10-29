@@ -30,12 +30,15 @@ function initialValue(spec: FieldSpec): FieldValue | undefined {
 }
 
 export function NullableControl(props: Props & { spec: Extract<FieldSpec, { kind: "nullable" }> }) {
-  const { id, spec, value, onCommit, labelledBy, renderInner, onLocalError } = props;
+  const { id, spec, value, onCommit, labelledBy, describedBy, renderInner, onLocalError } = props;
   const remembered = useRef<FieldValue | undefined>(value === null ? undefined : value);
   useEffect(() => { if (value !== null) remembered.current = value; }, [value]);
   return (
     <div className="variant-control">
-      <select id={id} className="input" aria-label="Null or value" aria-describedby={labelledBy}
+      <span id={`${id}-type-label`} className="visually-hidden">Null or value</span>
+      <select id={id} className="input" aria-label={labelledBy ? undefined : "Null or value"}
+        aria-labelledby={labelledBy ? `${labelledBy} ${id}-type-label` : undefined}
+        aria-describedby={describedBy}
         value={value === null ? "null" : "value"} onChange={(e) => {
           onLocalError?.(undefined);
           const next = e.target.value === "null" ? null : remembered.current ?? initialValue(spec.inner);
@@ -51,7 +54,7 @@ export function NullableControl(props: Props & { spec: Extract<FieldSpec, { kind
 }
 
 export function UnionControl(props: Props & { spec: Extract<FieldSpec, { kind: "union" }> }) {
-  const { id, spec, value, onCommit, labelledBy, renderInner, onLocalError } = props;
+  const { id, spec, value, onCommit, labelledBy, describedBy, renderInner, onLocalError } = props;
   const union = value !== null && typeof value === "object" && value.kind === "union" ? value : undefined;
   const option = spec.options.find((o) => o.id === union?.type);
   // Keep each type's last value while switching; never parse one type as another implicitly.
@@ -59,7 +62,10 @@ export function UnionControl(props: Props & { spec: Extract<FieldSpec, { kind: "
   useEffect(() => { if (union) remembered.current.set(union.type, union.value); }, [union]);
   return (
     <div className="variant-control">
-      <select id={id} className="input" aria-label="Value type" aria-describedby={labelledBy}
+      <span id={`${id}-type-label`} className="visually-hidden">Value type</span>
+      <select id={id} className="input" aria-label={labelledBy ? undefined : "Value type"}
+        aria-labelledby={labelledBy ? `${labelledBy} ${id}-type-label` : undefined}
+        aria-describedby={describedBy}
         value={union?.type ?? ""} onChange={(e) => {
           const selected = spec.options.find((o) => o.id === e.target.value);
           if (!selected) return;
