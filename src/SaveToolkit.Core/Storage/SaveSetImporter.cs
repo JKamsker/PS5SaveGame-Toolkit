@@ -35,15 +35,22 @@ public static partial class SaveSetImporter
     private static readonly Encoding LegacyZipEncoding = CodePagesEncodingProvider.Instance.GetEncoding(437)!;
 
     public static DiskSaveSet Import(IEnumerable<ImportSource> sources, string storageRoot, ImportLimits? limits = null)
+        => Import(sources, storageRoot, limits, CancellationToken.None);
+
+    /// <summary>Copies and validates all inputs before publication; cancellation rolls back newly created blobs.</summary>
+    public static DiskSaveSet Import(IEnumerable<ImportSource> sources, string storageRoot, ImportLimits? limits,
+        CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         limits ??= new ImportLimits();
         System.IO.Directory.CreateDirectory(storageRoot);
-        using var builder = new Builder(storageRoot, limits);
+        using var builder = new Builder(storageRoot, limits, cancellationToken);
         foreach (var source in sources)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (source.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
             {
-                ImportArchive(source, builder);
+                ImportArchive(source, builder, cancellationToken);
             }
             else
             {
@@ -53,21 +60,24 @@ public static partial class SaveSetImporter
         }
 
         var set = builder.Build();
+        cancellationToken.ThrowIfCancellationRequested();
         builder.Commit();
         return set;
     }
 
-    private static void ImportArchive(ImportSource source, Builder builder)
+    private static void ImportArchive(ImportSource source, Builder builder, CancellationToken cancellationToken)
     {
         try
         {
-            using var stream = source.Open();
+            using var stream = new ImportReadStream(source.Open(), cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
             // ASP.NET's bounded upload stream throws on negative seeks, unlike MemoryStream.
             if (stream.CanSeek && stream.Length - stream.Position < MinimumZipBytes)
                 throw new InvalidDataException("The ZIP file is empty or truncated (missing end-of-central-directory record).");
             using var zip = new ZipArchive(stream, ZipArchiveMode.Read, leaveOpen: false, entryNameEncoding: LegacyZipEncoding);
             foreach (var entry in zip.Entries)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (entry.FullName.EndsWith('/') || entry.FullName.EndsWith('\\')) continue;
                 try
                 {
@@ -132,7 +142,7 @@ public static partial class SaveSetImporter
     [GeneratedRegex("^[A-Z]{4}[0-9]{5}$", RegexOptions.IgnoreCase)]
     private static partial Regex TitleIdRegex();
 
-    private sealed class Builder(string storageRoot, ImportLimits limits) : IDisposable
+    private sealed class Builder(string storageRoot, ImportLimits limits, CancellationToken cancellationToken) : IDisposable
     {
         private const int CopyBufferSize = 81920;
         private readonly Dictionary<string, int> _occurrences = new(StringComparer.OrdinalIgnoreCase);
@@ -167,12 +177,11 @@ public static partial class SaveSetImporter
 
         public void Add(string archivePath, Stream content, long? expectedLength = null, uint? expectedCrc32 = null)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (IsMetadataPath(PathSegments(archivePath))) return;
             var parsed = ParsePath(archivePath);
             if (parsed is null)
-            {
                 throw new ImportException($"Cannot import file '{archivePath}': unsupported or invalid path (maximum name length: 255 characters).");
-            }
 
             var directoryKey = $"{parsed.TitleId}/{parsed.RawDirectory}";
             if (_directoryNames.TryGetValue(directoryKey, out var rawDirectory))
@@ -181,9 +190,7 @@ public static partial class SaveSetImporter
                 _directoryNames.Add(directoryKey, parsed.RawDirectory);
 
             if (_files.Count >= limits.MaxEntries)
-            {
                 throw new ImportException($"Too many files (limit {limits.MaxEntries}).");
-            }
 
             var key = $"{parsed.TitleId}/{parsed.RawDirectory}/{parsed.PathInDirectory}";
             var generation = _occurrences.GetValueOrDefault(key);
@@ -210,19 +217,18 @@ public static partial class SaveSetImporter
             _createdBlobs.Add(blobPath);
             var buffer = _copyBuffer ??= ArrayPool<byte>.Shared.Rent(CopyBufferSize);
             long length = 0;
-            int read;
-            while ((read = content.Read(buffer.AsSpan(0, CopyBufferSize))) > 0)
+            while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+                int read = content.Read(buffer.AsSpan(0, CopyBufferSize));
+                cancellationToken.ThrowIfCancellationRequested();
+                if (read == 0) break;
                 length += read;
                 _totalBytes += read;
                 if (expectedLength is { } expected && length > expected)
-                {
                     throw new InvalidDataException($"Decompressed data exceeds the declared length of {expected} bytes.");
-                }
                 if (_totalBytes > limits.MaxTotalBytes)
-                {
                     throw new ImportException($"Upload exceeds {limits.MaxTotalBytes / (1024 * 1024)} MiB.");
-                }
 
                 output.Write(buffer, 0, read);
                 hash.AppendData(buffer, 0, read);
@@ -230,9 +236,7 @@ public static partial class SaveSetImporter
             }
 
             if (expectedLength is { } declared && length != declared)
-            {
                 throw new InvalidDataException($"Truncated entry: expected {declared} bytes but read {length}.");
-            }
             if (expectedCrc32 is { } crc32 && checksum!.GetCurrentHash() != crc32)
             {
                 throw new InvalidDataException("Entry CRC-32 does not match the imported data; the archive may be corrupt or truncated.");
@@ -243,14 +247,17 @@ public static partial class SaveSetImporter
 
         public DiskSaveSet Build()
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (_files.Count == 0)
-            {
                 throw new ImportException("No save files found in the upload.");
-            }
 
             var set = new DiskSaveSet(storageRoot);
             var groups = _files
-                .GroupBy(f => (f.Path.TitleId, Raw: f.Path.RawDirectory, f.Generation))
+                .GroupBy(f =>
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    return (f.Path.TitleId, Raw: f.Path.RawDirectory, f.Generation);
+                })
                 .OrderBy(g => g.Key.Generation)
                 .ThenBy(g => g.Key.TitleId, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(g => DiskSaveDirectory.SplitRawName(g.Key.Raw).Name, StringComparer.OrdinalIgnoreCase)
@@ -260,6 +267,7 @@ public static partial class SaveSetImporter
             var fileIndex = 0;
             foreach (var group in groups)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var sfoFile = group.FirstOrDefault(f => string.Equals(f.Path.PathInDirectory, "sce_sys/param.sfo", StringComparison.OrdinalIgnoreCase));
                 var sfo = sfoFile is null || sfoFile.Length > MaxMetadataBytes
                     ? null : ParamSfo.TryParse(File.ReadAllBytes(sfoFile.BlobPath));
@@ -268,6 +276,7 @@ public static partial class SaveSetImporter
                 var directory = new DiskSaveDirectory(set, $"d{dirIndex++}", title, group.Key.Raw, group.Key.Generation) { ParamSfo = sfo };
                 foreach (var f in group.OrderBy(f => f.Path.PathInDirectory, StringComparer.OrdinalIgnoreCase))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     var file = new DiskSaveFile(directory, $"f{fileIndex++}", f.Path.PathInDirectory, f.BlobPath, f.Length, f.Sha256,
                         f.ImportedRelativePath);
                     (file.IsSystemFile ? directory.SystemFileList : directory.FileList).Add(file);
