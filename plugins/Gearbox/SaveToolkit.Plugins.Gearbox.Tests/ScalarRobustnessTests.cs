@@ -21,7 +21,9 @@ public sealed class ScalarRobustnessTests
         root.SetInteger(name, value);
         var file = File(wonderlands, container.Encode(root));
         var error = Assert.Throws<SaveFormatException>(() => new GearboxPlugin().Open(file));
-        Assert.Contains(name, error.Message, StringComparison.Ordinal);
+        Assert.Equal(name == "experience_points"
+            ? "Gearbox experience_points is outside the supported nonnegative Int32 range."
+            : "Gearbox time_played_seconds is outside the UInt32 range.", error.Message);
     }
 
     [Theory]

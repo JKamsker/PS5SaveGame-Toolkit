@@ -77,17 +77,17 @@ public sealed class HeaderRobustnessTests
     }
 
     [Theory]
-    [InlineData("00000080")] // Int32.MinValue cannot be negated.
-    [InlineData("01400000")] // UTF-8 over the header string limit.
-    [InlineData("FFDFFFFF")] // UTF-16 over the header string limit.
-    [InlineData("02000000FF00")] // Invalid UTF-8.
-    [InlineData("FEFFFFFF00D80000")] // Unpaired UTF-16 surrogate.
-    [InlineData("0100000001")] // Missing UTF-8 NUL.
-    [InlineData("FFFFFFFF0001")] // Missing UTF-16 NUL.
-    public void CorruptHeaderStrings_RejectWithDocumentedException(string hex)
+    [InlineData("00000080", "Invalid GVAS string length.")] // Int32.MinValue cannot be negated.
+    [InlineData("01400000", "Invalid GVAS string length.")] // UTF-8 over the header string limit.
+    [InlineData("FFDFFFFF", "Invalid GVAS string length.")] // UTF-16 over the header string limit.
+    [InlineData("02000000FF00", "Invalid GVAS string encoding.")] // Invalid UTF-8.
+    [InlineData("FEFFFFFF00D80000", "Invalid GVAS string encoding.")] // Unpaired UTF-16 surrogate.
+    [InlineData("0100000001", "GVAS string is not terminated.")] // Missing UTF-8 NUL.
+    [InlineData("FFFFFFFF0001", "GVAS string is not terminated.")] // Missing UTF-16 NUL.
+    public void CorruptHeaderStrings_RejectWithDocumentedException(string hex, string expectedMessage)
     {
         var bytes = Convert.FromHexString(hex);
-        Assert.Throws<SaveFormatException>(() => ReadString(bytes));
+        Assert.Equal(expectedMessage, Assert.Throws<SaveFormatException>(() => ReadString(bytes)).Message);
     }
 
     [Theory]

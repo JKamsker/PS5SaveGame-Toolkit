@@ -25,6 +25,21 @@ public sealed class SerialCodecTests
     public void IndependentCrc_MatchesThePublishedCheckVector() =>
         Assert.Equal(0xCBF43926u, IndependentSerialProbe.Crc32("123456789"u8.ToArray()));
 
+    [Fact]
+    public void FoldedCoverageFixture_MatchesSdkOracleAndRoundTrips()
+    {
+        // Shared SDK fixture oracle: zlib.crc32(0300000000FFFF01020304) == 0x4BBD9F7C,
+        // folded to D4C1 and stored big-endian in the seed-zero v3 envelope.
+        var bytes = Convert.FromHexString("0300000000D4C101020304");
+        var envelope = SerialEnvelope.Decode(bytes, false);
+        Assert.Equal(Convert.FromHexString("01020304"), envelope.Payload.ToArray());
+        Assert.Equal(bytes, envelope.EncodeOriginalSeed());
+        var patched = envelope.Patch(8, 8, 0xA5);
+        Assert.Equal(IndependentSerialProbe.Encode([1, 0xA5, 3, 4], 3, 0), patched);
+        Assert.Equal(patched, SerialEnvelope.Decode(patched, false).EncodeOriginalSeed());
+        Assert.Equal(bytes, envelope.EncodeOriginalSeed());
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
