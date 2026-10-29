@@ -1,5 +1,4 @@
 using System.Collections.Frozen;
-using System.Text.Json;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
 
@@ -11,10 +10,23 @@ internal static class EmbeddedCatalogs
     public const string Revision = "c7bdd6d8228304b87dcdf15e57155d092eb06fd2";
     public const string SourceRoot = "https://github.com/RyudoSynbios/game-tools-collection/blob/" + Revision;
     public const string Attribution = "RyudoSynbios / Game Tools Collection, MIT (revision " + Revision + ").";
-    private static readonly FrozenDictionary<string, ReferenceRecord[]> Catalogs = Load();
+    private static readonly EmbeddedReferenceContext Embedded =
+        EmbeddedReferenceContext.Load(typeof(EmbeddedCatalogs).Assembly);
+    private static readonly int MaxRecords = new EmbeddedReferencePackLimits().MaxRecordsPerCatalog;
+    private static readonly FrozenSet<string> ResourceNames = typeof(EmbeddedCatalogs).Assembly
+        .GetManifestResourceNames().ToFrozenSet(StringComparer.Ordinal);
 
-    public static IReadOnlyList<ReferenceRecord> Records(Ff7Schema schema, string catalogId) =>
-        Catalogs[$"{(schema.IsRemake ? "remake" : "rebirth")}/{catalogId}"];
+    public static IReadOnlyList<ReferenceRecord> Records(Ff7Schema schema, string catalogId)
+    {
+        var titleId = schema.IsRemake ? "PPSA01911" : schema.IsDemo ? "PPSA18936" : "PPSA08664";
+        var catalog = Embedded.Pin("ff7r", titleId).Catalog(catalogId, schema.Name)
+            ?? throw new InvalidOperationException("Embedded FFVII catalog is missing.");
+        // Preserve the historical fallback attribution; host overlays retain their own dataset metadata.
+        var dataset = new ReferenceDatasetInfo(catalog.Pack.Id, catalogId, ReferenceDatasetKind.Records,
+            Provenance(schema.IsRemake ? "remake" : "rebirth", "utils/resource.ts"));
+        return ReferenceCatalogReader.ReadBounded(catalog, new(), MaxRecords)
+            .Select(record => record with { Dataset = dataset }).ToArray();
+    }
 
     public static ReferenceAttribution Provenance(string game, string file) => new(
         $"{SourceRoot}/src/lib/templates/final-fantasy-vii-{game}/saveEditor/{file}",
@@ -27,15 +39,11 @@ internal static class EmbeddedCatalogs
         if (separator <= 0 || separator == assetId.Length - 1) return null;
         var pack = assetId[..separator];
         var path = assetId[(separator + 1)..];
-        if (pack is not ("ff7r.remake.en" or "ff7r.rebirth.en") || path.Contains("..", StringComparison.Ordinal))
+        // Keep the old literal resource availability, including Windows backslashes. SDK decoding
+        // normalizes those names; exposing newly resolved images here would change direct-open views.
+        if (path.Contains("..", StringComparison.Ordinal) || !ResourceNames.Contains($"refpacks/{pack}/{path}"))
             return null;
-        using var stream = typeof(EmbeddedCatalogs).Assembly.GetManifestResourceStream($"refpacks/{pack}/{path}");
-        if (stream is null) return null;
-        using var memory = new MemoryStream();
-        stream.CopyTo(memory);
-        var contentType = path.EndsWith(".webp", StringComparison.OrdinalIgnoreCase) ? "image/webp" :
-            path.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ? "image/png" : "image/jpeg";
-        return new AssetContent(contentType, memory.ToArray());
+        return Embedded.GetAsset(assetId.Replace('\\', '/'));
     }
 
     public static ReferenceDatasetInfo? AssetProvenance(string assetId)
@@ -64,35 +72,4 @@ internal static class EmbeddedCatalogs
         "Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29",
         "https://www.powerpyx.com/terms-of-service/", new(2026, 10, 29),
         "Six regional map captures; downscaled to a 2048px maximum edge and WebP quality 65.");
-
-    private static FrozenDictionary<string, ReferenceRecord[]> Load()
-    {
-        var catalogs = new Dictionary<string, ReferenceRecord[]>(StringComparer.Ordinal);
-        foreach (var game in new[] { "remake", "rebirth" })
-        {
-            foreach (var id in new[] { "ff7r-items", "ff7r-materia", "ff7r-weapons" })
-            {
-                using var stream = typeof(EmbeddedCatalogs).Assembly.GetManifestResourceStream(
-                    $"refpacks/ff7r.{game}.en/{id}.json")
-                    ?? throw new InvalidOperationException("Embedded FFVII catalog is missing.");
-                using var json = JsonDocument.Parse(stream);
-                var dataset = new ReferenceDatasetInfo($"ff7r.{game}.en", id, ReferenceDatasetKind.Records,
-                    Provenance(game, "utils/resource.ts"));
-                catalogs.Add($"{game}/{id}", [.. json.RootElement.GetProperty("records").EnumerateArray().Select(row =>
-                    new ReferenceRecord(row.GetProperty("id").GetString()!, row.GetProperty("name").GetString()!)
-                    {
-                        Category = row.GetProperty("category").GetString(),
-                        Description = row.GetProperty("description").GetString(),
-                        Source = row.GetProperty("source").GetString(),
-                        Attributes = row.GetProperty("attributes").EnumerateObject()
-                            .ToFrozenDictionary(value => value.Name, value => value.Value.GetString()!, StringComparer.Ordinal),
-                        AssetId = row.TryGetProperty("assetId", out var asset) && asset.GetString() is { } path
-                            ? $"ff7r.{game}.en:{path}" : null,
-                        Dataset = dataset,
-                    })]);
-            }
-        }
-
-        return catalogs.ToFrozenDictionary(StringComparer.Ordinal);
-    }
 }
