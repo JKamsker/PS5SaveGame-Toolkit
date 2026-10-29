@@ -560,6 +560,11 @@ report before/after cold allocations and 20-open cached means; no flaky performa
 All scratch/downloads/normalized ZIPs/benchmarks are on D:. The task's earlier C: scratch was moved
 there, removing only known task-created entries from TEMP. No unrelated TEMP content was touched.
 
+The [performance review](PERFORMANCE.md) records reproducible before/after allocation
+and latency measurements for both current corpora, bounded preview/query regressions,
+and the first-query sorting tradeoff. Pure plans avoid whole-save copies; paged
+collections retain one document-local raw result index with copied filter criteria.
+
 ## Open questions
 
 * Console-load the edited quantities; only a human can promote maturity to Stable.
