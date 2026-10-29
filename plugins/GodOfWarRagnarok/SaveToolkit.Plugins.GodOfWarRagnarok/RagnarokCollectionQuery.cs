@@ -15,13 +15,21 @@ internal static class RagnarokCollectionQuery
         // The default page therefore needs neither a full-model copy nor a sort.
         if (string.IsNullOrEmpty(text) && filters.Length == 0 && query.SortColumn is null) return rows;
 
-        var matches = new List<RagnarokCollectionRow>();
+        var matches = new List<RagnarokCollectionRow>(rows.Count);
         for (var i = 0; i < rows.Count; i++)
             if (Matches(document, rows[i], text, filters)) matches.Add(rows[i]);
 
-        if (query.SortColumn is { } column)
-            matches.Sort((left, right) => Compare(document, left, right, column, query.Descending));
-        return matches;
+        if (query.SortColumn is not { } column) return matches;
+        // Project one typed key per row rather than repeating document/dictionary lookups inside
+        // every comparison. The secondary identity order stays ascending in both directions.
+        IOrderedEnumerable<RagnarokCollectionRow> sorted;
+        if (column is "quantity" or "metadata" or "word")
+            sorted = query.Descending ? matches.OrderByDescending(row => Number(document, row, column))
+                : matches.OrderBy(row => Number(document, row, column));
+        else
+            sorted = query.Descending ? matches.OrderByDescending(row => row.Cells.GetValueOrDefault(column) ?? "", StringComparer.OrdinalIgnoreCase)
+                : matches.OrderBy(row => row.Cells.GetValueOrDefault(column) ?? "", StringComparer.OrdinalIgnoreCase);
+        return sorted.ThenBy(row => row.Key, StringComparer.Ordinal).ToArray();
     }
 
     private static bool Matches(RagnarokDocument document, RagnarokCollectionRow row, string? text,
@@ -50,15 +58,6 @@ internal static class RagnarokCollectionQuery
         return false;
     }
 
-    private static int Compare(RagnarokDocument document, RagnarokCollectionRow left, RagnarokCollectionRow right,
-        string column, bool descending)
-    {
-        var primary = column is "quantity" or "metadata" or "word"
-            ? Number(document, left, column).CompareTo(Number(document, right, column))
-            : StringComparer.OrdinalIgnoreCase.Compare(left.Cells.GetValueOrDefault(column) ?? "", right.Cells.GetValueOrDefault(column) ?? "");
-        return primary == 0 ? StringComparer.Ordinal.Compare(left.Key, right.Key) : descending ? -primary : primary;
-    }
-
     private static ulong Number(RagnarokDocument document, RagnarokCollectionRow row, string column) =>
-        column == row.NumberColumn ? document.ReadWord(row.NumberOffset) : ulong.Parse(row.Cells[column], CultureInfo.InvariantCulture);
+        column == row.NumberColumn ? document.ReadWord(row.NumberOffset) : row.FixedNumber;
 }

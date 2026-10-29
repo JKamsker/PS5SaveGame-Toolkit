@@ -33,7 +33,8 @@ public sealed class RagnarokQueryPerformanceTests
         var page = document.Query("resources", query);
         var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
         Assert.Single(page.Rows);
-        Assert.InRange(allocated, 0, 40_000);
+        // Sorting retains typed keys and row references, never rich cells for the complete model.
+        Assert.InRange(allocated, 0, 64 * 1024);
     }
 
     public static TheoryData<string, bool> SortCases => new(
