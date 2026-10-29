@@ -27,7 +27,7 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section, in
     private int _totalObjects;
     private int _totalFields;
     private int _textBytes;
-    private readonly Dictionary<uint, string> _names = [];
+    private readonly Dictionary<uint, (string Text, uint Hash)> _names = [];
 
     internal bool DepthLimitExceeded { get; private set; }
 
@@ -64,7 +64,7 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section, in
             var meta = BinaryPrimitives.ReadUInt32LittleEndian(descriptors[(index * 8 + 4)..]);
             var nameOffset = BinaryPrimitives.ReadUInt32LittleEndian(descriptors[(count * 8 + index * 4)..]);
             var name = ReadName(nameOffset);
-            if (NameHash(Encoding.UTF8.GetBytes(name)) != hash)
+            if (name.Hash != hash)
                 throw Invalid("Field name does not match its identifier hash.");
 
             var kind = (DdlValueKind)(meta >> 24);
@@ -74,8 +74,13 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section, in
                 throw Invalid("Unsupported field count or array kind.");
 
             var offset = _position;
-            var values = new List<FieldValue>();
-            var objects = new List<DdlObject>();
+            // Counts have passed the aggregate budget. Cap capacity by physical bytes too,
+            // so a truncated declaration cannot allocate its claimed array before rejection.
+            var remaining = _limit - _position;
+            var values = new List<FieldValue>(kind is DdlValueKind.Null or DdlValueKind.Object
+                ? 0 : Math.Min(length, remaining / MinimumValueSize(kind)));
+            var objects = new List<DdlObject>(kind == DdlValueKind.Object
+                ? Math.Min(length, remaining / HeaderSize) : 0);
             if (kind == DdlValueKind.Null)
             {
                 // Empty arrays use type 19, count zero, and one stored null byte on PS5.
@@ -90,7 +95,7 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section, in
                 }
             }
 
-            if (!fields.TryAdd(name, new DdlField(name, kind, length, offset, values) { Objects = objects }))
+            if (!fields.TryAdd(name.Text, new DdlField(name.Text, kind, length, offset, values) { Objects = objects }))
                 throw Invalid("Duplicate field name.");
         }
 
@@ -99,6 +104,17 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section, in
         _limit = parentLimit;
         return new DdlObject(start, HeaderSize + size, fields);
     }
+
+    private static int MinimumValueSize(DdlValueKind kind) => kind switch
+    {
+        DdlValueKind.UInt16 or DdlValueKind.Int16 => sizeof(ushort),
+        DdlValueKind.UInt32 or DdlValueKind.Int32 or DdlValueKind.Float => sizeof(uint),
+        DdlValueKind.UInt64 or DdlValueKind.Int64 or DdlValueKind.Identifier or DdlValueKind.Asset or
+            DdlValueKind.Double => sizeof(ulong),
+        DdlValueKind.String or DdlValueKind.Enum or DdlValueKind.Bitfield or DdlValueKind.File or
+            DdlValueKind.Json => HeaderSize + sizeof(uint),
+        _ => 1,
+    };
 
     internal static uint NameHash(ReadOnlySpan<byte> name)
     {
@@ -166,7 +182,7 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section, in
         return Decode(bytes);
     }
 
-    private string ReadName(uint offset)
+    private (string Text, uint Hash) ReadName(uint offset)
     {
         if (_names.TryGetValue(offset, out var name)) return name;
         if (offset < container.DescriptorEnd || offset >= container.DataStart)
@@ -175,7 +191,7 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section, in
         var length = bytes.IndexOf((byte)0);
         if (length is < 1 or > MaxStringLength) throw Invalid("Invalid field name.");
         CountText(length);
-        name = Decode(bytes[..length]);
+        name = (Decode(bytes[..length]), NameHash(bytes[..length]));
         _names.Add(offset, name);
         return name;
     }

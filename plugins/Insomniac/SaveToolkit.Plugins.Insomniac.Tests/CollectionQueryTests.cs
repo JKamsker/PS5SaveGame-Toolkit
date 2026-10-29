@@ -97,6 +97,44 @@ public sealed class CollectionQueryTests
         Assert.Equal(500, builds);
     }
 
+    [Fact]
+    public void SwitchingSortsAndFiltersRetainsNumericAndTextOrderingWithOrdinalTies()
+    {
+        var registry = new RiftCollections();
+        registry.Add("mixed", "Mixed", [new("value", "Value"), new("group", "Group")],
+            new[] { ("z", "Beta", (decimal?)null), ("b", "ten", (decimal?)10),
+                ("A", "alpha", (decimal?)null), ("a", "ALPHA", (decimal?)null),
+                ("c", "two", (decimal?)2), ("d", "other two", (decimal?)2) }
+                .Select(row => new RiftRow(row.Item1, new Dictionary<string, RiftCell>
+                {
+                    ["value"] = new(row.Item2, () => new TextNode(row.Item2), row.Item3),
+                    ["group"] = RiftCell.TextOnly(row.Item1 == "c" ? "selected" : "other"),
+                })), "Mixed numeric and text sorting");
+        Assert.Equal(["c", "d", "b", "A", "a", "z"], Keys(new() { SortColumn = "value" }));
+        Assert.Equal(["z", "A", "a", "b", "c", "d"], Keys(new() { SortColumn = "value", Descending = true }));
+        Assert.Equal(["A", "a"], Keys(new() { SortColumn = "value", Text = " alpha " }));
+        Assert.Equal(["d", "c"], Keys(new() { SortColumn = "group", Text = "two" }));
+        Assert.Equal(["c"], Keys(new() { SortColumn = "value", Filters = new Dictionary<string, string> { ["group"] = "SELECTED" } }));
+        Assert.Equal(["c", "d", "b", "A", "a", "z"], Keys(new() { SortColumn = "value" }));
+        Assert.Equal(["A", "a", "b", "c", "d", "z"], Keys(new() { Descending = true }));
+
+        IEnumerable<string> Keys(QueryableCollectionQuery query) => registry.Query("mixed", query).Rows.Select(row => row.Key);
+    }
+
+    [Fact]
+    public void RegisteringAnExistingCollectionReplacesEveryCachedOrderAndColumn()
+    {
+        var registry = Fixture();
+        _ = registry.Query("test", new() { SortColumn = "value" });
+        registry.Add("test", "Replacement", [new("new", "New")],
+            [new("z", new Dictionary<string, RiftCell> { ["new"] = RiftCell.TextOnly("first") }),
+             new("a", new Dictionary<string, RiftCell> { ["new"] = RiftCell.TextOnly("last") })], "Replacement fixture");
+        Assert.Equal(["a", "z"], registry.Query("test", new()).Rows.Select(row => row.Key));
+        Assert.Equal(["z", "a"], registry.Query("test", new() { SortColumn = "new" }).Rows.Select(row => row.Key));
+        Assert.Equal(2, Assert.Single(registry.Metadata).TotalCount);
+        Assert.Throws<ArgumentException>(() => registry.Query("test", new() { SortColumn = "value" }));
+    }
+
     private static string RowKey(int index) => "row-" + index.ToString("D4", CultureInfo.InvariantCulture);
 
     private static RiftCollections PagingFixture(Action onBuild)
