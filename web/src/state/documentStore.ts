@@ -14,7 +14,10 @@ export class DocumentStore {
   private original = new Map<string, FieldValue>();
   private errors = new Map<string, string>();
   private listeners = new Map<string, Set<Listener>>();
+  private valueListeners = new Map<string, Set<Listener>>();
   private globalListeners = new Set<Listener>();
+  /** Changes only when cached values change, independently of errors and history notifications. */
+  valueVersion = 0;
   state: DocumentState;
   lastMessage: string | null = null;
 
@@ -58,6 +61,7 @@ export class DocumentStore {
     }
     this.state = result.state;
     this.lastMessage = result.message ?? (result.warnings.length ? result.warnings.join(" ") : null);
+    if (result.changes.length) this.emitValues(result.changes.map(change => change.valueId));
     this.emit(touched);
   }
 
@@ -66,7 +70,33 @@ export class DocumentStore {
     this.values.clear();
     this.errors.clear();
     this.state = state;
+    this.emitValues(null);
     this.emit(null);
+  }
+
+  /** Observe all fields used by a table, including rows outside the virtual viewport. */
+  subscribeValues(valueIds: readonly string[], listener: Listener): () => void {
+    const sets = valueIds.map(id => {
+      let listeners = this.valueListeners.get(id);
+      if (!listeners) this.valueListeners.set(id, (listeners = new Set()));
+      listeners.add(listener);
+      return { id, listeners };
+    });
+    return () => {
+      for (const { id, listeners } of sets) {
+        listeners.delete(listener);
+        if (listeners.size === 0) this.valueListeners.delete(id);
+      }
+    };
+  }
+
+  private emitValues(ids: readonly string[] | null): void {
+    this.valueVersion++;
+    const listeners = new Set<Listener>();
+    const sets = ids === null ? this.valueListeners.values() : ids.map(id => this.valueListeners.get(id));
+    for (const set of sets) set?.forEach(listener => listeners.add(listener));
+    // A bulk edit can touch many fields in one table; notify that table once.
+    listeners.forEach(listener => listener());
   }
 
   subscribe(valueId: string | null, listener: Listener): () => void {
