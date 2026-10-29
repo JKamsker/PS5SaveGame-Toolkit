@@ -13,6 +13,7 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
     private readonly SemanticPresets _semantic;
     private readonly DocumentPlanning _planning;
     private readonly ReferenceData _references;
+    private readonly Ff7Schema _schema;
     private readonly bool _readOnly;
     private readonly Func<ScalarField, FieldNode> _bind;
     private readonly Func<IReadOnlyList<ValueEdit>, EditOutcome> _apply;
@@ -24,6 +25,7 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
         _semantic = semantic;
         _planning = planning;
         _references = references;
+        _schema = schema;
         _readOnly = readOnly;
         _bind = bind;
         _apply = apply;
@@ -119,7 +121,7 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
             ValidateTargets(action, parameters);
             var fresh = ResolvePresetInstances(action.Instances ?? [], ExtractChoices(resolution));
             if (!FinalFantasy7PresetIdentity.Equivalent(resolution, fresh)) return Error("preset", "Preset targets changed; preview again.");
-            var scope = BuildScope(action, resolution);
+            var scope = BuildScope(action, resolution, parameters);
             return _planning.Plan(action.ActionId, parameters, scope);
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or OverflowException)
@@ -140,7 +142,7 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
             ValidateTargets(action, parameters);
             var fresh = ResolvePresetInstances(action.Instances ?? [], ExtractChoices(resolution));
             if (!FinalFantasy7PresetIdentity.Equivalent(resolution, fresh)) return EditOutcome.Rejected("preset", "Preset targets changed; preview again.");
-            return _planning.Apply(action.ActionId, parameters, BuildScope(action, resolution), plan, _bind, _apply);
+            return _planning.Apply(action.ActionId, parameters, BuildScope(action, resolution, parameters), plan, _bind, _apply);
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or OverflowException)
         {
@@ -241,9 +243,18 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
         return long.TryParse(text, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out value);
     }
 
-    private ActionScope BuildScope(PresetAction action, SdkPresetResolution resolution)
+    private ActionScope BuildScope(PresetAction action, SdkPresetResolution resolution,
+        IReadOnlyDictionary<string, FieldValue> parameters)
     {
-        if (action.ScopeKind != PresetScopeKinds.Selected) return new();
+        if (action.ScopeKind != PresetScopeKinds.Selected)
+        {
+            if (!PresetSelectors.IsMateria(action.ActionId) || _schema.IsRemake)
+                return new();
+            var internalPreset = new Ff7ActionPreset(action.ActionId, parameters,
+                Scope(action.ScopeKind), [], TitleId, _schema.Variant);
+            var current = _semantic.Resolve(internalPreset);
+            return new(current.Scope.RowKeys?.ToArray() ?? []);
+        }
         var rows = action.Instances!.Select(reference =>
         {
             var resolved = resolution.Instances.Single(item => item.Requested.StableId == reference.StableId);
