@@ -1,20 +1,21 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { actionReview, reviewValue } from "../../../api/actionReview";
-import { useDocument, useDocumentState } from "../../../state/documentStore";
+import { useDocument } from "../../../state/documentStore";
+import { useDocumentContentVersion } from "../../../state/useDocumentContentVersion";
 import { useReviewNavigation } from "./navigation";
 import { ReviewPager, useReviewPage } from "./paging";
 import "./review.css";
 
 export function ChangesPanel() {
   const doc = useDocument();
-  const { state, version } = useDocumentState(doc.store);
+  const { revision, version } = useDocumentContentVersion(doc.store);
   const { jump } = useReviewNavigation();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const query = useQuery({ queryKey: ["changes", doc.workspaceId, doc.documentId, version, doc.structureVersion],
+  const query = useQuery({ queryKey: ["changes", doc.workspaceId, doc.documentId, revision, version, doc.structureVersion],
     queryFn: () => actionReview.changes(doc.workspaceId, doc.documentId), enabled: open });
   const changes = query.data?.changes.filter(change => `${change.label} ${change.valueId}`.toLowerCase().includes(search.toLowerCase())) ?? [];
 
@@ -53,7 +54,7 @@ export function ChangesPanel() {
           <td>{reviewValue(change.originalValue, change.originalExists)}</td><td>{reviewValue(change.currentValue, change.currentExists)}</td>
           <td className="review-actions">
             <button type="button" className="btn btn--small" disabled={!change.currentExists || change.path.length === 0} onClick={() => jump(change)} aria-label={`Jump to ${change.label}`}>Jump</button>
-            <button type="button" className="btn btn--small" disabled={busy || !doc.canEdit || !change.canRevert || query.data?.revision !== state.revision}
+            <button type="button" className="btn btn--small" disabled={busy || !doc.canEdit || !change.canRevert || query.data?.revision !== revision}
               onClick={() => void revert(change.valueId)} aria-label={`Revert ${change.label}`}>Revert</button>
           </td>
         </tr>)}</tbody>

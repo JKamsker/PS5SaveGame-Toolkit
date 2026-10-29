@@ -1,8 +1,9 @@
-import { useCallback, useDeferredValue, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, ApiError, isStaleError } from "../../../api/client";
 import type { CollectionQuery, QueryableTableNode, TableColumn, TableRow } from "../../../api/protocol";
 import { useDocument } from "../../../state/documentStore";
+import { useDocumentContentVersion } from "../../../state/useDocumentContentVersion";
 import { RowDetails, rowHasDetails } from "./RowDetails";
 import { rowLabel } from "./cellText";
 import { TableCell } from "./TableCell";
@@ -15,9 +16,9 @@ const PAGE_SIZE = 50;
 /** Paged table for an SDK IQueryableDocument. Eager TableNode rendering remains in TableView. */
 export function ServerTableView({ node }: { node: QueryableTableNode }) {
   const { workspaceId, documentId, structureVersion, refresh, store } = useDocument();
-  const subscribe = useCallback((listener: () => void) => store.subscribe(null, listener), [store]);
-  const version = useSyncExternalStore(subscribe, () => store.valueVersion);
-  const revision = useSyncExternalStore(subscribe, () => store.state.revision ?? 0);
+  const content = useDocumentContentVersion(store);
+  const version = content.version;
+  const revision = content.revision ?? 0;
   const [text, setText] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [sort, setSort] = useState("");
