@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SaveToolkit.Core.Sessions;
-using SaveToolkit.Core.Storage;
 using SaveToolkit.Plugins.Pragmata.Crypto;
 using SaveToolkit.Plugins.Pragmata.Format;
 using SaveToolkit.Plugins.Pragmata.Views;
@@ -32,6 +31,8 @@ public sealed class InventoryCollectionTests
         Assert.Equal(quantities.OrderDescending(), quantities);
         var second = document.Query(table.CollectionId, query with { Offset = 200 });
         Assert.Equal(51, second.Rows.Count);
+        var allQuantities = page.Rows.Concat(second.Rows).Select(row => ((FieldNode)row.Cells["quantity"]).Value.AsInt32()).ToArray();
+        Assert.Equal(allQuantities.OrderDescending(), allQuantities);
         Assert.Equal(251, page.Rows.Concat(second.Rows).Select(row => row.Key).Distinct(StringComparer.Ordinal).Count());
         var field = Assert.IsType<FieldNode>(page.Rows[0].Cells["quantity"]);
         Assert.True(document.ApplyEdits([new(field.ValueId, FieldValue.Of(100L))]).Succeeded);
@@ -46,11 +47,11 @@ public sealed class InventoryCollectionTests
     public void WholeQueryPublishesUnloadedBindingsAndAppliesUndoesAndRedoesAsOneStep()
     {
         var original = SyntheticInventory.Create(251);
-        var file = (DiskSaveFile)SampleEvidenceTests.Files().Single(file => file.FileName == "data000.bin");
+        using var fixture = new SyntheticSessionFile(original);
+        var file = fixture.File;
         using var document = new PragmataDocument(file.RelativePath, original);
         var plugin = new PragmataPlugin();
-        using var session = new DocumentSession("large-inventory", file, plugin, document,
-            openOriginal: () => new PragmataDocument(file.RelativePath, original));
+        using var session = new DocumentSession("large-inventory", file, plugin, document);
         _ = session.BuildView();
         var parameters = new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("17") };
         Assert.Null(session.PlanAction(PragmataViews.QuantityAction, parameters, new ActionScope()).PlanId);

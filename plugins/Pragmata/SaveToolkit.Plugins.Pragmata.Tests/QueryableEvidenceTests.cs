@@ -56,30 +56,44 @@ public sealed class QueryableEvidenceTests
         Assert.True(table.TotalCount > QueryableCollectionLimits.MaxPageSize);
         var keys = new HashSet<string>(StringComparer.Ordinal);
         var query = new QueryableCollectionQuery { Limit = QueryableCollectionLimits.MaxPageSize };
-        TableRow? chosen = null;
+        var allRows = new List<TableRow>();
         for (var offset = 0; offset < table.TotalCount; offset += query.Limit)
         {
             var page = document.Query(table.CollectionId, query with { Offset = offset });
             Assert.Equal(table.TotalCount, page.FilteredCount);
             Assert.All(page.Rows, row => Assert.True(keys.Add(row.Key)));
-            chosen ??= page.Rows.First();
+            Assert.Equal(Math.Min(query.Limit, table.TotalCount - offset), page.Rows.Count);
+            allRows.AddRange(page.Rows);
         }
         Assert.Equal(table.TotalCount, keys.Count);
-        var identity = ((TextNode)chosen!.Cells["identity"]).Text;
+        var chosen = allRows[0];
+        var identity = ((TextNode)chosen.Cells["identity"]).Text;
         var search = document.Query(table.CollectionId, query with { Text = identity });
         Assert.Contains(search.Rows, row => row.Key == chosen.Key);
         var type = ((TextNode)chosen.Cells["type"]).Text;
         var filter = document.Query(table.CollectionId, query with { Filters = new Dictionary<string, string> { ["type"] = type } });
+        var matching = allRows.Count(row => ((TextNode)row.Cells["type"]).Text == type);
+        Assert.Equal(matching, filter.FilteredCount);
+        Assert.Equal(Math.Min(query.Limit, matching), filter.Rows.Count);
         Assert.All(filter.Rows, row => Assert.Equal(type, ((TextNode)row.Cells["type"]).Text));
         Assert.Equal(0, document.Query(table.CollectionId, query with { Text = "does-not-exist-in-a-Pragmata-record" }).FilteredCount);
         Assert.Empty(document.Query(table.CollectionId, query with { Offset = int.MaxValue }).Rows);
-        var descending = document.Query(table.CollectionId, query with { SortColumn = "type", Descending = true });
-        Assert.Equal(descending.Rows.Select(row => row.Key),
-            document.Query(table.CollectionId, query with { SortColumn = "type", Descending = true }).Rows.Select(row => row.Key));
         var array = document.Layout.Sections.SelectMany(section => section.Children).Single(node => $"evidence/array-at-{node.Offset:x}" == table.CollectionId);
         array.Children = array.Children.Reverse().ToArray();
-        Assert.Equal(descending.Rows.Select(row => row.Key),
-            document.Query(table.CollectionId, query with { SortColumn = "type", Descending = true }).Rows.Select(row => row.Key));
+        foreach (var descending in new[] { false, true })
+        {
+            var ordered = descending ? allRows.OrderByDescending(row => ((TextNode)row.Cells["type"]).Text, StringComparer.Ordinal)
+                : allRows.OrderBy(row => ((TextNode)row.Cells["type"]).Text, StringComparer.Ordinal);
+            var expected = ordered.ThenBy(row => row.Key, StringComparer.Ordinal).Select(row => row.Key).ToArray();
+            var actual = new List<string>();
+            for (var offset = 0; offset < table.TotalCount; offset += query.Limit)
+            {
+                var page = document.Query(table.CollectionId, query with { SortColumn = "type", Descending = descending, Offset = offset });
+                Assert.Equal(Math.Min(query.Limit, table.TotalCount - offset), page.Rows.Count);
+                actual.AddRange(page.Rows.Select(row => row.Key));
+            }
+            Assert.Equal(expected, actual);
+        }
     }
 
     [Fact]
