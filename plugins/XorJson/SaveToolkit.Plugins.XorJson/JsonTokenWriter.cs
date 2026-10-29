@@ -26,7 +26,8 @@ internal static class JsonTokenWriter
         try
         {
             var finalLength = (long)document.OriginalLength;
-            var candidates = JsonEditModel.Walk(root).Where(node => !node.IsContainer).Select(node =>
+            var candidates = new List<ScalarCandidate>();
+            foreach (var node in JsonEditModel.Walk(root).Where(node => !node.IsContainer))
             {
                 if (node.SdkNode is null) throw new SaveFormatException("Edited JSON lost a scalar identity.");
                 var explicitLexeme = replacements is not null && replacements.TryGetValue(node.Index, out var saved)
@@ -35,21 +36,22 @@ internal static class JsonTokenWriter
                     ? Encoding.UTF8.GetByteCount(explicitLexeme) : JsonScalarEncoding.EncodedLength(node.Scalar);
                 if (explicitLexeme == node.SdkNode.OriginalLexeme &&
                     node.SdkNode.CurrentLexeme == explicitLexeme)
-                    return (Candidate: default(ScalarCandidate), Include: false);
+                    continue;
                 if (explicitLexeme != node.SdkNode.OriginalLexeme)
                     finalLength = checked(finalLength + targetLength - node.SdkNode.OriginalSpan.Length);
-                return (Candidate: new ScalarCandidate(node, node.SdkNode, explicitLexeme, targetLength), Include: true);
-            }).Where(result => result.Include).Select(result => result.Candidate).ToArray();
+                candidates.Add(new ScalarCandidate(node, node.SdkNode, explicitLexeme, targetLength));
+            }
             if (finalLength > JsonTokenTree.MaxBytes)
                 throw new SaveFormatException("Edited JSON exceeds the 16 MiB safety limit.");
 
-            var changes = candidates.Select(candidate => (Node: candidate.SdkNode,
-                Lexeme: candidate.ExplicitLexeme ?? Encoding.UTF8.GetString(candidate.PluginNode.Encode()),
-                Delta: candidate.TargetLength - Encoding.UTF8.GetByteCount(candidate.SdkNode.CurrentLexeme!)));
             // Shrinks and reverts cannot exceed the current budget. Applying them first makes
             // each subsequent growth safe whenever the complete final map fits.
-            foreach (var change in changes.OrderBy(change => change.Delta))
-                _ = document.ReplaceScalar(change.Node, change.Lexeme);
+            foreach (var candidate in candidates.OrderBy(candidate =>
+                candidate.TargetLength - Encoding.UTF8.GetByteCount(candidate.SdkNode.CurrentLexeme!)))
+            {
+                var lexeme = candidate.ExplicitLexeme ?? Encoding.UTF8.GetString(candidate.PluginNode.Encode());
+                _ = document.ReplaceScalar(candidate.SdkNode, lexeme);
+            }
             var result = document.Serialize();
             _ = JsonTokenTree.Parse(result);
             return result;
