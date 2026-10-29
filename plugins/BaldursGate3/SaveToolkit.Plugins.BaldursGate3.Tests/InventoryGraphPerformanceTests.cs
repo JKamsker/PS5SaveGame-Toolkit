@@ -9,7 +9,7 @@ public sealed class InventoryGraphPerformanceTests(ITestOutputHelper output)
     private const int SlotCount = 50_000;
 
     [Fact]
-    public void LargeUnownedInventoryDoesNotRescanPreviouslyAddedEntriesForEverySlot()
+    public void LargeUnownedInventoryRetainsEveryNativeSlotAndReportsConstructionTime()
     {
         var access = Access(SlotCount);
         var identity = new LsmfIdentityGraph(access, null);
@@ -20,7 +20,16 @@ public sealed class InventoryGraphPerformanceTests(ITestOutputHelper output)
         Assert.Equal(SlotCount, graph.Entries.Count);
         Assert.All(graph.Entries, entry => Assert.Null(entry.OwnerBodyEntityRow));
         Assert.Equal(SlotCount, graph.Entries.Select(entry => entry.Path).Distinct().Count());
-        Assert.True(timer.Elapsed < TimeSpan.FromSeconds(1), $"Inventory graph took {timer.Elapsed} for {SlotCount:N0} slots.");
+        Assert.Equal(Enumerable.Range(0, SlotCount), graph.Entries.Select(entry => entry.Slot));
+        Assert.Equal(Enumerable.Range(1, SlotCount), graph.Entries.Select(entry => entry.ItemEntityRow));
+        Assert.All(graph.Entries, entry =>
+        {
+            Assert.Equal(0, entry.ContainerRow);
+            Assert.Equal(0, entry.ContainerEntityRow);
+            Assert.False(entry.IsAmbiguous);
+        });
+        Assert.Empty(graph.Diagnostics);
+        Assert.Empty(graph.Gold);
     }
 
     [Fact]

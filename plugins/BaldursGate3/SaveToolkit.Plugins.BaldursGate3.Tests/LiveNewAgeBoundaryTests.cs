@@ -8,22 +8,37 @@ namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
 public sealed class LiveNewAgeBoundaryTests
 {
-    [Fact]
-    public void EveryContributionTargetHasADeterministicByteExactInverse()
+    [Theory]
+    [InlineData(2, 1u, 1u)]
+    [InlineData(3, 2u, 1u)]
+    [InlineData(4, 2u, 2u)]
+    [InlineData(5, 2u, 3u)]
+    public void EveryContributionTargetHasADeterministicByteExactInverse(long target, uint first, uint second)
     {
-        var source = LiveNewAgeFixture.Source();
-        var number = source.Numbers.First();
-        var original = source.Write();
-        for (var target = number.Min; target <= number.Max; target++)
-        {
-            source.Set(number, FieldValue.Of(target));
-            var first = source.Write();
-            source.Set(number, FieldValue.Of(number.Min));
-            source.Set(number, FieldValue.Of(target));
-            Assert.Equal(first, source.Write());
-            source.Set(number, FieldValue.Of(number.Original));
-            Assert.Equal(original, source.Write());
-        }
+        var original = LiveNewAgeFixture.Create();
+        var source = LiveNewAgeFixture.Source(original);
+        var number = source.Numbers.Single(number => number.Key == "stack/0/member/0/quantity");
+        // The authored fixture has two 8-byte contributions, amounts at +4 and +12.
+        var entries = (int)System.Buffers.Binary.BinaryPrimitives.ReadUInt64LittleEndian(
+            original.AsSpan(LsmfFixture.Descriptor(original, 1) + 40)) + 48;
+        Assert.Equal([entries + 4, entries + 12], number.Offsets);
+        Assert.Equal((2L, 5L, 5L), (number.Min, number.Max, number.Original));
+        var expected = original.ToArray();
+        LsmfFixture.U32(expected, entries + 4, first);
+        LsmfFixture.U32(expected, entries + 12, second);
+
+        source.Set(number, FieldValue.Of(target));
+        Assert.Equal(target, source.Get(number));
+        Assert.Equal(expected, source.Write()); // Includes member indices, padding and every other family.
+        var reopened = LiveNewAgeFixture.Source(source.Write());
+        Assert.Equal([target, 4L], reopened.Stacks.Select(stack => stack.Original));
+        Assert.Empty(reopened.Diagnostics);
+        source.Set(number, FieldValue.Of(number.Min));
+        source.Set(number, FieldValue.Of(target));
+        Assert.Equal(expected, source.Write());
+        source.Set(number, FieldValue.Of(number.Original));
+        Assert.False(source.HasEdits);
+        Assert.Equal(original, source.Write());
     }
 
     [Fact]

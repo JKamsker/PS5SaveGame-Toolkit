@@ -1,8 +1,5 @@
 using System.Buffers.Binary;
-using System.IO.Compression;
-using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.Sessions;
-using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
@@ -87,17 +84,9 @@ public sealed class InventoryPresentationTests
         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(source.Slots[0].KeyOffset), 0);
         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(source.Slots[1].KeyOffset), ushort.MaxValue);
         var original = LsmfFixture.Resource(bytes);
-        var plugin = new BaldursGate3Plugin();
-        var root = Path.Combine(Path.GetTempPath(), "SaveToolkit.Bg3.Tests", Guid.NewGuid().ToString("N"));
-        using var store = new WorkspaceStore(new PluginCatalog([plugin]), new WorkspaceStoreOptions { DataRoot = root });
-        using var zipBytes = new MemoryStream();
-        using (var zip = new ZipArchive(zipBytes, ZipArchiveMode.Create, leaveOpen: true))
-        {
-            using var entry = zip.CreateEntry("PPSA18463/sdimg_SAVE/Globals.lsf").Open();
-            entry.Write(original);
-        }
-        var workspace = store.Create("sparse-container", [new ImportSource("fixture.zip", () => new MemoryStream(zipBytes.ToArray()))]);
-        var file = workspace.Set.AllDiskFiles.Single();
+        using var workspace = new SyntheticSaveWorkspace("Globals.lsf", original);
+        var plugin = workspace.Plugin;
+        var file = workspace.File;
         using var document = Assert.IsType<BaldursGate3Document>(plugin.Open(file));
         using var session = new DocumentSession("sparse-container", file, plugin, document);
         _ = session.BuildView();
