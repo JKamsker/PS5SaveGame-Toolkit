@@ -1,11 +1,19 @@
 using System.Buffers.Binary;
 using System.Text;
+using System.Runtime.InteropServices;
 using SaveToolkit.Testing.Diff;
 
 namespace SaveToolkit.Plugins.SuckerPunch.Tests;
 
 internal static class WriteAssertions
 {
+    public static void FlipReturnedByte(ReadOnlyMemory<byte> memory, int offset = 0)
+    {
+        Assert.InRange(offset, 0, memory.Length - 1);
+        Assert.True(MemoryMarshal.TryGetArray(memory, out var segment));
+        segment.Array![segment.Offset + offset] ^= 0xFF;
+    }
+
     public static int CountOffset(byte[] bytes, string name)
     {
         var anchor = bytes.AsSpan().IndexOf("\x11\0\0\0LegendsInvestment"u8);

@@ -57,17 +57,19 @@ public sealed class YoteiCorruptionTests
     }
 
     [Fact]
-    public void InputAndExportBuffersAndBlobPagesRemainIsolated()
+    public void ImportedFileAndExportBuffersAndBlobPagesRemainIsolated()
     {
         var bytes = Slot("suckerpunchUser4").ReadAllBytes();
         var original = bytes.ToArray();
-        using var doc = Open(WithBytes(bytes));
+        var file = WithBytes(bytes);
+        using var doc = Open(file);
         bytes[0] = 0;
-        var output = Assert.Single(doc.Serialize()).Content.ToArray();
-        output[0] = 0;
-        var page = doc.ReadBlob("content", 0, 32).ToArray();
-        page[0] = 0;
+        WriteAssertions.FlipReturnedByte(Assert.Single(doc.Serialize()).Content);
         Assert.Equal(original, Assert.Single(doc.Serialize()).Content.ToArray());
+        WriteAssertions.FlipReturnedByte(doc.ReadBlob("content", 7, 32));
+        Assert.Equal(original, Assert.Single(doc.Serialize()).Content.ToArray());
+        Assert.Equal(original.AsSpan(7, 32).ToArray(), doc.ReadBlob("content", 7, 32).ToArray());
+        Assert.Equal(original, file.ReadAllBytes());
         Assert.Throws<ArgumentOutOfRangeException>(() => doc.ReadBlob("content", -1, 1));
         Assert.Throws<ArgumentOutOfRangeException>(() => doc.ReadBlob("content", long.MaxValue, 1));
         Assert.Throws<ArgumentOutOfRangeException>(() => doc.ReadBlob("content", 0, -1));
