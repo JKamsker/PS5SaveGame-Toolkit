@@ -145,7 +145,7 @@ styles load only when the corresponding transfer dialog opens.
   documents required/nullability metadata; [document transformers](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/customize-openapi)
   allow the transfer graph to reuse the existing recursive value component after export.
 - `PresetPackageTests`, `PresetTransferTests`, `PresetTransferApiTests` and
-  `web/e2e/preset-transfer.e2e.ts` and `preset-transfer-recovery.e2e.ts` cover synthetic
+  `web/e2e/preset-transfer.e2e.ts`, `preset-transfer-library.e2e.ts` and `preset-transfer-recovery.e2e.ts` cover synthetic
   transfer/transaction paths, including all 256 maximum-length Unicode IDs and explicit
   reload after an external library addition. This measures one conflict per imported
   record; the bounded worst-case 65,536 conflict matches is not a UI performance claim. Native-game

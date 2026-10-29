@@ -58,7 +58,7 @@ it("shows a truthful no-actions state without a never-ending loading message", a
   const presets = vi.spyOn(api, "presets");
   renderSpatial(<PresetsPanel document={noActions} onToast={vi.fn()} />);
   fireEvent.click(screen.getByText("Toolkit presets"));
-  expect((await screen.findByText(/no planned preset actions/i)).textContent).toContain("No planned preset actions. Import and export are available below.");
+  expect((await screen.findByText(/no planned preset actions/i)).textContent).toContain("No planned preset actions. Import or export below.");
   expect(screen.queryByText("Loading presets…")).toBeNull();
   expect(presets).not.toHaveBeenCalled();
 });

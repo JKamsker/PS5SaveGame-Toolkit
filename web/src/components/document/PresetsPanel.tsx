@@ -88,7 +88,7 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
     <div className="section__body" aria-busy={presets.isFetching || create.isPending || apply.isPending}>
       <p>Presets are stored outside save bytes and apply through a revision-bound preview.</p>
       {presets.isPending && actions.length > 0 && <p aria-live="polite" aria-atomic="true">Loading presets…</p>}
-      {actions.length === 0 && <p className="notice notice--Muted">No planned preset actions. Import and export are available below.</p>}
+      {actions.length === 0 && <p className="notice notice--Muted">No planned preset actions. Import or export below.</p>}
       <h3 ref={heading} tabIndex={-1}>Saved presets</h3>
       <PresetTransferToolbar />
       {presets.isError && <><p role="alert">Could not load presets: {presets.error.message}</p><button type="button" className="btn btn--small" onClick={() => void reloadPresets().catch(error => setMessage(error instanceof Error ? error.message : "Could not reload presets."))}>Retry loading presets</button></>}

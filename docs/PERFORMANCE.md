@@ -78,13 +78,16 @@ only and is absent from production chunks. The analysis used existing Vite APIs 
 no visualizer, analysis artifact or dependency was added to the repository.
 
 The corrected preset foundation plus transfer composition was remeasured on 2026-10-29:
-initial JS 120132 bytes, PresetsPanel JS 5800 bytes and CSS 523 bytes, all within the
-existing unchanged budgets. PresetsPanel is at its limit with no remaining headroom;
+initial JS 120129 bytes, PresetsPanel JS 5793 bytes and CSS 523 bytes, all within the
+existing unchanged budgets. PresetsPanel has only 7 bytes of remaining headroom;
 future changes must be measured. Transfer dialogs use server-owned compatibility and
-preview-capability summaries. ImportPresetDialog is 2288 bytes, including explicit
-reload-and-repreview recovery; its tightened budget remains 2370. The shared transfer
+preview-capability summaries. ImportPresetDialog is 2348 bytes, including explicit
+reload-and-repreview recovery, the server's capture-only limitation and memoized conflict
+rows so changing one choice does not rerender every record. Its budget is
+2600 bytes (10.7% headroom), replacing the earlier 2370-byte limit measured before
+those required recovery/capability states and full-library interaction checks. Initial and PresetsPanel limits stay unchanged. The shared transfer
 request helper includes the document compatibility endpoint (TransferDialog chunk
-933 bytes); its budget remains 1030 bytes. Export is 1127 bytes.
+932 bytes); its budget remains 1030 bytes. Export is 1127 bytes.
 Transfer measurements below reflect this combined source;
 other rows preserve the original split baseline. No runtime dependency was added.
 
@@ -109,9 +112,9 @@ output-directory behavior, so the check never removes or rewrites output.
 | DocumentEditor.css | 1504 | 1660 |
 | PresetsPanel.js | 5249 | 5800 |
 | PresetsPanel.css | 523 | 580 |
-| ImportPresetDialog.js | 2288 | 2370 |
+| ImportPresetDialog.js | 2348 | 2600 |
 | ExportPresetDialog.js | 1127 | 1250 |
-| TransferDialog.js | 933 | 1030 |
+| TransferDialog.js | 932 | 1030 |
 | TransferDialog.css | 473 | 520 |
 | jsx-runtime.js | 3328 | 3670 |
 | documentStore.js | 1015 | 1130 |

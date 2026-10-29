@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api, ApiError } from "../../../api/client";
 import { presetTransfer, type ImportChoice, type ImportPreview } from "../../../api/presetTransfer";
 import type { PresetCompatibilitySummary } from "../../../api/protocol";
 import { TransferDialog } from "./TransferDialog";
+import { ImportPresetItem } from "./ImportPresetItem";
 
 export default function ImportPresetDialog({ workspaceId, documentId, trigger, onDismiss, onImported, onReloaded }: {
   workspaceId: string; documentId: string; trigger: HTMLElement; onDismiss: () => void; onImported: (message: string) => void; onReloaded: () => Promise<void>;
@@ -11,6 +12,7 @@ export default function ImportPresetDialog({ workspaceId, documentId, trigger, o
   const [file, setFile] = useState<File>();
   const [preview, setPreview] = useState<ImportPreview>();
   const [choices, setChoices] = useState<Record<number, ImportChoice>>({});
+  const choose = useCallback((choice: ImportChoice) => setChoices(current => ({ ...current, [choice.index]: choice })), []);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [reloadRequired, setReloadRequired] = useState(false);
@@ -66,28 +68,8 @@ export default function ImportPresetDialog({ workspaceId, documentId, trigger, o
     {preview && <>
       <p>Schema {preview.schemaVersion} · {preview.items.length} presets · {preview.provenance.producer}</p>
       <p className="presets-meta">Exported {preview.provenance.exportedAt}. Preview expires {preview.expiresAt}.</p>
-      <ol className="preset-transfer-items">{preview.items.map(item => {
-        const status = statuses[item.index];
-        const reason = !status?.compatible ? status?.reason ?? "Compatibility is unknown."
-          : status.readOnly ? "This save is read-only."
-          : !status.canPreview ? status.previewReason ?? "The current plugin cannot preview these actions."
-          : status.unsupportedActions.length > 0 ? "The current plugin cannot apply these actions." : undefined;
-        return <li key={item.index}>
-          <strong>{item.resultingName ?? item.name}</strong>
-          <p>{item.compatibility.titleIds.join(", ")} · {item.compatibility.gameBuild ?? "build unknown"} · {item.actionCount} actions</p>
-          <p className="presets-meta">{reason ? `Stored for later. Cannot apply to this save: ${reason}` : "Matching known boundaries; plugin validation is required before applying."}</p>
-          {item.replacesName && <p className="notice notice--Warning">Replaces “{item.replacesName}”.</p>}
-          {!preview.readyToCommit && (item.conflicts.length > 0 || item.repeatedPackageName) && <fieldset disabled={busy}>
-            <legend>Resolve duplicate for “{item.name}”</legend>
-            {item.repeatedPackageName && <p>Another preset in this package has the same name.</p>}
-            <label><input type="radio" name={`import-${item.index}`} checked={choices[item.index]?.decision === "keepBoth"}
-              onChange={() => setChoices(current => ({ ...current, [item.index]: { index: item.index, decision: "keepBoth" } }))} /> Keep both (use a distinct name)</label>
-            {item.conflicts.map((target, index) => <label key={target.id}><input type="radio" name={`import-${item.index}`}
-              checked={choices[item.index]?.replaceId === target.id} onChange={() => setChoices(current => ({ ...current, [item.index]: { index: item.index, decision: "replace", replaceId: target.id } }))} /> Replace existing “{target.name}” (match {index + 1})</label>)}
-          </fieldset>}
-          <details><summary>Technical details</summary><p>Plugin {item.compatibility.pluginId} · version {item.compatibility.pluginVersion}</p><p>Variant {item.compatibility.formatVariant ?? "unknown"} · role {item.compatibility.fileRole ?? "unknown"} · capability schema {item.compatibility.capabilitySchemaVersion ?? "legacy"}</p><p>Kind {item.compatibility.presetKind} · schema fingerprint {item.compatibility.schemaFingerprint ?? "unknown"}</p><p>Reference identity {item.compatibility.referencePackIdentity ?? "unknown"}</p>{item.conflicts.map((target, index) => <p key={target.id}>Match {index + 1}: {target.id}</p>)}</details>
-        </li>;
-      })}</ol>
+      <ol className="preset-transfer-items">{preview.items.map(item => <ImportPresetItem key={item.index} item={item}
+        status={statuses[item.index]} choice={choices[item.index]} busy={busy} reviewed={preview.readyToCommit} onChoice={choose} />)}</ol>
       {preview.readyToCommit ? <button className="btn btn--primary" type="button" disabled={busy || stale} onClick={() => void commit()}>Confirm import</button>
         : <button className="btn btn--primary" type="button" disabled={busy || stale || Object.keys(choices).length !== preview.items.length} onClick={() => void review()}>Review resulting names</button>}
     </>}
