@@ -13,7 +13,7 @@ public sealed class ChildBoundaryTests
         var bytes = Fixture(inherited, corrupt: true);
         var container = CsavContainer.Parse(bytes);
         var error = Assert.Throws<SaveFormatException>(() => CsavTree.Parse(container));
-        Assert.Contains("child link", error.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal($"CSAV node {(inherited ? 2 : 0)} child link crosses its sibling or parent boundary.", error.Message);
         Assert.Throws<SaveFormatException>(() => new Cyberpunk2077Plugin().Open(MemorySaveSet.SingleFile("sav.dat", bytes)));
         Assert.Throws<SaveFormatException>(() => container.Rebuild(container.Payload));
     }
