@@ -19,10 +19,16 @@ internal sealed class JsonEditModel
     {
         Root = tree.Nodes[0];
         _nextId = tree.Nodes.Count;
+        _nodes = tree.Nodes;
     }
 
-    public JsonValueToken Find(int id) => Index.GetValueOrDefault(id)
-        ?? throw new KeyNotFoundException("The JSON record no longer exists.");
+    public JsonValueToken Find(int id)
+    {
+        // Parsed IDs are their positions until structure changes. Reuse that index
+        // without building another document-wide dictionary for a single lookup.
+        if (_nodes is { } nodes && id >= 0 && id < nodes.Count && nodes[id].Index == id) return nodes[id];
+        return Index.GetValueOrDefault(id) ?? throw new KeyNotFoundException("The JSON record no longer exists.");
+    }
 
     public void Change(string operation, int id, string? json, string? key)
     {

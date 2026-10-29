@@ -10,13 +10,15 @@ internal sealed record JsonEncoding(bool Xor, bool Plain = false)
     {
         var result = new byte[bytes.Length];
         for (var i = 0; i < result.Length; i++)
-            result[i] = Plain ? bytes[i] : Xor ? (byte)(bytes[i] ^ 1) : unchecked((byte)(bytes[i] + (decode ? 1 : -1)));
+            result[i] = TransformByte(bytes[i], decode);
         return result;
     }
 
+    private byte TransformByte(byte value, bool decode) =>
+        Plain ? value : Xor ? (byte)(value ^ 1) : unchecked((byte)(value + (decode ? 1 : -1)));
+
     internal static bool HasEncodedPrefix(ReadOnlySpan<byte> prefix) =>
-        HasJsonPrefix(new JsonEncoding(true).Transform(prefix, true)) ||
-        HasJsonPrefix(new JsonEncoding(false).Transform(prefix, true));
+        HasJsonPrefix(prefix, new JsonEncoding(true)) || HasJsonPrefix(prefix, new JsonEncoding(false));
 
     internal static DecodedJson Decode(byte[] bytes)
     {
@@ -30,8 +32,8 @@ internal sealed record JsonEncoding(bool Xor, bool Plain = false)
         DecodedJson? match = null;
         foreach (var encoding in new[] { new JsonEncoding(true), new JsonEncoding(false) })
         {
+            if (!HasJsonPrefix(bytes, encoding)) continue;
             var plain = encoding.Transform(bytes, true);
-            if (!HasJsonPrefix(plain)) continue;
             JsonTokenTree tree;
             try { tree = JsonTokenTree.Parse(plain); }
             catch (SaveFormatException) { continue; }
@@ -41,15 +43,25 @@ internal sealed record JsonEncoding(bool Xor, bool Plain = false)
         return match ?? throw new SaveFormatException("Not valid XOR-1 or byte-minus-one UTF-8 JSON.");
     }
 
-    private static bool HasJsonPrefix(ReadOnlySpan<byte> bytes)
+    private static bool HasJsonPrefix(ReadOnlySpan<byte> bytes, JsonEncoding? encoding = null)
     {
-        if (bytes.StartsWith("\uFEFF"u8)) bytes = bytes[3..];
-        foreach (var value in bytes)
+        // Inspect candidate bytes in place, including a transformed UTF-8 BOM, before
+        // allocating a full-file decode buffer. Plausible candidates still parse fully.
+        byte Decode(byte value) => encoding?.TransformByte(value, true) ?? value;
+        var start = bytes.Length >= 3 && Decode(bytes[0]) == 0xEF && Decode(bytes[1]) == 0xBB && Decode(bytes[2]) == 0xBF ? 3 : 0;
+        var objectStarted = false;
+        for (var i = start; i < bytes.Length; i++)
         {
+            var value = Decode(bytes[i]);
             if (value is (byte)' ' or (byte)'\r' or (byte)'\n' or (byte)'\t') continue;
-            return value is (byte)'{' or (byte)'[';
+            if (objectStarted) return value is (byte)'"' or (byte)'}';
+            if (value == (byte)'[') return true;
+            if (value != (byte)'{') return false;
+            objectStarted = true;
         }
-        return false;
+        // ReadHeader may stop before an object's first member. Full parsing, not
+        // this inexpensive prefix check, establishes validity and ambiguity.
+        return objectStarted;
     }
 }
 

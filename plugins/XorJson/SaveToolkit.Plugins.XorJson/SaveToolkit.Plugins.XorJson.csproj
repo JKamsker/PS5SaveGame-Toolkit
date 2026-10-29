@@ -3,6 +3,7 @@
     <RootNamespace>SaveToolkit.Plugins.XorJson</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="SaveToolkit.Plugins.XorJson.Tests" />
     <EmbeddedResource Include="ReferencePacks\**\*" LogicalName="refpacks/%(RecursiveDir)%(Filename)%(Extension)" />
     <!-- Plugins depend on the SDK only (never on Core/Api). -->
     <ProjectReference Include="..\..\..\src\SaveToolkit.Sdk\SaveToolkit.Sdk.csproj" />
