@@ -192,7 +192,10 @@ public static partial class SaveSetImporter
             var index = _files.Count;
             var blobPath = Path.Combine(storageRoot, $"{index:D6}.blob");
             var (length, sha) = CopyToBlob(content, blobPath, expectedLength, expectedCrc32);
-            _files.Add(new PendingFile(parsed, generation, blobPath, length, sha));
+            // Title/group identities are synthetic for title-less layouts. Keep the validated,
+            // normalized source path independently so those identities cannot rename an export.
+            var importedRelativePath = parsed.TitleId is null ? string.Join('/', PathSegments(archivePath)) : null;
+            _files.Add(new PendingFile(parsed, generation, blobPath, length, sha, importedRelativePath));
         }
 
         private (long Length, string Sha256) CopyToBlob(Stream content, string blobPath, long? expectedLength, uint? expectedCrc32)
@@ -265,7 +268,8 @@ public static partial class SaveSetImporter
                 var directory = new DiskSaveDirectory(set, $"d{dirIndex++}", title, group.Key.Raw, group.Key.Generation) { ParamSfo = sfo };
                 foreach (var f in group.OrderBy(f => f.Path.PathInDirectory, StringComparer.OrdinalIgnoreCase))
                 {
-                    var file = new DiskSaveFile(directory, $"f{fileIndex++}", f.Path.PathInDirectory, f.BlobPath, f.Length, f.Sha256);
+                    var file = new DiskSaveFile(directory, $"f{fileIndex++}", f.Path.PathInDirectory, f.BlobPath, f.Length, f.Sha256,
+                        f.ImportedRelativePath);
                     (file.IsSystemFile ? directory.SystemFileList : directory.FileList).Add(file);
                 }
 
@@ -278,6 +282,7 @@ public static partial class SaveSetImporter
         private static string? NormalizeTitle(string? id) =>
             id is not null && TitleIdRegex().IsMatch(id) ? id.ToUpperInvariant() : null;
 
-        private sealed record PendingFile(ParsedPath Path, int Generation, string BlobPath, long Length, string Sha256);
+        private sealed record PendingFile(ParsedPath Path, int Generation, string BlobPath, long Length, string Sha256,
+            string? ImportedRelativePath);
     }
 }
