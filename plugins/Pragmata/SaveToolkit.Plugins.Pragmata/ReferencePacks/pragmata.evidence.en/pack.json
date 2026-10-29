@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "pragmata.evidence.en",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "title": "Pragmata observed identifiers (not a gameplay dictionary)",
   "plugins": [
     "pragmata"
@@ -57,16 +57,16 @@
       "files": [
         {
           "path": "pragmata-items.json",
-          "sha256": "25e17cabbc82777f1492eea2ae41ea51c34987afd7be334ec21818bafe73ad93"
+          "sha256": "8b0274992e6a9766543853c77817a948dcbde169f67a27b1616f27211d3d0fbb"
         }
       ],
       "attribution": {
-        "sourceUrl": "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21",
-        "author": "Save Toolkit contributors",
-        "license": "CC0-1.0",
-        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "retrieved": "2026-10-28",
-        "modifications": "Selected observed hashes; verified spelling; original group labels and explicit unknown-ID descriptions. No game text or artwork."
+        "sourceUrl": "https://github.com/jestelf/PragmataTrainer/blob/570400495c8d29106b84caea43de2ba8aee7bfff/src/PragmataTrainer.cs",
+        "author": "jestelf (three resource ID/name pairs); Save Toolkit contributors (PS5 cross-check and unmapped-ID descriptions)",
+        "license": "MIT (three resource ID/name pairs); CC0-1.0 (original unmapped-ID descriptions)",
+        "licenseUrl": "https://github.com/jestelf/PragmataTrainer/blob/570400495c8d29106b84caea43de2ba8aee7bfff/LICENSE",
+        "retrieved": "2026-10-29",
+        "modifications": "Selected three ID/name pairs from Currencies and the English translation dictionary; normalized capitalization. Inferred against all 11 PS5 gameplay saves. Remaining 87 names Unknown; original placeholder descriptions are CC0-1.0. No trainer code, caps, actions or write permissions imported."
       }
     },
     {

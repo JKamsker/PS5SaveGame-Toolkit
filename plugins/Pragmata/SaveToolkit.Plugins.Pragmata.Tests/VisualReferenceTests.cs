@@ -96,8 +96,9 @@ public sealed class VisualReferenceTests
         Assert.Same(catalog, secondContext.Catalog(IllustratedReferences.CatalogId));
         Assert.Same(context.GetAsset(records[0].AssetId!), secondContext.GetAsset(records[0].AssetId!));
         Assert.Equal(43, context.Catalog(ReferenceReadouts.MissionsCatalog)!.Count);
+        // Resource names now have separate ID evidence; artwork still has no save-ID crosswalk.
         Assert.All(context.Catalog(ReferenceReadouts.ItemsCatalog)!.Search(new ReferenceQuery { Limit = 200 }).Items,
-            record => Assert.Equal("Unknown", record.Attributes["confidence"]));
+            record => Assert.Null(record.AssetId));
     }
 
     [Fact]

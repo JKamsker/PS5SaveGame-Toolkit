@@ -19,24 +19,25 @@ public sealed class ReferenceViewTests
     private const string ItemId = "2227368435";
 
     [Fact]
-    public void EmbeddedCatalogsCarryLicensesAndExplicitUnknownNames()
+    public void EmbeddedCatalogsCarryLicensesAndConservativeItemNames()
     {
         var plugin = new PragmataPlugin();
         var store = new ReferencePackStore([plugin]);
         Assert.Empty(store.LoadErrors);
         var pack = Assert.Single(store.Packs);
         Assert.Equal("pragmata.evidence.en", pack.Id);
-        Assert.Equal("1.4.0", pack.Info.Version);
+        Assert.Equal("1.5.0", pack.Info.Version);
         var context = store.Pin(plugin, "PPSA02530");
         Assert.Equal(408, context.Catalog("pragmata-identifiers")!.Count);
         Assert.Equal(27, context.Catalog("pragmata-sections")!.Count);
         var items = context.Catalog(ReferenceReadouts.ItemsCatalog)!;
         Assert.Equal(90, items.Count);
         var item = items.Find(ItemId)!;
-        Assert.StartsWith("Unmapped item", item.Name, StringComparison.Ordinal);
-        Assert.Equal("Unknown", item.Attributes["confidence"]);
+        Assert.Equal("Lunafilament", item.Name);
+        Assert.Equal("Inferred", item.Attributes["confidence"]);
         Assert.Null(item.Limit);
-        Assert.Equal("CC0-1.0", item.Dataset.Attribution.License);
+        Assert.Contains("MIT", item.Dataset.Attribution.License, StringComparison.Ordinal);
+        Assert.Contains("CC0-1.0", item.Dataset.Attribution.License, StringComparison.Ordinal);
         Assert.Equal("MIT", context.Catalog("pragmata-identifiers")!.Dataset.Attribution.License);
         Assert.Empty(store.Pin(plugin, "PPSA99999").Packs);
     }

@@ -12,7 +12,8 @@ test has been performed; only a human should promote this plugin to Stable.
   marker, and F6 preview/apply actions to set quantities or restore eligible quantities
   to their immutable workspace opening amounts, for selected or all existing rows. F2 reference packs
   supply attributed names/descriptions/icons through writable F4 reference fields
-  and F3 detail cells. The embedded item catalog labels all 90 IDs unmapped.
+  and F3 detail cells. The embedded item catalog names three resources Inferred;
+  the remaining 87 IDs stay Unknown and unmapped.
 - A lazy illustrated reference library contains 29 compact images: 14 items and
   15 common weapons. Nine short official-description excerpts are transcribed by
   the wiki; six descriptions are explicitly labelled wiki summaries. Its stable
@@ -96,7 +97,7 @@ console status and integrity limitation; F6 preview/apply outcomes retain warnin
 | Quests existing primitives | Unknown | Same; objective identifiers do not prove quest semantics | Same | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one objective state; verify prerequisites and downstream quest behavior |
 | World existing primitives | Unknown | Same; fixed physical row identities and bounded F8 details | Same | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one checkpoint/gimmick/prop/environment value; verify travel, interactions and dependent state |
 | Existing quantity controls and F6 selected/all quantity action (retained) | Inferred | Independent golden hashes; all-sample F1 quantity-only deltas; atomic planned apply and group undo | Same | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small quantity change; preview, apply, undo/redo, export/re-import and console load |
-| Restore imported eligible quantities (edit-coverage #14) | Inferred storage; item meanings Unknown; Experimental | Immutable opening plaintext; existing int32 setters/bounds; all 11 gameplay samples restored byte-identically after staged reductions; synthetic eligibility, alias, cancel, selection/query, stale/forged-plan and undo/redo checks | CityHash64/Murmur3 and encryption verified by export/reopen; RSA trailer preserved, unverified | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): identify/use one restored stack, load/resave and inspect equipped/unlock/dependency side effects |
+| Restore imported eligible quantities (edit-coverage #14) | Inferred storage; three resource names Inferred, other item meanings Unknown; Experimental | Immutable opening plaintext; existing int32 setters/bounds; all 11 gameplay samples restored byte-identically after staged reductions; synthetic eligibility, alias, cancel, selection/query, stale/forged-plan and undo/redo checks | CityHash64/Murmur3 and encryption verified by export/reopen; RSA trailer preserved, unverified | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): identify/use one restored stack, load/resave and inspect equipped/unlock/dependency side effects |
 | Existing header/clock/raw primitive edits (retained) | Inferred for named fields; Unknown otherwise | 12 no-op identities; primitive/clock edit/reopen/reverse and derived-clock undo tests | Same | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): unchanged control first, then one small edit per family |
 
 **The game may reject edited saves.** RSA trailer verification/regeneration is
@@ -297,7 +298,8 @@ for unmapped fields/family semantics. Identifier provenance remains hash-verifie
 it does not confer Verified gameplay confidence. Experimental console/integrity
 warnings appear in every field description and at the top of each tab.
 
-Item names, ID meanings, legal stack limits, unlock dependencies, many field
+Three resource ID/name pairs are Inferred as documented below; the remaining
+87 item names, legal stack limits, unlock dependencies, many field
 semantics, unknown metadata and console compatibility remain unverified. The
 reviewed enum dump supplies type-specific symbols, not a confirmed item dictionary. Quantities retain
 the full signed int32 storage range with a warning; bulk N is nonnegative int32.
@@ -305,10 +307,10 @@ The F6 action changes existing entries, including zero-count entries, without
 adding records or setting unlock flags. The preview lists raw-ID old/new values,
 aliases, skips and warnings. Explicit empty selection changes nothing; unknown,
 duplicate or non-inventory keys and duplicate item IDs reject the entire action.
-Direct bulk invocation is rejected. For large inventories, use all-matching query
-selection to publish target bindings before planning. Explicit row/document scopes
-still reject unbound quantities; internal setters alone would not establish framework
-specs or complete semantic review. No new gameplay write family, legal-max preset
+Direct bulk invocation is rejected. For large inventories, all-matching query
+selection publishes target bindings before planning. SDK-02 also resolves explicit
+row/document targets without loading their pages, retaining the same framework
+specs and complete semantic review. No new gameplay write family, legal-max preset
 or structural operation is introduced in the completion round.
 
 Regenerate the pack from reviewed local copies of all pinned inputs (downloads
@@ -320,7 +322,7 @@ python -I plugins/Pragmata/scripts/build-reference-pack.py --rsz <MIT-rszpragmat
 
 That command writes the base/community 1.3.0 manifest. Follow it with the
 [visual-pack rebuild](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/visual-reference.source.md)
-using the reviewed external captures to restore the complete 1.4.0 pack.
+using the reviewed external captures to restore the complete 1.5.0 pack.
 
 The generator validates source SHA-256
 `67e5ed72e0e9efff0287214ad36737a8959d799aa1510b6b76591731a21f4df2`,
@@ -330,9 +332,9 @@ only the reviewed JSON/string inputs, current known-hash subset and evidence man
 and does not download/execute upstream code or read saves. HashNames is the
 reviewed observed-hash allowlist; adding new hashes requires reviewing that subset.
 
-The embedded `pragmata.evidence.en` v1.4.0 pack contains `pragmata-identifiers`
+The embedded `pragmata.evidence.en` v1.5.0 pack contains `pragmata-identifiers`
 (408 MIT names), `pragmata-sections` (27 MIT-derived group labels) and
-`pragmata-items` (90 CC0 original unmapped-ID descriptions) and `pragmata-item-evidence`
+`pragmata-items` (three MIT Inferred resource names and 87 CC0 Unknown placeholders) and `pragmata-item-evidence`
 (six MIT mission-opening-condition cross-references) and `pragmata-missions`
 (43 MIT PC reference records; raw hashes/GUIDs, no localized names), plus
 `pragmata-restored-identifiers` (five names), `pragmata-field-schema` (459 declarations)
@@ -352,7 +354,8 @@ User packs can supply
 names/descriptions/icons under another pack ID; item keys are invariant decimal
 uint32 strings. Identifier and section keys are eight-digit lower-case hex.
 See [pack provenance and import contract](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/data.source.md).
-See also the [community-input hashes, transformations and confidence rules](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/community.source.md).
+See also the [community-input hashes, transformations and confidence rules](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/community.source.md)
+and [resource-name source ledger](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/currency-labels.source.md).
 F4 item references allow experimental existing-ID replacements, imported labels are at most Inferred, and
 reference limits do not become edit caps. Artwork and description excerpts are
 confined to the separate reference library and atlas described above; they do not
@@ -364,6 +367,88 @@ records, not proven gameplay identities. Search covers raw IDs, types and up to
 12 direct stored fields per record; nested arrays are queried separately, and text
 payloads remain in details. GUIDs are fingerprinted in query summaries. Sorting is
 ordinal text with a stable row-key tie-break; queries use offsets, not cursors.
+
+## Currency ID field discovery (#40)
+
+Research date: **2026-10-29**, after SDK-02 adoption `a22ee64` (included in
+the starting merge `7430250`). The result is three **Inferred** resource labels
+in the existing attributed `pragmata-items` catalogue, with raw decimal/hex IDs
+retained. It adds no writes, actions, caps, eligibility rules or icon associations.
+
+The public [jestelf trainer source, pinned revision 5704004](https://github.com/jestelf/PragmataTrainer/blob/570400495c8d29106b84caea43de2ba8aee7bfff/src/PragmataTrainer.cs)
+explicitly pairs three IDs with resource names in `Currencies`; its own English
+translation dictionary supplies their English names. Static inspection only:
+downloaded code/data were never executed. The input hash, MIT notice,
+attribution and exact extracted records are in the
+[resource-name ledger](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/currency-labels.source.md).
+
+| Raw ID | Label / confidence | Consistent PS5 evidence (aggregate only) |
+| --- | --- | --- |
+| `0x84c2f1f3` / `2227368435` | Lunafilament — **Inferred** | Exactly once in all 11 gameplay saves; 10 distinct quantities; range 863–5,258. The only ID with quantities in the thousands, consistent with the guide's printing/upgrading currency. |
+| `0x0b30ca95` / `187746965` | Upgrade Components — **Inferred** | Exactly once in all 11; five distinct quantities, range 0–19. Smaller spendable-resource pattern, consistent with the explicit source crosswalk. |
+| `0x7d9b1f63` / `2107318115` | Pure Lunum — **Inferred** | Exactly once in all 11; five distinct quantities, range 0–12. Scarcer-resource pattern, consistent with the explicit source crosswalk and upgrade guide. |
+
+Method: an authored scratch-only C# probe opened the external ZIP read-only,
+read matching entries into memory, deduplicated by complete-file SHA-256 and used
+the plugin's own `DsssContainer` → `SaveLayout` → `PrimitiveCodec` path. No source
+archive was copied or junctioned. All 12 distinct files were decoded: 11 gameplay
+files with 90 inventory records each, and one system file without inventory.
+Comparison keyed each quantity by exact uint32 ID, never row number, slot order
+or a guessed timestamp chronology. Every gameplay inventory has the same 90 IDs,
+each unique within that save. All 55 unordered gameplay pairs were compared;
+there are 10 distinct inventory states, so the 11 files are not independent
+controlled experiments. Full per-file observations and scripts remain in
+`D:/Temp/saveeditor/test-scratch/research-pragmata-currency`, not in git.
+
+Presence and uniqueness alone do not distinguish currencies: **every** observed
+item meets those conditions. Of 90 IDs, 60 stay zero, seven stay one, 15 vary only
+between zero and one, and eight have a quantity above one. The three source-backed
+labels are among those eight. Cross-save variation is differential evidence of
+storage and a consistency check on the public mapping, not proof that any
+particular gameplay event changed a balance. The source is PC, the supplied PS5
+build is unconfirmed, and no controlled UI gain/spend capture is available.
+Confidence therefore stays Inferred; legal maxima and console acceptance stay Unknown.
+
+### Negative results: remaining resource candidates
+
+These are the other five IDs with quantities above one. **None is named.** All
+occur once per gameplay save, but no reviewed public source supplies their exact
+numeric-to-name join. The aggregate ranges below are triage facts, not legal caps.
+
+| Raw ID / decimal | Observed range | Rejected inference / reason |
+| --- | --- | --- |
+| `0x24f0ff44` / `619773764` | 1–2 | A low stack could be a key, consumable or other resource; no ID crosswalk. |
+| `0x29c9936b` / `701076331` | 0–14 | Resource-like variation does not establish Cabin Coins, Data Shards or another named item. |
+| `0x5d5bbd51` / `1566293329` | 1–2 | Same ambiguity as `0x24f0ff44`; matching count patterns do not establish equal meaning. |
+| `0x90d3dce4` / `2429803748` | 0–3 | Small changing count could represent a capacity/consumable or collectible; no supported name. |
+| `0xab13a98a` / `2870192522` | 1–7 | A plausible limited resource, but selecting a guide name by magnitude would be guessing. |
+
+The other 82 IDs also remain Unknown. In particular, **Cabin Coins have no proven
+raw ID**: AppMedia documents their acquisition and Stamp Club use, but gives no
+save IDs. The previously reviewed wiki item/illustrated tables supply names and
+artwork without a numeric join; direct Fandom reads in this round were unavailable
+(HTTP 402 / restricted URL), so no newly verified wiki mapping is claimed.
+REE's pinned enum dump has no `app.ObjectIDs` numeric table or currency-name
+crosswalk. The MIT neuro-pragmata resolver obtains categories/names dynamically
+through `app.ObjectIDs.getKindHash` and `GuiDataManager.getItemData`; its code is a
+capture lead, not a dumped mapping. No relevant Cabin Coin/raw-candidate mapping
+was found in the bounded public web/GitHub searches; this is not an exhaustive
+claim that none exists.
+
+To strengthen the three labels or resolve a rejected candidate, capture the
+build/platform and displayed balance, an unchanged control, then one isolated
+gain or spend (one Stamp Club tile for Cabin Coins). Re-export, decode by ID and
+check the exact delta plus every other inventory row. A reviewed runtime dump
+that joins each uint32 ID to localized `GUIItemData` is another useful source;
+PC/PS5 equivalence and native load/resave acceptance still need owner evidence.
+
+Suggested maintainer update to `docs/EDIT_COVERAGE.md` PR05: **E — I labels for
+Lunafilament `0x84c2f1f3`, Upgrade Components `0x0b30ca95`, Pure Lunum `0x7d9b1f63`,
+from a pinned MIT PC crosswalk and all 11 PS5 gameplay inventories. Existing PR01
+quantity writes only; 87 names, including Cabin Coins, remain U. Build-matched
+gain/spend, legal caps and console validation remain open.** Replace the blanket
+deferred-name statement with these three discoveries and the remaining Cabin
+Coin/other-resource research gap. Central documentation is outside this branch's scope.
 
 ## Validation and development
 
@@ -391,6 +476,26 @@ guard. Scratch, TEMP, TMP and TMPDIR were under
 `D:/Temp/saveeditor/test-scratch/adopt-sdk02-pragmata`; samples stayed in the external
 artifact directory. `DOTNET_TieredCompilation=0` and `DOTNET_PROCESSOR_COUNT=1`
 stabilized allocation measurements without changing their limits.
+
+Currency discovery validation, **2026-10-29**: **324 plugin tests passed, 0 failed,
+0 skipped** with samples (15 new cases, first observed failing before the labels
+were added). These include labels and byte-identical no-ops in each gameplay
+sample, all 12 existing container/no-op checks, conformance, 200 mutation cases
+and every unchanged allocation limit. A separate run with an empty artifacts
+directory passed all **three synthetic resource-label cases, 0 failed, 0 skipped**;
+it compares signed int32 bounds and restore eligibility with/without reference names.
+The API Release build passed with **0 warnings, 0 errors**. Pack/source hashes,
+generator syntax, local report links, sub-300-line C# files and `git diff --check`
+also pass. Builds used `--artifacts-path` under
+`D:/Temp/saveeditor/test-scratch/research-pragmata-currency`; all test scratch,
+TEMP/TMP/TMPDIR and research scripts stayed under that same task root.
+
+The additional central documentation command, `python -B docs/tests/test_documentation.py
+--code-ref main`, has **27 passing checks and one pre-existing failure**:
+`test_documented_reference_and_action_routes_exist` expects `/reference-fields/records`
+in the untouched plugin guide. The starting guide at `7430250` is byte-identical
+to the working guide and has the same missing route. This central documentation
+mismatch is outside the plugin-only edit scope; it is not reported as passing.
 
 ```powershell
 $scratch = 'D:/Temp/saveeditor/test-scratch/feat-coverage-pragmata'
@@ -448,7 +553,7 @@ measurements and remaining mission-text/save-ID gaps are in the
 | Feature | Status | Where / concrete limitation |
 | --- | --- | --- |
 | F1 SaveDiff | Used | Production `pragmata-canonical-v1` SDK hook, shared diff engine and versioned evidence manifest; all-sample synthetic quantity/write isolation. |
-| F2 reference packs | Used | Pack 1.4.0 retains existing evidence and adds 29 illustrated references, 26 community hatch locations, 29 WebP icons and one atlas background; hashes, provenance and missing-pack fallbacks. |
+| F2 reference packs | Used | Pack 1.5.0 adds three Inferred resource ID/name pairs; retains 87 Unknown item names, 29 illustrated references, 26 community hatch locations, 29 WebP icons and one atlas background; hashes, provenance and missing-pack fallbacks. |
 | F3 rich cells | Used | Existing inventory/evidence cells plus lazy image/name/category/source rows for the illustrated library; icons are 64×64 with attribution. |
 | F4 pickers | Used | Writable inventory item IDs; browse-only mission/item-evidence and illustrated references. Wiki file keys are never eligible inventory IDs. |
 | F5 structural undo | N/A | Only fixed-size primitive patching exists; no preserve-first resizing writer. Unknown padding/count metadata prevents safe add/remove/reorder. |
@@ -518,6 +623,11 @@ Sections and uniquely keyed records retain their existing canonical paths.
 | `pragmata-field-schema` (459 declarations) | [Pinned REE RSZ dump](https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/rszpragmata.json), same authors. No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-28; known class/field hash crosswalk, original/storage types, array flag and declared size/alignment. Inferred metadata; no parser or edit-bound changes. SHA-256 in sidecar. |
 | `pragmata-enum-members` (230 numeric values, eight types) | [Pinned REE enum dump](https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json), same authors. No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-28; only types referenced by selected schema declarations; aliases retained. Exact class/field/storage/value matching in primitive descriptions, Inferred semantics. SHA-256 in sidecar. |
 | Item ID placeholders / sample observation statistics | [Issue #21](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21), Save Toolkit contributors, [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) for original descriptions / computed facts | 2026-10-28; no gameplay name mapping; GUIDs fingerprinted; no sample payloads. |
+| Three resource ID/name pairs in `pragmata-items` | [Pinned PragmataTrainer source](https://github.com/jestelf/PragmataTrainer/blob/570400495c8d29106b84caea43de2ba8aee7bfff/src/PragmataTrainer.cs), jestelf, [MIT](https://github.com/jestelf/PragmataTrainer/blob/570400495c8d29106b84caea43de2ba8aee7bfff/LICENSE) | Accessed 2026-10-29; three pairs from `Currencies` and its English dictionary; capitalization normalized, PS5 cross-indexed, Inferred. No trainer code executed/copied, caps or write rules adopted. SHA and full notice beside the data; the other 87 placeholders retain CC0. |
+| Resource-role guide (research only) | Ali Hashmi / Prima Games, [How to Upgrade Weapons in Pragmata](https://primagames.com/tips/how-to-upgrade-weapons-in-pragmata), published 2026-04-17; rights reserved by Prima Games / Capcom | Accessed 2026-10-29; first-hand printing/upgrading examples support Lunafilament and Pure Lunum roles, not IDs. Paraphrased evidence only; no guide text/artwork embedded. |
+| Cabin Coin guide (negative-result research only) | AppMedia editorial team, [Cabin Coin acquisition and use](https://appmedia.jp/pragmata/79951345), updated 2026-04-24; rights reserved by AppMedia / Capcom | Accessed 2026-10-29; acquisition/Stamp Club use, no numeric ID. No source text/artwork embedded and no label inferred from quantity alone. |
+| Runtime ID/localization join lead (research only) | Vaultic / neuro-pragmata, [inventory.lua](https://github.com/vaultic13/neuro-pragmata/blob/ae2ee572410e353ceae19bdc23f83f71687267dd/autorun/pragmata/bindings/inventory.lua), [object_names.lua](https://github.com/vaultic13/neuro-pragmata/blob/ae2ee572410e353ceae19bdc23f83f71687267dd/autorun/pragmata/bindings/object_names.lua), [catalogs.lua](https://github.com/vaultic13/neuro-pragmata/blob/ae2ee572410e353ceae19bdc23f83f71687267dd/autorun/pragmata/bindings/catalogs.lua); MIT | Accessed 2026-10-29; static inspection confirms runtime lookup approach but yields no additional hardcoded resource-name table. No code executed/copied. |
+| Full enum dump recheck (negative-result research only) | kvasszn / REE, [pinned enumspragmata.json](https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json); No licence published; reused with attribution per owner decision 2026-10-28 | Accessed 2026-10-29; SHA-256 `c6a828b65ca065cd05003395e6d1b7a8d08872190dacca904899a615f9527c3b`; no ObjectIDs/currency crosswalk found. No additional enum data imported. |
 | `pragmata-item-evidence`: six inventory/mission opening-condition links | [Pinned mission JSON](https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json), Egg Targaryen / dzxrly; [MIT](https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/LICENSE) | 2026-10-28; exact numeric `OpenConditionItemID`/mission-ID pairs cross-indexed with observed PS5 item IDs. Inferred role; names/limits Unknown. Full notice embedded beside the dataset. |
 | `pragmata-missions`: 43 mission references / graph | Same pinned mission JSON and MIT source above, Egg Targaryen / dzxrly | 2026-10-28; ID/category/difficulty/order/condition/message metadata only. Original raw-ID labels; six item-to-18-mission edges are PC references, not verified PS5 unlock rules. Full notice/attribution in pack, UI, Sources and Info.References. |
 | Illustrated item/equipment text (29 references; 15 descriptions) | [Pragmata Wiki items](https://pragmata.fandom.com/wiki/Item?oldid=1830), [weapon index](https://pragmata.fandom.com/wiki/Template:Navbox/Weapons?oldid=3084), Pragmata Wiki contributors, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); Capcom owns the nine short quoted game-description excerpts, used with attribution per owner decision 2026-10-29 | 2026-10-29; nine short official excerpts, six adapted wiki summaries, 14 descriptions unavailable. Exact article revisions in `visual-reference.source.json`; adaptations retain CC BY-SA. No PS5 ID associations. |
