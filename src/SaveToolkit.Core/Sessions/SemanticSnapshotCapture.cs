@@ -157,12 +157,15 @@ internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields,
     public Dictionary<string, SemanticField> Fields { get; } = fields;
     public bool Complete { get; set; } = complete;
     public long Bytes { get; set; } = bytes;
+    internal long OmittedCount { get; set; }
+    internal bool OmittedCountIsLowerBound { get; set; }
     public IReadOnlyList<string> QueryWarnings { get; set; } = [];
     internal SemanticSnapshot Clone()
     {
         var copy = new SemanticSnapshot(Fields.ToDictionary(pair => pair.Key,
             pair => pair.Value with { Path = pair.Value.Path.ToArray() }, StringComparer.Ordinal), Complete, Bytes)
-        { QueryWarnings = QueryWarnings.ToArray() };
+        { QueryWarnings = QueryWarnings.ToArray(), OmittedCount = OmittedCount,
+            OmittedCountIsLowerBound = OmittedCountIsLowerBound };
         return copy;
     }
 
@@ -173,6 +176,8 @@ internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields,
             Fields.Add(id, field with { Path = field.Path.ToArray() });
         Complete = source.Complete;
         Bytes = source.Bytes;
+        OmittedCount = source.OmittedCount;
+        OmittedCountIsLowerBound = source.OmittedCountIsLowerBound;
         QueryWarnings = source.QueryWarnings.ToArray();
     }
 
@@ -180,6 +185,8 @@ internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields,
     {
         Complete &= source.Complete;
         QueryWarnings = [.. QueryWarnings, .. source.QueryWarnings];
+        OmittedCount += source.OmittedCount;
+        OmittedCountIsLowerBound |= source.OmittedCountIsLowerBound;
         foreach (var field in source.Fields.Values)
         {
             if (Fields.ContainsKey(field.ValueId)) continue;

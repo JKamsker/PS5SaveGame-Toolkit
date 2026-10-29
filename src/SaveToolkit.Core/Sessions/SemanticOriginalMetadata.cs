@@ -9,15 +9,26 @@ internal static class SemanticOriginalMetadata
         && !string.IsNullOrEmpty(field.CanonicalValueId);
 
     public static CanonicalMetadataOutcome Enrich(Func<ISaveDocument> openOriginal, SemanticSnapshot snapshot,
-        long maxBytes, ref bool capturing, CancellationToken cancellationToken)
+        long maxBytes, IReadOnlyList<string> retryIds, ref bool capturing, CancellationToken cancellationToken)
     {
-        if (snapshot.Fields.Values.All(HasMetadata) || capturing) return new(true, []);
+        if ((retryIds.Count == 0 && snapshot.Fields.Values.All(HasMetadata)) || capturing)
+            return new(true, []);
         capturing = true;
         try
         {
             using var original = openOriginal();
             if (original is IFieldMetadataDocument)
+            {
+                if (retryIds.Count > 0)
+                {
+                    var targeted = new SemanticTargetedCapture(maxBytes).Capture(
+                        original, snapshot, retryIds, cancellationToken);
+                    if (!targeted.Succeeded)
+                        return new(false, targeted.IncompleteIds, targeted.Diagnostic);
+                }
+
                 return SemanticTargetedAuthority.ApplyCanonicalMetadata(original, snapshot, maxBytes, cancellationToken);
+            }
             return new(true, []);
         }
         catch (OperationCanceledException) { throw; }

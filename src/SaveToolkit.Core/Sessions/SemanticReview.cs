@@ -29,7 +29,9 @@ internal sealed class SemanticReview
     private bool _capturingOriginal;
     private bool? _originalMetadataAvailable;
     private bool _originalMetadataAttempted;
+    private readonly HashSet<string> _originalRetryIds = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _captureFailures = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _failedOmissionIds = new(StringComparer.Ordinal);
     private int _captureOmittedCount;
     private string? _captureOmissionReason;
     private readonly SemanticSnapshotCapture _capture;
@@ -44,7 +46,9 @@ internal sealed class SemanticReview
         var targetedOnly = _targetedOnly;
         var metadataAvailable = _originalMetadataAvailable;
         var metadataAttempted = _originalMetadataAttempted;
+        var retryIds = _originalRetryIds.ToArray();
         var diagnostics = _captureFailures.ToArray();
+        var failedOmissions = _failedOmissionIds.ToArray();
         var omittedCount = _captureOmittedCount;
         var omissionReason = _captureOmissionReason;
         return () =>
@@ -55,8 +59,12 @@ internal sealed class SemanticReview
             _targetedOnly = targetedOnly;
             _originalMetadataAvailable = metadataAvailable;
             _originalMetadataAttempted = metadataAttempted;
+            _originalRetryIds.Clear();
+            _originalRetryIds.UnionWith(retryIds);
             _captureFailures.Clear();
             foreach (var (id, diagnostic) in diagnostics) _captureFailures[id] = diagnostic;
+            _failedOmissionIds.Clear();
+            _failedOmissionIds.UnionWith(failedOmissions);
             _captureOmittedCount = omittedCount;
             _captureOmissionReason = omissionReason;
         };
@@ -119,10 +127,10 @@ internal sealed class SemanticReview
                 {
                     _original.Complete = false;
                     _original.QueryWarnings = [.. _original.QueryWarnings, metadata.Diagnostic!];
-                    RecordFailures(metadata.IncompleteIds, metadata.Diagnostic!);
+                    RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
                 }
             }
-            _originalMetadataAttempted = true;
+            _originalMetadataAttempted = _originalRetryIds.Count == 0;
         }
         catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
         {
@@ -171,6 +179,7 @@ internal sealed class SemanticReview
                     snapshot = new SemanticSnapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal),
                         complete: true, bytes: 0);
                     var outcome = CaptureTargeted(original, snapshot, ids, revokeOnFailure: false, cancellationToken);
+                    RegisterOriginalRetryIds(outcome.IncompleteIds);
                     _targeted.UnionWith(outcome.CapturedIds);
                     var walked = _capture.Capture(original, static _ => { }, static _ => { }, cancellationToken);
                     if (walked.Complete)
@@ -187,10 +196,11 @@ internal sealed class SemanticReview
                     {
                         snapshot.Complete = false;
                         snapshot.QueryWarnings = [.. snapshot.QueryWarnings, metadata.Diagnostic!];
-                        RecordFailures(metadata.IncompleteIds, metadata.Diagnostic!);
+                        RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
                     }
+                    if (metadata.Applied) ClearRecoveredOriginalFailures(snapshot);
                     _originalMetadataAvailable = true;
-                    _originalMetadataAttempted = true;
+                    _originalMetadataAttempted = _originalRetryIds.Count == 0;
                 }
                 else
                 {
@@ -206,6 +216,8 @@ internal sealed class SemanticReview
             catch (OperationCanceledException) { throw; }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
+                if (_originalRetryIds.Count == 0)
+                    RecordOriginalFailures(ids, $"Targeted metadata capture failed: {ex.Message}");
                 _original = new SemanticSnapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal), complete: false, bytes: 0)
                 { QueryWarnings = [$"Targeted metadata capture failed: {ex.Message}"] };
             }
@@ -223,18 +235,20 @@ internal sealed class SemanticReview
                 return;
             }
             _originalMetadataAvailable = true;
-            _originalMetadataAttempted = true;
             var outcome = CaptureTargeted(original, existing, ids, revokeOnFailure: false, cancellationToken);
+            RegisterOriginalRetryIds(outcome.IncompleteIds);
             _targeted.UnionWith(outcome.CapturedIds);
-            foreach (var id in outcome.CapturedIds) _captureFailures.Remove(id);
             var metadata = SemanticTargetedAuthority.ApplyCanonicalMetadata(original, existing, _maxBytes, cancellationToken);
             if (!metadata.Applied)
-                RecordFailures(metadata.IncompleteIds, metadata.Diagnostic!);
+                RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
+            else
+                ClearRecoveredOriginalFailures(existing);
+            _originalMetadataAttempted = _originalRetryIds.Count == 0;
             }
             catch (OperationCanceledException) { throw; }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
-                foreach (var id in ids) RecordFailure(id, $"Targeted metadata capture failed for '{id}': {ex.Message}");
+                RecordOriginalFailures(ids, $"Targeted metadata capture failed: {ex.Message}");
             }
         }
         finally
@@ -250,13 +264,16 @@ internal sealed class SemanticReview
         try
         {
             EnsureOriginal(openOriginal, cancellationToken);
-            if (!_originalMetadataAttempted && _originalMetadataAvailable != false && _original is { } baseline)
+            if ((!_originalMetadataAttempted || _originalRetryIds.Count > 0)
+                && _originalMetadataAvailable != false && _original is { } baseline)
             {
                 var metadata = SemanticOriginalMetadata.Enrich(openOriginal, baseline, _maxBytes,
-                    ref _capturingOriginal, cancellationToken);
+                    _originalRetryIds.ToArray(), ref _capturingOriginal, cancellationToken);
                 if (!metadata.Applied)
-                    RecordFailures(metadata.IncompleteIds, metadata.Diagnostic!);
-                _originalMetadataAttempted = metadata.Applied;
+                    RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
+                else
+                    ClearRecoveredOriginalFailures(baseline);
+                _originalMetadataAttempted = metadata.Applied && _originalRetryIds.Count == 0;
             }
             return Query(document, index, expandedLazy, revision, cancellationToken);
         }
@@ -290,6 +307,9 @@ internal sealed class SemanticReview
             if (!metadata.Applied)
             {
                 current.Complete = false;
+                current.OmittedCount = checked(current.OmittedCount
+                    + Math.Max(1, metadata.IncompleteIds.Count));
+                current.OmittedCountIsLowerBound = true;
                 current.QueryWarnings = [.. current.QueryWarnings, metadata.Diagnostic!];
             }
         }
@@ -366,13 +386,37 @@ internal sealed class SemanticReview
 
     private void RecordFailure(string id, string diagnostic)
     {
-        if (_captureFailures.Count < FieldMetadataLimits.MaxClosureIds || _captureFailures.ContainsKey(id))
+        if (_captureFailures.ContainsKey(id))
+        {
             _captureFailures[id] = diagnostic;
+            return;
+        }
+
+        if (_captureFailures.Count < FieldMetadataLimits.MaxClosureIds)
+        {
+            _captureFailures[id] = diagnostic;
+            if (_failedOmissionIds.Add(id)) _captureOmittedCount++;
+        }
         else
             RecordOmissions(1, "Per-ID targeted metadata diagnostics exceeded the bounded aggregate limit.");
     }
 
-    private void RecordFailures(IReadOnlyList<string> ids, string diagnostic)
+    private void RegisterOriginalRetryIds(IEnumerable<string> ids)
+    {
+        foreach (var id in ids)
+        {
+            if (_originalRetryIds.Contains(id)) continue;
+            if (_originalRetryIds.Count >= FieldMetadataLimits.MaxClosureIds)
+            {
+                RecordOmissions(1, "Original targeted metadata retry coverage exceeded its bounded limit.");
+                continue;
+            }
+
+            _originalRetryIds.Add(id);
+        }
+    }
+
+    private void RecordOriginalFailures(IReadOnlyList<string> ids, string diagnostic)
     {
         if (ids.Count == 0)
         {
@@ -380,8 +424,20 @@ internal sealed class SemanticReview
             return;
         }
 
+        RegisterOriginalRetryIds(ids);
         foreach (var id in ids)
             RecordFailure(id, diagnostic);
+    }
+
+    private void ClearRecoveredOriginalFailures(SemanticSnapshot snapshot)
+    {
+        foreach (var id in _originalRetryIds.ToArray())
+        {
+            if (!snapshot.Fields.TryGetValue(id, out var field) || !SemanticOriginalMetadata.HasMetadata(field)) continue;
+            _originalRetryIds.Remove(id);
+            if (_captureFailures.Remove(id) && _failedOmissionIds.Remove(id) && _captureOmittedCount > 0)
+                _captureOmittedCount--;
+        }
     }
 
     private void RecordOmissions(int count, string reason)
