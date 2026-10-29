@@ -1,60 +1,46 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
-import type { SaveFileInfo } from "../../api/protocol";
 import { DocumentEditor } from "../document/DocumentEditor";
 import { Toast, type ToastMessage } from "../ui/Toast";
 import { ExportDialog } from "./ExportDialog";
 import { SlotRail } from "./SlotRail";
 import { useEntryFocus } from "../ui/useEntryFocus";
+import { useAsyncTask } from "../ui/useAsyncTask";
+import { useLatestRequest } from "../ui/useLatestRequest";
+import { WorkspaceSelectionContext } from "../../state/workspaceSelection";
+import { useOpenDocument } from "./useOpenDocument";
 
 export function WorkspacePage() {
   const { workspaceId = "" } = useParams();
   const [search, setSearch] = useSearchParams();
   const documentId = search.get("doc") ?? undefined;
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const location = useLocation();
+  const beginSelection = useLatestRequest(`${workspaceId}:${location.key}`);
   const exportDialog = useRef<HTMLDialogElement>(null);
   const [exportOpen, setExportOpen] = useState(false);
-  const [closing, setClosing] = useState(false);
+  const { busy: closing, run: closeTask } = useAsyncTask(workspaceId);
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const workspace = useQuery({ queryKey: ["workspace", workspaceId], queryFn: () => api.workspace(workspaceId), retry: false });
   const focusHeading = useEntryFocus(`${workspaceId}:${documentId ?? "picker"}:${Boolean(workspace.data)}`);
 
   const notify = useCallback((text: string, isError = false) => setToast({ text, isError, at: Date.now() }), []);
+  const select = useCallback((id: string) => setSearch({ doc: id }), [setSearch]);
+  const open = useOpenDocument(workspaceId, beginSelection, select, notify);
 
-  const close = async () => {
+  const close = () => closeTask(async isCurrent => {
     const hasEdits = workspace.data?.documents.some(document => document.isDirty);
     if (hasEdits && !window.confirm("Discard the edits in this dump and close it? Export a zip first if you want to keep them.")) return;
-    setClosing(true);
+    const selectionIsCurrent = beginSelection();
     try {
       await api.deleteWorkspace(workspaceId);
-      navigate("/");
+      if (isCurrent() && selectionIsCurrent()) navigate("/");
     } catch (error) {
-      notify(error instanceof ApiError ? error.message : "Could not close the dump.", true);
-    } finally {
-      setClosing(false);
+      if (isCurrent() && selectionIsCurrent()) notify(error instanceof ApiError ? error.message : "Could not close the dump.", true);
     }
-  };
-
-  const open = useCallback(
-    async (file: SaveFileInfo, pluginId?: string) => {
-      try {
-        if (file.openDocumentId && !pluginId) {
-          setSearch({ doc: file.openDocumentId });
-          return;
-        }
-        const doc = await api.open(workspaceId, file.id, pluginId);
-        queryClient.setQueryData(["document", workspaceId, doc.id], doc);
-        setSearch({ doc: doc.id });
-        void queryClient.invalidateQueries({ queryKey: ["workspace", workspaceId] });
-      } catch (error) {
-        notify(error instanceof ApiError ? error.message : "Could not open the file.", true);
-      }
-    },
-    [workspaceId, queryClient, setSearch, notify],
-  );
+  });
 
   useEffect(() => {
     if (exportOpen) exportDialog.current?.showModal();
@@ -81,7 +67,7 @@ export function WorkspacePage() {
   const dirtyCount = ws.documents.filter((d) => d.isDirty).length;
 
   return (
-    <div className="shell">
+    <WorkspaceSelectionContext.Provider value={beginSelection}><div className="shell">
       <header className="bar">
         <Link to="/" className="bar__brand">
           <span className="bar__mark" aria-hidden="true" />
@@ -104,7 +90,7 @@ export function WorkspacePage() {
           </button>
         </div>
       </header>
-      <SlotRail workspace={ws} activeFileId={activeDoc?.fileId} onOpen={(f) => void open(f)} />
+      <SlotRail workspace={ws} activeFileId={activeDoc?.fileId} onOpen={(f) => { if (!closing) void open(f); }} />
       <main className="main">
         {workspace.isError && <div>
           <p role="alert" className="notice notice--Danger">Could not refresh the workspace: {workspace.error.message}</p>
@@ -112,11 +98,11 @@ export function WorkspacePage() {
         </div>}
         {activeDoc ? (
           <DocumentEditor
-            key={activeDoc.id}
+            key={`${ws.id}:${activeDoc.id}`}
             workspaceId={ws.id}
             documentId={activeDoc.id}
             file={activeFile}
-            onSwitchPlugin={(pluginId) => activeFile && void open(activeFile, pluginId)}
+            onSwitchPlugin={(pluginId) => { if (activeFile && !closing) void open(activeFile, pluginId); }}
             onToast={notify}
           />
         ) : (
@@ -128,6 +114,6 @@ export function WorkspacePage() {
       </main>
       <ExportDialog ref={exportDialog} workspaceId={ws.id} open={exportOpen} onClose={() => setExportOpen(false)} onToast={notify} />
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}
-    </div>
+    </div></WorkspaceSelectionContext.Provider>
   );
 }

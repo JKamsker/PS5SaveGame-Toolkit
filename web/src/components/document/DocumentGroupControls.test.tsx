@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, useLocation } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -7,6 +7,8 @@ import { api, ApiError } from "../../api/client";
 import type { SaveDocument } from "../../api/protocol";
 import { DocumentContext, DocumentStore, type DocumentContextValue } from "../../state/documentStore";
 import { DocumentGroupControls } from "./DocumentGroupControls";
+import { deferred } from "../../test/deferred";
+import { WorkspaceSelectionContext } from "../../state/workspaceSelection";
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
@@ -24,7 +26,7 @@ const offer: GroupOffer = { token: "selected", pluginId: "groups", title: "Chara
 
 function Location() { return <output aria-label="Location">{useLocation().search}</output>; }
 
-function setup(doc = document, dirty = false) {
+function setup(doc = document, dirty = false, beginSelection: (() => () => boolean) | null = null) {
   const store = new DocumentStore({ ...doc.state, isDirty: dirty });
   const context: DocumentContextValue = {
     workspaceId: "w1", documentId: doc.id, canEdit: true, store, structureVersion: 0,
@@ -32,11 +34,50 @@ function setup(doc = document, dirty = false) {
     runAction: vi.fn(async () => ({ ok: true, errors: [], warnings: [], changes: [], structureChanged: false, state: store.state })),
   };
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  render(<MemoryRouter initialEntries={["/?doc=single"]}><QueryClientProvider client={client}>
-    <DocumentContext.Provider value={context}><DocumentGroupControls document={doc} /><Location /></DocumentContext.Provider>
+  const view = render(<MemoryRouter initialEntries={["/?doc=single"]}><QueryClientProvider client={client}>
+    <WorkspaceSelectionContext.Provider value={beginSelection}><DocumentContext.Provider value={context}><DocumentGroupControls document={doc} /><Location /></DocumentContext.Provider></WorkspaceSelectionContext.Provider>
   </QueryClientProvider></MemoryRouter>);
-  return { client, store };
+  return { ...view, client, store };
 }
+
+it("ignores a group-open completion after a newer workspace selection", async () => {
+  let current = true;
+  vi.spyOn(groupApi, "propose").mockResolvedValue([offer]);
+  const pending = deferred<SaveDocument>();
+  const open = vi.spyOn(groupApi, "open").mockReturnValue(pending.promise);
+  const { client } = setup(document, false, () => () => current);
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Choose related files" })); });
+  act(() => { const button = screen.getByRole("button", { name: "Open group" }); fireEvent.click(button); fireEvent.click(button); });
+  expect(open).toHaveBeenCalledOnce();
+  current = false;
+  await act(async () => { pending.resolve({ ...document, id: "group", groupMembers: members }); await pending.promise; });
+  expect(screen.getByLabelText("Location").textContent).toBe("?doc=single");
+  expect(client.getQueryData(["document", "w1", "group"])).toBeUndefined();
+  client.clear();
+});
+
+it("ignores group-close navigation after a newer selection", async () => {
+  let current = true;
+  const pending = deferred<void>();
+  vi.spyOn(api, "closeDocument").mockReturnValue(pending.promise);
+  const { client } = setup(document, false, () => () => current);
+  fireEvent.click(screen.getByRole("button", { name: "Close document" }));
+  current = false;
+  await act(async () => { pending.resolve(); await pending.promise; });
+  expect(screen.getByLabelText("Location").textContent).toBe("?doc=single");
+  client.clear();
+});
+
+it("does not publish a proposal after unmount", async () => {
+  const pending = deferred<GroupOffer[]>();
+  vi.spyOn(groupApi, "propose").mockReturnValue(pending.promise);
+  const { unmount, client } = setup();
+  fireEvent.click(screen.getByRole("button", { name: "Choose related files" }));
+  unmount();
+  await act(async () => { pending.resolve([offer]); await pending.promise; });
+  expect(screen.queryByText("Character + profile")).toBeNull();
+  client.clear();
+});
 
 describe("document groups", () => {
   it("shows explicit partner paths and only opens the selected proposal after confirmation", async () => {
