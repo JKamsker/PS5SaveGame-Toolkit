@@ -179,4 +179,3 @@ export function useReferencePicker(props: ReferencePickerProps) {
 }
 
 export type ReferencePickerController = ReturnType<typeof useReferencePicker>;
-
