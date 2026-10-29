@@ -26,6 +26,10 @@ public sealed class TalesOfArisePlugin : IGamePlugin, ISaveDecoderProvider
             "https://aselia.fandom.com/wiki/Tales_of_Arise",
             "https://aselia.fandom.com/wiki/ToA_-_Owls",
             "https://aselia.fandom.com/wiki/ToA_-_Camps",
+            AriseAssets.MapSource,
+            AriseAssets.ArteSource,
+            "https://www.gamerguides.com/tales-of-arise/guide/characters/rinwell/artes",
+            .. AriseAssets.DescriptionSources,
             .. AriseSchema.CatalogSources,
         ],
     };

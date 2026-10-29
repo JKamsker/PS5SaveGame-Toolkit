@@ -9,13 +9,16 @@ internal sealed class AriseSpatialViews(AriseReferences references)
     private const string ProgressPath = "section:Recipe, fish and artifact guides";
     private const string MapSource = "https://aselia.fandom.com/wiki/Tales_of_Arise";
     private const string RepositorySource = "https://github.com/JKamsker/PS5SaveGame-Toolkit";
+    private const double BackgroundWidth = 1200;
+    private const double BackgroundHeight = 675;
+    private const double SchematicSize = 100;
     private static readonly ReferenceAttribution SchematicAttribution = new(
         RepositorySource,
         "PS5 Save Game Toolkit contributors",
         "GPL-3.0-or-later",
         "https://www.gnu.org/licenses/gpl-3.0.html",
         new DateOnly(2026, 10, 28),
-        "Original schematic positions generated for navigation; no game map art or coordinates copied.");
+        "Original schematic positions generated for navigation, independently of the decorative background; no geographic alignment or game coordinates claimed.");
 
     private IReadOnlyList<ViewNode>? _graphs;
     private IReadOnlyList<ViewNode>? _maps;
@@ -142,14 +145,16 @@ internal sealed class AriseSpatialViews(AriseReferences references)
         ]);
 
         return [
-            new TextNode("This is an original schematic index, not an in-game map. Positions group attributed recipe, fish and artifact guides for navigation; status and saved identity remain Unknown. External links are opened without fetching or embedding community art.") { Tone = Tone.Warning },
-            new MapNode("Progress and location schematic", new MapBounds(0, 0, 100, 100), markers,
-                "The schematic lists every pinned recipe, fish and artifact guide plus separate owl, camp and map domains. All markers are Unknown because no PS5 save joins or validated coordinates exist.")
+            new TextNode("Dahna artwork is a decorative background behind the original schematic index. Marker positions are not geographic locations or saved progress. The same schematic and text list remain available without the artwork; status and saved identity remain Unknown.") { Tone = Tone.Warning },
+            new MapNode("Progress and location schematic", new MapBounds(0, 0, BackgroundWidth, BackgroundHeight), markers,
+                "The schematic lists every pinned recipe, fish and artifact guide plus separate owl, camp and map domains. Background alignment is unconfirmed: markers retain category-grid positions, not geographic locations. All states remain Unknown.")
             {
+                Background = references.ProgressBackground,
+                Transform = new MapTransform(BackgroundWidth / SchematicSize, BackgroundHeight / SchematicSize, 0, 0),
                 CoordinateSpace = "Plugin-authored schematic grid; category grouping only",
                 CoordinateAttribution = SchematicAttribution,
                 CoordinateEmbeddingPermitted = true,
-                ExternalSource = new ExternalViewLink(MapSource, "Open external Tales of Arise map and guide index", "Aselia Wiki contributors, CC BY-SA 3.0; link only, no art or coordinates imported."),
+                ExternalSource = new ExternalViewLink(MapSource, "Open external Tales of Arise map and guide index", "Aselia Wiki contributors, CC BY-SA 3.0. Background artwork has separate publisher attribution; no geographic coordinates imported."),
             },
         ];
     }

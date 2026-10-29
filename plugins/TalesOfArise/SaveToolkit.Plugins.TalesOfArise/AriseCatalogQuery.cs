@@ -10,6 +10,7 @@ internal static class AriseCatalogQuery
 {
     public static IReadOnlyList<QueryableColumn> Columns(string id) =>
     [
+        new("icon", "Icon", null) { Width = ColumnWidth.Narrow },
         new("id", "Catalog identity", new ReferenceSpec(id) { ReadOnly = true, AllowCustom = true }) { Width = ColumnWidth.Wide },
         new("name", "Name", new TextSpec()),
         new("category", "Category", new TextSpec()),
@@ -115,7 +116,8 @@ internal static class AriseCatalogQuery
         "title" => record.Attributes.GetValueOrDefault("title") ?? "—",
         "spCost" => record.Attributes.GetValueOrDefault("spCost") ?? "—",
         "state" => "Unknown (not joined to save)",
-        "details" => $"{record.Description}\n{record.AttributionText}",
+        "details" => AriseAssets.Details(record),
+        "icon" => record.Attributes.GetValueOrDefault("iconRole") ?? "No icon",
         "inspect" => "Inspect",
         _ => throw new ArgumentException($"Unknown catalog column '{column}'.", nameof(column)),
     };
@@ -125,6 +127,7 @@ internal static class AriseCatalogQuery
         var cells = Columns(id).ToDictionary(column => column.Key,
             column => (ViewNode)new TextNode(CellText(record, column.Key)), StringComparer.Ordinal);
         cells["inspect"] = AriseReferences.InspectionAction(id, record);
+        cells["icon"] = AriseAssets.Icon(record);
         cells["id"] = new FieldNode($"catalog/{id}/{record.Key}/id", "Catalog identity",
             new ReferenceSpec(id) { ReadOnly = true, AllowCustom = true }, FieldValue.Of(record.Key))
         {

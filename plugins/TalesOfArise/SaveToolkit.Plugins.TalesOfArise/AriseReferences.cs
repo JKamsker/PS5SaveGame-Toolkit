@@ -25,13 +25,15 @@ internal sealed class AriseReferences(IReferenceContext context)
 
     public IReferenceCatalog? Items => _catalogs[ItemsCatalogId];
 
+    public MapBackground? ProgressBackground => AriseAssets.Background(context);
+
     public ReferenceRecord? Character(int index) => _catalogs[CharactersCatalogId]?
         .Search(new ReferenceQuery { Category = "Playable", Limit = ReferenceQuery.MaxLimit }).Items
         .SingleOrDefault(record => record.Attributes.GetValueOrDefault("statusIndex") == index.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
     public IReadOnlyList<ViewNode> BuildView() =>
     [
-        new TextNode("Pinned Aselia Wiki reference data, CC BY-SA 3.0. Catalog keys do not establish saved ownership, recruitment, learned skills, completion or safe replacement. Published DLC entries do not establish DLC save support.") { Tone = Tone.Info },
+        new TextNode($"Pinned Aselia Wiki reference facts/transcriptions, CC BY-SA 3.0. Publisher icons have separate provenance: {AriseAssets.MediaLicense}. Catalog keys do not establish saved ownership, recruitment, learned skills, completion or safe replacement. Published DLC entries do not establish DLC save support.") { Tone = Tone.Info },
         CatalogSection(ItemsCatalogId),
         CatalogSection(EquipmentCatalogId),
         CatalogSection(CharactersCatalogId),
@@ -61,7 +63,7 @@ internal sealed class AriseReferences(IReferenceContext context)
         return new ActionOutcome
         {
             Message = $"{record.Name} · ID {record.Key} · {record.Category ?? "Uncategorised"}\n" +
-                $"{record.Description}\n{record.AttributionText}\nInspection only; save state is unknown and no bytes were changed.",
+                $"{AriseAssets.Details(record)}\nInspection only; save state is unknown and no bytes were changed.",
         };
     }
 

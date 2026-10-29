@@ -12,6 +12,7 @@ internal static class AriseInventoryQuery
 
     private static readonly IReadOnlyList<QueryableColumn> Columns =
     [
+        new("icon", "Icon"),
         new("id", "ID", new ReferenceSpec(AriseReferences.ItemsCatalogId) { ReadOnly = true, AllowCustom = true }),
         new("name", "Item", new TextSpec()),
         new("quantity", "Quantity", new IntegerSpec(0, AriseDocument.ConsumableStackLimit)),
@@ -76,6 +77,7 @@ internal static class AriseInventoryQuery
         "quantity" => row.Quantity.ToString(System.Globalization.CultureInfo.InvariantCulture),
         "flags" => $"0x{row.Flags:X2}",
         "inspect" => row.Name is null ? "—" : "Inspect",
+        "icon" => row.Name ?? "No icon",
         _ => throw new ArgumentException($"Unknown inventory column '{column}'.", nameof(column)),
     };
 }

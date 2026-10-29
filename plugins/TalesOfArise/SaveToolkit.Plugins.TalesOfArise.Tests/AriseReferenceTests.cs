@@ -19,7 +19,7 @@ public sealed class AriseReferenceTests
         var equipment = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("equipment"));
         Assert.Equal(271, items.Count);
         Assert.Equal(675, equipment.Count);
-        Assert.Equal("2.0.0", items.Pack.Version);
+        Assert.Equal("3.0.0", items.Pack.Version);
         Assert.Equal("CC-BY-SA-3.0", items.Dataset.Attribution.License);
         Assert.All(items.Search(new ReferenceQuery { Limit = 50 }).Items, item => Assert.Contains("aselia.fandom.com", item.AttributionText));
         Assert.Equal("Apple Gel", items.Find("1")!.Name);

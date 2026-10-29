@@ -34,7 +34,9 @@ public sealed class AriseSpatialViewTests
         SpatialViewValidation.Validate(map);
         Assert.True(map.CoordinateEmbeddingPermitted);
         Assert.NotNull(map.CoordinateAttribution);
-        Assert.Null(map.Background);
+        Assert.NotNull(map.Background);
+        Assert.Equal(AriseAssets.MapId, map.Background.AssetId);
+        Assert.Contains("not geographic", map.TextAlternative);
         Assert.True(map.Markers.Count > 100);
         Assert.All(map.Markers, marker =>
         {

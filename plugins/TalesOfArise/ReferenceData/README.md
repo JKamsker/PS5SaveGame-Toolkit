@@ -3,8 +3,8 @@
 These are developer reference-data import utilities. The plugin never runs them and
 does no network or filesystem I/O. All downloads remain in a scratch folder outside
 the repository. These scripts contain independently authored parsing code; downloaded
-wiki text is data and is never executed. The only Python dependency is
-`beautifulsoup4` (tested with 4.15.0).
+wiki text is data and is never executed. Catalog parsing uses
+`beautifulsoup4` (tested with 4.15.0); the asset overlay also uses Pillow 12.2.0.
 
 The source manifest is
 `../SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/source-revisions.json`.
@@ -42,3 +42,28 @@ All adapted source data stays [CC BY-SA 3.0](https://creativecommons.org/license
 credited to Aselia Wiki contributors. Every dataset, record, adjacent sidecar,
 plugin source list and rendered view must retain attribution. New source pages need
 the same author, licence link, retrieval date, modifications and immutable revision.
+
+## Publisher-media overlay (v3)
+
+After regenerating the base catalogs, reapply the reviewed overlay:
+
+```powershell
+python -I -X utf8 plugins/TalesOfArise/ReferenceData/build_assets.py --scratch "$env:TEMP/toa-assets"
+```
+
+The builder reads the reviewed `asset-sources.json` ledger, downloads pinned image
+URLs to scratch, validates original SHA-256s and actual image headers, and encodes
+outside the repository. It copies only validated compact outputs into this plugin.
+It checks encoded hashes (Pillow 12.2.0), deduplicates identical outputs, enforces
+64×64 icons / 2048px map bounds and the 4,000,000-byte total, then adds record links
+and the reviewed official localized-description transcriptions and refreshes hashes.
+Re-running the overlay must leave every pack byte unchanged. If a source or encoder
+changes, review it and deliberately update the pins rather than bypassing checks.
+The ledger's exact source/record mappings are reviewed data; automatic fuzzy matching
+and guessed save identities are not part of regeneration.
+
+Official descriptions use only the specifically labelled Tales of Arise localized
+wording in the linked Aselia revision. The ledger includes each source response hash;
+raw HTML/API responses are retained in external scratch, not embedded. Media and text
+have separate provenance in `assets.source.md`, with CC BY-SA attribution retained
+for wiki text and the owner's 2026-10-29 decision recorded for publisher material.
