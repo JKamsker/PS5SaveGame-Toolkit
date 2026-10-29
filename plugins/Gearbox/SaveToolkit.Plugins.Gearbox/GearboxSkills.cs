@@ -17,7 +17,8 @@ internal sealed class GearboxSkills(GearboxDocument document, GearboxLazyViews l
     private const string ReferenceNotice = "Calculator names are joined to stored subobjects only when a pinned community tree prefix identifies the class/tree and the remaining fields are unambiguous. " +
         "Diagram edges describe cumulative tree-point gates, never a requirement to buy every earlier skill. No availability or ownership is inferred.";
     private static readonly QueryableColumn[] ReferenceColumns = [new("name", "Skill"), new("branch", "Class / tree"),
-        new("tier", "Calculator tier", IntegerSpec.Int32), new("max", "Calculator ranks", IntegerSpec.Int32), new("description", "Description")];
+        new("tier", "Calculator tier", IntegerSpec.Int32), new("max", "Calculator ranks", IntegerSpec.Int32), new("description", "Description"),
+        new("icon", "Skill icon") { Width = ColumnWidth.Narrow }];
     private static readonly QueryableColumn[] AllocationColumns = [new("asset", "Stored subobject"), new("tree", "Raw tree ID", IntegerSpec.Int32),
         new("class", "Community class"), new("treeName", "Community tree"), new("skill", "Joined skill"),
         new("points", "Stored points", IntegerSpec.Int32), new("max", "Stored max points", IntegerSpec.Int32), new("join", "Join confidence")];
@@ -56,11 +57,11 @@ internal sealed class GearboxSkills(GearboxDocument document, GearboxLazyViews l
     {
         var record = Resolve(pinned);
         var values = new Dictionary<string, string> { ["name"] = record.Name, ["branch"] = pinned.Category ?? "Unknown",
-            ["tier"] = pinned.Attributes["tier"], ["max"] = pinned.Attributes["maxPoints"], ["description"] = record.Description ?? "Unknown" };
+            ["tier"] = pinned.Attributes["tier"], ["max"] = pinned.Attributes["maxPoints"], ["description"] = record.Description ?? "Unknown", ["icon"] = record.Name };
         return new(record.Key, values, () => new(record.Key, values.ToDictionary(p => p.Key, p => (ViewNode)(p.Key == "name"
             ? document.InspectionReference("skills/reference/" + record.Key, "Skill", record.Key, CatalogId, Confidence.Inferred,
                 record.Name + ". " + record.AttributionText + " " + ReferenceNotice)
-            : new TextNode(p.Value)))));
+            : p.Key == "icon" ? GearboxImages.Cell(references, record) : new TextNode(p.Value)))));
     }
 
     private IEnumerable<GearboxQueryRow> AllocationRows() => Allocations.Select((m, index) =>
@@ -135,6 +136,7 @@ internal sealed class GearboxSkills(GearboxDocument document, GearboxLazyViews l
                 var record = Resolve(pinned);
                 var id = lazyId + "/" + record.Key;
                 fields.Add(document.InspectionField(id, record.Name, record.Description ?? "Description unknown", Confidence.Inferred, record.AttributionText));
+                fields.Add(GearboxImages.Cell(references, record));
                 items.Add(new(record.Key, record.Name, GraphState.Unknown) { Branch = pinned.Category,
                     Cost = pinned.Attributes["maxPoints"] == "0" ? "Action / augment reference" : "Up to " + pinned.Attributes["maxPoints"] + " ranks (calculator)",
                     Description = GearboxSpatialText.Limit(record.AttributionText + " " + ReferenceNotice + " " + record.Description),

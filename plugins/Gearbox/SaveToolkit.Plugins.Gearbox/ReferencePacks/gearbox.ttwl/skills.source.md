@@ -2,9 +2,9 @@
 
 Source: https://github.com/Lothrik/wonderlands-skill-calc/tree/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8
 
-Author: Joshua Seigler / Lothrik (MaXiMiUS) and contributors. Licence: [MIT](https://github.com/Lothrik/wonderlands-skill-calc/blob/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8/LICENSE); retained under ../../../Notices/. Retrieved 2026-10-28.
+Author: Gearbox Software / 2K; Joshua Seigler / Lothrik (MaXiMiUS) and contributors. Publisher descriptions: **Rights reserved by Gearbox Software / 2K; used with attribution per owner decision 2026-10-29**. Community calculator code/arrangement: [MIT](https://github.com/Lothrik/wonderlands-skill-calc/blob/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8/LICENSE); retained under ../../../Notices/. Retrieved 2026-10-28; icons retrieved 2026-10-29.
 
-Extracted 110 skill names, descriptions, calculator tiers and rank caps by reading quoted literals / parsing HTML. Downloaded JavaScript was never executed. No artwork or dynamic effect formulas imported. Calculator caps and five-points-per-tier gates describe that upstream revision, not verified PS5 requirements. BL3 covers the trees present upstream (including its partial DLC coverage); omitted fourth trees stay unknown. Missing/zero calculator ranks designate action/augment reference entries, not editable passive caps. Reference IDs are class/tree/name slugs, **not save subobject IDs**; do not join by order or similar rank counts. Unknown DLC/build/hotfix coverage. Derived text remains MIT.
+Extracted 110 skill names, descriptions, calculator tiers and rank caps by reading quoted literals / parsing HTML. Downloaded JavaScript was never executed. The asset round attaches 110 exact calculator icons; provenance/processing is in `assets.source.md` / `assets.source.json`. Dynamic effect formulas were not imported. Calculator caps and five-points-per-tier gates describe that upstream revision, not verified PS5 requirements. Missing/zero calculator ranks designate action/augment reference entries, not editable passive caps. Reference IDs are class/tree/name slugs, **not save subobject IDs**; do not join by order or similar rank counts. Unknown DLC/build/hotfix coverage. Community adaptations retain MIT; publisher material has the separate notice above.
 
 Original downloaded UTF-8 content SHA-256:
 

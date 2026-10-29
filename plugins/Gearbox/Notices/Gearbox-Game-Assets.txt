@@ -1,0 +1,22 @@
+Borderlands 3 and Tiny Tina's Wonderlands publisher artwork and transcribed game text
+
+Rights reserved by Gearbox Software / 2K; used with attribution per owner decision 2026-10-29
+
+This notice covers the skill icons, representative whole-item thumbnails, item-card
+flavor text, and publisher skill-description/effect text in the Gearbox reference packs.
+It does not relicense the publisher material under the repository's GPL or the
+community calculators' MIT licence. Existing MIT and zlib notices remain applicable
+to the community contributions, arrangements, code and factual serial databases.
+
+Sources retrieved 2026-10-29:
+- Joshua Seigler and contributors, BL3Skills:
+  https://github.com/seigler/bl3skills.com/tree/66b0bd08777452abd05e5d9246c27f2a8096ca13
+- Lothrik (MaXiMiUS) and contributors, Wonderlands skill calculator:
+  https://github.com/Lothrik/wonderlands-skill-calc/tree/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8
+- Levin and contributors, Lootlemon:
+  https://www.lootlemon.com
+  https://www.lootlemon.com/terms
+
+Per-image/page URLs, retrieval date, original SHA-256 and processed SHA-256 are in
+each pack's assets.source.json. Sidecars describe modifications and mapping limits.
+No affiliation, publisher endorsement or current-game-build compatibility is claimed.

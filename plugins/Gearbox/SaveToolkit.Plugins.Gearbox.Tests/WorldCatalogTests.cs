@@ -20,7 +20,7 @@ public sealed class WorldCatalogTests
         var catalog = references.Catalog(GearboxWorldCatalog.CatalogId)!;
         Assert.Equal(total, catalog.Count);
         Assert.Equal("Zlib", catalog.Dataset.Attribution.License);
-        Assert.Equal("1.2.0", catalog.Pack.Version);
+        Assert.Equal("1.3.0", catalog.Pack.Version);
         Assert.Equal(missions, catalog.Search(new() { Category = "mission" }).Total);
         Assert.Equal(decorations, catalog.Search(new() { Category = "room-decoration" }).Total);
         var file = SampleSaves.Load(title).AllDiskFiles.First(f => f.FileName == "1");

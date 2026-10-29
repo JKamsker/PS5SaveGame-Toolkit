@@ -52,7 +52,8 @@ public sealed class ItemBrowserTests
         Assert.Equal(indexCount, references.Catalog("serial-indices")!.Count);
         Assert.All(pack.Datasets, dataset =>
         {
-            Assert.True(dataset.Attribution.License is "Zlib" or "MIT" or "No licence published; reused with attribution per owner decision 2026-10-28");
+            Assert.True(dataset.Attribution.License is "Zlib" or "MIT" or "No licence published; reused with attribution per owner decision 2026-10-28"
+                or "Rights reserved by Gearbox Software / 2K; used with attribution per owner decision 2026-10-29");
             Assert.Contains(dataset.Attribution.Retrieved.ToString("yyyy-MM-dd"), dataset.Attribution.ToShortText());
         });
         var file = Character(title);

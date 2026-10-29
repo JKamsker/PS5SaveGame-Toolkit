@@ -38,6 +38,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     public bool Profile => container.Profile;
     internal bool Coordinated { get; init; }
     public override string Title => Profile ? "Gearbox profile" : Root.Text("preferred_character_name");
+    public override AssetContent? GetAsset(string assetId) => references.GetAsset(assetId);
 
     public override ViewNode BuildView()
     {

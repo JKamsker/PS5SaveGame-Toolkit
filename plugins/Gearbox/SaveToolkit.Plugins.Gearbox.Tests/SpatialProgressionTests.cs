@@ -22,7 +22,7 @@ public sealed class SpatialProgressionTests
         Assert.Equal(count, catalog.Count);
         var record = catalog.Find(key)!;
         Assert.Equal(name, record.Name);
-        Assert.Equal("MIT", record.Dataset.Attribution.License);
+        Assert.Equal("Rights reserved by Gearbox Software / 2K; used with attribution per owner decision 2026-10-29", record.Dataset.Attribution.License);
         Assert.Contains("no save-subobject", record.Attributes["join"]);
         Assert.NotEmpty(record.Description!);
         Assert.Equal("5", record.Attributes["maxPoints"]);
@@ -30,7 +30,7 @@ public sealed class SpatialProgressionTests
         using var document = (GearboxDocument)plugin.Open(file, references);
         var page = document.Query(GearboxSkills.CatalogId, new() { Text = name, Limit = 1 });
         var field = Assert.IsType<FieldNode>(Assert.Single(page.Rows).Cells["name"]);
-        Assert.Contains("MIT", field.Description);
+        Assert.Contains("Rights reserved by Gearbox Software / 2K", field.Description);
         Assert.True(field.Spec.ReadOnly);
         Assert.Equal(Confidence.Inferred, field.Confidence);
         Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());

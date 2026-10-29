@@ -17,8 +17,10 @@ internal sealed class ItemBrowser
     private readonly List<BrowserItem> _items = [];
     private readonly Dictionary<string, string> _lists;
     private static readonly QueryableColumn[] Columns = [new("index", "List index", IntegerSpec.Int32), new("name", "Family label"),
-        new("category", "Part family (raw)"), new("level", "Level", IntegerSpec.Int32), new("status", "Decode status"), new("detail", "Details")];
-    private static readonly QueryableColumn[] CatalogColumns = [new("name", "Family label"), new("category", "Part family (raw)"), new("asset", "Balance asset")];
+        new("category", "Part family (raw)"), new("level", "Level", IntegerSpec.Int32), new("status", "Decode status"), new("detail", "Details"),
+        new("icon", "Item reference") { Width = ColumnWidth.Narrow }];
+    private static readonly QueryableColumn[] CatalogColumns = [new("name", "Family label"), new("category", "Part family (raw)"), new("asset", "Balance asset"),
+        new("icon", "Item reference") { Width = ColumnWidth.Narrow }];
 
     public ItemBrowser(GearboxDocument document, ProtoMessage root, bool profile, GearboxLazyViews lazy, IReferenceContext references)
     {
@@ -89,7 +91,8 @@ internal sealed class ItemBrowser
         }
         var entries = collectionId == "catalogue"
             ? _references.Database.Records(ItemCatalogs.Balances).Select(r => new BrowserEntry(r.Key,
-                new Dictionary<string, string> { ["name"] = _references.Label(_references.Balance(r.Key), r.Key), ["category"] = r.Category ?? "Unmapped", ["asset"] = r.Key }, null))
+                new Dictionary<string, string> { ["name"] = _references.Label(_references.Balance(r.Key), r.Key), ["category"] = r.Category ?? "Unmapped", ["asset"] = r.Key,
+                    ["icon"] = _references.Label(_references.Balance(r.Key), r.Key) }, null))
             : _items.Where(i => i.List == collectionId).Select(Entry);
         entries = entries.Where(e => (string.IsNullOrEmpty(query.Text) || e.Values.Values.Any(v => v.Contains(query.Text, StringComparison.OrdinalIgnoreCase))
                 || e.Item?.Info.Value.Balance?.Path?.Contains(query.Text, StringComparison.OrdinalIgnoreCase) == true)
@@ -122,6 +125,7 @@ internal sealed class ItemBrowser
         return new(item.Id, new Dictionary<string, string>
         {
             ["index"] = item.Index.ToString(CultureInfo.InvariantCulture), ["name"] = _references.Label(record, info.Balance?.Path),
+            ["icon"] = _references.Label(record, info.Balance?.Path),
             ["category"] = record?.Category ?? "Unmapped", ["level"] = info.Level?.ToString(CultureInfo.InvariantCulture) ?? "—",
             ["status"] = info.Complete ? "CRC / header / parts" : info.ChecksumValid ? "CRC / partial layout" : "Unknown / invalid",
         }, item);
@@ -137,6 +141,7 @@ internal sealed class ItemBrowser
             _references.CardDescription(record) is { } card ? card + " " + record?.AttributionText : record?.AttributionText);
         cells["category"] = ReadOnly(entry.Key + "/category", "Raw part family", entry.Values["category"], Confidence.Unknown,
             _references.Database.Find(ItemCatalogs.Families, record?.Key ?? entry.Key)?.AttributionText ?? record?.AttributionText);
+        cells["icon"] = _references.Image(record);
         if (entry.Item is { } item)
             cells["detail"] = _lazy.Register("detail/" + item.Id, "Serial and parts", () => Details(item));
         return new(entry.Key, cells);
@@ -146,7 +151,7 @@ internal sealed class ItemBrowser
     {
         var info = item.Info.Value;
         var record = _references.Balance(info.Balance?.Path);
-        List<ViewNode> nodes = [new TextNode(info.Diagnostic) { Tone = info.Complete ? Tone.Info : Tone.Warning },
+        List<ViewNode> nodes = [_references.Image(record), new TextNode(info.Diagnostic) { Tone = info.Complete ? Tone.Info : Tone.Warning },
             _document.InspectionReference(item.Id + "/balance", "Balance asset", info.Balance?.Path?.ToLowerInvariant() ?? $"index {info.Balance?.Index}",
                 ItemCatalogs.Balances, Confidence.Unknown, record?.AttributionText),
             new TextNode($"Card label: {_references.Label(record, info.Balance?.Path)}. {_references.CardDescription(record) ?? "No community localized card label."}") { Tone = Tone.Muted },
@@ -175,6 +180,7 @@ internal sealed class ItemBrowser
                 }));
         var parts = info.Parts.Concat(info.GenericParts).Select((p, i) => new TableRow(i.ToString(CultureInfo.InvariantCulture),
             new Dictionary<string, ViewNode> { ["category"] = new TextNode(p.Category), ["index"] = new TextNode(p.Index.ToString(CultureInfo.InvariantCulture)),
+                ["icon"] = _references.Image(_references.Index(p.Key), part: true),
                 ["name"] = new TextNode(_references.Part(p.Path)?.Name ?? p.Path?.Split('.').LastOrDefault() ?? "Unknown part"),
                 ["effects"] = new TextNode(_references.Part(p.Path)?.Description ?? "Community part effect text unavailable."),
                 ["asset"] = info.Complete ? SerialParts.Field(_document, item.Id, i,
@@ -182,7 +188,7 @@ internal sealed class ItemBrowser
                     _document.InspectionReference(item.Id + "/part/" + i, "Raw part asset", p.Key, ItemCatalogs.Indices, p.Path is null ? Confidence.Unknown : Confidence.Verified,
                     _references.Database.Find(ItemCatalogs.Indices, p.Key)?.AttributionText) })).ToArray();
         nodes.Add(new TableNode([new("category", "Category"), new("index", "Index"), new("name", "Community label"),
-            new("effects", "Community effect text"), new("asset", "Raw asset")], parts));
+            new("effects", "Community effect text"), new("asset", "Raw asset"), new("icon", "Whole-item reference")], parts));
         return nodes;
     }
 
