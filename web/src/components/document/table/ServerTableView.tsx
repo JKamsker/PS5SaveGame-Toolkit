@@ -6,6 +6,7 @@ import { useDocument, useDocumentState } from "../../../state/documentStore";
 import { RowDetails, rowHasDetails } from "./RowDetails";
 import { rowLabel } from "./cellText";
 import { TableCell } from "./TableCell";
+import { EmptyRowsToggle } from "./EmptyRowsToggle";
 import { TableSelectionContext, useQueryableSelection } from "./selection";
 import { ReviewPath, useNextReviewPath, useViewJump } from "../review/navigation";
 
@@ -20,10 +21,12 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
   const [sort, setSort] = useState("");
   const [descending, setDescending] = useState(false);
   const [offset, setOffset] = useState(0);
+  const [includeEmpty, setIncludeEmpty] = useState(!(node.emptyRows?.hideByDefault ?? true));
   const deferredText = useDeferredValue(text);
   const query = useMemo<CollectionQuery>(
-    () => ({ q: deferredText || undefined, filters, sort: sort || undefined, descending, offset, limit: PAGE_SIZE }),
-    [deferredText, filters, sort, descending, offset],
+    () => ({ q: deferredText || undefined, filters, sort: sort || undefined, descending, offset, limit: PAGE_SIZE,
+      includeEmpty: node.emptyRows ? includeEmpty : undefined }),
+    [deferredText, filters, sort, descending, offset, includeEmpty, node.emptyRows],
   );
   const revision = store.state.revision ?? 0;
   const result = useQuery({
@@ -70,6 +73,11 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
           <span className="table__count" aria-live="polite">
             {page ? `${page.filteredCount.toLocaleString()} of ${page.totalCount.toLocaleString()} rows` : result.isError ? "Rows unavailable" : "Loading rows…"}
           </span>
+          <EmptyRowsToggle presentation={node.emptyRows} includeEmpty={includeEmpty} hiddenCount={page?.hiddenEmptyCount ?? 0} onChange={value => {
+            setIncludeEmpty(value);
+            setOffset(0);
+            selection.clear();
+          }} />
           {selection.count > 0 && (
             <span className="table__selected" aria-live="polite">
               {selection.count.toLocaleString()} selected
@@ -108,7 +116,7 @@ export function ServerTableView({ node }: { node: QueryableTableNode }) {
         <div className="table__scroller">
           <div className="table__grid" role="table" aria-label={node.title} aria-busy={result.isFetching} aria-rowcount={(page?.filteredCount ?? node.totalCount) + 1} style={{ gridTemplateColumns: `36px repeat(${columns.length}, minmax(160px, 1fr))` }}>
             <Header columns={columns} rows={rows} selected={visibleSelected} selection={selection} />
-            {rows.map((row, index) => <ServerRow key={row.key} row={row} columns={columns} rowIndex={(page?.offset ?? 0) + index + 2} selected={selection.isSelected(row.key)} onToggle={selection.toggle} />)}
+            {rows.map((row, index) => <ServerRow key={row.key} row={row} emptyRows={node.emptyRows} columns={columns} rowIndex={(page?.offset ?? 0) + index + 2} selected={selection.isSelected(row.key)} onToggle={selection.toggle} />)}
           </div>
           {page && rows.length === 0 && <p className="table__empty">No rows match the current filters.</p>}
         </div>
@@ -132,7 +140,7 @@ function Header({ columns, rows, selected, selection }: { columns: readonly Tabl
   );
 }
 
-function ServerRow({ row, columns, rowIndex, selected, onToggle }: { row: TableRow; columns: readonly TableColumn[]; rowIndex: number; selected: boolean; onToggle: (key: string) => void }) {
+function ServerRow({ row, emptyRows, columns, rowIndex, selected, onToggle }: { row: TableRow; emptyRows?: QueryableTableNode["emptyRows"]; columns: readonly TableColumn[]; rowIndex: number; selected: boolean; onToggle: (key: string) => void }) {
   const ref = useViewJump(row.key, "Row");
   const next = useNextReviewPath();
   const label = rowLabel(row, columns.map((column) => column.key), (node) => node.value);
@@ -141,10 +149,10 @@ function ServerRow({ row, columns, rowIndex, selected, onToggle }: { row: TableR
   const hasDetails = rowHasDetails(row);
   return (
     <>
-      <div ref={ref} tabIndex={-1} className={`table__row${selected ? " table__row--selected" : ""}`} role="row" aria-rowindex={rowIndex}>
+      <div ref={ref} tabIndex={-1} className={`table__row${selected ? " table__row--selected" : ""}${row.isEmpty ? " table__row--empty" : ""}`} role="row" aria-rowindex={rowIndex}>
         <div className="table__cell table__cell--control" role="cell"><input type="checkbox" aria-label={`Select ${label}`} checked={selected} onChange={() => onToggle(row.key)} /></div>
         <ReviewPath part={`row:${row.key}`}>
-          {columns.map((column) => <TableCell key={column.key} node={row.cells[column.key]} rowLabel={label} onOpenDetails={() => setDetails(true)} />)}
+          {columns.map((column) => <TableCell key={column.key} node={row.cells[column.key]} emptySlot={row.isEmpty && emptyRows?.labelColumnKey === column.key} rowLabel={label} onOpenDetails={() => setDetails(true)} />)}
         </ReviewPath>
       </div>
       {details && hasDetails && <div className="table__detail" role="row"><div className="table__detail-cell"><ReviewPath part={`row:${row.key}`}><RowDetails row={row} columns={columns} /></ReviewPath></div></div>}

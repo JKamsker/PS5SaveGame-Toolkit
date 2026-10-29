@@ -102,6 +102,7 @@ export const api = {
     if (query.filters && Object.keys(query.filters).length > 0) params.set("filters", JSON.stringify(query.filters));
     if (query.sort) params.set("sort", query.sort);
     if (query.descending) params.set("descending", "true");
+    if (query.includeEmpty !== undefined) params.set("includeEmpty", String(query.includeEmpty));
     if (query.offset !== undefined) params.set("offset", String(query.offset));
     if (query.limit !== undefined) params.set("limit", String(query.limit));
     if (query.cursor) params.set("cursor", query.cursor);

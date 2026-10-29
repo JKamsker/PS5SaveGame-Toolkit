@@ -9,7 +9,7 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Core.Tests.Fakes;
 
 /// <summary>Large synthetic collection used to exercise bounded query and binding behavior.</summary>
-public sealed class QueryablePlugin(string collectionId = "items") : IGamePlugin
+public sealed class QueryablePlugin(string collectionId = "items", bool emptySlots = false) : IGamePlugin
 {
     public const int RowCount = 100_000;
     private static readonly byte[] Magic = "QRY1"u8.ToArray();
@@ -33,18 +33,20 @@ public sealed class QueryablePlugin(string collectionId = "items") : IGamePlugin
             throw new SaveFormatException("Not a queryable test save.");
         }
 
-        return LastOpened = new QueryableDocument(file, collectionId);
+        return LastOpened = new QueryableDocument(file, collectionId, emptySlots);
     }
 
     public static byte[] Create() => [.. Magic, 0, 0, 0, 0];
 
-    public sealed class QueryableDocument(ISaveFile file, string collectionId = "items") : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
+    public sealed class QueryableDocument(ISaveFile file, string collectionId = "items", bool emptySlots = false) : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
     {
         private readonly Dictionary<int, long> _values = Enumerable.Range(0, RowCount).ToDictionary(i => i, i => (long)i);
         public Func<QueryableCollectionPage, QueryableCollectionPage>? TransformPage { get; set; }
         public int QueryCount { get; private set; }
         public int ApplyCount { get; private set; }
         public ActionScope? LastPlannedScope { get; private set; }
+        public EmptyRowPresentation? EmptyRows { get; set; } = emptySlots ? new("name") : null;
+        public QueryableCollectionQuery? LastQuery { get; private set; }
 
         private static readonly IReadOnlyList<QueryableColumn> Columns =
         [
@@ -57,15 +59,16 @@ public sealed class QueryablePlugin(string collectionId = "items") : IGamePlugin
         public override bool CanEdit => true;
 
         public IReadOnlyList<QueryableCollection> Collections =>
-            [new(collectionId, "Items", Columns, RowCount) { Description = "Synthetic 100k-row collection." }];
+            [new(collectionId, "Items", Columns, RowCount) { Description = "Synthetic 100k-row collection.", EmptyRows = EmptyRows }];
 
         public override ViewNode BuildView() =>
-            new SectionNode("Large collections", [new QueryableTableNode(collectionId, "Items", Columns, RowCount),
+            new SectionNode("Large collections", [new QueryableTableNode(collectionId, "Items", Columns, RowCount) { EmptyRows = EmptyRows },
                 new ActionNode("increment", "Increment selected") { SupportsPlanning = true }]);
 
         public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)
         {
             QueryCount++;
+            LastQuery = query;
             var rows = Enumerable.Range(0, RowCount).Select(CreateRecord);
             if (!string.IsNullOrWhiteSpace(query.Text))
             {
@@ -87,12 +90,16 @@ public sealed class QueryablePlugin(string collectionId = "items") : IGamePlugin
                 "id" => query.Descending ? rows.OrderByDescending(r => r.id) : rows.OrderBy(r => r.id),
                 _ => rows,
             };
-            var filtered = rows.ToList();
+            var matches = rows.ToList();
+            var hideEmpty = EmptyRows is not null && !(query.IncludeEmpty ?? !EmptyRows.HideByDefault);
+            var hiddenEmptyCount = hideEmpty ? matches.Count(row => IsEmpty(row.id)) : 0;
+            var filtered = hideEmpty ? matches.Where(row => !IsEmpty(row.id)).ToList() : matches;
             var page = filtered.Skip(query.Cursor is null ? query.Offset : DecodeCursor(query.Cursor)).Take(query.Limit).Select(r => BuildRow(r.id)).ToList();
             var next = (query.Cursor is null ? query.Offset : DecodeCursor(query.Cursor)) + page.Count < filtered.Count
                 ? ((query.Cursor is null ? query.Offset : DecodeCursor(query.Cursor)) + page.Count).ToString(CultureInfo.InvariantCulture)
                 : null;
-            var result = new QueryableCollectionPage(collectionId, Columns, page, RowCount, filtered.Count, query.Cursor is null ? query.Offset : DecodeCursor(query.Cursor), query.Limit) { NextCursor = next };
+            var result = new QueryableCollectionPage(collectionId, Columns, page, RowCount, filtered.Count, query.Cursor is null ? query.Offset : DecodeCursor(query.Cursor), query.Limit)
+            { NextCursor = next, HiddenEmptyCount = hiddenEmptyCount };
             return TransformPage?.Invoke(result) ?? result;
         }
 
@@ -121,8 +128,10 @@ public sealed class QueryablePlugin(string collectionId = "items") : IGamePlugin
             var idValue = Field($"items/{id}/id", "Id", IntegerSpec.UInt32, () => FieldValue.Of((long)id), _ => { });
             var name = Field($"items/{id}/name", "Name", new TextSpec { MaxLength = 32 }, () => FieldValue.Of($"Item {id:D6}"), _ => { });
             var value = Field($"items/{id}/value", "Value", IntegerSpec.UInt32, () => FieldValue.Of(_values[id]), v => _values[id] = v.AsInt64());
-            return new TableRow(id.ToString(CultureInfo.InvariantCulture), new Dictionary<string, ViewNode> { ["id"] = idValue, ["name"] = name, ["value"] = value });
+            return new TableRow(id.ToString(CultureInfo.InvariantCulture), new Dictionary<string, ViewNode> { ["id"] = idValue, ["name"] = name, ["value"] = value }) { IsEmpty = IsEmpty(id) };
         }
+
+        private bool IsEmpty(int id) => EmptyRows is not null && id % 2 == 0;
 
         private static int DecodeCursor(string cursor) => int.TryParse(cursor, NumberStyles.None, CultureInfo.InvariantCulture, out var offset) && offset >= 0 ? offset : 0;
     }

@@ -18,6 +18,8 @@ public sealed record QueryableCollection(
     IReadOnlyList<QueryableColumn> Columns,
     long TotalCount)
 {
+    public EmptyRowPresentation? EmptyRows { get; init; }
+
     public string? Description { get; init; }
 }
 
@@ -32,6 +34,10 @@ public sealed record QueryableColumn(string Key, string Label, FieldSpec? Spec =
 /// <summary>Text, exact column filters and deterministic paging/sorting for a collection.</summary>
 public sealed record QueryableCollectionQuery
 {
+    /// <summary>Null uses collection EmptyRows.HideByDefault; legacy collections include all rows.
+    /// Filter emptiness on the complete model before paging. Core supplies the resolved value.</summary>
+    public bool? IncludeEmpty { get; init; }
+
     public string? Text { get; init; }
 
     public IReadOnlyDictionary<string, string> Filters { get; init; } = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -58,6 +64,9 @@ public sealed record QueryableCollectionPage(
     int Offset,
     int Limit)
 {
+    /// <summary>Rows matching text/column filters excluded only by IncludeEmpty=false, before paging. Zero when shown.</summary>
+    public long HiddenEmptyCount { get; init; }
+
     public string? NextCursor { get; init; }
 
     /// <summary>Assigned by Core when the page is served; plugins do not need to track revisions.</summary>
@@ -71,5 +80,8 @@ public sealed record QueryableTableNode(
     IReadOnlyList<QueryableColumn> Columns,
     long TotalCount) : ViewNode
 {
+    /// <summary>Use the same settings as the collection metadata.</summary>
+    public EmptyRowPresentation? EmptyRows { get; init; }
+
     public string? Description { get; init; }
 }

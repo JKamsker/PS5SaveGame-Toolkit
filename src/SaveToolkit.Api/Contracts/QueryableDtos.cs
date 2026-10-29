@@ -23,6 +23,8 @@ public sealed record QueryablePageDto(
     string? NextCursor,
     long Revision)
 {
+    public long HiddenEmptyCount { get; init; }
+
     public static QueryablePageDto From(QueryableCollectionPage page) => new(
         page.CollectionId,
         [.. page.Columns.Select(c => new QueryableColumnDto(c.Key, c.Label, c.Spec, c.Description, c.Width))],
@@ -32,5 +34,5 @@ public sealed record QueryablePageDto(
         page.Offset,
         page.Limit,
         page.NextCursor,
-        page.Revision);
+        page.Revision) { HiddenEmptyCount = page.HiddenEmptyCount };
 }

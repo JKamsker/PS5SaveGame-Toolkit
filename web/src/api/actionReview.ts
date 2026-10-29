@@ -3,7 +3,7 @@ import type { EditResult, FieldError, FieldValue } from "./protocol";
 
 export interface ActionQueryScope {
   collectionId: string;
-  query: { text?: string; filters?: Record<string, string>; sortColumn?: string; descending?: boolean };
+  query: { text?: string; filters?: Record<string, string>; sortColumn?: string; descending?: boolean; includeEmpty?: boolean };
   revision: number;
   excludedRowKeys: readonly string[];
 }

@@ -11,6 +11,8 @@ import { fieldSummary, statsSummary } from "./cellText";
 
 export interface TableCellProps {
   node: ViewNode | undefined;
+  /** Show a vacant slot label in the compact cell; the original node remains in row details. */
+  emptySlot?: boolean;
   /** Short name of the row, used to give repeated controls distinct accessible names. */
   rowLabel: string;
   /** Opens the row's detail panel (for content that does not fit a fixed-height cell). */
@@ -21,7 +23,8 @@ export interface TableCellProps {
  * One fixed-height table cell. Every node type renders something: compact forms inline, large or
  * nested content as a button that opens the row details, unknown types as a visible placeholder.
  */
-export function TableCell({ node, rowLabel, onOpenDetails }: TableCellProps) {
+export function TableCell({ node, emptySlot, rowLabel, onOpenDetails }: TableCellProps) {
+  if (emptySlot) return <Cell><DetailsChip label="Empty slot" rowLabel={rowLabel} onOpen={onOpenDetails} /></Cell>;
   if (!node) return <div className="table__cell" role="cell" />;
   switch (node.type) {
     case "field":

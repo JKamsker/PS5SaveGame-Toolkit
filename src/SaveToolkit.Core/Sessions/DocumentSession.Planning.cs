@@ -162,6 +162,13 @@ public sealed partial class DocumentSession
     private ActionScope ResolveActionQuery(ActionQueryScope scope)
     {
         if (scope.Revision != _revision) throw new StaleViewException();
+        ArgumentNullException.ThrowIfNull(scope.Query);
+        var collection = QueryableCollections.FirstOrDefault(collection => collection.Id == scope.CollectionId)
+            ?? throw new KeyNotFoundException($"Unknown collection '{scope.CollectionId}'.");
+        scope = scope with { Query = scope.Query with
+        {
+            IncludeEmpty = scope.Query.IncludeEmpty ?? collection.EmptyRows?.HideByDefault != true,
+        } };
         return ActionQueryScopeResolver.Resolve(scope, _maxQueryActionRows,
             query => QueryCollection(scope.CollectionId, query, scope.Revision));
     }

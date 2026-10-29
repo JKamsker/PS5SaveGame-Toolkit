@@ -8,6 +8,7 @@ import { TableSelectionContext, useRowSelection, type TableSelection } from "./t
 import { TableCell } from "./table/TableCell";
 import { TableToolbar } from "./table/TableToolbar";
 import { useTableRows, type FacetSelection } from "./table/useTableRows";
+import { EmptyRowsToggle } from "./table/EmptyRowsToggle";
 
 /** Height of one data row; must match `.table__cell` height in view.css. Detail rows are measured. */
 const ROW_HEIGHT = 41;
@@ -27,8 +28,13 @@ export function TableView({ node }: { node: TableNode }) {
   const [query, setQuery] = useState("");
   const [facets, setFacets] = useState<FacetSelection>({});
   const deferredQuery = useDeferredValue(query);
-  const { rows, facetOptions, valueOf } = useTableRows(node, deferredQuery, facets);
-  const selection = useRowSelection(node.rows);
+  const [includeEmpty, setIncludeEmpty] = useState(!(node.emptyRows?.hideByDefault ?? true));
+  const { rows, eligibleRows, hiddenEmptyCount, facetOptions, valueOf } = useTableRows(node, deferredQuery, facets, includeEmpty);
+  const selection = useRowSelection(eligibleRows);
+  const { setMany } = selection;
+  useEffect(() => {
+    if (node.emptyRows && !includeEmpty) setMany(node.rows.filter(row => row.isEmpty).map(row => row.key), false);
+  }, [node, includeEmpty, setMany]);
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set());
 
   const hasDetails = useMemo(() => node.rows.some(rowHasDetails), [node.rows]);
@@ -68,6 +74,7 @@ export function TableView({ node }: { node: TableNode }) {
     if (!row) return;
     setQuery("");
     setFacets({});
+    if (row.isEmpty) setIncludeEmpty(true);
     setExpanded(previous => new Set(previous).add(row.key));
   }, [next, node.rows]);
   useEffect(() => {
@@ -95,7 +102,9 @@ export function TableView({ node }: { node: TableNode }) {
           facetOptions={facetOptions}
           facets={facets}
           onFacets={setFacets}
-        />
+        >
+          <EmptyRowsToggle presentation={node.emptyRows} includeEmpty={includeEmpty} hiddenCount={hiddenEmptyCount} onChange={setIncludeEmpty} />
+        </TableToolbar>
         {node.description && <p className="section__description">{node.description}</p>}
         <div className="table__scroller" ref={scroller}>
           <div className="table__grid" role="table" aria-label={node.title} aria-rowcount={entries.length + 1} style={{ gridTemplateColumns: template }}>
@@ -126,6 +135,7 @@ export function TableView({ node }: { node: TableNode }) {
                 <Row
                   key={item.key}
                   row={entry.row}
+                  emptyRows={node.emptyRows}
                   rowIndex={item.index + 2}
                   label={rowLabel(entry.row, columnKeys, valueOf)}
                   columnKeys={columnKeys}
@@ -192,6 +202,7 @@ function HeaderRow({ columns, hasDetails, visible, visibleSelected, selection }:
 
 interface RowProps {
   row: TableRow;
+  emptyRows?: TableNode["emptyRows"];
   rowIndex: number;
   /** Accessible row name; computed by the parent so memoisation survives unrelated edits. */
   label: string;
@@ -204,13 +215,13 @@ interface RowProps {
   onToggleExpanded: (key: string) => void;
 }
 
-const Row = memo(function Row({ row, rowIndex, label, columnKeys, hasDetails, detailId, expanded, selected, onToggleSelected, onToggleExpanded }: RowProps) {
+const Row = memo(function Row({ row, emptyRows, rowIndex, label, columnKeys, hasDetails, detailId, expanded, selected, onToggleSelected, onToggleExpanded }: RowProps) {
   const ref = useViewJump(row.key, "Row");
   const openDetails = () => {
     if (!expanded) onToggleExpanded(row.key);
   };
   return (
-    <div ref={ref} tabIndex={-1} className={`table__row${selected ? " table__row--selected" : ""}`} role="row" aria-rowindex={rowIndex}>
+    <div ref={ref} tabIndex={-1} className={`table__row${selected ? " table__row--selected" : ""}${row.isEmpty ? " table__row--empty" : ""}`} role="row" aria-rowindex={rowIndex}>
       <div className="table__cell table__cell--control" role="cell">
         <input type="checkbox" aria-label={`Select ${label}`} checked={selected} onChange={() => onToggleSelected(row.key)} />
       </div>
@@ -230,7 +241,7 @@ const Row = memo(function Row({ row, rowIndex, label, columnKeys, hasDetails, de
       )}
       <ReviewPath part={`row:${row.key}`}>
         {columnKeys.map((key) => (
-          <TableCell key={key} node={row.cells[key]} rowLabel={label} onOpenDetails={openDetails} />
+          <TableCell key={key} node={row.cells[key]} emptySlot={row.isEmpty && emptyRows?.labelColumnKey === key} rowLabel={label} onOpenDetails={openDetails} />
         ))}
       </ReviewPath>
     </div>

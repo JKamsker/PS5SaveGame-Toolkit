@@ -248,6 +248,26 @@ describe("semantic changes panel", () => {
     } finally { restore(); }
   });
 
+  it("reveals a hidden empty slot when jumping to its stable field identity", async () => {
+    const restore = stubViewport();
+    vi.spyOn(actionReview, "changes").mockResolvedValue({ ...log, changes: [{ ...change, path: ["row:slot/127"] }] });
+    try {
+      renderDocument(<><ChangesPanel /><ViewRenderer node={{ type: "table", title: "Inventory",
+        emptyRows: { labelColumnKey: "name" }, columns: [{ key: "name", label: "Name" }, { key: "count", label: "Count" }],
+        rows: [{ key: "slot/127", isEmpty: true, cells: {
+          name: { type: "text", text: "Unknown ID 0xFFFFFFFF" },
+          count: { type: "field", valueId: "quantity", label: "Slot quantity", spec: { kind: "integer", min: "0", max: "99" }, value: "0" },
+        } }],
+      }} /></>);
+      expect(screen.getByText("1 empty slots hidden")).toBeTruthy();
+      fireEvent.click(screen.getByText("Changes against original"));
+      await screen.findByText("Potion quantity");
+      fireEvent.click(screen.getByRole("button", { name: "Jump to Potion quantity" }));
+      await screen.findByText("Showing empty slots");
+      await waitFor(() => expect(document.activeElement?.getAttribute("aria-labelledby")).toBe(screen.getByText("Slot quantity").id));
+    } finally { restore(); }
+  });
+
   it("follows nested tab paths when titles also occur at another level", async () => {
     vi.spyOn(actionReview, "changes").mockResolvedValue({ ...log, changes: [{ ...change, path: ["tab:Character", "tab:Inventory"] }] });
     renderDocument(<><ChangesPanel /><ViewRenderer node={{ type: "tabs", tabs: [

@@ -90,11 +90,17 @@ public sealed record TableColumn(string Key, string Label)
 }
 
 /// <summary>Row of a table. Cells are keyed by column key and are usually <see cref="FieldNode"/> or <see cref="TextNode"/>.</summary>
-public sealed record TableRow(string Key, IReadOnlyDictionary<string, ViewNode> Cells);
+public sealed record TableRow(string Key, IReadOnlyDictionary<string, ViewNode> Cells)
+{
+    /// <summary>Confirmed empty slot, not an unknown item or merely a zero quantity. Its key and cells remain intact.</summary>
+    public bool IsEmpty { get; init; }
+}
 
 /// <summary>Homogeneous records (inventory, party members, ...). The browser handles paging, search and virtualisation.</summary>
 public sealed record TableNode(IReadOnlyList<TableColumn> Columns, IReadOnlyList<TableRow> Rows) : ViewNode
 {
+    public EmptyRowPresentation? EmptyRows { get; init; }
+
     public string? Title { get; init; }
 
     public string? Description { get; init; }

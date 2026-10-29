@@ -57,7 +57,7 @@ those bindings. Custom `ApplyEdits` and action implementations still own their a
 | `SectionNode(title, children)` | Grouping. `LazyId` = load children on demand. `Badge` for counts. |
 | `TabsNode([Tab])` | Top-level areas (Character / Inventory / World / Raw). |
 | `FieldNode(valueId, label, spec, value)` | One value. `Confidence` (`Verified` / `Inferred` / `Unknown`) and `Warning` are shown to the user. |
-| `TableNode(columns, rows)` | Homogeneous records with typed fields, text, images, actions and compact summaries; nested content opens in row details. Live search/filtering, confidence/errors, explicit selection and fixed-height virtualisation. Keep below ~5,000 eager rows; use F8 beyond. |
+| `TableNode(columns, rows)` | Homogeneous records with typed fields, text, images, actions and compact summaries; nested content opens in row details. Live search/filtering, confidence/errors, explicit selection and fixed-height virtualisation. Prefer F8 above about 100 inventory rows. |
 | `QueryableTableNode(collectionId, title, columns, totalCount)` | Server-backed collection for inventories/catalogues larger than an eager view. The browser sends bounded text/filter/sort queries and receives stable-keyed `TableRow`s a page at a time. |
 | `StatsNode([Stat])` | Read-only headline figures (play time, level, slot). |
 | `TextNode(text)` | Notes and warnings (`Tone`), `Monospace` for hashes/offsets. |
@@ -383,6 +383,50 @@ What the framework does for you:
 - Requests that use a retired id or an old revision are rejected as **stale** (HTTP 409). The browser
   then refetches the view.
 
+### Inventory tables and empty slots (F14)
+
+Use **one table per inventory**. Do not split a fixed slot array into “Slots 0–127”, “Slots 128–255”
+sections or linked eager pages. For more than about **100 rows**, use an F8 `QueryableTableNode` so
+the browser can search and sort the entire inventory while fetching bounded pages.
+
+Mark a confirmed vacant slot with `TableRow.IsEmpty = true`, and set
+`EmptyRows = new EmptyRowPresentation("name")` on its `TableNode`, or on **both** the
+`QueryableCollection` and its `QueryableTableNode`. `LabelColumnKey` identifies the compact item-name
+cell to replace with “Empty slot”; its original node and all bindings remain available in row details.
+`PluralLabel` defaults to “empty slots” and `HideByDefault` defaults to `true`. Tables without this
+metadata keep their existing visibility. For example:
+
+```csharp
+var row = new TableRow($"inventory/{slot.Identity}", cells) { IsEmpty = slot.IsConfirmedEmpty };
+var table = new TableNode(columns, [row])
+{
+    EmptyRows = new EmptyRowPresentation("name") { PluralLabel = "empty slots" },
+};
+// For F8, publish the same EmptyRows settings on collection metadata and QueryableTableNode.
+```
+
+Keep every underlying slot and its original **slot identity as the row key**, including vacant slots.
+Do not remove, compact or reorder saved records when hiding rows. Editing, undo and F6 scopes still
+address those identities. If an edit changes a slot's emptiness, return `StructureChanged = true` so
+the marker and counts are rebuilt. The browser hides empty rows by default, offers
+“N empty slots hidden · Show”, and dims them when shown. Hiding clears empty-slot selections;
+select-all applies only to the current visibility. F8 visibility changes reset paging and selection.
+
+Do not render known empty sentinels such as `0xFFFFFFFF`, `-1` or `0` as unknown items. Confirm the
+format's empty-slot rule before flagging: an unmapped ID or zero quantity alone does **not** prove
+emptiness. Keep the raw ID/quantity for inspection, no-op serialization and undo.
+
+F8 providers must resolve `query.IncludeEmpty ?? !metadata.EmptyRows.HideByDefault` when called
+directly (Core resolves it before calling `Query`). Apply text/column filters to the complete model,
+count the matching empty slots, exclude them when `IncludeEmpty` is false, then sort and page.
+`TotalCount` includes every slot; `FilteredCount` counts all matching **visible** rows before paging;
+`HiddenEmptyCount` counts matching empty rows excluded **only** by visibility, also before paging.
+Return zero hidden count when including empties. Do not filter an already-built page: that breaks
+page offsets and F6 “select all matching”. Core rejects hidden queries returning flagged empty rows
+and inconsistent hidden counts. The F6 scope retains `IncludeEmpty` and row-key exclusions across
+all pages. SaveDiff explicitly requests `IncludeEmpty = true`; presentation must never hide data
+from a comparison. See `EmptySlotTests` and `EmptySlotApiTests` for a synthetic complete query path.
+
 ### Paged/queryable collections
 
 Large collections implement the optional `IQueryableDocument` interface from
@@ -417,7 +461,7 @@ ordinary views and must be refetched.
 
 The web selection context exposes `queryScope` when the user chooses “select all filtered rows”. It is a
 serialisable object containing `collectionId`, the normalized query (`q`, `filters`, `sort`,
-`descending`, with `offset` reset), the F5 `revision`, `totalCount`, and `excludedRowKeys`. Bulk action
+`descending`, `includeEmpty`, with `offset` reset), the F5 `revision`, `totalCount`, and `excludedRowKeys`. Bulk action
 preview/apply consumers (including F6) must send this scope rather than pretending that loaded rows are
 the whole result; exclusions are explicit when the user unchecks a row.
 - Actions that return `Undoable = false` still work: they clear history explicitly, as before.
