@@ -29,10 +29,11 @@ function usePlannedActionState(node: ActionNode) {
   const [previewScope, setPreviewScope] = useState("");
   // Keep pagination mounted when the preview is hidden for parameter editing or reopening.
   const changesPage = useReviewPage(preview?.plan.changes ?? []);
+  const effectsPage = useReviewPage((preview?.plan.changes ?? []).filter(change => change.effect));
   const skippedPage = useReviewPage(preview?.plan.skippedRows ?? []);
   const form = { parameters, values, setValues, errors, setErrors };
   return { id, form, preview, setPreview, busy, submit, ...modal, onClose, error, setError,
-    formVersion, setFormVersion, previewScope, setPreviewScope, changesPage, skippedPage,
+    formVersion, setFormVersion, previewScope, setPreviewScope, changesPage, effectsPage, skippedPage,
     invalid: Object.values(errors).some(Boolean) };
 }
 

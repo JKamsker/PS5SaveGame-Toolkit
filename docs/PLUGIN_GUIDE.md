@@ -1717,3 +1717,20 @@ and adjacent SDK-request notes describe their retained plugin policies.
 | SDK-04 | [XorJson](../plugins/XorJson/README.md#framework-feature-adoption) | Used | Shared member adapter/router with existing eager-row/navigation policies. |
 | SDK-05 | [BaldursGate3](../plugins/BaldursGate3/README.md#framework-feature-adoption) | Used | `ReferenceViews.Icon` with `RequireProvenance`. |
 | SDK-05 | [TalesOfArise](../plugins/TalesOfArise/README.md#framework-feature-adoption) | Used | `ReferenceViews.Icon` with `AssetIdOnly`, exact alt text and em-dash fallback. |
+
+## Action-owned effect metadata
+
+Actions that report absent/new records or action payloads may opt into `IActionEffectDocument` in
+addition to `IActionPlanningDocument` and `IFieldMetadataDocument`. Add `PlannedChange.Effect` with
+a read-only `FieldSpec` and an explicit `ActionEffectKind` (`Observation` or `StructuralMemento`).
+The enclosing row owns identity, label, typed old/new values, and existence flags: use
+`FieldValue.Null` only when the matching `OldExists`/`NewExists` is false. Core resolves exact
+canonical metadata first, so effects cannot shadow genuine fields or invent aliases. Reference
+effects are display-only (`Assess = null`).
+
+The capability must implement `CaptureMemento` as a pure, complete, size-accounted snapshot accepted
+by `RestoreMemento`. Every effect-bearing action uses one whole-action memento for apply, undo, and
+redo, including observation-only plans. Do not register action payload IDs as parsed fields or add
+effect-specific setters. `Path` is a bounded document-relative navigation path and `Source` is
+provenance text, never an output ownership or fetch key. The host retains a detached bounded snapshot;
+mutating plugin-owned spec/path lists after planning cannot alter a reviewed plan.

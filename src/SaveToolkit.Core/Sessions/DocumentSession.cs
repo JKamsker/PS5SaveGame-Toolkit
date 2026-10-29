@@ -48,6 +48,7 @@ public sealed partial class DocumentSession : IDisposable
     private readonly EditHistory _history;
     private readonly ReferenceFieldService _referenceFields;
     private readonly ReferenceContext _references;
+    private readonly long _maxSnapshotBytes;
     private bool _disposed;
     private bool _idleRetired;
 
@@ -62,6 +63,7 @@ public sealed partial class DocumentSession : IDisposable
         var limits = options ?? DocumentSessionOptions.Default;
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limits.MaxQueryActionRows);
         _maxQueryActionRows = limits.MaxQueryActionRows;
+        _maxSnapshotBytes = limits.MaxSnapshotBytes;
         var referenceContext = references ?? ReferenceContext.None;
         _references = referenceContext;
         _history = new EditHistory(limits);

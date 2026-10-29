@@ -1,6 +1,57 @@
 {
   "components": {
     "schemas": {
+      "ActionEffectDescriptor": {
+        "description": "Read-only metadata for a consequence that is not a parsed canonical field. The enclosing\nPlannedChange owns identity, labels and typed before/after values.",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/ActionEffectKind"
+          },
+          "path": {
+            "description": "Optional document-relative navigation path for the action-owned row.",
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "presentation": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FieldPresentation",
+                "description": "Optional presentation evidence for the action-owned row."
+              }
+            ]
+          },
+          "source": {
+            "description": "Optional bounded provenance supplied by the provider.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "spec": {
+            "$ref": "#/components/schemas/FieldSpec"
+          }
+        },
+        "required": [
+          "kind",
+          "spec"
+        ],
+        "type": "object"
+      },
+      "ActionEffectKind": {
+        "description": "How an action-owned consequence is restored by the host.",
+        "enum": [
+          "Observation",
+          "StructuralMemento"
+        ]
+      },
       "ActionNode": {
         "description": "Plugin-defined command (e.g. \u0022Max all items\u0022). Parameters are rendered as a small form; their\nstring FieldNode.ValueId is the parameter name passed to ActionOutcome ISaveDocument.InvokeAction(string actionId, IReadOnlyDictionary\u0026lt;string, FieldValue\u0026gt; parameters).",
         "properties": {
@@ -885,6 +936,37 @@
           "spec",
           "value"
         ],
+        "type": "object"
+      },
+      "FieldPresentation": {
+        "description": "Complete canonical field annotations for presentation without loading its view. An empty instance\nexplicitly declares no annotations; null FieldMetadata.Presentation means annotations are unspecified.\nDoes not grant write permission or replace the canonical spec or binding kind.",
+        "properties": {
+          "confidence": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Confidence",
+                "description": "Canonical evidence label. Null retains the canonical field\u0027s absence of a label."
+              }
+            ]
+          },
+          "description": {
+            "description": "Canonical explanation or attribution, before any contextual reference description.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "warning": {
+            "description": "Canonical caution that must accompany every editor, including unloaded projections.",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
         "type": "object"
       },
       "FieldReferenceNode": {
@@ -2066,6 +2148,17 @@
           "derived": {
             "description": "True for a consequence of another edit; the plugin decides which consequences require actual assignments.",
             "type": "boolean"
+          },
+          "effect": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ActionEffectDescriptor",
+                "description": "Optional action-owned metadata; null retains legacy plan wire bytes."
+              }
+            ]
           },
           "label": {
             "type": "string"

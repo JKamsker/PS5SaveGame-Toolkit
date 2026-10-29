@@ -38,6 +38,9 @@ public sealed record DocumentMemberIdentityPolicy
     /// <summary>Map navigation ancestors, given the member role and original path. Defaults to unchanged.</summary>
     public Func<string, IReadOnlyList<string>, IReadOnlyList<string>> NavigationPath { get; init; } = static (_, path) => path;
 
+    /// <summary>Inverse of <see cref="NavigationPath"/> for action-effect descriptor paths.</summary>
+    public Func<string, IReadOnlyList<string>, IReadOnlyList<string>> LocalNavigationPath { get; init; } = static (_, path) => path;
+
     /// <summary>Whether graph item IDs and both edge endpoints are prefixed together. Defaults to true.</summary>
     public bool PrefixGraphIds { get; init; } = true;
 
@@ -60,7 +63,7 @@ public sealed record DocumentMemberIdentityPolicy
     internal void Validate(string parameterName)
     {
         if (ToGroupId is null || TryToLocalId is null || QueryRowIdentity is null || TableRowIdentity is null
-            || TableCellScope is null || ExpansionScope is null || NavigationPath is null
+            || TableCellScope is null || ExpansionScope is null || NavigationPath is null || LocalNavigationPath is null
             || CollectionTitle is null || CollectionColumn is null)
             throw new ArgumentException("Identity policy callbacks must be non-null; only LocalScope may be null.", parameterName);
     }

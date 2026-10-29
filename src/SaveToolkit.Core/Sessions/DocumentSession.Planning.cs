@@ -87,34 +87,41 @@ public sealed partial class DocumentSession
                 ? group.PlanForSession(actionId, readOnlyValues, requested, cancellationToken)
                 : planner.PlanAction(actionId, readOnlyValues, requested);
             cancellationToken.ThrowIfCancellationRequested();
-            var bytes = JsonSerializer.SerializeToUtf8Bytes(plan);
-            var requestBytes = JsonSerializer.SerializeToUtf8Bytes(readOnlyValues).LongLength
-                + JsonSerializer.SerializeToUtf8Bytes(requested).LongLength;
+            var detachedPlan = ActionPlanSnapshots.Snapshot(plan);
+            var bytes = BoundedJson.Serialize(detachedPlan, MaxPlanBytes);
+            var requestBytes = BoundedJson.Serialize(readOnlyValues, MaxPlanBytes).LongLength
+                + BoundedJson.Serialize(requested, MaxPlanBytes).LongLength;
             cancellationToken.ThrowIfCancellationRequested();
             if (bytes.LongLength + requestBytes > MaxPlanBytes)
             {
                 return Reject([new FieldError(actionId, "Preview is too large; narrow its scope.")]);
             }
 
-            if (plan.Errors.Count > 0)
+            if (detachedPlan.Errors.Count > 0)
             {
-                return new ActionPreview(null, _revision, requested, plan);
+                return new ActionPreview(null, _revision, requested, detachedPlan);
             }
 
             cancellationToken.ThrowIfCancellationRequested();
             var metadata = FieldMetadataPlanning.Validate(_index, Document, plan, _referenceFields, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             if (_index.HasFieldMetadata
-                && bytes.LongLength + requestBytes + JsonSerializer.SerializeToUtf8Bytes(metadata).LongLength > MaxPlanBytes)
+                && bytes.LongLength + requestBytes + BoundedJson.Serialize(metadata, MaxPlanBytes).LongLength > MaxPlanBytes)
                 return Reject([new FieldError(actionId, "Preview metadata is too large; narrow its scope.")]);
             cancellationToken.ThrowIfCancellationRequested();
             var id = Guid.NewGuid().ToString("N");
-            _pendingAction = new PendingAction(id, _revision, actionId, readOnlyValues, requested, bytes, metadata);
-            return new ActionPreview(id, _revision, requested, plan);
+            _pendingAction = new PendingAction(id, _revision, actionId, readOnlyValues, requested, bytes, metadata,
+                detachedPlan.Changes.Any(change => change.Effect is not null));
+            return new ActionPreview(id, _revision, requested, detachedPlan);
         }
         catch (StaleViewException ex)
         {
             return Reject([new FieldError(actionId, ex.Message)], stale: true);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("bounded budget", StringComparison.Ordinal)
+            || ex.Message.Contains("bounded entry limit", StringComparison.Ordinal))
+        {
+            return Reject([new FieldError(actionId, "Preview is too large; narrow its scope.")]);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException and not OperationCanceledException)
         {
@@ -162,16 +169,17 @@ public sealed partial class DocumentSession
                 ? group.PlanForSession(pending.ActionId, pending.Parameters, pending.Scope, cancellationToken)
                 : planner.PlanAction(pending.ActionId, pending.Parameters, pending.Scope);
             cancellationToken.ThrowIfCancellationRequested();
-            if (fresh.Errors.Count > 0)
-            {
-                return new SessionEditResult { Errors = fresh.Errors, Warnings = fresh.Warnings, State = StateUnlocked() };
-            }
+            // Apply uses the same detached graph admission as preview. This keeps provider-owned
+            // nested specs/presentation/path lists from bypassing bounds or changing while checked.
+            var detachedFresh = ActionPlanSnapshots.Snapshot(fresh);
+            if (detachedFresh.Errors.Count > 0)
+                return new SessionEditResult { Errors = detachedFresh.Errors, Warnings = detachedFresh.Warnings, State = StateUnlocked() };
 
             cancellationToken.ThrowIfCancellationRequested();
-            var metadata = FieldMetadataPlanning.Validate(_index, Document, fresh, _referenceFields, cancellationToken);
+            var metadata = FieldMetadataPlanning.Validate(_index, Document, detachedFresh, _referenceFields, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             if (!FieldMetadataPlanning.Agree(pending.Metadata, metadata)
-                || !pending.PlanBytes.AsSpan().SequenceEqual(JsonSerializer.SerializeToUtf8Bytes(fresh)))
+                || !pending.PlanBytes.AsSpan().SequenceEqual(BoundedJson.Serialize(detachedFresh, MaxPlanBytes)))
             {
                 return Rejected(pending.ActionId, "The action's effects changed. Preview it again.") with { Stale = true };
             }
@@ -179,25 +187,77 @@ public sealed partial class DocumentSession
             // Point of no return: the plugin mutation and its undo/revision bookkeeping must
             // finish together. The request token is deliberately not observed after this check.
             cancellationToken.ThrowIfCancellationRequested();
-            _semantic.CaptureTargetedOriginals(_openOriginal, fresh.Changes.Select(change => change.ValueId), cancellationToken);
+            var effectDocument = pending.HasEffects ? Document as IActionEffectDocument : null;
+            if (pending.HasEffects && (effectDocument is null
+                || effectDocument is StagedGroupDocument staged && !staged.EffectEnabled))
+                return Rejected(pending.ActionId, "This document no longer supports action effects.");
+            DocumentMemento? before = null;
+            if (effectDocument is not null)
+            {
+                before = effectDocument.CaptureMemento();
+                CheckSnapshotBudget(before);
+            }
+            _semantic.CaptureTargetedOriginals(_openOriginal,
+                detachedFresh.Changes.Where(change => change.Effect is null).Select(change => change.ValueId), cancellationToken);
             startApply();
             return RunGroup(_ =>
             {
-                var outcome = planner.ApplyActionPlan(pending.ActionId, pending.Parameters, pending.Scope, fresh);
-                if (!outcome.Succeeded)
+                try
                 {
-                    return FromOutcome(outcome);
+                    var outcome = planner.ApplyActionPlan(pending.ActionId, pending.Parameters, pending.Scope, detachedFresh);
+                    if (!outcome.Succeeded)
+                    {
+                        RestoreFailedEffect(effectDocument, before);
+                        return FromOutcome(outcome);
+                    }
+                    if (pending.HasEffects)
+                    {
+                        ActionEffectOutcomeValidation.Validate(detachedFresh, outcome);
+                        var after = effectDocument!.CaptureMemento();
+                        CheckSnapshotBudget(after);
+                    }
+                    var warnings = pending.HasEffects
+                        ? Record(new MementoStep(before!))
+                        : outcome.Revert is { } revert ? Record(new MementoStep(revert))
+                        : outcome.Changes.Count > 0 ? Record(new ValueStep(outcome.Changes)) : [];
+                    var semanticChanges = pending.HasEffects
+                        ? outcome.Changes.Where(change => detachedFresh.Changes.Any(planned => planned.Effect is null
+                            && planned.ValueId == change.ValueId)).ToArray()
+                        : outcome.Changes;
+                    return AfterChange(FromOutcome(outcome), pending.HasEffects || outcome.StructureChanged || outcome.Revert is not null,
+                        warnings, semanticChanges);
                 }
-
-                var warnings = outcome.Revert is { } revert ? Record(new MementoStep(revert))
-                    : outcome.Changes.Count > 0 ? Record(new ValueStep(outcome.Changes)) : [];
-                return AfterChange(FromOutcome(outcome), outcome.StructureChanged || outcome.Revert is not null, warnings);
+                catch
+                {
+                    RestoreFailedEffect(effectDocument, before);
+                    throw;
+                }
             });
         }
         catch (Exception ex) when (ex is not OutOfMemoryException and not OperationCanceledException)
         {
             var warnings = RebuildIndex(forceNewRevision: false);
             return Rejected(pending.ActionId, $"Action failed: {ex.Message}") with { Warnings = warnings, State = StateUnlocked() };
+        }
+    }
+
+    private void CheckSnapshotBudget(DocumentMemento memento)
+    {
+        if (memento.SizeBytes < 0 || memento.SizeBytes > _maxSnapshotBytes)
+            throw new InvalidOperationException("The action snapshot exceeds its undo budget.");
+    }
+
+    private void RestoreFailedEffect(IActionEffectDocument? capability, DocumentMemento? before)
+    {
+        if (capability is null || before is null) return;
+        try
+        {
+            _ = Document.RestoreMemento(before);
+            _ = RebuildIndex(forceNewRevision: false);
+        }
+        catch (Exception restore) when (restore is not OutOfMemoryException)
+        {
+            throw new InvalidOperationException("Action failed and its snapshot could not restore the document; reopen it before continuing.", restore);
         }
     }
 
@@ -245,7 +305,7 @@ public sealed partial class DocumentSession
 
     private sealed record PendingAction(string Id, long Revision, string ActionId,
         IReadOnlyDictionary<string, FieldValue> Parameters, ActionScope Scope, byte[] PlanBytes,
-        IReadOnlyList<FieldMetadata> Metadata);
+        IReadOnlyList<FieldMetadata> Metadata, bool HasEffects);
 
     private ActionScope ResolveActionQuery(ActionQueryScope scope, CancellationToken cancellationToken)
     {

@@ -123,9 +123,10 @@ public sealed partial class DocumentSession
         }
     }
 
-    private SessionEditResult AfterChange(SessionEditResult result, bool structural, IReadOnlyList<string> warnings)
+    private SessionEditResult AfterChange(SessionEditResult result, bool structural, IReadOnlyList<string> warnings,
+        IReadOnlyList<ValueChange>? semanticChanges = null)
     {
-        if (result.Ok) _semantic.Observe(result.Changes, structural, id => _index.Spec(id) is not null);
+        if (result.Ok) _semantic.Observe(semanticChanges ?? result.Changes, structural, id => _index.Spec(id) is not null);
         if (!structural && result.Ok && result.Changes.Count > 0)
         {
             _revision++;

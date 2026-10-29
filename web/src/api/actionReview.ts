@@ -1,6 +1,6 @@
 import { request } from "./client";
 import { documentPath, postJson } from "./requests";
-import type { CollectionQuery, EditResult, FieldError, FieldValue } from "./protocol";
+import type { CollectionQuery, EditResult, FieldError, FieldSpec, FieldValue, Confidence } from "./protocol";
 
 /** SDK query names differ from the collection endpoint's query-string names. */
 export interface QueryableCollectionQuery extends Omit<CollectionQuery, "q" | "sort"> {
@@ -23,9 +23,17 @@ interface ActionQueryScope {
   excludedRowKeys: readonly string[];
 }
 export interface ActionScope { rowKeys?: readonly string[] | null; queryScope?: ActionQueryScope }
-interface PlannedChange {
+export interface ActionEffectDescriptor {
+  kind: "Observation" | "StructuralMemento";
+  spec: FieldSpec;
+  presentation?: { confidence?: Confidence; warning?: string; description?: string };
+  path?: readonly string[];
+  source?: string;
+}
+export interface PlannedChange {
   valueId: string; label: string; oldValue: FieldValue; newValue: FieldValue;
   derived: boolean; oldExists: boolean; newExists: boolean;
+  effect?: ActionEffectDescriptor;
 }
 export interface ActionPreview {
   planId?: string; revision: number; scope: ActionScope; stale?: boolean;

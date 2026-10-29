@@ -1,5 +1,7 @@
 namespace SaveToolkit.Sdk;
 
+using SaveToolkit.Sdk.Values;
+
 /// <summary>How scalar application combines fresh preview warnings with application warnings, including rejections.</summary>
 public enum ActionPlanWarningPolicy
 {
@@ -26,9 +28,28 @@ public static class ActionPlans
     {
         ArgumentNullException.ThrowIfNull(reviewed);
         ArgumentNullException.ThrowIfNull(fresh);
-        return reviewed.Changes.SequenceEqual(fresh.Changes) && reviewed.SkippedRows.SequenceEqual(fresh.SkippedRows) &&
+        return reviewed.Changes.Count == fresh.Changes.Count && reviewed.Changes.Zip(fresh.Changes).All(pair => ChangeEquals(pair.First, pair.Second)) && reviewed.SkippedRows.SequenceEqual(fresh.SkippedRows) &&
             reviewed.Warnings.SequenceEqual(fresh.Warnings, StringComparer.Ordinal) && reviewed.Errors.SequenceEqual(fresh.Errors);
     }
+
+    private static bool ChangeEquals(PlannedChange first, PlannedChange second) =>
+        first.ValueId == second.ValueId && first.Label == second.Label && first.OldValue == second.OldValue &&
+        first.NewValue == second.NewValue && first.Derived == second.Derived && first.OldExists == second.OldExists &&
+        first.NewExists == second.NewExists && EffectEquals(first.Effect, second.Effect);
+
+    private static bool EffectEquals(ActionEffectDescriptor? first, ActionEffectDescriptor? second)
+    {
+        if (first is null || second is null) return first is null && second is null;
+        return first.Kind == second.Kind && FieldSpecMetadata.Agree(first.Spec, second.Spec)
+            && PresentationEquals(first.Presentation, second.Presentation)
+            && PathEquals(first.Path, second.Path) && first.Source == second.Source;
+    }
+
+    private static bool PresentationEquals(FieldPresentation? first, FieldPresentation? second) =>
+        first?.Confidence == second?.Confidence && first?.Warning == second?.Warning && first?.Description == second?.Description;
+
+    private static bool PathEquals(IReadOnlyList<string>? first, IReadOnlyList<string>? second) =>
+        first is null || second is null ? first is null && second is null : first.SequenceEqual(second, StringComparer.Ordinal);
 
     /// <summary>Replans once; fresh validation failures take precedence over the caller's stale-plan diagnostic.</summary>
     public static ActionPlanValidation Revalidate(ActionPlan reviewed, Func<ActionPlan> replan, FieldError mismatchError)
