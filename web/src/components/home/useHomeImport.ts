@@ -3,8 +3,8 @@ import { useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import { library, useLibrary } from "../../state/libraryStore";
-import { listDirectory } from "../../lib/library";
-import { fromInput, walkEntries, type UploadFile } from "./collectFiles";
+import type { UploadFile } from "./collectFiles";
+import { captureDrop } from "./captureDrop";
 import { useAsyncTask } from "../ui/useAsyncTask";
 import { useLatestRequest } from "../ui/useLatestRequest";
 
@@ -72,13 +72,13 @@ export function useHomeImport() {
   const [dragging, setDragging] = useState(false);
   const zipInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
-  const beginFolderSelection = () => {
+  const beginSourceSelection = () => {
     setStatus(null);
     setFailedUpload([]);
     return beginRequest();
   };
   const chooseFolder = async () => {
-    const isCurrent = beginFolderSelection();
+    const isCurrent = beginSourceSelection();
     const handled = library.supportsHandles() && await library.pickFolder(isCurrent);
     if (!handled && isCurrent()) folderInput.current?.click();
   };
@@ -86,45 +86,30 @@ export function useHomeImport() {
   const onDrop = (e: DragEvent) => {
     e.preventDefault();
     setDragging(false);
+    const source = captureDrop(e.dataTransfer);
+    if (source.kind === "empty") return;
+    if (source.kind === "files") { void uploadDroppedFiles(source.read); return; }
+
+    // Known folders and unclassified metadata failures own recovery independently of upload
+    // admission. Only a fully classified file-only payload may be rejected as a duplicate.
+    const requestIsCurrent = beginSourceSelection();
+    if (source.kind === "unreadable") { setStatus({ text: droppedReadFailure, isError: true }); return; }
+    const snapshotId = library.get().snapshotId;
+    const isCurrent = () => requestIsCurrent() && library.get().snapshotId === snapshotId;
+    setStatus({ text: "Reading dropped folder…", isError: false });
     void (async () => {
-      let folderIsCurrent: (() => boolean) | undefined;
       try {
-        // Read DataTransfer before the first await; synchronous access failures need this boundary too.
-        const items = Array.from(e.dataTransfer.items ?? []);
-        const entries = items.map((i) => i.webkitGetAsEntry?.()).filter((x): x is FileSystemEntry => !!x);
-        const hasFolder = entries.some(entry => entry.isDirectory);
-        if (!hasFolder) {
-          // FileList is the fallback when the browser does not expose directory entries.
-          const files = entries.length === 0 && e.dataTransfer.files ? fromInput(e.dataTransfer.files) : [];
-          if (entries.length === 0 && files.length === 0) return;
-          return await uploadDroppedFiles(() => entries.length > 0 ? walkEntries(entries) : Promise.resolve(files));
-        }
-        const requestIsCurrent = beginFolderSelection();
-        const snapshotId = library.get().snapshotId;
-        const isCurrent = () => requestIsCurrent() && library.get().snapshotId === snapshotId;
-        folderIsCurrent = isCurrent;
-        setStatus({ text: "Reading dropped folder…", isError: false });
-        const handle = entries.length === 1 && entries[0]!.isDirectory ? items[0]?.getAsFileSystemHandle?.() : undefined;
-        const resolved = await handle;
-        if (!isCurrent()) return;
-        if (resolved?.kind === "directory") {
-          // Finish reading before replacing the previous library; a partial traversal is unusable.
-          const files = await listDirectory(resolved as FileSystemDirectoryHandle);
-          if (!isCurrent()) return;
-          setStatus(null);
-          return await library.scanHandle(resolved as FileSystemDirectoryHandle, files);
-        }
-        const files = await walkEntries(entries);
+        const folder = await source.read();
         if (!isCurrent()) return;
         setStatus(null);
-        await library.scanFiles(entries.length === 1 ? entries[0]!.name : "Dropped folders", files);
-      } catch (failure) {
-        if (!folderIsCurrent) return await uploadDroppedFiles(() => Promise.reject(failure));
-        if (folderIsCurrent()) setStatus({ text: droppedReadFailure, isError: true });
+        if (folder.handle) await library.scanHandle(folder.handle, folder.files);
+        else await library.scanFiles(folder.name, folder.files);
+      } catch {
+        if (isCurrent()) setStatus({ text: droppedReadFailure, isError: true });
       }
     })();
   };
 
-  return { importTask, status, failedUpload, upload, beginFolderSelection, beginImportIntent: beginFolderSelection,
+  return { importTask, status, failedUpload, upload, beginFolderSelection: beginSourceSelection, beginImportIntent: beginSourceSelection,
     dragging, setDragging, zipInput, folderInput, chooseFolder, onDrop };
 }
