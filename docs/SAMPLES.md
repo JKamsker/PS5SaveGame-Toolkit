@@ -9,6 +9,15 @@ same paths several times (snapshots appended); the importer exposes them as gene
 
 Identities were confirmed by the reconnaissance pass; per-title evidence, format notes and a ranked
 roadmap live in [docs/formats/](formats/README.md). Entries marked `?` are still unconfirmed.
+This table inventories sample titles, including unsupported ones; it is not the support list.
+Use the [current plugin table](PLUGINS.md) and linked READMEs for registered titles and write limits.
+
+Before importing samples or running tests, follow [disk and scratch](RELEASING.md#disk-and-scratch).
+`SampleSaves` caches each title per process under `TestScratch.ProcessFolder`, honoring
+`SAVETOOLKIT_TEST_TEMP`. It attempts cleanup on process exit and sweeps folders whose owning process
+has exited; crashes or locked files can leave leftovers. Keep originals outside that scratch tree.
+`FindArchive` selects the shortest full matching `<TITLE>_saves_dec*.zip` path; it does not choose
+the newest archive or enumerate the entire corpus. For multiple archives, import them explicitly.
 
 | Title | Game | Main files | Notes |
 | --- | --- | --- | --- |

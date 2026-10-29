@@ -6,8 +6,10 @@ A local, web-based editor for **decrypted** PS5 save games. Drop a save dump (zi
 the toolkit detects the game, and a game plugin describes the data as an abstract view that the
 browser renders: stats, typed fields, tables, actions. Edits are validated and can be undone within
 the [history limits](docs/PLUGIN_GUIDE.md#structural-edits-add--remove--reorder). Export verifies output
-by re-opening it and preserves the folder layout, with optional backup mirroring where the twin held
+by re-opening it and retains recognized title/save-directory layouts, with optional backup mirroring where the twin held
 the same original bytes and ownership permits it. Explicit document groups manage their own backups.
+Unknown-layout exports can acquire an `UNKNOWN/` prefix; review the
+[export path limitations](docs/API.md#workspace-export) before restoring them.
 
 The toolkit does not decrypt or re-sign PS5 save containers; use your save manager for that.
 **Edits are not console-validated. All game plugins are Experimental; the game may reject,
@@ -31,6 +33,7 @@ on a disposable spare slot. The owner validation work is tracked in
 - **F11 — Shared codecs:** managed Kraken decoding/stored-block writing and in-memory SQLite images.
 - **F12 — Decoder hooks:** SaveDiff traverses paged views and discovers explicit plugin evidence decoders.
 - **F13 — Read-only tools:** isolated inspection actions, browse-only pickers, catalogue sorting and float durations.
+- **F14 — Empty slots:** one inventory table with confirmed vacant slots hidden by default and available for inspection.
 
 These are framework capabilities; each plugin adopts only the parts its format supports. A reference
 name or graph does not establish ownership, completion, prerequisites or a safe gameplay edit.
@@ -65,9 +68,12 @@ not imply support for every game build or region.
 
 Download the bundle for your OS from [GitHub Releases](https://github.com/JKamsker/PS5SaveGame-Toolkit/releases)
 (repository access is required while this project is private). Verify its SHA-256 checksum, extract
-the whole archive into a writable folder, and run `start.cmd` on Windows or `./start.sh` on macOS/Linux.
+the whole archive into a writable folder, open its inner `SaveToolkit-<version>-<runtime>` folder,
+and run `start.cmd` on Windows or `./start.sh` on macOS/Linux. Leave the server terminal running.
 On macOS/Linux, run `chmod +x start.sh SaveToolkit.Api` first if needed. Open
 http://127.0.0.1:5180. No .NET or Node.js installation is needed.
+The launchers use port 5180 and do not forward arguments; follow the
+[alternate-port instructions](docs/USER_GUIDE.md#use-another-port) to run the executable directly.
 The [user guide](docs/USER_GUIDE.md) covers checksum commands, other ports, importing,
 editing, review/undo, export, supported titles and troubleshooting. Keep backups;
 edits are experimental and not console-validated. Maintainers: see
@@ -88,6 +94,9 @@ For development, run the API above and `cd web; npm run dev` in a second termina
 
 ## Tests and private samples
 
+Configure [disk and scratch](docs/RELEASING.md#disk-and-scratch) first, including for direct
+`dotnet test` commands. Keep private samples on their existing external drive.
+
 ```powershell
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/path/to/private/artifacts'
@@ -95,6 +104,7 @@ dotnet test --project tests/SaveToolkit.Core.Tests
 dotnet test --project plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Tests
 ./scripts/test.ps1                           # API build + all backend test projects
 # ./scripts/test.ps1 -Filter Pragmata        # optional project-path substring filter
+# ./scripts/test.ps1 -Coverage -ResultsDirectory D:/Temp/saveeditor/test-scratch/framework-docs/results
 cd web; npm ci; npm test; npm run build
 ```
 
@@ -138,9 +148,6 @@ The server binds to 127.0.0.1 and has no authentication; it is meant to run on y
 
 Licensed under **GPL-3.0-or-later**; see [LICENSE](LICENSE) and [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES).
 Upstream components retain their own compatible licences and attribution.
-The [licence exclusions register](docs/LICENCE_EXCLUSIONS.md) tracks remaining refusals and imports in
-progress. Per the owner decision of 2026-10-28, unlicensed community facts/data are reused with full
-attribution; unlicensed code is reimplemented with source credit. The 2026-10-29 owner decision also
-permits rights-reserved guide material and publisher assets with source, rights-holder and revision/date
-attribution. GPL-2.0-only code and NC/no-redistribution terms remain refusal reasons. See
-[plugin guide rule 9](docs/PLUGIN_GUIDE.md#hard-rules) for the exact policy and required notices.
+The [licence exclusions register](docs/LICENCE_EXCLUSIONS.md) tracks source decisions and remaining
+refusals. [Plugin guide rule 9](docs/PLUGIN_GUIDE.md#hard-rules) is the authoritative owner reuse
+and attribution policy, including the 2026-10-28 and 2026-10-29 decisions.

@@ -138,6 +138,10 @@ beside the launcher: imported workspace files in `data/workspaces/` and referenc
 storage in `data/reference-packs/`. Choose a writable extraction folder with enough space
 for your dump. Imports use working copies; editing does not overwrite your original zip.
 Exports are downloaded through your browser to the location you choose.
+Allow additional free space for expanded imports and downloaded exports; a compressed dump's size
+does not indicate its working-space requirement. Release extraction, working data and backups each
+need space. Contributors running tests/builds should use the separate
+[disk and scratch guidance](RELEASING.md#disk-and-scratch).
 
 **A workspace is temporary.** Edits and undo history live in the running server session.
 Closing a dump discards its workspace; restarting the server clears imported workspaces,
@@ -183,6 +187,8 @@ In tables, use **Filter rows** where available, or **Search all rows** on paged 
 Paged search/filter/sort runs over the collection, including unloaded pages. Use column
 filters, **Sort rows**, **Ascending/Descending**, and **Previous/Next** when offered.
 Expand a row's details for descriptions, raw IDs, confidence, warnings and edit controls.
+When all currently shown field cells in a column share one confidence, its badge appears once in
+that column's header; mixed-confidence fields keep their individual badges.
 Some tables hide confirmed empty slots by default; use their empty-slot **Show** control
 to inspect them. Showing an empty row does not enable item creation.
 
@@ -223,7 +229,8 @@ only where the plugin implements it. Inspection actions browse information witho
 Open **Changes against original** to compare exposed fields with the imported baseline.
 Use **Find a changed field**, **Jump**, and **Revert** where enabled. Reverting a field
 recomputes supported dependent values. Use Undo for added, removed or derived fields.
-This panel is a bounded semantic review, not a complete byte diff: heed incomplete-coverage
+Unloaded paged-collection fields may be absent even when review reports complete coverage of its
+current walk. This panel is a bounded semantic review, not a complete byte diff: heed incomplete-coverage
 warnings, and do not treat **No semantic changes** as proof that every file byte is unchanged.
 
 ## Undo and redo
@@ -257,7 +264,9 @@ The toolkit reopens edited output with its plugin before packing it. If verifica
 fails, read the error and undo or correct the edit; passing these checks still does not
 prove console acceptance. Save the downloaded zip separately from the original. A
 document's **Download file** downloads just that file; use workspace Export for complete
-save folders and for related-file groups.
+save folders and for related-file groups. Inspect the plan paths: additional generations use `genN/`,
+and an unrecognized title/layout can acquire an `UNKNOWN/` prefix. The latter is a known #40
+path-preservation gap; do not restore such an export as though its original layout were unchanged.
 
 You can re-import an exported zip to inspect it. Restore through your own save manager,
 including any required encryption or signing. On a disposable backed-up slot, check the
@@ -293,6 +302,8 @@ the linked plugin READMEs. Generic JSON title overlays are listed separately fro
 format-based registration. Registrations are not promises of coverage for every region,
 patch or DLC. **Yes** means bounded writes in supported files/schemas, not every field.
 Read each linked README for exact gates and evidence; other documents may open read-only.
+The [README support table](../README.md#supported-games-and-formats) lists the same **17 game/format
+plugins**, plus the built-in raw inspector; multiple rows below can belong to one plugin.
 
 | Game / format | Title IDs | Plugin | Maturity | Writes enabled / important limits |
 | --- | --- | --- | --- | --- |
@@ -346,8 +357,9 @@ unsupported variant can appear in the raw inspector instead of a game editor.
 For a damaged or incomplete download/dump, retry from your untouched source. Do not
 rename another game's files or alter checksum/version bytes to force recognition. If an
 edit is rejected, correct its value or undo it. If a table/preview says it is out of date,
-refresh the document and preview again with the current selection. Export failures
-should be reported with their error text and the smallest sequence of edits that triggers them.
+refresh the document and preview again with the current selection. Clear a column filter to
+restore all rows; a blank sort selection uses the collection default.
+Report export failures with their error text and the smallest sequence of edits that triggers them.
 
 ### macOS Gatekeeper or quarantine blocks launch
 

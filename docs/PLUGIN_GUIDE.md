@@ -42,8 +42,9 @@ The supplied title IDs are targets, not evidence of game support. Research the r
 replacing the demonstration probe, parser, fixture and README claims together.
 
 The initial test run exercises synthetic parsing, bounded collection queries, read-only bindings,
-corruption rejection and byte-identical serialization. Four sample-dependent tests (including
-conformance) skip when the archive is absent; this is a passing bootstrap, not real-save validation.
+corruption rejection and byte-identical serialization. Sample-dependent tests, including conformance
+and its inherited `MutationFuzz` fact, skip when the archive is absent; this is a bootstrap,
+not real-save validation.
 `<Name>SampleTests.cs` demonstrates `SampleSaves.Load`, which reports a real skip instead of silently
 returning. Once you implement the real parser, supply samples as described under [Tests](#tests)
 and check that those skips disappear.
@@ -87,6 +88,27 @@ native record identities that survive insertion, removal and reorder.
 Scaffold regression coverage (including real generated-project builds and tests with absent and
 synthetic samples) runs through `./scripts/self-test.ps1 -ScratchDirectory <scratch-path>`.
 It needs the repository's .NET SDK and package restore access, but no private saves or Pester.
+See [script parameters](RELEASING.md#script-parameters) and [disk and scratch](RELEASING.md#disk-and-scratch)
+for shared runner options and temporary-storage setup.
+
+## Contribution workflow
+
+- Stay inside `plugins/<Name>/`; do not edit `src/`, `web/`, `tests/` or other plugins.
+  Adding a `<PackageVersion>` to `Directory.Packages.props` is the exception. Work around missing
+  SDK capabilities and record them under `## SDK requests` in the plugin README; consult
+  [the triaged backlog](SDK_REQUESTS.md) before treating a shipped helper as missing.
+- Research before implementation: search format documentation, community editors/extractors,
+  templates, wikis, format keys and checksum algorithms. Reuse proven approaches within rule 9,
+  cite sources in the README and verify claims against actual sample bytes. Treat downloaded code
+  as untrusted: read it before use. Mark unconfirmed meanings `Inferred` or `Unknown`.
+- Use nullable C#, file-scoped namespaces and `sealed` by default. Keep non-generated files under
+  300 lines where possible and never above 500 without a documented justification. Prefer composition
+  and reused helpers; do not split into partials merely to meet a line count. Avoid `dynamic`,
+  reflection tricks and unsafe code (any exception needs a reason in a comment).
+- Do not add repository tooling inside plugin folders: no hooks, build targets, `Directory.Build.*`,
+  lint scripts or `.gitattributes`. File size and style are reviewed centrally.
+- Follow [repository collaboration policy](../AGENTS.md#collaboration-policy) for commits and review
+  scope, and [Tests](#tests) for conformance, format-specific cases and missing-sample skips.
 
 ## Contract (src/SaveToolkit.Sdk)
 
@@ -107,6 +129,14 @@ It needs the repository's .NET SDK and package restore access, but no private sa
 
 `BoundSaveDocument` implements the bookkeeping (binding registry, atomic apply with rollback,
 `GetValue`). Prefer it: build views with `Field(id, label, spec, get, set, validate)`.
+For storage-only registration, use the protected
+`RegisterField(valueId, spec, get, set = null, validate = null)`, then render with
+`Field(valueId, label)` when needed. Registration retains the spec/getter/setter/validator without
+calling the getter or creating a node; a missing setter makes the rendered field read-only.
+Structural changes and memento restores clear these bindings, so register them again against the
+current model. This does not publish host metadata or bypass host spec validation; direct plugin
+calls still own validation for unpublished IDs. See [SDK-02](SDK_REQUESTS.md#prioritized-inventory)
+for the remaining metadata/primary-alias contract.
 See `tests/SaveToolkit.Core.Tests/Fakes/CounterPlugin.cs` for the smallest complete example.
 `BoundSaveDocument.ApplyEdits` rollback includes setters that throw after changing their bound value, failed
 readbacks and failures while enumerating `DerivedChanges`. Setters must accept their previous value
@@ -627,8 +657,10 @@ eviction. `DocumentSessionOptions.MaxOriginalBytes` defaults to 16 MiB of estima
 field data; walks are also bounded to 100,000 nodes/rows/tabs and depth 128. Exceeding a bound,
 failure to open the original, failing lazy expansion, or unmatchable internal identities yields
 `Complete = false` with a visible warning. Missing coverage is never reported as a proven addition
-or removal. This is a field-level review; it does not describe binary differences or record order. Use structural
-undo for reorder-only changes.
+or removal. The current walker does not page `QueryableTableNode` collections (see
+[SDK-01](SDK_REQUESTS.md#prioritized-inventory)); `Complete = true` describes that walk, not coverage
+of every F8 field. This is a field-level review; it does not describe binary differences or record
+order. Use structural undo for reorder-only changes.
 
 Jump opens parent sections/tabs and lazy views, clears table filters, scrolls virtual rows and
 focuses the field. Individual revert restores an **existing editable field** through normal
@@ -865,12 +897,12 @@ eligibility reason. F2's catalog-wide endpoints remain unchanged. The attributed
 and `tests/SaveToolkit.Core.Tests/Fakes/ItemsPlugin.cs` demonstrate the complete contract.
 
 The shipped F13 scope is read-only inspection, browse-only reference pickers, catalogue query
-filter/sort and float duration hints. Publishing field specs without rendering pages is a separate
-proposed capability; see
-[F13 field-spec publishing design](plans/F13-FIELD-SPEC-PUBLISHING.md). Unknown action-reported
+filter/sort and float duration hints. Storage-only `RegisterField` is also shipped; publishing
+host field metadata independently of rendered pages remains a separate proposal. See the
+[partially delivered field-spec design](plans/F13-FIELD-SPEC-PUBLISHING.md). Unknown action-reported
 IDs already replay during undo, but that alone does not establish primary bindings, alias policy,
 complete semantic review or safe unloaded-page preflight. Retain plugin guards until that
-capability is implemented.
+host metadata capability is implemented.
 
 ## Reference packs
 
@@ -1157,7 +1189,7 @@ mutating the original byte array after creating a synthetic file does not edit t
 ### Deterministic mutation fuzzing (#40)
 
 Every conformance subclass inherits `MutationFuzz`, a correctness/robustness check for malformed
-saves. It runs **200 mutations per selected file**, with fixed seed **`0x40C0FFEE`** and zero-based
+saves. By default it runs **200 mutations per selected file**, with fixed seed **`0x40C0FFEE`** and zero-based
 indices. Each mutation starts from the original bytes, using a specified xorshift32 sequence;
 `SaveMutation.Create(original, seed, index)` reproduces a case independently of earlier cases.
 The six mutation kinds cycle through bit flips, byte insertion, byte deletion, random truncation,
@@ -1170,9 +1202,13 @@ relative path, and takes up to `MaxMutationFuzzFilesPerTitle` (**1**) distinct f
 the default run fast while exercising real format bytes. This independent cap keeps existing exhaustive
 `MaxFilesPerTitle` overrides from expanding the fuzz run without limit. Missing titles are ignored
 without hiding available titles. Every selected file gets the full mutation count; increase the
-file cap for a broader local corpus run. Override `MutationFuzzSyntheticSeeds` to supply small valid
+file cap for a broader local corpus run. Built-in synthetic seeds cover GenericJson (one) and
+XorJson (two); other plugins must supply valid fixtures to run without private samples.
+Override `MutationFuzzSyntheticSeeds` to supply small valid
 `ISaveFile`s, including required siblings, for sample-free CI. With neither samples nor synthetic
-seeds the fact reports a real skip. For example:
+seeds the fact reports a real skip. Environment overrides can select a different seed/count and
+an overall time cap; see the single source of truth for
+[nightly configuration and local reproduction](RELEASING.md#nightly-mutation-fuzz). For example:
 
 ```csharp
 protected override IEnumerable<ISaveFile> MutationFuzzSyntheticSeeds =>

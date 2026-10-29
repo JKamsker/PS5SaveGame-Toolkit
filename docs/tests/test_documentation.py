@@ -18,6 +18,8 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[2]
 CODE_REF = "HEAD"
 EXCLUDED = ROOT / "docs/LICENCE_EXCLUSIONS.md"
+FRAMEWORK_PAGES = ("README.md", "AGENTS.md", "docs/PLUGIN_GUIDE.md", "docs/RELEASING.md",
+                   "docs/API.md", "docs/USER_GUIDE.md", "docs/SDK_REQUESTS.md", "docs/SAMPLES.md")
 
 
 def document(path):
@@ -36,6 +38,15 @@ def source_paths():
     return set(subprocess.check_output(
         ["git", "ls-tree", "-r", "--name-only", CODE_REF], cwd=ROOT, encoding="utf-8"
     ).splitlines())
+
+
+def script_parameters(path):
+    # These scripts declare typed parameters before setting ErrorActionPreference.
+    # Read declarations only: never execute PowerShell or inspect environment values.
+    header = source(path).split("$ErrorActionPreference", 1)[0]
+    if not re.search(r"(?m)^param\(", header):
+        raise AssertionError(f"Expected a top-level parameter block: {path}")
+    return set(re.findall(r"\]\s*\$(\w+)", header))
 
 
 def plugins():
@@ -198,8 +209,7 @@ class DocumentationTests(unittest.TestCase):
 
     def test_documented_commands_resolve_against_code(self):
         npm_scripts = json.loads(source("web/package.json"))["scripts"]
-        pages = ("README.md", "AGENTS.md", "docs/PLUGIN_GUIDE.md", "docs/SAMPLES.md", "docs/RELEASING.md")
-        for page in pages:
+        for page in FRAMEWORK_PAGES:
             text = document(page)
             for script in re.findall(r"\./(scripts/[\w-]+\.ps1)", text):
                 with self.subTest(page=page, script=script):
@@ -214,6 +224,232 @@ class DocumentationTests(unittest.TestCase):
                     self.assertTrue(project in source_paths() or any(
                         path.startswith(project + "/") and path.endswith(".csproj") for path in source_paths()),
                         "Documented project does not exist")
+
+    def test_documented_script_parameter_inventory_matches_declarations(self):
+        section = markdown_section(document("docs/RELEASING.md"), "## Script parameters")
+        _, rows = markdown_table(section)
+        scripts = {path.rsplit("/", 1)[-1]: path for path in source_paths()
+                   if re.fullmatch(r"scripts/[\w-]+\.ps1", path)}
+        self.assertCountEqual(scripts, [row[0].strip("`") for row in rows])
+        for name, parameters, _ in rows:
+            path = scripts[name.strip("`")]
+            with self.subTest(script=path):
+                self.assertEqual(script_parameters(path), set(re.findall(r"`-(\w+)`", parameters)))
+
+    def test_documented_script_invocations_use_real_parameters(self):
+        invocations = 0
+        for page in FRAMEWORK_PAGES:
+            # Join PowerShell continuation lines before checking the invocation's flags.
+            text = re.sub(r"`\r?\n\s*", " ", document(page))
+            for match in re.finditer(r"\./(scripts/[\w-]+\.ps1)([^\n]*)", text):
+                path, arguments = match.groups()
+                invocations += 1
+                declared = {name.lower() for name in script_parameters(path)}
+                flags = re.findall(r"(?<!\S)-([A-Za-z]\w*)(?=[:\s`]|$)", arguments)
+                with self.subTest(page=page, script=path, flags=flags):
+                    self.assertLessEqual({name.lower() for name in flags}, declared)
+        self.assertGreater(invocations, 10, "Script invocation scan unexpectedly found too few examples")
+
+    def test_release_job_inventory_matches_all_workflow_keys(self):
+        expected = set()
+        for path in source_paths():
+            if re.fullmatch(r"\.github/workflows/[\w-]+\.ya?ml", path):
+                jobs = source(path).split("\njobs:\n", 1)[1]
+                expected.update((path, job) for job in re.findall(r"(?m)^  ([\w-]+):\s*$", jobs))
+        section = markdown_section(document("docs/RELEASING.md"), "## Continuous integration")
+        actual = re.findall(r"(?m)^\| \[[^\]]+\]\(\.\./([^\s)]+)\) \| `([\w-]+)` \|", section)
+        self.assertCountEqual(expected, actual)
+
+    def test_coverage_platforms_and_nightly_fuzz_match_workflows(self):
+        workflow = source(".github/workflows/ci.yml")
+        self.assertIn("-Coverage:($IsWindows)", workflow)
+        self.assertIn("if ($IsLinux)", workflow)
+        self.assertIn("--coverage.reportsDirectory=", workflow)
+        releasing = document("docs/RELEASING.md")
+        self.assertIn(".NET coverage on Windows", releasing)
+        self.assertIn("web coverage", releasing)
+        nightly = source(".github/workflows/nightly-fuzz.yml")
+        self.assertIn("cron: '23 3 * * *'", nightly)
+        self.assertIn("03:23 UTC", releasing)
+        self.assertIn("default: '5000'", nightly)
+        self.assertIn("5,000 mutations per seed", releasing)
+        self.assertIn("SAVETOOLKIT_FUZZ_TIME_BUDGET: '60'", nightly)
+        self.assertIn("60-second per-plugin wall-clock cap", releasing)
+        self.assertIn("timeout-minutes: 30", nightly)
+        self.assertIn("30-minute job timeout", releasing)
+        self.assertIn("--filter-method '*MutationFuzz'", nightly)
+        self.assertNotIn("--coverage", nightly)
+        options = source("src/SaveToolkit.Testing/MutationFuzzOptions.cs")
+        report = source("src/SaveToolkit.Testing/MutationFuzzReport.cs")
+        for variable in re.findall(r"`(SAVETOOLKIT_FUZZ_\w+)`", releasing):
+            self.assertIn(variable, options + report)
+        seeds = source("src/SaveToolkit.Testing/MutationFuzzSyntheticSeeds.cs")
+        self.assertEqual(["format.json", "format.json-xor"], re.findall(r'case "([^"]+)":', seeds))
+        self.assertEqual(3, seeds.count("yield return MemorySaveSet.SingleFile("))
+        self.assertIn("other 15 plugin conformance classes", releasing)
+
+    def test_built_app_smoke_docs_cover_shipped_flows_and_skipped_regressions(self):
+        text = markdown_section(document("docs/RELEASING.md"), "## Built app browser smoke tests")
+        flows = {
+            "import.e2e.ts": ("import errors and recovery", "raw read-only inspection"),
+            "workspace.e2e.ts": ("document isolation and redo", "repeated exports"),
+            "table.e2e.ts": ("sort/paging",),
+            "actions.e2e.ts": ("bulk preview/cancel/apply",),
+            "keyboard.e2e.ts": ("keyboard-only application interaction",),
+        }
+        for filename, claims in flows.items():
+            with self.subTest(file=filename):
+                self.assertIn(f"web/e2e/{filename}", source_paths())
+                for claim in claims:
+                    self.assertIn(claim, text)
+        self.assertIn("test.fixme(", source("web/e2e/import.e2e.ts"))
+        self.assertNotIn("test.fixme(", source("web/e2e/table.e2e.ts"))
+        self.assertIn('test("clearing a JSON-type filter restores all rows', source("web/e2e/table.e2e.ts"))
+        self.assertIn("This skipped case is not validated behavior", text)
+        for page in ("README.md", "docs/API.md", "docs/USER_GUIDE.md"):
+            with self.subTest(page=page):
+                self.assertIn("`UNKNOWN/` prefix", document(page))
+
+    def test_user_guide_registered_titles_and_maturity_match_code(self):
+        text = document("docs/USER_GUIDE.md")
+        for name, plugin_id, maturity in plugins():
+            rows = [line for line in text.splitlines()
+                    if line.startswith("| ") and f"plugins/{name}/README.md)" in line]
+            with self.subTest(plugin=name):
+                self.assertTrue(rows, "Missing user-guide support row")
+                for row in rows:
+                    self.assertIn(f"`{plugin_id}`", row)
+                    self.assertEqual(maturity, row.split("|")[4].strip())
+                code = source(f"plugins/{name}/SaveToolkit.Plugins.{name}/{name}Plugin.cs")
+                titles = set(re.findall(r'"(PPSA\d{5})"', code.split("Maturity =", 1)[0]))
+                if titles:  # Generic format overlays intentionally are not registered titles.
+                    self.assertEqual(titles, set(re.findall(r"PPSA\d{5}", "\n".join(rows))))
+
+    def test_documented_sdk_helpers_and_storage_signatures_exist(self):
+        guide = document("docs/PLUGIN_GUIDE.md")
+        helpers = {
+            "Collections/InMemoryCollection.cs": ("InMemoryCollection", "Query"),
+            "ActionPlans.cs": ("ContentEquals", "Revalidate", "ApplyScalar"),
+            "Binary/BoundedBinaryCursor.cs": ("BoundedBinaryCursor", "ReadCount", "Subrange"),
+            "Binary/FStringCodec.cs": ("Read", "ByteLength", "Decode", "Encode"),
+            "Binary/Crc32Ieee.cs": ("Compute", "Append", "GetCurrentHash", "Reset"),
+            "References/ReferenceCatalogReader.cs": ("ReadBounded",),
+            "References/ReferenceViews.cs": ("Icon",),
+            "References/ReferenceInspection.cs": ("Create", "ResolveSelection"),
+        }
+        for path, members in helpers.items():
+            code = source("src/SaveToolkit.Sdk/" + path)
+            for member in members:
+                with self.subTest(path=path, member=member):
+                    self.assertRegex(code, rf"\b{member}\s*\(")
+                    self.assertIn(member, guide)
+        code = source("src/SaveToolkit.Sdk/BoundSaveDocument.cs")
+        signature = (r"protected void RegisterField\(\s*string valueId,\s*FieldSpec spec,\s*"
+                     r"Func<FieldValue> get,\s*Action<FieldValue>\? set = null,\s*"
+                     r"Func<FieldValue, string\?>\? validate = null\)")
+        self.assertRegex(code, signature)
+        self.assertIn("protected FieldNode Field(string valueId, string label)", code)
+        self.assertIn("RegisterField(valueId, spec, get, set = null, validate = null)", guide)
+        self.assertIn("Storage-only `RegisterField` is also shipped", guide)
+        self.assertFalse(any(path.endswith("/AllocationProbe.cs") for path in source_paths()))
+        self.assertIn("`AllocationProbe` is **not present**", document("docs/SDK_REQUESTS.md"))
+        options = source("src/SaveToolkit.Sdk/References/ReferenceIconOptions.cs")
+        for member in ("ExactAltText", "RequireBytesAndProvenance", "RequireProvenance", "AssetIdOnly"):
+            with self.subTest(icon_option=member):
+                self.assertIn(member, options)
+                self.assertIn(member, guide)
+        self.assertIn("ReferenceIconOptions? options)", source("src/SaveToolkit.Sdk/References/ReferenceViews.cs"))
+
+    def test_collection_query_docs_explain_cleared_values(self):
+        code = source("src/SaveToolkit.Api/Endpoints/WorkspaceEndpoints.cs")
+        self.assertIn('request.Query["sort"].FirstOrDefault() is { Length: > 0 } sort ? sort : null', code)
+        self.assertIn("filter.Value.Length == 0", code)
+        self.assertIn("filters.Remove(key)", code)
+        text = document("docs/API.md")
+        for claim in ("empty-string values mean no filter", "an empty string clears it",
+                      "an empty string uses default ordering", "Whitespace-only values remain literal filters"):
+            self.assertIn(claim, text)
+        self.assertIn("Clear a column filter to", document("docs/USER_GUIDE.md"))
+        self.assertNotIn("reload the page to reset the filter", document("docs/USER_GUIDE.md"))
+
+    def test_group_proposal_status_documents_empty_success_and_offer_errors(self):
+        code = source("src/SaveToolkit.Core/Sessions/Groups/DocumentGroupRegistry.cs")
+        self.assertIn("if (plugin is not IDocumentGroupPlugin groupPlugin) return [];", code)
+        section = markdown_section(document("docs/API.md"),
+            "### `GET /api/workspaces/{workspaceId}/files/{fileId}/group-proposals`")
+        text = " ".join(section.split())
+        self.assertIn("200 with an empty array", text)
+        self.assertIn("offer's `errors`", text)
+        self.assertIn("listing still returns 200", text)
+
+    def test_quick_start_and_user_guide_match_packaged_launchers(self):
+        package = source("scripts/package.ps1")
+        launch_lines = [line for line in package.splitlines() if "--contentRoot" in line]
+        self.assertEqual(2, len(launch_lines))
+        for line in launch_lines:
+            self.assertIn("--urls http://127.0.0.1:5180", line)
+            self.assertIn("--Toolkit:DataRoot", line)
+            self.assertIn("--Toolkit:PackRoot", line)
+            self.assertNotIn("%*", line)
+            self.assertNotIn('$@', line)
+        for page in ("README.md", "docs/USER_GUIDE.md"):
+            with self.subTest(page=page):
+                text = document(page)
+                for claim in ("http://127.0.0.1:5180", "start.cmd", "./start.sh",
+                              "chmod +x start.sh SaveToolkit.Api", "SaveToolkit-<version>-<runtime>"):
+                    self.assertIn(claim, text)
+                self.assertIn("use-another-port", text)
+        user = " ".join(document("docs/USER_GUIDE.md").split())
+        count = re.search(r"\*\*(\d+) game/format plugins\*\*", user)
+        self.assertIsNotNone(count)
+        self.assertEqual(len(list(plugins())), int(count[1]))
+
+    def test_mutation_fuzz_documents_current_defaults_and_scaffold_skips(self):
+        guide = document("docs/PLUGIN_GUIDE.md")
+        section = markdown_section(guide, "### Deterministic mutation fuzzing (#40)")
+        code = source("src/SaveToolkit.Testing/PluginConformanceTests.MutationFuzz.cs")
+        count = re.search(r"MutationFuzzCount => (\d+)", code)[1]
+        cap = re.search(r"MaxMutationFuzzFilesPerTitle => (\d+)", code)[1]
+        timeout = re.search(r"MutationFuzzCaseTimeout => TimeSpan.FromSeconds\((\d+)\)", code)[1]
+        seed = re.search(r"DefaultSeed = (0x[0-9A-F]+)", source("src/SaveToolkit.Testing/SaveMutation.cs"))[1]
+        for claim in (f"**{count} mutations per selected file**", f"(**{cap}**)",
+                      f"**{timeout} seconds**", f"**`{seed}`**", "64 MiB + 32", "**1 GiB**"):
+            self.assertIn(claim, section)
+        self.assertIn("Assert.SkipWhen(result.Samples == 0", code)
+        self.assertIn("With neither samples nor synthetic", section)
+        scaffold = markdown_section(guide, "## Scaffold")
+        self.assertIn("inherited `MutationFuzz` fact", scaffold)
+        self.assertNotIn("Four sample-dependent tests", scaffold)
+
+    def test_owner_policies_link_to_the_canonical_rules(self):
+        guide = document("docs/PLUGIN_GUIDE.md")
+        for notice in (
+            "No licence published; reused with attribution per owner decision 2026-10-28",
+            "Rights reserved by <holder>; used with attribution per owner decision 2026-10-29",
+        ):
+            self.assertIn(notice, guide)
+        for page in ("README.md", "AGENTS.md", "docs/LICENCE_EXCLUSIONS.md"):
+            with self.subTest(page=page):
+                self.assertIn("PLUGIN_GUIDE.md#hard-rules", document(page))
+        policy = markdown_section(document("AGENTS.md"), "## Collaboration policy")
+        self.assertIn("security and vulnerability", policy)
+        self.assertIn("out of scope by owner rule", policy)
+        self.assertIn("RELEASING.md#disk-and-scratch", document("AGENTS.md"))
+        self.assertIn("RELEASING.md#disk-and-scratch", guide)
+
+    def test_sdk_request_totals_match_inventory_and_resolved_appendix(self):
+        text = document("docs/SDK_REQUESTS.md")
+        _, rows = markdown_table(markdown_section(text, "## Prioritized inventory"))
+        counts = Counter(row[3] for row in rows)
+        summary = re.search(r"(\d+) deduplicated items: (\d+) open, (\d+) partially resolved, "
+                            r"(\d+) resolved, (\d+) obsolete", text)
+        self.assertIsNotNone(summary)
+        self.assertEqual([len(rows), *[counts[status] for status in
+                         ("open", "partially resolved", "resolved", "obsolete")]],
+                         [int(value) for value in summary.groups()])
+        appendix = re.search(r"The (\d+) resolved rows", text)
+        self.assertIsNotNone(appendix)
+        self.assertEqual(counts["resolved"], int(appendix[1]))
 
     def test_documented_reference_and_action_routes_exist(self):
         guide = document("docs/PLUGIN_GUIDE.md")
@@ -263,8 +499,16 @@ class DocumentationTests(unittest.TestCase):
                 text = document(f"docs/plans/{name}.md")
                 introduction = text.split("## Summary", 1)[0]
                 self.assertIn("Historical planning snapshot", introduction)
+                self.assertIn("**Status: superseded.**", introduction)
                 self.assertIn("../PLUGINS.md", introduction)
                 self.assertNotIn("## Current state (evidence)", text)
+        proposal = document("docs/plans/F13-FIELD-SPEC-PUBLISHING.md")
+        self.assertIn("partially delivered proposal", proposal)
+        self.assertIn("That part of the proposal is done", proposal)
+        self.assertIn("remain proposed", proposal)
+        roadmap = document("docs/plans/ROADMAP.md").split("## Original plan", 1)[0]
+        self.assertIn("F1–F14 are implemented", roadmap)
+        self.assertNotIn("Yōtei remains read-only", roadmap)
 
     def test_reconnaissance_and_smoke_counts_are_historical(self):
         for path in sorted((ROOT / "docs/formats").glob("*.md")):
@@ -295,6 +539,7 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("optional backup mirroring", introduction)
         self.assertIn("original bytes", introduction)
         self.assertIn("ownership", introduction)
+        self.assertIn("`UNKNOWN/` prefix", introduction)
         # These conditions exist in Core; the overview must not promise unconditional behavior.
         self.assertIn("MaxSnapshotBytes", source("src/SaveToolkit.Core/Sessions/EditHistory.cs"))
         exporter = source("src/SaveToolkit.Core/Export/WorkspaceExporter.cs")
