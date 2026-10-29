@@ -106,12 +106,10 @@ public sealed class Workspace : IDisposable
                     return existing;
                 }
 
-                if (existing.State.IsDirty)
+                if (!ReleaseCleanDocument(existing.Id))
                 {
                     throw new InvalidOperationException("This file has unsaved edits in another plugin. Close that document first.");
                 }
-
-                Close(existing.Id);
             }
 
             // Reference packs are pinned per document: packs imported later only affect documents opened later.
