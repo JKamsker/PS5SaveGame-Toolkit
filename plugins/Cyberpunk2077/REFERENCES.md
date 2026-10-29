@@ -50,7 +50,9 @@ and emits deterministic LF JSON plus SHA-256 F2 manifests. It does not read save
 download anything, adapt GPL code or expand the quantity-write allowlist.
 Keep both dataset sidecars and third-party notices when updating the pack.
 
-Full TweakDB/localization joins and art redistribution remain owner/rights work
+Complete same-build TweakDB/localization joins remain evidence work; the attributed asset round
+adds publisher icons/text/map art under the owner decision 2026-10-29. See README and the game-assets pack ledger.
+The remaining complete-resource work is tracked
 (CP2077-R2/R8/R18). The UI supports separately attributed local text/images without
 claiming that source availability licenses redistribution.
 
@@ -59,7 +61,8 @@ claiming that source availability licenses redistribution.
 `cyberpunk2077.wiki-labels.en` 1.0.0 supplies the `item-labels` catalog: 15 base-record names under
 CC BY-SA 3.0, extracted only where the wiki explicitly lists a base ID. It does not replace the full
 `items` technical catalog or expand write permission. A selected local `items` pack takes precedence
-over these embedded English labels. Descriptions/icons and same-build text still come from local packs.
+over these embedded English labels and the new asset pack. The attributed `item-art` catalog now
+supplies 146 exact item IDs/captions and 16 family icons; complete same-build text still needs matching data.
 
 Read `ReferencePacks/cyberpunk2077.wiki-labels.en/data.source.md` and `upstream.json` for the six
 pinned revisions, wikitext hashes, licensing-page revision and exact changes. Query those page titles

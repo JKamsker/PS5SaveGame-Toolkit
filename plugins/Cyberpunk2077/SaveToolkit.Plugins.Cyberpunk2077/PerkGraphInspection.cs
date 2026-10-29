@@ -44,11 +44,11 @@ internal sealed class PerkGraphInspection
             throw new KeyNotFoundException($"Unknown perk graph page '{lazyId}'.");
         var rows = _rows.Skip(page * SpatialDetails.PageSize).Take(SpatialDetails.PageSize).ToArray();
         var graph = new GraphNode("Stored modern perks", rows.Select(row =>
-            new GraphItem(SpatialDetails.PerkId(row), row.Values["name"], GraphState.Unknown)
+            new GraphItem(SpatialDetails.PerkId(row), row.Values.GetValueOrDefault("displayName", row.Values["name"]), GraphState.Unknown)
             {
                 Branch = row.Values["group"],
                 Cost = row.Values["kind"] == "Modern perk" ? $"Stored rank {row.Values["rank"]}; point cost unknown" : "Group summary; cost unknown",
-                Description = SpatialDetails.Summary(row.Values["status"] + " " + Explanation + " " + row.Attribution),
+                Description = SpatialDetails.Summary(row.Values.GetValueOrDefault("description", "") + " " + row.Values["status"] + " " + Explanation + " " + row.Attribution),
                 Target = new ViewTarget(ViewTargetKind.Field, SpatialDetails.PerkId(row))
                     { Path = ["tab:Skills and perks", "section:" + lazyId, "section:" + DetailsTitle] },
             }).ToArray(), [], Explanation);

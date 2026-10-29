@@ -23,7 +23,7 @@ The write-enable directive supersedes the plan's old evidence gate for implement
 | R15 | Read-only typed garage/travel and opaque journal diagnostics exist | Owner-blocked: acquisition/summon/discovery/quest/gig/collectible pairs in #31 |
 | R16 | Full instance identity, original node keys and refusal of ambiguous joins | Done for existing records; structural restoration follows R3 |
 | R17 | Exact 265/2210/195 and package guards | Owner-blocked: later/mature/PL/other-region PS5 samples in #31 |
-| R18 | Owner approved attributed permissive/share-alike data; link-first for unclear rights | Done; won't bundle proprietary art/localization or execute upstream tools |
+| R18 | Owner approved attributed permissive/share-alike data; link-first for unclear rights | Updated 2026-10-29: attributed art/text/map subset imported per owner decision; no downloaded code executed |
 | R19 | Serialize reparses; intended scalar/mirror checks, F1 diffs and final ZIP/backup test | Done: new spatial publication preserves clean session/no-op bytes; existing serialization/ZIP checks pass |
 | R20 | Confidence, evidence, editor-policy bounds and refusal reasons present | Done: F9 explanations retain Unknown eligibility and registration/accessibility distinction; README/evidence updated |
 | R21 | F6 atomic stack changes implemented; no sibling coupling demonstrated | Done for supported actions; won't invent F7 writes to files owned by GenericJson |

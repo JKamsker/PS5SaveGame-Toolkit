@@ -7,9 +7,9 @@ namespace SaveToolkit.Plugins.Cyberpunk2077;
 
 public sealed class Cyberpunk2077Plugin : IGamePlugin, ISaveDecoderProvider
 {
-    public PluginInfo Info { get; } = new("cyberpunk2077", "Cyberpunk 2077", "0.6.0")
+    public PluginInfo Info { get; } = new("cyberpunk2077", "Cyberpunk 2077", "0.7.0")
     {
-        Description = "Experimental PS5 stored-value edits and planned stack actions; equipment/world inspection, stored-perk graphs and link-first travel maps.",
+        Description = "Experimental PS5 stored-value edits; attributed item/cyberware icons, planner descriptions, stored-perk graphs and Night City reference art.",
         Games = [new GameTitle("PPSA04027", "Cyberpunk 2077")],
         Maturity = PluginMaturity.Experimental,
         References = ["https://github.com/WolvenKit/CyberCAT", "https://github.com/WolvenKit/WolvenKit/tree/main/WolvenKit.RED4/Save",
@@ -21,6 +21,18 @@ public sealed class Cyberpunk2077Plugin : IGamePlugin, ISaveDecoderProvider
             ScriptableReader.SourceUrl,
             TravelMapInspection.SourceUrl,
             "https://www.cyberpunk.net/en/build-planner",
+            "https://www.cyberpunk.net/build/8603-b6e6f72c476c734a52a4.js",
+            "https://cyberpunk.fandom.com/wiki/Category:Cyberpunk_2077_images_-_Inventory_Icons",
+            "https://cyberpunk.fandom.com/wiki/Biomonitor?oldid=280059",
+            "https://cyberpunk.fandom.com/wiki/Blood_Pump?oldid=280138",
+            "https://cyberpunk.fandom.com/wiki/Gorilla_Arms?oldid=307846",
+            "https://cyberpunk.fandom.com/wiki/Mantis_Blades?oldid=307995",
+            "https://cyberpunk.fandom.com/wiki/Monowire?oldid=307954",
+            "https://cyberpunk.fandom.com/wiki/Projectile_Launch_System?oldid=307975",
+            "https://cyberpunk.fandom.com/wiki/Reinforced_Tendons?oldid=300690",
+            "https://cyberpunk.fandom.com/wiki/Second_Heart?oldid=285680",
+            "https://cyberpunk.fandom.com/wiki/Smart_Link?oldid=278451",
+            "https://cyberpunk.fandom.com/wiki/Subdermal_Armor?oldid=286231",
             "https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SNewPerk.cs",
             "https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SAttributeData.cs",
             "https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SProficiency.cs",

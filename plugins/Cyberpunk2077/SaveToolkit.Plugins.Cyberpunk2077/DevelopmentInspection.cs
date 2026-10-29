@@ -9,7 +9,8 @@ internal sealed class DevelopmentInspection
 {
     public const string CollectionId = "development";
     private readonly PerkGraphInspection _graph;
-    public DevelopmentInspection(ScriptableReader? reader, string? warning, ProgressionData? progression = null)
+    public DevelopmentInspection(ScriptableReader? reader, string? warning, ProgressionData? progression = null,
+        CyberpunkReferences? references = null)
     {
         var rows = new List<InspectionRow>();
         try
@@ -17,12 +18,13 @@ internal sealed class DevelopmentInspection
             if (reader is not null) Read(reader, rows);
         }
         catch (SaveToolkit.Sdk.SaveFormatException ex) { rows.Clear(); warning = ex.Message; }
+        if (references is not null) rows = rows.Select(references.EnrichPerk).ToList();
         Warning = warning;
         _graph = new PerkGraphInspection(rows, warning);
         Table = new InspectionTable(CollectionId, "Skills, perks and budgets (read-only)", [new("kind", "Record kind"),
             new("group", "Attribute / area"), new("name", "Stored identifier"), new("rank", "Level / rank", IntegerSpec.Int32),
             new("xp", "Current XP", IntegerSpec.Int32), new("spent", "Spent points", IntegerSpec.Int32), new("unspent", "Unspent points", IntegerSpec.Int32),
-            new("status", "Stored state / evidence")], rows,
+            new("status", "Stored state / evidence"), new("description", "Official planner reference text")], rows,
             "All stored proficiencies, modern perk groups, legacy perk areas and point budgets. Omitted enum properties use the researched zero default. " +
             "Legacy area unlock bits are not post-2.0 perk allocations. Stored ranks never establish prerequisites, effects, Relic entitlement or legal budgets. " +
             "Raw Level/Street Cred values can be edited in Player development with warnings; no automatic rewards, perk allocation or respec.", (row, column) =>
@@ -39,7 +41,9 @@ internal sealed class DevelopmentInspection
                         _ => row.Values.GetValueOrDefault(column, ""),
                     };
                 return row.Values.GetValueOrDefault(column, "");
-            });
+            }, cell: (row, column) => column == "name" && row.Values.TryGetValue("displayName", out var name)
+                ? new SectionNode(name, [new TextNode(row.Values["name"]), new TextNode(row.Values["description"]),
+                    new TextNode(row.Attribution)]) { Description = row.Attribution } : null);
     }
     public string? Warning { get; }
     public InspectionTable Table { get; }

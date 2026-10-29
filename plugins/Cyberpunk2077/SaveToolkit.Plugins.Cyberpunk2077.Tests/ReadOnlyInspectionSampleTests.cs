@@ -95,7 +95,7 @@ public sealed class ReadOnlyInspectionSampleTests(ITestOutputHelper output)
             var (_, _, context) = ReferencePackFixture.Embedded();
             var cyberware = new CyberwareInspection(InventoryReader.Read(container, tree), EquipmentData.Read(reader, container, tree,
                 InventoryReader.Read(container, tree)), new CyberpunkReferences(context, 2210), container, tree);
-            Assert.Equal(232, cyberware.Table.Metadata.TotalCount);
+            Assert.Equal(324, cyberware.Table.Metadata.TotalCount); // Baseline plus 92 exact modern wiki base IDs.
             Assert.All(cyberware.Table.Query(new QueryableCollectionQuery { Limit = 200 }).Rows, row =>
                 Assert.Equal("Catalog only; not observed in classified inventory", Cell(row, "ownership")));
             var world = new WorldInspection(reader, container, tree, new CyberpunkReferences(context, 2210), null);

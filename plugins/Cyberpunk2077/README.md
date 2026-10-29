@@ -1,6 +1,6 @@
 # Cyberpunk 2077 (`cyberpunk2077`)
 
-Title: **PPSA04027**. Plugin **0.6.0**, maturity: **Experimental**. Writers cover five player attributes,
+Title: **PPSA04027**. Plugin **0.7.0**, maturity: **Experimental**. Writers cover five player attributes,
 unspent attribute/perk/relic points, money, named player stacks, raw Level/Street Cred/XP/thresholds,
 existing raw fact values, and F6 planned stack actions. Edits are
 restricted to **save 265 / game 2210 / archive 195** (the supplied PS5 2.21 save). Scriptable progression
@@ -23,23 +23,48 @@ fact values**, overlapping-sibling refusal and indexed equipment/world/stat join
 entry links to its own read-only details, even before F8 rows have been loaded. See the full
 [requirement and acceptance audit](COMPLETION.md).
 
+## Attributed asset round (2026-10-29)
+
+The new `cyberpunk2077.game-assets.en` pack adds **16 unique icons**, **146 item-record descriptions
+(16 distinct in-game captions)**, **193 official perk descriptions**, and **one Night City background**.
+Its 92 modern cyberware IDs supplement the 232 baseline classified IDs, with catalog-only status
+explicitly retained. **Total new image bytes: 584,946** (27,826 icons + 557,120 map); the complete new pack is
+**710,750 bytes** including text, manifest and provenance sidecars. Text is minified
+JSON. Every icon-bearing catalog record resolves through F2; inventory fields browse `item-art`
+when enriched. Equipment/cyberware rows show image and caption; catalog inspection actions include
+both `item-art` and `perks`. A selected local item pack owns presentation for its matching records.
+The host validates and caches embedded packs once; documents pin immutable shared images. Plugin
+code performs no file/network I/O and builds image cells only for requested rows; map lookup happens
+on lazy map expansion. The host's embedded loader is eager, so pack bytes are loaded at startup.
+
+The [source sidecar](SaveToolkit.Plugins.Cyberpunk2077/ReferencePacks/cyberpunk2077.game-assets.en/data.source.md),
+[upstream ledger](SaveToolkit.Plugins.Cyberpunk2077/ReferencePacks/cyberpunk2077.game-assets.en/upstream.json),
+manifest, Sources panel, image-cell captions and `Info.References` retain full attribution.
+`reference-data/generate-assets.py` rebuilds offline from reviewed downloads in `%TEMP%`; Pillow
+header validation and image processing happen outside the repository. No downloaded code executes.
+
+Sample verification: **152 passed / 0 failed / 0 skipped**; API build: **0 warnings / 0 errors**.
+Matched fresh-process median first load (packs + largest sample + root): **372.56 → 370.18 ms**,
+allocated bytes **136,135,608 → 140,845,168**. Timing is noisy; no speedup claim. See
+[ASSET-VALIDATION.md](ASSET-VALIDATION.md) for raw timings, methodology, cache behavior and sizes.
+
 ## Framework feature adoption
 
 | Feature | Adoption | Where / concrete scope |
 | --- | --- | --- |
 | F1 SaveDiff | Used | Hash-pinned `Evidence/corpus.json`, `CyberpunkEvidenceDecoder`, independent semantic/byte-diff edit tests and final ZIP/backup preservation. The native decoder is registered through the F12 SDK provider. |
-| F2 reference packs | Used | Embedded MIT identifier and CC BY-SA label packs; immutable build-pinned `IReferenceContext`, optional local labels/images, per-dataset Sources attribution and raw fallback. |
-| F3 rich cells | Used | Inventory details, optional attributed images with text alternatives, confidence badges, raw-byte sections and supported-stack action cells. Missing art stays an explicit placeholder. |
+| F2 reference packs | Used | Embedded MIT identifiers, CC BY-SA labels/captions, CDPR item/cyberware icons and official perk text, plus Piggyback/CDPR map art; immutable `IReferenceContext`, per-dataset attribution, local-pack precedence and raw fallback. |
+| F3 rich cells | Used | Attributed inventory icon cells/details and equipment/cyberware image cells with text alternatives, confidence badges, raw-byte sections and stack actions. Missing art stays an explicit placeholder. |
 | F4 reference fields | Used | `ReferenceSpec` inventory base-record inspection fields and selectors for every available reference catalog. Read-only IDs use the shared browse-only F13 picker; no unsafe identity-replacement setter. |
 | F5 structural undo | N/A | No complete Cyberpunk add/remove/reorder writer exists: node links/counts, duplicate prefixes, unique counters and dependent stat/effect initialization cannot be repaired from this corpus. Scalar name/property materialization already undoes via values and preserves original bytes; it does not create inventory/perk records. |
 | F6 planned actions | Used | Set-supported-stack-target and refill-to-opening-quantity previews, exclusions/warnings, document/explicit/empty/F8 whole-query scopes (#27), atomic apply and one undo group. No coherent perk-allocation preset exists without effect/requirement mutation. |
 | F7 document groups | N/A | Only `sav.dat` is authoritative and owned here. No demonstrated coupled write to `user.gls`, settings or metadata; JSON partners belong to GenericJson. Core already mirrors gameplay backups and the ZIP test verifies that behavior. |
 | F8 collections | Used | Complete inventory, saved/merged facts, equipment, cyberware, development, modifier, garage/travel and journal queries; max 200 materialized rows. Spatial views use separate lazy 128-entry pages. |
-| F9 maps/graphs | Added this round | `PerkGraphInspection` and `TravelMapInspection`: stable IDs, accessible text alternatives, bounded pages, independently expandable field targets, attributed external official map, no imported art/coordinates or invented prerequisite edges. |
+| F9 maps/graphs | Added this round | `PerkGraphInspection` and `TravelMapInspection`: stable IDs, accessible text alternatives, bounded pages, independently expandable field targets, local attributed Night City background, unpositioned marker list until a save-ID crosswalk is verified, official reference perk text and no invented prerequisite edges. |
 | F10 exact/nullable/union values | Added this round | Merged fact-value details use read-only `NullableSpec(UInt32)`: null for absence, integer zero for saved zero; live getters follow edit/undo. Numeric sorting unwraps nullable integers. Exact JSON lexemes and union alternatives are N/A to the fixed binary integer/float schema; UInt64 identities already use lossless decimal strings. |
 | F11 shared codecs | N/A | CSAV uses raw LZ4, already handled by managed K4os with exact-length checks and original-chunk preservation. Shared F11 provides Kraken/SQLite, neither occurs in this format; no local Kraken/SQLite implementation exists to replace. |
 | F12 decoder hooks / F8 diff traversal | Added | Production SDK-only `CyberpunkEvidenceDecoder` registered by `ISaveDecoderProvider` as `cyberpunk2077-evidence`; tests use shared `HookSaveDecoder`. The shared view decoder also traverses F8 collections. |
-| F13 non-mutating inspection / browse-only picker | Added | All five catalogue inspection actions publish `Mutates = false`, including on read-only schemas. Existing read-only `ReferenceSpec` fields use shared browse-only search/category/sort/details. |
+| F13 non-mutating inspection / browse-only picker | Added | All seven catalogue inspection actions publish `Mutates = false`, including on read-only schemas. Existing read-only `ReferenceSpec` fields use shared browse-only search/category/sort/details. |
 
 ## F12/F13 follow-up
 
@@ -63,7 +88,7 @@ with no enum fallback or reference-based replacement action.
 
 Validation with external private samples: **145 passed, 0 failed, 0 skipped**; API build:
 **0 warnings / 0 errors**. Tests cover SDK hook discovery, foreign-file refusal, deterministic evidence,
-file/value/depth bounds, all five catalogue actions across three read-only version refusals, and
+file/value/depth bounds, all seven catalogue actions across three read-only version refusals, and
 unchanged bytes/revision/dirty/undo/redo state on clean, edited and undone documents.
 
 ## Stored-perk graphs and travel maps
@@ -82,13 +107,17 @@ Unregistered catalog entries and unavailable decoding are **Unknown**, never Mis
 Without a pack the saved point still appears by its full raw ID. Exact field targets work without
 querying the F8 table. All entries remain available in the browser's accessible text list.
 
-The map links to [Piggyback's official Night City map](https://maps.piggyback.com/cyberpunk-2077/maps/night-city).
-It is proprietary, so no artwork, coordinates, geographic joins, tiles or location descriptions are
-imported. The plugin does no external fetching. The browser shows the host/attribution and opens the
-source only on a click. Bounds 0..1 are an empty display extent; markers have no positions or
-background. The external site may target another build. For external perk planning, consult
-[CD PROJEKT RED's build planner](https://www.cyberpunk.net/en/build-planner); its data/assets are
-not bundled or treated as a PS5 2.21 rules database. See the adjacent
+The travel map embeds a local **1,792×1,792 WebP** assembled from 49 public zoom-3 tiles of
+[Piggyback's official Night City map](https://maps.piggyback.com/cyberpunk-2077/maps/night-city).
+Piggyback Interactive Limited / CD PROJEKT RED retain rights; use follows the owner decision of
+2026-10-29 with attribution. Tile placement is native top-left-origin image space. **No verified
+saved travel-ID/geographic crosswalk exists**, so all saved markers remain unpositioned in the text
+list. Bounds 0..1 are display extent only, not a world-coordinate transform. The background is
+reference art and may target another build. Missing packs omit the image and retain IDs/status/list.
+No runtime network fetching occurs; the source link opens only on click. The official CDPR planner
+supplies reference perk names/descriptions, joined by exact modern perk enum, while stored ranks,
+Unknown eligibility/effects, technical identity, navigation and absent prerequisite edges are preserved.
+Neither the map nor the planner text claims PS5 2.21 gameplay rules. See the adjacent
 [spatial source ledger](SaveToolkit.Plugins.Cyberpunk2077/SpatialViews.source.md).
 
 All diagrams contain at most 128 entries per lazy page, with stable identities independent of array
@@ -422,15 +451,19 @@ complete bounded paging, wiki attribution/revision/hash joins, local-label prece
 
 Technical dictionary data is factual identifiers/categories from the pinned MIT community source.
 The separate wiki-label dataset remains **CC BY-SA 3.0**, with revision links and content hashes.
-Neither licence grants rights to CD PROJEKT RED localization/artwork.
-No icons, textures, localized prose, game-resource exports or GPL implementation are bundled.
+Publisher icons, captions and planner text are now bundled separately with the owner-decision notice below;
+community-derived captions/ID joins remain CC BY-SA 3.0. No GPL implementation is bundled.
 Full per-dataset attribution is also beside the data, in `Info.References`, F2 manifests/Sources,
 and every named field/details view. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 | Dataset / reference | Pinned source / author | Licence / retrieval / changes |
 | --- | --- | --- |
-| F9 official Night City map link | [Piggyback official map](https://maps.piggyback.com/cyberpunk-2077/maps/night-city), Piggyback Interactive Limited / CD PROJEKT RED | All rights reserved, consulted 2026-10-28; external link only, no assets, coordinates or location data imported. Sidecar: `SpatialViews.source.md`; attribution displayed beside the link. |
-| F9 stored perk schema / external planner | [SNewPerk](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SNewPerk.cs), [SAttributeData](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SAttributeData.cs), WolvenKit contributors; [official planner](https://www.cyberpunk.net/en/build-planner), CD PROJEKT RED | GPL-3.0 schemas, format research only; proprietary planner is external research/link only. Rechecked 2026-10-28; no implementation, perk descriptions, prerequisites, planner data or artwork copied. Diagram uses exact saved identifiers/ranks and existing schema attribution. |
+| F2 `item-art`: 146 exact IDs / 16 captions | [Cyberpunk Wiki](https://cyberpunk.fandom.com/wiki/Cyberpunk_Wiki), contributors / CD PROJEKT RED; 16 revision-pinned pages and image URLs/hashes in [upstream.json](SaveToolkit.Plugins.Cyberpunk2077/ReferencePacks/cyberpunk2077.game-assets.en/upstream.json) | CC BY-SA 3.0 for adapted text/ID joins; 2026-10-29. Infobox titles, explicit base IDs and in-game captions, markup removed. Base-record reference text/art only; tier effects and variant appearance unverified. |
+| F2 16 inventory icons | CD PROJEKT RED; [Cyberpunk Wiki image uploaders](https://cyberpunk.fandom.com/wiki/Category:Cyberpunk_2077_images_-_Inventory_Icons), exact URLs/hashes in the ledger above | Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29. Downscaled to ≤64×64, WebP, content deduplicated; **27,826 bytes**. Ten cyberware families plus six common item families; shared art represents the base family. |
+| F2 193 official perk descriptions | [CD PROJEKT RED build planner](https://www.cyberpunk.net/en/build-planner), [content-hashed English chunk](https://www.cyberpunk.net/build/8603-b6e6f72c476c734a52a4.js) | Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29. Text parsed as JSON, never executed; emphasis tags removed. Build coverage is unknown; no rules/writer changes. |
+| F2/F9 Night City background | [Piggyback official map](https://maps.piggyback.com/cyberpunk-2077/maps/night-city), Piggyback Interactive Limited / CD PROJEKT RED; 49 pinned tile hashes in the ledger | Rights reserved by Piggyback / CDPR; used with attribution per owner decision 2026-10-29. Native-index tile assembly, 1,792px WebP quality 72, **557,120 bytes**. No save-ID/position crosswalk; unpositioned list fallback retained. |
+| F9 official Night City map link | [Piggyback official map](https://maps.piggyback.com/cyberpunk-2077/maps/night-city), Piggyback Interactive Limited / CD PROJEKT RED | Rights reserved by Piggyback / CDPR; used with attribution per owner decision 2026-10-29. Background imported as described above; the source link, unknown geographic join and accessible marker list remain. Sidecar: `SpatialViews.source.md`. |
+| F9 stored perk schema / external planner | [SNewPerk](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SNewPerk.cs), [SAttributeData](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SAttributeData.cs), WolvenKit contributors; [official planner](https://www.cyberpunk.net/en/build-planner), CD PROJEKT RED | GPL-3.0 schemas, format research only; no implementation copied. CDPR planner text is imported with attribution under the owner decision 2026-10-29. Diagram preserves exact saved identifiers/ranks; prerequisites and gameplay effect validation remain unknown. |
 | Stored progression write schema | [WolvenKit SProficiency](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/SProficiency.cs), WolvenKit contributors | GPL-3.0, rechecked 2026-10-28; format research only, independently written scalar/name-pool writer; no source/data copied. |
 | Existing fact write framing | [PixelRick FactsTable](https://github.com/PixelRick/CyberpunkSaveEditor/blob/3afe7428e9f26165e371ea7a3ee2cfd4ee4f1062/source/redx/csav/nodes/questSystem/FactsDB/FactsTable.h), PixelRick contributors | MIT, rechecked 2026-10-28; count/hash/value-plane research only; independent fixed patches retain order and all unknown hashes. |
 | Baseline 36-name allowlist | [items.bin](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/items.bin), [ItemClasses.json](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/CP2077SaveEditor/Resources/ItemClasses.json), DeweySalt / Deweh and contributors | [MIT](https://github.com/Deweh/CyberCAT-SimpleGUI/blob/c1fd00305e7db905a4e7de8cfa360d4f4efee3b2/LICENSE), 2026-10-28; selected names/categories, verified hashes; preserved as write gate. Sidecar: `Resources/ItemNames.source.md`. |
@@ -510,3 +543,14 @@ now lives in the production plugin and implements `ISaveDecoderHook`. F13
 [#33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33) resolved read-only inspection:
 catalogue actions publish `Mutates = false` and remain available when `CanEdit == false`.
 Stack actions continue to use shared F6/F8 whole-query planning (#27).
+
+## Licence exclusions
+
+| Source / revision | Licence found | Current status / reason | Alternative / remaining evidence |
+| --- | --- | --- | --- |
+| [Piggyback Night City](https://maps.piggyback.com/cyberpunk-2077/maps/night-city), 49 public zoom-3 tile hashes pinned, 2026-10-29 | Rights reserved by Piggyback / CDPR; used with attribution per owner decision 2026-10-29 | **Resolved: imported (owner decision 2026-10-29)**, background art | Positions remain omitted because a save-ID/geographic crosswalk is unverified, independent of rights. |
+| [CDPR planner](https://www.cyberpunk.net/en/build-planner), English chunk `8603-b6e6f72c476c734a52a4.js`, retrieved 2026-10-29 | Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29 | **Resolved: imported (owner decision 2026-10-29)**, official names/descriptions | Build-matched prerequisites/costs/effects/entitlement remain evidence gaps. |
+| Complete PS5 2.21 TweakDB/localization/icon exports, no complete matching source supplied | Missing data; publisher assets are usable under owner decision 2026-10-29 | Partial import completed: 146 item IDs, 193 perks, 16 icons; no rights refusal | Remaining identifiers keep raw/baseline names and explicit missing-art fallback. No speculative joins. |
+
+The central `docs/LICENCE_EXCLUSIONS.md` rows for Cyberpunk2077 are superseded by the statuses above;
+this round's folder restriction leaves that shared file for the coordinating agent to synchronize.

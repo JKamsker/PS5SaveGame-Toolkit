@@ -16,7 +16,9 @@ internal sealed class CyberpunkReferences
         "Internal identifier only; no localization, availability or game-limit claim.";
     private const string ActionPrefix = "inspect-catalog/";
     private const string IdentifierPackId = "cyberpunk2077.identifiers";
-    private static readonly string[] CatalogIds = ["items", "facts", "vehicles", "travel", "item-labels"];
+    public const string GameAssetPackId = "cyberpunk2077.game-assets.en";
+    public const string MapAssetId = GameAssetPackId + ":maps/night-city.webp";
+    private static readonly string[] CatalogIds = ["items", "facts", "vehicles", "travel", "item-labels", "item-art", "perks"];
     private readonly IReferenceContext _context;
     private readonly IReadOnlyDictionary<string, IReferenceCatalog?> _catalogs;
 
@@ -37,8 +39,45 @@ internal sealed class CyberpunkReferences
         if (Items is { } catalog && catalog.Pack.Id != IdentifierPackId && Item(id) is not null) return null;
         return _catalogs["item-labels"]?.Find(ItemKey(id));
     }
-    public string? ItemDisplayName(ulong id) => ItemLabel(id)?.Name ?? Item(id)?.Name;
-    public string ItemAttribution(ulong id) => string.Join("\n", new[] { Item(id)?.AttributionText, ItemLabel(id)?.AttributionText }.OfType<string>());
+    public ReferenceRecord? ItemArt(ulong id) => Items is { } catalog && catalog.Pack.Id != IdentifierPackId && Item(id) is not null
+        ? null : _catalogs["item-art"]?.Find(ItemKey(id));
+    public ReferenceRecord? ItemContent(ulong id) => ItemArt(id) ?? Item(id);
+    public string? ItemDisplayName(ulong id) => ItemArt(id)?.Name ?? ItemLabel(id)?.Name ?? Item(id)?.Name;
+    public string ItemAttribution(ulong id) => string.Join("\n", new[] { Item(id)?.AttributionText, ItemLabel(id)?.AttributionText,
+        ItemArt(id)?.AttributionText, ItemContent(id)?.AssetId is { } asset ? AssetAttribution(asset) : null }.OfType<string>());
+
+    public ImageNode? ItemIcon(ulong id)
+    {
+        var record = ItemContent(id);
+        return record?.AssetId is { } asset && GetAsset(asset) is not null ? new ImageNode(asset, record.Name) : null;
+    }
+
+    public ViewNode? ItemPresentation(ulong id)
+    {
+        var record = ItemContent(id);
+        return record?.AssetId is { } asset && GetAsset(asset) is not null
+            ? new SectionNode(record.Name, [new ImageNode(asset, record.Name), new TextNode(record.Description ?? ""),
+                new TextNode(ItemAttribution(id))]) { Description = ItemAttribution(id) }
+            : null;
+    }
+
+    public MapBackground? MapBackground() => GetAsset(MapAssetId) is not null && _context.AssetProvenance(MapAssetId) is { } provenance
+        ? new MapBackground(MapAssetId, "Night City and surrounding Badlands; saved travel markers remain in the text list.",
+            provenance.Attribution, EmbeddingPermitted: true) : null;
+
+    public InspectionRow EnrichPerk(InspectionRow row)
+    {
+        if (row.Values["kind"] != "Modern perk" || Catalog("perks")?.Find(row.Values["name"]) is not { } perk) return row;
+        return row with
+        {
+            Values = new Dictionary<string, string>(row.Values)
+            {
+                ["displayName"] = perk.Name,
+                ["description"] = perk.Description ?? "",
+            },
+            Attribution = row.Attribution + "\n" + perk.AttributionText,
+        };
+    }
 
     public static IEnumerable<ReferenceRecord> All(IReferenceCatalog? catalog)
     {
@@ -62,8 +101,8 @@ internal sealed class CyberpunkReferences
 
     public IReadOnlyList<ViewNode> Build() => [
         new TextNode("Catalogs describe identifiers, not saved ownership, unlocks, completion or safe replacements. " +
-            "Community build/DLC coverage is unknown. A small pinned CC BY-SA wiki pack supplies base-record names; " +
-            "same-build localization and icons require a separately attributed local pack."),
+            "Community build/DLC coverage is unknown. Attributed wiki captions/icons and official planner descriptions enrich exact identifiers. " +
+            "Reference text is not a PS5 2.21 eligibility, tier or effect validation."),
         .. _catalogs.Select(pair => (ViewNode)new SectionNode(pair.Key, pair.Value is { } catalog
             ? [new TextNode($"{catalog.Count} records · {catalog.Pack.Id} {catalog.Pack.Version}"),
                 new TextNode(catalog.Dataset.Attribution.ToShortText()),
