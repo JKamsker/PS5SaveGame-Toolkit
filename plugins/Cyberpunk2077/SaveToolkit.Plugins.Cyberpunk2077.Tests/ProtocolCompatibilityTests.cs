@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing.Diff;
 
 namespace SaveToolkit.Plugins.Cyberpunk2077.Tests;
@@ -13,7 +14,13 @@ public sealed class ProtocolCompatibilityTests
         var file = ProgressionSampleTests.Files()[0];
         var (plugin, _, context) = ReferencePackFixture.Embedded();
         using var document = plugin.Open(file, context);
-        var root = Fingerprint(document.BuildView());
+        // Keep the historical protocol fingerprint for every pre-existing node. The additive point
+        // action is checked separately by PointTargetActionTests, including its parameters and warnings.
+        var view = Assert.IsType<TabsNode>(document.BuildView());
+        var root = Fingerprint<ViewNode>(view with { Tabs = view.Tabs.Select(tab => tab with
+        {
+            Children = tab.Children.Where(node => node is not ActionNode { ActionId: PointTargetActionTests.ActionId }).ToArray(),
+        }).ToArray() });
         _ = CyberpunkSampleTests.ExpandAll(document); // Register the lazy per-item part collections too.
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);

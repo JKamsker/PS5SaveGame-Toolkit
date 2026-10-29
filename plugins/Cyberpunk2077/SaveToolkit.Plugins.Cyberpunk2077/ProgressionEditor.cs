@@ -7,15 +7,15 @@ namespace SaveToolkit.Plugins.Cyberpunk2077;
 
 internal sealed class ProgressionEditor(ProgressionData data, byte[] payload)
 {
-    private const int MaximumPointBalance = 100_000; // Editor policy, not an engine limit.
     private const int MinimumAttribute = 3;
     private const int MaximumAttribute = 20;
     private const int MaximumExperience = 100_000; // Conservative editor policy; original larger values survive.
     private const int MaximumLevel = 60;
     private const int MaximumStreetCred = 50;
 
-    public bool CanEdit => data.Proficiencies.Count > 0 || data.Attributes.Any(a => a.MirrorOffset.HasValue) ||
-        data.Points.Any(p => p.Type is "Attribute" or "Primary" or "Espionage");
+    public PointEditor Points { get; } = new(data.Points);
+
+    public bool CanEdit => data.Proficiencies.Count > 0 || data.Attributes.Any(a => a.MirrorOffset.HasValue) || Points.CanEdit;
 
     public IReadOnlyList<ViewNode> Build(Func<ScalarBinding, FieldNode> bind)
     {
@@ -31,10 +31,7 @@ internal sealed class ProgressionEditor(ProgressionData data, byte[] payload)
             result.Add(AttributeField(attribute, bind));
         }
 
-        foreach (var point in data.Points.Where(p => p.Type is "Attribute" or "Primary" or "Espionage"))
-        {
-            result.Add(PointField(point, bind));
-        }
+        result.AddRange(Points.Build(bind));
 
         result.Add(new SectionNode("Dependent player stats", data.Attributes.Where(a => a.MirrorOffset.HasValue)
             .Select(a => (ViewNode)bind(new($"stats/{a.Id}", $"{a.Label} forced stat", FloatSpec.Single,
@@ -87,16 +84,6 @@ internal sealed class ProgressionEditor(ProgressionData data, byte[] payload)
             value => Validate(value, minimum, maximum))) with {
             Warning = setter is null ? data.AttributeWarning ?? "No matching unique player stat mirror; edit refused."
                 : WriteSafety.Warning + " Updates both development data and the forced player stat. Existing perks and point balances are preserved.",
-        };
-    }
-
-    private static FieldNode PointField(PointBalance point, Func<ScalarBinding, FieldNode> bind)
-    {
-        var maximum = Math.Max(MaximumPointBalance, point.Original);
-        var label = point.Type switch { "Attribute" => "Unspent attribute points", "Primary" => "Unspent perk points", _ => "Unspent relic points" };
-        return bind(new($"progression/points/{point.Type}", label, new IntegerSpec(0, maximum),
-            () => FieldValue.Of(point.Value), value => point.Value = value.AsInt32(), value => Validate(value, 0, maximum))) with {
-            Warning = WriteSafety.Warning + " Experimental: changes only unspent points. Spent points and unlocks are preserved; the editor cap is a policy.",
         };
     }
 
