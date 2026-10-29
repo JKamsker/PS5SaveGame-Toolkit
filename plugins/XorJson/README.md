@@ -118,7 +118,12 @@ use conservative raw scalar specs: no game-safe ranges/enums have been proven.
 Seven F8 server-backed tables cover stored attributes, inventory entries,
 quests, quest tasks, world records, achievements and collection records. Search
 and exact column filters cover the complete collection, including rows beyond
-the current page. Offset pages contain at most 200 rows; sorts are ordinal
+the current page. Attribute free-text search also matches the attributed names
+already displayed by the pinned catalog/picker (for example, `Echo shards`
+matches raw `SpringStone`), case-insensitively. Raw identifiers and values remain
+searchable; exact column filters still match raw column text, and unknown IDs
+or missing packs retain the raw fallback. Labels do not replace row identities.
+Offset pages contain at most 200 rows; sorts are ordinal
 lexical (including number columns), with ascending numeric token allocation IDs
 as tie-breaks in both sort directions.
 No page offset or catalog ID is used as a row identity, so repeated IDs remain

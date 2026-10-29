@@ -12,13 +12,14 @@ internal static class CharacterCollections
     public static IReadOnlyList<CharacterCollection> Build(JsonValueToken root, IReferenceContext references)
     {
         var hero = root.Member("CharacterSaveV1")!;
+        var attributes = references.Catalog("xorjson-attributes");
         var items = references.Catalog("xorjson-items");
         var world = references.Catalog("xorjson-world");
         var quests = Array(hero.Member("quest")?.Member("Quests"));
         var focused = hero.Member("quest")?.Member("FocusedQuestId");
         return [
             Collection("attributes", "Stored attributes", "Hero", ["id", "value"], Array(hero.Member("Ability")?.Member("Attributes")),
-                row => Row(row, ("id", Value(row.Member("AttributeName"))), ("value", Value(row.Member("CurrentValue"))))),
+                row => Row(row, ("id", Value(row.Member("AttributeName"), attributes)), ("value", Value(row.Member("CurrentValue"))))),
             Collection("inventory", "Inventory entries", "Inventory", ["icon", "name", "id", "category", "rarity", "slot", "target", "stack", "power", "effects"],
                 Array(hero.Member("Inventory")?.Member("Entries")), row => Inventory(row, items)),
             Collection("quests", "Stored quests", "Quests", ["name", "id", "state", "tasks", "focused"],
@@ -98,7 +99,9 @@ internal static class CharacterCollections
     private static CharacterRow Row(JsonValueToken source, params (string Key, CharacterCell Cell)[] cells) =>
         new(source, cells.ToDictionary(cell => cell.Key, cell => cell.Cell, StringComparer.Ordinal));
 
-    private static CharacterCell Value(JsonValueToken? token) => new(Scalar(token), token is { IsContainer: false } ? token : null);
+    private static CharacterCell Value(JsonValueToken? token, IReferenceCatalog? catalog = null) =>
+        new(Scalar(token), token is { IsContainer: false } ? token : null,
+            token?.Scalar.Kind == FieldValueKind.Text ? catalog?.Find(Scalar(token)) : null);
     private static CharacterCell Text(string text) => new(text);
     private static CharacterCell Icon(ReferenceRecord? record) => new("", Reference: record);
     private static CharacterCell Count(JsonValueToken? token) => new(token?.Kind == JsonTokenType.StartArray
