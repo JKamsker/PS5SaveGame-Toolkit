@@ -4,7 +4,8 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { api } from "../../api/client";
 import type { HexNode } from "../../api/protocol";
 import { formatBytes, parseInteger } from "../../lib/values";
-import { useDocument, useDocumentState } from "../../state/documentStore";
+import { useDocument } from "../../state/documentStore";
+import { useDocumentContentVersion } from "../../state/useDocumentContentVersion";
 
 const BYTES_PER_ROW = 16;
 const PAGE = 16 * 1024;
@@ -16,7 +17,7 @@ const printable = (b: number) => (b >= 0x20 && b < 0x7f ? String.fromCharCode(b)
 /** Paged, virtualised hex dump. Pages are fetched on demand and cached per view. */
 export function HexView({ node }: { node: HexNode }) {
   const { workspaceId, documentId, store, structureVersion } = useDocument();
-  const { state, version } = useDocumentState(store);
+  const { revision, version } = useDocumentContentVersion(store);
   const scroller = useRef<HTMLDivElement>(null);
   const rowCount = Math.ceil(node.length / BYTES_PER_ROW);
   const virtualizer = useVirtualizer({ count: rowCount, getScrollElement: () => scroller.current, estimateSize: () => ROW_HEIGHT, overscan: 20 });
@@ -26,7 +27,7 @@ export function HexView({ node }: { node: HexNode }) {
   const lastPage = Math.floor(((items.at(-1)?.index ?? 0) * BYTES_PER_ROW) / PAGE);
   const pageNumbers = node.length > 0 ? Array.from({ length: lastPage - firstPage + 1 }, (_, i) => firstPage + i) : [];
   const pages = useQueries({ queries: pageNumbers.map(page => ({
-    queryKey: ["blob", workspaceId, documentId, node.blobId, state.revision, structureVersion, version, page],
+    queryKey: ["blob", workspaceId, documentId, node.blobId, revision, structureVersion, version, page],
     queryFn: () => api.blob(workspaceId, documentId, node.blobId, page * PAGE, PAGE),
     staleTime: Infinity,
     gcTime: 60_000,

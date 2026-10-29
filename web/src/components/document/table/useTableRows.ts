@@ -1,7 +1,7 @@
-import { useCallback, useMemo } from "react";
-import type { FieldNode, TableNode, TableRow } from "../../../api/protocol";
-import { useDocument, useDocumentState } from "../../../state/documentStore";
+import { useMemo } from "react";
+import type { TableNode, TableRow } from "../../../api/protocol";
 import { facetValue, rowSearchText, type ValueOf } from "./cellText";
+import { useTableValues } from "./useTableValues";
 
 /** Tables with more rows than this get a search box and column filters. */
 export const FILTER_THRESHOLD = 8;
@@ -15,14 +15,6 @@ export interface ColumnFacet {
 
 /** Column key -> selected facet value. Missing or empty means "any". */
 export type FacetSelection = Readonly<Record<string, string>>;
-
-/** Live value resolver bound to the document store; changes identity whenever any value changes. */
-export function useLiveValues(): ValueOf {
-  const { store } = useDocument();
-  const { version } = useDocumentState(store);
-  // `version` is not read inside; it is a dependency so memoised filters recompute after every edit.
-  return useCallback((node: FieldNode) => store.value(node.valueId, node.value), [store, version]);
-}
 
 /**
  * Columns whose live values form a small set of categories: 2..12 distinct values, and values must
@@ -65,7 +57,7 @@ export function filterRows(rows: readonly TableRow[], query: string, facets: Fac
 
 /** Filtered rows plus available column facets for a table, following edits immediately. */
 export function useTableRows(node: TableNode, query: string, facets: FacetSelection, includeEmpty = true) {
-  const valueOf = useLiveValues();
+  const valueOf = useTableValues(node.rows);
   const eligibleRows = useMemo(() => node.emptyRows && !includeEmpty ? node.rows.filter(row => !row.isEmpty) : node.rows, [node, includeEmpty]);
   const facetOptions = useMemo(() => computeFacets({ ...node, rows: eligibleRows }, valueOf), [node, eligibleRows, valueOf]);
   // A facet or one of its values can vanish after edits; never filter by something the controls do not show.

@@ -25,6 +25,30 @@ function setup(refresh = vi.fn(async () => {})) {
 }
 
 describe("server table request lifecycle", () => {
+  it("keeps the current page and selection through validation-only notifications", async () => {
+    vi.spyOn(api, "queryCollection").mockResolvedValue(page);
+    const { store, client } = setup();
+    fireEvent.click(await screen.findByRole("checkbox", { name: "Select Potion" }));
+    for (let i = 0; i < 10; i++) {
+      await act(async () => store.setError("quantity", `Rejected ${i}`));
+      await act(async () => store.apply({ ok: false, errors: [{ valueId: "quantity", message: "Rejected" }],
+        changes: [], warnings: [], structureChanged: false, state: store.state }));
+    }
+    expect(api.queryCollection).toHaveBeenCalledTimes(1);
+    expect((screen.getByRole("checkbox", { name: "Select Potion" }) as HTMLInputElement).checked).toBe(true);
+    client.clear();
+  });
+
+  it("refetches after scalar changes even if the structural revision is unchanged", async () => {
+    vi.spyOn(api, "queryCollection").mockResolvedValue(page);
+    const { store, client } = setup();
+    await screen.findByRole("checkbox", { name: "Select Potion" });
+    act(() => store.apply({ ok: true, errors: [], changes: [{ valueId: "quantity", oldValue: "1", newValue: "2" }],
+      warnings: [], structureChanged: false, state: store.state }));
+    await waitFor(() => expect(api.queryCollection).toHaveBeenCalledTimes(2));
+    client.clear();
+  });
+
   it("exposes full field warnings through a labelled, collapsible details control", async () => {
     vi.spyOn(api, "queryCollection").mockResolvedValue({ ...page, rows: [{ key: "slot with spaces", cells: {
       name: { type: "field", valueId: "quantity", label: "Potion quantity", value: "2",
