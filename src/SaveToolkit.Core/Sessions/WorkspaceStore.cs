@@ -21,6 +21,8 @@ public sealed class WorkspaceStore : IDisposable
 {
     private readonly ConcurrentDictionary<string, Workspace> _workspaces = new(StringComparer.Ordinal);
     private readonly WorkspaceStoreOptions _options;
+    private readonly Lock _lifetimeGate = new();
+    private bool _disposed;
 
     public WorkspaceStore(PluginCatalog catalog, WorkspaceStoreOptions options, ReferencePackStore? packs = null)
     {
@@ -44,13 +46,22 @@ public sealed class WorkspaceStore : IDisposable
 
     public Workspace Create(string name, IEnumerable<ImportSource> sources)
     {
+        lock (_lifetimeGate) ObjectDisposedException.ThrowIf(_disposed, this);
         var id = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(8));
         var root = Path.Combine(_options.DataRoot, id);
         try
         {
             var set = SaveSetImporter.Import(sources, root, _options.Limits);
             var workspace = new Workspace(id, name, set, Catalog, Packs);
-            _workspaces[id] = workspace;
+            lock (_lifetimeGate)
+            {
+                if (_disposed)
+                {
+                    workspace.Dispose();
+                    throw new ObjectDisposedException(nameof(WorkspaceStore));
+                }
+                _workspaces[id] = workspace;
+            }
             return workspace;
         }
         catch
@@ -87,7 +98,17 @@ public sealed class WorkspaceStore : IDisposable
         return stale.Count(Remove);
     }
 
-    public void Dispose() => SessionCleanup.RunAll(_workspaces.Keys, id => Remove(id));
+    public void Dispose()
+    {
+        string[] ids;
+        lock (_lifetimeGate)
+        {
+            if (_disposed) return;
+            _disposed = true;
+            ids = [.. _workspaces.Keys];
+        }
+        SessionCleanup.RunAll(ids, id => Remove(id));
+    }
 
     private static void TryDelete(string path)
     {
