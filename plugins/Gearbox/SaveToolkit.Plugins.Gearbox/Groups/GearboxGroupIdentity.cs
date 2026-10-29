@@ -1,3 +1,4 @@
+using System.Globalization;
 using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Plugins.Gearbox;
@@ -14,26 +15,37 @@ internal static class GearboxGroupIdentity
         LocalScope = LocalScope,
     };
 
-    private static ActionScope LocalScope(DocumentMemberAdapter member, ActionScope scope) => new(scope.RowKeys?.Select(key =>
-    {
-        var local = member.Local(key);
-        var separator = local.IndexOf('/');
-        if (separator < 0) throw new SaveFormatException("The selection is not an existing item row in this member.");
-        if (local[..separator] == "ammo")
-        {
-            if (scope.QueryScope is { } ammoQuery && member.Local(ammoQuery.CollectionId) != "ammo")
-                throw new SaveFormatException("The resolved ammo selection belongs to another collection.");
-            return local[(separator + 1)..];
-        }
-        // Read the current adapter's model: whole-group restore replaces both documents.
-        var entry = ((GearboxDocument)member.Document).Inventory.Find(local[(separator + 1)..]);
-        if (local[..separator] != entry.List) throw new SaveFormatException("The item row belongs to another collection.");
-        if (scope.QueryScope is { } query && member.Local(query.CollectionId) != entry.List)
-            throw new SaveFormatException("The resolved item selection belongs to another collection.");
-        return entry.Id;
-    }).ToArray())
+    private static ActionScope LocalScope(DocumentMemberAdapter member, ActionScope scope) => new(LocalRows(member, scope))
     {
         // Preserve the existing query/exclusion contract; Core already resolves the selected rows.
         QueryScope = scope.QueryScope is { } query ? query with { CollectionId = member.Local(query.CollectionId) } : null,
     };
+
+    private static IReadOnlyList<string>? LocalRows(DocumentMemberAdapter member, ActionScope scope)
+    {
+        if (scope.RowKeys is not { Count: > 0 } keys) return scope.RowKeys;
+        // Read the current adapter's model: whole-group restore replaces both documents.
+        var document = (GearboxDocument)member.Document;
+        var rows = document.Inventory.Entries.ToDictionary(entry => member.Prefix(entry.List + "/" + entry.Id),
+            entry => (Collection: entry.List, Key: entry.Id), StringComparer.Ordinal);
+        var poolCount = document.Root.Children("resource_pools").Count();
+        for (var index = 0; index < poolCount; index++)
+        {
+            var key = index.ToString(CultureInfo.InvariantCulture);
+            rows.Add(member.Prefix("ammo/" + key), ("ammo", key));
+        }
+        return keys.Select(key =>
+        {
+            if (!member.Owns(key)) throw new KeyNotFoundException("Unknown Gearbox group identity.");
+            // Match the complete role/collection/key. Never reinterpret a foreign collection's suffix.
+            if (!rows.TryGetValue(key, out var row))
+                throw new SaveFormatException("The selection is not an existing row in this member and collection.");
+            if (scope.QueryScope is { } query && query.CollectionId != member.Prefix(row.Collection))
+            {
+                if (!member.Owns(query.CollectionId)) throw new KeyNotFoundException("Unknown Gearbox group identity.");
+                throw new SaveFormatException("The resolved selection belongs to another collection.");
+            }
+            return row.Key;
+        }).ToArray();
+    }
 }

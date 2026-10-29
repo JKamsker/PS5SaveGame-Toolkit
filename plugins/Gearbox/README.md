@@ -503,6 +503,11 @@ existing test expectations and record-file hashes, and retains behavior, IDs and
 synthetic edit-coverage plans, export bytes and snapshot restores, plus sample-backed views,
 lazy expansions and bounded query pages across all generations and backups. The adapter migration
 preserves those fingerprints; only hashes, not sample bytes or extracted values, are committed.
+The [wave-2 review follow-up](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489356906)
+fixes malformed explicit selections: grouped row localization now looks up the complete
+`role/collection/key` against current inventory and ammo rows. It never reinterprets an ammo-prefixed
+item suffix as an inventory key. Core-session regressions reject level/favourite/junk previews without
+issuing a plan token or changing bytes; valid-key fingerprints remain unchanged.
 The review totals and measurements below are dated historical runs, not the current test count.
 
 SDK helper migration ([#40](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40)), 2026-10-29:
