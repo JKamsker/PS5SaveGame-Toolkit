@@ -37,6 +37,7 @@ internal sealed class DsssContainer
             capacities[i] = ((int)(random.State & 7) + 1) * CapacityUnit;
             random.Next();
         }
+        ValidateBlockLayout(capacities, (int)length, data.Length);
         random.Add(~Ps5Key);
 
         Plaintext = new byte[(int)length];
@@ -44,8 +45,6 @@ internal sealed class DsssContainer
         var plainOffset = 0;
         foreach (var capacity in capacities)
         {
-            if (capacity + MetadataSize > data.Length - TrailerSize - fileOffset)
-                throw new SaveFormatException("Truncated Mandarin block.");
             var key = new byte[16];
             var iv = new byte[16];
             for (var i = 0; i < key.Length; i++)
@@ -75,6 +74,25 @@ internal sealed class DsssContainer
         if (plainOffset != Plaintext.Length || fileOffset != data.Length - TrailerSize)
             throw new SaveFormatException("Mandarin block layout does not match the declared payload length.");
         _original = data.ToArray();
+    }
+
+    private static void ValidateBlockLayout(int[] capacities, int plaintextLength, int fileLength)
+    {
+        // All potential capacities affect the PRNG, but only those covering plaintext are stored.
+        // Check every physical extent before allocating plaintext or decoding any metadata.
+        var remainingPlaintext = plaintextLength;
+        var remainingFile = fileLength - HeaderSize - TrailerSize;
+        foreach (var capacity in capacities)
+        {
+            var blockSize = MetadataSize + capacity;
+            if (blockSize > remainingFile)
+                throw new SaveFormatException("Truncated Mandarin block.");
+            remainingFile -= blockSize;
+            remainingPlaintext -= Math.Min(capacity, remainingPlaintext);
+            if (remainingPlaintext == 0) break;
+        }
+        if (remainingPlaintext != 0 || remainingFile != 0)
+            throw new SaveFormatException("Mandarin block layout does not match the declared payload length.");
     }
 
     public static bool HasSupportedHeader(ReadOnlySpan<byte> header) =>
