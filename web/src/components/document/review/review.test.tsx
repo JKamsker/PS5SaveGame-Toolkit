@@ -183,8 +183,10 @@ describe("action preview", () => {
 describe("semantic changes panel", () => {
   it("searches canonical and alias identities and explains derived context", async () => {
     vi.spyOn(actionReview, "changes").mockResolvedValue({ ...log, changes: [{ ...change,
-      canonicalValueId: "quantity", bindingKind: "Primary", aliases: [
-        { valueId: "raw/quantity", label: "Raw quantity", path: ["section:Raw"], bindingKind: "Derived" },
+      canonicalValueId: "quantity", bindingKind: "Primary", member: { role: "character", relativePath: "profile.dat", groupTitle: "Group", provenance: "router" },
+      aliases: [
+        { valueId: "raw/quantity", label: "Raw quantity", path: ["section:Raw", "row:legacy"], bindingKind: "Derived",
+          member: { role: "character", relativePath: "profile.dat", groupTitle: "Group", provenance: "router" } },
       ], canNavigate: true }] });
     renderDocument(<ChangesPanel />);
     fireEvent.click(screen.getByText("Changes against original"));
@@ -193,6 +195,11 @@ describe("semantic changes panel", () => {
     expect(screen.getByText("Also shown as 1 projection")).toBeTruthy();
     fireEvent.click(screen.getByText("Also shown as 1 projection"));
     expect(screen.getByText("Raw quantity")).toBeTruthy();
+    for (const value of ["row:legacy", "profile.dat", "router"]) {
+      fireEvent.change(screen.getByRole("searchbox"), { target: { value } });
+      expect(screen.getByText("Also shown as 1 projection")).toBeTruthy();
+    }
+    expect(screen.getByRole("region", { name: "Changed fields table" })).toBeTruthy();
   });
 
   it("retries a failed changes load while retaining the search", async () => {

@@ -41,6 +41,8 @@ public sealed class QueryableSemanticBudgetTests : IDisposable
         var log = Review(current, new(3, 2), options);
         Assert.False(log.Complete);
         Assert.Contains(log.Warnings, w => w.Contains("truncated", StringComparison.Ordinal));
+        Assert.Equal(0, log.Coverage?.OmittedCount);
+        Assert.True(log.Coverage?.OmittedCountIsLowerBound);
         Assert.Equal(expectedQueries, current.Queries.Count);
         Assert.DoesNotContain(log.Changes, c => !c.OriginalExists || !c.CurrentExists);
     }

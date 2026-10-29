@@ -59,6 +59,7 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                         ReadOnly = field.Spec.ReadOnly, CanonicalValueId = canonical, BindingKind = field.BindingKind,
                         Spec = FieldSpecMetadata.Snapshot(field.Spec), Label = field.Label,
                         Path = field.Path?.ToArray() ?? existing.Path,
+                        Presentation = field.Presentation, MetadataPublished = true,
                     };
                     continue;
                 }
@@ -66,11 +67,13 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                 var semantic = new SemanticField(field.ValueId, field.Label, field.Path?.ToArray() ?? [],
                     document.GetValue(field.ValueId), field.Spec.ReadOnly,
                     CanonicalValueId: canonical, BindingKind: field.BindingKind,
-                    Spec: FieldSpecMetadata.Snapshot(field.Spec));
+                    Spec: FieldSpecMetadata.Snapshot(field.Spec), Presentation: field.Presentation,
+                    MetadataPublished: true);
                 var cost = SemanticSnapshot.Estimate(semantic);
                 if (cost > maxBytes - snapshot.Bytes)
                 {
                     snapshot.Complete = false;
+                    snapshot.OmittedCount++;
                     continue;
                 }
 
@@ -78,7 +81,11 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                 snapshot.Fields.Add(field.ValueId, semantic);
             }
 
-            if (seen.Count != requested.Count) snapshot.Complete = false;
+            if (seen.Count != requested.Count)
+            {
+                snapshot.Complete = false;
+                snapshot.OmittedCount += requested.Count - seen.Count;
+            }
         }
     }
 }

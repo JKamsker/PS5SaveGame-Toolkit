@@ -4,6 +4,7 @@ using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Core.Tests.Fakes;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
@@ -68,6 +69,72 @@ public sealed class SemanticReviewR4Tests : IDisposable
         Assert.False(review.Complete);
         Assert.Empty(review.Changes);
         Assert.Contains(review.Warnings, warning => warning.Contains("authority changed", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void TargetedEagerFieldMergesRenderedNavigationWithoutReplacingMetadata()
+    {
+        using var current = new NavigationMetadataDocument(f8: false);
+        using var session = Open(current, "navigation-eager", () => new NavigationMetadataDocument(f8: false));
+        _ = session.BuildView();
+
+        Assert.True(session.ApplyEdits([new IncomingEdit("quantity", JsonSerializer.SerializeToElement(2))]).Ok);
+        var change = Assert.Single(session.GetChanges().Changes);
+        Assert.Equal(["section:Eager"], change.Path);
+        Assert.Null(change.Target);
+        Assert.True(change.CanNavigate);
+        Assert.Equal("Authoritative quantity", change.Label);
+    }
+
+    [Fact]
+    public void TargetedQueryableFieldMergesRenderedNavigationAndCollectionTarget()
+    {
+        using var current = new NavigationMetadataDocument(f8: true);
+        using var session = Open(current, "navigation-f8", () => new NavigationMetadataDocument(f8: true));
+        _ = session.BuildView();
+
+        Assert.True(session.ApplyEdits([new IncomingEdit("quantity", JsonSerializer.SerializeToElement(2))]).Ok);
+        var change = Assert.Single(session.GetChanges().Changes);
+        Assert.NotEmpty(current.Queries);
+        Assert.NotNull(change.Target);
+        Assert.Equal(["section:Rows", "row:row-1"], change.Path);
+        Assert.Equal("rows", change.Target?.CollectionId);
+        Assert.True(change.CanNavigate);
+    }
+
+    [Fact]
+    public void PartialTargetedReviewRetainsCanonicalPresentationAndCompletenessWarning()
+    {
+        using var current = new PartialTargetedDocument();
+        using var session = Open(current, "partial-targeted", () => new PartialTargetedDocument { FailView = true });
+        _ = session.BuildView();
+
+        Assert.True(session.ApplyEdits([new IncomingEdit("hidden", JsonSerializer.SerializeToElement(2))]).Ok);
+        current.FailView = true;
+        var review = session.GetChanges();
+        var change = Assert.Single(review.Changes);
+        Assert.False(review.Complete);
+        Assert.Equal("hidden", change.CanonicalValueId);
+        Assert.Equal("Inferred", change.Presentation?.Confidence.ToString());
+        Assert.Equal("Review before exporting.", change.Presentation?.Warning);
+    }
+
+    [Fact]
+    public void PresentationResolverFailureReturnsIncompleteReviewWithBoundedDiagnostic()
+    {
+        using var current = new PartialTargetedDocument();
+        using var session = Open(current, "presentation-failure", () => new PartialTargetedDocument());
+        _ = session.BuildView();
+        Assert.True(session.GetChanges().Complete);
+
+        Assert.True(session.ApplyEdits([new IncomingEdit("hidden", JsonSerializer.SerializeToElement(2))]).Ok);
+        current.FailView = true;
+        current.ResetMetadataCalls();
+        current.ThrowAfterFirstMetadataCall = true;
+        var review = session.GetChanges();
+        Assert.False(review.Complete);
+        Assert.Contains(review.Warnings, warning => warning.Contains("Presentation metadata coverage is incomplete", StringComparison.Ordinal));
+        Assert.Single(review.Changes);
     }
 
     private DocumentSession Open(ISaveDocument document, string name, Func<ISaveDocument> openOriginal) =>
@@ -149,5 +216,71 @@ public sealed class SemanticReviewR4Tests : IDisposable
                 Spec = TypeDrift ? new TextSpec() : new IntegerSpec(0, 1),
             }).ToArray();
         }
+    }
+
+    private sealed class NavigationMetadataDocument : BoundSaveDocument, IFieldMetadataDocument, IQueryableDocument
+    {
+        private int _value = 1;
+        private readonly bool _f8;
+        public List<QueryableCollectionQuery> Queries { get; } = [];
+        public override string Title => "Navigation metadata";
+        public IReadOnlyList<QueryableCollection> Collections => [
+            new("rows", "Rows", [new("value", "Value", IntegerSpec.Int32)], 1)];
+
+        public NavigationMetadataDocument() : this(false) { }
+
+        public NavigationMetadataDocument(bool f8)
+        {
+            _f8 = f8;
+            RegisterField(new FieldMetadata("quantity", "Authoritative quantity", IntegerSpec.Int32),
+                () => FieldValue.Of(_value), value => _value = value.AsInt32());
+        }
+
+        public override ViewNode BuildView() => _f8
+            ? new SectionNode("Rows", [new QueryableTableNode("rows", "Rows", [new("value", "Value", IntegerSpec.Int32)], 1)])
+            : new SectionNode("Eager", [Field("quantity", "Rendered quantity")]);
+
+        public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)
+        {
+            Queries.Add(query);
+            return new(collectionId, [new("value", "Value", IntegerSpec.Int32)],
+                [new TableRow("row-1", new Dictionary<string, ViewNode>
+                { ["value"] = Field("quantity", "Rendered quantity") })], 1, 1, 0, query.Limit);
+        }
+
+        public override IReadOnlyList<FileOutput> Serialize() => [new("save.dat", new byte[] { (byte)_value })];
+    }
+
+    private sealed class PartialTargetedDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        private int _value = 1;
+        public bool FailView { get; set; }
+        public bool ThrowAfterFirstMetadataCall { get; set; }
+        private int _metadataCalls;
+
+        public override string Title => "Partial targeted";
+        public override ViewNode BuildView() => FailView ? throw new InvalidOperationException("Current view unavailable.")
+            : new TextNode("No rendered fields");
+
+        public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> ids)
+        {
+            _metadataCalls++;
+            if (ThrowAfterFirstMetadataCall && _metadataCalls > 1)
+                throw new InvalidOperationException("malformed presentation metadata");
+            return base.ResolveFieldMetadata(ids);
+        }
+
+        public void ResetMetadataCalls() => _metadataCalls = 0;
+
+        public PartialTargetedDocument()
+        {
+            RegisterField(new FieldMetadata("hidden", "Canonical quantity", IntegerSpec.Int32)
+            {
+                Path = ["section:canonical"],
+                Presentation = new FieldPresentation { Confidence = Confidence.Inferred, Warning = "Review before exporting." },
+            }, () => FieldValue.Of(_value), value => _value = value.AsInt32());
+        }
+
+        public override IReadOnlyList<FileOutput> Serialize() => [new("save.dat", new byte[] { (byte)_value })];
     }
 }

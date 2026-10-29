@@ -24,6 +24,7 @@ export interface SemanticNavigationTarget {
 export interface SemanticMemberContext { role: string; relativePath: string; groupTitle?: string; provenance?: string }
 export interface SemanticReviewCoverage {
   examinedCount: number; omittedCount: number; budgetBytes: number; usedBytes: number; omittedReasons: string[];
+  omittedCountIsLowerBound?: boolean;
 }
 export function collectionReviewQuery({ text, sortColumn, ...query }: QueryableCollectionQuery): CollectionQuery {
   return { ...query, q: text, sort: sortColumn };

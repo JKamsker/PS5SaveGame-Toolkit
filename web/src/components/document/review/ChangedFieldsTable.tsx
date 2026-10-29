@@ -6,7 +6,10 @@ type ChangeReview = ReturnType<typeof useChangesPanel>;
 interface ReviewProps { review: ChangeReview; focusSummary: () => void }
 
 export function ChangedFieldsTable({ review, focusSummary }: ReviewProps) {
-  return <div className="review-scroll" aria-busy={review.busy || review.query.isFetching}><table className="review-table">
+  // The named overflow region is intentionally keyboard-focusable for horizontal scrolling.
+  // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+  return <div className="review-scroll" role="region" aria-label="Changed fields table" tabIndex={0}
+    aria-busy={review.busy || review.query.isFetching}><table className="review-table">
     <thead><tr><th>Field</th><th>Original</th><th>Current</th><th>Review</th></tr></thead>
     <tbody>{review.page.items.map(change => <ChangedFieldRow key={change.valueId} change={change} review={review} focusSummary={focusSummary} />)}</tbody>
   </table><ReviewPager {...review.page} label="Changed fields pages" /></div>;

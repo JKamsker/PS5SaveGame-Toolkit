@@ -59,7 +59,7 @@ internal static class SemanticSnapshotComparison
                 .Select(group => group.First())
                 .Where(alias => alias.MetadataPublished && alias.ValueId != field.ValueId)
                 .Select(alias => new SemanticProjection(alias.ValueId, alias.Label, alias.Path,
-                    alias.BindingKind, alias.Presentation, memberContext.GetValueOrDefault(alias.ValueId))).ToArray();
+                    alias.BindingKind, alias.Presentation, ContextFor(alias, memberContext))).ToArray();
             var canRevert = before is not null && after is { ReadOnly: false } && document.CanEdit;
             changes.Add(new SemanticChange(field.ValueId, field.Label, field.Path,
                 before?.Value ?? FieldValue.Null, after?.Value ?? FieldValue.Null,
@@ -71,7 +71,7 @@ internal static class SemanticSnapshotComparison
                 CanonicalValueId = canonical,
                 BindingKind = field.MetadataPublished ? field.BindingKind : null,
                 Presentation = field.Presentation,
-                Member = memberContext.GetValueOrDefault(field.ValueId),
+                Member = ContextFor(field, memberContext),
                 Aliases = aliases.Length == 0 ? null : aliases,
                 NavigationTarget = field.MetadataPublished ? navigation : null,
                 CanNavigate = field.MetadataPublished ? canNavigate : null,
@@ -82,6 +82,15 @@ internal static class SemanticSnapshotComparison
                         : document.CanEdit ? "The server could not validate a safe revert for this field."
                             : "The document is read-only."
             });
+        }
+
+        static SemanticMemberContext? ContextFor(SemanticField field,
+            IReadOnlyDictionary<string, SemanticMemberContext> memberContext)
+        {
+            if (field.CanonicalValueId is { } canonical
+                && memberContext.TryGetValue(canonical, out var canonicalContext))
+                return canonicalContext;
+            return memberContext.GetValueOrDefault(field.ValueId);
         }
     }
 }

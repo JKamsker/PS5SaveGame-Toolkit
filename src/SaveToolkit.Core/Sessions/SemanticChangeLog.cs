@@ -23,7 +23,7 @@ public sealed record SemanticMemberContext(string Role, string RelativePath, str
 
 /// <summary>Bounded evidence for the portion of a document that was examined.</summary>
 public sealed record SemanticReviewCoverage(long ExaminedCount, long OmittedCount, long BudgetBytes, long UsedBytes,
-    IReadOnlyList<string> OmittedReasons)
+    IReadOnlyList<string> OmittedReasons, bool OmittedCountIsLowerBound = false)
 {
     public static SemanticReviewCoverage Empty { get; } = new(0, 0, 0, 0, []);
 }

@@ -151,7 +151,8 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
         {
             QueryWarnings = queryTraversal.Warnings,
             ExaminedCount = fields.Count,
-            OmittedCount = complete && queryTraversal.Warnings.Count == 0 ? 0 : 1,
+            OmittedCount = 0,
+            OmittedCountIsLowerBound = !complete || queryTraversal.Warnings.Count > 0,
         };
     }
 
@@ -165,6 +166,7 @@ internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields,
     public long Bytes { get; set; } = bytes;
     public long ExaminedCount { get; set; }
     public long OmittedCount { get; set; }
+    public bool OmittedCountIsLowerBound { get; set; }
     public bool MetadataPublished { get; set; }
     public IReadOnlyList<string> QueryWarnings { get; set; } = [];
     internal SemanticSnapshot Clone()
@@ -172,7 +174,7 @@ internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields,
         var copy = new SemanticSnapshot(Fields.ToDictionary(pair => pair.Key,
             pair => pair.Value with { Path = pair.Value.Path.ToArray() }, StringComparer.Ordinal), Complete, Bytes)
         { QueryWarnings = QueryWarnings.ToArray(), ExaminedCount = ExaminedCount, OmittedCount = OmittedCount,
-            MetadataPublished = MetadataPublished };
+            OmittedCountIsLowerBound = OmittedCountIsLowerBound, MetadataPublished = MetadataPublished };
         return copy;
     }
 
@@ -186,6 +188,7 @@ internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields,
         QueryWarnings = source.QueryWarnings.ToArray();
         ExaminedCount = source.ExaminedCount;
         OmittedCount = source.OmittedCount;
+        OmittedCountIsLowerBound = source.OmittedCountIsLowerBound;
         MetadataPublished = source.MetadataPublished;
     }
 
@@ -195,10 +198,28 @@ internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields,
         QueryWarnings = [.. QueryWarnings, .. source.QueryWarnings];
         ExaminedCount += source.ExaminedCount;
         OmittedCount += source.OmittedCount;
+        OmittedCountIsLowerBound |= source.OmittedCountIsLowerBound;
         MetadataPublished |= source.MetadataPublished;
         foreach (var field in source.Fields.Values)
         {
-            if (Fields.ContainsKey(field.ValueId)) continue;
+            if (Fields.TryGetValue(field.ValueId, out var existing))
+            {
+                var navigation = existing with
+                {
+                    Path = field.Path.Length == 0 ? existing.Path : field.Path,
+                    Target = field.Target ?? existing.Target,
+                };
+                var additional = Estimate(navigation) - Estimate(existing);
+                if (additional > maxBytes - Bytes)
+                {
+                    Complete = false;
+                    continue;
+                }
+
+                Bytes += additional;
+                Fields[field.ValueId] = navigation;
+                continue;
+            }
             var cost = Estimate(field);
             if (cost > maxBytes - Bytes) { Complete = false; continue; }
             Bytes += cost;

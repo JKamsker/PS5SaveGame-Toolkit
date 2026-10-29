@@ -14,6 +14,7 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
     private readonly Func<bool> _rejectApply;
     private readonly Func<bool> _rejectRestore;
     public bool IsDisposed { get; private set; }
+    public List<string[]> ContextRequests { get; } = [];
 
     public GroupDocument(DocumentGroupInput input, Func<bool> rejectApply, Func<bool> rejectRestore)
     {
@@ -71,6 +72,7 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
 
     public IReadOnlyList<DocumentGroupFieldContext> ResolveFieldContext(IReadOnlyList<string> valueIds)
     {
+        ContextRequests.Add(valueIds.ToArray());
         var known = _containers.Keys.SelectMany(role => new[] { $"{role}/balance", $"{role}/raw/balance" })
             .ToHashSet(StringComparer.Ordinal);
         return valueIds.Where(known.Contains).Select(id =>

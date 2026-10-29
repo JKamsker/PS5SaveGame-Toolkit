@@ -3500,6 +3500,10 @@
               "string"
             ]
           },
+          "omittedCountIsLowerBound": {
+            "default": false,
+            "type": "boolean"
+          },
           "omittedReasons": {
             "items": {
               "type": "string"

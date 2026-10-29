@@ -27,7 +27,7 @@ async function installReviewFixture(page: Page, options: FixtureOptions = {}) {
       revision,
       complete: options.incomplete ? false : source.complete,
       warnings: options.incomplete ? ["The synthetic review stopped at its bounded target budget."] : source.warnings,
-      coverage: options.incomplete ? { ...source.coverage!, omittedCount: 2, omittedReasons: ["target budget"] } : source.coverage,
+      coverage: options.incomplete ? { ...source.coverage!, omittedCount: 2, omittedCountIsLowerBound: true, omittedReasons: ["target budget"] } : source.coverage,
       changes: reverted ? [] : options.incomplete ? [] : source.changes,
     };
     await route.fulfill({ response: upstream, json: log });
@@ -64,6 +64,11 @@ test("metadata-backed review renders canonical aliases, member context and safe 
   await expect(primary.getByRole("cell").nth(1)).toHaveText("54321");
   await expect(primary).toContainText("Verified");
   await expect(primary).toContainText("character · PPSA00000/sdimg_E2E/character.dat");
+  const tableRegion = review.getByRole("region", { name: "Changed fields table" });
+  await page.setViewportSize({ width: 375, height: 900 });
+  await expect(tableRegion).toBeVisible();
+  await tableRegion.focus();
+  await expect(tableRegion).toBeFocused();
   await expect(primary).toContainText("Technical ID: character/balance");
   await primary.getByText(/Also shown as 1 projection/).click();
   await expect(primary).toContainText("character/raw/balance");
@@ -71,6 +76,10 @@ test("metadata-backed review renders canonical aliases, member context and safe 
 
   const search = review.getByRole("searchbox", { name: "Find a changed field" });
   await search.fill("character/raw/balance");
+  await expect(review.getByRole("row").filter({ hasText: "Character balance" })).toHaveCount(1);
+  await search.fill("section:character");
+  await expect(review.getByRole("row").filter({ hasText: "Character balance" })).toHaveCount(1);
+  await search.fill("synthetic group input");
   await expect(review.getByRole("row").filter({ hasText: "Character balance" })).toHaveCount(1);
   await search.fill("profile");
   const removed = review.getByRole("row").filter({ hasText: "Profile removed field" });
@@ -99,7 +108,7 @@ test("incomplete review states that only the reviewed portion is proven", async 
   const review = await openReview(page);
   await expect(review.getByText("Review coverage is incomplete.", { exact: false })).toBeVisible();
   await expect(review.getByText("No proven changes in the reviewed portion.", { exact: true })).toBeVisible();
-  await expect(review.getByText(/Examined 4; omitted 2/)).toBeVisible();
+  await expect(review.getByText(/Examined 4; omitted at least 2/)).toBeVisible();
   await expect(review.getByText("No semantic changes.", { exact: true })).toHaveCount(0);
 });
 

@@ -65,8 +65,10 @@ export function useChangesPanel() {
   const query = useQuery({ queryKey: ["changes", doc.workspaceId, doc.documentId, revision, version, doc.structureVersion],
     queryFn: () => actionReview.changes(doc.workspaceId, doc.documentId), enabled: open });
   const changes = query.data?.changes.filter(change => {
-    const searchable = [change.label, change.valueId, change.canonicalValueId, change.member?.role,
-      change.member?.relativePath, change.member?.groupTitle, ...(change.aliases?.flatMap(alias => [alias.label, alias.valueId]) ?? [])]
+    const searchable = [change.label, change.valueId, change.canonicalValueId, ...change.path,
+      change.member?.role, change.member?.relativePath, change.member?.groupTitle, change.member?.provenance,
+      ...(change.aliases?.flatMap(alias => [alias.label, alias.valueId, ...alias.path, alias.member?.role,
+        alias.member?.relativePath, alias.member?.groupTitle, alias.member?.provenance]) ?? [])]
       .filter(Boolean).join(" ").toLowerCase();
     return searchable.includes(search.trim().toLowerCase());
   }) ?? [];

@@ -253,6 +253,7 @@ internal sealed class SemanticReview
             current.QueryWarnings = [.. current.QueryWarnings, .. walked.QueryWarnings,
                 "Legacy current view coverage is incomplete; targeted values do not prove whole-document coverage."];
             current.Complete = false;
+            SemanticPresentationProjection.Apply(document, current, cancellationToken);
         }
         else
         {
@@ -295,7 +296,8 @@ internal sealed class SemanticReview
         var coverage = _originalMetadataAvailable == true || document is IFieldMetadataDocument || !complete
             ? new SemanticReviewCoverage(Math.Max(original.ExaminedCount, current.ExaminedCount),
                 original.OmittedCount + current.OmittedCount, _maxBytes,
-                Math.Max(original.Bytes, current.Bytes), allWarnings)
+                Math.Max(original.Bytes, current.Bytes), allWarnings,
+                original.OmittedCountIsLowerBound || current.OmittedCountIsLowerBound)
             : null;
         return new SemanticChangeLog(changes, complete, allWarnings, revision) { Coverage = coverage };
     }
@@ -306,7 +308,7 @@ internal sealed class SemanticReview
         if (_memberContext is null) return new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal);
         var ids = original.Fields.Values.Concat(current.Fields.Values)
             .Where(field => field.CanonicalValueId is not null)
-            .Select(field => field.ValueId).Distinct(StringComparer.Ordinal).ToArray();
+            .Select(field => field.CanonicalValueId!).Distinct(StringComparer.Ordinal).ToArray();
         if (ids.Length == 0) return new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal);
         try
         {
