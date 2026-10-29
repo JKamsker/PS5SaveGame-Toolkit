@@ -15,7 +15,7 @@ const rows: TableRow[] = [
   { key: "slot/256", cells: { name: text("Unknown ID 0"), value: text("0") } },
 ];
 
-describe("empty inventory rows", () => {
+describe("empty inventory row visibility and selection", () => {
   it("hides only explicit empty rows and preserves normal unknown or zero-quantity rows", () => {
     const node = { ...table(rows), emptyRows: { labelColumnKey: "name" } };
     renderTable(node);
@@ -47,7 +47,9 @@ describe("empty inventory rows", () => {
     expect((screen.getByRole("checkbox", { name: "Select Empty slot slot/127" }) as HTMLInputElement).checked).toBe(false);
     expect(screen.getByText("2 selected")).toBeTruthy();
   });
+});
 
+describe("empty inventory row details and filtering", () => {
   it("keeps original cells and editing available in details when a slot is shown", () => {
     const { commit } = renderTable({ ...table(rows), emptyRows: { labelColumnKey: "name", hideByDefault: false } });
     const row = screen.getByRole("checkbox", { name: "Select Empty slot slot/127" }).closest('[role="row"]') as HTMLElement;

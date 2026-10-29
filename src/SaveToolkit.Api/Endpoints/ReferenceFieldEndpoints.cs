@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using SaveToolkit.Api.Contracts;
+using SaveToolkit.Api.Infrastructure;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk.References;
+using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace SaveToolkit.Api.Endpoints;
 
@@ -52,7 +54,7 @@ internal static class ReferenceFieldEndpoints
                 }
             }
             return new ReferenceRecordsResponse(revision, results);
-        });
+        }).WithApiErrors(Status413PayloadTooLarge, Status415UnsupportedMediaType);
     }
 }
 

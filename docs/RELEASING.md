@@ -27,6 +27,18 @@ compatibility. Web checks include ESLint, TypeScript, Vitest and the production 
 NuGet/npm downloads are cached; per-project TRX and web JUnit results are uploaded even on failure,
 and the validation jobs write summaries.
 
+The API tests include the generated OpenAPI snapshot and hosting/schema regression
+checks in `tests/SaveToolkit.Api.Performance.Tests`. Contract drift fails normal CI;
+re-pin only after reviewing an intentional API metadata/contract change using the
+[one-line workflow](API.md#openapi-contract-and-regression-guard). Documentation tests
+compare the checked-in contract's method/route inventory with `docs/API.md` in both
+directions. `/openapi/v1.json` is also available in packaged Production runs.
+
+Performance measurements are opt-in and documented in [PERFORMANCE.md](PERFORMANCE.md).
+`./scripts/bench.ps1` runs synthetic BenchmarkDotNet workloads and retains a Markdown summary;
+the benchmark executable is outside `*.Tests.csproj` discovery and does not run in CI Validate,
+`scripts/test.ps1`, or `dotnet test`.
+
 The web package's `lint` script runs `eslint src e2e`, using `web/eslint.config.js` (flat config).
 The `validate` job invokes `npm run lint --if-present` on both Ubuntu and Windows immediately
 after installing web dependencies, before typecheck, Vitest and the production build; lint errors
@@ -74,6 +86,7 @@ are additional). All commands below run from the repository root in PowerShell 7
 | Script | Declared parameters | Defaults / requirements |
 | --- | --- | --- |
 | `test.ps1` | `-Filter`, `-Configuration`, `-ResultsDirectory`, `-Coverage` | Always builds the API first; empty filter runs all backend test projects. Configuration defaults to Debug; only Debug/Release are accepted. Results are optional unless coverage is requested. |
+| `bench.ps1` | `-ScratchDirectory`, `-Job`, `-Filter` | Opt-in synthetic benchmarks, Release only. Job defaults to Quick (ShortRun); Full uses the default BenchmarkDotNet job. Filter defaults to `*`. Scratch defaults to `SAVETOOLKIT_TEST_TEMP`, then a system-temp subdirectory; retains a unique run directory with reports and `summary.md`. |
 | `self-test.ps1` | `-ScratchDirectory` | Defaults to system temp. Runs script and real scaffold build/test checks; requires the selected .NET SDK and restore access, no Pester or private saves. |
 | `package.ps1` | `-Runtime`, `-OutputDirectory`, `-SkipWebBuild` | Output directory is required. Runtime is an array defaulting to all four supported RIDs; web build is included by default. |
 | `smoke-package.ps1` | `-PackageDirectory`, `-Runtime`, `-ScratchDirectory`, `-ExpectedVersion` | First three are required; exactly one matching archive plus its `.sha256` must exist. Expected version is optional. |

@@ -36,6 +36,7 @@ builder.Services.AddSingleton(sp => new WorkspaceSessions(sp.GetRequiredService<
 builder.Services.AddHostedService<WorkspaceSweeper>();
 builder.Services.AddExceptionHandler<ToolkitExceptionHandler>();
 builder.Services.AddProblemDetails();
+builder.Services.AddToolkitOpenApi();
 
 var app = builder.Build();
 
@@ -51,6 +52,7 @@ app.UseRouting();
 app.MapToolkitApi();
 app.MapReferenceApi();
 app.MapVersionApi();
+app.MapOpenApi();
 // Only browser navigation falls back to the SPA; HEAD must retain API method rejection.
 app.MapFallbackToFile(SpaPathConstraint.Pattern, "index.html")
     .WithMetadata(new HttpMethodMetadata([HttpMethods.Get]));

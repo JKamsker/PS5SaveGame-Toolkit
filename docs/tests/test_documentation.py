@@ -19,7 +19,8 @@ ROOT = Path(__file__).resolve().parents[2]
 CODE_REF = "HEAD"
 EXCLUDED = ROOT / "docs/LICENCE_EXCLUSIONS.md"
 FRAMEWORK_PAGES = ("README.md", "AGENTS.md", "docs/PLUGIN_GUIDE.md", "docs/RELEASING.md",
-                   "docs/API.md", "docs/USER_GUIDE.md", "docs/SDK_REQUESTS.md", "docs/SAMPLES.md")
+                   "docs/API.md", "docs/USER_GUIDE.md", "docs/SDK_REQUESTS.md", "docs/SAMPLES.md",
+                   "docs/PERFORMANCE.md")
 
 
 def document(path):
@@ -118,6 +119,43 @@ def licence_rows(heading):
 
 
 class DocumentationTests(unittest.TestCase):
+    def test_api_headings_match_openapi_contract_in_both_directions(self):
+        contract = json.loads(document("tests/SaveToolkit.Api.Performance.Tests/OpenApi.v1.json"))
+        self.assertTrue(contract["openapi"].startswith("3."))
+        documented = re.findall(r"(?m)^### `(GET|POST|DELETE|PUT|PATCH|HEAD|OPTIONS) (/api(?:/[^`]+)?)`\s*$",
+                                document("docs/API.md"))
+        self.assertEqual(len(documented), len(set(documented)), "Duplicate API endpoint headings")
+        actual = {(method.upper(), path.rstrip("/")) for path, operations in contract["paths"].items()
+                  for method in operations if method in {"get", "post", "delete", "put", "patch", "head", "options"}}
+        self.assertGreaterEqual(len(actual), 39)
+        self.assertEqual(set(documented), actual,
+                         "API.md headings and OpenAPI operations must match in both directions")
+
+    def test_openapi_snapshot_is_canonical_and_local_references_resolve(self):
+        path = ROOT / "tests/SaveToolkit.Api.Performance.Tests/OpenApi.v1.json"
+        raw = path.read_bytes()
+        self.assertNotIn(b"\r", raw)
+        self.assertTrue(raw.endswith(b"\n"))
+        contract = json.loads(raw)
+        self.assertNotIn("servers", contract)
+        schemas = contract["components"]["schemas"]
+        self.assertIn("DocumentDto", schemas)
+        self.assertIn("SessionEditResult", schemas)
+
+        def check(value):
+            if isinstance(value, dict):
+                self.assertEqual(list(value), sorted(value), "Snapshot object keys must be sorted")
+                for name, item in value.items():
+                    if name == "$ref" or isinstance(item, str) and item.startswith("#/components/schemas/"):
+                        self.assertTrue(item.removeprefix("#/components/schemas/") in schemas,
+                                        f"Unresolved schema reference: {item}")
+                    check(item)
+            elif isinstance(value, list):
+                for item in value:
+                    check(item)
+
+        check(contract)
+
     def test_readme_licence_exclusions_match_register_in_both_directions(self):
         register = licence_rows("## README exclusion decisions")
         names = {name for name, _, _ in plugins()}
@@ -235,6 +273,19 @@ class DocumentationTests(unittest.TestCase):
             path = scripts[name.strip("`")]
             with self.subTest(script=path):
                 self.assertEqual(script_parameters(path), set(re.findall(r"`-(\w+)`", parameters)))
+
+    def test_benchmarks_are_explicitly_opt_in(self):
+        project = "tests/benchmarks/SaveToolkit.Benchmarks/SaveToolkit.Benchmarks.csproj"
+        code = source(project)
+        self.assertIn("<IsTestProject>false</IsTestProject>", code)
+        self.assertIn("<IsTestingPlatformApplication>false</IsTestingPlatformApplication>", code)
+        self.assertNotIn("TestAdapter", code)
+        self.assertIn("*.Tests.csproj", source("scripts/test.ps1"))
+        self.assertFalse(project.endswith(".Tests.csproj"))
+        self.assertNotIn("bench.ps1", source(".github/workflows/ci.yml"))
+        self.assertIn(project, source("SaveToolkit.slnx"))
+        for page in ("README.md", "docs/RELEASING.md"):
+            self.assertIn("PERFORMANCE.md", document(page))
 
     def test_documented_script_invocations_use_real_parameters(self):
         invocations = 0

@@ -1,16 +1,16 @@
+import { installDialogStub } from "../../test/dialog";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import type { EditResult, FieldNode } from "../../api/protocol";
-import { DocumentContext, DocumentStore } from "../../state/documentStore";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { FieldNode } from "../../api/protocol";
+import { DocumentContext } from "../../state/documentStore";
 import { ActionButton } from "../document/ActionButton";
+import { createDocumentFixture } from "../../test/documentFixture";
 import { FieldRow } from "./FieldRow";
 import { TableCell } from "../document/table/TableCell";
 
-beforeAll(() => {
-  HTMLDialogElement.prototype.showModal = function () { this.open = true; };
-  HTMLDialogElement.prototype.close = function () { this.open = false; };
-});
-afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+let restoreDialog = () => {};
+beforeEach(() => { restoreDialog = installDialogStub(); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); restoreDialog(); });
 
 const parameters: FieldNode[] = [
   { type: "field", valueId: "optional", label: "Optional name", spec: { kind: "nullable", inner: { kind: "text" } }, value: "Alice" },
@@ -23,10 +23,11 @@ const parameters: FieldNode[] = [
 ];
 
 function renderFields(content: React.ReactNode) {
-  const store = new DocumentStore({ canUndo: false, canRedo: false, isDirty: false, revision: 1 });
-  const commit = vi.fn(async () => true);
-  const context = { workspaceId: "w", documentId: "d", canEdit: true, store, structureVersion: 0,
-    commit, mutate: async (call: () => Promise<EditResult>) => call(), acceptResult: async () => {}, runAction: vi.fn(), refresh: async () => {} };
+  const { context, store } = createDocumentFixture({
+    state: { canUndo: false, canRedo: false, isDirty: false, revision: 1 },
+    context: { workspaceId: "w", documentId: "d", runAction: vi.fn() },
+  });
+  const commit = context.commit;
   return { ...render(<DocumentContext.Provider value={context}>{content}</DocumentContext.Provider>), store, commit };
 }
 

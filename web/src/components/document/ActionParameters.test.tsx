@@ -1,15 +1,14 @@
 import type { EditResult } from "../../api/protocol";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { actionReview } from "../../api/actionReview";
 import { DocumentContext, DocumentStore } from "../../state/documentStore";
 import { ActionButton } from "./ActionButton";
+import { installDialogStub } from "../../test/dialog";
 
-beforeAll(() => {
-  HTMLDialogElement.prototype.showModal = function () { this.open = true; };
-  HTMLDialogElement.prototype.close = function () { this.open = false; };
-});
-afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+let restoreDialog: () => void;
+beforeEach(() => { restoreDialog = installDialogStub(); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); restoreDialog(); });
 
 function setup(planned: boolean) {
   const store = new DocumentStore({ canUndo: false, canRedo: false, isDirty: false, revision: 1 });
@@ -69,18 +68,19 @@ describe.each([false, true])("action parameter validation (planned: %s)", planne
     else expect(runAction).toHaveBeenCalledWith("run", { index: "2" });
   });
 
-  if (planned) it("clears local errors when reopening with fresh default parameters", () => {
-    const { input, plan } = setup(planned);
-    fireEvent.change(input, { target: { value: "99" } });
-    fireEvent.blur(input);
-    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
-    fireEvent.click(screen.getByRole("button", { name: "Run" }));
-    expect(screen.getByRole("textbox", { name: "Entry index" })).toHaveProperty("value", "0");
-    const reopened = within(screen.getByRole("dialog"));
-    const submit = reopened.getByRole("button", { name: "Preview" });
-    expect(submit).toHaveProperty("disabled", false);
-    expect(screen.queryByRole("alert")).toBeNull();
-    fireEvent.click(submit);
-    expect(plan).toHaveBeenCalledExactlyOnceWith("w", "d", "run", { index: "0" }, {}, 1);
-  });
+});
+
+it("clears planned-action local errors when reopening with fresh default parameters", () => {
+  const { input, plan } = setup(true);
+  fireEvent.change(input, { target: { value: "99" } });
+  fireEvent.blur(input);
+  fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+  fireEvent.click(screen.getByRole("button", { name: "Run" }));
+  expect(screen.getByRole("textbox", { name: "Entry index" })).toHaveProperty("value", "0");
+  const reopened = within(screen.getByRole("dialog"));
+  const submit = reopened.getByRole("button", { name: "Preview" });
+  expect(submit).toHaveProperty("disabled", false);
+  expect(screen.queryByRole("alert")).toBeNull();
+  fireEvent.click(submit);
+  expect(plan).toHaveBeenCalledExactlyOnceWith("w", "d", "run", { index: "0" }, {}, 1);
 });

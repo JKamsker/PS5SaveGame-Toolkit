@@ -13,7 +13,7 @@ function row(key: string, confidence?: Confidence): TableRow {
   return { key, cells: { name: text(key), value: field(key, { kind: "integer", min: "0", max: "99" }, "3", { confidence }) } };
 }
 
-describe("column confidence", () => {
+describe("uniform and mixed column confidence", () => {
   it.each(["Verified", "Inferred", "Unknown"] as const)("shows uniform %s once in the header and keeps each cell's screen-reader text", confidence => {
     renderTable(table([row("Potion", confidence), row("Ether", confidence)]));
     const heading = screen.getByRole("columnheader", { name: /^Value/ });
@@ -38,7 +38,9 @@ describe("column confidence", () => {
     expect(screen.getAllByRole("img", { name: /^Confidence:/ })).toHaveLength(3);
     expect(screen.getByRole("img", { name: "Confidence: meaning unknown" }).closest('[role="cell"]')).not.toBeNull();
   });
+});
 
+describe("filtered and virtualized column confidence", () => {
   it("recalculates the header when filters remove and restore a differing row", () => {
     renderTable(table([row("Potion", "Unknown"), ...Array.from({ length: 9 }, (_, i) => row(`Ether${i}`, "Verified"))]));
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "Potion" } });
@@ -54,7 +56,9 @@ describe("column confidence", () => {
     expect(within(screen.getByRole("columnheader", { name: "Value" })).queryByRole("img")).toBeNull();
     expect(screen.getAllByRole("img", { name: "Confidence: meaning unknown" }).length).toBeGreaterThan(1);
   });
+});
 
+describe("empty and absent column confidence", () => {
   it.each(["Unknown", "Verified"] as const)("preserves an empty slot's %s confidence", confidence => {
     const node = table([row("Potion", "Unknown"), { ...row("Vacant", confidence), isEmpty: true }]);
     node.emptyRows = { labelColumnKey: "value", hideByDefault: false };
@@ -75,7 +79,9 @@ describe("column confidence", () => {
   ])("does not infer confidence from absent or non-field metadata (%#)", (...rows: TableRow[]) => {
     expect(uniformConfidence([{ key: "value", label: "Value" }], rows).size).toBe(0);
   });
+});
 
+describe("column confidence details", () => {
   it("keeps descriptions and inspection reachable in row details", () => {
     const item = row("Potion", "Unknown");
     item.cells.value = { ...field("quantity", { kind: "integer", min: "0", max: "99" }, "3"), confidence: "Unknown", description: "Raw count; inspect before editing." };

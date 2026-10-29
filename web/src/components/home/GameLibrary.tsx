@@ -5,7 +5,7 @@ import { api, ApiError } from "../../api/client";
 import type { TitleInfo } from "../../api/protocol";
 import type { LibraryGame } from "../../lib/library";
 import { formatBytes } from "../../lib/values";
-import { library, useLibrary } from "../../state/libraryStore";
+import { library, useLibrary, type LibraryState } from "../../state/libraryStore";
 import { useImportTask } from "./importTask";
 
 const supportText = { Edit: "Editable", View: "View only", None: "Raw view only" } as const;
@@ -22,32 +22,7 @@ export function GameLibrary({ onChooseFolder }: { onChooseFolder: () => void }) 
       {state.status === "empty" || state.status === "error" ? "" : describe(state.status, state.games.length, state.skipped, state.persistent)}
     </p>
     {state.status !== "empty" && <section className="library" aria-labelledby="library-title">
-      <header className="library__head">
-        <div>
-          <h2 className="library__title" id="library-title">
-            {state.folderName ?? "Folder"}
-          </h2>
-          <p className="library__meta">{describe(state.status, state.games.length, state.skipped, state.persistent)}</p>
-        </div>
-        <div className="library__actions">
-          {state.status === "reconnect" && (
-            <button type="button" className="btn btn--primary" onClick={() => void library.reconnect()}>
-              Reopen folder
-            </button>
-          )}
-          {state.persistent && state.status === "ready" && (
-            <button type="button" className="btn btn--small btn--quiet" onClick={() => void library.reconnect()}>
-              Rescan
-            </button>
-          )}
-          <button type="button" className="btn btn--small" onClick={onChooseFolder}>
-            Choose another folder
-          </button>
-          <button type="button" className="btn btn--small btn--quiet" onClick={() => void library.forget()}>
-            Forget folder
-          </button>
-        </div>
-      </header>
+      <LibraryHeader state={state} onChooseFolder={onChooseFolder} />
       {state.error && <p role="alert" className="notice notice--Danger">{state.error}</p>}
       {state.status === "ready" && state.games.length === 0 && (
         <p className="notice notice--Muted">
@@ -73,34 +48,9 @@ function describe(status: string, count: number, skipped: number, persistent: bo
 }
 
 function GameTile({ game, title, icon }: { game: LibraryGame; title: TitleInfo | undefined; icon: string | undefined }) {
-  const navigate = useNavigate();
-  const [progress, setProgress] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const task = useImportTask(game.key);
   const name = title?.name ?? game.fallbackName;
   const support = title?.support ?? "None";
-
-  const open = () => task.run(async isCurrent => {
-    setError(null);
-    setProgress(0);
-    const existing = library.importedWorkspace(game.key);
-    if (existing) {
-      const alive = await api.workspace(existing).then(() => true, () => false);
-      if (!isCurrent()) return;
-      if (alive) return navigate(`/w/${existing}`);
-    }
-    try {
-      const ws = await api.upload(game.sources, name, progress => { if (isCurrent()) setProgress(progress); });
-      if (!isCurrent()) return;
-      library.rememberImport(game.key, ws.id);
-      void navigate(`/w/${ws.id}`);
-    } catch (e) {
-      if (!isCurrent()) return;
-      setError(e instanceof ApiError ? e.message : "The import failed.");
-      setProgress(null);
-    }
-  });
-
+  const { progress, error, task, open } = useGameImport(game, name);
   const busy = progress !== null;
   return (
     <li className={`game${busy ? " game--busy" : ""}`}>
@@ -127,4 +77,65 @@ function GameTile({ game, title, icon }: { game: LibraryGame; title: TitleInfo |
       {error && <p role="alert" className="field__error">{error}</p>}
     </li>
   );
+}
+
+function LibraryHeader({ state, onChooseFolder }: { state: LibraryState; onChooseFolder: () => void }) {
+  return (
+    <header className="library__head">
+      <div>
+        <h2 className="library__title" id="library-title">
+          {state.folderName ?? "Folder"}
+        </h2>
+        <p className="library__meta">{describe(state.status, state.games.length, state.skipped, state.persistent)}</p>
+      </div>
+      <div className="library__actions">
+        {state.status === "reconnect" && (
+          <button type="button" className="btn btn--primary" onClick={() => void library.reconnect()}>
+            Reopen folder
+          </button>
+        )}
+        {state.persistent && state.status === "ready" && (
+          <button type="button" className="btn btn--small btn--quiet" onClick={() => void library.reconnect()}>
+            Rescan
+          </button>
+        )}
+        <button type="button" className="btn btn--small" onClick={onChooseFolder}>
+          Choose another folder
+        </button>
+        <button type="button" className="btn btn--small btn--quiet" onClick={() => void library.forget()}>
+          Forget folder
+        </button>
+      </div>
+    </header>
+  );
+}
+
+function useGameImport(game: LibraryGame, name: string) {
+  const navigate = useNavigate();
+  const [progress, setProgress] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const task = useImportTask(game.key);
+
+  const open = () => task.run(async isCurrent => {
+    setError(null);
+    setProgress(0);
+    const existing = library.importedWorkspace(game.key);
+    if (existing) {
+      const alive = await api.workspace(existing).then(() => true, () => false);
+      if (!isCurrent()) return;
+      if (alive) return navigate(`/w/${existing}`);
+    }
+    try {
+      const ws = await api.upload(game.sources, name, progress => { if (isCurrent()) setProgress(progress); });
+      if (!isCurrent()) return;
+      library.rememberImport(game.key, ws.id);
+      void navigate(`/w/${ws.id}`);
+    } catch (e) {
+      if (!isCurrent()) return;
+      setError(e instanceof ApiError ? e.message : "The import failed.");
+      setProgress(null);
+    }
+  });
+
+  return { progress, error, task, open };
 }

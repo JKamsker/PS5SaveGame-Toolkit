@@ -1,7 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SaveToolkit.Api.Infrastructure;
+using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
+using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace SaveToolkit.Api.Endpoints;
 
@@ -14,12 +16,14 @@ internal static class ActionReviewEndpoints
             var preview = d.Value.PlanAction(request.ActionId, request.Parameters ?? [], request.Scope, request.Revision, ct);
             return preview.Stale ? Results.Conflict(preview)
                 : preview.Plan.Errors.Count > 0 ? Results.UnprocessableEntity(preview) : Results.Ok(preview);
-        });
+        }).Produces<ActionPreview>().WithApiErrors(Status415UnsupportedMediaType);
         doc.MapPost("/actions/apply", (DocumentRef d, ApplyActionPlanRequest request, CancellationToken ct) =>
-            SessionEditResponse.Create(d.Value.ApplyActionPlan(request.PlanId, request.Revision, ct)));
+            SessionEditResponse.Create(d.Value.ApplyActionPlan(request.PlanId, request.Revision, ct)))
+            .Produces<SessionEditResult>().WithApiErrors(Status415UnsupportedMediaType);
         doc.MapGet("/changes", (DocumentRef d, CancellationToken ct) => d.Value.GetChanges(ct));
         doc.MapPost("/changes/revert", (DocumentRef d, RevertChangeRequest request, CancellationToken ct) =>
-            SessionEditResponse.Create(d.Value.RevertChange(request.ValueId, request.Revision, ct)));
+            SessionEditResponse.Create(d.Value.RevertChange(request.ValueId, request.Revision, ct)))
+            .Produces<SessionEditResult>().WithApiErrors(Status415UnsupportedMediaType);
     }
 }
 

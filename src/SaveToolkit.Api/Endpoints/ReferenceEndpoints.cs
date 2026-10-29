@@ -3,6 +3,7 @@ using SaveToolkit.Api.Contracts;
 using SaveToolkit.Api.Infrastructure;
 using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.References;
+using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace SaveToolkit.Api.Endpoints;
 
@@ -16,16 +17,19 @@ internal static class ReferenceEndpoints
 
     public static void MapReferenceApi(this IEndpointRouteBuilder app)
     {
-        var packs = app.MapGroup("/api/reference-packs").AddEndpointFilter<ApiContractFilter>();
+        var packs = app.MapGroup("/api/reference-packs").AddEndpointFilter<ApiContractFilter>().WithApiErrors(Status500InternalServerError);
         packs.MapGet("", (ReferencePackStore store) => new ReferencePacksDto([.. store.Packs.Select(p => p.Info)], store.LoadErrors));
         packs.MapPost("", ImportPack)
-            .DisableAntiforgery()
+            .DisableAntiforgery().Produces<ReferencePackInfo>().WithApiErrors(Status400BadRequest, Status403Forbidden, Status409Conflict, Status413PayloadTooLarge, Status422UnprocessableEntity)
             .WithMetadata(new RequestSizeLimitAttribute(MaxImportBody), new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxImportBody });
         packs.MapDelete("/{packId}", (string packId, HttpRequest request, ReferencePackStore store) =>
-            IsCrossSite(request) ? CrossSiteRejected() : store.Remove(packId) ? Results.NoContent() : Results.NotFound());
+            IsCrossSite(request) ? CrossSiteRejected() : store.Remove(packId) ? Results.NoContent() : Results.NotFound())
+            .Produces(StatusCodes.Status204NoContent).WithApiErrors(Status403Forbidden, Status404NotFound, Status409Conflict);
 
         var doc = app.MapGroup("/api/workspaces/{workspaceId}/documents/{documentId}")
-            .AddEndpointFilter<ApiContractFilter>().AddEndpointFilter<DocumentRevisionFilter>();
+            .AddEndpointFilter<ApiContractFilter>().AddEndpointFilter<DocumentRevisionFilter>()
+            .WithApiErrors(Status400BadRequest, Status404NotFound, Status409Conflict,
+                Status412PreconditionFailed, Status422UnprocessableEntity, Status500InternalServerError);
         doc.MapReferenceFieldApi();
         doc.MapGet("/sources", (DocumentRef d) =>
             new DocumentSourcesDto([.. d.Workspace.References(d.Value.Id).Datasets().Select(s => s.ToDto())]));
@@ -45,7 +49,7 @@ internal static class ReferenceEndpoints
             }
 
             return ReferenceAssetResponse.Create(asset, http.Response);
-        });
+        }).Produces<byte[]>(contentType: "image/png", additionalContentTypes: ["image/jpeg", "image/webp"]);
     }
 
     private static ReferencePageDto Search(

@@ -2,6 +2,8 @@
 
 This project covers API allocation/call-count regressions and the earlier codec/reference
 performance review. PackBuilder is linked from the existing test helpers.
+It also owns the HTTP OpenAPI snapshot and hosting/schema regression checks; see the
+[contract and one-line re-pin workflow](../../docs/API.md#openapi-contract-and-regression-guard).
 
 The full `scripts/test.ps1` discovers this project. To run it separately:
 

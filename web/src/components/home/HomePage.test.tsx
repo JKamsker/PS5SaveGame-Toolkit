@@ -66,3 +66,23 @@ it("retains failed import files for retry and resets the chooser so the same fil
   expect(upload.mock.calls.map(call => call[0])).toEqual([[{ file, path: "save.zip" }], [{ file, path: "save.zip" }]]);
   client.clear();
 });
+
+it("falls back to folder input scanning without importing files and ignores an empty zip choice", async () => {
+  vi.spyOn(api, "plugins").mockResolvedValue([]);
+  vi.spyOn(api, "workspaces").mockResolvedValue([]);
+  vi.spyOn(library, "supportsHandles").mockReturnValue(false);
+  const scan = vi.spyOn(library, "scanFiles").mockResolvedValue(undefined);
+  const upload = vi.spyOn(api, "upload");
+  const client = mount();
+  const folder = document.querySelector<HTMLInputElement>("input[webkitdirectory]")!;
+  const choose = vi.spyOn(folder, "click");
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Choose folder" })); });
+  expect(choose).toHaveBeenCalledOnce();
+  const file = new File(["fixture"], "save.dat");
+  Object.defineProperty(file, "webkitRelativePath", { value: "Saves/PPSA00001/save.dat" });
+  fireEvent.change(folder, { target: { files: [file] } });
+  fireEvent.change(document.querySelector('input[accept=".zip"]')!, { target: { files: [] } });
+  expect(scan).toHaveBeenCalledExactlyOnceWith("Saves", [{ file, path: "Saves/PPSA00001/save.dat" }]);
+  expect(upload).not.toHaveBeenCalled();
+  client.clear();
+});

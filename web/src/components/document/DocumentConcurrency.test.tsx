@@ -1,3 +1,4 @@
+import { installDialogStub } from "../../test/dialog";
 import { defaultScheduler, notifyManager, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
@@ -9,12 +10,12 @@ import { DocumentEditor } from "./DocumentEditor";
 import { WorkspaceActivity, WorkspaceActivityContext } from "../../state/workspaceActivity";
 
 const clients: QueryClient[] = [];
+let restoreDialog = () => {};
 beforeEach(() => {
   notifyManager.setScheduler(queueMicrotask);
-  Object.defineProperty(HTMLDialogElement.prototype, "showModal", { configurable: true, value: function (this: HTMLDialogElement) { this.open = true; } });
-  Object.defineProperty(HTMLDialogElement.prototype, "close", { configurable: true, value: function (this: HTMLDialogElement) { this.open = false; } });
+  restoreDialog = installDialogStub();
 });
-afterEach(() => { cleanup(); clients.splice(0).forEach(client => client.clear()); vi.restoreAllMocks(); notifyManager.setScheduler(defaultScheduler); Reflect.deleteProperty(HTMLDialogElement.prototype, "showModal"); Reflect.deleteProperty(HTMLDialogElement.prototype, "close"); });
+afterEach(() => { cleanup(); clients.splice(0).forEach(client => client.clear()); vi.restoreAllMocks(); notifyManager.setScheduler(defaultScheduler); restoreDialog(); });
 
 const state = { revision: 1, isDirty: true, canUndo: true, canRedo: true };
 const result = (revision: number, extra: Partial<EditResult> = {}): EditResult => ({ ok: true, changes: [], errors: [], warnings: [],
