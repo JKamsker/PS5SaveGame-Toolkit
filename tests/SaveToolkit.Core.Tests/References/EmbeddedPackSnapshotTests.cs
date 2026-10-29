@@ -10,6 +10,8 @@ namespace SaveToolkit.Core.Tests.References;
 
 public sealed class EmbeddedPackSnapshotTests
 {
+    internal const int ExpectedPackCount = 40;
+
     internal static IReadOnlyList<IGamePlugin> Plugins() => [.. PluginCatalog.Discover().Plugins
         .Where(p => p.GetType().Assembly.GetName().Name!.StartsWith("SaveToolkit.Plugins.", StringComparison.Ordinal))];
 
@@ -63,7 +65,7 @@ public sealed class EmbeddedPackSnapshotTests
             count++;
         }
 
-        Assert.Equal(40, count);
+        Assert.Equal(ExpectedPackCount, count);
         Assert.Equal("00afa30fbfa25dc7360dc6c24fa98b7ea5e1f964186a49a94c1fc8ce38e25088",
             Convert.ToHexStringLower(hash.GetHashAndReset()));
     }
