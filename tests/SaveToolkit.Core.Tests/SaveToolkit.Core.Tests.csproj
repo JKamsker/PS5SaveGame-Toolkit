@@ -11,9 +11,12 @@
     <ProjectReference Include="..\..\src\SaveToolkit.Core\SaveToolkit.Core.csproj" />
     <ProjectReference Include="..\..\src\SaveToolkit.Api\SaveToolkit.Api.csproj" />
     <ProjectReference Include="..\..\src\SaveToolkit.Testing\SaveToolkit.Testing.csproj" />
+    <!-- Reuse each plugin's authored conformance seeds; new plugins must join the matrix. -->
+    <ProjectReference Include="..\..\plugins\*\*.Tests\SaveToolkit.Plugins.*.Tests.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="References\EmbeddedPackHashes.txt" />
+    <EmbeddedResource Include="Detection\DetectionMatrix.txt" />
     <!-- Embedded reference pack for ItemsPlugin; same layout plugins use (see docs/PLUGIN_GUIDE.md). -->
     <EmbeddedResource Include="Fakes\ReferencePacks\**\*" LogicalName="refpacks/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>

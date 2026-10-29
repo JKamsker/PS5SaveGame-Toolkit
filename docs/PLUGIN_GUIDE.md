@@ -1445,6 +1445,21 @@ JSON-serialisability (incl. lazy sections), `GetValue` consistency, value/spec c
 byte-identical no-op serialisation and edit → serialise → re-open round trips.
 Override `ChooseEdits` to exercise a meaningful field (e.g. an item quantity).
 
+Core's cross-plugin detection matrix lives in
+`tests/SaveToolkit.Core.Tests/Detection/DetectionMatrix.txt`. It records plugin and fixture/file
+names with ranked claimants, never save bytes or values. The tests reuse every conformance class's
+`MutationFuzzSyntheticSeeds`, import each seed with its siblings and exercise the default workspace
+open path. All registered plugins are probed directly (exceptions must not be hidden by the catalog),
+then ranked with five deterministic registration permutations. External samples use
+`SAVETOOLKIT_ARTIFACTS`; every matching archive and non-system file is checked without the normal
+conformance file cap. Only the sample matrix skips when no archives exist. Truncated copies and
+single-bit changes across the first 64 header bytes must never acquire a foreign `Title`-confidence
+claim or throw. Mutations retain title, generation, backup status and siblings in memory. GenericJson
+and XorJson may deliberately overlap at lower priority than a game-specific owner; XorJson's documented
+plain-character JSON format outranks GenericJson. Raw inspection remains the last fallback. Review
+snapshot diffs explicitly when adding plugins or fixture variants; plugin implementation defects
+belong to the plugin owner rather than a catalog exception or priority workaround.
+
 Default coverage is bounded and can be overridden by each test class:
 
 - `MaxFilesPerTitle`: **6** distinct-content, probed files per title, ordered by generation and
