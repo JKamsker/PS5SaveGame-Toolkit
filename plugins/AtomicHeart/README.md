@@ -374,10 +374,26 @@ The allocation regression exercises the production decoder on the 14-stream,
 pass to exclude aggregate/index allocations; reads, framing and assertions are
 outside measurement. With five warmups and the median of three synchronous
 measurements (Release, .NET 10, tiered compilation disabled), managed codec
-allocations fell from **2,384,928** to **632,552 bytes** against a **917,504-byte**
+allocations fell from **2,384,928** to **632,544 bytes** against a **917,504-byte**
 cap. The earlier codec review's 10.5 MB baseline predates the shared codec changes.
 This is allocation evidence, not a latency or retained-memory claim. Exact error
 messages, chunk offsets and inner exception types are pinned by sample-free tests.
+
+### Maintainability review (2026-10-29, #40)
+
+Record identity/prefix parsing, inventory-container indexing, patch splicing and
+map-page rendering now have named steps in their existing owners. Test fixtures
+share raw opening and property-size traversal helpers; outer inventory framing
+is separate from property construction. No handwritten method exceeds 50 lines,
+and the largest plugin C# file is 196 lines. No tooling or framework changes were
+needed. Public strings, identities, confidence labels and warnings are unchanged.
+
+Twenty added cases cover exact decoder diagnostics, allocation bounds, record
+identities/native tails, inventory ordering/limits, patch and spatial errors,
+and fixture helper contracts. The full Release suite passes **214 tests, zero
+failed or skipped** with private samples, including byte-identical no-op,
+malformed primitives, overflowing inventory values and existing performance bounds.
+The API Release build with `--warnaserror` has **zero warnings/errors**.
 
 ## Sources and attribution
 

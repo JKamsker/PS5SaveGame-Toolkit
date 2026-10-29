@@ -9,29 +9,12 @@ internal static class InventoryFixture
     internal static byte[] Create(bool duplicateContainer = false, bool duplicateCollection = false,
         string amountType = "IntProperty", string? unsignedField = null, ulong unsignedValue = 0)
     {
-        using var stream = new MemoryStream();
-        using var writer = new BinaryWriter(stream);
-        writer.Write(0); // Decoded array length.
-        EndObject(writer);
-        writer.Write(0); // Subsystems.
-        SlotFixture.String(writer, "AuthoredLevel");
-        writer.Write(1); // Actors.
-        Record(writer, "Actor", "/Script/Test.Actor", EndObject);
-        writer.Write((byte)0); writer.Write((byte)0);
-        writer.Write(new byte[40]); writer.Write(0); // Transform and no velocity.
-        writer.Write(1); // Components.
-        Record(writer, "Inventory", InventoryClasses.Storage, payload =>
+        return CreateSlot(payload =>
         {
             Container(payload);
             if (duplicateContainer) Container(payload);
             EndObject(payload);
         });
-        writer.Write(new byte[40]); // Component transform.
-        writer.Write(0); // Sublevels.
-        writer.Flush();
-        var plain = stream.ToArray();
-        BinaryPrimitives.WriteInt32LittleEndian(plain, plain.Length - sizeof(int));
-        return SlotFixture.Create(plain: plain);
 
         void Container(BinaryWriter target) => Property(target, "ResourcesList", "StructProperty", "InventoryList", list =>
         {
@@ -62,6 +45,28 @@ internal static class InventoryFixture
             else Property(target, "ItemId", "Int64Property", null, value => value.Write(instance));
             PlainFixture.End(target);
         }
+    }
+
+    private static byte[] CreateSlot(Action<BinaryWriter> writeInventory)
+    {
+        using var stream = new MemoryStream();
+        using var writer = new BinaryWriter(stream);
+        writer.Write(0); // Decoded array length.
+        EndObject(writer);
+        writer.Write(0); // Subsystems.
+        SlotFixture.String(writer, "AuthoredLevel");
+        writer.Write(1); // Actors.
+        Record(writer, "Actor", "/Script/Test.Actor", EndObject);
+        writer.Write((byte)0); writer.Write((byte)0);
+        writer.Write(new byte[40]); writer.Write(0); // Transform and no velocity.
+        writer.Write(1); // Components.
+        Record(writer, "Inventory", InventoryClasses.Storage, writeInventory);
+        writer.Write(new byte[40]); // Component transform.
+        writer.Write(0); // Sublevels.
+        writer.Flush();
+        var plain = stream.ToArray();
+        BinaryPrimitives.WriteInt32LittleEndian(plain, plain.Length - sizeof(int));
+        return SlotFixture.Create(plain: plain);
     }
 
     private static void Record(BinaryWriter writer, string name, string classPath, Action<BinaryWriter> write)

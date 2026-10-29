@@ -1,6 +1,5 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.AtomicHeart.Tests;
 
@@ -16,7 +15,7 @@ public sealed class AtomicHeartRobustnessTests
         {
             var truncated = plain[..length];
             if (length >= sizeof(int)) BinaryPrimitives.WriteInt32LittleEndian(truncated, length - sizeof(int));
-            var error = Assert.Throws<SaveFormatException>(() => Open(SlotFixture.Create(plain: truncated)));
+            var error = Assert.Throws<SaveFormatException>(() => SlotFixture.Open(SlotFixture.Create(plain: truncated)));
             Assert.DoesNotContain("byte-array prefix", error.Message, StringComparison.Ordinal);
         }
     }
@@ -30,15 +29,15 @@ public sealed class AtomicHeartRobustnessTests
         var container = Assert.Single(component.Properties);
         var slots = Assert.Single(container.Children);
         var descriptorStart = slots.Payload.Offset + sizeof(int);
-        var descriptorSizeOffset = SizeOffset(index.Plain, descriptorStart);
+        var descriptorSizeOffset = PropertyFixture.SizeOffset(index.Plain, descriptorStart);
         Assert.Equal(2, slots.Children.Count);
         // Use the first element's span, rather than assuming a fixed tag-header length.
         var descriptorPayload = slots.Children[0].Tag.Offset;
         for (var end = descriptorPayload; end < slots.Payload.End; end++)
         {
             var plain = index.Plain.ToArray();
-            BinaryPrimitives.WriteInt32LittleEndian(plain.AsSpan(SizeOffset(plain, container.Tag.Offset)), end - container.Payload.Offset);
-            BinaryPrimitives.WriteInt32LittleEndian(plain.AsSpan(SizeOffset(plain, slots.Tag.Offset)), end - slots.Payload.Offset);
+            BinaryPrimitives.WriteInt32LittleEndian(plain.AsSpan(PropertyFixture.SizeOffset(plain, container.Tag.Offset)), end - container.Payload.Offset);
+            BinaryPrimitives.WriteInt32LittleEndian(plain.AsSpan(PropertyFixture.SizeOffset(plain, slots.Tag.Offset)), end - slots.Payload.Offset);
             BinaryPrimitives.WriteInt32LittleEndian(plain.AsSpan(descriptorSizeOffset), end - descriptorPayload);
             var error = Assert.Throws<SaveFormatException>(() =>
             {
@@ -59,7 +58,7 @@ public sealed class AtomicHeartRobustnessTests
         {
             var body = bytes[..length];
             byte[] truncated = [.. body, .. SlotFixture.Digest(body)];
-            var error = Assert.Throws<SaveFormatException>(() => Open(truncated));
+            var error = Assert.Throws<SaveFormatException>(() => SlotFixture.Open(truncated));
             Assert.DoesNotContain("SHA-1", error.Message, StringComparison.Ordinal);
         }
     }
@@ -75,7 +74,7 @@ public sealed class AtomicHeartRobustnessTests
         var component = Assert.Single(index.Objects, record => record.Kind == RecordKinds.Component);
         var slots = Assert.Single(Assert.Single(component.Properties).Children);
         BinaryPrimitives.WriteInt32LittleEndian(index.Plain.AsSpan(slots.Payload.Offset), count);
-        var error = Assert.Throws<SaveFormatException>(() => Open(SlotFixture.Create(plain: index.Plain)));
+        var error = Assert.Throws<SaveFormatException>(() => SlotFixture.Open(SlotFixture.Create(plain: index.Plain)));
         Assert.Equal("Invalid SaveExtension count or length.", error.Message);
     }
 
@@ -92,7 +91,7 @@ public sealed class AtomicHeartRobustnessTests
         var suffix = actor.Payload.End + sizeof(int); // Empty actor tag array.
         if (relativeOffset < 2) index.Plain[suffix + relativeOffset] = (byte)value;
         else BinaryPrimitives.WriteInt32LittleEndian(index.Plain.AsSpan(suffix + relativeOffset), value);
-        var error = Assert.Throws<SaveFormatException>(() => Open(SlotFixture.Create(plain: index.Plain)));
+        var error = Assert.Throws<SaveFormatException>(() => SlotFixture.Open(SlotFixture.Create(plain: index.Plain)));
         Assert.Equal(message, error.Message);
     }
 
@@ -137,18 +136,9 @@ public sealed class AtomicHeartRobustnessTests
             BinaryPrimitives.WriteInt32LittleEndian(plain.AsSpan(tag.Position), sizeof(int) - 1);
             var corrupt = SlotDataWriter.Write(bytes, outer, index.Plain, plain);
             _ = SaveExtensionFile.Parse(corrupt); // The corruption must reach the inner grammar.
-            var error = Assert.Throws<SaveFormatException>(() => Open(corrupt));
+            var error = Assert.Throws<SaveFormatException>(() => SlotFixture.Open(corrupt));
             Assert.Contains("IntProperty payload size", error.Message, StringComparison.Ordinal);
         }
-    }
-
-    private static ISaveDocument Open(byte[] bytes) => new AtomicHeartPlugin().Open(MemorySaveSet.SingleFile("slot", bytes));
-
-    private static int SizeOffset(byte[] plain, int tagStart)
-    {
-        var cursor = SaveExtensionBinary.Cursor(plain, tagStart);
-        _ = cursor.String(); _ = cursor.String();
-        return cursor.Position;
     }
 
     private static byte[] NestedStructs(int depth)

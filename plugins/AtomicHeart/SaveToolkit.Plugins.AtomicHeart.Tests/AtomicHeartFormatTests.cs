@@ -104,5 +104,5 @@ public sealed class AtomicHeartFormatTests
         }
     }
 
-    private static ISaveDocument Open(byte[] bytes) => new AtomicHeartPlugin().Open(MemorySaveSet.SingleFile("save", bytes));
+    private static ISaveDocument Open(byte[] bytes) => SlotFixture.Open(bytes, "save");
 }

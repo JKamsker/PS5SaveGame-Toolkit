@@ -18,9 +18,9 @@ internal static class WritePreservation
             allowed.Add(record.Payload.Offset - sizeof(int));
             foreach (var property in All(record.Properties).Where(p => Contains(p.Payload, item.Asset.Payload) && p.Type != "StructElement"))
             {
-                allowed.Add(SizePosition(before.Plain, property.Tag.Offset));
+                allowed.Add(PropertyFixture.SizeOffset(before.Plain, property.Tag.Offset));
                 if (property.Type == "ArrayProperty" && property.Name == "Slots")
-                    allowed.Add(SizePosition(before.Plain, property.Payload.Offset + sizeof(int)));
+                    allowed.Add(PropertyFixture.SizeOffset(before.Plain, property.Payload.Offset + sizeof(int)));
             }
         }
         var diff = ByteDiffer.Compare(before.Plain, aligned, options: new() { MergeGap = 0 });
@@ -33,11 +33,4 @@ internal static class WritePreservation
     private static bool Contains(ByteSpan parent, ByteSpan child) => parent.Offset <= child.Offset && parent.End >= child.End;
     private static IEnumerable<TaggedProperty> All(IReadOnlyList<TaggedProperty> properties) =>
         properties.SelectMany(p => new[] { p }.Concat(All(p.Children)));
-    private static int SizePosition(byte[] plain, int position)
-    {
-        var reader = SaveExtensionBinary.Cursor(plain, position);
-        _ = reader.String();
-        _ = reader.String();
-        return reader.Position;
-    }
 }
