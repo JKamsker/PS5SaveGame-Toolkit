@@ -50,14 +50,16 @@ internal sealed class JsonActionPlanner(JsonEditModel model, IReferenceContext r
         try
         {
             var value = Value(id, parameters);
-            var candidates = Candidates(id);
-            var selected = scope.RowKeys ?? candidates.Select(n => n.ValueId).ToArray();
-            var allowed = candidates.ToDictionary(n => n.ValueId, StringComparer.Ordinal);
+            var array = CandidateArray(id);
+            var selected = scope.RowKeys ?? (id == JsonActions.Bulk ? model.Nodes.Where(n => !n.IsContainer)
+                : array?.Children ?? []).Select(n => n.ValueId);
             var changes = new List<PlannedChange>();
             var skipped = new List<SkippedActionRow>();
             foreach (var key in selected.Distinct(StringComparer.Ordinal))
             {
-                if (!allowed.TryGetValue(key, out var row)) { skipped.Add(new(key, "Unknown or incompatible row for this action.")); continue; }
+                if (!JsonActions.TryFind(model, key, out var row) || row.ValueId != key ||
+                    (id == JsonActions.Bulk ? row.IsContainer : array is null || row.Parent != array))
+                { skipped.Add(new(key, "Unknown or incompatible row for this action.")); continue; }
                 var target = Target(id, row, parameters);
                 var reason = Eligible(id, row, value) ?? (target is null || target.IsContainer ? "Required existing scalar is absent, ambiguous or does not match the attribute." : null);
                 if (reason is null) reason = JsonActions.Validate(target!, value, references);
@@ -74,12 +76,12 @@ internal sealed class JsonActionPlanner(JsonEditModel model, IReferenceContext r
         }
     }
 
-    private IReadOnlyList<JsonValueToken> Candidates(string id)
+    private JsonValueToken? CandidateArray(string id)
     {
-        if (id == JsonActions.Bulk) return model.Nodes.Where(n => !n.IsContainer).ToArray();
+        if (id == JsonActions.Bulk) return null;
         var hero = model.Root.Member("CharacterSaveV1");
         var array = id == JsonActions.Attribute ? hero?.Member("Ability")?.Member("Attributes") : hero?.Member("Inventory")?.Member("Entries");
-        return array?.Kind == System.Text.Json.JsonTokenType.StartArray ? array.Children : [];
+        return array?.Kind == System.Text.Json.JsonTokenType.StartArray ? array : null;
     }
 
     private FieldValue Value(string id, IReadOnlyDictionary<string, FieldValue> parameters)
