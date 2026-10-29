@@ -25,6 +25,22 @@ and repeated actor summary 9.97 to 0.066 MB. Timing variation prevents a reliabl
 end-to-end latency claim. Eager decode/integrity checks and serialization reparse
 validation remain in place. See [method, results and regression evidence](PERFORMANCE.md).
 
+## Shared SDK binary helpers (#40)
+
+GVAS parsing uses the SDK's stack-only `BoundedBinaryCursor` and strict
+`FStringCodec`, following the [shared helper migration notes](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486511244)
+and replacing the local cursor and string codec. The plugin keeps its
+serialized-unit limits (including terminators), exact legacy error messages and
+exception types, original string spans/widths, and the policy that selects UTF-16
+for newly written non-ASCII text. Zero-length and embedded-NUL imported strings
+retain their original bytes until edited. Property layouts, native structures,
+container policies, alignment and title-specific codecs remain local.
+
+Characterization tests pin truncated header/tag/GUID/property/string diagnostics,
+limits, malformed encoding and edit width choices. The full plugin suite retains
+Hogwarts/Jedi/Sackboy and generic byte-identical round trips, the Hogwarts
+allocation checks, lazy Jedi pages and consistency wording checks.
+
 ## Framework feature adoption
 
 | Feature | Status | Concrete use / evidence or reason |

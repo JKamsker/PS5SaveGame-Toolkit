@@ -9,7 +9,7 @@ namespace SaveToolkit.Plugins.UnrealGvas.Gvas;
 internal static class GvasBinary
 {
     internal const string Context = "GVAS";
-    internal static readonly FStringLimits Limits = new(2 * GvasFile.MaxStringLength, GvasFile.MaxStringLength)
+    private static readonly FStringLimits Limits = new(2 * GvasFile.MaxStringLength, GvasFile.MaxStringLength)
     {
         MaxUtf8Bytes = GvasFile.MaxStringLength,
     };

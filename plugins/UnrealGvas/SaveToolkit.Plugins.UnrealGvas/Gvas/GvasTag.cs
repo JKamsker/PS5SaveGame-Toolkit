@@ -1,4 +1,5 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Binary;
 
 namespace SaveToolkit.Plugins.UnrealGvas.Gvas;
 
@@ -13,16 +14,16 @@ internal sealed record GvasTag(string Name, string Type, int SizeOffset, int Siz
     private const byte NativeSerialization = 8;
     private const byte KnownFlags = HasArrayIndex | HasPropertyGuid | HasPropertyExtensions | BoolTrue | NativeSerialization;
 
-    public static GvasTag? Read(GvasCursor reader, GvasHeader header)
+    public static GvasTag? Read(ref BoundedBinaryCursor reader, GvasHeader header)
     {
         var name = reader.String();
         if (name == "None") return null;
         if (string.IsNullOrEmpty(name)) throw new SaveFormatException("Empty GVAS property name.");
-        if (header.CompleteTypeNames) return ReadComplete(reader, name);
+        if (header.CompleteTypeNames) return ReadComplete(ref reader, name);
         var type = reader.String();
         var offset = reader.Position;
-        var size = reader.Count(GvasFile.MaxFileLength);
-        _ = reader.UInt32(); // Static array index; preserved verbatim.
+        var size = reader.ReadCount(GvasFile.MaxFileLength);
+        _ = reader.ReadUInt32LE(); // Static array index; preserved verbatim.
         string? inner = null, value = null, structure = null;
         int? boolOffset = null;
         var boolValue = false;
@@ -30,7 +31,7 @@ internal sealed record GvasTag(string Name, string Type, int SizeOffset, int Siz
         {
             case "BoolProperty":
                 boolOffset = reader.Position;
-                var boolean = reader.Byte();
+                var boolean = reader.ReadByte();
                 if (boolean > 1) throw new SaveFormatException("Invalid GVAS boolean.");
                 boolValue = boolean != 0;
                 break;
@@ -41,20 +42,20 @@ internal sealed record GvasTag(string Name, string Type, int SizeOffset, int Siz
         }
         if (header.HasPropertyGuid)
         {
-            var hasGuid = reader.Byte();
+            var hasGuid = reader.ReadByte();
             if (hasGuid > 1) throw new SaveFormatException("Invalid GVAS property GUID flag.");
             if (hasGuid != 0) reader.Take(16);
         }
         return new GvasTag(name, type, offset, size, inner, value, structure, BoolOffset: boolOffset, BoolValue: boolValue);
     }
 
-    private static GvasTag ReadComplete(GvasCursor reader, string name)
+    private static GvasTag ReadComplete(ref BoundedBinaryCursor reader, string name)
     {
-        var root = ReadType(reader, 0);
+        var root = ReadType(ref reader, 0);
         var offset = reader.Position;
-        var size = reader.Count(GvasFile.MaxFileLength);
+        var size = reader.ReadCount(GvasFile.MaxFileLength);
         var flagOffset = reader.Position;
-        var flags = reader.Byte();
+        var flags = reader.ReadByte();
         if ((flags & ~KnownFlags) != 0) throw new SaveFormatException("Unknown UE5 property tag flags.");
         if ((flags & HasArrayIndex) != 0) reader.Take(4);
         if ((flags & HasPropertyGuid) != 0) reader.Take(16);
@@ -67,13 +68,13 @@ internal sealed record GvasTag(string Name, string Type, int SizeOffset, int Siz
             root.Name == "BoolProperty" ? flagOffset : null, (flags & BoolTrue) != 0, (flags & NativeSerialization) != 0);
     }
 
-    private static TypeName ReadType(GvasCursor reader, int depth)
+    private static TypeName ReadType(ref BoundedBinaryCursor reader, int depth)
     {
         if (depth > 16) throw new SaveFormatException("UE5 type name nesting exceeds the safety limit.");
         var name = reader.String();
-        var count = reader.Count(16);
+        var count = reader.ReadCount(16);
         var children = new List<TypeName>();
-        for (var i = 0; i < count; i++) children.Add(ReadType(reader, depth + 1));
+        for (var i = 0; i < count; i++) children.Add(ReadType(ref reader, depth + 1));
         return new TypeName(name, children);
     }
 
