@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -65,7 +66,7 @@ public sealed class ApiTests(WebApplicationFactory<Program> factory) : IClassFix
         var documentId = document.GetProperty("id").GetString();
 
         using var response = await _client.GetAsync(new Uri(
-            $"/api/workspaces/{workspaceId}/documents/{documentId}/blobs?id=content&offset={offset}&count=1", UriKind.Relative), ct);
+            $"/api/workspaces/{workspaceId}/documents/{documentId}/blobs?id=content&offset={offset.ToString(CultureInfo.InvariantCulture)}&count=1", UriKind.Relative), ct);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);

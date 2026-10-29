@@ -13,7 +13,7 @@ internal static class UnionValueCoercer
             !json.TryGetProperty("kind", out var kind) || kind.ValueKind != JsonValueKind.String || kind.GetString() != "union" ||
             !json.TryGetProperty("type", out var type) || type.ValueKind != JsonValueKind.String ||
             !json.TryGetProperty("value", out var value) ||
-            !json.EnumerateObject().Select(p => p.Name).Order().SequenceEqual(WireProperties))
+            !json.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal).SequenceEqual(WireProperties))
             return Fail("Select a union type and supply its value.");
 
         var option = Find(spec, type.GetString()!);

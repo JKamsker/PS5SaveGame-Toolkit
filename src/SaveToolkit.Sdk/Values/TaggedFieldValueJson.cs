@@ -47,5 +47,6 @@ internal static class TaggedFieldValueJson
     }
 
     private static bool HasProperties(JsonElement json, params string[] names) =>
-        json.EnumerateObject().Select(p => p.Name).Order().SequenceEqual(names.Order());
+        json.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal)
+            .SequenceEqual(names.Order(StringComparer.Ordinal));
 }

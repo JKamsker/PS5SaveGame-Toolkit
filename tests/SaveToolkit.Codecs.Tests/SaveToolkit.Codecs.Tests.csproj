@@ -11,4 +11,7 @@
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../CultureMatrix.cs" Link="CultureMatrix.cs" />
+  </ItemGroup>
 </Project>

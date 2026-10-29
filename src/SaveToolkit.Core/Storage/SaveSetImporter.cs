@@ -139,7 +139,7 @@ public static partial class SaveSetImporter
     private static bool IsSafeSegment(string s) =>
         s is not ("." or "..") && s.IndexOfAny(['\0', ':', '*', '?', '"', '<', '>', '|']) < 0 && s.Length <= 255;
 
-    [GeneratedRegex("^[A-Z]{4}[0-9]{5}$", RegexOptions.IgnoreCase)]
+    [GeneratedRegex("^[A-Z]{4}[0-9]{5}$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex TitleIdRegex();
 
     private sealed class Builder(string storageRoot, ImportLimits limits, CancellationToken cancellationToken) : IDisposable
