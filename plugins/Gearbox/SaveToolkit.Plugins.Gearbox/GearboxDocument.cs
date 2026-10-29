@@ -163,20 +163,35 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         var previous = Root;
         var previousHighest = _highestLevel;
         var snapshot = CaptureState();
-        Root = Root.Clone();
-        // Replayed derived fields (XP, skill points, recorded level) override automatic level adjustments.
-        var ordered = edits.OrderBy(e => e.ValueId == "character/level" ? 0 : e.ValueId == "character/xp" ? 1 : 2).ToArray();
-        var result = base.ApplyEdits(ordered);
-        if (!result.Succeeded)
+        var committed = false;
+        try
         {
-            Root = previous;
-            _highestLevel = previousHighest;
-            return result;
+            Root = Root.Clone();
+            // Replayed derived fields (XP, skill points, recorded level) override automatic level adjustments.
+            var ordered = edits.OrderBy(e => e.ValueId == "character/level" ? 0 : e.ValueId == "character/xp" ? 1 : 2).ToArray();
+            var result = base.ApplyEdits(ordered);
+            if (!result.Succeeded) return result;
+            var changes = _readers.Select(p => new ValueChange(p.Key, before[p.Key], p.Value())).Where(c => c.OldValue != c.NewValue).ToArray();
+            // Scalar edits retain their bindings: direct SDK callers may edit again before rebuilding.
+            if (changes.Length > 0) _items = null;
+            var outcome = result with { Changes = changes, StructureChanged = changes.Length > 0, Revert = changes.Length > 0 ? snapshot : null };
+            committed = true;
+            return outcome;
         }
-        var changes = _readers.Select(p => new ValueChange(p.Key, before[p.Key], p.Value())).Where(c => c.OldValue != c.NewValue).ToArray();
-        // Scalar edits retain their bindings: direct SDK callers may edit again before rebuilding.
-        if (changes.Length > 0) _items = null;
-        return result with { Changes = changes, StructureChanged = changes.Length > 0, Revert = changes.Length > 0 ? snapshot : null };
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            return EditOutcome.Rejected(string.Empty, ex.Message);
+        }
+        finally
+        {
+            // Rollback setters may reject an already over-capacity imported state. The original
+            // model is authoritative even when the SDK's value-by-value rollback throws.
+            if (!committed)
+            {
+                Root = previous;
+                _highestLevel = previousHighest;
+            }
+        }
     }
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
