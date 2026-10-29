@@ -270,6 +270,7 @@ export interface ReferenceRecord {
   key: string;
   name: string;
   category?: string;
+  /** Nullable Int64 from the SDK/API; treat as display data when it exceeds JS safe integer range. */
   limit?: number;
   description?: string;
   assetId?: string;
@@ -288,6 +289,14 @@ export interface ReferencePage {
   limit: number;
   categories: string[];
   sortKeys?: ReferenceSortKey[];
+}
+
+/** Full envelope returned by GET /references/{catalogId}/record. */
+export interface ReferenceRecordDetail {
+  record: ReferenceRecord;
+  packTitle: string;
+  packVersion: string;
+  dataset: ReferenceDatasetInfo;
 }
 
 export interface ReferenceEligibility { available: boolean; eligible: boolean; reasons: string[]; selectable: boolean }

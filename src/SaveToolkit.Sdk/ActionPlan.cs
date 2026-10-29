@@ -23,9 +23,14 @@ public interface IActionPlanningDocument
     EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan);
 }
 
+/// <summary>
+/// Selection for a planned action. A null scope, including an omitted HTTP scope, means document
+/// scope; a non-null empty row-key list means that no rows are selected. Query scopes are resolved by
+/// Core and the returned scope contains the normalized selection.
+/// </summary>
 public sealed record ActionScope(IReadOnlyList<string>? RowKeys = null)
 {
-    /// <summary>Optional whole-query selection. Core supplies both this and resolved RowKeys to plugins.</summary>
+    /// <summary>Optional whole-query selection. Core supplies both this and the resolved RowKeys to plugins.</summary>
     public ActionQueryScope? QueryScope { get; init; }
 }
 
