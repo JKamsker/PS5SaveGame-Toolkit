@@ -18,11 +18,12 @@ internal static class DocumentOutputSnapshot
         {
             cancellationToken.ThrowIfCancellationRequested();
             var content = new byte[output.Content.Length];
-            for (var offset = 0; offset < content.Length; offset += Math.Min(CopyChunkBytes, content.Length - offset))
+            for (var offset = 0; offset < content.Length;)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var length = Math.Min(CopyChunkBytes, content.Length - offset);
                 output.Content.Span.Slice(offset, length).CopyTo(content.AsSpan(offset, length));
+                offset += length;
             }
             snapshot.Add(output with { Content = content });
         }

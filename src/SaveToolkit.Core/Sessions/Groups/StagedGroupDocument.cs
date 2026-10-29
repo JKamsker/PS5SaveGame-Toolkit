@@ -22,6 +22,10 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
     private IReadOnlyList<FileOutput> _outputs;
 
     public StagedGroupDocument(Func<IGroupedSaveDocument> open,
+        Func<IGroupedSaveDocument, IReadOnlyList<FileOutput>> verify, Action preflight, long maxSnapshotBytes)
+        : this(open, verify, _ => preflight(), maxSnapshotBytes) { }
+
+    public StagedGroupDocument(Func<IGroupedSaveDocument> open,
         Func<IGroupedSaveDocument, IReadOnlyList<FileOutput>> verify, Action<CancellationToken> preflight, long maxSnapshotBytes)
     {
         _open = open;

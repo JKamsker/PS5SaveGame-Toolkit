@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Buffers;
 
 namespace SaveToolkit.Core;
 
@@ -11,16 +12,20 @@ internal static class OperationCancellation
     public static string HashSha256(Stream stream, CancellationToken cancellationToken)
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        var buffer = new byte[BufferSize];
-        while (true)
+        var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
+        try
         {
+            while (true)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var read = stream.Read(buffer.AsSpan(0, BufferSize));
+                if (read == 0) break;
+                hash.AppendData(buffer, 0, read);
+            }
             cancellationToken.ThrowIfCancellationRequested();
-            var read = stream.Read(buffer);
-            if (read == 0) break;
-            hash.AppendData(buffer, 0, read);
+            return Convert.ToHexStringLower(hash.GetHashAndReset());
         }
-        cancellationToken.ThrowIfCancellationRequested();
-        return Convert.ToHexStringLower(hash.GetHashAndReset());
+        finally { ArrayPool<byte>.Shared.Return(buffer); }
     }
 
     public static T Locked<T>(Lock gate, Func<T> operation, CancellationToken cancellationToken)

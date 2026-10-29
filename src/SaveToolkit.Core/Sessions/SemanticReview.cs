@@ -70,7 +70,9 @@ internal sealed class SemanticReview
         _structureChanged |= structural;
     }
 
-    public void EnsureOriginal(Func<ISaveDocument> openOriginal, CancellationToken cancellationToken = default)
+    public void EnsureOriginal(Func<ISaveDocument> openOriginal) => EnsureOriginal(openOriginal, CancellationToken.None);
+
+    public void EnsureOriginal(Func<ISaveDocument> openOriginal, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         if (_original is not null) return;
@@ -102,6 +104,9 @@ internal sealed class SemanticReview
             throw;
         }
     }
+
+    public SemanticChangeLog Query(ISaveDocument document, Action<FieldNode> index, Action<string> expandedLazy, long revision)
+        => Query(document, index, expandedLazy, revision, CancellationToken.None);
 
     private SemanticChangeLog Query(ISaveDocument document, Action<FieldNode> index, Action<string> expandedLazy,
         long revision, CancellationToken cancellationToken)

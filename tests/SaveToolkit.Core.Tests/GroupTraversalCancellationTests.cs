@@ -161,4 +161,3 @@ public sealed class GroupTraversalCancellationTests
         void IDisposable.Dispose() => Disposed = true;
     }
 }
-

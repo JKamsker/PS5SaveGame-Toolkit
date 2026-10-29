@@ -8,6 +8,9 @@ namespace SaveToolkit.Core.Sessions;
 /// <summary>One snapshot's global F8 budgets. Providers own deterministic native row ordering.</summary>
 internal sealed class SemanticQueryableTraversal(ISaveDocument document, DocumentSessionOptions limits, CancellationToken cancellationToken)
 {
+    public SemanticQueryableTraversal(ISaveDocument document, DocumentSessionOptions limits)
+        : this(document, limits, CancellationToken.None) { }
+
     private readonly HashSet<string> _visited = new(StringComparer.Ordinal);
     private readonly List<string> _warnings = [];
     private int _rows;

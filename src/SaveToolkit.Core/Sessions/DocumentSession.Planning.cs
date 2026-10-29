@@ -21,6 +21,7 @@ public sealed partial class DocumentSession
     private const int MaxScopeRows = 5000;
     private readonly int _maxQueryActionRows;
     private PendingAction? _pendingAction;
+    private Action? _startAtomicApply;
 
     public ActionPreview PlanAction(string actionId, IReadOnlyDictionary<string, JsonElement> parameters,
         ActionScope? scope = null, long? expectedRevision = null) =>
@@ -204,6 +205,10 @@ public sealed partial class DocumentSession
     // until the final token check. Plugin mutation and history must then complete together.
     private T RunPreflight<T>(Func<Action, T> operation, CancellationToken cancellationToken)
     {
+        // Legacy callers cannot cancel. Retain their allocation profile unless they are
+        // nested inside a cancellable operation whose atomic boundary must be propagated.
+        if (!cancellationToken.CanBeCanceled && _startAtomicApply is null)
+            return operation(static () => { });
         var previous = _pendingAction;
         var previousIndex = _index;
         var previousExpanded = new HashSet<string>(_expanded, StringComparer.Ordinal);
@@ -211,11 +216,15 @@ public sealed partial class DocumentSession
         var restoreSemantic = _semantic.CancellationRollback();
         _index = _index.Copy(cancellationToken);
         var applying = false;
+        var parentStartApply = _startAtomicApply;
         void StartApply()
         {
             cancellationToken.ThrowIfCancellationRequested();
+            // Nested revert/group preflight crosses the same atomic boundary as its edit.
+            parentStartApply?.Invoke();
             applying = true;
         }
+        _startAtomicApply = StartApply;
         try
         {
             var result = operation(StartApply);
@@ -231,6 +240,7 @@ public sealed partial class DocumentSession
             restoreSemantic();
             throw;
         }
+        finally { _startAtomicApply = parentStartApply; }
     }
 
     private sealed record PendingAction(string Id, long Revision, string ActionId,

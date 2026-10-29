@@ -8,6 +8,10 @@ namespace SaveToolkit.Core.Sessions;
 internal static class ActionQueryScopeResolver
 {
     public static ActionScope Resolve(ActionQueryScope scope, int maxRows,
+        Func<QueryableCollectionQuery, QueryableCollectionPage> queryPage)
+        => Resolve(scope, maxRows, queryPage, CancellationToken.None);
+
+    public static ActionScope Resolve(ActionQueryScope scope, int maxRows,
         Func<QueryableCollectionQuery, QueryableCollectionPage> queryPage, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();

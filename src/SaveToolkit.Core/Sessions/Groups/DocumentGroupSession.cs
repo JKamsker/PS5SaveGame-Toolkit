@@ -38,7 +38,7 @@ public sealed class DocumentGroupSession
                 throw new InvalidOperationException("A group input changed while it was being captured. Reimport the dump.");
         var input = Input(new OverlaySaveSet(set, frozen));
         IGroupedSaveDocument Open() => _groupPlugin.OpenGroup(input, references);
-        var staged = new StagedGroupDocument(Open, Verify, CheckFingerprints, limits.MaxSnapshotBytes);
+        var staged = new StagedGroupDocument(Open, Verify, token => CheckFingerprints(token), limits.MaxSnapshotBytes);
         Session = new DocumentSession(id, set.FindById(members[0].FileId)!, plugin, staged,
             options: limits, openOriginal: Open, references: references);
     }
