@@ -571,6 +571,81 @@ focuses the field. Individual revert restores an **existing editable field** thr
 validation, so dependent values are recomputed and the revert itself can be undone. Added,
 removed, read-only and unexposed fields require undo rather than guessed inverse edits.
 
+## Shared SDK helpers
+
+These additive helpers remove common mechanics without changing document contracts. Existing plugins
+can adopt them independently; retain game-specific validation, evidence labels and byte coverage.
+
+- **`Collections.InMemoryCollection<T>`** queries a complete, bounded in-memory model from a source
+  factory. Supply stable native keys, one `InMemoryColumn<T>` per metadata column, and a row renderer.
+  Each column explicitly opts into `SearchText`, `FilterText` and a typed `IComparer<T>`; decorative
+  columns can opt into none. Compare native integers/nullable values directly to retain precision and
+  your chosen null ordering. Search defaults to ordinal case-insensitive substring matching; filters
+  default to ordinal case-insensitive equality. Options control normalization (no trimming by default),
+  matching, extra search text and default ordering. Equal sort values always use ascending ordinal
+  native keys, including descending sorts. Without a comparer the default is ordinal key order;
+  `ReverseDefaultOrderWhenDescending` controls reversal of the default order. Paging clamps by default;
+  set `ClampPaging = false` to reject invalid bounds. Cursors and unsupported column operations fail.
+  `IsEmpty` is required when metadata declares `EmptyRows`: query matching precedes empty-row exclusion,
+  counting and paging, and rendered rows retain their native keys/cells with the correct `IsEmpty` flag.
+  Only the selected page invokes the renderer or registers field bindings. `metadata.ToTableNode()`
+  copies descriptions and empty-row settings into the view shell. Keep SQL-backed or deliberately
+  bounded partial-model queries on their existing engines.
+- **`ActionPlans.ContentEquals(reviewed, fresh)`** compares ordered changes, skipped rows, warnings and
+  errors, including exact values, labels, existence and derived flags. `Revalidate(reviewed, replan,
+  mismatchError)` returns an `ActionPlanValidation` containing the fresh plan and either fresh errors
+  or your supplied mismatch diagnostic. Optional `ApplyScalar` runs that check, `prepareBindings`,
+  `selectEdits` and atomic `applyEdits`, with an explicit `ActionPlanWarningPolicy` (`Merge`, `UsePlan`
+  or `PreserveApplication`). The plugin chooses actual edits: linked derived fields may be real writes,
+  while other derived effects are preview-only. Bind unopened fields before applying so undo can
+  replay them. Binding/selection must not change saved state; the existing apply implementation owns
+  rollback and complete undo reporting. Null document scope and explicit empty selections remain
+  distinct in the plugin's replan closure. These helpers do not replace Core's revision, single-use
+  token or query-selection gates, nor implement structural transactions.
+- **`Binary.BinaryRange.Slice(data, offset, length, context)`** checks spans using subtraction to avoid
+  overflowing untrusted offsets/lengths. **`BoundedBinaryCursor`** is a stack-only span reader with
+  absolute `Position`, `Start`, `End`, `Remaining`, `Take`, little-endian primitive methods such as
+  `ReadInt32LE`, and bounded `ReadCount`. `Subrange(length)` consumes a parent range and returns a
+  child that cannot seek/read outside it. Invalid input throws contextual `SaveFormatException`.
+- **`Binary.FStringCodec`** reads signed-length UTF-8 / little-endian UTF-16 FStrings through
+  `Read(ref cursor, limits)` or a `BinaryReader` adapter; `ByteLength` and `Decode` also work separately.
+  `FStringLimits(MaxBytes, MaxUtf16CodeUnits)` counts the serialized body **including the terminator**,
+  excluding the four-byte prefix. `MaxUtf8Bytes` can separately cap positive-length strings. For
+  AtomicHeart-style N-unit bounds use `new(2 * N, N) { MaxUtf8Bytes = N }`; for Gearbox-style byte
+  bounds use `new(N, N / 2)`. UTF-16 limits count code units, so supplementary characters consume two.
+  Both encodings are strict; truncated bodies, missing terminators and overflowing lengths fail.
+  `Encode(value, wide, limits)` uses the caller's explicit width and rejects embedded NUL/unpaired
+  surrogates. Zero-length input and terminated empty strings both decode to empty text; retain original
+  bytes/width for byte-identical no-op serialization. Layouts, alignment and format varints stay local.
+- **`References.ReferenceCatalogReader.ReadBounded(catalog, query, maxRecords)`** reads all matches
+  from the query's initial offset, retaining text/category/sort and using its page size (1–200).
+  A missing catalog yields an empty list. The result is complete or throws `InvalidOperationException`
+  on budget exhaustion, duplicate/empty keys, inconsistent totals/offsets/counts or a page making no
+  progress. Short pages advance by actual returned count. Budgets use filtered query totals rather
+  than unfiltered catalog size. Use this when building an index; keep direct `Find`/`Search` lookups.
+- **`References.ReferenceViews.Icon(context, record, label, fallback)`** resolves local image bytes
+  and image provenance, registers the image dataset in Sources and includes separate record/image
+  attribution in the alt text. Missing records/images/provenance use the supplied fallback (or a text
+  fallback). Supply evidence caveats such as whole-item-versus-part appearance in `label`.
+  **`ReferenceInspection.Create`** creates an attributed `Mutates = false` action with one `ReferenceSpec`
+  parameter; absent/empty catalogs yield null. Pass an explicit initial key for a fixed record, and
+  `fixedRecord: true` for a read-only picker. `ResolveSelection` accepts exactly one text parameter and
+  checks pinned catalog membership; pass `expectedKey` to enforce fixed-record identity for direct
+  callers too. The plugin supplies action descriptions, result messages and warnings; reference names
+  do not establish ownership, saved upgrades or writer confidence.
+- **`Binary.Crc32Ieee.Compute(bytes)`** returns finalized CRC-32/ISO-HDLC with reflected polynomial
+  `0xEDB88320`, all-one initialization and final complement. An instance supports `Append`,
+  non-consuming `GetCurrentHash` and `Reset` for discontiguous coverage without concatenation. Keep
+  covered ranges, sentinels, 16-bit folding and storage byte order in the plugin. CRC32C uses a different
+  polynomial and must keep its existing implementation; a matching probe alone does not prove integrity.
+
+The extraction APIs were checked against Cyberpunk2077/FinalFantasy7 collection queries,
+AstroPlayroom/TalesOfArise/EldenRing action application, AtomicHeart/UnrealGvas/Gearbox string readers,
+BaldursGate3/Cyberpunk2077 binary ranges, EldenRing/FinalFantasy7 catalog traversal,
+BaldursGate3/Gearbox icons, AtomicHeart/TalesOfArise inspection, and FinalFantasy16/Gearbox/Ragnarok
+IEEE CRC implementations. Migration should retain each caller's policies through the explicit adapters;
+the helper introduction does not migrate plugins.
+
 ## Hard rules
 
 1. **Depend on `SaveToolkit.Sdk`, optionally `SaveToolkit.Codecs`.** Never reference Core/Api. Prefer
