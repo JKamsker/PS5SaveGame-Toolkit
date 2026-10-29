@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { api, ApiError } from "../../../api/client";
 import type { ReferenceCandidate, ReferenceCandidatePage, ReferenceDatasetInfo } from "../../../api/protocol";
@@ -40,10 +40,19 @@ beforeEach(() => {
   vi.spyOn(api, "referenceCandidates").mockResolvedValue(page());
   vi.spyOn(api, "referenceCandidate").mockImplementation(async (_w, _d, query) => query.rawId === "1001" ? potion : unknown(query.rawId));
 });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); Reflect.deleteProperty(HTMLDialogElement.prototype, "showModal"); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.useRealTimers(); Reflect.deleteProperty(HTMLDialogElement.prototype, "showModal"); });
+
+// Exercise the picker's 180 ms debounce without spending wall time on each query.
+async function flushCandidateSearch(milliseconds = 180) {
+  await act(async () => { await vi.advanceTimersByTimeAsync(milliseconds); });
+}
 
 async function openPicker() {
   fireEvent.click(screen.getByRole("button", { name: /^Item/ }));
+  if (vi.isFakeTimers()) {
+    await flushCandidateSearch();
+    return screen.getByRole("option", { name: /Potion/ });
+  }
   return await screen.findByRole("option", { name: /Potion/ });
 }
 
@@ -79,20 +88,24 @@ describe("reference field picker", () => {
   });
 
   it("queries search, categories and pages on the server with the view revision", async () => {
+    vi.useFakeTimers();
     vi.mocked(api.referenceCandidates).mockResolvedValue({ ...page(), total: 61 });
     renderField();
     await openPicker();
     fireEvent.change(screen.getByRole("combobox", { name: "Search" }), { target: { value: "pot" } });
-    await waitFor(() => expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ q: "pot", revision: 0, limit: 30 })));
-    await screen.findByRole("option", { name: /Potion/ });
+    await flushCandidateSearch();
+    expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ q: "pot", revision: 0, limit: 30 }));
+    expect(screen.getByRole("option", { name: /Potion/ })).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Category"), { target: { value: "consumable" } });
-    await waitFor(() => expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ category: "consumable", offset: 0 })));
-    await screen.findByRole("option", { name: /Potion/ });
+    await flushCandidateSearch();
+    expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ q: "pot", category: "consumable", offset: 0 }));
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    await waitFor(() => expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ offset: 30 })));
-    await screen.findByRole("option", { name: /Potion/ });
+    await flushCandidateSearch();
+    expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ q: "pot", category: "consumable", offset: 30 }));
     fireEvent.change(screen.getByRole("combobox", { name: "Search" }), { target: { value: "ether" } });
-    await waitFor(() => expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ q: "ether", offset: 0 })));
+    await flushCandidateSearch();
+    expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ q: "ether", category: "consumable", offset: 0 }));
+    expect(api.referenceCandidates).toHaveBeenCalledTimes(5);
   });
 
   it("previews custom exact ids without changing them, and only commits after confirmation", async () => {
@@ -115,7 +128,8 @@ describe("reference field picker", () => {
     await openPicker();
     fireEvent.click(screen.getByRole("option", { name: /Potion/ }));
     fireEvent.click(screen.getByRole("button", { name: "Use selected item" }));
-    expect(await screen.findByRole("alert")).toBeTruthy();
+    expect((await screen.findByRole("alert")).textContent).toBe("The server rejected this selection. Choose another item or refresh the document.");
+    expect(context.commit).toHaveBeenCalledExactlyOnceWith("item/id", "1001");
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
@@ -132,16 +146,20 @@ describe("reference field picker", () => {
   });
 
   it("ignores late results from an older search", async () => {
+    vi.useFakeTimers();
     let resolveOld!: (result: ReferenceCandidatePage) => void;
     vi.mocked(api.referenceCandidates).mockImplementationOnce(() => new Promise((resolve) => { resolveOld = resolve; }));
     renderField();
     fireEvent.click(screen.getByRole("button", { name: /^Item/ }));
-    await waitFor(() => expect(api.referenceCandidates).toHaveBeenCalledTimes(1));
+    await flushCandidateSearch();
+    expect(api.referenceCandidates).toHaveBeenCalledTimes(1);
     vi.mocked(api.referenceCandidates).mockResolvedValue(page([sword]));
     fireEvent.change(screen.getByRole("combobox", { name: "Search" }), { target: { value: "Sword" } });
-    await screen.findByRole("option", { name: /Sword/ });
-    resolveOld(page([potion]));
-    await waitFor(() => expect(screen.getByRole("option", { name: /Sword/ })).toBeTruthy());
+    await flushCandidateSearch();
+    expect(screen.getByRole("option", { name: /Sword/ })).toBeTruthy();
+    // Settle the obsolete request before checking that it cannot replace current results.
+    await act(async () => { resolveOld(page([potion])); });
+    expect(screen.getByRole("option", { name: /Sword/ })).toBeTruthy();
     expect(screen.queryByRole("option", { name: /Potion/ })).toBeNull();
   });
 
@@ -185,18 +203,22 @@ describe("reference field picker", () => {
   });
 
   it("sorts by declared keys and resets paging while retaining the category", async () => {
+    vi.useFakeTimers();
     vi.mocked(api.referenceCandidates).mockResolvedValue({ ...page(), total: 61 });
     renderField({ canEdit: false });
     await openPicker();
     fireEvent.change(screen.getByLabelText("Category"), { target: { value: "consumable" } });
-    await screen.findByRole("option", { name: /Potion/ });
+    await flushCandidateSearch();
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    await screen.findByRole("option", { name: /Potion/ });
+    await flushCandidateSearch();
+    expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ category: "consumable", offset: 30 }));
     fireEvent.change(screen.getByLabelText("Sort by"), { target: { value: "Name" } });
-    await waitFor(() => expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ category: "consumable", sortBy: "Name", descending: false, offset: 0 })));
-    await screen.findByRole("option", { name: /Potion/ });
+    await flushCandidateSearch();
+    expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ category: "consumable", sortBy: "Name", descending: false, offset: 0 }));
     fireEvent.click(screen.getByLabelText("Descending"));
-    await waitFor(() => expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ sortBy: "Name", descending: true, offset: 0 })));
+    await flushCandidateSearch();
+    expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ category: "consumable", sortBy: "Name", descending: true, offset: 0 }));
+    expect(screen.getByRole("option", { name: /Potion/ })).toBeTruthy();
   });
 
   it("offers browse-only mode inside a read-only table", async () => {
