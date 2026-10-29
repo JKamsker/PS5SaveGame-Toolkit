@@ -9,21 +9,34 @@ namespace SaveToolkit.Plugins.XorJson;
 internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDocument, IActionPlanningDocument
 {
     private const string GroupWarning = "Experimental character/global transaction. No shared game dependency or console reload has been verified; every member is staged and exported together, but the game may reject or repair the result.";
+    private const string UnknownMemberIdentity = "Unknown XorJson group member identity.";
     private readonly IReferenceContext _references;
-    private readonly XorJsonGroupMember[] _members;
+    private readonly DocumentMemberAdapter[] _members;
+    private readonly DocumentMemberRouter _router;
+    private static readonly DocumentMemberIdentityPolicy MemberIdentity = new()
+    {
+        TableCellScope = static (scope, row, _) => scope + "/" + row,
+        ExpansionScope = static (_, _) => "view",
+        PrefixGraphIds = false,
+        PrefixMapMarkerIds = false,
+        CollectionColumn = static (document, column) => column with
+        { Spec = column.Spec is { } spec ? spec with { ReadOnly = !document.CanEdit } : null },
+        NavigationPath = static (role, path) => ["section:XorJson character + global", "section:" + role, .. path],
+    };
 
     public XorJsonGroupDocument(XorJsonPlugin plugin, DocumentGroupInput input, IReferenceContext references)
     {
         _references = references;
         _members = input.Members.OrderBy(member => member.Role, StringComparer.Ordinal)
-            .Select(member => new XorJsonGroupMember(member.Role,
-                (JsonSaveDocument)plugin.Open(member.File, references))).ToArray();
+            .Select(member => new DocumentMemberAdapter(member.Role,
+                plugin.Open(member.File, references), MemberIdentity)).ToArray();
+        _router = new(_members);
     }
 
     public string Title => "XorJson character + global";
     public bool CanEdit => _members.All(member => member.Document.CanEdit);
     public IReadOnlyList<QueryableCollection> Collections => _members
-        .SelectMany(member => member.Document.Collections.Select(member.Collection)).ToArray();
+        .SelectMany(member => member.Collections).ToArray();
 
     public ViewNode BuildView() => new SectionNode(Title,
     [
@@ -31,23 +44,12 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
         .. _members.Select(member => (ViewNode)new SectionNode(member.Role, [member.Node(member.Document.BuildView())])),
     ]);
 
-    public IReadOnlyList<ViewNode> ExpandNode(string lazyId)
-    {
-        var member = Member(lazyId);
-        return member.Document.ExpandNode(member.Local(lazyId)).Select(node => member.Node(node)).ToArray();
-    }
+    public IReadOnlyList<ViewNode> ExpandNode(string lazyId) => Resolve(lazyId).ExpandNode(lazyId);
 
-    public FieldValue GetValue(string valueId)
-    {
-        var member = Member(valueId);
-        return member.Document.GetValue(member.Local(valueId));
-    }
+    public FieldValue GetValue(string valueId) => Resolve(valueId).GetValue(valueId);
 
-    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)
-    {
-        var member = Member(collectionId);
-        return member.Page(member.Document.Query(member.Local(collectionId), query));
-    }
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
+        Resolve(collectionId).Query(collectionId, query);
 
     public EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
@@ -56,12 +58,11 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
         var warnings = new List<string> { GroupWarning };
         try
         {
-            foreach (var group in edits.GroupBy(edit => Member(edit.ValueId).Role, StringComparer.Ordinal))
+            foreach (DocumentMemberEdits batch in _router.PartitionEdits(edits))
             {
-                var member = Member(group.Key + "/");
-                var outcome = member.Document.ApplyEdits(group.Select(edit => new ValueEdit(member.Local(edit.ValueId), edit.Value)).ToArray());
+                var outcome = batch.Member.ApplyEdits(batch.Edits);
                 if (!outcome.Succeeded) throw new SaveFormatException(string.Join("; ", outcome.Errors.Select(error => error.Message)));
-                changes.AddRange(outcome.Changes.Select(change => new ValueChange(member.Prefix(change.ValueId), change.OldValue, change.NewValue)));
+                changes.AddRange(outcome.Changes);
                 warnings.AddRange(outcome.Warnings);
             }
             _ = Serialize();
@@ -70,23 +71,22 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
         catch (Exception ex) when (ex is SaveFormatException or InvalidOperationException or KeyNotFoundException)
         {
             _ = RestoreMemento(before);
-            return new EditOutcome { Errors = [new FieldError("group", ex.Message)] };
+            return new EditOutcome { Errors = [new FieldError("group", ex is KeyNotFoundException ? UnknownMemberIdentity : ex.Message)] };
         }
     }
 
     public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {
-        var member = Member(actionId);
+        var member = Resolve(actionId);
         if (member.Local(actionId) == "json/inspect")
-            return member.Document.InvokeAction("json/inspect", parameters);
+            return member.InvokeAction(actionId, parameters);
         var before = CaptureMemento();
         try
         {
-            var outcome = member.Document.InvokeAction(member.Local(actionId), parameters);
+            var outcome = member.InvokeAction(actionId, parameters);
             _ = Serialize();
             return outcome with
             {
-                Changes = outcome.Changes.Select(change => new ValueChange(member.Prefix(change.ValueId), change.OldValue, change.NewValue)).ToArray(),
                 Warnings = [GroupWarning, .. outcome.Warnings],
                 Revert = before,
                 StructureChanged = true,
@@ -101,29 +101,38 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
     {
-        var member = Member(actionId);
-        var local = LocalScope(member, scope);
-        var plan = member.Document.PlanAction(member.Local(actionId), parameters, local);
-        return PrefixPlan(member, plan);
+        var member = Resolve(actionId);
+        try
+        {
+            var plan = member.PlanAction(actionId, parameters, scope);
+            return plan with { Errors = LocalErrors(member, plan.Errors) };
+        }
+        catch (KeyNotFoundException) { throw new KeyNotFoundException(UnknownMemberIdentity); }
     }
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
     {
-        var member = Member(actionId);
+        var member = Resolve(actionId);
         var before = CaptureMemento();
         try
         {
-            var localPlan = UnprefixPlan(member, plan);
-            var outcome = member.Document.ApplyActionPlan(member.Local(actionId), parameters, LocalScope(member, scope), localPlan);
-            if (!outcome.Succeeded) return outcome;
+            // XorJson historically returns local diagnostic IDs, even though changes and skipped rows are qualified.
+            var outcome = member.ApplyActionPlan(actionId, parameters, scope,
+                plan with { Errors = plan.Errors.Select(error => error.ValueId.Length == 0
+                    ? error : error with { ValueId = member.Prefix(error.ValueId) }).ToArray() });
+            if (!outcome.Succeeded) return outcome with { Errors = LocalErrors(member, outcome.Errors) };
             _ = Serialize();
             return outcome with
             {
-                Changes = outcome.Changes.Select(change => new ValueChange(member.Prefix(change.ValueId), change.OldValue, change.NewValue)).ToArray(),
                 Warnings = [GroupWarning, .. outcome.Warnings],
                 Revert = before,
                 StructureChanged = true,
             };
+        }
+        catch (KeyNotFoundException)
+        {
+            _ = RestoreMemento(before);
+            throw new KeyNotFoundException(UnknownMemberIdentity);
         }
         catch
         {
@@ -135,14 +144,11 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
     public IReadOnlyList<FileOutput> Serialize() => _members.SelectMany(member => member.Document.Serialize()).ToArray();
     public AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
 
-    public ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count)
-    {
-        var member = Member(blobId);
-        return member.Document.ReadBlob(member.Local(blobId), offset, count);
-    }
+    public ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count) =>
+        Resolve(blobId).ReadBlob(blobId, offset, count);
 
     public DocumentMemento CaptureMemento() => new XorJsonGroupSnapshot(_members.ToDictionary(
-        member => member.Role, member => member.Document.CaptureDocumentMemento(), StringComparer.Ordinal));
+        member => member.Role, member => ((JsonSaveDocument)member.Document).CaptureDocumentMemento(), StringComparer.Ordinal));
 
     public DocumentMemento RestoreMemento(DocumentMemento memento)
     {
@@ -155,31 +161,16 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
 
     public void Dispose()
     {
-        foreach (var member in _members) member.Dispose();
+        foreach (var member in _members) member.Document.Dispose();
     }
 
-    private XorJsonGroupMember Member(string id) => _members.SingleOrDefault(member => id.StartsWith(member.Role + "/", StringComparison.Ordinal))
-        ?? throw new KeyNotFoundException("Unknown XorJson group member identity.");
+    private static FieldError[] LocalErrors(DocumentMemberAdapter member, IReadOnlyList<FieldError> errors) =>
+        errors.Select(error => error.ValueId.Length == 0 ? error : error with { ValueId = member.Local(error.ValueId) }).ToArray();
 
-    private static ActionScope LocalScope(XorJsonGroupMember member, ActionScope scope) => new(
-        scope.RowKeys?.Select(member.Local).ToArray())
+    // Keep the existing public diagnostic while SDK-04 owns member selection and scope validation.
+    private DocumentMemberAdapter Resolve(string id)
     {
-        QueryScope = scope.QueryScope is { } query ? query with
-        {
-            CollectionId = member.Local(query.CollectionId),
-            ExcludedRowKeys = query.ExcludedRowKeys.Select(member.Local).ToArray(),
-        } : null,
-    };
-
-    private static ActionPlan PrefixPlan(XorJsonGroupMember member, ActionPlan plan) => plan with
-    {
-        Changes = plan.Changes.Select(change => change with { ValueId = member.Prefix(change.ValueId) }).ToArray(),
-        SkippedRows = plan.SkippedRows.Select(row => row with { RowKey = member.Prefix(row.RowKey) }).ToArray(),
-    };
-
-    private static ActionPlan UnprefixPlan(XorJsonGroupMember member, ActionPlan plan) => plan with
-    {
-        Changes = plan.Changes.Select(change => change with { ValueId = member.Local(change.ValueId) }).ToArray(),
-        SkippedRows = plan.SkippedRows.Select(row => row with { RowKey = member.Local(row.RowKey) }).ToArray(),
-    };
+        try { return _router.Resolve(id); }
+        catch (KeyNotFoundException) { throw new KeyNotFoundException(UnknownMemberIdentity); }
+    }
 }

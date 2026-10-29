@@ -47,7 +47,7 @@ JSON. Whether external integrity or console-side validation exists is
 | F4 ReferenceSpec | Used: item, effect, enchantment, world, attribute and rarity IDs | Existing-value picker and planned-action parameters use native catalog validation, category filtering and declared sorting. |
 | F5 structural edits | Used: `JsonEditModel` / detached mementos | Generic object/array add, remove and replace preserve unknown members and support undo/redo; output is reparsed. |
 | F6 planned actions | Used: `JsonActionPlanner` | Added in `16679ae`: scalar, attribute, stack, item and rarity actions preview changes/skips/warnings and accept F8 selected/query scopes through Core. |
-| F7 document groups | Used: character + GlobalSaveDataDefault | Same-generation role validation, role-prefixed IDs, complete mementos and staged multi-file serialization. |
+| F7 document groups | Used: character + GlobalSaveDataDefault; SDK-04 `DocumentMemberAdapter` / `DocumentMemberRouter` | Same-generation role validation, unchanged role/key rows and navigation policies, complete mementos and staged multi-file serialization. |
 | F8 queryable tables | Used | Extended in `16679ae`: seven character collections plus automatic server-backed tables for raw arrays with 100+ rows. |
 | F9 graphs / maps | Used: `CharacterSpatialViews` / `CharacterMapView` | Bounded quest DAG and attributed Overworld reference art; saved locations remain unpositioned with text alternatives because no verified ID-to-pixel mapping exists. |
 | F10 exact numbers | Used: token parser and `ExactNumberSpec` | Numeric lexemes, nulls, duplicate members and unchanged spelling survive edits. |
@@ -60,8 +60,9 @@ contracts and F8/F6 interfaces. Collection queries, plan revalidation, icon
 nodes and quest-catalog enumeration remain local implementations; this plugin
 does not use `InMemoryCollection<T>`, `ActionPlans`, `ReferenceViews.Icon`,
 `ReferenceInspection` or `ReferenceCatalogReader`. Binary cursor/FString/CRC
-helpers are N/A for this JSON layout without an observed checksum. The group
-member adapter and lossless JSON tree remain local pending SDK-04/SDK-06 below.
+helpers are N/A for this JSON layout without an observed checksum. SDK-04 supplies
+member identity mapping, scope/plan dispatch and edit partitioning; the lossless
+JSON tree remains local pending SDK-06 below.
 F14 empty-slot presentation is N/A: no vacant-slot sentinel is established for
 these variable-length inventory records; the stack `-1` means non-stackable.
 
@@ -392,11 +393,17 @@ dependencies remain Unknown.
   bypasses Core.
 - No new SDK gap blocks these views or writes. Game-specific dependency validation,
   integrity behavior and PS5 write acceptance still need owner evidence.
-- **Open: SDK-04 — shared group member adapter.** `XorJsonGroupMember` and
-  `XorJsonGroupDocument` still map role-prefixed field/action/lazy/collection/row
-  identities, navigation targets and F6 scopes locally. F7 supplies transactions
-  and mementos, not this composition helper. Preserve the current identity and
-  fresh-instance restore contracts when a shared adapter is delivered.
+- **Adopted: SDK-04 — shared group member adapter.** `XorJsonGroupDocument`
+  composes `DocumentMemberAdapter`, `DocumentMemberIdentityPolicy`,
+  `DocumentMemberRouter` and `DocumentMemberEdits`, replacing `XorJsonGroupMember`.
+  The [migration recipe](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489105887)
+  preserves role/key query rows, traversal scopes, navigation paths, unprefixed
+  graph/marker identities and collection-column editability. F6 diagnostics retain
+  their existing local IDs through a compatibility projection; changes and skipped
+  rows use SDK qualification. Pre-migration view/protocol fingerprints cover both
+  byte transforms, including failed plans and byte-identical snapshot restoration.
+  Whole-group transactions, snapshots, verification, inspection and disposal remain
+  plugin-owned. Restore keeps the same member documents, so the router stays valid.
 - **Open: SDK-06 — shared lossless JSON tree/scalar patch substrate.**
   `JsonTokenTree`, `JsonValueToken` and `JsonTokenWriter` remain plugin-local.
   SDK `ExactJsonNumber` validates numeric lexemes; it does not supply the lexical
@@ -405,8 +412,8 @@ dependencies remain Unknown.
   identities and XOR/shift envelopes remain local policy.
 
 The dispositions above match [docs/SDK_REQUESTS.md](../../docs/SDK_REQUESTS.md):
-SDK-22 (F7 transactions) and SDK-23 (overlay preservation) are resolved;
-SDK-04 and SDK-06 remain open optional sharing requests.
+SDK-04 (member composition), SDK-22 (F7 transactions) and SDK-23 (overlay
+preservation) are resolved and adopted; SDK-06 remains an open optional sharing request.
 
 ## Performance review
 
