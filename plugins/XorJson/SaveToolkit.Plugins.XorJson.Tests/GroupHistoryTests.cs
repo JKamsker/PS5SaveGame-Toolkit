@@ -31,9 +31,10 @@ public sealed class GroupHistoryTests
         var character = Encoding.UTF8.GetBytes(Hero);
         var global = XorJsonTests.Encode("{\"blobs\":[],\"volume\":50,\"future\":1.2300E+02}", xor);
         var plugin = new XorJsonPlugin();
+        using var scratch = new WorkspaceScratch();
         using var store = new WorkspaceStore(new PluginCatalog([plugin]), new WorkspaceStoreOptions
         {
-            DataRoot = Path.Combine(TestScratch.ProcessFolder, "xorjson-group-history", Guid.NewGuid().ToString("N")),
+            DataRoot = scratch.Root,
         });
         using var archive = new MemoryStream();
         using (var zip = new ZipArchive(archive, ZipArchiveMode.Create, leaveOpen: true))

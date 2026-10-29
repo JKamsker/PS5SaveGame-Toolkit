@@ -23,10 +23,10 @@ public sealed class PickerHistoryTests
         var original = "{\r\n \"TypeTag\":\"" + (unknownOriginal ? originalId : "SW.Item.\\u0053word") +
             "\", \"unknown\":-0.0000E+0002, \"extra\":{\"duplicate\":1,\"duplicate\":2} }\t";
         var bytes = XorJsonTests.Encode(original, xor);
-        var root = Path.Combine(Path.GetTempPath(), "SaveToolkit.XorJson.Picker", Guid.NewGuid().ToString("N"));
+        using var scratch = new WorkspaceScratch();
         var plugin = new XorJsonPlugin();
         var packs = new ReferencePackStore([plugin]);
-        using var store = new WorkspaceStore(new PluginCatalog([plugin]), new WorkspaceStoreOptions { DataRoot = root });
+        using var store = new WorkspaceStore(new PluginCatalog([plugin]), new WorkspaceStoreOptions { DataRoot = scratch.Root });
         using var zipBytes = new MemoryStream();
         using (var zip = new ZipArchive(zipBytes, ZipArchiveMode.Create, leaveOpen: true))
         {

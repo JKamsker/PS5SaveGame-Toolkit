@@ -72,9 +72,9 @@ public sealed class CompletionTests
     {
         var plugin = new XorJsonPlugin();
         var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA16064");
-        var root = Path.Combine(Path.GetTempPath(), "SaveToolkit.XorJson.Completion", Guid.NewGuid().ToString("N"));
-        using var store = new WorkspaceStore(new PluginCatalog([plugin]), new WorkspaceStoreOptions { DataRoot = root });
-        var zipBytes = new MemoryStream();
+        using var scratch = new WorkspaceScratch();
+        using var store = new WorkspaceStore(new PluginCatalog([plugin]), new WorkspaceStoreOptions { DataRoot = scratch.Root });
+        using var zipBytes = new MemoryStream();
         using (var zip = new ZipArchive(zipBytes, ZipArchiveMode.Create, leaveOpen: true))
         {
             using var entry = zip.CreateEntry("PPSA16064/sdimg_SAVE/hero.sav").Open();
