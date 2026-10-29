@@ -6,22 +6,36 @@ using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.GenericJson.Tests;
 
 internal sealed class JsonSessionFixture : IDisposable
 {
-    private readonly string _storage = Path.Combine(Path.GetTempPath(), "SaveToolkit.GenericJson.Tests", Guid.NewGuid().ToString("N"));
+    private readonly string _storage;
+    private bool _disposed;
 
-    public JsonSessionFixture(string source, DocumentSessionOptions? options = null, string title = "PPSA00000", string fileName = "data.json", bool useReferences = false)
+    public JsonSessionFixture(string source, DocumentSessionOptions? options = null, string title = "PPSA00000", string fileName = "data.json", bool useReferences = false,
+        string? storageDirectory = null)
     {
-        var bytes = Encoding.UTF8.GetBytes(source);
-        var set = SaveSetImporter.Import([new ImportSource($"{title}/sdimg_fixture/{fileName}", () => new MemoryStream(bytes))], _storage);
-        var file = set.AllDiskFiles.Single();
-        var plugin = new GenericJsonPlugin();
-        var references = useReferences ? new ReferencePackStore([plugin]).Pin(plugin, title) : ReferenceContext.None;
-        Document = plugin.Open(file, references);
-        Session = new DocumentSession("fixture", file, plugin, Document, options, references: references);
+        _storage = storageDirectory ?? Path.Combine(TestScratch.ProcessFolder, "fixture-" + Guid.NewGuid().ToString("N"));
+        ISaveDocument? document = null;
+        try
+        {
+            var bytes = Encoding.UTF8.GetBytes(source);
+            var set = SaveSetImporter.Import([new ImportSource($"{title}/sdimg_fixture/{fileName}", () => new MemoryStream(bytes))], _storage);
+            var file = set.AllDiskFiles.Single();
+            var plugin = new GenericJsonPlugin();
+            var references = useReferences ? new ReferencePackStore([plugin]).Pin(plugin, title) : ReferenceContext.None;
+            Document = document = plugin.Open(file, references);
+            Session = new DocumentSession("fixture", file, plugin, Document, options, references: references);
+        }
+        catch
+        {
+            try { document?.Dispose(); }
+            finally { DeleteStorage(); }
+            throw;
+        }
     }
 
     public ISaveDocument Document { get; }
@@ -52,7 +66,14 @@ internal sealed class JsonSessionFixture : IDisposable
 
     public void Dispose()
     {
-        Session.Dispose();
-        Directory.Delete(_storage, recursive: true);
+        if (_disposed) return;
+        _disposed = true;
+        try { Session.Dispose(); }
+        finally { DeleteStorage(); }
+    }
+
+    private void DeleteStorage()
+    {
+        if (Directory.Exists(_storage)) Directory.Delete(_storage, recursive: true);
     }
 }
