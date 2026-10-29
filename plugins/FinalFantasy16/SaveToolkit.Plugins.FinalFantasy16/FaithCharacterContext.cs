@@ -11,13 +11,14 @@ internal delegate FieldNode FaithContextField(string id, string label, FieldSpec
 
 // Wire offsets adapted from Nenkai's MIT FaithSaveFile_Sub.bt; see THIRD_PARTY_NOTICES.md.
 // FaithDocument supplies gated fixed-width bindings. Array indices are never promoted to skill IDs.
-internal sealed class FaithCharacterContext(byte[] bytes, FaithContainer container, FaithSchema schema, IReferenceContext references)
+internal sealed class FaithCharacterContext(byte[] bytes, FaithContainer container, FaithSchema schema,
+    IReferenceContext references, FaithCatalog catalog)
 {
     internal const string SchemaSource = "Inferred from Nenkai/010GameTemplates FaithSaveFile_Sub.bt (MIT), " +
         "revision 4a3685f9b63f72ca49e24ac2f18420aaad2762b8; dimensions match PS5 samples. " +
         "https://github.com/Nenkai/010GameTemplates/blob/4a3685f9b63f72ca49e24ac2f18420aaad2762b8/" +
         "Square%20Enix/Final%20Fantasy%2016/FaithSaveFile_Sub.bt. Gameplay semantics need controlled captures.";
-    private readonly FaithCatalog _catalog = new(references);
+    private readonly FaithCatalog _catalog = catalog;
 
     public IReadOnlyList<ViewNode> Build(FaithContextField field, Func<string, int, FieldNode> item) =>
     [

@@ -23,38 +23,55 @@ internal sealed class FaithInventoryQuery(byte[] bytes, FaithInventory inventory
         if (query.Filters.Keys.Any(key => !columns.Contains(key)) || query.SortColumn is { } sort && !columns.Contains(sort))
             throw new ArgumentException("Unknown inventory filter or sort column.", nameof(query));
 
-        var matches = inventory.Items.Select(item => new Entry(item, catalog.Name(item.Id), catalog.Category(item.Id),
-                BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(item.Offset + sizeof(int))),
-                BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(item.Offset + 2 * sizeof(int)))))
-            .Where(entry => (string.IsNullOrEmpty(query.Text) ||
-                columns.Any(column => Value(entry, column).Contains(query.Text, StringComparison.OrdinalIgnoreCase))) &&
-                query.Filters.All(filter => string.Equals(Value(entry, filter.Key), filter.Value, StringComparison.OrdinalIgnoreCase)))
-            .ToArray();
+        var filters = query.Filters.ToArray();
+        IReadOnlyList<FaithItem> matches = string.IsNullOrEmpty(query.Text) && filters.Length == 0
+            ? inventory.Items : inventory.Items.Where(item => Matches(item, query.Text, columns, filters)).ToArray();
         var sortColumn = query.SortColumn ?? "slot";
-        IOrderedEnumerable<Entry> ordered;
-        if (NumericColumns.Contains(sortColumn, StringComparer.Ordinal))
-            ordered = query.Descending ? matches.OrderByDescending(entry => Number(entry, sortColumn))
-                : matches.OrderBy(entry => Number(entry, sortColumn));
-        else
-            ordered = query.Descending ? matches.OrderByDescending(entry => Value(entry, sortColumn), StringComparer.OrdinalIgnoreCase)
-                : matches.OrderBy(entry => Value(entry, sortColumn), StringComparer.OrdinalIgnoreCase);
         var offset = Math.Max(0, query.Offset);
         var limit = Math.Clamp(query.Limit, 1, QueryableCollectionLimits.MaxPageSize);
-        return new(metadata.Id, metadata.Columns, ordered.ThenBy(entry => entry.Item.Slot)
-            .Skip(offset).Take(limit).Select(entry => row(entry.Item)).ToArray(), inventory.Items.Count, matches.Length, offset, limit);
+        if (sortColumn == "slot")
+        {
+            // Parsing retains dense ascending native slots; filtering also preserves that order.
+            // Slice it directly in either direction, without copying/sorting all allocated records.
+            var rows = new TableRow[Math.Min(limit, Math.Max(0, matches.Count - offset))];
+            for (var index = 0; index < rows.Length; index++)
+                rows[index] = row(matches[query.Descending ? matches.Count - 1 - offset - index : offset + index]);
+            return new(metadata.Id, metadata.Columns, rows, inventory.Items.Count, matches.Count, offset, limit);
+        }
+
+        IOrderedEnumerable<FaithItem> ordered;
+        if (NumericColumns.Contains(sortColumn, StringComparer.Ordinal))
+            ordered = query.Descending ? matches.OrderByDescending(item => Number(item, sortColumn))
+                : matches.OrderBy(item => Number(item, sortColumn));
+        else
+            ordered = query.Descending ? matches.OrderByDescending(item => Value(item, sortColumn), StringComparer.OrdinalIgnoreCase)
+                : matches.OrderBy(item => Value(item, sortColumn), StringComparer.OrdinalIgnoreCase);
+        return new(metadata.Id, metadata.Columns, ordered.ThenBy(item => item.Slot)
+            .Skip(offset).Take(limit).Select(row).ToArray(), inventory.Items.Count, matches.Count, offset, limit);
     }
 
-    private static int Number(Entry entry, string column) => column switch
+    private bool Matches(FaithItem item, string? text, HashSet<string> columns, KeyValuePair<string, string>[] filters)
     {
-        "id" => entry.Item.Id, "quantity" => entry.Quantity, _ => entry.Item.Slot,
+        foreach (var filter in filters)
+            if (!string.Equals(Value(item, filter.Key), filter.Value, StringComparison.OrdinalIgnoreCase)) return false;
+        if (string.IsNullOrEmpty(text)) return true;
+        foreach (var column in columns)
+            if (Value(item, column).Contains(text, StringComparison.OrdinalIgnoreCase)) return true;
+        return false;
+    }
+
+    private int Number(FaithItem item, string column) => column switch
+    {
+        "id" => item.Id, "quantity" => ReadInt(item.Offset + sizeof(int)), _ => item.Slot,
     };
 
-    private string Value(Entry entry, string column) => column switch
+    private string Value(FaithItem item, string column) => column switch
     {
-        "slot" or "id" or "quantity" => FaithCatalog.Key(Number(entry, column)),
-        "name" => entry.Name, "category" => entry.Category, "flags" => $"0x{entry.Flags:X8}",
-        "details" => catalog.Provenance(entry.Item.Id), _ => "",
+        "slot" or "id" or "quantity" => FaithCatalog.Key(Number(item, column)),
+        "name" => catalog.Name(item.Id), "category" => catalog.Category(item.Id),
+        "flags" => $"0x{ReadInt(item.Offset + 2 * sizeof(int)):X8}",
+        "details" => catalog.Provenance(item.Id), _ => "",
     };
 
-    private sealed record Entry(FaithItem Item, string Name, string Category, int Quantity, int Flags);
+    private int ReadInt(int offset) => BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(offset));
 }

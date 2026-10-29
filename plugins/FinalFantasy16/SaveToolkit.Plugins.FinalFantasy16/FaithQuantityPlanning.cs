@@ -31,15 +31,17 @@ internal sealed class FaithQuantityPlanning(byte[] bytes, FaithInventory invento
         if (!inventory.IsSupported) return Error(actionId, "Main inventory schema/allocation is unsupported or ambiguous.");
         if (scope.QueryScope is { } query && (query.CollectionId != FaithInventoryView.CollectionId || scope.RowKeys is null))
             return Error(actionId, "Main-inventory query scopes must be resolved to explicit rows by Core before planning.");
+        var warnings = new List<string> { FaithWriteMap.Warning,
+            "The explicit target uses conservative observed storage bounds. Active bank, pouch capacities, unique-item limits and progression effects remain unverified." };
+        if (scope.RowKeys is { Count: 0 }) return new ActionPlan { Warnings = warnings };
         var rows = inventory.Items.ToDictionary(item => $"inventory/{item.Slot}", StringComparer.Ordinal);
         var selected = scope.RowKeys ?? rows.Keys.ToArray();
         if (selected.Distinct(StringComparer.Ordinal).Count() != selected.Count || selected.Any(key => !rows.ContainsKey(key)))
             return Error(actionId, "Selection contains duplicate, foreign or unknown main-bank rows.");
         var changes = new List<PlannedChange>();
         var skipped = new List<SkippedActionRow>();
-        var warnings = new List<string> { FaithWriteMap.Warning,
-            "The explicit target uses conservative observed storage bounds. Active bank, pouch capacities, unique-item limits and progression effects remain unverified." };
-        var candidate = bytes.ToArray();
+        var offsets = new List<int>();
+        var quantity = target.AsInt32();
         foreach (var key in selected)
         {
             var item = rows[key];
@@ -50,7 +52,7 @@ internal sealed class FaithQuantityPlanning(byte[] bytes, FaithInventory invento
                 skipped.Add(new(key, "Negative stack has unknown semantics; unchanged."));
                 continue;
             }
-            if (old == target.AsInt32())
+            if (old == quantity)
             {
                 skipped.Add(new(key, "Already at the requested quantity."));
                 continue;
@@ -59,13 +61,32 @@ internal sealed class FaithQuantityPlanning(byte[] bytes, FaithInventory invento
             if (FaithCapacityContext.IsUpgrade(item.Id)) changes.Add(new(FaithDerivedValues.UpgradeId(item, "main"),
                 $"{catalog.Name(item.Id)} — raw upgrade quantity diagnostic", FieldValue.Of(old), target) { Derived = true });
             warnings.Add(FaithStackPolicy.Warning(item.Id, catalog.Category(item.Id)));
-            BinaryPrimitives.WriteInt32LittleEndian(candidate.AsSpan(offset), target.AsInt32());
+            offsets.Add(offset);
         }
         var oldCrc = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(FaithContainer.CrcOffset));
-        var newCrc = Crc32Ieee.Compute(candidate.AsSpan(FaithContainer.HeaderSize));
+        var newCrc = offsets.Count == 0 ? oldCrc : PreviewCrc(offsets, quantity);
         if (newCrc != oldCrc) changes.Add(new("integrity/crc32", "Derived payload CRC32", FieldValue.Of((ulong)oldCrc),
             FieldValue.Of((ulong)newCrc)) { Derived = true });
         return new ActionPlan { Changes = changes, SkippedRows = skipped, Warnings = warnings.Distinct(StringComparer.Ordinal).ToArray() };
+    }
+
+    private uint PreviewCrc(List<int> offsets, int quantity)
+    {
+        // Hash the exact candidate payload without copying opaque blocks. Selection order is
+        // user-controlled; only checksum traversal is sorted, never the reported changes.
+        offsets.Sort();
+        Span<byte> replacement = stackalloc byte[sizeof(int)];
+        BinaryPrimitives.WriteInt32LittleEndian(replacement, quantity);
+        var crc = new Crc32Ieee();
+        var position = FaithContainer.HeaderSize;
+        foreach (var offset in offsets)
+        {
+            crc.Append(bytes.AsSpan(position, offset - position));
+            crc.Append(replacement);
+            position = offset + sizeof(int);
+        }
+        crc.Append(bytes.AsSpan(position));
+        return crc.GetCurrentHash();
     }
 
     private static ActionPlan Error(string id, string message) => new() { Errors = [new FieldError(id, message)] };
