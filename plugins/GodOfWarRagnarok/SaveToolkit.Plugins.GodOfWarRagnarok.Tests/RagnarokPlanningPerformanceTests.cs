@@ -6,6 +6,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class RagnarokPlanningPerformanceTests
 {
     [Theory]
@@ -17,13 +18,11 @@ public sealed class RagnarokPlanningPerformanceTests
         var scope = new ActionScope(empty ? [] : [RowKey(4)]);
         var parameters = new Dictionary<string, FieldValue>();
         _ = document.PlanAction(RagnarokWrites.RestoreActionId, parameters, scope);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var plan = document.PlanAction(RagnarokWrites.RestoreActionId, parameters, scope);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => document.PlanAction(RagnarokWrites.RestoreActionId, parameters, scope), out var plan);
         Assert.Empty(plan.Errors);
         Assert.Empty(plan.Changes);
         Assert.Equal(empty ? 0 : 1, plan.SkippedRows.Count);
-        Assert.InRange(allocated, 0, 4096);
+        allocated.AssertInRange(0, 4096);
     }
 
     [Fact]
@@ -45,16 +44,25 @@ public sealed class RagnarokPlanningPerformanceTests
         Assert.Equal(FieldValue.Of((long)uint.MaxValue), change.NewValue);
         Assert.Throws<KeyNotFoundException>(() => document.GetValue(change.ValueId));
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var outcome = document.ApplyActionPlan(RagnarokWrites.RestoreActionId, parameters, scope, plan);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        RagnarokDocument measuredDocument = null!;
+        var allocated = AllocationProbe.Measure(() => measuredDocument.ApplyActionPlan(
+            RagnarokWrites.RestoreActionId, parameters, scope, plan), out var outcome, beforeRun: () =>
+        {
+            measuredDocument?.Dispose();
+            var freshBytes = RagnarokPerformanceFixture.Bytes();
+            measuredDocument = new RagnarokDocument("GOWRSAVE0", "GOWRSAVE0", freshBytes,
+                RagnarokRecordIndex.Parse(freshBytes, false), new(IReferenceContext.Empty));
+            BinaryPrimitives.WriteUInt32LittleEndian(freshBytes.AsSpan(offset), 0);
+            plan = measuredDocument.PlanAction(RagnarokWrites.RestoreActionId, parameters, scope);
+        });
+        using var applied = measuredDocument;
         Assert.True(outcome.Succeeded);
-        Assert.Equal(change.NewValue, document.GetValue(change.ValueId));
+        Assert.Equal(change.NewValue, applied.GetValue(change.ValueId));
         Assert.Single(outcome.Changes);
         Assert.Contains(RagnarokWrites.IntegrityWarning, outcome.Warnings);
-        Assert.InRange(allocated, 0, 12_000);
-        Assert.Throws<KeyNotFoundException>(() => document.GetValue(RowKey(1) + "/quantity"));
-        var serialized = Assert.Single(document.Serialize()).Content.ToArray();
+        allocated.AssertInRange(0, 12_000);
+        Assert.Throws<KeyNotFoundException>(() => applied.GetValue(RowKey(1) + "/quantity"));
+        var serialized = Assert.Single(applied.Serialize()).Content.ToArray();
         Assert.Equal(RagnarokPerformanceFixture.Bytes(), serialized);
         using var reopened = (RagnarokDocument)new GodOfWarRagnarokPlugin().Open(MemorySaveSet.SingleFile("GOWRSAVE0", serialized, "PPSA08330"));
         Assert.Equal(uint.MaxValue, reopened.CounterField(offset).Value.AsUInt32());

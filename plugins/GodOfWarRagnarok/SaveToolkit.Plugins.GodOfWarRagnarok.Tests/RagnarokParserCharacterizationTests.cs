@@ -9,9 +9,9 @@ namespace SaveToolkit.Plugins.GodOfWarRagnarok.Tests;
 public sealed class RagnarokParserCharacterizationTests
 {
     [Theory]
-    // Captured from the merged implementation before extracting parser phases.
-    [InlineData(false, "2A502D3B6E4299C2FA6D7C5D117B4B1E01BB3E9AC1381694CE491FAF8FE8DC7C")]
-    [InlineData(true, "DA342C760A81B6F0BCA50030C2F4454C62F88CDE57D5A30565F52BE6CC4647DC")]
+    // Refreshed for the additive Gear index; these original fixtures correctly infer no gear.
+    [InlineData(false, "E88CEE408931B7753AE8F4397E474C7F75D2AA4D69614AA2A5EA5D69B3FD8FF5")]
+    [InlineData(true, "11A21A6F08A33A34DFD28E5466B3BCD54C11C43EA08891F2F72DC338C5F8C315")]
     public void CompleteIndexAndGrammarEvidenceRemainUnchanged(bool nested, string expected)
     {
         var bytes = nested ? new RagnarokNestedFixture().Create() : RagnarokTestSupport.LegacyGameplay();

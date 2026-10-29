@@ -4,9 +4,11 @@ using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.AstroPlayroom.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AstroOpeningPerformanceTests
 {
     [Fact]
@@ -21,7 +23,7 @@ public sealed class AstroOpeningPerformanceTests
         {
             using var document = plugin.Open(file);
         });
-        Assert.InRange(allocated, 0, 3_400_000);
+        allocated.AssertInRange(0, 3_400_000);
     }
 
     [Fact]
@@ -36,7 +38,7 @@ public sealed class AstroOpeningPerformanceTests
             using var document = plugin.Open(file, context);
             _ = document.BuildView();
         });
-        Assert.InRange(allocated, 0, 5_200_000);
+        allocated.AssertInRange(0, 5_200_000);
     }
 
     [Fact]

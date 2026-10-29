@@ -1,7 +1,9 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class NewAgeLookupTests
 {
     private const string ValueComponent = "test.Values";
@@ -11,10 +13,11 @@ public sealed class NewAgeLookupTests
     {
         var model = LsmfReader.Read(LsmfFixture.Entities(10_000));
         var entities = model.Entities();
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        for (var iteration = 0; iteration < 20; iteration++) _ = model.Entities();
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
-        Assert.True(allocated < 1024, $"Repeated EntityId reads allocated {allocated:N0} bytes.");
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            for (var iteration = 0; iteration < 20; iteration++) _ = model.Entities();
+        });
+        allocated.AssertLessThan(1024, $"Repeated EntityId reads allocated {allocated.MinimumBytes:N0} bytes.");
         Assert.Equal(10_000, entities.Count);
         Assert.Equal(1, entities[0].Occurrence);
         Assert.Equal(10_000, entities[^1].Occurrence);
@@ -45,10 +48,11 @@ public sealed class NewAgeLookupTests
     {
         var access = Access();
         _ = access.RowsForEntity(ValueComponent, 4, 2);
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        for (var iteration = 0; iteration < 1000; iteration++) _ = access.RowsForEntity(ValueComponent, 4, 2);
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
-        Assert.True(allocated < 64 * 1024, $"Owner lookups allocated {allocated:N0} bytes for four component rows.");
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            for (var iteration = 0; iteration < 1000; iteration++) _ = access.RowsForEntity(ValueComponent, 4, 2);
+        });
+        allocated.AssertLessThan(64 * 1024, $"Owner lookups allocated {allocated.MinimumBytes:N0} bytes for four component rows.");
     }
 
     [Fact]

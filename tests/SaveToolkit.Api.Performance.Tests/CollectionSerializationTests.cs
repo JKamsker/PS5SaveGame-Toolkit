@@ -4,9 +4,11 @@ using SaveToolkit.Api.Contracts;
 using SaveToolkit.Api.Infrastructure;
 using SaveToolkit.Core;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Api.Performance.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class CollectionSerializationTests
 {
     private const long RejectionAllocationLimit = 8 * 1024 * 1024;
@@ -19,14 +21,12 @@ public sealed class CollectionSerializationTests
         var page = Page(rows);
         _ = CollectionPageResponse.Create(page);
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var response = CollectionPageResponse.Create(page);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => CollectionPageResponse.Create(page), out var response);
 
         var error = Assert.IsType<JsonHttpResult<ErrorDto>>(response);
         Assert.Equal(413, error.StatusCode);
         Assert.Equal("The collection page exceeds the response size limit.", error.Value?.Error);
-        Assert.True(allocated < RejectionAllocationLimit, $"Rejection allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(RejectionAllocationLimit);
     }
 
     [Theory]

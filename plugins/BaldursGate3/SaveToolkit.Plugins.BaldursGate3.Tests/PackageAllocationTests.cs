@@ -3,6 +3,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class PackageAllocationTests
 {
     private const int PayloadBytes = 4 * 1024 * 1024;
@@ -38,11 +39,9 @@ public sealed class PackageAllocationTests
         var file = MemorySaveSet.SingleFile("test.lsv", bytes);
         var plugin = new BaldursGate3Plugin();
         using (plugin.Open(file)) { } // JIT and codec setup are not part of the allocation budget.
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        using var document = plugin.Open(file);
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
-        Assert.True(allocated < bytes.Length + PayloadBytes + ReaderOverheadBytes,
-            $"Opening allocated {allocated:N0} bytes; expanded payloads must be reused after digest validation.");
+        var allocated = AllocationProbe.MeasureOpen(() => plugin.Open(file), out var opened);
+        using var document = opened;
+        allocated.AssertLessThan(bytes.Length + PayloadBytes + ReaderOverheadBytes, $"Opening allocated {allocated.MinimumBytes:N0} bytes; expanded payloads must be reused after digest validation.");
         Assert.Equal(payload, document.ReadBlob("payload/0", 0, PayloadBytes).ToArray());
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }

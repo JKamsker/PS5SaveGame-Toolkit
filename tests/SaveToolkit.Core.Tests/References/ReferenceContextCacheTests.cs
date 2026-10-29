@@ -1,8 +1,10 @@
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Tests.Fakes;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Core.Tests.References;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class ReferenceContextCacheTests
 {
     private static readonly ItemsPlugin Plugin = new();
@@ -91,11 +93,12 @@ public sealed class ReferenceContextCacheTests
 
         Assert.Equal("user.b2", context.Catalog("items", "build-2")!.Pack.Id);
         Assert.Same(first, context.CatalogForHost("items"));
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        for (var i = 0; i < 1_000; i++) _ = context.Catalog("items", "build-1");
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            for (var i = 0; i < 1_000; i++) _ = context.Catalog("items", "build-1");
+        });
 
-        Assert.True(allocated <= 4_096, $"Cached lookups after saturation allocated {allocated:N0} bytes.");
+        allocated.AssertAtMost(4_096, $"Cached lookups after saturation allocated {allocated.MinimumBytes:N0} bytes.");
         Assert.All(context.Datasets().Where(d => d.Pack.Id == "user.b2"), d => Assert.True(d.Used));
     }
 

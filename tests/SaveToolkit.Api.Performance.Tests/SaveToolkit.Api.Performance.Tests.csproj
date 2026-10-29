@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="xunit.v3" />
+    <ProjectReference Include="../../src/SaveToolkit.Testing/SaveToolkit.Testing.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <ProjectReference Include="../../src/SaveToolkit.Api/SaveToolkit.Api.csproj" />
     <Using Include="Xunit" />

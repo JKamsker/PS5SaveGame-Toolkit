@@ -11,12 +11,12 @@ namespace SaveToolkit.Plugins.GodOfWarRagnarok.Tests;
 public sealed class RagnarokPresentationCharacterizationTests
 {
     [Theory]
-    // Complete protocol fingerprints with invariant formatting; gameplay attribution corrected in #40 docs accuracy.
-    [InlineData("legacy", true, "BD8583A6FF856D5524AEE811D67C19A5AD5F5478F88D3DAD9D4335B495B31F46")]
-    [InlineData("nested", true, "D695E36067E75727590C9532CFDB63756FC1F80FAD9B386D30F5CC37D6A82717")]
+    // Gameplay changes intentionally add the read-only gear collection. Preferences and original pack records stay unchanged.
+    [InlineData("legacy", true, "99360F76ECCCF1B40C4EAEC674E0890614B84BF3FC5100BB3C9ED79EA697C6C8")]
+    [InlineData("nested", true, "30E5118AECD1815132AB466D2F159E94D1768245D9B664999DB1AEC13A60AE5C")]
     [InlineData("preferences", true, "3156507C9278A56220BE0198021362CE9C2B922B319919E98A219AE1B5DB0960")]
-    [InlineData("legacy", false, "52EFE51C79AC31AE8FAC0954BA89D4CE401911D138D2AEF20CB7269240F5FB0D")]
-    [InlineData("nested", false, "F6C2EC4CB717D4E2D6040A85BF1C7EDE0F32C2EE5236CE75A9D465D4551478CB")]
+    [InlineData("legacy", false, "B638B8CE11FB8618B00BAEDA2DE4CBFD7497DFC7D266AB1051A39A1895A4D3B0")]
+    [InlineData("nested", false, "000891004F3D9E4B5C30BC49555C9BE72AD29862F1F335A50E77FD1E7DD42CDE")]
     [InlineData("preferences", false, "3156507C9278A56220BE0198021362CE9C2B922B319919E98A219AE1B5DB0960")]
     public void ViewsCollectionsAndInspectionRetainTheirCompleteProtocol(string kind, bool hosted, string expected)
     {

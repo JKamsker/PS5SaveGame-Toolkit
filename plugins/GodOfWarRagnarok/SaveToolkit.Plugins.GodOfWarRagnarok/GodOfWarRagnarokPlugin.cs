@@ -37,6 +37,7 @@ public sealed class GodOfWarRagnarokPlugin : IGamePlugin, ISaveDecoderProvider
             "https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/item%23.zip",
             "https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/gow.CT",
             "https://github.com/xcier/GoW-2018-PS4-editor/blob/9342d5f3967ef74bac1161581dc4eab8bb41760d/app/resources/database/gow2018_items.json",
+            "https://docs.google.com/spreadsheets/d/17JWS2EyV68tRAajJIungRvhL5mmePIyGUNqekWu1lBc/edit",
         ],
     };
 

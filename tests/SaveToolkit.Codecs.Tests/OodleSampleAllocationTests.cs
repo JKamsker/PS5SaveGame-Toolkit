@@ -1,7 +1,9 @@
 using System.Buffers.Binary;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Codecs.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class OodleSampleAllocationTests(ITestOutputHelper output)
 {
     private const int Warmups = 5;
@@ -29,12 +31,13 @@ public sealed class OodleSampleAllocationTests(ITestOutputHelper output)
         for (int i = 0; i < Warmups; i++)
             Decode(file, frames, destination, workspace);
 
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        Decode(file, frames, destination, workspace);
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            Decode(file, frames, destination, workspace);
+        });
 
         output.WriteLine($"{frameCount} frames / {expectedLength} output bytes: {allocated} allocated bytes.");
-        Assert.InRange(allocated, 0, (long)frameCount * BytesPerFrameBudget);
+        allocated.AssertInRange(0, (long)frameCount * BytesPerFrameBudget);
         Assert.Equal(expected.Bytes, destination);
     }
 

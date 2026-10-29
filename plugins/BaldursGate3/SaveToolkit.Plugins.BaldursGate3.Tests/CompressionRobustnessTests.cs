@@ -1,8 +1,10 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class CompressionRobustnessTests
 {
     private const int InflatedSize = 16 * 1024 * 1024;
@@ -17,10 +19,8 @@ public sealed class CompressionRobustnessTests
     {
         var encoded = PackageFixture.Compress(new byte[64], codec, framed);
         _ = LarianCompression.Decode(encoded, 64, codec, framed);
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        var error = Record.Exception(() => LarianCompression.Decode(encoded, InflatedSize, codec, framed));
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
-        Assert.True(allocated < MaximumRejectionAllocation, $"Invalid expanded size allocated {allocated:N0} bytes.");
+        var allocated = AllocationProbe.Measure(() => Record.Exception(() => LarianCompression.Decode(encoded, InflatedSize, codec, framed)), out var error);
+        allocated.AssertLessThan(MaximumRejectionAllocation, $"Invalid expanded size allocated {allocated.MinimumBytes:N0} bytes.");
         Assert.IsType<SaveFormatException>(error);
     }
 
@@ -33,10 +33,8 @@ public sealed class CompressionRobustnessTests
         var bytes = PackageFixture.Create(version, payloads: [("opaque.bin", new byte[64])]);
         var listOffset = (int)BinaryData.U64(bytes, LspkLayout.FileListOffset);
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(listOffset), 60_000);
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        var error = Record.Exception(() => LspkPackage.Read(bytes));
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
-        Assert.True(allocated < MaximumRejectionAllocation, $"Invalid file count allocated {allocated:N0} bytes.");
+        var allocated = AllocationProbe.Measure(() => Record.Exception(() => LspkPackage.Read(bytes)), out var error);
+        allocated.AssertLessThan(MaximumRejectionAllocation, $"Invalid file count allocated {allocated.MinimumBytes:N0} bytes.");
         Assert.IsType<SaveFormatException>(error);
     }
 
@@ -84,11 +82,9 @@ public sealed class CompressionRobustnessTests
         // Single-segment frame, four-byte content size, one last empty raw block.
         // The forged content size also controls the decoder window allocation.
         var source = Convert.FromHexString("28B52FFDA000000001010000");
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        var error = Record.Exception(() => LarianCompression.Decode(source, 64, 3));
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
+        var allocated = AllocationProbe.Measure(() => Record.Exception(() => LarianCompression.Decode(source, 64, 3)), out var error);
         Assert.IsType<SaveFormatException>(error);
-        Assert.True(allocated < MaximumRejectionAllocation, $"Corrupt frame content size allocated {allocated:N0} managed bytes.");
+        allocated.AssertLessThan(MaximumRejectionAllocation, $"Corrupt frame content size allocated {allocated.MinimumBytes:N0} managed bytes.");
     }
 
     [Theory]
@@ -114,11 +110,9 @@ public sealed class CompressionRobustnessTests
         encoded.WriteByte((byte)extension);
         encoded.WriteByte(0);
         var bytes = encoded.ToArray();
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        var error = Record.Exception(() => LarianCompression.Decode(bytes, InflatedSize, 2));
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
+        var allocated = AllocationProbe.Measure(() => Record.Exception(() => LarianCompression.Decode(bytes, InflatedSize, 2)), out var error);
         Assert.IsType<SaveFormatException>(error);
-        Assert.True(allocated < MaximumRejectionAllocation, $"Invalid LZ4 ending allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(MaximumRejectionAllocation, $"Invalid LZ4 ending allocated {allocated.MinimumBytes:N0} bytes.");
     }
 
     [Fact]

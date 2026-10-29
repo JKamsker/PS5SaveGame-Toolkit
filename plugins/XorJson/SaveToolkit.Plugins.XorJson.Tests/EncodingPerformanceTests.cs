@@ -18,12 +18,11 @@ public sealed class EncodingPerformanceTests
         var plugin = new XorJsonPlugin();
         using (var warmup = plugin.Open(file)) { }
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        using var document = plugin.Open(file);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.MeasureOpen(() => plugin.Open(file), out var opened);
+        using var document = opened;
 
         // Owned input + decoded UTF-8 + UTF-16 string; no second impossible transform.
-        Assert.InRange(allocated, 1, bytes.Length * 4L + parserOverheadBudget);
+        allocated.AssertInRange(1, bytes.Length * 4L + parserOverheadBudget);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 }

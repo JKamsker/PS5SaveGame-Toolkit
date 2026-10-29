@@ -1,8 +1,10 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.AstroPlayroom.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AstroPlanningPerformanceTests
 {
     private const string Collect = "collectibles/collect-all";
@@ -20,7 +22,7 @@ public sealed class AstroPlanningPerformanceTests
         var parameters = new Dictionary<string, FieldValue>();
         var scope = new ActionScope([Artifact + "item1499[0]"]);
         var allocated = AstroPerformanceData.Allocated(() => _ = planner.PlanAction(Collect, parameters, scope));
-        Assert.InRange(allocated, 0, 4_000);
+        allocated.AssertInRange(0, 4_000);
         Assert.Equal(Artifact + "item1499[0]/IsGot[0]/text[0]",
             Assert.Single(planner.PlanAction(Collect, parameters, scope).Changes).ValueId);
     }
@@ -35,7 +37,7 @@ public sealed class AstroPlanningPerformanceTests
         var parameters = new Dictionary<string, FieldValue> { ["world"] = FieldValue.Of(World) };
         var scope = new ActionScope();
         var allocated = AstroPerformanceData.Allocated(() => _ = planner.PlanAction(WorldAction, parameters, scope));
-        Assert.InRange(allocated, 0, 30_000);
+        allocated.AssertInRange(0, 30_000);
         var plan = planner.PlanAction(WorldAction, parameters, scope);
         Assert.Empty(plan.Errors);
         Assert.Equal(25, plan.Changes.Count);

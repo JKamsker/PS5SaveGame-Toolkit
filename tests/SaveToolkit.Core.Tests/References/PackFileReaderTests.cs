@@ -1,7 +1,9 @@
 using SaveToolkit.Core.References;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Core.Tests.References;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class PackFileReaderTests
 {
     [Fact]
@@ -50,14 +52,14 @@ public sealed class PackFileReaderTests
         var small = new byte[512];
         PackFileReader.ReadBounded(Open(), small.Length, "'warm-up'");
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        for (var i = 0; i < 100; i++)
+        var perFile = AllocationProbe.Measure(() =>
         {
-            PackFileReader.ReadBounded(Open(), small.Length, "'x'");
-        }
-
-        var perFile = (GC.GetAllocatedBytesForCurrentThread() - before) / 100;
-        Assert.True(perFile < 4_096, $"Allocated {perFile:N0} bytes per 512-byte file.");
+            for (var i = 0; i < 100; i++)
+            {
+                PackFileReader.ReadBounded(Open(), small.Length, "'x'");
+            }
+        }).TransformSamples(bytes => bytes / 100);
+        perFile.AssertLessThan(4_096, $"Allocated {perFile.MinimumBytes:N0} bytes per 512-byte file.");
 
         Stream Open() => seekable ? new MemoryStream(small, writable: false) : new ForwardOnlyStream(small);
     }

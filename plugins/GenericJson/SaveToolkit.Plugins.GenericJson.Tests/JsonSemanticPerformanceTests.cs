@@ -5,6 +5,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.GenericJson.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class JsonSemanticPerformanceTests
 {
     [Fact]
@@ -13,9 +14,11 @@ public sealed class JsonSemanticPerformanceTests
         var file = SampleSaves.Load("PPSA04027").AllDiskFiles.First(file => file.FileName == "settings.json");
         using var document = new GenericJsonPlugin().Open(file);
         _ = document.BuildView();
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        _ = document.BuildView();
-        Assert.InRange(GC.GetAllocatedBytesForCurrentThread() - before, 0, 100_000);
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            _ = document.BuildView();
+        });
+        allocated.AssertAtMost(100_000);
     }
 
     [Fact]
@@ -27,9 +30,8 @@ public sealed class JsonSemanticPerformanceTests
         var parameters = new Dictionary<string, FieldValue>();
         var scope = new ActionScope { RowKeys = ["value/2"] };
         _ = planner.PlanAction("semantic/wrapper-imported", parameters, scope);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var plan = planner.PlanAction("semantic/wrapper-imported", parameters, scope);
-        Assert.InRange(GC.GetAllocatedBytesForCurrentThread() - before, 0, 100_000);
+        var allocated = AllocationProbe.Measure(() => planner.PlanAction("semantic/wrapper-imported", parameters, scope), out var plan);
+        allocated.AssertAtMost(100_000);
         Assert.Empty(plan.Errors);
         Assert.Empty(plan.Changes);
         Assert.NotEmpty(plan.Warnings);

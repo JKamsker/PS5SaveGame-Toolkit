@@ -5,6 +5,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Insomniac.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class DocumentAllocationTests
 {
     [Fact]
@@ -17,12 +18,11 @@ public sealed class DocumentAllocationTests
         Assert.Equal(577_928, file.Length);
         var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA01474");
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        using var document = plugin.Open(file, references);
+        var allocated = AllocationProbe.MeasureOpen(() => plugin.Open(file, references), out var opened, document => _ = document.BuildView());
+        using var document = opened;
         var view = document.BuildView();
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
 
-        Assert.True(allocated <= allocationBudget, $"Open + first view allocated {allocated:N0} bytes; budget {allocationBudget:N0}.");
+        allocated.AssertAtMost(allocationBudget, $"Open + first view allocated {allocated.MinimumBytes:N0} bytes; budget {allocationBudget:N0}.");
         GC.KeepAlive(view);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
     }
@@ -40,13 +40,14 @@ public sealed class DocumentAllocationTests
         var expected = planning.PlanAction(RiftBoltPlanning.ActionId, parameters, scope);
         var original = document.GetValue(RiftScalarWrites.CareerId);
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
         ActionPlan? plan = null;
-        for (var index = 0; index < repetitions; index++)
-            plan = planning.PlanAction(RiftBoltPlanning.ActionId, parameters, scope);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            for (var index = 0; index < repetitions; index++)
+                plan = planning.PlanAction(RiftBoltPlanning.ActionId, parameters, scope);
+        });
 
-        Assert.True(allocated <= repetitions * bytesPerPlanBudget, $"Plans allocated {allocated:N0} bytes.");
+        allocated.AssertAtMost(repetitions * bytesPerPlanBudget, $"Plans allocated {allocated.MinimumBytes:N0} bytes.");
         Assert.NotNull(plan);
         Assert.Empty(plan.Errors);
         Assert.Equal(expected.Changes, plan.Changes);

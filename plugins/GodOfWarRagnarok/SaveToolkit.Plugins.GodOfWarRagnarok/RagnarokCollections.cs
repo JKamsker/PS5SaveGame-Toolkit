@@ -16,6 +16,7 @@ internal sealed record RagnarokCollectionRow(string Key, int Offset, Dictionary<
 internal sealed class RagnarokCollections
 {
     private readonly RagnarokReferences _references;
+    private readonly RagnarokGearView? _gear;
     private readonly Dictionary<string, (QueryableCollection Info, IReadOnlyList<RagnarokCollectionRow> Rows)> _collections = new(StringComparer.Ordinal);
 
     public RagnarokCollections(RagnarokDocument document, RagnarokRecordIndex index, RagnarokReferences references)
@@ -43,18 +44,21 @@ internal sealed class RagnarokCollections
 
         var directory = RagnarokCollectionRows.Directory(document, index, references);
         Add("directory", "Sorted directory IDs", directory, "Paired-word semantics remain Unknown.");
+        _gear = new(document, index, references.Gear);
     }
 
-    public IReadOnlyList<QueryableCollection> Metadata => _collections.Values.Select(c => c.Info).ToArray();
+    public IReadOnlyList<QueryableCollection> Metadata => _gear is null ? [] : [.. _collections.Values.Select(c => c.Info), _gear.Metadata];
 
     public QueryableTableNode View(string id)
     {
+        if (id == RagnarokGearView.CollectionId && _gear is not null) return _gear.Metadata.ToTableNode();
         var info = _collections[id].Info;
         return new(info.Id, info.Title, info.Columns, info.TotalCount) { Description = info.Description };
     }
 
     public QueryableCollectionPage Query(RagnarokDocument document, string id, QueryableCollectionQuery query)
     {
+        if (id == RagnarokGearView.CollectionId && _gear is not null) return _gear.Query(query);
         if (!_collections.TryGetValue(id, out var collection))
         {
             throw new KeyNotFoundException($"Unknown Ragnarök collection '{id}'.");

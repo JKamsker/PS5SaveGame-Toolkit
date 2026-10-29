@@ -3,9 +3,11 @@ using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.TalesOfArise.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AriseActionPerformanceTests
 {
     private const int SlotCount = 934;
@@ -38,9 +40,8 @@ public sealed class AriseActionPerformanceTests
     [Fact]
     public void ApplyingOneRowInAFilledInventoryHasBoundedAllocations()
     {
-        ApplyAndMeasure(); // Warm the shared action and binding paths outside the measured operation.
         var allocated = ApplyAndMeasure();
-        Assert.True(allocated < 512 * KiB, $"One-row apply allocated {allocated:N0} B for {SlotCount} occupied slots.");
+        allocated.AssertLessThan(512 * KiB, $"One-row apply for {SlotCount} occupied slots.");
     }
 
     [Fact]
@@ -50,29 +51,27 @@ public sealed class AriseActionPerformanceTests
         using (document)
         {
             _ = document.PlanAction(AriseInventoryActions.SetQuantityAction, Parameters, new());
-            var before = GC.GetAllocatedBytesForCurrentThread();
-            var plan = document.PlanAction(AriseInventoryActions.SetQuantityAction, Parameters, new());
-            var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            var allocated = AllocationProbe.Measure(() => document.PlanAction(AriseInventoryActions.SetQuantityAction, Parameters, new()), out var plan);
             Assert.Empty(plan.Errors);
             Assert.Equal(SlotCount, plan.Changes.Count);
             Assert.Equal(0, references.FindCalls);
-            Assert.True(allocated < 1024 * KiB, $"Full-inventory planning allocated {allocated:N0} B.");
+            allocated.AssertLessThan(1024 * KiB, "Full-inventory planning.");
         }
     }
 
-    private static long ApplyAndMeasure()
+    private static AllocationProbeResult ApplyAndMeasure()
     {
-        var (document, _) = Fixture();
-        using (document)
+        AriseDocument document = null!;
+        var scope = new ActionScope { RowKeys = ["inventory/933/quantity"] };
+        ActionPlan plan = null!;
+        var allocated = AllocationProbe.Measure(() => document.ApplyActionPlan(
+            AriseInventoryActions.SetQuantityAction, Parameters, scope, plan), out var result, beforeRun: () =>
         {
-            var scope = new ActionScope { RowKeys = ["inventory/933/quantity"] };
-            var plan = document.PlanAction(AriseInventoryActions.SetQuantityAction, Parameters, scope);
-            var before = GC.GetAllocatedBytesForCurrentThread();
-            var result = document.ApplyActionPlan(AriseInventoryActions.SetQuantityAction, Parameters, scope, plan);
-            var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-            Assert.True(result.Succeeded);
-            return allocated;
-        }
+            (document, _) = Fixture();
+            plan = document.PlanAction(AriseInventoryActions.SetQuantityAction, Parameters, scope);
+        }, afterRun: () => document?.Dispose());
+        Assert.True(result.Succeeded);
+        return allocated;
     }
 
     private static (AriseDocument Document, CountingContext References) Fixture()

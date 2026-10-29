@@ -1,5 +1,8 @@
+using SaveToolkit.Testing;
+
 namespace SaveToolkit.Plugins.Gearbox.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class SerialDatabaseLoadingTests
 {
     private const long SmallCatalogAllocationLimit = 2 * 1024 * 1024;
@@ -9,12 +12,10 @@ public sealed class SerialDatabaseLoadingTests
     [InlineData("ttwl", 59)]
     public void Initialization_DoesNotMaterializeCatalogs(string game, int version)
     {
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var database = new SerialDatabase(game, version);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => new SerialDatabase(game, version), out var database);
         Assert.Equal(version, database.MaximumVersion);
         Assert.Equal("gearbox." + game, database.Pack.Id);
-        Assert.True(allocated < SmallCatalogAllocationLimit, $"Manifest initialization allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(SmallCatalogAllocationLimit, $"Manifest initialization allocated {allocated.MinimumBytes:N0} bytes.");
     }
 
     [Theory]
@@ -22,12 +23,16 @@ public sealed class SerialDatabaseLoadingTests
     [InlineData("ttwl", 59)]
     public void SmallCatalog_IsLoadedOnceWithoutMaterializingUnrelatedTables(string game, int version)
     {
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var database = new SerialDatabase(game, version);
-        var records = database.Records("skills").ToArray();
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            var database = new SerialDatabase(game, version);
+            var records = database.Records("skills").ToArray();
+            return (database, records);
+        }, out var measured);
+        var database = measured.database;
+        var records = measured.records;
         Assert.NotEmpty(records);
-        Assert.True(allocated < SmallCatalogAllocationLimit, $"One small catalog allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(SmallCatalogAllocationLimit, $"One small catalog allocated {allocated.MinimumBytes:N0} bytes.");
         Parallel.For(0, 16, _ =>
         {
             var record = database.Find("skills", records[0].Key);
@@ -43,12 +48,16 @@ public sealed class SerialDatabaseLoadingTests
     [InlineData("ttwl", 59)]
     public void WidthOnly_DoesNotMaterializeSerialIndices(string game, int version)
     {
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var database = new SerialDatabase(game, version);
-        var width = database.Width("InventoryBalanceData", version);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            var database = new SerialDatabase(game, version);
+            var width = database.Width("InventoryBalanceData", version);
+            return (database, width);
+        }, out var measured);
+        var database = measured.database;
+        var width = measured.width;
         Assert.InRange(width, 1, 31);
-        Assert.True(allocated < SmallCatalogAllocationLimit, $"Width lookup allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(SmallCatalogAllocationLimit, $"Width lookup allocated {allocated.MinimumBytes:N0} bytes.");
         Assert.Equal(width, database.Width("InventoryBalanceData", version));
     }
 

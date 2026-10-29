@@ -10,15 +10,15 @@ namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
 public sealed class IconViewFingerprintTests
 {
-    // Captured from the local compatibility adapter before SDK-05 adoption.
-    private const string WithProvenance = "2290fea9ceb33494d516c504e7b0f3df780643a2b7aa28cbe628a5dd6e3ef0a6";
-    private const string WithoutProvenance = "69575604999f9c6a91d7c00f6953d9a5cac8da0ae73e17cf819d8f099d51cbcc";
+    // SDK-05 compatibility baseline, refreshed for the intentional #40 gold discovery view.
+    private const string WithProvenance = "b616f04f7e1735a828e5c55f70996b3c24981432bf8dc0fdef3927c561591334";
+    private const string WithoutProvenance = "21cdabbd47a36192b703ac200831287c854e36bc34b7db5979a39b4c67f4aa4f";
 
     [Theory]
     [InlineData(true, true, WithProvenance)]
     [InlineData(false, true, WithProvenance)]
     [InlineData(false, false, WithoutProvenance)]
-    public void SampleViewsKeepTheirPreSdk05Fingerprint(bool hasBytes, bool hasProvenance, string expected)
+    public void SampleViewsKeepTheirAttributedIconAndGoldDiscoveryFingerprint(bool hasBytes, bool hasProvenance, string expected)
     {
         var previousCulture = CultureInfo.CurrentCulture;
         try
@@ -47,7 +47,8 @@ public sealed class IconViewFingerprintTests
                                 Append(node);
                 }
             }
-            Assert.Equal(expected, Convert.ToHexStringLower(hash.GetHashAndReset()));
+            var actual = Convert.ToHexStringLower(hash.GetHashAndReset());
+            Assert.True(expected == actual, $"Expected view fingerprint {expected}; actual {actual}.");
 
             void Append(ViewNode node) => hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(node));
         }

@@ -52,6 +52,15 @@ internal sealed class RagnarokEvidenceDecoder : ISaveDecoderHook
                     Convert.ToHexString(bytes.AsSpan(offset + sizeof(ulong), sizeof(uint))),
                     Label(references.Community.Tree(group.Id)))) return;
         }
+        foreach (var gear in index.Gear.Records)
+        {
+            var record = references.Gear.Find(gear.Id);
+            var root = $"gear[instance={gear.Instance}]";
+            if (!sink.Add(root + "/definition", "inferred-definition", RagnarokReferences.Key(gear.Id), Label(record)) ||
+                !sink.Add(root + "/catalog-level", "inferred-catalog-level", record?.Attributes.GetValueOrDefault("level") ?? "Unknown", Label(record)) ||
+                !sink.Add(root + "/parent", "unknown-parent-index", Number(gear.Parent)) ||
+                !sink.Add(root + "/subrecord-count", "unknown-role-count", Number(gear.SlotCount))) return;
+        }
     }
 
     private static string Number<T>(T value) where T : IFormattable => value.ToString(null, CultureInfo.InvariantCulture);

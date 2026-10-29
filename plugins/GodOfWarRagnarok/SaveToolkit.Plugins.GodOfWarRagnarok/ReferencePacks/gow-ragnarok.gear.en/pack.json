@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "id": "gow-ragnarok.gear.en",
+  "version": "1.0.0",
+  "title": "PC gear definitions and catalog levels (PS5 inferred)",
+  "plugins": [
+    "gow-ragnarok"
+  ],
+  "titleIds": [
+    "PPSA08330"
+  ],
+  "gameBuilds": [
+    "PS5 revision 0x00513040"
+  ],
+  "locale": "en",
+  "datasets": [
+    {
+      "id": "gow-ragnarok-gear",
+      "kind": "records",
+      "title": "Gear definition candidates",
+      "files": [
+        {
+          "path": "gear.json",
+          "sha256": "1391bf8cadb7c5a4e12215ed32d20499747f517b20939707d48d0061922c1c16"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://docs.google.com/spreadsheets/d/17JWS2EyV68tRAajJIungRvhL5mmePIyGUNqekWu1lBc/edit",
+        "author": "cfemen / Fixer / Sasha / Vinny / community gear-sheet contributors",
+        "license": "No licence published; reused with attribution per owner decision 2026-10-28",
+        "licenseUrl": "https://docs.google.com/spreadsheets/d/17JWS2EyV68tRAajJIungRvhL5mmePIyGUNqekWu1lBc/edit",
+        "retrieved": "2026-10-29",
+        "modifications": "Extracted hash/name/type/level facts; normalized numeric hashes to literal LE keys; merged duplicates with visible name/type disagreements; missing or conflicting levels stay Unknown. No code, notes, presets, assets or legal maxima imported."
+      }
+    }
+  ]
+}

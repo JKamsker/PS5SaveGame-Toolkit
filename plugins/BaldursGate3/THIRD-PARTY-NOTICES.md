@@ -1,5 +1,12 @@
 # Third-party notices
 
+The 2026-10-29 gold/base-score discovery additions independently interpret measured
+PS5 storage using existing plugin primitives; no new upstream code or dataset is
+incorporated. [FIELD_DISCOVERY.md](FIELD_DISCOVERY.md) records factual research
+sources, revisions and access dates. Norbyte/bg3se's MIT plus Commons Clause v1.0
+component code was read only for facts and excluded from reuse; see the README's
+Licence exclusions. No legacy NC wiki prose is included.
+
 The package and LSF layouts, attribute type IDs, compact attribute-chain algorithm,
 translation decoding, GUID display convention, MD5+1 algorithm, compression-level
 mappings and writer section/padding rules were adapted from Norbyte's

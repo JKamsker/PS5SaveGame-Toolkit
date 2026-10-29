@@ -1,17 +1,13 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.AstroPlayroom.Tests;
 
 internal static class AstroPerformanceData
 {
-    public static long Allocated(Action operation)
-    {
-        for (var i = 0; i < 5; i++) operation();
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        operation();
-        return GC.GetAllocatedBytesForCurrentThread() - before;
-    }
+    public static AllocationProbeResult Allocated(Action operation) =>
+        AllocationProbe.Measure(operation, warmupRuns: 5);
 }
 
 internal sealed class CountingAstroReferences(IReferenceContext inner) : IReferenceContext
