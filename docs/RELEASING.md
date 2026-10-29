@@ -165,6 +165,12 @@ previous version tag, retain breaking-change markers, and include other commit s
 Write commits as `feat(scope): ...`, `fix(scope): ...`, `ci(scope): ...`, etc. Give commit bodies the
 reason for changes; use `BREAKING CHANGE:` for incompatible changes.
 
+For curated highlights, commit `docs/release-notes/<tag>.md` (including the `v` prefix,
+for example `docs/release-notes/v0.1.0-rc.2.md`) at the revision being released. The publish
+job prepends that file to the git-cliff changelog with a blank line between them; without
+the file, the generated notes are unchanged. Use absolute GitHub links so citations also
+work in the release body.
+
 The publish job verifies all four checksums, creates a **draft**, uploads archives, per-archive
 `.sha256` files and combined `SHA256SUMS`, then publishes with the generated notes. Tags containing
 a prerelease suffix produce GitHub prereleases. Failed uploads leave a draft, not a partial public
