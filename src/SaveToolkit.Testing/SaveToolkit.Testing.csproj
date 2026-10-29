@@ -5,6 +5,7 @@
     <IsTestProject>false</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="SaveToolkit.Core.Tests" />
     <ProjectReference Include="..\SaveToolkit.Core\SaveToolkit.Core.csproj" />
   </ItemGroup>
   <ItemGroup>

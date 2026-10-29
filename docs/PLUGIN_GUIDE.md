@@ -1127,6 +1127,75 @@ $env:SAVETOOLKIT_ARTIFACTS = 'C:/path/to/artifacts'
 Check each project's summary for zero skipped tests. `MemorySaveSet` copies input file buffers;
 mutating the original byte array after creating a synthetic file does not edit that file.
 
+### Deterministic mutation fuzzing (#40)
+
+Every conformance subclass inherits `MutationFuzz`, a correctness/robustness check for malformed
+saves. It runs **200 mutations per selected file**, with fixed seed **`0x40C0FFEE`** and zero-based
+indices. Each mutation starts from the original bytes, using a specified xorshift32 sequence;
+`SaveMutation.Create(original, seed, index)` reproduces a case independently of earlier cases.
+The six mutation kinds cycle through bit flips, byte insertion, byte deletion, random truncation,
+2/4/8-byte length-style overwrites (zero, all ones and huge values, both byte orders), and bounded
+block duplication. Overwrites alternate between header and arbitrary payload locations. This is
+bounded sampled coverage, not exhaustive validation or a security review.
+
+For each available title, the harness uses `SelectFiles`, orders eligible files by size then ordinal
+relative path, and takes up to `MaxMutationFuzzFilesPerTitle` (**1**) distinct file. Small files keep
+the default run fast while exercising real format bytes. This independent cap keeps existing exhaustive
+`MaxFilesPerTitle` overrides from expanding the fuzz run without limit. Missing titles are ignored
+without hiding available titles. Every selected file gets the full mutation count; increase the
+file cap for a broader local corpus run. Override `MutationFuzzSyntheticSeeds` to supply small valid
+`ISaveFile`s, including required siblings, for sample-free CI. With neither samples nor synthetic
+seeds the fact reports a real skip. For example:
+
+```csharp
+protected override IEnumerable<ISaveFile> MutationFuzzSyntheticSeeds =>
+    [MemorySaveSet.SingleFile("save.dat", CreateSmallValidSave(), "PPSA12345")];
+protected override int MutationFuzzCount => 200;
+```
+
+Mutations use an in-memory overlay, preserving file names, title, generation, backup status and
+unmodified siblings; no mutated sample is written to disk. Each case calls `Probe`, and on a
+match calls `Open(file, pinnedReferences)`, `BuildView`, the first 50-row page of **every** collection
+(including empty collections), and `Dispose`. Nonmatches, success, `InvalidDataException` and the
+SDK's documented `SaveFormatException` are accepted. `MutationFuzzRejectionTypes` can declare
+additional exact documented rejection types. Broad exception classes, argument/bounds errors,
+null dereferences, overflow and out-of-memory errors cannot be declared clean rejections.
+Lazy expansion, later pages, edits and serialization remain covered by the other conformance facts.
+
+`MutationFuzzAllocationBudget(file)` defaults to **64 MiB + 32 × original file length**, capped at
+**1 GiB** per case. It measures managed allocations on the synchronous plugin thread, from probe
+through disposal, including rejected cases; fixture construction and reference loading are excluded.
+It does not count native allocations or work a plugin starts on other threads. The default
+`MutationFuzzCaseTimeout` is a generous **30 seconds**. One isolated child xUnit process per plugin
+lets the parent kill a stuck parser and its process tree, rather than leave background tasks running.
+Worker/sample preparation has a separate two-minute guard. A completed case also checks elapsed time,
+so a timeout cannot be missed between progress polls. Allocation accounting is checked after a case;
+it is a regression budget, not an allocator limit. Keep plugin parsers' own pre-allocation bounds.
+
+Run the inherited check alone with the normal .NET 10 MTP runner:
+
+```powershell
+$env:SAVETOOLKIT_TEST_TEMP = 'D:/Temp/saveeditor/test-scratch/conformance-fuzz'
+$env:TEMP = $env:TMP = $env:TMPDIR = $env:SAVETOOLKIT_TEST_TEMP
+dotnet test --project plugins/ExampleGame/SaveToolkit.Plugins.ExampleGame.Tests --filter-method '*MutationFuzz'
+```
+
+Keep `SAVETOOLKIT_ARTIFACTS` pointed at external private samples. The worker checkpoints and result
+JSON use `TestScratch` and are cleaned after the run. Failure reports include the seed, smallest
+observed index for each sample/error/stack signature, relative sample path, original SHA-256,
+mutation description, exception type and stack. They omit exception messages and sample values.
+The test output and `mutation-fuzz.json` attachment record case counts, parser work time and expected failure counts; the test's wall
+time additionally includes worker startup, fixture loading and mutation generation. Re-run the
+same fact with the same sample hash, or call `SaveMutation.Create` with the reported coordinates.
+
+`ExpectedFuzzFailures` is a virtual list of `ExpectedFuzzFailure(exceptionType, stackFrame,
+trackingNote)`. It quarantines only an observed exception/stack signature, still runs every case,
+and fails on other errors. Entries need a tracking note and should be removed when fixed. The
+central `MutationFuzzKnownFailures` registry can seed per-plugin defaults while plugin folders are
+outside the harness task's scope. Add entries only after reproducing a real failure and recording
+its lowest observed index, stack top and analysis on the tracking issue. This list is temporary
+debt, never a broader definition of acceptable parser behavior.
+
 ## Plugin README
 
 `plugins/<Name>/README.md` must document: titles, file roles, binary layout, crypto/compression,
