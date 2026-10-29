@@ -143,18 +143,59 @@ public sealed class SemanticReviewTests : IDisposable
         using var first = new BatchCaptureDocument();
         review.CaptureTargetedOriginals(() => first, ["first"], CancellationToken.None);
         Assert.True(review.TryOriginal("first", out _));
+        var beforeFailure = review.CaptureState();
 
         using var failing = new BatchCaptureDocument(failSecondBatch: true);
         review.CaptureTargetedOriginals(() => failing,
             Enumerable.Range(0, 201).Select(index => $"new{index}"), CancellationToken.None);
         Assert.True(review.TryOriginal("first", out _));
         Assert.False(review.TryOriginal("new0", out _));
+        var afterFailure = review.CaptureState();
+        Assert.NotNull(beforeFailure.Original);
+        Assert.NotNull(afterFailure.Original);
+        Assert.Equal(beforeFailure.Original.Bytes, afterFailure.Original!.Bytes);
+        Assert.Equal(beforeFailure.Original.Complete, afterFailure.Original.Complete);
+        Assert.Equal(beforeFailure.Original.QueryWarnings, afterFailure.Original.QueryWarnings);
+        Assert.Equal(beforeFailure.TargetedIds, afterFailure.TargetedIds);
+        Assert.Equal(beforeFailure.Original.Fields.Keys, afterFailure.Original.Fields.Keys);
+        foreach (var id in beforeFailure.Original.Fields.Keys)
+        {
+            var beforeField = beforeFailure.Original.Fields[id];
+            var afterField = afterFailure.Original.Fields[id];
+            Assert.Equal(beforeField.Value, afterField.Value);
+            Assert.Equal(beforeField.Path, afterField.Path);
+            Assert.Equal(beforeField.Label, afterField.Label);
+            Assert.Equal(beforeField.ReadOnly, afterField.ReadOnly);
+        }
+        Assert.NotEmpty(afterFailure.CaptureDiagnostics);
         Assert.False(review.Query(first, _ => { }, _ => { }, 1).Complete);
 
         using var retry = new BatchCaptureDocument();
         review.CaptureTargetedOriginals(() => retry,
             Enumerable.Range(0, 201).Select(index => $"new{index}"), CancellationToken.None);
         Assert.True(review.TryOriginal("new0", out _));
+    }
+
+    [Fact]
+    public void CurrentTargetedMetadataResolvesBeforeAFailingViewWalk()
+    {
+        var zip = TestZips.Build(("PPSA99999/sdimg_SAVE/save.dat", new byte[] { 1 }));
+        using var workspace = _store.Create("current-targeted-first", [new ImportSource("save.zip", () => new MemoryStream(zip))]);
+        using var current = new OrderingDocument();
+        using var session = new DocumentSession("current-targeted-first", workspace.Set.AllDiskFiles.Single(),
+            new CounterPlugin(), current, openOriginal: () => new OrderingDocument());
+        _ = session.BuildView();
+        current.Events.Clear();
+
+        Assert.True(session.ApplyEdits([new IncomingEdit("hidden", JsonSerializer.SerializeToElement(2))]).Ok);
+        current.Events.Clear();
+        current.FailView = true;
+
+        var review = session.GetChanges();
+        Assert.False(review.Complete);
+        Assert.Equal("metadata", current.Events.First());
+        Assert.Contains("view", current.Events);
+        Assert.Equal("2", Assert.Single(review.Changes, change => change.ValueId == "hidden").CurrentValue.ToString());
     }
 
     [Fact]
@@ -261,5 +302,30 @@ public sealed class SemanticReviewTests : IDisposable
 
         public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> ids) =>
             base.ResolveFieldMetadata(ids);
+    }
+
+    private sealed class OrderingDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        private int _value = 1;
+        public List<string> Events { get; } = [];
+        public bool FailView { get; set; }
+
+        public OrderingDocument() => RegisterField(new FieldMetadata("hidden", "Hidden", IntegerSpec.Int32),
+            () => FieldValue.Of(_value), value => _value = value.AsInt32());
+
+        public override string Title => "Ordering";
+        public override ViewNode BuildView()
+        {
+            Events.Add("view");
+            if (FailView) throw new InvalidOperationException("Current view unavailable.");
+            return new TextNode("No rendered fields");
+        }
+
+        public override IReadOnlyList<FileOutput> Serialize() => [];
+        public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> ids)
+        {
+            Events.Add("metadata");
+            return base.ResolveFieldMetadata(ids);
+        }
     }
 }
