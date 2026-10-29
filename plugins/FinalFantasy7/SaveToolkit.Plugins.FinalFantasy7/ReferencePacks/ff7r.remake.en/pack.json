@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "ff7r.remake.en",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "FFVII Remake reference metadata",
   "plugins": [
     "ff7r"
@@ -21,7 +21,7 @@
       "files": [
         {
           "path": "ff7r-items.json",
-          "sha256": "cc29cad6e5e9643c7eb7fe754119bfa030ae5e4aa7fd998e46af23ec479ebebe"
+          "sha256": "84a00e8ea216bc91d8281260a13dfd6e4d2c8c9cb2cec64a83c8efdee35905a7"
         }
       ],
       "attribution": {
@@ -30,7 +30,7 @@
         "license": "MIT",
         "licenseUrl": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/LICENSE.md",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted type IDs, names, categories and AP tables. Added original metadata summaries; no game effect text or artwork."
+        "modifications": "Extracted type IDs, names, categories and AP tables; added attributed item-effect summaries, official descriptive guidance and links to compact catalogue icons."
       }
     },
     {
@@ -40,7 +40,7 @@
       "files": [
         {
           "path": "ff7r-materia.json",
-          "sha256": "2fa7989ffd8a7fa08296161fe1ee7884017d242554cc2c121eb553564347fc83"
+          "sha256": "c08db6d9e859b4a63180c16ef391227042eb642111a6d3355c685b6a898b3594"
         }
       ],
       "attribution": {
@@ -49,7 +49,7 @@
         "license": "MIT",
         "licenseUrl": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/LICENSE.md",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted type IDs, names, categories and AP tables. Added original metadata summaries; no game effect text or artwork."
+        "modifications": "Extracted type IDs, names, categories and AP tables; added attributed official descriptive summaries and links to compact catalogue icons."
       }
     },
     {
@@ -59,7 +59,7 @@
       "files": [
         {
           "path": "ff7r-weapons.json",
-          "sha256": "932cbb6f2f18d505dc7218945d3460322db64b60aebf7c1ee019328d3f2f9816"
+          "sha256": "4162524697cfec8940c509db2a5732044657b0e0dc4e342f666e383bd87f8b65"
         }
       ],
       "attribution": {
@@ -68,7 +68,54 @@
         "license": "MIT",
         "licenseUrl": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/LICENSE.md",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted type IDs, names, categories and AP tables. Added original metadata summaries; no game effect text or artwork."
+        "modifications": "Extracted type IDs, names, categories and AP tables; added attributed official descriptive summaries and links to compact catalogue icons."
+      }
+    },
+    {
+      "id": "icons",
+      "kind": "assets",
+      "title": "FFVII Remake catalogue icons",
+      "files": [
+        {
+          "path": "icons/item-generic.webp",
+          "sha256": "be99c4de77d7d9d4838ab62c046a6acc2e7ab71e12e14756b01aed2d5fb36f06"
+        },
+        {
+          "path": "icons/materia-command.webp",
+          "sha256": "844960d3cef4acedc3d31baee98882393244809656aec32b6af04bb484256fc7"
+        },
+        {
+          "path": "icons/materia-complete.webp",
+          "sha256": "1c6606dac356559435ffb20b5e420d6d8a0cb2f4659ab625f91ea425ec7e9cdf"
+        },
+        {
+          "path": "icons/materia-fire.webp",
+          "sha256": "47e3e2a3a24b9cb3ec1f2ca3573e5db19c9b9854707ef316c6fa8814cd9190be"
+        },
+        {
+          "path": "icons/materia-magic.webp",
+          "sha256": "17439d8024d435f6c812248952b6c1e1b2343191c05233febc3dcf3601a64c93"
+        },
+        {
+          "path": "icons/materia-support.webp",
+          "sha256": "f2b4be44d83c2164995ba5958506be36688e6c1322cd9a0112df470dac79f888"
+        },
+        {
+          "path": "icons/materia-summon.webp",
+          "sha256": "0f12b4c2ea02b25fbc5139189ebea884da0eb841366cc3c187e0bf98cddcf4bf"
+        },
+        {
+          "path": "icons/weapon-buster.webp",
+          "sha256": "12c40ad133c4a8a3b0a983eaeb182404a93780214136baa3045c74de72cea5d8"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://finalfantasy.fandom.com/wiki/Category:Final_Fantasy_VII_Remake_item_images",
+        "author": "Final Fantasy Wiki contributors; Square Enix rights holder",
+        "license": "Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_Wiki:Copyrights",
+        "retrieved": "2026-10-29",
+        "modifications": "Selected item, materia and weapon imagery; downscaled to 64x64 WebP for the toolkit."
       }
     }
   ]

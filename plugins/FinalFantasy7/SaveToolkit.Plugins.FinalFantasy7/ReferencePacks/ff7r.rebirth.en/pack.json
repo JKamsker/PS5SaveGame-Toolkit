@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "ff7r.rebirth.en",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "FFVII Rebirth reference metadata",
   "plugins": [
     "ff7r"
@@ -23,7 +23,7 @@
       "files": [
         {
           "path": "ff7r-items.json",
-          "sha256": "1e024eb2a0a5e97fcf4a0713562e2a94ca6c08d19c11414c2b3f02374dbe8278"
+          "sha256": "747dbaa8ce6115bde177c6187fa8b00767580fa2c9e706c96b94e504edb70bf9"
         }
       ],
       "attribution": {
@@ -32,7 +32,7 @@
         "license": "MIT",
         "licenseUrl": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/LICENSE.md",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted type IDs, names, categories and AP tables. Added original metadata summaries; no game effect text or artwork."
+        "modifications": "Extracted type IDs, names, categories and AP tables; added attributed item-effect summaries, official descriptive guidance and links to compact catalogue icons."
       }
     },
     {
@@ -42,7 +42,7 @@
       "files": [
         {
           "path": "ff7r-materia.json",
-          "sha256": "588ecea9551a3861e3f6237bedf47370089bc463864bcfc3bc228f9c04a464dd"
+          "sha256": "b119edae842b7b02862c5d8129dc904b36b47788555362a2bf97f9ad9258bc69"
         }
       ],
       "attribution": {
@@ -51,7 +51,7 @@
         "license": "MIT",
         "licenseUrl": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/LICENSE.md",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted type IDs, names, categories and AP tables. Added original metadata summaries; no game effect text or artwork."
+        "modifications": "Extracted type IDs, names, categories and AP tables; added attributed official descriptive summaries and links to compact catalogue icons."
       }
     },
     {
@@ -61,7 +61,7 @@
       "files": [
         {
           "path": "ff7r-weapons.json",
-          "sha256": "e0484edfc372126709743e9d9bb40bd9168484e3dec5455f603d4f18ca7e10ac"
+          "sha256": "794f39fabc71ac5fb815880ad7a30fadfb4e16d4e43fed5c580944a4b9774222"
         }
       ],
       "attribution": {
@@ -70,7 +70,93 @@
         "license": "MIT",
         "licenseUrl": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/LICENSE.md",
         "retrieved": "2026-10-28",
-        "modifications": "Extracted type IDs, names, categories and AP tables. Added original metadata summaries; no game effect text or artwork."
+        "modifications": "Extracted type IDs, names, categories and AP tables; added attributed official descriptive summaries and links to compact catalogue icons."
+      }
+    },
+    {
+      "id": "icons",
+      "kind": "assets",
+      "title": "FFVII Remake catalogue icons",
+      "files": [
+        {
+          "path": "icons/item-generic.webp",
+          "sha256": "be99c4de77d7d9d4838ab62c046a6acc2e7ab71e12e14756b01aed2d5fb36f06"
+        },
+        {
+          "path": "icons/materia-command.webp",
+          "sha256": "844960d3cef4acedc3d31baee98882393244809656aec32b6af04bb484256fc7"
+        },
+        {
+          "path": "icons/materia-complete.webp",
+          "sha256": "1c6606dac356559435ffb20b5e420d6d8a0cb2f4659ab625f91ea425ec7e9cdf"
+        },
+        {
+          "path": "icons/materia-fire.webp",
+          "sha256": "47e3e2a3a24b9cb3ec1f2ca3573e5db19c9b9854707ef316c6fa8814cd9190be"
+        },
+        {
+          "path": "icons/materia-magic.webp",
+          "sha256": "17439d8024d435f6c812248952b6c1e1b2343191c05233febc3dcf3601a64c93"
+        },
+        {
+          "path": "icons/materia-support.webp",
+          "sha256": "f2b4be44d83c2164995ba5958506be36688e6c1322cd9a0112df470dac79f888"
+        },
+        {
+          "path": "icons/materia-summon.webp",
+          "sha256": "0f12b4c2ea02b25fbc5139189ebea884da0eb841366cc3c187e0bf98cddcf4bf"
+        },
+        {
+          "path": "icons/weapon-buster.webp",
+          "sha256": "12c40ad133c4a8a3b0a983eaeb182404a93780214136baa3045c74de72cea5d8"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://finalfantasy.fandom.com/wiki/Category:Final_Fantasy_VII_Remake_item_images",
+        "author": "Final Fantasy Wiki contributors; Square Enix rights holder",
+        "license": "Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://finalfantasy.fandom.com/wiki/Final_Fantasy_Wiki:Copyrights",
+        "retrieved": "2026-10-29",
+        "modifications": "Selected item, materia and weapon imagery; downscaled to 64x64 WebP for the toolkit."
+      }
+    },
+    {
+      "id": "maps",
+      "kind": "assets",
+      "title": "Rebirth regional map backgrounds",
+      "files": [
+        {
+          "path": "maps/map-corel.webp",
+          "sha256": "fe7cc25489b08ff6fe2f091db8b1961160b455ca24e8521a9ef042cd76ad4ed9"
+        },
+        {
+          "path": "maps/map-cosmo-canyon.webp",
+          "sha256": "c5dae4c54839fd86dc288b349eafd4424914de653fbf86fbaf2f60cd5ecc3a76"
+        },
+        {
+          "path": "maps/map-gongaga.webp",
+          "sha256": "0d532803059491860513fefbbe92d00668bd27bbc92f105d2da3b1c1d2a9b0f9"
+        },
+        {
+          "path": "maps/map-grasslands.webp",
+          "sha256": "fdd6bcd90ffcbce0d4a42341dc3d07c8d5e8991351c83ea2beac32e64533822c"
+        },
+        {
+          "path": "maps/map-junon.webp",
+          "sha256": "18b18a955c3bfb70a7ddc9421cb8e10912e9113e377b82d529be2f3251578d3e"
+        },
+        {
+          "path": "maps/map-nibelheim.webp",
+          "sha256": "5087de5ee035680a4958d0b9c2382cca977998986ede5cf54993a03d31707439"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://www.powerpyx.com/final-fantasy-7-vii-rebirth-full-world-map-revealed/",
+        "author": "PowerPyx; Square Enix rights holder",
+        "license": "Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://www.powerpyx.com/terms-of-service/",
+        "retrieved": "2026-10-29",
+        "modifications": "Six regional map captures; downscaled to a 2048px maximum edge and WebP quality 65."
       }
     }
   ]

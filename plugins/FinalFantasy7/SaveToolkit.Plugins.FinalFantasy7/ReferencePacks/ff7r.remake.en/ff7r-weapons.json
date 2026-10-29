@@ -4,257 +4,353 @@
       "id": "1001",
       "name": "Buster Sword",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "1002",
       "name": "Iron Blade",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "1003",
       "name": "Hardedge",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "1004",
       "name": "Mythril Saber",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "1005",
       "name": "Twin Stinger",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "1006",
       "name": "Nail Bat",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "1871",
       "name": "Steel Reaper",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "2001",
       "name": "Gatling Gun",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "2002",
       "name": "Light Machine Gun",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "2003",
       "name": "Steel Pincers",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "2004",
       "name": "Big Bertha",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "2005",
       "name": "EKG Cannon",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "2006",
       "name": "Wrecking Ball",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "3001",
       "name": "Leather Gloves",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "3002",
       "name": "Metal Knuckles",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "3003",
       "name": "Feathered Gloves",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "3004",
       "name": "Mythril Claws",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "3005",
       "name": "Purple Pain",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "3006",
       "name": "Sonic Strikers",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "3423",
       "name": "4-Point Shuriken",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "3431",
       "name": "Indurate Staff",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "3934",
       "name": "Cacstar",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "4001",
       "name": "Guard Stick",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "4002",
       "name": "Silver Staff",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "4003",
       "name": "Bladed Staff",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "4004",
       "name": "Mythril Rod",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "4005",
       "name": "Reinforced Staff",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "4006",
       "name": "Arcane Scepter",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "5001",
       "name": "Mythril Collar",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "6608",
       "name": "Boomerang",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "8181",
       "name": "Marshalist's Staff",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     },
     {
       "id": "9579",
       "name": "Djinn Staff",
       "category": "Weapons",
-      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified.",
+      "description": "Weapon type; ownership uses an instance reference, not this type ID. Socket counts and equipment eligibility remain unverified. Official PlayStation guidance says each weapon has a unique ability that grows with use; max proficiency makes that ability available with other weapons. Skill identity and save mapping remain unverified. Official weapon-ability source: https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more",
       "source": "https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/utils/resource.ts",
-      "attributes": {}
+      "attributes": {
+        "officialSkillSource": "https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more"
+      },
+      "assetId": "icons/weapon-buster.webp"
     }
   ]
 }
