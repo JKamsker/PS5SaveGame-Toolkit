@@ -18,8 +18,9 @@ internal static class CaptionTestData
     internal const string Original = "Moon";
     internal const int DataStart = 80;
     internal const int TailLength = 7;
+    internal const int DefaultCapacity = 32;
 
-    internal static byte[] Sfo(string text = Original, int capacity = 32, ushort format = 0x0204, string key = "SUBTITLE")
+    internal static byte[] Sfo(string text = Original, int capacity = DefaultCapacity, ushort format = 0x0204, string key = "SUBTITLE")
     {
         var payload = Encoding.UTF8.GetBytes(text + '\0');
         var bytes = Enumerable.Repeat((byte)0xAB, DataStart + capacity + sizeof(uint) + TailLength).ToArray();
