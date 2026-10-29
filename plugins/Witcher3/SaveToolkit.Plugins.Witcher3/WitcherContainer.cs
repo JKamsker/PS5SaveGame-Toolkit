@@ -44,6 +44,15 @@ internal sealed record WitcherContainer(byte[] Original, byte[] Payload, int Hea
             expandedTotal += expanded;
         }
 
+        // Validate every compressed stream before trusting any declared output size for allocation.
+        foreach (var chunk in chunks)
+        {
+            if (chunk.StoredSize != chunk.ExpandedSize)
+            {
+                Lz4BlockValidation.Validate(bytes.AsSpan(chunk.Offset, chunk.StoredSize), chunk.ExpandedSize);
+            }
+        }
+
         var payload = new byte[expandedTotal];
         var targetOffset = 0;
         foreach (var chunk in chunks)
