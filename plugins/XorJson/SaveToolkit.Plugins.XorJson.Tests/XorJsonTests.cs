@@ -59,6 +59,74 @@ public sealed class XorJsonTests
     }
 
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void NearLimitGrowthBeforeShrinkUsesFinalAtomicBudget(bool xor)
+    {
+        const int targetBytes = 16 * 1024 * 1024 - 1;
+        const string prefix = "\uFEFF \t{\"untouched\":\"é\",\n \"grow\":\"\", \"shrink\":\"";
+        const string suffix = "\"} \r\n";
+        var length = targetBytes - Encoding.UTF8.GetByteCount(prefix + suffix);
+        var original = prefix + new string('a', length) + suffix;
+        Assert.Equal(targetBytes, Encoding.UTF8.GetByteCount(original));
+        var expected = "\uFEFF \t{\"untouched\":\"é\",\n \"grow\":\"\\u00E9\", \"shrink\":\"\"} \r\n";
+        var bytes = Encode(original, xor);
+
+        foreach (var order in new[] { new[] { 0, 1 }, new[] { 1, 0 } })
+        {
+            using var document = Open(bytes);
+            var fields = Fields(document);
+            var edits = new ValueEdit[2];
+            var grow = fields.Single(field => field.Label == "grow");
+            var shrink = fields.Single(field => field.Label == "shrink");
+            edits[Array.IndexOf(order, 0)] = new(grow.ValueId, FieldValue.Of("é"));
+            edits[Array.IndexOf(order, 1)] = new(shrink.ValueId, FieldValue.Of(""));
+            Assert.True(document.ApplyEdits(edits).Succeeded);
+            Assert.Equal(Encode(expected, xor), document.Serialize().Single().Content.ToArray());
+        }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void FreshDocumentMementosOwnSdkStateAcrossFailedAndStructuralHistory(bool xor)
+    {
+        var bytes = Encode("\uFEFF{\"x\":1,\"y\":\"value\"}", xor);
+        using var original = Assert.IsType<JsonSaveDocument>(Open(bytes));
+        var originalX = Fields(original).Single(field => field.Label == "x");
+        Assert.True(original.ApplyEdits([new(originalX.ValueId, FieldValue.ExactNumber("2"))]).Succeeded);
+        var saved = original.CaptureDocumentMemento();
+        var originalBytes = original.Serialize().Single().Content.ToArray();
+
+        using var fresh = Assert.IsType<JsonSaveDocument>(Open(bytes));
+        _ = fresh.RestoreMemento(saved);
+        var freshY = Fields(fresh).Single(field => field.Label == "y");
+        Assert.True(fresh.ApplyEdits([new(freshY.ValueId, FieldValue.Of("candidate"))]).Succeeded);
+        var candidateBytes = fresh.Serialize().Single().Content.ToArray();
+        Assert.Equal(originalBytes, original.Serialize().Single().Content.ToArray());
+
+        var failed = fresh.ApplyEdits([
+            new(freshY.ValueId, FieldValue.Of("candidate-2")),
+            new("value/999999", FieldValue.Of("invalid")),
+        ]);
+        Assert.False(failed.Succeeded);
+        Assert.Equal(candidateBytes, fresh.Serialize().Single().Content.ToArray());
+        Assert.Equal(originalBytes, original.Serialize().Single().Content.ToArray());
+
+        var remove = ViewTraversal.Nodes(fresh).OfType<ActionNode>()
+            .First(action => action.ActionId.StartsWith("json/remove/", StringComparison.Ordinal));
+        var structural = fresh.InvokeAction(remove.ActionId, new Dictionary<string, FieldValue>());
+        Assert.NotNull(structural.Revert);
+        _ = fresh.RestoreMemento(structural.Revert);
+        Assert.Equal(candidateBytes, fresh.Serialize().Single().Content.ToArray());
+        var redo = fresh.RestoreMemento(saved);
+        Assert.Equal(originalBytes, fresh.Serialize().Single().Content.ToArray());
+        _ = fresh.RestoreMemento(redo);
+        Assert.Equal(candidateBytes, fresh.Serialize().Single().Content.ToArray());
+        Assert.Equal(originalBytes, original.Serialize().Single().Content.ToArray());
+    }
+
+    [Theory]
     [InlineData("{\"x\":01}")]
     [InlineData("[1,")]
     [InlineData("{} {}")]

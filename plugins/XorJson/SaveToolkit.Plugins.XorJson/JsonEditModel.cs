@@ -10,6 +10,7 @@ internal sealed class JsonEditModel
 {
     private const int EstimatedNodeBytes = 256;
     private int _nextId;
+    private readonly LosslessJsonDocument _losslessDocument;
     private Dictionary<int, JsonValueToken>? _index;
     private IReadOnlyList<JsonValueToken>? _nodes;
     public JsonValueToken Root { get; private set; }
@@ -19,6 +20,7 @@ internal sealed class JsonEditModel
     public JsonEditModel(JsonTokenTree tree)
     {
         Root = tree.Nodes[0];
+        _losslessDocument = tree.Lossless;
         _nextId = tree.Nodes.Count;
         _nodes = tree.Nodes;
     }
@@ -107,15 +109,18 @@ internal sealed class JsonEditModel
         var nodes = Walk(Root).ToArray();
         var sourceBytes = nodes.Select(n => n.Source).Distinct().Sum(b => b.LongLength);
         var textBytes = nodes.Where(n => !n.IsContainer).Sum(n => (long)n.Current.ToString().Length * sizeof(char));
-        var lossless = Root.SdkDocument?.CaptureSnapshot();
-        return new(Clone(Root, null), _nextId, sourceBytes + nodes.Length * (long)EstimatedNodeBytes + textBytes + (lossless?.SizeBytes ?? 0), lossless);
+        var replacements = Root.SdkDocument?.CaptureSnapshot().Replacements
+            .ToDictionary(pair => pair.Key, pair => pair.Value) ?? [];
+        var replacementBytes = replacements.Sum(pair => 32L + pair.Key.ToString().Length * 2L + pair.Value.Length * 2L);
+        return new(Clone(Root, null), _nextId,
+            sourceBytes + nodes.Length * (long)EstimatedNodeBytes + textBytes + replacementBytes, replacements);
     }
 
     public void Restore(JsonModelSnapshot state)
     {
         Root = Clone(state.Root, null);
-        if (state.LosslessSnapshot is { } lossless && Root.SdkDocument is { } document)
-            _ = document.RestoreSnapshot(lossless);
+        BindSdkModel(Root);
+        _ = JsonTokenWriter.Write(Root, state.LosslessReplacements);
         _index = null;
         _nodes = null;
         // Never reuse an id allocated by a later, now-undone operation.
@@ -133,13 +138,29 @@ internal sealed class JsonEditModel
     {
         var copy = new JsonValueToken(node.Index, node.Label, node.Kind, node.Offset, node.Length)
         {
-            Source = node.Source, EntryOffset = node.EntryOffset, LeadingOffset = node.LeadingOffset,
+            Source = node.Source.ToArray(), EntryOffset = node.EntryOffset, LeadingOffset = node.LeadingOffset,
             Parent = parent, Segment = node.Segment, Spec = node.Spec, Current = node.Current,
             Original = node.Original, Warning = node.Warning, OriginalChildren = node.OriginalChildren.ToArray(),
-            SdkNode = node.SdkNode, SdkDocument = node.SdkDocument,
         };
         foreach (var child in node.Children) copy.Children.Add(Clone(child, copy));
         return copy;
+    }
+
+    private void BindSdkModel(JsonValueToken root)
+    {
+        foreach (var node in Walk(root))
+        {
+            node.SdkDocument = ReferenceEquals(node, root) ? _losslessDocument : null;
+            node.SdkNode = null;
+            if (node.Offset < 0 || node.Length < 0 || node.Offset > _losslessDocument.OriginalBytes.Length - node.Length ||
+                node.Offset > node.Source.Length - node.Length)
+                continue;
+            if (!_losslessDocument.TryGetNode(node.Index, out var candidate) || candidate is null ||
+                candidate.OriginalSpan.Offset != node.Offset || candidate.OriginalSpan.Length != node.Length ||
+                !_losslessDocument.OriginalBytes.Span.Slice(node.Offset, node.Length).SequenceEqual(node.Source.AsSpan(node.Offset, node.Length)))
+                continue;
+            node.SdkNode = candidate;
+        }
     }
 
     internal static IEnumerable<JsonValueToken> Walk(JsonValueToken node)
@@ -150,4 +171,5 @@ internal sealed class JsonEditModel
     }
 }
 
-internal sealed record JsonModelSnapshot(JsonValueToken Root, int NextId, long SizeBytes, LosslessJsonSnapshot? LosslessSnapshot);
+internal sealed record JsonModelSnapshot(JsonValueToken Root, int NextId, long SizeBytes,
+    IReadOnlyDictionary<int, string> LosslessReplacements);

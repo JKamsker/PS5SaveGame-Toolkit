@@ -23,7 +23,7 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
     public FieldValue Original { get; set; }
     public FieldValue Current { get; set; }
     public string? Warning { get; set; }
-    internal LosslessJsonNode? SdkNode { get; init; }
+    internal LosslessJsonNode? SdkNode { get; set; }
     internal LosslessJsonDocument? SdkDocument { get; set; }
     public bool IsContainer => Kind is JsonTokenType.StartObject or JsonTokenType.StartArray;
     public string ValueId => $"value/{Index}";

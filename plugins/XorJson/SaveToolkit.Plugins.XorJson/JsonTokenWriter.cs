@@ -6,10 +6,10 @@ namespace SaveToolkit.Plugins.XorJson;
 
 internal static class JsonTokenWriter
 {
-    public static byte[] Write(JsonValueToken root)
+    public static byte[] Write(JsonValueToken root, IReadOnlyDictionary<int, string>? replacements = null)
     {
         if (root.SdkDocument is { } document && IsUnchangedTree(root))
-            return WriteScalars(document, root);
+            return WriteScalars(document, root, replacements);
         using var output = new MemoryStream();
         Append(output, root.Source.AsSpan(0, root.Offset));
         WriteNode(output, root);
@@ -19,25 +19,35 @@ internal static class JsonTokenWriter
         return result;
     }
 
-    private static byte[] WriteScalars(LosslessJsonDocument document, JsonValueToken root)
+    private static byte[] WriteScalars(LosslessJsonDocument document, JsonValueToken root,
+        IReadOnlyDictionary<int, string>? replacements)
     {
+        var before = document.CaptureSnapshot();
         try
         {
-            foreach (var node in JsonEditModel.Walk(root).Where(node => !node.IsContainer))
+            var changes = JsonEditModel.Walk(root).Where(node => !node.IsContainer).Select(node =>
             {
                 if (node.SdkNode is null) throw new SaveFormatException("Edited JSON lost a scalar identity.");
-                var lexeme = node.Current == node.Original
+                var lexeme = replacements is not null && replacements.TryGetValue(node.Index, out var saved)
+                    ? saved : node.Current == node.Original
                     ? node.SdkNode.OriginalLexeme!
                     : Encoding.UTF8.GetString(node.Encode());
-                _ = document.ReplaceScalar(node.SdkNode, lexeme);
-            }
+                return (Node: node.SdkNode, Lexeme: lexeme);
+            }).Where(change => change.Node.CurrentLexeme != change.Lexeme).ToArray();
+            // Shrinks and reverts cannot exceed the current budget. Applying them first makes
+            // each subsequent growth safe whenever the complete final map fits.
+            foreach (var change in changes.OrderBy(change =>
+                Encoding.UTF8.GetByteCount(change.Lexeme) - Encoding.UTF8.GetByteCount(change.Node.CurrentLexeme!)))
+                _ = document.ReplaceScalar(change.Node, change.Lexeme);
             var result = document.Serialize();
             _ = JsonTokenTree.Parse(result);
             return result;
         }
-        catch (LosslessJsonException)
+        catch (Exception ex) when (ex is LosslessJsonException or ArgumentException or InvalidOperationException or SaveFormatException)
         {
-            throw new SaveFormatException("Edited JSON exceeds the lossless scalar limits.");
+            _ = document.RestoreSnapshot(before);
+            if (ex is SaveFormatException) throw;
+            throw new SaveFormatException("Edited JSON exceeds the lossless scalar limits.", ex);
         }
     }
 

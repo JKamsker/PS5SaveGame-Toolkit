@@ -17,9 +17,25 @@ rules, detached structural mementos, F6 action planning, F7 group transactions,
 title/version/offline gates, integrity warnings and XOR-1/byte-minus-one/plain
 envelope transforms. Structural changes use the existing local writer and never
 attempt to mutate the SDK's read-only container tree. SDK document snapshots are
-captured with the plugin model snapshot and restored only against their
-document-owned instance; scalar history resets the shared document to the local
-snapshot lexemes before serialization.
+captured as copied replacement dictionaries; restored plugin tokens are rebound
+by stable parse ID and source span to the current document's owned SDK nodes.
+Scalar history applies those value-owned lexemes through the current document,
+so a fresh group candidate cannot alias the original document or node state.
+
+## R1 response matrix
+
+- **P1 scalar batch budget:** `JsonTokenWriter` classifies every final scalar
+  lexeme and applies shrinking/reverting replacements before growth. The SDK
+  document is snapshotted first and restored on every supported write/parse
+  failure, then final bytes are reparsed. A valid final-fitting batch is now
+  independent of source order while retaining atomicity.
+- **P1 fresh group ownership:** `JsonModelSnapshot` contains cloned token
+  values, cloned source buffers and a copied scalar replacement map. Restore
+  binds the clone to the current `LosslessJsonDocument` by stable ID and exact
+  source span; no SDK document or node reference crosses a memento boundary.
+  Fresh-group tests mutate a restored candidate, exercise a rejected mixed write,
+  then restore mixed structural history while asserting the original group's
+  encoded bytes remain unchanged.
 
 ## Dependency and branch
 
@@ -29,7 +45,7 @@ snapshot lexemes before serialization.
   copied SDK source)
 - Assigned branch: `t3/xorjson-sdk06-adoption`
 - Branch base before dependency merge: `e76e51035fec308a56e5c26b5d97a9c08089f881`
-- Consumer head: `109fc799ccafb84bdc0d431d4980b357b6f0aaee`
+- Consumer head before R1 fixes: `8d7c4c17691b1de27e37922bfda3d7cb67177645`
 - Consumer PR base: `t3/sdk06-lossless-json` / reviewed SDK head above; parent may
   retarget the PR to `main` after #51 lands.
 
@@ -45,15 +61,18 @@ lexemes, null versus empty text, scalar length changes, oversized read-only
 numbers, malformed UTF-8/JSON and resource limits. Structural tests continue to
 cover add/remove/replace, stable IDs, local trivia/key preservation and mixed
 scalar/structural undo/redo. Group tests cover multi-file snapshots and exact
-encoded outputs for both transforms. A new synthetic test verifies two parsed
-documents do not share scalar history, while a changed first document retains
+encoded outputs for both transforms. New synthetic tests verify two parsed
+documents do not share scalar history, exact max-byte growth-before-shrink
+batches in both edit orders with BOM/trivia and multibyte source text, and
+fresh two-document and group candidate isolation through failed writes, undo /
+redo, and mixed structural restore. A changed first document retains
 the oversized number, duplicate members and source bytes of the second document.
 
 Validation from the sample-free run:
 
-`dotnet run --project plugins/XorJson/SaveToolkit.Plugins.XorJson.Tests/SaveToolkit.Plugins.XorJson.Tests.csproj --no-build`
+`dotnet run --project plugins/XorJson/SaveToolkit.Plugins.XorJson.Tests/SaveToolkit.Plugins.XorJson.Tests.csproj --no-build -- -noLogo -noColor`
 
-passed **297 tests**, with **19 sample-dependent skips** and **0 failures**.
+passed **301 tests**, with **19 sample-dependent skips** and **0 failures**.
 The plugin project also builds with zero warnings. Missing `PPSA16064` samples
 were skipped by the existing test harness; no private sample bytes were copied.
 
