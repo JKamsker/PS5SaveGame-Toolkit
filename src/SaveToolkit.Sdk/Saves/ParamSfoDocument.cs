@@ -58,51 +58,62 @@ public sealed class ParamSfoDocument
         if ((keyTable & 3) != 0 || (dataTable & 3) != 0)
             throw Error("SFO table offsets are not four-byte aligned.");
 
-        var entries = new List<ParamSfoEntry>(count);
-        var keys = new HashSet<string>(StringComparer.Ordinal);
+        var keyTableLength = dataTable - keyTable;
+        var keyTerminatorByOffset = FindKeyTerminators(bytes, keyTable, keyTableLength);
+        var layouts = new List<EntryLayout>(count);
         var keyRanges = new List<(int Start, int End, int Index)>(count);
         var slots = new List<(int Start, int End, int Index)>(count);
         for (var index = 0; index < count; index++)
         {
             var indexStart = HeaderSize + (index * IndexEntrySize);
-            var rawIndex = bytes.Slice(indexStart, IndexEntrySize).ToArray();
-            var keyOffset = BinaryPrimitives.ReadUInt16LittleEndian(rawIndex);
-            var format = BinaryPrimitives.ReadUInt16LittleEndian(rawIndex.AsSpan(2));
-            var length = ReadInt32(rawIndex, 4, $"entry {index} length");
-            var maximumLength = ReadInt32(rawIndex, 8, $"entry {index} maximum length");
-            var dataOffset = ReadInt32(rawIndex, 12, $"entry {index} data offset");
+            var indexBytes = bytes.Slice(indexStart, IndexEntrySize);
+            var keyOffset = BinaryPrimitives.ReadUInt16LittleEndian(indexBytes);
+            var format = BinaryPrimitives.ReadUInt16LittleEndian(indexBytes[2..]);
+            var length = ReadInt32(indexBytes, 4, $"entry {index} length");
+            var maximumLength = ReadInt32(indexBytes, 8, $"entry {index} maximum length");
+            var dataOffset = ReadInt32(indexBytes, 12, $"entry {index} data offset");
             if (length < 0 || maximumLength < 0 || length > maximumLength)
                 throw Error($"Entry {index} has an invalid logical or reserved length.");
             if (maximumLength > limits.MaxEntryBytes)
                 throw Error($"Entry {index} exceeds MaxEntryBytes {limits.MaxEntryBytes}.");
-            if (keyOffset >= dataTable - keyTable)
+            if (keyOffset >= keyTableLength)
                 throw Error($"Entry {index} key offset exceeds the key table.");
             if (dataOffset < 0 || dataOffset > bytes.Length - dataTable || maximumLength > bytes.Length - dataTable - dataOffset)
                 throw Error($"Entry {index} data slot exceeds the source bytes.");
 
             var keyStart = keyTable + keyOffset;
-            var keyTerminator = bytes[keyStart..dataTable].IndexOf((byte)0);
-            if (keyTerminator < 0 || keyTerminator > limits.MaxKeyBytes)
+            var keyTerminator = keyTerminatorByOffset[keyOffset];
+            if (keyTerminator < 0 || keyTerminator - keyOffset > limits.MaxKeyBytes)
                 throw Error($"Entry {index} key is missing its terminator or exceeds MaxKeyBytes.");
-            var keyEnd = keyStart + keyTerminator + 1;
+            var keyLength = keyTerminator - keyOffset;
+            var keyEnd = keyStart + keyLength + 1;
             keyRanges.Add((keyStart, keyEnd, index));
-            var keyBytes = bytes.Slice(keyStart, keyTerminator).ToArray();
-            var key = Encoding.ASCII.GetString(keyBytes);
-            if (!keys.Add(key))
-                throw Error($"SFO contains duplicate key '{key}'.");
-
             var valueStart = dataTable + dataOffset;
-            var valueBytes = bytes.Slice(valueStart, length).ToArray();
-            var reservedBytes = bytes.Slice(valueStart, maximumLength).ToArray();
             slots.Add((valueStart, valueStart + maximumLength, index));
-            entries.Add(new ParamSfoEntry(
-                index, key, keyOffset, format, length, maximumLength, dataOffset,
-                keyBytes, valueBytes, reservedBytes, rawIndex,
-                ComputeEntryFingerprint(rawIndex, keyBytes, reservedBytes)));
+            layouts.Add(new EntryLayout(
+                index, indexStart, keyOffset, format, length, maximumLength, dataOffset,
+                keyStart, keyLength, valueStart));
         }
 
         ValidateNonOverlappingRanges(keyRanges, "key");
         ValidateNonOverlappingRanges(slots, "data slot");
+
+        var entries = new List<ParamSfoEntry>(count);
+        var keys = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var layout in layouts)
+        {
+            var rawIndex = bytes.Slice(layout.IndexStart, IndexEntrySize).ToArray();
+            var keyBytes = bytes.Slice(layout.KeyStart, layout.KeyLength).ToArray();
+            var key = Encoding.ASCII.GetString(keyBytes);
+            if (!keys.Add(key))
+                throw Error($"SFO contains duplicate key '{key}'.");
+            var valueBytes = bytes.Slice(layout.ValueStart, layout.Length).ToArray();
+            var reservedBytes = bytes.Slice(layout.ValueStart, layout.MaximumLength).ToArray();
+            entries.Add(new ParamSfoEntry(
+                layout.Index, key, layout.KeyOffset, layout.Format, layout.Length, layout.MaximumLength,
+                layout.DataOffset, keyBytes, valueBytes, reservedBytes, rawIndex,
+                ComputeEntryFingerprint(rawIndex, keyBytes, reservedBytes)));
+        }
 
         return new ParamSfoDocument(bytes.ToArray(), limits, entries);
     }
@@ -197,6 +208,19 @@ public sealed class ParamSfoDocument
         return BinaryPrimitives.ReadInt32LittleEndian(data[offset..]);
     }
 
+    private static int[] FindKeyTerminators(ReadOnlySpan<byte> bytes, int keyTable, int keyTableLength)
+    {
+        var terminators = new int[keyTableLength];
+        var nextTerminator = -1;
+        for (var offset = keyTableLength - 1; offset >= 0; offset--)
+        {
+            if (bytes[keyTable + offset] == 0) nextTerminator = offset;
+            terminators[offset] = nextTerminator;
+        }
+
+        return terminators;
+    }
+
     private static string ComputeEntryFingerprint(byte[] rawIndex, byte[] keyBytes, byte[] reservedBytes)
     {
         var input = new byte[rawIndex.Length + keyBytes.Length + reservedBytes.Length];
@@ -213,7 +237,9 @@ public sealed class ParamSfoDocument
         ranges.Sort(static (left, right) =>
         {
             var start = left.Start.CompareTo(right.Start);
-            return start != 0 ? start : left.End.CompareTo(right.End);
+            if (start != 0) return start;
+            var end = left.End.CompareTo(right.End);
+            return end != 0 ? end : left.Index.CompareTo(right.Index);
         });
 
         var maximumEnd = int.MinValue;
@@ -231,4 +257,16 @@ public sealed class ParamSfoDocument
     }
 
     private static ParamSfoPatchException Error(string message) => new(message);
+
+    private readonly record struct EntryLayout(
+        int Index,
+        int IndexStart,
+        ushort KeyOffset,
+        ushort Format,
+        int Length,
+        int MaximumLength,
+        int DataOffset,
+        int KeyStart,
+        int KeyLength,
+        int ValueStart);
 }
