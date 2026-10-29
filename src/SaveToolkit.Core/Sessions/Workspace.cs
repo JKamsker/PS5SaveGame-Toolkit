@@ -69,10 +69,11 @@ public sealed class Workspace : IDisposable
 
     internal bool ReleaseCleanDocument(string documentId)
     {
-        if (!_documents.TryGetValue(documentId, out var document) || !document.TryCloseClean()) return false;
-        _documents.TryRemove(documentId, out _);
-        _references.TryRemove(documentId, out _);
-        return true;
+        return _documents.TryGetValue(documentId, out var document) && document.TryCloseClean(() =>
+        {
+            _documents.TryRemove(documentId, out _);
+            _references.TryRemove(documentId, out _);
+        });
     }
 
     public void Touch() => Interlocked.Exchange(ref _lastAccessTicks, DateTimeOffset.UtcNow.Ticks);

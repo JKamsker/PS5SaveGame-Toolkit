@@ -211,10 +211,11 @@ public sealed partial class DocumentSession : IDisposable
     }
 
     /// <summary>Atomically closes a clean session; an in-flight edit is either completed or rejected by disposal.</summary>
-    internal bool TryCloseClean() => Locked(() =>
+    internal bool TryCloseClean(Action releaseOwnership) => Locked(() =>
     {
         if (StateUnlocked().IsDirty) return false;
-        Dispose();
+        try { Dispose(); }
+        finally { releaseOwnership(); }
         return true;
     });
 
