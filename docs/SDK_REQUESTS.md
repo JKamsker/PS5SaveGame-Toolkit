@@ -13,7 +13,7 @@ SDK-05 and the nightly mutation workflow are now merged; the remaining dispositi
 remain valid. In addition, inherited conformance `MutationFuzz` is shipped
 in `src/SaveToolkit.Testing/PluginConformanceTests.MutationFuzz.cs`; see its
 [bounded coverage contract](PLUGIN_GUIDE.md#deterministic-mutation-fuzzing-40).
-`AllocationProbe` is **not present** in that revision; do not document it as an available helper.
+`AllocationProbe` was **not present** in that revision; it has since shipped in `src/SaveToolkit.Testing/AllocationProbe.cs` and is documented in [the plugin guide](PLUGIN_GUIDE.md#allocation-tests-allocationprobe).
 Storage registration is delivered (SDK-32), and host metadata/alias discovery (SDK-02) was subsequently resolved by `de78531`; SDK-01's F8
 semantic review is delivered with bounded F8 navigation and individual revert in the web UI; SDK-04's member adapter is resolved by `f869910` (adopted by Gearbox and XorJson). SDK-02–05 adoption was rechecked against local `main` at `9d7a35b`; see the [per-plugin status](PLUGIN_GUIDE.md#sdk-0105-adoption-on-main). This recheck does not claim a new complete issue-comment census.
 

@@ -376,8 +376,13 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("protected FieldNode Field(string valueId, string label)", code)
         self.assertIn("RegisterField(valueId, spec, get, set = null, validate = null)", guide)
         self.assertIn("Storage-only `RegisterField` is also shipped", guide)
-        self.assertFalse(any(path.endswith("/AllocationProbe.cs") for path in source_paths()))
-        self.assertIn("`AllocationProbe` is **not present**", document("docs/SDK_REQUESTS.md"))
+        self.assertTrue(any(path.endswith("/AllocationProbe.cs") for path in source_paths()))
+        probe = source("src/SaveToolkit.Testing/AllocationProbe.cs")
+        for member in ("Measure", "MeasureOpen", "MeasureProcessWideAsync", "DefaultMeasuredRuns"):
+            with self.subTest(probe=member):
+                self.assertIn(member, probe)
+                self.assertIn(member, guide)
+        self.assertIn("AllocationTestCollection", guide)
         options = source("src/SaveToolkit.Sdk/References/ReferenceIconOptions.cs")
         for member in ("ExactAltText", "RequireBytesAndProvenance", "RequireProvenance", "AssetIdOnly"):
             with self.subTest(icon_option=member):
