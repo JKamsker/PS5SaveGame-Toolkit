@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Binary;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
@@ -61,7 +62,7 @@ internal sealed class FaithQuantityPlanning(byte[] bytes, FaithInventory invento
             BinaryPrimitives.WriteInt32LittleEndian(candidate.AsSpan(offset), target.AsInt32());
         }
         var oldCrc = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(FaithContainer.CrcOffset));
-        var newCrc = FaithCrc32.Compute(candidate.AsSpan(FaithContainer.HeaderSize));
+        var newCrc = Crc32Ieee.Compute(candidate.AsSpan(FaithContainer.HeaderSize));
         if (newCrc != oldCrc) changes.Add(new("integrity/crc32", "Derived payload CRC32", FieldValue.Of((ulong)oldCrc),
             FieldValue.Of((ulong)newCrc)) { Derived = true });
         return new ActionPlan { Changes = changes, SkippedRows = skipped, Warnings = warnings.Distinct(StringComparer.Ordinal).ToArray() };

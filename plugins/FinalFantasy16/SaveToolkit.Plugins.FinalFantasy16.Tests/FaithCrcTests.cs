@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SaveToolkit.Sdk.Binary;
 
 namespace SaveToolkit.Plugins.FinalFantasy16.Tests;
 
@@ -16,15 +17,15 @@ public sealed class FaithCrcTests
         string title, string directory, string name, int occurrence, uint expected)
     {
         var bytes = FaithSamples.Snapshot(title, directory, name, occurrence).ReadAllBytes();
-        Assert.Equal(expected, FaithCrc32.Compute(bytes.AsSpan(FaithContainer.HeaderSize)));
+        Assert.Equal(expected, Crc32Ieee.Compute(bytes.AsSpan(FaithContainer.HeaderSize)));
         Assert.Equal(expected, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(FaithContainer.CrcOffset)));
-        Assert.NotEqual(expected, FaithCrc32.Compute(
+        Assert.NotEqual(expected, Crc32Ieee.Compute(
             bytes.AsSpan(FaithContainer.HeaderSize, bytes.Length - FaithContainer.HeaderSize - sizeof(uint))));
 
         // Header values are excluded; the four-byte terminator is included in the covered body.
         bytes[FaithContainer.VersionOffset] ^= 1;
-        Assert.Equal(expected, FaithCrc32.Compute(bytes.AsSpan(FaithContainer.HeaderSize)));
+        Assert.Equal(expected, Crc32Ieee.Compute(bytes.AsSpan(FaithContainer.HeaderSize)));
         bytes[^1] ^= 1;
-        Assert.NotEqual(expected, FaithCrc32.Compute(bytes.AsSpan(FaithContainer.HeaderSize)));
+        Assert.NotEqual(expected, Crc32Ieee.Compute(bytes.AsSpan(FaithContainer.HeaderSize)));
     }
 }

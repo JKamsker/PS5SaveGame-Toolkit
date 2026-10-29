@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using static SaveToolkit.Plugins.FinalFantasy16.FaithContextLayout;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Binary;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -125,7 +126,7 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
             .Where(pair => aliases.TryGetValue(pair.Key, out var old) && old != pair.Value)
             .Select(pair => new ValueChange(pair.Key, aliases[pair.Key], pair.Value));
         result = result with { Changes = [.. result.Changes, .. derived] };
-        var newCrc = FaithCrc32.Compute(_bytes.AsSpan(FaithContainer.HeaderSize));
+        var newCrc = Crc32Ieee.Compute(_bytes.AsSpan(FaithContainer.HeaderSize));
         BinaryPrimitives.WriteUInt32LittleEndian(_bytes.AsSpan(FaithContainer.CrcOffset), newCrc);
         return result with
         {
@@ -155,7 +156,7 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
     {
         var output = _bytes.ToArray();
         BinaryPrimitives.WriteUInt32LittleEndian(output.AsSpan(FaithContainer.CrcOffset),
-            FaithCrc32.Compute(output.AsSpan(FaithContainer.HeaderSize)));
+            Crc32Ieee.Compute(output.AsSpan(FaithContainer.HeaderSize)));
         var reparsed = FaithContainer.Parse(output);
         _ = FaithInventory.Parse(output, reparsed);
         return [new FileOutput(_file.RelativePath, output)];

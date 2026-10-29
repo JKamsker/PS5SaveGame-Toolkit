@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Binary;
 
 namespace SaveToolkit.Plugins.FinalFantasy16;
 
@@ -50,7 +51,7 @@ internal sealed record FaithContainer(ulong Version, IReadOnlyList<FaithBlock> B
         }
 
         var expected = BinaryPrimitives.ReadUInt32LittleEndian(bytes[CrcOffset..]);
-        if (expected != FaithCrc32.Compute(bytes[HeaderSize..]))
+        if (expected != Crc32Ieee.Compute(bytes[HeaderSize..]))
         {
             throw new SaveFormatException("Faith CRC32 mismatch: the save is damaged or still wrapped/encrypted.");
         }
@@ -89,28 +90,5 @@ internal sealed record FaithContainer(ulong Version, IReadOnlyList<FaithBlock> B
         }
 
         throw new SaveFormatException("Faith block terminator is missing.");
-    }
-}
-
-internal static class FaithCrc32
-{
-    private const uint ReflectedPolynomial = 0xEDB88320;
-    private const uint InitialValue = uint.MaxValue;
-    private const int BitsPerByte = 8;
-
-    // CRC-32/ISO-HDLC, including the final complement; no shared mutable lookup table.
-    public static uint Compute(ReadOnlySpan<byte> bytes)
-    {
-        var crc = InitialValue;
-        foreach (var value in bytes)
-        {
-            crc ^= value;
-            for (var bit = 0; bit < BitsPerByte; bit++)
-            {
-                crc = (crc >> 1) ^ ((crc & 1) == 0 ? 0 : ReflectedPolynomial);
-            }
-        }
-
-        return ~crc;
     }
 }

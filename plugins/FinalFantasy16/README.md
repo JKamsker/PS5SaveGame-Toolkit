@@ -254,6 +254,14 @@ Payload length is declared size minus 24; physical advance is declared size minu
 8. A four-byte zero type terminates the walk. CRC-32/ISO-HDLC covers `0x10..EOF`
 (reflected polynomial `0xEDB88320`, initial `0xFFFFFFFF`, final complement).
 
+The shared SDK `Crc32Ieee` computes integrity hashes. Coverage from `0x10` through
+EOF (including the zero terminator and opaque trailing bytes) and little-endian
+storage at offset `4` remain plugin policy. Characterization tests pin empty,
+single-byte and standard vectors plus five independently zlib-checked retail/demo
+gameplay/system hashes. No local cursor abstraction duplicates `BoundedBinaryCursor`:
+fixed-offset scalar reads and Faith framing/allocator guards stay local to retain
+their validation order, exception types and exact diagnostic messages.
+
 The parser validates CRC, alignment, progress, bounds, terminator and recognized
 allocator bounds. Limits: 64 MiB, 4,096 blocks. Duplicate types, opaque blocks,
 padding and trailing bytes remain untouched. A semantic reader requires exactly

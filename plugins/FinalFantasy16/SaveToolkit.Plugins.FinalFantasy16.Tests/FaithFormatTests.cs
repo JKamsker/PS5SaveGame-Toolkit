@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Binary;
 
 namespace SaveToolkit.Plugins.FinalFantasy16.Tests;
 
@@ -10,10 +11,10 @@ public sealed class FaithFormatTests
     [Fact]
     public void CrcMatchesStandardVectors()
     {
-        Assert.Equal(0U, FaithCrc32.Compute([]));
-        Assert.Equal(0xCBF43926U, FaithCrc32.Compute("123456789"u8));
-        Assert.Equal(0xD202EF8DU, FaithCrc32.Compute([0]));
-        Assert.Equal(0x29058C73U, FaithCrc32.Compute(Enumerable.Range(0, 256).Select(value => (byte)value).ToArray()));
+        Assert.Equal(0U, Crc32Ieee.Compute([]));
+        Assert.Equal(0xCBF43926U, Crc32Ieee.Compute("123456789"u8));
+        Assert.Equal(0xD202EF8DU, Crc32Ieee.Compute([0]));
+        Assert.Equal(0x29058C73U, Crc32Ieee.Compute(Enumerable.Range(0, 256).Select(value => (byte)value).ToArray()));
     }
 
     [Theory]
