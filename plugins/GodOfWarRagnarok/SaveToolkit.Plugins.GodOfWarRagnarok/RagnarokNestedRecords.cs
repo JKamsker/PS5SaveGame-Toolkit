@@ -35,6 +35,8 @@ internal sealed record RagnarokNestedRecords(
         // A zero word establishes no enclosing block. Retain the prior hero-only explorer.
         if (length == 0)
         {
+            // Legacy presentation still requires all arrays declared by the wallet to fit.
+            _ = ReadWallet(bytes, heroOffset, bytes.Length);
             return Empty;
         }
 
@@ -44,18 +46,12 @@ internal sealed record RagnarokNestedRecords(
         var cursor = heroOffset;
         while (cursor < end)
         {
-            Require(cursor, RagnarokFormat.WalletHeaderSize, end);
-            var id = RagnarokFormat.UInt64(bytes, cursor);
-            if (!identities.Add(id) || wallets.Count == MaximumContainers)
+            var wallet = ReadWallet(bytes, cursor, end);
+            if (!identities.Add(wallet.Id) || wallets.Count == MaximumContainers)
             {
                 throw new SaveFormatException("Duplicate or excessive nested Ragnarök wallet identities.");
             }
 
-            var resources = Count(bytes, cursor + 8);
-            var ids = Count(bytes, cursor + 12);
-            var indices = Count(bytes, cursor + 16);
-            var wallet = new RagnarokWallet(id, cursor, resources, ids, indices);
-            Require(cursor, wallet.End - cursor, end);
             // These look index-like, but early saves disprove zero-based references into the ID list.
             // Preserve their raw values instead of enforcing an unproven relationship.
             wallets.Add(wallet);
@@ -112,6 +108,17 @@ internal sealed record RagnarokNestedRecords(
 
         return new(heroOffset - sizeof(uint), end, wallets, end + sizeof(ushort) + sizeof(uint),
             linkCount, linksEnd, flagsEnd, groups);
+    }
+
+    private static RagnarokWallet ReadWallet(ReadOnlySpan<byte> bytes, int offset, int end)
+    {
+        Require(offset, RagnarokFormat.WalletHeaderSize, end);
+        var wallet = new RagnarokWallet(RagnarokFormat.UInt64(bytes, offset), offset,
+            Count(bytes, offset + sizeof(ulong)),
+            Count(bytes, offset + sizeof(ulong) + sizeof(uint)),
+            Count(bytes, offset + sizeof(ulong) + 2 * sizeof(uint)));
+        Require(offset, wallet.End - offset, end);
+        return wallet;
     }
 
     private static int Count(ReadOnlySpan<byte> bytes, int offset)
