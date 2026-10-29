@@ -2,6 +2,8 @@
 
 Evidence date: 2026-10-28. Issue [#24](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/24).
 Hogwarts implementation and its owner gates remain in [HOGWARTS.md](HOGWARTS.md).
+This is a historical round-2 evidence record. Current write scope, pack versions
+and SDK request statuses are maintained in the [README](README.md).
 
 ## Delivered views and identities
 
@@ -123,7 +125,9 @@ Both packs have normalized-file hashes, dataset attribution, source sidecars,
 Info.References, per-row/field provenance and host Sources-panel registration.
 
 Imagisphere, PowerPyx, SackboyWorldUnlocker and the GingerBread reflected scaffold
-remain research/external links where reuse rights or saved-ID joins are unclear.
+remain research/external links because saved-ID joins or implementation needs are
+unproven. These sources have no current licence refusal under the owner decisions;
+see the README's source-specific dispositions.
 At the time of the round-2 review, no wiki text, datamine content, screenshots,
 icons or game assets were imported. The later asset round is documented in the
 README and pack sidecars.
@@ -132,7 +136,9 @@ See the README attribution table and adjacent resource source files.
 
 ## Writes and F6 gate
 
-No new structural operations, presets or bulk actions are enabled. Existing scalar
+Round 2 added no structural operations, presets or bulk actions. The current plugin
+also exposes the bounded primitive-container remove-last action documented in the
+README; it is separate from F6 bulk editing. Existing scalar
 writes retain byte-identical no-op and undo/reopen behavior but do not prove game
 effects or checksum repair. Once a future bulk action has verified targets, bounds,
 dependencies, integrity coverage and console evidence, it must implement
@@ -172,7 +178,10 @@ plugin-local preview/apply substitute or direct bulk-action bypass.
 8. Before any future write, reproduce integrity across all unchanged captures
    and controlled pairs using an independent implementation, prove coverage by
    targeted mutations, validate a byte-identical no-op and exact undo/reopen.
-   Unknown build/coverage retains full-document read-only mode.
+   Unsupported schemas with visible integrity fields retain full-document
+   read-only mode. Recognized Jedi gameplay and Sackboy General already expose
+   warned Experimental scalar writes despite their unresolved checksums; the
+   checklist does not establish console acceptance of those writes.
 9. On a backed-up spare slot, validate unchanged reconstruction first; then one
    authorized single edit at a time: import, load, observe intended value and
    side effects, save in game, exit, reload again, verify, re-export/revalidate and
@@ -181,7 +190,8 @@ plugin-local preview/apply substitute or direct bulk-action bypass.
     change, explicit skipped targets, atomic rejection and one-step exact undo;
     large selections must cover the complete F8 query scope.
 
-No new required SDK contract was identified. The existing optional request for
-non-mutating F4 catalog browsing on read-only fields remains applicable. A future
-canonical field-reference node would let a curated view navigate directly to the
-existing raw binding; this round exposes the exact identity as read-only text.
+No new required SDK contract was identified. The former optional request for
+non-mutating F4 catalogue browsing is resolved by F13 (SDK-17 in the central
+register). A canonical field-reference presentation node remains the optional
+open SDK-08 request; named projections currently expose canonical identities as
+read-only text. See the README's SDK requests table for current adoption details.

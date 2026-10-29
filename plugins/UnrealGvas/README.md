@@ -19,8 +19,9 @@ ordinal default ordering and cache immutable pinned catalogue captions while
 reading scalar values live. Raw child pages load only when expanded; Jedi's
 100-row summary no longer constructs the complete actor index.
 
-The largest supplied Hogwarts/Jedi samples, measured before and after, show lower
-managed allocation: Hogwarts open 127.6 to 85.5 MB, Jedi first page 3.80 to 0.073 MB,
+The largest supplied Hogwarts/Jedi samples, measured before and after in the
+2026-10-29 review, showed lower managed allocation: Hogwarts open 127.6 to 85.5 MB,
+Jedi first page 3.80 to 0.073 MB,
 and repeated actor summary 9.97 to 0.066 MB. Timing variation prevents a reliable
 end-to-end latency claim. Eager decode/integrity checks and serialization reparse
 validation remain in place. See [method, results and regression evidence](PERFORMANCE.md).
@@ -84,18 +85,18 @@ already implemented; the new tests characterize them rather than claiming fixes.
 | --- | --- | --- |
 | F1 SaveDiff | Used | Hogwarts decoder hook and adjacent table/row evidence; corruption and no-op fixtures cover GVAS and database framing. |
 | F2 reference packs | Used | `unrealgvas.ps5`, `unrealgvas.storage` and `hogwarts.legilimens` are embedded, pinned and attributed in the Sources panel. |
-| F3 rich table cells | Used | F8 rows expose live field cells, text, confidence, descriptions, warnings and provenance; image-cell rendering remains host-owned. |
+| F3 rich table cells | Used | Hogwarts F8 rows expose editable field cells, text, confidence, descriptions, warnings and provenance. Generic/Jedi/Sackboy F8 rows are read-only text projections; Sackboy schema tables include attributed reference image cells. |
 | F4 `ReferenceSpec` pickers | Used | Exact table/column-qualified Hogwarts IDs, title captions and catalogue examples open the F13 browse-only picker with attribution, category filters, declared sorting and no save commit. |
 | F5 structural edits | Used | Fully parsed primitive array/map/set nodes expose a bounded remove-last action with snapshot undo/redo, reparsing and size validation; struct/native/opaque containers remain read-only. |
 | F6 planned bulk actions | N/A | No bounded bulk or preset has proven gameplay semantics; adding one would hide unknown checksum/relationship effects. |
 | F7 document groups | N/A | No enabled edit safely owns a coupled companion; Hogwarts primary/backup and the two database images remain independent until owner captures establish roles. |
 | F8 queryable collections | Used | Generic nested properties, Jedi actor observations, Sackboy projections and all Hogwarts tables use bounded search/filter/sort/paging. |
 | F9 maps/graphs | Used | Hogwarts Spatial tab adds an attributed schematic collectible/location map and a catalogue-domain graph, both with text alternatives and unknown states. |
-| F10 exact numbers and nullable/union specs | Used | GVAS widths are preserved through `Int128`/exact scalar bindings; nullable database values remain text-only when their semantics are unknown. |
+| F10 exact numbers and nullable/union specs | N/A | Binary integers use the existing `IntegerSpec`/`Int128` transport and binary floats use `FloatSpec`; no `ExactNumberSpec`, `NullableSpec` or `UnionSpec` is published. SQL NULL is rendered as read-only text and cannot be edited. |
 | F11 shared codecs | Used | Hogwarts routes Kraken framing and in-memory SQLite through `SaveToolkit.Codecs`; no local codec or filesystem I/O is present. |
 | F12 SaveDiff F8 traversal / decoder hook | Used | Shared `PluginViewDecoder` pages generic/named F8 views; `UnrealGvasPlugin.Decoders` registers the production SDK-only `unrealgvas.hogwarts.rows` evidence hook. |
 | F13 non-mutating inspection / catalogue browsing / float duration | Used | Attributed catalogue tabs and `Mutates = false` coverage/provenance actions work on writable and read-only documents; read-only `ReferenceSpec` examples and saved reference fields use the browse-only picker. Hogwarts uses shared category filtering and Key/Name/Category sorting. Float duration: N/A — no evidenced float time unit; serialized time-like names alone do not justify a duration conversion. |
-| F14 empty inventory slots | Added this round | Each independent Hogwarts `InventoryDynamic` F8 table hides confirmed NULL item/variation + integer-zero slots before paging, with matching metadata, stable tuple keys and correct hidden counts. Named zero-count and unknown records remain visible; Jedi/Sackboy projections have no confirmed vacancy rule. |
+| F14 empty inventory slots | Used | Each independent Hogwarts `InventoryDynamic` F8 table hides confirmed NULL item/variation + integer-zero slots before paging, with matching metadata, stable tuple keys and correct hidden counts. Named zero-count and unknown records remain visible; Jedi/Sackboy projections have no confirmed vacancy rule. |
 | F4 in F6 planned parameters (`63580dc`) | N/A | No planned action or enum parameter fallback is published; catalogue inspection actions have no parameters and cannot mutate saved IDs. |
 
 ## F14 inventory presentation
@@ -131,8 +132,8 @@ unloaded pages. The F6 planner is a **test-only adapter**; no production bulk ac
 is added. Count edits refresh slot markers and page selections. Original tuple
 identities and byte-identical no-op serialization are unchanged. Research and
 licence details are in the [slot-rule source note](SaveToolkit.Plugins.UnrealGvas/Hogwarts/InventorySlots.source.md).
-Validation: all 139 plugin tests passed (10 new regressions), with zero skips;
-the API build passed with zero warnings/errors. All changes stay in this plugin.
+The original F14 adoption was validated with sample-backed plugin tests and an API
+build; the current validation command is below.
 
 ## F12/F13 adoption
 
@@ -170,12 +171,24 @@ the native Hogwarts hook remains the row-identity evidence mode.
 
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
+| Existing generic GVAS and Jedi settings scalars: booleans, signed/unsigned integers, float32/float64 and supported strings, including decoded nested/native-struct components | Verified storage; game effects unverified | Synthetic width, Unicode, nested-container, reopen and exact-undo tests; supplied Jedi settings values and no-op samples | Plain GVAS only; the presence of a visible CRC/checksum/signature-named node makes unknown schemas read-only. Length changes update enclosing sizes and serialization reparses the output; hidden integrity metadata is not detected | Console load/save/reload and title/build-specific constraints before relying on edits |
 | Jedi gameplay and Sackboy General existing scalar fields (checksum fields remain read-only) | Inferred | Field names/types and bounded scalar spans match the supplied PS5 captures; edits reopen byte-exactly | CRC/checksum coverage is unproven; the game may reject or overwrite the save | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): controlled before/after captures and console load/save/reload for each title |
-| Hogwarts existing integer, real and text cells in either decoded database image | Inferred | Shared `SaveToolkit.Codecs` SQLite image, integrity check, stored Kraken frame rebuild, fresh GVAS parse and independent SQLite reopen | SQLite `PRAGMA integrity_check` is required; stored-block game acceptance is unproven and output is capped at 16 MiB | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): unchanged reconstruction, per-event image/row mapping, slot allocation and console reload |
+| Hogwarts eligible existing integer, real and text cells in either decoded database image (exact restrictions below) | Inferred | Shared `SaveToolkit.Codecs` SQLite image, integrity check, stored Kraken frame rebuild, fresh GVAS parse and independent SQLite reopen | SQLite `PRAGMA integrity_check` is required; stored-block game acceptance is unproven and output is capped at 16 MiB | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): unchanged reconstruction, per-event image/row mapping, slot allocation and console reload |
+| Remove the last element (last key/value pair for maps) of a nonempty, fully scalar array/map/set in a writable raw document | No action confidence label; storage layout parsed, game semantics unverified | `GvasStructuralTests` covers array/map/set removal, reparsing, count/size changes and snapshot undo/redo | Existing document integrity guards apply; pending scalar edits must first be saved/reopened. Struct/native/opaque containers and byte-array blobs have no removal action; no game checksum repair is claimed | Console reload and proof that removing the record preserves game relationships |
 
-All enabled writes are Experimental. Warnings are shown beside each field and returned
-in the edit outcome. Hogwarts does not edit identity columns, blobs, catalog reference
-cells, metadata-only files or malformed/partial database pairs.
+All enabled writes are Experimental. Scalar fields carry console warnings;
+Jedi/Sackboy gameplay and Hogwarts edits also return their integrity warning in the
+edit outcome. Removal has a confirmation prompt and an Experimental outcome message.
+
+Hogwarts cell editing is restricted to `MiscDataDynamic`, `InventoryDynamic`,
+`GearItemsDynamic`, `EquippedGearDynamic` and `PlayerStatsDynamic`. A column must
+contain `Count`, `Quantity`, `Knuts`, `Experience` or `Level` (case-insensitive), or
+be exactly `XP`, `Value`, `State`, `Status` or `DataValue`. Its existing value must
+be an integer or real, or text of at most 256 UTF-16 units. Text edit specs permit up
+to 1,048,576 units, subject to the shared SQLite limits. Identity columns, SQL NULL,
+blobs, resolved collectible reference cells, metadata-only files and malformed or
+partial database pairs remain read-only. This is an implementation allowlist,
+not proof of gameplay-safe quantities or flags.
 
 Compressed outer envelopes, including Hogwarts zlib and Astroneer wrappers, remain
 read-only until envelope recompression is verified. Database inspection is still
@@ -257,7 +270,7 @@ three envelope forms, and short non-seekable reads that stop before property tag
   payload boundaries cannot be established.
 * Edits replace scalar spans in the original bytes. Every enclosing property size
   and struct-array inner size is adjusted by the length delta. Hogwarts database
-  writes replace only the two modeled array payloads and preserve surrounding GVAS
+  writes replace only changed modeled array payloads and preserve surrounding GVAS
   bytes. Serialize reparses the result and compares the decoded tree and values
   before returning. Undo restores byte-identical output. No decrypted sample data
   is embedded.
@@ -319,9 +332,9 @@ Its Spatial tab adds a link-first schematic map of attributed regions plus a cat
 domain graph. Positions are plugin-authored grouping coordinates, not game coordinates;
 all marker and graph states remain Unknown, and fast travel is an unjoined external
 domain. `SpatialViewValidation` checks bounds, links, attribution and acyclicity.
-Hogwarts metadata and malformed/partial database pairs remain read-only. Existing
-integer, real and text cells in a complete pair are editable with Inferred confidence;
-identity columns, blobs and catalog reference cells stay read-only. Top-level fields
+Hogwarts metadata and malformed/partial database pairs remain read-only. Eligible
+existing integer, real and text cells in the allowlisted tables/columns above are
+editable with Inferred confidence; other cells stay read-only. Top-level fields
 appear only in Search to satisfy global value-ID uniqueness; nested fields appear in
 the explorer. IDs use ordinal paths, stable across length changes.
 Opaque values expose paged read-only hex.
@@ -336,7 +349,7 @@ state interpretation, image relationships and game effects remain Inferred/Unkno
 Limits: 128 MiB unwrapped data; 100,000 decoded nodes and separately 100,000 UE5
 type names; 64 nested parsing levels and 16 levels within complete type names;
 1,048,576 FString units. Byte-array lengths use the file bound, not the node bound.
-Sample open-time tests enforce the approximately two-second target.
+Sample open times are diagnostic output, not an enforced two-second limit.
 
 ## Validation and maturity
 
@@ -352,21 +365,26 @@ Sample-dependent tests skip through SampleSaves when archives are absent.
 
 The Hogwarts round adds all-image integrity/no-op checks, F1 row diff evidence,
 F8 host registration/query bounds, F2/F4 attribution and candidate resolution,
-corruption isolation, and test-only stored-frame GVAS reconstruction. Sample
+corruption isolation, and stored-frame GVAS reconstruction. Sample
 tests require the artifacts environment variable in the same command as the run.
-Validated for the completion round: **85 passed, 0 failed, 0 skipped**, including
-Jedi/Sackboy warned scalar edits, Hogwarts SQLite/stored-block edit/reopen, all
-Hogwarts regressions, conformance, query bounds/identities, F5 primitive array/map/set
-remove/reopen/undo, corruption tests and F9 spatial validation; API build: **0 warnings, 0 errors**.
+Coverage includes Jedi/Sackboy warned scalar edits, Hogwarts SQLite/stored-block
+edit/reopen, conformance, query bounds/identities, F5 primitive array/map/set
+remove/reopen/undo, corruption tests and F9 spatial validation. Dated performance
+review test totals remain in [PERFORMANCE.md](PERFORMANCE.md).
 
 ```powershell
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
+$scratch = 'D:/Temp/saveeditor/test-scratch/docs-accuracy-unrealgvas'
+New-Item -ItemType Directory -Path $scratch -Force | Out-Null
+$env:SAVETOOLKIT_TEST_TEMP = $scratch
+$env:TEMP = $scratch
+$env:TMP = $scratch
 dotnet test --project plugins/UnrealGvas/SaveToolkit.Plugins.UnrealGvas.Tests
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
-No plugin build hooks, git hooks or size-check scripts are installed. All C# files
-added in this round remain below 300 lines; repository policy is enforced in review.
+No plugin build hooks, git hooks or size-check scripts are installed; repository
+file-size policy is enforced in review.
 
 ## Open problems
 
@@ -486,9 +504,9 @@ upstream code was copied and no downloaded program was executed.
 | Shared Kraken / SQLite | [SaveToolkit.Codecs](../../src/SaveToolkit.Codecs/README.md), toolkit contributors and attributed upstream authors; GPL-3.0-or-later decoder, MIT Microsoft.Data.Sqlite, Apache-2.0 SQLitePCLRaw, public-domain SQLite | Referenced, not ported/duplicated. Root LICENSE/THIRD-PARTY-NOTICES retain shared dependencies' notices. In-memory native SQLite only; no proprietary decoder. |
 | PS5 schema captions / F1 identity evidence | Toolkit contributors, GPL-3.0-or-later; privately retained sample observations, 2026-10-28 | Original navigation text and storage observations, no extracted sample records committed. Table descriptions cite provenance and expose schema fingerprints; raw labels remain when catalog joins fail. |
 | Sackboy progression/costume/world and Jedi actor/journey captions | [Toolkit original evidence](https://github.com/JKamsker/PS5SaveGame-Toolkit), contributors; GPL-3.0-or-later, 2026-10-28 | `unrealgvas.ps5` v1.2.0 has 24 Sackboy and 12 Jedi entries plus four attributed costume icon references. Original captions inferred from observed serialized names; costume thumbnails are reference-only and have no saved-ID join. [Sidecar](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/unrealgvas.ps5/SOURCES.md), dataset manifest, [costume sidecar](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/unrealgvas.ps5/costumes.source.md), F4 descriptions, per-F8-row source and Sources panel carry provenance. |
-| Jedi settings storage captions | [Toolkit original evidence](https://github.com/JKamsker/PS5SaveGame-Toolkit), contributors; GPL-3.0-or-later, 2026-10-28 | Six original display/input/override captions in `unrealgvas.ps5` v1.1.0, read-only named projections over canonical raw fields. Same sidecar/manifest/UI provenance; effective ranges and gameplay effects unverified. |
+| Jedi settings storage captions | [Toolkit original evidence](https://github.com/JKamsker/PS5SaveGame-Toolkit), contributors; GPL-3.0-or-later, 2026-10-28 | Six original display/input/override captions, introduced in `unrealgvas.ps5` v1.1.0 and retained in v1.2.0, read-only named projections over canonical raw fields. Same sidecar/manifest/UI provenance; effective ranges and gameplay effects unverified. |
 | Generic serialized GVAS type captions | [uesave 1917a22](https://github.com/trumank/uesave/tree/1917a22ab69e9a4045e613d9d7f39a49fe00bd46), Truman Kilen / contributors; MIT upstream reference, GPL-3.0-or-later original captions; 2026-10-28 | `unrealgvas.storage` v1.0.0: 17 type identifiers and independently authored explanations; no implementation port. Full [MIT notice](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/unrealgvas.storage/LICENSE.txt), [source sidecar](SaveToolkit.Plugins.UnrealGvas/ReferencePacks/unrealgvas.storage/property-types.source.md), normalized hashes, Info.References, per-row attribution and Sources panel. Applies to generic GVAS without a known title. |
-| External gameplay guides / unclear-license schema leads | [Imagisphere levels](https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels), [Imagisphere shop](https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29), [PowerPyx Jedi guide](https://www.powerpyx.com/star-wars-jedi-fallen-order-all-collectible-locations-guide/), [SackboyWorldUnlocker](https://github.com/MsKrypt1/SackboyWorldUnlocker), [GingerBread scaffold](https://github.com/LBPHaxMods/GingerBread/tree/2cf1351e8992ca07d7d7474be454c6476f8ebde2); respective authors, research only | Rule 9 external-link route: source/details links only. No unsupported saved-ID joins are asserted. New publisher/community art is limited to the attributed, owner-permitted asset datasets described above. No new CC BY-SA adaptation bundled. |
+| External gameplay guides / schema research leads | [Imagisphere levels](https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Levels), [Imagisphere shop](https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29), [PowerPyx Jedi guide](https://www.powerpyx.com/star-wars-jedi-fallen-order-all-collectible-locations-guide/), [SackboyWorldUnlocker](https://github.com/MsKrypt1/SackboyWorldUnlocker), [GingerBread scaffold](https://github.com/LBPHaxMods/GingerBread/tree/2cf1351e8992ca07d7d7474be454c6476f8ebde2); respective authors, research only; revisions/terms not recorded except the pinned scaffold | No current licence refusal under the owner decisions; these sources remain research/navigation links because native joins or implementation needs are unproven. No guide prose or unsupported saved-ID joins are bundled. Publisher art is limited to the attributed asset datasets above; no new CC BY-SA adaptation bundled. |
 | Sackboy image metadata catalog | [Peter on Programming](https://peteronprogramming.wordpress.com/2024/01/06/reverse-engineering-the-end-of-level-photos-in-sackboy-a-big-adventure/); [MIT extractor 3b26966](https://github.com/Donpedro13/GingerBreadImageExtractor/tree/3b26966a04a2b6e20d61962ef6fcb84242bb7a1f), original PS5 evidence, 2026-10-28 | Existing field-name-only dataset unchanged; metadata evidence is separate from unverified PS5 pixels/swizzle. |
 | Hogwarts spatial navigation links | [Legilimens 02525dde](https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/tree/02525dde0fd9bc0be72982478680377dccb41246), MIT; [MapGenie external map](https://mapgenie.io/hogwarts-legacy/maps/hogwarts), link-only, retrieved 2026-10-28 | Region positions remain original schematic coordinates and are aligned to the embedded schematic background. MapGenie remains an external navigation link; no third-party coordinates or publisher map art is embedded. |
 
@@ -514,15 +532,21 @@ implementation needs are separate evidence gaps. These research entries match th
 
 ## SDK requests
 
-No new SDK request is required for this round. The implementation uses the existing
-`IReferenceContext`, embedded-pack loader, `ReferenceSpec`, lazy sections and bounded
-F8 collections. Any future eligible bulk action must use F6 `IActionPlanningDocument`
-and `SupportsPlanning`, including complete F8 query scopes; none is enabled by
-unproven checksums or guessed gameplay bounds. The former read-only-download request is stale: the current API already
-permits original-file download when editing is disabled. A canonical field-reference
-node and richer image cells remain useful future framework improvements, but this
-plugin does not duplicate them locally. Hogwarts uses F8 and the shared Codecs
-reference with no new required contract. The former read-only F4 browse request is
-resolved by F13 (#33): the shared picker remains searchable, filterable and sortable
-while selection/commit is disabled. F12 (#32) resolves native decoder discovery through
-`ISaveDecoderProvider`; no test-only decoder or plugin-side catalogue index is needed.
+Cross-checked against the [central SDK request register](../../docs/SDK_REQUESTS.md)
+on 2026-10-29. No missing contract blocks the current implementation.
+
+| Request | Current status / plugin use |
+| --- | --- |
+| SDK-08 canonical field-reference presentation node | Open, optional. Named F8 projections display canonical raw identities as text; the original Properties/Search fields own bindings. Existing `ViewTarget` links are available for navigation, but do not provide a general field-alias node. |
+| SDK-14 / SDK-15 bounded F8 SaveDiff traversal and native hook discovery | Resolved and used: `PluginViewDecoder` and the production `ISaveDecoderProvider` / `unrealgvas.hogwarts.rows` hook. |
+| SDK-16 / SDK-17 read-only inspection and browse-only catalogue pickers | Resolved and used: `Mutates = false`, `ReferenceSpec`, category filtering and declared sorting. |
+| SDK-21 collection IDs containing `/` | Resolved by the shared query-parameter route; native collection IDs remain unchanged. |
+| SDK-26 bounded cursor / FString helpers | Resolved and adopted through `BoundedBinaryCursor` and `FStringCodec`, retaining local format limits and diagnostics. |
+| SDK-24 / SDK-27 shared in-memory collections and catalogue traversal | Resolved APIs, not adopted here. Property projections retain their local live-value/caption query policy; Hogwarts uses SQL queries and the spatial view pages its pinned catalogue directly. This is adoption work, not a missing contract. |
+| SDK-31 caller-owned Kraken destination/workspace | Resolved API, not adopted here. `HogwartsImage` still uses the allocating `Decompress(source, decodedLength, maxBytes)` overload; the dated allocation measurements describe that implementation. |
+| SDK-38 original-file download while read-only | Resolved by existing independent-document `/download` behavior. |
+| SDK-39 rich image/nested table cells | Resolved by existing `ImageNode` cells and shared rich-cell/detail rendering; Sackboy schema reference thumbnails already use image cells. |
+
+Any future eligible bulk action must use F6 `IActionPlanningDocument` and
+`SupportsPlanning`, including complete F8 query scopes. Unknown checksums or guessed
+gameplay bounds do not supply the missing evidence for such an action.
