@@ -27,6 +27,7 @@ public sealed class PresetStore
     private readonly PresetStoreOptions _options;
     private readonly object _gate = new();
     private readonly Dictionary<string, ToolkitPreset> _presets = new(StringComparer.Ordinal);
+    private string _generation = Guid.NewGuid().ToString("N");
 
     public PresetStore(PresetStoreOptions options)
     {
@@ -46,6 +47,56 @@ public sealed class PresetStore
     public ToolkitPreset? Find(string id)
     {
         lock (_gate) return _presets.TryGetValue(id, out var preset) ? ClonePreset(preset) : null;
+    }
+
+    /// <summary>Snapshot bound to successful CRUD and the current durable file identity.</summary>
+    public PresetLibrarySnapshot Snapshot()
+    {
+        lock (_gate) return new(StorageIdentity(), List());
+    }
+
+    /// <summary>Publishes a reviewed whole-library transaction with one durable write.</summary>
+    public void ImportLibrary(string expectedIdentity, IReadOnlyList<ToolkitPreset> records)
+    {
+        lock (_gate)
+        {
+            if (!string.Equals(expectedIdentity, StorageIdentity(), StringComparison.Ordinal))
+                throw new PresetTransferException("stalePresetImport", "The preset library changed. Preview the package again before importing.", 409);
+            ValidateImportLibrary(records);
+            var staged = new Dictionary<string, ToolkitPreset>(StringComparer.Ordinal);
+            foreach (var record in records)
+            {
+                ValidateName(record.Name);
+                ValidatePayload(record.Compatibility, record.Actions);
+                if (!staged.TryAdd(record.Id, ClonePreset(record)))
+                    throw new PresetTransferException("duplicatePresetId", "The import would repeat a preset ID.");
+            }
+            // Persist before publication: a failed file replacement cannot mutate the live graph.
+            Persist(staged.Values);
+            _presets.Clear();
+            foreach (var pair in staged) _presets.Add(pair.Key, pair.Value);
+        }
+    }
+
+    public void ValidateImportLibrary(IReadOnlyList<ToolkitPreset> records)
+    {
+        if (records.Count > _options.MaxPresets)
+            throw new PresetTransferException("presetLibraryFull", "The resulting library exceeds the preset limit. Remove presets or import fewer records.");
+        if (JsonSerializer.SerializeToUtf8Bytes(records.OrderBy(p => p.Id), JsonOptions).Length > _options.MaxPayloadBytes)
+            throw new PresetTransferException("presetLibraryFull", "The resulting preset library exceeds its 512 KiB storage limit. Import fewer presets.");
+    }
+
+    private string StorageIdentity()
+    {
+        try
+        {
+            var path = Path.Combine(_options.StorageRoot, FileName);
+            return _generation + ":" + PresetStorageIdentity.Read(path, _options.MaxPayloadBytes);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            throw new PresetStorageException("Preset storage is temporarily unavailable. Retry the operation.", ex);
+        }
     }
 
     /// <summary>Stable fingerprint of the reviewed preset payload, excluding mutable timestamps.</summary>
@@ -177,17 +228,18 @@ public sealed class PresetStore
         }
     }
 
-    private void Persist()
+    private void Persist(IEnumerable<ToolkitPreset>? records = null)
     {
         var path = Path.Combine(_options.StorageRoot, FileName);
         var temp = path + ".tmp";
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(_presets.Values.OrderBy(p => p.Id), JsonOptions);
+        var bytes = JsonSerializer.SerializeToUtf8Bytes((records ?? _presets.Values).OrderBy(p => p.Id), JsonOptions);
         if (bytes.LongLength > _options.MaxPayloadBytes)
             throw new InvalidOperationException("Preset storage exceeds the configured size limit.");
         try
         {
             File.WriteAllBytes(temp, bytes);
             File.Move(temp, path, overwrite: true);
+            _generation = Guid.NewGuid().ToString("N");
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

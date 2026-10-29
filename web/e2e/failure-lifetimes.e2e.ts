@@ -98,7 +98,7 @@ test("cancelled export ignores a late download failure and restores opener focus
     await delayed;
     await route.fulfill({ status: 503, json: { error: "Late export failure must stay retired." } });
   });
-  const opener = page.getByRole("button", { name: /^Export/ });
+  const opener = page.getByRole("button", { name: /^Export(?:$| \d)/ });
   await opener.click();
   const dialog = page.getByRole("dialog", { name: "Export edited saves" });
   await expect(dialog.getByRole("button", { name: "Download zip", exact: true })).toBeEnabled();

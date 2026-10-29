@@ -98,12 +98,24 @@ output-directory behavior, so the check never removes or rewrites output.
 | DocumentEditor.css | 1504 | 1660 |
 | PresetsPanel.js | 5249 | 5800 |
 | PresetsPanel.css | 523 | 580 |
+| ImportPresetDialog.js | 2392 | 2640 |
+| ExportPresetDialog.js | 1127 | 1250 |
+| TransferDialog.js | 897 | 1000 |
+| TransferDialog.css | 473 | 520 |
+| jsx-runtime.js | 3328 | 3670 |
 | documentStore.js | 1015 | 1130 |
 | values.js | 5391 | 6000 |
 | GraphView.js | 1747 | 1930 |
 | MapView.js | 2129 | 2350 |
 | SpatialShared.js | 1788 | 1970 |
 | SpatialShared.css | 911 | 1010 |
+
+The preset-transfer follow-up adds explicit lazy import/export dialogs and shared native-modal
+code/styles. These new chunks load only on the corresponding toolbar action; the existing
+PresetsPanel CSS and all existing limits stay unchanged. Vite extracts a shared JSX runtime
+initial dependency (3328 gzip bytes), with measured aggregate initial JS around 120.1 kB,
+still within its existing 130500-byte limit. New transfer limits retain approximately 10%
+headroom; they do not exempt any emitted chunk from checking.
 
 CI `validate` runs `npm run check:bundle` immediately after its production build on **both Ubuntu
 and Windows**. Synthetic Vitest regressions cover shared imports/cycles, lazy JS/CSS, aggregate

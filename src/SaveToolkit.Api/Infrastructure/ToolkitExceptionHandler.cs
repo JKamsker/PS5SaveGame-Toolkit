@@ -32,6 +32,13 @@ internal sealed partial class ToolkitExceptionHandler(ILogger<ToolkitExceptionHa
             return true;
         }
 
+        if (exception is PresetTransferException transfer)
+        {
+            if (transfer.StatusCode == StatusCodes.Status503ServiceUnavailable) context.Response.Headers.RetryAfter = "600";
+            await ApiProblem.WriteAsync(context, transfer.StatusCode, new ErrorDto(transfer.Message, transfer.Code), cancellationToken);
+            return true;
+        }
+
         var (status, message) = exception switch
         {
             PresetStorageException e => (StatusCodes.Status503ServiceUnavailable, e.Message),

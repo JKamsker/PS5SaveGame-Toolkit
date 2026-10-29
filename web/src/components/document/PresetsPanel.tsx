@@ -6,6 +6,7 @@ import type { ActionNode, FieldValue, PresetActionCapability, PresetCapability, 
 import { useDocument } from "../../state/documentStore";
 import { ActionParameterFields } from "./ActionParameterFields";
 import { useActionSelection } from "./table/selectionBindings";
+import { PresetTransferToolbar } from "./preset-transfer/PresetTransferToolbar";
 import "./presets.css";
 
 interface PresetsPanelProps { document: SaveDocument; onToast: (message: string, isError?: boolean) => void }
@@ -83,6 +84,7 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
       <p>Presets are stored outside save bytes and apply through a revision-bound preview.</p>
       {presets.isPending && <p aria-live="polite" aria-atomic="true">Loading presets…</p>}
       <h3 ref={heading} tabIndex={-1}>Saved presets</h3>
+      <PresetTransferToolbar document={document} />
       {presets.isError && <><p role="alert">Could not load presets: {presets.error.message}</p><button type="button" className="btn btn--small" onClick={() => void presets.refetch()}>Retry loading presets</button></>}
       {presets.data?.length === 0 && <p className="notice notice--Muted">No presets saved for this toolkit yet.</p>}
       {presets.data && <><label>Filter presets <input className="input" value={filter} onChange={event => setFilter(event.target.value)} placeholder="Name or action" /></label><ul className="presets-list">{visiblePresets.map(preset => <PresetRow key={preset.id} preset={preset} document={document}

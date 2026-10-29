@@ -52,7 +52,7 @@ test("imports, opens, edits and exports using only the keyboard", async ({ page 
   await page.keyboard.press("Enter");
   await expect(coinsField(page)).toHaveAccessibleName(/modified/);
   await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeEnabled();
-  await tabTo(page, page.getByRole("button", { name: /^Export/ }));
+  await tabTo(page, page.getByRole("button", { name: /^Export(?:$| \d)/ }));
   await page.keyboard.press("Enter");
   const dialog = page.getByRole("dialog", { name: "Export edited saves" });
   await tabTo(page, dialog.getByRole("radio", { name: /Changed save folders/ }));

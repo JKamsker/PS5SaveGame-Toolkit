@@ -79,7 +79,7 @@ export async function downloadedFiles(download: Download, testInfo: TestInfo, na
 }
 
 export async function exportFiles(page: Page, testInfo: TestInfo, name = "export.zip") {
-  await page.getByRole("button", { name: /^Export/ }).click();
+  await page.getByRole("button", { name: /^Export(?:$| \d)/ }).click();
   const dialog = page.getByRole("dialog", { name: "Export edited saves" });
   await dialog.getByRole("radio", { name: /Whole dump/ }).check();
   await expect(dialog.getByRole("button", { name: "Download zip", exact: true })).toBeEnabled();
