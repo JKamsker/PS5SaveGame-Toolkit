@@ -25,19 +25,30 @@ internal static class JsonTokenWriter
         var before = document.CaptureSnapshot();
         try
         {
-            var changes = JsonEditModel.Walk(root).Where(node => !node.IsContainer).Select(node =>
+            var finalLength = (long)document.OriginalLength;
+            var candidates = JsonEditModel.Walk(root).Where(node => !node.IsContainer).Select(node =>
             {
                 if (node.SdkNode is null) throw new SaveFormatException("Edited JSON lost a scalar identity.");
-                var lexeme = replacements is not null && replacements.TryGetValue(node.Index, out var saved)
-                    ? saved : node.Current == node.Original
-                    ? node.SdkNode.OriginalLexeme!
-                    : Encoding.UTF8.GetString(node.Encode());
-                return (Node: node.SdkNode, Lexeme: lexeme);
-            }).Where(change => change.Node.CurrentLexeme != change.Lexeme).ToArray();
+                var explicitLexeme = replacements is not null && replacements.TryGetValue(node.Index, out var saved)
+                    ? saved : node.Current == node.Original ? node.SdkNode.OriginalLexeme! : null;
+                var targetLength = explicitLexeme is not null
+                    ? Encoding.UTF8.GetByteCount(explicitLexeme) : JsonScalarEncoding.EncodedLength(node.Scalar);
+                if (explicitLexeme == node.SdkNode.OriginalLexeme &&
+                    node.SdkNode.CurrentLexeme == explicitLexeme)
+                    return (Candidate: default(ScalarCandidate), Include: false);
+                if (explicitLexeme != node.SdkNode.OriginalLexeme)
+                    finalLength = checked(finalLength + targetLength - node.SdkNode.OriginalSpan.Length);
+                return (Candidate: new ScalarCandidate(node, node.SdkNode, explicitLexeme, targetLength), Include: true);
+            }).Where(result => result.Include).Select(result => result.Candidate).ToArray();
+            if (finalLength > JsonTokenTree.MaxBytes)
+                throw new SaveFormatException("Edited JSON exceeds the 16 MiB safety limit.");
+
+            var changes = candidates.Select(candidate => (Node: candidate.SdkNode,
+                Lexeme: candidate.ExplicitLexeme ?? Encoding.UTF8.GetString(candidate.PluginNode.Encode()),
+                Delta: candidate.TargetLength - Encoding.UTF8.GetByteCount(candidate.SdkNode.CurrentLexeme!)));
             // Shrinks and reverts cannot exceed the current budget. Applying them first makes
             // each subsequent growth safe whenever the complete final map fits.
-            foreach (var change in changes.OrderBy(change =>
-                Encoding.UTF8.GetByteCount(change.Lexeme) - Encoding.UTF8.GetByteCount(change.Node.CurrentLexeme!)))
+            foreach (var change in changes.OrderBy(change => change.Delta))
                 _ = document.ReplaceScalar(change.Node, change.Lexeme);
             var result = document.Serialize();
             _ = JsonTokenTree.Parse(result);
@@ -50,6 +61,9 @@ internal static class JsonTokenWriter
             throw new SaveFormatException("Edited JSON exceeds the lossless scalar limits.", ex);
         }
     }
+
+    private readonly record struct ScalarCandidate(JsonValueToken PluginNode, LosslessJsonNode SdkNode,
+        string? ExplicitLexeme, int TargetLength);
 
     private static bool IsUnchangedTree(JsonValueToken root) => JsonEditModel.Walk(root).All(node =>
         node.SdkNode is not null && ReferenceEquals(node.Source, root.Source) &&
