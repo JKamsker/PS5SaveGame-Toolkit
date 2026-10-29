@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
@@ -57,19 +58,30 @@ public sealed class JsonEditingTests
         }
     }
 
-    [Fact]
-    public void HandlesNullRootsNumericLimitsAndDuplicateNames()
+    [Theory]
+    [InlineData("en-US")]
+    [InlineData("sv-SE")]
+    public void HandlesNullRootsNumericLimitsAndDuplicateNames(string cultureName)
     {
-        using var document = Open("[null,{},[],true,1e9999,1e-9999,170141183460469231731687303715884105728,-170141183460469231731687303715884105728,1e0]");
-        var fields = Fields(document);
-        Assert.Equal(7, fields.Count);
-        Assert.DoesNotContain(fields, f => f.Spec.ReadOnly);
-        Assert.Equal(Int128.MinValue.ToString(), fields[5].Value.AsUnion().Value.AsExactNumber());
-        Assert.Equal("1e0", fields[6].Value.AsUnion().Value.AsExactNumber());
-        foreach (var root in new[] { "null", "{}", "[]", "true", "12", "\"text\"" })
+        var previousCulture = CultureInfo.CurrentCulture;
+        try
         {
-            using var scalar = Open(root);
-            Assert.Equal(Encoding.UTF8.GetBytes(root), scalar.Serialize()[0].Content.ToArray());
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);
+            using var document = Open("[null,{},[],true,1e9999,1e-9999,170141183460469231731687303715884105728,-170141183460469231731687303715884105728,1e0]");
+            var fields = Fields(document);
+            Assert.Equal(7, fields.Count);
+            Assert.DoesNotContain(fields, f => f.Spec.ReadOnly);
+            Assert.Equal(Int128.MinValue.ToString(CultureInfo.InvariantCulture), fields[5].Value.AsUnion().Value.AsExactNumber());
+            Assert.Equal("1e0", fields[6].Value.AsUnion().Value.AsExactNumber());
+            foreach (var root in new[] { "null", "{}", "[]", "true", "12", "\"text\"" })
+            {
+                using var scalar = Open(root);
+                Assert.Equal(Encoding.UTF8.GetBytes(root), scalar.Serialize()[0].Content.ToArray());
+            }
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previousCulture;
         }
     }
 

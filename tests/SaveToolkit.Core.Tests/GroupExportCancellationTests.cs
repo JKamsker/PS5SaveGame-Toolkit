@@ -54,7 +54,7 @@ public sealed class GroupExportCancellationTests
 
         plugin.OnValidate = null;
         Assert.Equal(state, group.Session.State);
-        var retry = await Task.Run(() => WorkspaceExporter.Plan(workspace, new())).WaitAsync(TimeSpan.FromSeconds(5));
+        var retry = await TestWorker.Run(() => WorkspaceExporter.Plan(workspace, new()), TestContext.Current.CancellationToken);
         Assert.Equal(2, retry.Overrides.Count);
         Assert.True(group.Session.Undo().Ok);
         Assert.False(group.Session.State.IsDirty);

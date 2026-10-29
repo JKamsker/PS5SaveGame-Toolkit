@@ -25,11 +25,11 @@ public sealed class DocumentResponseConcurrencyTests
             Assert.True(session.ApplyEdits([new("counter", JsonSerializer.SerializeToElement(2))]).Ok);
             Assert.True(session.Undo().Ok);
         }
-        using var start = new Barrier(2);
+        var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         using var stop = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        var editing = Task.Run(() =>
+        var editing = TestWorker.Run(() =>
         {
-            Assert.True(start.SignalAndWait(TimeSpan.FromSeconds(10), ct));
+            started.SetResult();
             for (var revision = 1; !stop.IsCancellationRequested; revision++)
             {
                 var value = revision % 2 == 0 ? 1 : 2;
@@ -41,7 +41,7 @@ public sealed class DocumentResponseConcurrencyTests
         }, ct);
         try
         {
-            Assert.True(start.SignalAndWait(TimeSpan.FromSeconds(10), ct));
+            await started.Task.WaitAsync(ct);
             for (var attempt = 0; attempt < 2_000; attempt++)
             {
                 var response = session.ToDto(workspace);

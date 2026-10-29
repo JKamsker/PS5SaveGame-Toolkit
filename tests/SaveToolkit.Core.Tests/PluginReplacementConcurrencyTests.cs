@@ -19,24 +19,36 @@ public sealed class PluginReplacementConcurrencyTests
         using var store = new WorkspaceStore(new PluginCatalog([original, replacement]), new() { DataRoot = TestZips.TempDir() });
         var workspace = store.Create("switch race", [new ImportSource("save.dat", () => new MemoryStream(CounterPlugin.Create(1)))]);
         var file = workspace.Set.AllDiskFiles.Single();
-        using var start = new Barrier(2);
         for (var attempt = 0; attempt < 2_000; attempt++)
         {
             var session = workspace.Open(file.Id, original.Info.Id);
             _ = session.BuildView();
-            var editing = Task.Run(() =>
+            var editingReady = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var switchingReady = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var start = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var editing = Task.Run(async () =>
             {
-                Assert.True(start.SignalAndWait(TimeSpan.FromSeconds(10), ct));
+                editingReady.SetResult();
+                await start.Task.WaitAsync(ct);
                 try { return session.ApplyEdits([new("counter", JsonSerializer.SerializeToElement(2))]).Ok; }
                 catch (ObjectDisposedException) { return false; }
             }, ct);
-            var switching = Task.Run(() =>
+            var switching = Task.Run(async () =>
             {
-                Assert.True(start.SignalAndWait(TimeSpan.FromSeconds(10), ct));
+                switchingReady.SetResult();
+                await start.Task.WaitAsync(ct);
                 try { workspace.Open(file.Id, replacement.Info.Id); return true; }
                 catch (InvalidOperationException) { return false; }
             }, ct);
-            await Task.WhenAll(editing, switching);
+            try
+            {
+                await Task.WhenAll(editingReady.Task, switchingReady.Task).WaitAsync(ct);
+            }
+            finally
+            {
+                start.TrySetResult();
+                await Task.WhenAll(editing, switching);
+            }
 
             Assert.False(editing.Result && switching.Result, $"Successful edit discarded on attempt {attempt}.");
             if (editing.Result)

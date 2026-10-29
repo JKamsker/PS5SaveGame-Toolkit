@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Api.Performance.Tests;
 
@@ -12,7 +13,7 @@ public sealed class OpenApiHostingTests
     [Fact]
     public async Task Contract_preserves_static_spa_and_unknown_api_responses()
     {
-        string root = Path.Combine(Path.GetTempPath(), "openapi-hosting", Guid.NewGuid().ToString("N"));
+        string root = Path.Combine(TestScratch.ProcessFolder, "openapi-hosting", Guid.NewGuid().ToString("N"));
         string webRoot = Path.Combine(root, "wwwroot");
         Directory.CreateDirectory(webRoot);
         const string page = "<!doctype html><title>OpenAPI hosting regression fixture</title>";

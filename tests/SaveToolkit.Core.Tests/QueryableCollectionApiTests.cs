@@ -2,14 +2,13 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.Tests.Fakes;
 
 namespace SaveToolkit.Core.Tests;
 
-public sealed class QueryableCollectionApiTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public sealed class QueryableCollectionApiTests(IsolatedApiFactory factory) : IClassFixture<IsolatedApiFactory>
 {
     private static readonly string[] ExcludedRowKeys = ["50999"];
     private readonly HttpClient _client = factory.WithWebHostBuilder(builder =>

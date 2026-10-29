@@ -3,11 +3,11 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Core.Tests;
 
-public sealed class ApiTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public sealed class ApiTests(IsolatedApiFactory factory) : IClassFixture<IsolatedApiFactory>
 {
     private readonly HttpClient _client = factory.WithWebHostBuilder(b => b.UseSetting("Toolkit:DataRoot", TestZips.TempDir())).CreateClient();
 
@@ -53,10 +53,15 @@ public sealed class ApiTests(WebApplicationFactory<Program> factory) : IClassFix
     }
 
     [Theory]
-    [InlineData(-1)]
-    [InlineData(long.MinValue)]
-    public async Task ReadBlob_NegativeOffset_Returns400WithErrorEnvelope(long offset)
+    [InlineData("en-US", -1L)]
+    [InlineData("en-US", long.MinValue)]
+    [InlineData("sv-SE", -1L)]
+    [InlineData("sv-SE", long.MinValue)]
+    [InlineData("fa-IR", -1L)]
+    [InlineData("fa-IR", long.MinValue)]
+    public async Task ReadBlob_NegativeOffset_Returns400WithErrorEnvelope(string cultureName, long offset)
     {
+        using var culture = new TestCulture(CultureInfo.GetCultureInfo(cultureName));
         var ct = TestContext.Current.CancellationToken;
         var workspace = await UploadAsync();
         var workspaceId = workspace.GetProperty("id").GetString();

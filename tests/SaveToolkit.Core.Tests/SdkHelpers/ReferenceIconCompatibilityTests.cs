@@ -1,7 +1,9 @@
+using System.Globalization;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Tests.Fakes;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 using static SaveToolkit.Core.Tests.SdkHelpers.ReferenceHelperFixture;
 
 namespace SaveToolkit.Core.Tests.SdkHelpers;
@@ -17,7 +19,12 @@ public sealed class ReferenceIconCompatibilityTests
     [InlineData("Whole-item thumbnail; appearance unknown", "Whole-item thumbnail; appearance unknown")]
     [InlineData("", "")]
     public void ExistingOverloadPreservesTheEntireImageNode(string? label, string expectedLabel)
+        => AssertHistoricalImageNode(label, expectedLabel);
+
+    private static void AssertHistoricalImageNode(string? label, string expectedLabel)
     {
+        // Historical attribution literals use the Gregorian calendar, independently of host presentation.
+        using var culture = new TestCulture(CultureInfo.InvariantCulture);
         Assert.Equal(new ImageNode("pack:icons/item.png", $"{expectedLabel}. {RecordCredit}. Icon: {ImageCredit}"),
             ReferenceViews.Icon(new Context(), Record("a"), label));
     }
@@ -28,7 +35,11 @@ public sealed class ReferenceIconCompatibilityTests
     [InlineData(true, false)]
     [InlineData(true, true)]
     public void ExistingOverloadRequiresBothBytesAndProvenance(bool missingBytes, bool missingProvenance)
+        => AssertHistoricalAvailability(missingBytes, missingProvenance);
+
+    private static void AssertHistoricalAvailability(bool missingBytes, bool missingProvenance)
     {
+        using var culture = new TestCulture(CultureInfo.InvariantCulture);
         var context = new Context { MissingImage = missingBytes, MissingProvenance = missingProvenance };
         var fallback = new TextNode("Unconfirmed") { Tone = Tone.Muted };
         var actual = ReferenceViews.Icon(context, Record("a"), fallback: fallback);
@@ -79,13 +90,31 @@ public sealed class ReferenceIconCompatibilityTests
     [InlineData(true, false)]
     [InlineData(true, true)]
     public void BaldursGate3OptionsMatchHistoricalNodeIncludingMissingBytes(bool missingBytes, bool missingProvenance)
+        => AssertHistoricalBaldursGate3Node(missingBytes, missingProvenance);
+
+    private static void AssertHistoricalBaldursGate3Node(bool missingBytes, bool missingProvenance)
     {
+        using var culture = new TestCulture(CultureInfo.InvariantCulture);
         var context = new Context { MissingImage = missingBytes, MissingProvenance = missingProvenance };
         var record = Record("a");
         var expected = BaldursGate3Icon(context, record);
         Assert.Equal(missingProvenance ? (ViewNode)new TextNode("No reference icon")
             : new ImageNode("pack:icons/item.png", $"Name a. {RecordCredit}. Icon: {ImageCredit}"), expected);
         Assert.Equal(expected, MigratedBaldursGate3Icon(context, record));
+    }
+
+    [Theory]
+    [InlineData("en-US")]
+    [InlineData("fa-IR")]
+    [InlineData("th-TH")]
+    public void HistoricalNodeComparisonsRestoreAmbientCulture(string cultureName)
+    {
+        using var ambient = new TestCulture(CultureInfo.GetCultureInfo(cultureName));
+        AssertHistoricalImageNode(null, "Name a");
+        AssertHistoricalAvailability(missingBytes: false, missingProvenance: false);
+        AssertHistoricalBaldursGate3Node(missingBytes: true, missingProvenance: false);
+        Assert.Equal(cultureName, CultureInfo.CurrentCulture.Name);
+        Assert.Equal(cultureName, CultureInfo.CurrentUICulture.Name);
     }
 
     [Theory]

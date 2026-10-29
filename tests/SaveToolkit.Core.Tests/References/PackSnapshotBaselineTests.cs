@@ -1,9 +1,33 @@
+using System.Globalization;
+using SaveToolkit.Core.References;
+using SaveToolkit.Core.Tests.Fakes;
+using SaveToolkit.Testing;
+
 namespace SaveToolkit.Core.Tests.References;
 
 public sealed class PackSnapshotBaselineTests
 {
     private static readonly string OriginalHash = new('a', 64);
     private static readonly string ChangedHash = new('b', 64);
+
+    [Theory]
+    [InlineData("en-US")]
+    [InlineData("sv-SE")]
+    [InlineData("th-TH")]
+    public void RecordFingerprintUsesHistoricalCultureAndRestoresAmbientCulture(string cultureName)
+    {
+        var store = new ReferencePackStore([new ItemsPlugin()]);
+        var pack = Assert.Single(store.Packs, pack => pack.Id == "test.items.en");
+        var manifest = Assert.Single(EmbeddedPackSnapshotTests.Manifests(typeof(ItemsPlugin).Assembly),
+            entry => entry.Manifest.GetProperty("id").GetString() == pack.Id).Manifest;
+        string expected;
+        using (new TestCulture(CultureInfo.InvariantCulture)) expected = PackSnapshotBaseline.Hash(pack, manifest);
+
+        using var ambient = new TestCulture(CultureInfo.GetCultureInfo(cultureName));
+        Assert.Equal(expected, PackSnapshotBaseline.Hash(pack, manifest));
+        Assert.Equal(cultureName, CultureInfo.CurrentCulture.Name);
+        Assert.Equal(cultureName, CultureInfo.CurrentUICulture.Name);
+    }
 
     [Theory]
     [InlineData("\n")]

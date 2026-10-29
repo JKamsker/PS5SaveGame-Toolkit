@@ -20,7 +20,7 @@ public sealed class ImportApiTests : IDisposable
 
     public ImportApiTests()
     {
-        _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        _factory = new IsolatedApiFactory().WithWebHostBuilder(builder =>
         {
             builder.UseEnvironment("Production").UseSetting("Toolkit:DataRoot", _root);
             builder.ConfigureServices(services =>

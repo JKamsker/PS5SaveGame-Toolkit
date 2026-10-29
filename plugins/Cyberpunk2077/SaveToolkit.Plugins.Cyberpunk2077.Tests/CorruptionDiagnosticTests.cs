@@ -1,3 +1,5 @@
+using System.Globalization;
+using SaveToolkit.Testing;
 using System.Security.Cryptography;
 using System.Text;
 using SaveToolkit.Sdk;
@@ -9,10 +11,23 @@ public sealed class CorruptionDiagnosticTests
 {
     [Theory]
     // Captured on fc55788 before either helper migration. Includes successful trees as well as errors.
-    [InlineData(false, "12F34CA33D2573930BB5BB4730497CCF852EF8387CA780966C152499E7001BFF")]
-    [InlineData(true, "71D45478F30458F2AD34ADB2803AFB69A857EB76B0A7E67A33C370C888ACD067")]
-    public void MutationAndTruncationOutcomesKeepExactExceptionTypesAndMessages(bool compressed, string expected)
+    [InlineData(false, "12F34CA33D2573930BB5BB4730497CCF852EF8387CA780966C152499E7001BFF", "en-US")]
+    [InlineData(true, "71D45478F30458F2AD34ADB2803AFB69A857EB76B0A7E67A33C370C888ACD067", "en-US")]
+    [InlineData(false, "12F34CA33D2573930BB5BB4730497CCF852EF8387CA780966C152499E7001BFF", "sv-SE")]
+    [InlineData(true, "71D45478F30458F2AD34ADB2803AFB69A857EB76B0A7E67A33C370C888ACD067", "sv-SE")]
+    public void MutationAndTruncationOutcomesKeepExactExceptionTypesAndMessages(bool compressed, string expected,
+        string cultureName)
     {
+        using var ambientCulture = new TestCulture(CultureInfo.GetCultureInfo(cultureName));
+        Assert.Equal(expected, TranscriptFingerprint(compressed));
+        Assert.Equal(cultureName, CultureInfo.CurrentCulture.Name);
+        Assert.Equal(cultureName, CultureInfo.CurrentUICulture.Name);
+    }
+
+    private static string TranscriptFingerprint(bool compressed)
+    {
+        // This golden pins historical diagnostics and numbers, independent of the machine's locale.
+        using var culture = new TestCulture(CultureInfo.InvariantCulture);
         var valid = CsavCorruptionFixture.Flat(compressed: compressed);
         var transcript = new StringBuilder();
         void Record(byte[] bytes)
@@ -63,8 +78,7 @@ public sealed class CorruptionDiagnosticTests
             Record(bytes);
         }
 
-        var actual = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(transcript.ToString())));
-        Assert.True(expected == actual, actual);
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(transcript.ToString())));
     }
 
     [Theory]

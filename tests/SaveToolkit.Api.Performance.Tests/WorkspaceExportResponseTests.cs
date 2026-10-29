@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SaveToolkit.Api.Infrastructure;
 using SaveToolkit.Core.Export;
 using SaveToolkit.Core.Storage;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Api.Performance.Tests;
 
@@ -20,7 +21,7 @@ public sealed class WorkspaceExportResponseTests
         var set = SaveSetImporter.Import(
             [new ImportSource("original.bin", () => new MemoryStream(original)),
              new ImportSource("changed.bin", () => new MemoryStream(new byte[] { 1, 2 }))],
-            Path.Combine(Path.GetTempPath(), "zip-streaming", Guid.NewGuid().ToString("N")));
+            Path.Combine(TestScratch.ProcessFolder, "zip-streaming", Guid.NewGuid().ToString("N")));
         var files = set.AllDiskFiles.ToArray();
         var changed = files.Single(f => f.FileName == "changed.bin");
         var overrides = new Dictionary<string, ReadOnlyMemory<byte>> { [changed.RelativePath] = new byte[] { 3, 4, 5 } };
@@ -71,7 +72,7 @@ public sealed class WorkspaceExportResponseTests
     public void FailedArchiveCreationDeletesItsScratchFile()
     {
         var set = SaveSetImporter.Import([new ImportSource("missing.bin", () => new MemoryStream(new byte[] { 1 }))],
-            Path.Combine(Path.GetTempPath(), "zip-failure", Guid.NewGuid().ToString("N")));
+            Path.Combine(TestScratch.ProcessFolder, "zip-failure", Guid.NewGuid().ToString("N")));
         var file = Assert.Single(set.AllDiskFiles);
         string path;
         using (var source = Assert.IsType<FileStream>(file.OpenRead())) path = source.Name;

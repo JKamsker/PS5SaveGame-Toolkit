@@ -24,8 +24,14 @@ public static class SampleSaves
             return null;
         }
 
-        return Directory.EnumerateFiles(ArtifactsDirectory, $"{titleId}_saves_dec*.zip").OrderBy(p => p.Length).FirstOrDefault();
+        return FindArchive(ArtifactsDirectory, titleId);
     }
+
+    internal static string? FindArchive(string directory, string titleId) =>
+        SelectArchive(Directory.EnumerateFiles(directory, $"{titleId}_saves_dec*.zip"));
+
+    internal static string? SelectArchive(IEnumerable<string> archives) =>
+        archives.OrderBy(p => p.Length).ThenBy(p => p, StringComparer.Ordinal).FirstOrDefault();
 
     /// <summary>Imports the sample for <paramref name="titleId"/> once per test process, or skips the test.</summary>
     public static DiskSaveSet Load(string titleId)

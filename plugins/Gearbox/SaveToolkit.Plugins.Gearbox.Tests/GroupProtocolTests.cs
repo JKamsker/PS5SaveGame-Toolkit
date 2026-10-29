@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SaveToolkit.Sdk;
@@ -15,10 +16,22 @@ public sealed class GroupProtocolTests
 
     // Refreshed for #40 legacy-field evidence and write warnings; still pins plans and export bytes.
     [Theory]
-    [InlineData(false, "F6230C01C08B3ECE9D19A6121304C245CFD4B1D33AC04916D8E3B845386FA80B")]
-    [InlineData(true, "D0427AB8DC32351377832EED070C3FAD6BC27C59C3ADF26B85B5306F409CDF2B")]
-    public void ViewsPlansAndExport_RetainPreAdapterFingerprint(bool wonderlands, string expected)
+    [InlineData(false, "F6230C01C08B3ECE9D19A6121304C245CFD4B1D33AC04916D8E3B845386FA80B", "en-US")]
+    [InlineData(true, "D0427AB8DC32351377832EED070C3FAD6BC27C59C3ADF26B85B5306F409CDF2B", "en-US")]
+    [InlineData(false, "F6230C01C08B3ECE9D19A6121304C245CFD4B1D33AC04916D8E3B845386FA80B", "th-TH")]
+    [InlineData(true, "D0427AB8DC32351377832EED070C3FAD6BC27C59C3ADF26B85B5306F409CDF2B", "th-TH")]
+    public void ViewsPlansAndExport_RetainPreAdapterFingerprint(bool wonderlands, string expected, string cultureName)
     {
+        using var ambientCulture = new TestCulture(CultureInfo.GetCultureInfo(cultureName));
+        AssertSyntheticFingerprint(wonderlands, expected);
+        Assert.Equal(cultureName, CultureInfo.CurrentCulture.Name);
+        Assert.Equal(cultureName, CultureInfo.CurrentUICulture.Name);
+    }
+
+    private static void AssertSyntheticFingerprint(bool wonderlands, string expected)
+    {
+        // Historical view provenance uses Gregorian attribution dates.
+        using var culture = new TestCulture(CultureInfo.InvariantCulture);
         using var group = Open(wonderlands);
         var transcript = new List<string>();
         Capture(group, transcript);
@@ -42,10 +55,21 @@ public sealed class GroupProtocolTests
     }
 
     [Theory]
-    [InlineData("PPSA01463", "149963F60C77A4DE4DF33DE6ED4C1B550FF3E6382DB6DCF0923B2CBD4B5BDC44")]
-    [InlineData("PPSA01493", "BAAAC5820879135BC830E3EE59DA7A29FBFB2D52D9A332A1D32E9557EB4901F8")]
-    public void SampleGenerationsAndBackups_RetainPreAdapterFingerprint(string title, string expected)
+    [InlineData("PPSA01463", "149963F60C77A4DE4DF33DE6ED4C1B550FF3E6382DB6DCF0923B2CBD4B5BDC44", "en-US")]
+    [InlineData("PPSA01493", "BAAAC5820879135BC830E3EE59DA7A29FBFB2D52D9A332A1D32E9557EB4901F8", "en-US")]
+    [InlineData("PPSA01463", "149963F60C77A4DE4DF33DE6ED4C1B550FF3E6382DB6DCF0923B2CBD4B5BDC44", "th-TH")]
+    [InlineData("PPSA01493", "BAAAC5820879135BC830E3EE59DA7A29FBFB2D52D9A332A1D32E9557EB4901F8", "th-TH")]
+    public void SampleGenerationsAndBackups_RetainPreAdapterFingerprint(string title, string expected, string cultureName)
     {
+        using var ambientCulture = new TestCulture(CultureInfo.GetCultureInfo(cultureName));
+        AssertSampleFingerprint(title, expected);
+        Assert.Equal(cultureName, CultureInfo.CurrentCulture.Name);
+        Assert.Equal(cultureName, CultureInfo.CurrentUICulture.Name);
+    }
+
+    private static void AssertSampleFingerprint(string title, string expected)
+    {
+        using var culture = new TestCulture(CultureInfo.InvariantCulture);
         var set = SampleSaves.Load(title);
         var plugin = new GearboxPlugin();
         var transcript = new List<string>();

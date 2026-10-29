@@ -13,9 +13,13 @@ public sealed class TestCulture : IDisposable
     private readonly CultureInfo _culture = CultureInfo.CurrentCulture;
     private readonly CultureInfo _uiCulture = CultureInfo.CurrentUICulture;
 
-    public TestCulture(string name)
+    public TestCulture(string name) : this(CultureInfo.GetCultureInfo(name))
     {
-        var culture = CultureInfo.GetCultureInfo(name);
+    }
+
+    public TestCulture(CultureInfo culture)
+    {
+        ArgumentNullException.ThrowIfNull(culture);
         CultureInfo.CurrentCulture = culture;
         CultureInfo.CurrentUICulture = culture;
     }

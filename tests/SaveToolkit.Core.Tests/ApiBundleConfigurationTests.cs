@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
-using System.Net.Sockets;
+using System.Text;
 using System.Text.Json;
 using SaveToolkit.Core.Tests.References;
 
@@ -10,6 +10,10 @@ namespace SaveToolkit.Core.Tests;
 /// <summary>Run against an extracted self-contained bundle via SAVETOOLKIT_TEST_BUNDLE.</summary>
 public sealed class ApiBundleConfigurationTests
 {
+    private const string BindUrl = "http://127.0.0.1:0";
+    private const string AppsettingsUrl = "http://127.0.0.1:1";
+    private const string EnvironmentUrl = "http://127.0.0.1:2";
+    private const string ListeningPrefix = "Now listening on: ";
     private static readonly string[] Providers = ["appsettings", "environment", "commandLine"];
 
     [Theory]
@@ -26,16 +30,18 @@ public sealed class ApiBundleConfigurationTests
         Directory.CreateDirectory(root);
         string Data(string provider) => Path.Combine(root, provider, "workspaces");
         string Packs(string provider) => Path.Combine(root, provider, "reference-packs");
-        var listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        int port = ((IPEndPoint)listener.LocalEndpoint).Port;
-        listener.Stop();
-        var url = new Uri($"http://127.0.0.1:{port}");
-        var start = CreateStartInfo(executable, bundle, root, source, url);
+        var start = CreateStartInfo(executable, bundle, root, source);
         await using var server = new BundleServer(start);
-        using var client = new HttpClient { BaseAddress = url, Timeout = TimeSpan.FromSeconds(5) };
-        await server.WaitUntilReadyAsync(client);
         var ct = TestContext.Current.CancellationToken;
+        var url = await server.WaitUntilListeningAsync(ct);
+        Assert.True(url.Port > 0, "The apphost must bind the requested ephemeral loopback port.");
+        Assert.NotEqual(new Uri(AppsettingsUrl).Port, url.Port);
+        Assert.NotEqual(new Uri(EnvironmentUrl).Port, url.Port);
+        using var client = new HttpClient { BaseAddress = url, Timeout = Timeout.InfiniteTimeSpan };
+        using var versionResponse = await client.GetAsync(new Uri("/api/version", UriKind.Relative), ct);
+        versionResponse.EnsureSuccessStatusCode();
+        var version = await versionResponse.Content.ReadFromJsonAsync<JsonElement>(ct);
+        Assert.False(string.IsNullOrWhiteSpace(version.GetProperty("version").GetString()));
         string html = await client.GetStringAsync(new Uri("/", UriKind.Relative), ct);
         Assert.Contains("<div id=\"root\">", html, StringComparison.Ordinal);
         Assert.True(Directory.Exists(Data(source)), "Workspace storage must use the winning configuration provider.");
@@ -57,13 +63,50 @@ public sealed class ApiBundleConfigurationTests
         }
     }
 
-    private static ProcessStartInfo CreateStartInfo(string executable, string bundle, string root, string source, Uri url)
+    [Theory]
+    [InlineData("Now listening on: http://127.0.0.1:5180", 5180)]
+    [InlineData("      Now listening on: http://127.0.0.1:42001/", 42001)]
+    public void ListeningLineReportsTheAllocatedLoopbackPort(string line, int port)
+    {
+        var url = Assert.IsType<Uri>(ListeningAddress(line));
+        Assert.Equal(IPAddress.Loopback.ToString(), url.Host);
+        Assert.Equal(port, url.Port);
+    }
+
+    [Theory]
+    [InlineData("Application started. Press Ctrl+C to shut down.")]
+    [InlineData("Now listening on: http://127.0.0.1:0")]
+    [InlineData("Now listening on: http://127.0.0.2:5180")]
+    [InlineData("Now listening on: http://localhost:5180")]
+    [InlineData("Now listening on: http://127.1:5180")]
+    [InlineData("Now listening on: https://127.0.0.1:5180")]
+    [InlineData("Now listening on: http://127.0.0.1:5180/api/version")]
+    [InlineData("Now listening on: http://127.0.0.1:5180/?query=value")]
+    [InlineData("Now listening on: http://127.0.0.1:5180/#fragment")]
+    [InlineData("Now listening on: http://127.0.0.1:65536")]
+    [InlineData("Now listening on: http://127.0.0.1:5180@localhost:80")]
+    [InlineData("Now listening on: http://127.0.0.1:5180@127.0.0.1:80")]
+    public void OtherLinesDoNotEstablishListeningReadiness(string line) => Assert.Null(ListeningAddress(line));
+
+    private static Uri? ListeningAddress(string line)
+    {
+        line = line.Trim();
+        if (!line.StartsWith(ListeningPrefix, StringComparison.Ordinal)) return null;
+        var address = line[ListeningPrefix.Length..];
+        return address.StartsWith("http://127.0.0.1:", StringComparison.Ordinal)
+            && Uri.TryCreate(address, UriKind.Absolute, out var url)
+            && url.Host == IPAddress.Loopback.ToString() && url.UserInfo.Length == 0
+            && url.Port > 0 && url.AbsolutePath == "/" && url.Query.Length == 0 && url.Fragment.Length == 0
+                ? url : null;
+    }
+
+    private static ProcessStartInfo CreateStartInfo(string executable, string bundle, string root, string source)
     {
         string Data(string provider) => Path.Combine(root, provider, "workspaces");
         string Packs(string provider) => Path.Combine(root, provider, "reference-packs");
         File.WriteAllText(Path.Combine(root, "appsettings.json"), JsonSerializer.Serialize(new
         {
-            Urls = "http://127.0.0.1:1",
+            Urls = AppsettingsUrl,
             Toolkit = new { DataRoot = Data("appsettings"), PackRoot = Packs("appsettings"), Locales = "en" },
         }));
         var start = new ProcessStartInfo(executable)
@@ -71,11 +114,11 @@ public sealed class ApiBundleConfigurationTests
             WorkingDirectory = root, UseShellExecute = false, CreateNoWindow = true,
             RedirectStandardOutput = true, RedirectStandardError = true,
         };
-        foreach (string argument in new[] { "--urls", url.ToString(), "--contentRoot", root,
+        foreach (string argument in new[] { "--urls", BindUrl, "--contentRoot", root,
             "--webroot", Path.Combine(bundle, "wwwroot") }) start.ArgumentList.Add(argument);
         start.Environment["DOTNET_ENVIRONMENT"] = "Production";
         start.Environment["ASPNETCORE_ENVIRONMENT"] = "Production";
-        start.Environment["URLS"] = "http://127.0.0.1:2";
+        start.Environment["URLS"] = EnvironmentUrl;
         start.Environment["Toolkit__DataRoot"] = source == "appsettings" ? "" : Data("environment");
         start.Environment["Toolkit__PackRoot"] = source == "appsettings" ? "" : Packs("environment");
         start.Environment["Toolkit__Locales"] = "de,en";
@@ -98,41 +141,53 @@ public sealed class ApiBundleConfigurationTests
         private readonly Process _process;
         private readonly Task<string> _output;
         private readonly Task<string> _errors;
+        private readonly Task _exited;
+        private readonly TaskCompletionSource<Uri> _listening = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         internal BundleServer(ProcessStartInfo start)
         {
             _process = Process.Start(start) ?? throw new InvalidOperationException("Could not start packaged apphost.");
-            _output = _process.StandardOutput.ReadToEndAsync();
+            _output = ReadOutputAsync();
             _errors = _process.StandardError.ReadToEndAsync();
+            _exited = _process.WaitForExitAsync();
         }
 
-        internal async Task WaitUntilReadyAsync(HttpClient client)
+        internal async Task<Uri> WaitUntilListeningAsync(CancellationToken cancellationToken)
         {
-            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
-            timeout.CancelAfter(TimeSpan.FromSeconds(30));
-            while (!timeout.IsCancellationRequested)
+            await Task.WhenAny(_listening.Task, _exited).WaitAsync(cancellationToken);
+            if (_process.HasExited)
+                Assert.Fail($"Packaged apphost exited ({_process.ExitCode}) before readiness: {await _output}\n{await _errors}");
+            return await _listening.Task;
+        }
+
+        private async Task<string> ReadOutputAsync()
+        {
+            var output = new StringBuilder();
+            try
             {
-                if (_process.HasExited)
-                    Assert.Fail($"Packaged apphost exited ({_process.ExitCode}): {await _output}\n{await _errors}");
-                try
+                while (await _process.StandardOutput.ReadLineAsync() is { } line)
                 {
-                    using var response = await client.GetAsync(new Uri("/api/version", UriKind.Relative), timeout.Token);
-                    response.EnsureSuccessStatusCode();
-                    var version = await response.Content.ReadFromJsonAsync<JsonElement>(timeout.Token);
-                    Assert.False(string.IsNullOrWhiteSpace(version.GetProperty("version").GetString()));
-                    return;
+                    output.AppendLine(line);
+                    if (ListeningAddress(line) is { } url) _listening.TrySetResult(url);
                 }
-                catch (HttpRequestException) { await Task.Delay(TimeSpan.FromMilliseconds(100), timeout.Token); }
+                return output.ToString();
             }
-            Assert.Fail("Packaged apphost did not serve /api/version at the --urls override within 30 seconds.");
+            catch (Exception error)
+            {
+                _listening.TrySetException(error);
+                throw;
+            }
         }
 
         public async ValueTask DisposeAsync()
         {
-            if (!_process.HasExited) _process.Kill(entireProcessTree: true);
-            await _process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(10));
-            await Task.WhenAll(_output, _errors);
-            _process.Dispose();
+            try
+            {
+                if (!_process.HasExited) _process.Kill(entireProcessTree: true);
+                await _exited;
+                await Task.WhenAll(_output, _errors);
+            }
+            finally { _process.Dispose(); }
         }
     }
 }

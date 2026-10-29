@@ -54,21 +54,23 @@ public sealed class WorkspaceLifetimeTests : IDisposable
     [Fact]
     public async Task Dispose_WaitsForAnOpeningSession_AndClosesIt()
     {
-        using var opening = new ManualResetEventSlim();
+        var ct = TestContext.Current.CancellationToken;
+        var opening = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         using var resume = new ManualResetEventSlim();
         var plugin = new BlockingPlugin(() =>
         {
-            opening.Set();
-            Assert.True(resume.Wait(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken));
+            opening.SetResult();
+            resume.Wait(ct);
         });
         using var store = new WorkspaceStore(new PluginCatalog([plugin]), new() { DataRoot = TestZips.TempDir() });
         var workspace = store.Create("concurrent lifetime", [new ImportSource("file.dat", () => new MemoryStream([1]))]);
         var file = workspace.Set.AllDiskFiles.Single();
-        var open = Task.Run(() => workspace.Open(file.Id, plugin.Info.Id), TestContext.Current.CancellationToken);
+        var open = TestWorker.Run(() => workspace.Open(file.Id, plugin.Info.Id), ct);
+        Task? dispose = null;
         try
         {
-            Assert.True(opening.Wait(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken));
-            var dispose = Task.Run(workspace.Dispose, TestContext.Current.CancellationToken);
+            await TestWorker.WaitForSignalAsync(opening.Task, open, ct);
+            dispose = TestWorker.Run(workspace.Dispose, ct);
             resume.Set();
             var session = await open;
             await dispose;
@@ -77,7 +79,11 @@ public sealed class WorkspaceLifetimeTests : IDisposable
             Assert.Throws<ObjectDisposedException>(() => session.BuildView());
             Assert.Throws<ObjectDisposedException>(() => workspace.Open(file.Id, plugin.Info.Id));
         }
-        finally { resume.Set(); }
+        finally
+        {
+            resume.Set();
+            await Task.WhenAll(open, dispose ?? Task.CompletedTask);
+        }
     }
 
     [Fact]

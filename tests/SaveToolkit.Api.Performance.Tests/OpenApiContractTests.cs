@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Api.Performance.Tests;
 
@@ -42,7 +43,7 @@ public sealed class OpenApiContractTests
     internal static WebApplicationFactory<Program> CreateHost(string environment) =>
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder
             .UseEnvironment(environment)
-            .UseSetting("Toolkit:DataRoot", Path.Combine(Path.GetTempPath(), "openapi", Guid.NewGuid().ToString("N"), "workspaces"))
-            .UseSetting("Toolkit:PackRoot", Path.Combine(Path.GetTempPath(), "openapi", Guid.NewGuid().ToString("N"), "packs"))
+            .UseSetting("Toolkit:DataRoot", Path.Combine(TestScratch.ProcessFolder, "openapi", Guid.NewGuid().ToString("N"), "workspaces"))
+            .UseSetting("Toolkit:PackRoot", Path.Combine(TestScratch.ProcessFolder, "openapi", Guid.NewGuid().ToString("N"), "packs"))
             .ConfigureLogging(logging => logging.ClearProviders()));
 }

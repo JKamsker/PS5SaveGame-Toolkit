@@ -3,12 +3,11 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace SaveToolkit.Core.Tests;
 
-public sealed class ApiErrorDiagnosticsTests(WebApplicationFactory<Program> factory)
-    : IClassFixture<WebApplicationFactory<Program>>
+public sealed class ApiErrorDiagnosticsTests(IsolatedApiFactory factory)
+    : IClassFixture<IsolatedApiFactory>
 {
     private readonly HttpClient _client = factory.WithWebHostBuilder(b =>
         b.UseEnvironment("Production").UseSetting("Toolkit:DataRoot", TestZips.TempDir())).CreateClient();
