@@ -164,6 +164,9 @@ public sealed class Sdk07PresetAdapterTests
         var preview = fixture.Session.PlanPreset(preset, choices:
             new Dictionary<string, string> { [instance.Requested.StableId] = selected.StableId },
             cancellationToken: TestContext.Current.CancellationToken);
+        var chosen = Assert.Single(preview.Resolution.Instances);
+        Assert.Equal(PresetInstanceResolutionStatus.Resolved, chosen.Status);
+        Assert.Equal(selected.StableId, Assert.Single(chosen.Candidates).StableId);
         Assert.Empty(preview.Plan.Errors);
         Assert.Contains(preview.Plan.Changes, change => change.ValueId == "inventory/1/quantity");
         Assert.DoesNotContain(preview.Plan.Changes, change => change.ValueId == "inventory/0/quantity");
@@ -178,7 +181,7 @@ public sealed class Sdk07PresetAdapterTests
     }
 
     [Fact]
-    public void ResolvedTargetsOmitCandidatesUnlessAnExplicitChoiceWasMade()
+    public void ResolvedTargetsExposeOneCurrentCandidateWithoutAChoice()
     {
         var fixture = new SemanticPresetFixture();
         fixture.Materia(0, 0);
@@ -192,13 +195,33 @@ public sealed class Sdk07PresetAdapterTests
             PresetScopeKinds.AllCopies, null, true));
         var allCopiesResolution = adapter.ResolvePresetInstances(allCopies.Instances);
         Assert.Equal(PresetInstanceResolutionStatus.Resolved, Assert.Single(allCopiesResolution.Instances).Status);
-        Assert.Empty(allCopiesResolution.Instances[0].Candidates);
+        var allCopiesCandidate = Assert.Single(allCopiesResolution.Instances[0].Candidates);
+        Assert.StartsWith("ff7:materia-type/10020/all-copies/", allCopiesCandidate.StableId, StringComparison.Ordinal);
 
         var character = adapter.CapturePreset(new(CharacterPlanning.RecoveryActionId,
             new Dictionary<string, JsonElement>(), PresetScopeKinds.Selected, ["character/0"]));
         var characterResolution = adapter.ResolvePresetInstances(character.Instances);
         Assert.Equal(PresetInstanceResolutionStatus.Resolved, Assert.Single(characterResolution.Instances).Status);
-        Assert.Empty(characterResolution.Instances[0].Candidates);
+        Assert.Single(characterResolution.Instances[0].Candidates);
+    }
+
+    [Fact]
+    public void UniqueInventoryResolutionMatchesPublishedHostCardinality()
+    {
+        var fixture = new SemanticPresetFixture();
+        fixture.Item(0, type: 101, quantity: 1);
+        using var document = fixture.Open();
+        var adapter = (IPresetDocument)document;
+        var action = adapter.CapturePreset(new(InventoryPlanning.ActionId,
+            new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement(99) },
+            PresetScopeKinds.Selected, ["inventory/0"]));
+        var resolution = adapter.ResolvePresetInstances(action.Instances);
+
+        var result = Assert.Single(resolution.Instances);
+        Assert.Equal(PresetInstanceResolutionStatus.Resolved, result.Status);
+        var candidate = Assert.Single(result.Candidates);
+        Assert.Equal("ff7:inventory-candidate/101/0", candidate.StableId);
+        Assert.Null(PresetContractValidation.ValidateResolution(resolution, action.Instances, null, false, out _));
     }
 
     [Fact]

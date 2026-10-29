@@ -59,17 +59,32 @@ public sealed class ProtocolCharacterizationTests
         }
     }
 
-    // Retain the existing protocol fingerprints except for the three intentionally added SDK-41
+    // Retain the existing protocol fingerprints except for the intentional SDK-41
     // declarations. BulkSelectionDeclarationTests checks their actual published metadata separately.
     private static ViewNode WithoutSelectionBindings(ViewNode root)
     {
         var tabs = Assert.IsType<TabsNode>(root);
         return tabs with { Tabs = tabs.Tabs.Select(tab => tab with
         {
-            Children = tab.Children.Select(node => node is ActionNode { SelectionTableId: not null } action
-                ? WithoutBinding(action) : node).ToArray(),
+            Children = tab.Children.Select(WithoutNode).ToArray(),
         }).ToArray() };
     }
+
+    private static ViewNode WithoutNode(ViewNode node) => node switch
+    {
+        ActionNode { SelectionTableId: not null } action => WithoutBinding(action),
+        TableNode table => table with
+        {
+            SelectionId = null,
+            Rows = table.Rows.Select(row => row with
+            {
+                Cells = row.Cells.ToDictionary(pair => pair.Key,
+                    pair => pair.Value is ActionNode { SelectionTableId: not null } action
+                        ? WithoutBinding(action) : pair.Value, StringComparer.Ordinal),
+            }).ToArray(),
+        },
+        _ => node,
+    };
 
     private static ActionNode WithoutBinding(ActionNode action)
     {
@@ -77,6 +92,7 @@ public sealed class ProtocolCharacterizationTests
         {
             InventoryPlanning.ActionId => "inventory",
             MateriaPlanning.ActionId or MateriaPlanning.StarActionId => "materia",
+            CharacterPlanning.RecoveryActionId or CharacterPlanning.LevelActionId => CharacterPlanning.SelectionTableId,
             _ => throw new InvalidOperationException("Unexpected selection binding in the protocol fingerprint."),
         };
         Assert.Equal(expected, action.SelectionTableId);

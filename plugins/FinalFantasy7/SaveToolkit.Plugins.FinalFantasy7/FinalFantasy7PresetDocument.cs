@@ -105,9 +105,9 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
             }
 
             var status = FinalFantasy7PresetIdentity.Status(current.Status);
-            var presented = status == PresetInstanceResolutionStatus.Ambiguous || choiceId is not null && status == PresetInstanceResolutionStatus.Resolved
-                ? candidates
-                : [];
+            IReadOnlyList<PresetInstanceReference> presented = status == PresetInstanceResolutionStatus.Resolved
+                ? target.AllMatches ? [FinalFantasy7PresetIdentity.ToAllCopiesCandidate(target, current.Candidates, _references)] : candidates
+                : status == PresetInstanceResolutionStatus.Ambiguous ? candidates : [];
             results.Add(new(requested, status, presented, current.Reason));
         }
         return new(results);

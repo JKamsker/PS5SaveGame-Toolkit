@@ -9,6 +9,7 @@ internal sealed class CharacterPlanning(Ff7Schema schema, CharacterView characte
 {
     public const string RecoveryActionId = "character/recover-current-vitals";
     public const string LevelActionId = "character/set-level";
+    public const string SelectionTableId = "characters";
     private const string CharacterPrefix = "character/";
     private const string RecoveryWarning = WriteWarnings.Experimental +
         "Inferred current HP/MP mappings. Only values below their opening stored maxima are raised. " +
@@ -22,11 +23,13 @@ internal sealed class CharacterPlanning(Ff7Schema schema, CharacterView characte
         new ActionNode(RecoveryActionId, "Recover selected characters' current HP/MP")
         {
             SupportsPlanning = true,
+            SelectionTableId = SelectionTableId,
             Description = RecoveryWarning + "Preview selected rows, or all seven displayed records when no selection is supplied. " + EmbeddedCatalogs.Attribution,
         },
         new ActionNode(LevelActionId, "Set selected character levels")
         {
             SupportsPlanning = true,
+            SelectionTableId = SelectionTableId,
             Description = LevelWarning + "Preview selected rows, or all seven displayed records when no selection is supplied. Invalid records and ambiguous source tiers are skipped.",
             Parameters = [new("level", "Target level", IntegerSpec.UInt8 with { Min = 1, Max = _curves.Max(curve => curve.Length) }, FieldValue.Of(25L))],
         },

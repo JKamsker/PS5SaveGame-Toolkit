@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 using SaveToolkit.Sdk;
 using SdkPresetResolution = SaveToolkit.Sdk.PresetResolution;
 
@@ -85,6 +87,16 @@ internal static class FinalFantasy7PresetIdentity
                 : new("ff7.materia-candidate", $"ff7:materia-candidate/{candidate.InstanceId ?? 0}/{candidate.TypeId}/{candidate.Slot ?? -1}",
                     references.Materia(candidate.TypeId), "materia-detail", string.IsNullOrEmpty(candidate.RowKey) ? null : candidate.RowKey,
                     Provenance: candidate.Source);
+
+    public static PresetInstanceReference ToAllCopiesCandidate(PresetTarget target,
+        IReadOnlyList<PresetCandidate> candidates, ReferenceData references)
+    {
+        var signature = string.Join("\n", candidates.OrderBy(candidate => candidate.RowKey, StringComparer.Ordinal)
+            .Select(candidate => $"{candidate.RowKey}\0{candidate.InstanceId}\0{candidate.TypeId}\0{candidate.DetailStatus}"));
+        var fingerprint = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(signature)));
+        return new("ff7.materia-all-copies", $"ff7:materia-type/{target.Id}/all-copies/{fingerprint}",
+            references.Materia(target.Id), "materia-all-copies", Provenance: references.Source("ff7r-materia", target.Id));
+    }
 
     public static string CandidateRow(PresetTarget target, PresetInstanceReference candidate)
     {
