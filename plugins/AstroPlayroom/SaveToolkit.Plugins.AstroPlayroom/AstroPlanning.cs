@@ -106,18 +106,16 @@ internal static class AstroPlanning
     public static ActionPlan PlanCollectAll(ActionScope scope, AstroSchema schema,
         Func<AstroField, FieldValue> current)
     {
-        IEnumerable<AstroCollectionRecord> records = schema.Records;
-        if (scope.RowKeys is { } selected)
-        {
-            var selectedSet = selected.ToHashSet(StringComparer.Ordinal);
-            if (selectedSet.Count != selected.Count || selectedSet.Except(schema.Records.Select(r => r.Element.Id), StringComparer.Ordinal).Any())
-            {
-                return new ActionPlan { Errors = [new FieldError(CollectAllAction, "Selection must contain distinct existing collectible row keys only.")] };
-            }
+        return schema.TrySelectRecords(scope.RowKeys, out var records) ? PlanRecords(records, current) : InvalidSelection();
+    }
 
-            records = records.Where(r => selectedSet.Contains(r.Element.Id));
-        }
+    public static ActionPlan InvalidSelection() => new()
+    {
+        Errors = [new FieldError(CollectAllAction, "Selection must contain distinct existing collectible row keys only.")]
+    };
 
+    public static ActionPlan PlanRecords(IEnumerable<AstroCollectionRecord> records, Func<AstroField, FieldValue> current)
+    {
         var changes = new List<PlannedChange>();
         var skipped = new List<SkippedActionRow>();
         foreach (var record in records)

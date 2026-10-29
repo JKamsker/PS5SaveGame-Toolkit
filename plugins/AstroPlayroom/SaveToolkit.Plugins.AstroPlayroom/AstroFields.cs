@@ -37,6 +37,9 @@ internal static class AstroFields
                 group = element.Name;
             }
 
+            // Mixed text can contain thousands of comment-separated tokens. Its primitive shape
+            // belongs to the element, so do not recount the whole list for every token.
+            var primitiveElement = element.Children.Count == 0 && element.Values.Count(value => !value.IsAttribute) == 1;
             foreach (var token in element.Values)
             {
                 var raw = allocation.Read(token);
@@ -53,8 +56,7 @@ internal static class AstroFields
                     initial = FieldValue.Of(number);
                 }
 
-                var primitive = !token.IsAttribute && element.Children.Count == 0 &&
-                    element.Values.Count(v => !v.IsAttribute) == 1;
+                var primitive = !token.IsAttribute && primitiveElement;
                 var common = primitive && (path is "PreInstall/Common/NumCoin" or "PreInstall/Common/PlayCount") &&
                     spec is IntegerSpec && initial.AsInteger() >= 0 && initial.AsInteger() <= int.MaxValue;
                 // A group-level scalar is unknown data, not a flag beneath that group.

@@ -13,9 +13,16 @@ internal sealed class AstroReferences(IReferenceContext context, string fingerpr
     private readonly IReferenceCatalog? _collectibles = BuildAgnostic(context.Catalog(Collectibles));
     private readonly IReferenceCatalog? _worlds = BuildAgnostic(context.Catalog(Worlds));
     private readonly IReferenceCatalog? _captions = BuildAgnostic(context.Catalog(Captions));
+    private readonly Dictionary<string, ReferenceRecord?> _worldCache = new(StringComparer.Ordinal);
 
     public ReferenceRecord? Collectible(string group, string key) => Describe(Compatible(_collectibles?.Find($"{group}/{key}")));
-    public ReferenceRecord? World(string path) => Compatible(_worlds?.Find(path));
+    public ReferenceRecord? World(string path)
+    {
+        if (_worldCache.TryGetValue(path, out var cached)) return cached;
+        var record = Compatible(_worlds?.Find(path));
+        _worldCache.Add(path, record);
+        return record;
+    }
     public AssetContent? Asset(string assetId) => context.GetAsset(assetId);
     public ReferenceDatasetInfo? AssetProvenance(string assetId) => context.AssetProvenance(assetId);
 

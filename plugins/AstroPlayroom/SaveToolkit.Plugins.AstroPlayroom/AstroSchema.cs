@@ -8,6 +8,7 @@ internal sealed class AstroSchema
 {
     private readonly AstroAllocation _allocation;
     private readonly IReadOnlyList<AstroElement> _elements;
+    private IReadOnlyDictionary<string, int> _recordIndexes = new Dictionary<string, int>(StringComparer.Ordinal);
 
     public AstroSchema(AstroAllocation allocation)
     {
@@ -32,6 +33,25 @@ internal sealed class AstroSchema
             .SelectMany(g => g.Children.Select(e => new AstroCollectionRecord(g.Name, e,
                 e.Children.SelectMany(c => byElement[c]).ToArray())))
             .ToArray();
+        _recordIndexes = Records.Select((record, index) => (record.Element.Id, Index: index))
+            .ToDictionary(item => item.Id, item => item.Index, StringComparer.Ordinal);
+    }
+
+    public bool TrySelectRecords(IReadOnlyList<string>? keys, out IReadOnlyList<AstroCollectionRecord> records)
+    {
+        records = Records;
+        if (keys is null) return true;
+        var indexes = new int[keys.Count];
+        var seen = new HashSet<int>();
+        for (var i = 0; i < keys.Count; i++)
+        {
+            if (keys[i] is not { } key || !_recordIndexes.TryGetValue(key, out var index) || !seen.Add(index)) return false;
+            indexes[i] = index;
+        }
+        // Plans have always followed native save order, independent of selection order.
+        Array.Sort(indexes);
+        records = indexes.Select(index => Records[index]).ToArray();
+        return true;
     }
 
     public SectionNode Report() => new("Schema report", [
@@ -66,14 +86,21 @@ internal sealed class AstroSchema
 
 internal sealed record AstroCollectionRecord(string Group, AstroElement Element, IReadOnlyList<AstroField> Fields)
 {
-    public AstroField? Ownership => Flag("IsGot");
-    public AstroField? Cinematic => Flag("IsCinematicsPlayed");
+    // Structure never changes in this writer; only the values behind these fields can change.
+    public string Key { get; } = $"{Group}/{Element.Name}";
+    public AstroField? Ownership { get; } = Flag(Fields, "IsGot");
+    public AstroField? Cinematic { get; } = Flag(Fields, "IsCinematicsPlayed");
 
-    private AstroField? Flag(string name)
+    private static AstroField? Flag(IReadOnlyList<AstroField> fields, string name)
     {
-        var candidates = Fields.Where(f => f.Element.Name == name).ToArray();
-        return candidates.Length == 1 && candidates[0].Spec is SaveToolkit.Sdk.Values.BoolSpec &&
-            !candidates[0].Token.IsAttribute && candidates[0].Element.Children.Count == 0 &&
-            candidates[0].Element.Values.Count == 1 ? candidates[0] : null;
+        AstroField? candidate = null;
+        foreach (var field in fields)
+        {
+            if (field.Element.Name != name) continue;
+            if (candidate is not null) return null;
+            candidate = field;
+        }
+        return candidate?.Spec is SaveToolkit.Sdk.Values.BoolSpec && !candidate.Token.IsAttribute &&
+            candidate.Element.Children.Count == 0 && candidate.Element.Values.Count == 1 ? candidate : null;
     }
 }
