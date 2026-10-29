@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import type { SaveFileInfo } from "../../api/protocol";
+import { documentClosures } from "../document/documentClosures";
 
 export function useOpenDocument(workspaceId: string, beginSelection: () => () => boolean,
   select: (documentId: string) => void, notify: (message: string, error?: boolean) => void) {
@@ -15,6 +16,12 @@ export function useOpenDocument(workspaceId: string, beginSelection: () => () =>
     if (pending.current?.key === key && pending.current.isCurrent()) return;
     const isCurrent = beginSelection();
     pending.current = { key, isCurrent };
+    if (file.openDocumentId && documentClosures(client).get(workspaceId, file.openDocumentId).pending) {
+      select(file.openDocumentId);
+      if (pluginId) notify("This document is closing. Wait for it to finish before reopening the file.", true);
+      pending.current = null;
+      return;
+    }
     if (file.openDocumentId && !pluginId) {
       select(file.openDocumentId);
       pending.current = null;
@@ -24,6 +31,7 @@ export function useOpenDocument(workspaceId: string, beginSelection: () => () =>
     // plugin for this file, while independent files can still open concurrently.
     const request = (lanes.get(file.id) ?? Promise.resolve()).then(async () => {
       if (!isCurrent()) return;
+      if (file.openDocumentId && documentClosures(client).get(workspaceId, file.openDocumentId).pending) return;
       try {
         const doc = await api.open(workspaceId, file.id, pluginId);
         void client.invalidateQueries({ queryKey: ["workspace", workspaceId] });

@@ -7,24 +7,25 @@ import { WorkspaceSelectionContext } from "../../state/workspaceSelection";
 import { useAsyncTask } from "../ui/useAsyncTask";
 import { useLatestRequest } from "../ui/useLatestRequest";
 import { useCloseDocument } from "./useCloseDocument";
+import { documentClosures, useDocumentCloseState } from "./documentClosures";
 import "./document-groups.css";
 
 interface DocumentControlsProps {
   document: SaveDocument;
   onClosed?: () => void;
-  onClosingChange?: (closing: boolean) => void;
   onOpenGroup?: (documentId: string) => void;
 }
 const noop = () => {};
 
-export function DocumentGroupControls({ document, onClosed = noop, onClosingChange = noop, onOpenGroup = noop }: DocumentControlsProps) {
-  const controller = useDocumentGroup(document, onClosed, onClosingChange, onOpenGroup);
+export function DocumentGroupControls({ document, onClosed = noop, onOpenGroup = noop }: DocumentControlsProps) {
+  const controller = useDocumentGroup(document, onClosed, onOpenGroup);
   const controls = useRef<HTMLElement>(null);
   useEffect(() => {
-    if (controller.error && window.document.activeElement === window.document.body) {
+    const active = window.document.activeElement;
+    if (controller.error && (active === window.document.body || (controller.closeError && active?.classList.contains("editor__title")))) {
       controls.current?.querySelector<HTMLButtonElement>("[data-close-document]")?.focus();
     }
-  }, [controller.error]);
+  }, [controller.error, controller.closeError]);
   return <section ref={controls} className="document-group" aria-label={document.plugin.supportsGroups || document.groupMembers ? "Document group" : "Document controls"}>
     {document.groupMembers ? <GroupMembers members={document.groupMembers} {...controller} /> : <>
       {document.plugin.supportsGroups && <GroupProposals {...controller} />}
@@ -37,11 +38,12 @@ export function DocumentGroupControls({ document, onClosed = noop, onClosingChan
   </section>;
 }
 
-function useDocumentGroup(document: SaveDocument, onClosed: () => void, onClosingChange: (closing: boolean) => void, onOpenGroup: (documentId: string) => void) {
+function useDocumentGroup(document: SaveDocument, onClosed: () => void, onOpenGroup: (documentId: string) => void) {
   const { workspaceId, store } = useDocument();
   const { state } = useDocumentState(store);
   const queryClient = useQueryClient();
   const closeDocument = useCloseDocument(onClosed);
+  const closeState = useDocumentCloseState(workspaceId, document.id);
   const [offers, setOffers] = useState<GroupOffer[] | null>(null);
   const { busy, run: submit } = useAsyncTask(document.id);
   const fallbackSelection = useLatestRequest(`${workspaceId}:${document.id}`);
@@ -57,6 +59,7 @@ function useDocumentGroup(document: SaveDocument, onClosed: () => void, onClosin
   });
 
   const open = (offer: GroupOffer) => run(async isCurrent => {
+    if (documentClosures(queryClient).get(workspaceId, document.id).pending) return;
     const group = await groupApi.open(workspaceId, offer.token, document.id);
     void queryClient.invalidateQueries({ queryKey: ["workspace", workspaceId] });
     if (!isCurrent()) return;
@@ -65,19 +68,21 @@ function useDocumentGroup(document: SaveDocument, onClosed: () => void, onClosin
     onOpenGroup(group.id);
   });
 
-  const close = () => run(async isCurrent => {
-    onClosingChange(true);
-    try { await closeDocument(isCurrent); }
-    // The same document can be selected again while this request is pending. Always release
-    // its local interaction guard; the editor's identity key isolates a different document.
-    finally { onClosingChange(false); }
-  }, "Could not close the document. Try again.");
+  const close = () => {
+    if (busy || documentClosures(queryClient).get(workspaceId, document.id).pending) return;
+    return submit(async () => {
+      setError(null);
+      // Selection ownership belongs to the workspace, not the editor that closing unmounts.
+      await closeDocument(beginSelection());
+    });
+  };
 
   const propose = () => run(async isCurrent => {
     const result = await groupApi.propose(workspaceId, document.fileId, document.plugin.id);
     if (isCurrent()) setOffers(result);
   });
-  return { busy, dirty: state.isDirty, offers, error, open, close, propose, cancel: () => setOffers(null) };
+  return { busy: busy || closeState.pending, dirty: state.isDirty, offers, error: error ?? closeState.error,
+    closeError: closeState.error, open, close, propose, cancel: () => setOffers(null) };
 }
 
 function GroupMembers({ members, busy, dirty, close }: { members: NonNullable<SaveDocument["groupMembers"]> } & Pick<ReturnType<typeof useDocumentGroup>, "busy" | "dirty" | "close">) {

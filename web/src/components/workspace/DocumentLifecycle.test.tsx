@@ -7,6 +7,7 @@ import { groupApi } from "../../api/groups";
 import type { DocumentSource, EditResult, SaveDocument, Workspace } from "../../api/protocol";
 import { deferred } from "../../test/deferred";
 import { WorkspacePage } from "./WorkspacePage";
+import { documentClosures } from "../document/documentClosures";
 
 const clients: QueryClient[] = [];
 beforeEach(() => { notifyManager.setScheduler(queueMicrotask); });
@@ -126,17 +127,17 @@ it("retains selection and caches after close failure and permits one explicit re
   const button = screen.getByRole("button", { name: "Close document" }); button.focus();
   await act(async () => { fireEvent.click(button); fireEvent.click(button); });
   expect(close).toHaveBeenCalledOnce();
-  expect(screen.getByRole("article").hasAttribute("inert")).toBe(true);
+  expect(screen.getByRole("status", { name: "Document close status" }).textContent).toMatch(/Closing document/);
+  expect(screen.queryByRole("switch")).toBeNull();
   fireEvent.keyDown(window, { key: "z", ctrlKey: true, shiftKey: true });
   expect(redo).not.toHaveBeenCalled();
-  // Model native focus loss while the editor is inert.
-  button.blur();
   await act(async () => { pending.reject(new ApiError("Could not close. Try again.", 503)); await pending.promise.catch(() => {}); });
-  expect(screen.getByRole("alert").textContent).toContain("Could not close");
+  expect((await screen.findByRole("alert")).textContent).toContain("Could not close");
   expect(screen.getByLabelText("Selection").textContent).toBe("?doc=old");
   expect(client.getQueryData(["document", "w", "old"])).toBeDefined();
-  expect(document.activeElement).toBe(button);
-  await act(async () => { fireEvent.click(button); });
+  const retry = await screen.findByRole("button", { name: "Close document" });
+  expect(document.activeElement).toBe(retry);
+  await act(async () => { fireEvent.click(retry); });
   expect(close).toHaveBeenCalledTimes(2);
   expect(await screen.findByRole("heading", { name: "Pick a save file" })).toBeTruthy();
 });
@@ -158,8 +159,70 @@ it("releases the interaction guard when the same document is reselected during a
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Close document" })); });
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: /save.dat/ })); });
   await act(async () => { pending.reject(new ApiError("Retired close failure", 503)); await pending.promise.catch(() => {}); });
-  expect(screen.getByRole("heading", { name: "Document old" })).toBeTruthy();
+  expect(await screen.findByRole("heading", { name: "Document old" })).toBeTruthy();
   expect(screen.getByRole("article").hasAttribute("inert")).toBe(false);
   expect(screen.getByRole("button", { name: "Close document" })).toHaveProperty("disabled", false);
-  expect(screen.queryByRole("alert")).toBeNull();
+  expect(screen.getByRole("alert").textContent).toBe("Retired close failure");
+});
+
+it.each(["success", "failure"])("keeps A protected across A → B → A until deferred close %s settles, preserving B", async outcome => {
+  const { close, client, ws } = await mount();
+  const executeClose = close.getMockImplementation()!;
+  const gate = deferred<void>();
+  close.mockImplementationOnce(async (...args) => { await gate.promise; await executeClose(...args); });
+  const read = vi.mocked(api.document).getMockImplementation()!;
+  let bEdited = false;
+  vi.mocked(api.document).mockImplementation(async (...args) => {
+    const doc = await read(...args);
+    if (doc.id === "old") doc.state.canRedo = true;
+    if (doc.id === "other" && doc.view.type === "field") doc.view.value = bEdited;
+    return doc;
+  });
+  const edit = vi.spyOn(api, "edit").mockImplementation(async (_workspace, id) => {
+    if (id !== "other") throw new Error("Closing A must not submit edits.");
+    bEdited = true;
+    return { ok: true, errors: [], warnings: [], changes: [{ valueId: "flag", oldValue: false, newValue: true }],
+      structureChanged: false, state: { ...clean, revision: 1, isDirty: true, canUndo: true } };
+  });
+  const redo = vi.spyOn(api, "redo");
+  await act(async () => { await client.refetchQueries({ queryKey: ["document", "w", "old"] }); });
+  const oldClose = screen.getByRole("button", { name: "Close document" });
+  await act(async () => { fireEvent.click(oldClose); });
+  expect(documentClosures(client).get("w", "old").pending).toBe(true);
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: /other.dat/ })); });
+  await screen.findByRole("heading", { name: "Document other" });
+  await act(async () => { fireEvent.click(screen.getByRole("switch", { name: "Flag" })); });
+  expect(edit).toHaveBeenCalledOnce();
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: /save.dat/ })); });
+  // A has actually unmounted for B. A fresh successful read must not reactivate it.
+  await act(async () => { await client.fetchQuery({ queryKey: ["document", "w", "old"], queryFn: () => api.document("w", "old") }); });
+  expect(screen.getByRole("status", { name: "Document close status" })).toBeTruthy();
+  expect(screen.queryByRole("switch")).toBeNull();
+  expect(screen.queryByRole("button", { name: "Redo" })).toBeNull();
+  expect(screen.queryByRole("button", { name: "Close document" })).toBeNull();
+  fireEvent.keyDown(window, { key: "z", ctrlKey: true, shiftKey: true });
+  fireEvent.click(oldClose); fireEvent.click(oldClose);
+  expect(redo).not.toHaveBeenCalled(); expect(close).toHaveBeenCalledOnce();
+  expect(edit.mock.calls.map(call => call[1])).toEqual(["other"]);
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: /other.dat/ })); });
+  await screen.findByRole("heading", { name: "Document other" });
+  await act(async () => {
+    if (outcome === "success") gate.resolve(); else gate.reject(new ApiError("Close rejected; A is still open.", 409));
+    await gate.promise.catch(() => {});
+  });
+  expect(documentClosures(client).get("w", "old").pending).toBe(false);
+  expect(screen.getByLabelText("Selection").textContent).toBe("?doc=other");
+  expect(screen.getByRole("switch", { name: /Flag/ }).getAttribute("aria-checked")).toBe("true");
+  expect(ws.documents.find(document => document.id === "other")?.isDirty).toBe(true);
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: /save.dat/ })); });
+  if (outcome === "failure") {
+    await screen.findByRole("heading", { name: "Document old" });
+    expect(screen.getByRole("alert").textContent).toMatch(/Close rejected/);
+    expect(screen.getByRole("button", { name: "Close document" })).toHaveProperty("disabled", false);
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Close document" })); });
+    expect(close).toHaveBeenCalledTimes(2);
+  } else {
+    await screen.findByRole("heading", { name: "Document new" });
+    expect(screen.getByRole("button", { name: "Close document" })).toHaveProperty("disabled", false);
+  }
 });
