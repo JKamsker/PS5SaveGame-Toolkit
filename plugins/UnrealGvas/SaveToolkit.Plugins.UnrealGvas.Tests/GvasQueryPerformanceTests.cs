@@ -13,11 +13,7 @@ public sealed class GvasQueryPerformanceTests
     [Fact]
     public void RepeatedQueriesResolvePinnedMetadataOncePerDistinctKeyAndKeepScalarValuesLive()
     {
-        var bytes = GvasFixture.Build(writer =>
-        {
-            for (int i = 0; i < 251; i++)
-                GvasFixture.Property(writer, "Repeated", "IntProperty", GvasFixture.Body(body => body.Write(i)));
-        });
+        var bytes = GvasFixture.RepeatedIntegers(251);
         var plugin = new UnrealGvasPlugin();
         var pinned = new ReferencePackStore([plugin]).Pin(plugin, "UNKNOWN");
         var catalog = new CountingCatalog(pinned.Catalog("unrealgvas_property_types")!);

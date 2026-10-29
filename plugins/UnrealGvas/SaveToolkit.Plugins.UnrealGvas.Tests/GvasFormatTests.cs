@@ -50,7 +50,10 @@ public sealed class GvasFormatTests
         Assert.Equal(new byte[] { 0xAB, 0xCD, 0xEF, 0x42 }, output[^4..]);
         using var reopened = plugin.Open(MemorySaveSet.SingleFile("data.sav", output));
         var actual = Expand(reopened);
-        foreach (var field in actual.Where(f => requested.ContainsKey(Name(f)))) Assert.Equal(requested[Name(field)], reopened.GetValue(field.ValueId));
+        Assert.Equal(fields.Select(field => field.ValueId).Order(StringComparer.Ordinal), actual.Select(field => field.ValueId).Order(StringComparer.Ordinal));
+        foreach (var edit in edits) Assert.Equal(edit.Value, reopened.GetValue(edit.ValueId));
+        foreach (var field in fields.Where(field => !requested.ContainsKey(Name(field))))
+            Assert.Equal(field.Value, reopened.GetValue(field.ValueId));
         foreach (var name in new[] { "Unknown" })
         {
             var before = GvasFile.Parse(GvasFixture.Primitives());

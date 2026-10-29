@@ -41,6 +41,12 @@ internal static class GvasFixture
         return stream.ToArray();
     }
 
+    public static byte[] RepeatedIntegers(int count) => Build(writer =>
+    {
+        for (int i = 0; i < count; i++)
+            Property(writer, "Repeated", "IntProperty", Body(body => body.Write(i)));
+    });
+
     public static void String(BinaryWriter writer, string value, bool wide = false)
     {
         var bytes = (wide ? Encoding.Unicode : Encoding.UTF8).GetBytes(value + '\0');
