@@ -44,10 +44,21 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
             "Locked, oversized, unmapped and inconsistent records are skipped. " + CapacityWarning,
     };
 
-    public static ActionNode RestoreAmmoView => new(RestoreAmmoActionId, "Restore imported ammo counts")
+    public static ActionNode RestoreAmmoView => new(RestoreAmmoActionId, "Restore imported ammo counts (whole document)")
     {
         SupportsPlanning = true,
-        Description = "Preview each eligible ammo row's own opening count. Both count copies and the repaired checksum are shown. " +
+        Description = "Preview every eligible ammo row's own opening count, regardless of table selection. " +
+            "Use Restore selected ammo counts inside the inventory table to limit restoration to selected rows. " +
+            "Both count copies and the repaired checksum are shown. " +
+            "Locked, oversized, inconsistent and non-ammo records are skipped. " + RestoreAmmoWarning,
+    };
+
+    public static ActionNode RestoreSelectedAmmoView => RestoreAmmoView with
+    {
+        Label = "Restore selected ammo counts",
+        Description = "Preview only the inventory table's selected rows, including selections hidden by filters. " +
+            "An empty table selection changes nothing; use the whole-document control to restore all eligible ammo. " +
+            "Both count copies and the repaired checksum are shown. " +
             "Locked, oversized, inconsistent and non-ammo records are skipped. " + RestoreAmmoWarning,
     };
 

@@ -85,6 +85,11 @@ Still disabled for structural safety:
 * `inventory/restore-imported-ammo` previews each eligible ammo row's immutable opening count,
   restoring only rows reduced during this workspace session. Document scope covers existing ammo;
   explicit selections exclude non-ammo with reasons, and an empty selection changes nothing.
+  **Restore selected ammo counts** is rendered inside the inventory table so the F6/#27 browser
+  selection context supplies the selected row keys, including selections hidden by filters.
+  The separate **Restore imported ammo counts (whole document)** control retains document scope
+  regardless of table selection. With no rows selected, use that control to restore all eligible ammo;
+  an explicitly empty table selection still changes nothing. Inventory query scopes remain unsupported.
   Flags must remain 1 or 3, both counts must agree, and both imported/current counts must be within
   0–32767. Locked, inconsistent, oversized and unsupported records stay unchanged. Counts already
   at or above their opening value stay unchanged; no capacity, unlock or missing record is granted.
@@ -159,7 +164,7 @@ additional production correctness defect requiring a parser change.
 | --- | --- | --- |
 | F1 SaveDiff | Used | `fixtures.json` records the uncontrolled Tsushima generation pair and selects `suckerpunch.native-v1`; bounded native and F8 view decoding are tested alongside `ByteDiffer`. No fixture embeds save bytes. Yōtei tests compare all 55 nonempty pairs; ten native CLI comparisons cover every slot. |
 | F2 reference packs | Used | Embedded `suckerpunch.tsushima` v3.0.0 catalogs and four art datasets are loaded through `IReferenceContext`; per-record and UI descriptions carry attribution and the Sources panel exposes each dataset. Yōtei pack adds 48 raw item references, 10 technique guides, 16 location guides and four attributed assets. |
-| F3 rich table cells | Used | Inventory, equipment, technique and world tables expose raw IDs, descriptions, mapping-confidence cells, warning tones and F6 action controls. Equipment/technique tables and lazy guides show local attributed ImageNode cells (106 unique icons/thumbnails, 158 catalogue bindings); the SDK has no separate detail-cell node, and actions remain dedicated planned controls rather than blank table cells. Yōtei adds inventory symbols, read-only reference cells, raw statistics, warning/confidence metadata and F6 controls. |
+| F3 rich table cells | Used | Inventory, equipment, technique and world tables expose raw IDs, descriptions, mapping-confidence cells, warning tones and F6 action controls. Tsushima inventory cells publish selection-scoped ammo restoration alongside an explicitly document-wide standalone control. Equipment/technique tables and lazy guides show local attributed ImageNode cells (106 unique icons/thumbnails, 158 catalogue bindings); the SDK has no separate detail-cell node. Yōtei adds inventory symbols, read-only reference cells, raw statistics, warning/confidence metadata and F6 controls. |
 | F4 reference pickers | Used | Every catalog-backed inventory, equipment and technique ID is a read-only `ReferenceSpec` field with raw-ID fallback, category/description metadata and attribution. Yōtei item/technique/location catalog IDs are browse-only with raw fallback and provenance; no gear-name catalogue join is invented. |
 | F5 structural edits | N/A | No safe add/remove/reorder writer exists: enclosing sizes, references, ownership and acquisition side effects are unproven, so a plugin-local structural substitute would risk data loss. |
 | F6 planned actions | Used | Existing resource/ammo target actions and Tsushima restore-imported-ammo provide pure previews, skipped rows, derived ammo/checksum changes, stale-plan rejection and one Core undo/redo group. Restore uses each eligible row's opening count only when lower. Query scopes are rejected because the writable inventory is a bounded fixed table and the equipment collection is read-only. Yōtei adds one target-quantity action with per-row observed bounds and the same atomic preview/apply guarantees. |
@@ -331,6 +336,34 @@ The registry itself never changes and is not treated as gear ownership or equipp
 F1/F12 differential method, uncertainty, performance measurements and exact #31 capture checklist.
 Play time, health/spirit, active difficulty, techniques, saved collectibles and quest/world progress
 remain unknown; attributed reference guides never claim saved completion or unlock state.
+
+### Restore imported Yōtei quantities — deferred (#40)
+
+The integrity-first review on **2026-10-29** did **not** establish exact game checksum/tail coverage,
+so no restore-imported Yōtei action was implemented. This does not change the existing Experimental
+scalar quantities or target action and their checksum-coverage/game-rejection warnings.
+
+[`YoteiIntegrityCoverageTests`](SaveToolkit.Plugins.SuckerPunch.Tests/YoteiIntegrityCoverageTests.cs)
+pins all eleven nonempty sample header vectors and the two all-zero placeholders. Every tail from
+the declared end through physical EOF is zero. Both `sum(bytes[0x10:declaredEnd]) + declaredEnd + 0x150`
+and `sum(bytes[0x10:EOF]) + declaredEnd + 0x150` match every stored checksum, modulo 2^32.
+The declared ends span 411397–417135 in 616448-byte files. These samples cannot distinguish the
+coverage endpoints or exclude another integrity dependency.
+
+Every byte of every currently writable primary count and paired ammo copy lies inside the declared
+interval; individually flipping each such byte trips the production checksum gate. This establishes
+coverage by the **implemented candidate**, not by the game's integrity checks. In-memory mutations
+at the first tail byte and physical last byte distinguish the two formulas: the plugin accepts the
+declared-end candidate and preserves the tail, but treats the whole-file candidate as inspection-only.
+Export reparsing uses that same candidate and cannot independently prove which formula the game uses.
+These synthetic tails are not console evidence or naturally observed nonzero tails.
+
+The Tsushima `inventory/restore-imported-ammo` workflow from `a422395` supplies the intended immutable
+opening-baseline/preview/atomic-history shape, but its established checksum coverage cannot be transferred
+to Yōtei's different header. Revisit after an independently verified Yōtei checksum implementation or
+accepted nonzero-tail capture/control distinguishes the hypotheses, and any additional integrity is
+understood and repaired. [#31 capture 7](YOTEI_FORMAT.md#exact-owner-captures-for-31) describes the
+required owner experiment. No new rows, quantities, capacities or unlocks were granted by this review.
 
 ## Research log and sources
 
@@ -561,6 +594,24 @@ The central documentation check against `main` passed 26 of 27 checks: its exist
 `test_built_app_smoke_docs_cover_shipped_flows_and_skipped_regressions` still expects
 `test.fixme(` in `web/e2e/import.e2e.ts`, although that regression is now an active test.
 Those unchanged central files are outside this plugin-only task.
+
+Yōtei restoration feasibility validation on **2026-10-29**: **387 tests passed, 0 failed,
+0 skipped** with both private sample archives. The 15 new integrity cases pin the corpus, eleven
+header vectors, every writable count/copy byte and first/last-tail counterexamples. Existing tests
+retain exact scalar/target exports, history and byte-identical no-op coverage. The API Release build
+with `--warnaserror` passed with **0 warnings and 0 errors**. All test/temp paths were under
+`D:/Temp/saveeditor/test-scratch/feat-coverage-suckerpunch-yotei`; samples remained external/read-only.
+The restore-imported Yōtei action was deferred because exact game checksum/tail coverage is unproven.
+
+Tsushima restoration selection fix on **2026-10-29**: first reproduced the rendered-scope regression
+with ArrowNormal selected and both ammo types reduced; the unselected ArrowFire incorrectly restored
+from 0 to 2. The fix places a planned restore control inside each inventory row's table context,
+using the same F6/#27 pattern as other plugins. The separate document-wide control is explicitly
+labelled and retains its previous behavior. Four new regression cases cover selected-only changes,
+explicit empty selection, document scope and sample-backed export/checksum/reopen/undo/redo.
+The full sample-backed Release suite passed **391 tests, 0 failed, 0 skipped**; the API Release build
+with `--warnaserror` passed with **0 warnings and 0 errors**. Yōtei restoration remains deferred;
+there is no new Yōtei restore action or selection claim.
 
 Coverage includes all 25 Tsushima and 13 Yōtei files (including both zero placeholders), byte-identical
 no-op exports, exact count/copy/timer/checksum changes, export reparsing, atomic rejection and rollback,
