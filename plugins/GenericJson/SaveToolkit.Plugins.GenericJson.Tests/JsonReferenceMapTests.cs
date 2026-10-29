@@ -21,28 +21,45 @@ public sealed class JsonReferenceMapTests
         using var fixture = new JsonSessionFixture(Settings, title: "PPSA04027", fileName: "settings.json", useReferences: true);
         var action = JsonSemanticTestHelper.Actions(fixture).Single(a => a.ActionId.EndsWith("/set", StringComparison.Ordinal));
         var parameter = Assert.Single(action.Parameters);
-        Assert.IsType<EnumSpec>(parameter.Spec); // Shared F6 dialog lacks reference-picker context; browse field below uses F4.
+        Assert.Equal("value", parameter.ValueId);
+        Assert.Equal("cp2077-v136-display", Assert.IsType<ReferenceSpec>(parameter.Spec).CatalogId);
+        Assert.Equal("Quality", parameter.Value.AsString());
         Assert.Contains("CD PROJEKT RED", parameter.Description);
         Assert.Contains("owner decision 2026-10-29", parameter.Description);
         var browse = Assert.Single(fixture.Fields().DistinctBy(f => f.ValueId), f => f.ValueId.StartsWith("catalogue/", StringComparison.Ordinal));
         Assert.True(browse.Spec.ReadOnly);
         Assert.Equal("cp2077-v136-display", Assert.IsType<ReferenceSpec>(browse.Spec).CatalogId);
-        var page = fixture.Session.SearchReferences(browse.ValueId,
-            new() { Category = "display mode", SortBy = ReferenceSortKey.Name, Descending = true, Limit = 1 }, fixture.Session.State.Revision);
+        var page = fixture.Session.SearchReferences(parameter.ValueId,
+            new() { Category = "display mode", SortBy = ReferenceSortKey.Name, Descending = true, Limit = 1 },
+            fixture.Session.State.Revision, action.ActionId);
         Assert.Equal(2, page.Total);
         Assert.Equal("Quality", Assert.Single(page.Items).RawId);
         Assert.NotNull(page.Items[0].Dataset);
         Assert.Equal("Quality", fixture.Document.GetValue(browse.ValueId).AsString());
+        var performance = Assert.Single(fixture.Session.SearchReferences(parameter.ValueId, new() { Text = "Performance" }, actionId: action.ActionId).Items);
+        Assert.True(performance.Eligibility.Selectable);
+        Assert.Contains("CD PROJEKT RED", performance.Dataset!.Attribution.Author);
+        Assert.Contains("owner decision 2026-10-29", performance.Dataset.Attribution.License);
+        Assert.Contains("Historical", performance.Description);
+        Assert.NotNull(performance.Source);
         Assert.Single(fixture.Session.SearchReferences(browse.ValueId, new() { Text = "Performance" }).Items);
         Assert.False(fixture.Edit(browse.ValueId, FieldValue.Of("Performance")).Ok);
         var invalid = fixture.Session.PlanAction(action.ActionId, JsonArrayEditingTests.Parameters(("value", FieldValue.Of("Unknown"))),
             expectedRevision: fixture.Session.State.Revision, scope: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEmpty(invalid.Plan.Errors);
-        JsonSemanticTestHelper.ApplyAndVerify(fixture, action.ActionId, ("value", FieldValue.Of("Performance")));
+        var plan = JsonSemanticTestHelper.ApplyAndVerify(fixture, action.ActionId, ("value", FieldValue.Of("Performance")));
+        Assert.Equal(2, plan.Changes.Count);
+        var value = Assert.Single(plan.Changes, c => !c.Derived);
+        Assert.Equal(JsonEditingTests.Text("Quality"), value.OldValue);
+        Assert.Equal(JsonEditingTests.Text("Performance"), value.NewValue);
+        var index = Assert.Single(plan.Changes, c => c.Derived);
+        Assert.Equal(JsonEditingTests.Number("1"), index.OldValue);
+        Assert.Equal(JsonEditingTests.Number("0"), index.NewValue);
         Assert.Equal("Quality", fixture.Document.GetValue(browse.ValueId).AsString());
         var review = fixture.Session.GetChanges(cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(review.Complete);
         Assert.Equal(2, review.Changes.Count);
+        Assert.Equal(plan.Changes.Select(c => c.ValueId).Order(StringComparer.Ordinal), review.Changes.Select(c => c.ValueId).Order(StringComparer.Ordinal));
         Assert.DoesNotContain(review.Changes, c => c.ValueId.StartsWith("catalogue/", StringComparison.Ordinal));
     }
 
@@ -51,7 +68,10 @@ public sealed class JsonReferenceMapTests
     {
         using var fixture = new JsonSessionFixture(Settings, title: "PPSA04027", fileName: "settings.json");
         var action = JsonSemanticTestHelper.Actions(fixture).Single(a => a.ActionId.EndsWith("/set", StringComparison.Ordinal));
-        Assert.IsType<EnumSpec>(Assert.Single(action.Parameters).Spec);
+        var fallback = Assert.IsType<EnumSpec>(Assert.Single(action.Parameters).Spec);
+        Assert.Collection(fallback.Options, first => Assert.Equal("0", first.Value), second => Assert.Equal("1", second.Value));
+        Assert.DoesNotContain(fixture.Fields(), f => f.ValueId.StartsWith("catalogue/", StringComparison.Ordinal));
+        JsonSemanticTestHelper.ApplyAndVerify(fixture, action.ActionId, ("value", FieldValue.Of("0")));
         var plugin = new GenericJsonPlugin();
         var store = new ReferencePackStore([plugin]);
         Assert.Empty(store.LoadErrors);
