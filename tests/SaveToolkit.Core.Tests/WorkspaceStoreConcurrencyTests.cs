@@ -41,7 +41,7 @@ public sealed class WorkspaceStoreConcurrencyTests
         })]), ct);
         try
         {
-            await importing.Task.WaitAsync(ct);
+            await TestWorker.WaitForSignalAsync(importing.Task, import, ct);
             store.Dispose();
             resume.Set();
 

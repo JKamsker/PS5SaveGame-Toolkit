@@ -42,7 +42,7 @@ public sealed class ExportCancellationTests
         }, ct);
         try
         {
-            await entered.Task.WaitAsync(ct);
+            await TestWorker.WaitForSignalAsync(entered.Task, holder, ct);
             var waiter = TestWorker.Run(() =>
             {
                 started.SetResult();
@@ -50,7 +50,7 @@ public sealed class ExportCancellationTests
             }, ct);
             // The competing worker has started while the holder still owns the gate.
             // A delay cannot establish exactly where the OS has scheduled that worker.
-            await started.Task.WaitAsync(ct);
+            await TestWorker.WaitForSignalAsync(started.Task, waiter, ct);
             Assert.False(waiter.IsCompleted);
             cancellation.Cancel();
 

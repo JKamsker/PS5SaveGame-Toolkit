@@ -69,7 +69,7 @@ public sealed class WorkspaceLifetimeTests : IDisposable
         Task? dispose = null;
         try
         {
-            await opening.Task.WaitAsync(ct);
+            await TestWorker.WaitForSignalAsync(opening.Task, open, ct);
             dispose = TestWorker.Run(workspace.Dispose, ct);
             resume.Set();
             var session = await open;

@@ -66,7 +66,7 @@ public sealed class WorkspaceLeaseTests
         var shutdown = TestWorker.Run(store.Dispose, ct);
         try
         {
-            await disposing.Task.WaitAsync(ct);
+            await TestWorker.WaitForSignalAsync(disposing.Task, shutdown, ct);
             var remaining = Assert.Single(store.All);
             using var unexpectedLease = store.Acquire(remaining.Id);
             Assert.Null(unexpectedLease);

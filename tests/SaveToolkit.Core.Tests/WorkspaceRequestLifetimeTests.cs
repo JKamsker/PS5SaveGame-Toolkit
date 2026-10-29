@@ -36,7 +36,7 @@ public sealed class WorkspaceRequestLifetimeTests
         var request = client.GetAsync(new Uri($"/api/workspaces/{workspace.Id}", UriKind.Relative), cancellation.Token);
         try
         {
-            await probing.Task.WaitAsync(TestContext.Current.CancellationToken);
+            await TestWorker.WaitForSignalAsync(probing.Task, request, TestContext.Current.CancellationToken);
             Assert.True(store.Remove(workspace.Id));
             Assert.Null(store.Get(workspace.Id));
             Assert.True(Directory.Exists(workspace.Set.StorageRoot), "An active request still needs its imported blobs.");
