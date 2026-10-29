@@ -1,5 +1,4 @@
 using System.Globalization;
-using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok;
 
@@ -87,7 +86,7 @@ internal static class RagnarokCollectionRows
                 ("category", references.Category(id)), ("quantity", document.ReadWord(offset + sizeof(ulong)).ToString(CultureInfo.InvariantCulture)),
                 ("metadata", document.ReadWord(offset + RagnarokFormat.WalletRowMetadataOffset).ToString(CultureInfo.InvariantCulture)),
                 ("source", references.Attribution(id)), ("offset", Hex(offset)), ("icon", string.Empty)),
-                "quantity", offset + sizeof(ulong), Confidence.Inferred));
+                "quantity", offset + sizeof(ulong)));
         }
     }
 

@@ -5,7 +5,7 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Plugins.GodOfWarRagnarok;
 
 internal sealed record RagnarokCollectionRow(string Key, int Offset, Dictionary<string, string> Cells,
-    string? NumberColumn = null, int NumberOffset = 0, Confidence Confidence = Confidence.Unknown)
+    string? NumberColumn = null, int NumberOffset = 0)
 {
     // Each collection has either a metadata word or a fixed diagnostic word. Quantities stay live.
     public ulong FixedNumber { get; } = ulong.Parse(Cells.GetValueOrDefault("metadata") ?? Cells.GetValueOrDefault("word") ?? "0",
