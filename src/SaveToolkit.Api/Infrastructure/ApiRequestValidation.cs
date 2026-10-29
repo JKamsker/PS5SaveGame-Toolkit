@@ -21,6 +21,7 @@ internal static class ApiRequestValidation
         ApplyActionPlanRequest { Revision: < 0 } => "Revision cannot be negative.",
         RevertChangeRequest r when Missing(r.ValueId) => "ValueId is required.",
         RevertChangeRequest { Revision: < 0 } => "Revision cannot be negative.",
+        HistoryRequest { Revision: < 0 } => "Revision cannot be negative.",
         OpenGroupRequest r when Missing(r.ProposalToken) => "ProposalToken is required.",
         ExportRequest r when !Enum.IsDefined(r.Scope) => "Unknown export scope.",
         _ => null,

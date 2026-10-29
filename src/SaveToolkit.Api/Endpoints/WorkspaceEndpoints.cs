@@ -67,6 +67,7 @@ internal static class WorkspaceEndpoints
 
     private static void MapDocumentRoutes(RouteGroupBuilder doc)
     {
+        doc.AddEndpointFilter<DocumentRevisionFilter>();
         doc.MapActionReview();
         doc.MapGet("", (DocumentRef d) => d.Value.ToDto(d.Workspace));
         doc.MapDelete("", (DocumentRef d) => d.Workspace.Close(d.Value.Id) ? Results.NoContent() : Results.NotFound());
@@ -79,8 +80,8 @@ internal static class WorkspaceEndpoints
             ToResult(d.Value.ApplyEdits([.. request.Edits.Select(e => new IncomingEdit(e.ValueId, e.Value))], request.Revision)));
         doc.MapPost("/actions", (DocumentRef d, ActionRequest request) =>
             ToResult(d.Value.InvokeAction(request.ActionId, request.Parameters ?? [], request.Revision)));
-        doc.MapPost("/undo", (DocumentRef d) => ToResult(d.Value.Undo()));
-        doc.MapPost("/redo", (DocumentRef d) => ToResult(d.Value.Redo()));
+        doc.MapPost("/undo", (DocumentRef d, HistoryRequest? request) => ToResult(d.Value.Undo()));
+        doc.MapPost("/redo", (DocumentRef d, HistoryRequest? request) => ToResult(d.Value.Redo()));
         doc.MapGet("/assets", (DocumentRef d, [FromQuery] string id) =>
             d.Value.GetAsset(id) is { } asset ? Results.Bytes(asset.Content.ToArray(), asset.ContentType) : Results.NotFound());
         doc.MapGet("/blobs", (DocumentRef d, [FromQuery] string id, [FromQuery] long offset, [FromQuery] int count) =>

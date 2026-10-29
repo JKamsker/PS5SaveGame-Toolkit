@@ -45,6 +45,8 @@ public sealed class ApiProblemContractTests(ApiContractFixture fixture) : IClass
     [InlineData("actions/apply", "{\"planId\":null,\"revision\":0}")]
     [InlineData("changes/revert", "{\"valueId\":\"counter\"}")]
     [InlineData("changes/revert", "{\"valueId\":null,\"revision\":0}")]
+    [InlineData("undo", "{\"revision\":-1}")]
+    [InlineData("redo", "{\"revision\":-1}")]
     public async Task Invalid_request_shape_is_400_without_mutation(string path, string json)
     {
         var (_, document) = await fixture.OpenAsync();
