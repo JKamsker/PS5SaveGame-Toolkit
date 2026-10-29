@@ -82,6 +82,20 @@ and the existing 128 KiB parser margin, leaving 126,772 B of observed headroom.
 This is a bounded intentional SDK lexical-retention cost, rather than a broad
 disabled or Debug-only assertion.
 
+## R3 response matrix
+
+- **P1 post-write validation atomicity:** `JsonSaveDocument.ApplyEdits` captures the
+  document-owned SDK scalar snapshot before applying bound values. If scalar writing,
+  envelope transformation, title/profile validation or round-trip validation rejects
+  the batch, it restores that SDK snapshot before rolling back the plugin values in a
+  `finally` block. This keeps SDK replacement maps/current lexemes, visible values and
+  retry behavior aligned while retaining the R1/R2 final-map preflight and rollback.
+  `CharacterGateTests.RejectedCharacterGateEditRestoresSdkHistoryBeforeStructuralUndo`
+  covers valid writable FCharacterSaveV1 SoftVersion and FormatHash gate failures,
+  unchanged encoded bytes, empty replacement history and memento size, a later scalar
+  write, and structural undo/redo. Existing mixed-write, group-candidate and resource
+  atomicity tests remain in the suite.
+
 ## Dependency and branch
 
 - SDK dependency PR: [#51](https://github.com/JKamsker/PS5SaveGame-Toolkit/pull/51)
@@ -123,13 +137,13 @@ Validation from the sample-free run:
 
 `dotnet run --project plugins/XorJson/SaveToolkit.Plugins.XorJson.Tests/SaveToolkit.Plugins.XorJson.Tests.csproj --no-build -- -noLogo -noColor`
 
-passed **304 tests**, with **19 sample-dependent skips** and **0 failures** in
+passed **306 tests**, with **19 sample-dependent skips** and **0 failures** in
 both sample-free Debug and Release runs. Both configurations build with zero
 warnings, including the calibrated Release opening-allocation guard.
 The plugin project also builds with zero warnings. Missing `PPSA16064` samples
 were skipped by the existing test harness; no private sample bytes were copied.
 PR CI metadata: SDK PR #51 is merged into `main` at `1322ddfa8ca5c46af15d14fd4ad0c5c1b16adaac`;
-parent owns the one initial CI snapshot and fresh R3/CI revalidation.
+parent owns the next initial CI snapshot and fresh R4/CI revalidation.
 
 ## Remaining limits
 
