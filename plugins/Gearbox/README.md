@@ -417,6 +417,23 @@ Samples/decoded payloads were inspected only in external scratch storage and are
 
 ## Validation
 
+SDK helper migration ([#40](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40)), 2026-10-29:
+`GvasReader` delegates bounds and strict string decoding to `BoundedBinaryCursor` / `FStringCodec`
+with the existing 16,384-byte / 8,192-UTF-16-code-unit cap. Its thin adapter retains the exact Gearbox
+truncation, length, terminator and encoding diagnostics. `GearboxImages` delegates to
+`ReferenceViews.Icon`, retaining the `Image unavailable` fallback and whole-item/part caveat; the
+shared helper adds separate record and image attribution and checks image bytes before rendering.
+`SerialEnvelope` uses `Crc32Ieee` while retaining header/payload coverage, `FF FF` sentinels, folding,
+big-endian storage and original-seed obfuscation locally. Coverage was rechecked against the pinned
+[upstream serial implementation][bl3-serial] and the independent folded SDK fixture. No new format
+claims or imported code were introduced. Protobuf framing/shared budgets, unsupported scalar records,
+lazy fallback catalogues and retained validated group documents keep their existing implementations.
+The pre-migration baseline passed **285 tests**; characterization passed **311 tests** before production
+edits. Final Release validation passed **312 tests, 0 failed, 0 skipped**, including all 80 corruption
+cases and the catalogue/group performance regressions. The Release API build with warnings as errors
+passed with **0 warnings, 0 errors**. Production code is **21 net lines shorter**; scratch and reports
+were kept under `D:/Temp/saveeditor/test-scratch/refactor-sdk-helpers-gearbox`.
+
 ```powershell
 $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
 dotnet test --project plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests
