@@ -47,6 +47,8 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
 
     public override string Title => "ASTRO's PLAYROOM";
 
+    public override AssetContent? GetAsset(string assetId) => _references.Asset(assetId);
+
     public IReadOnlyList<QueryableCollection> Collections => _collections.Queryable.Collections;
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>

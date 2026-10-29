@@ -6,7 +6,7 @@ namespace SaveToolkit.Plugins.AstroPlayroom;
 
 public sealed class AstroPlayroomPlugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("astro-playroom", "ASTRO's PLAYROOM", "0.4.0")
+    public PluginInfo Info { get; } = new("astro-playroom", "ASTRO's PLAYROOM", "0.5.0")
     {
         Description = "Preserving editor for the decrypted 1 MiB PreInstall save allocation.",
         Games = [new GameTitle("PPSA01325", "ASTRO's PLAYROOM")],
@@ -23,6 +23,9 @@ public sealed class AstroPlayroomPlugin : IGamePlugin
             "https://creativecommons.org/licenses/by-sa/3.0/",
             "https://github.com/JKamsker/PS5SaveGame-Toolkit/tree/main/plugins/AstroPlayroom",
             "https://www.gnu.org/licenses/gpl-3.0.html",
+            "https://www.pushsquare.com/guides/astros-playroom-memory-meadow-all-collectibles-artefacts-puzzle-pieces",
+            "https://www.actugaming.net/guide-emplacement-quatre-bots-speciaux-astros-playroom-667952/",
+            "https://www.playstation.com/en-us/legal/copyright-and-trademark-notice/",
         ],
     };
 

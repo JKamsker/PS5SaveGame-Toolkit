@@ -92,6 +92,7 @@ internal sealed class AstroCollectionBrowser(
                 // F3 names row controls from the first text cell. Put the unique raw key before
                 // status/category so every details/selection control has an unambiguous label.
                 new TableColumn("key", "Exact saved key") { Width = ColumnWidth.Narrow },
+                new TableColumn("image", "Thumbnail") { Width = ColumnWidth.Narrow },
                 new TableColumn("status", "Saved ownership") { Width = ColumnWidth.Narrow },
                 new TableColumn("category", "Category / candidate world"),
                 new TableColumn("world", "Candidate world"),
@@ -123,6 +124,9 @@ internal sealed class AstroCollectionBrowser(
             ["category"] = new TextNode(reference?.Category ?? "Unmapped"),
             ["world"] = new TextNode(locations.World(record)?.Name ?? "Unmapped"),
             ["key"] = new TextNode(key) { Monospace = true },
+            ["image"] = reference?.AssetId is { } asset
+                ? new ImageNode(asset, $"{reference.Name} — candidate illustration. {provenance}")
+                : new TextNode("No identified image"),
             ["details"] = new SectionNode("Record details", [
                 new TextNode($"Stable saved record: {record.Element.Id}") { Monospace = true },
                 new TextNode($"Saved IsGot: {status}. Saved IsCinematicsPlayed: {cinematic}. Flags are independent; neither implies the other."),

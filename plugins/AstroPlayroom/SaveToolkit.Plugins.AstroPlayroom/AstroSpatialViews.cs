@@ -14,12 +14,13 @@ internal sealed class AstroSpatialViews(AstroSchema schema, IReadOnlyList<AstroF
     private const string GuideUrl = "https://www.powerpyx.com/astros-playroom-all-collectible-locations-artefacts-puzzle-pieces/";
     private const string OriginalSource = "https://github.com/JKamsker/PS5SaveGame-Toolkit/tree/main/plugins/AstroPlayroom";
     private static readonly ExternalViewLink Guide = new(GuideUrl, "Open collectible guide",
-        "PowerPyx / Gage. External research only; no guide art, coordinates or prose imported.");
+        "PowerPyx / Gage; Sony Interactive Entertainment game artwork. Artifact thumbnails and short game captions are attributed in Sources.");
     private readonly IReadOnlyDictionary<string, int> _groupCounts = schema.Records.GroupBy(record => record.Group)
         .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
 
     public IReadOnlyList<ViewNode> Build() => [
         new TextNode("Original schematic and saved-record lists. Positions show list order, not geography. Found/Missing refer only to the stated saved flag; they do not prove gameplay completion or physical pickup locations. Oversized unknown paths remain in Raw instead of the bounded maps."),
+        SectionNode.Lazy("World selection artwork (Inferred anchors)", LazyPrefix + "Artwork:0"),
         SectionNode.Lazy("Level schematic", LazyPrefix + "World:0"),
         SectionNode.Lazy("Artifact locations", LazyPrefix + "Artifact:0"),
         SectionNode.Lazy("Puzzle locations (unresolved)", LazyPrefix + "Puzzle:0"),
@@ -28,6 +29,13 @@ internal sealed class AstroSpatialViews(AstroSchema schema, IReadOnlyList<AstroF
 
     public IReadOnlyList<ViewNode> Expand(string lazyId)
     {
+        if (lazyId == LazyPrefix + "Artwork:0")
+        {
+            var artwork = AstroWorldMap.Create(LevelMarkers(), fields, references);
+            return artwork is null
+                ? [new TextNode("Reference artwork or matching schema unavailable; original schematic fallback."), .. Expand(LazyPrefix + "World:0")]
+                : [new TextNode("Reference screenshot: its crowns and artwork are static. Only overlay markers reflect this save. Stage anchors are Inferred; use the original schematic or text list when uncertain."), artwork];
+        }
         var parts = lazyId[LazyPrefix.Length..].Split(':');
         if (parts.Length != 2 || !int.TryParse(parts[1], out var page) || page < 0)
             throw new KeyNotFoundException("Unknown ASTRO map page.");

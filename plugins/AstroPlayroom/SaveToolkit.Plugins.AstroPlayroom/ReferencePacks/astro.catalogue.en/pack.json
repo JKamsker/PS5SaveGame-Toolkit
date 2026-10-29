@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "astro.catalogue.en",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "ASTRO's PLAYROOM catalogue candidates (English)",
   "plugins": [
     "astro-playroom"
@@ -19,7 +19,7 @@
       "files": [
         {
           "path": "collectibles.json",
-          "sha256": "33689b4166dd12e316e3d74e64c023c0fad162fea1835b9b9a005a630f05dbbe"
+          "sha256": "2647d76514695f66420a1f4e3d1f4000f7977c335f1dff916dbdc3f837c2cf9d"
         }
       ],
       "attribution": {
@@ -28,7 +28,7 @@
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
-        "modifications": "Selected factual hardware/world names; independently joined exact saved keys as Inferred candidates; authored candidate internal-stage mappings for puzzle aliases, raw-key prop aliases and uncertainty notes. No game flavor text, walkthrough prose or media copied. Adaptation remains CC BY-SA 3.0."
+        "modifications": "Selected factual hardware/world names; independently joined exact saved keys as Inferred candidates; authored candidate internal-stage mappings for puzzle aliases, raw-key prop aliases and uncertainty notes. No game flavor text, walkthrough prose or media copied. Adaptation remains CC BY-SA 3.0. Added references to separately attributed thumbnail assets; existing CC BY-SA text is unchanged."
       }
     },
     {
@@ -38,7 +38,7 @@
       "files": [
         {
           "path": "worlds.json",
-          "sha256": "c225bf3690c98bf2f297c1af8bb04693804da03818607ee1b14ca9d1be350032"
+          "sha256": "ddd04777766991c2646eac772ddb03f134877407f534ad6565d0ea505836f4aa"
         }
       ],
       "attribution": {
@@ -48,6 +48,278 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
         "modifications": "Selected factual hardware/world names; independently joined exact saved keys as Inferred candidates; authored candidate internal-stage mappings for puzzle aliases, raw-key prop aliases and uncertainty notes. No game flavor text, walkthrough prose or media copied. Adaptation remains CC BY-SA 3.0."
+      }
+    },
+    {
+      "id": "astro_captions",
+      "kind": "records",
+      "title": "49 official in-game artifact captions (candidate save-ID joins)",
+      "files": [
+        {
+          "path": "captions.json",
+          "sha256": "f5d0a5b1dad7f887956a674aa43363012f4684c5975c6219bebee1bf06d0c4d8"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://www.powerpyx.com/astros-playroom-all-collectible-locations-artefacts-puzzle-pieces/",
+        "author": "Sony Interactive Entertainment / Team ASOBI; screenshots by PowerPyx / Gage",
+        "license": "Rights reserved by Sony (SIE); used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://www.playstation.com/en-us/legal/copyright-and-trademark-notice/",
+        "retrieved": "2026-10-29",
+        "modifications": "Transcribed short English game captions visible in each linked screenshot; no caption available for the PlayStation Mouse. Save-ID joins remain Inferred; publisher text retains separate rights from the CC BY-SA alias catalogue."
+      }
+    },
+    {
+      "id": "artifact_images",
+      "kind": "assets",
+      "title": "50 artifact acquisition thumbnails",
+      "files": [
+        {
+          "path": "icons/psone.webp",
+          "sha256": "0df85d36b84898d622f94ee59ac5dee5676938dc13a5f345bc8bfa8e6d662d0c"
+        },
+        {
+          "path": "icons/ps2_broadband_adapter.webp",
+          "sha256": "8f177cf3ac8b7507283f519176ddddb1210e2445ca99e5f103ec2d4befc9c6e0"
+        },
+        {
+          "path": "icons/psp_camera.webp",
+          "sha256": "b6e075201935264824ae08f984206c64d9799ebbc12850cba9afb8496c3427ae"
+        },
+        {
+          "path": "icons/psp_microphone.webp",
+          "sha256": "f88412de2d31957a2fa67e6fcaeb63db9a6a6681440c379825c7d01dafa9ef0a"
+        },
+        {
+          "path": "icons/psp_gps.webp",
+          "sha256": "de4d14615ef4bb636bfdf178b9c4ffeaa3af4d3b24f8e53574856e26316bfbfe"
+        },
+        {
+          "path": "icons/psp_go.webp",
+          "sha256": "9b0c030b9314b5cbac581b68508c94efa198139e7a4ee3114ec358f2af1f45d3"
+        },
+        {
+          "path": "icons/ps3_slim.webp",
+          "sha256": "3b6a222ac2f8b15b07a5dd5673dc2c8f755b41eb3639253db25ed16a01512051"
+        },
+        {
+          "path": "icons/ps3_super_slim.webp",
+          "sha256": "3c249754fe876338443cd2b4ad6f409e184bf01b9a38fe669bfc308454842ce6"
+        },
+        {
+          "path": "icons/ps4_slim.webp",
+          "sha256": "2ff31b13035ed30b4eba4444f6af856cac355fc6d9f47150d0abc2b49331c121"
+        },
+        {
+          "path": "icons/ps4_pro.webp",
+          "sha256": "fa85ef2e053e0c0160317439d91a6c5553f3ad3687e6644b5494450b08fac11c"
+        },
+        {
+          "path": "icons/ds3.webp",
+          "sha256": "e0a4bee2a1fb06d0da2c9d13756e267a1feba4523afd1bf9c40acca91b5028ad"
+        },
+        {
+          "path": "icons/pseye.webp",
+          "sha256": "7939a3ee15518c12836c5ef23c3aa18cda6673094009dc3fffb9fa2d55f9a5c4"
+        },
+        {
+          "path": "icons/move_sharp_shooter.webp",
+          "sha256": "73fceab5bbb9508014c80ceb6e048d309722e7fc99d27c06069c52679ad658e0"
+        },
+        {
+          "path": "icons/move_shooting_attachment.webp",
+          "sha256": "e6fcbfceb779355897e38659f3dee8f92cc87135d6b020ca918aa767bd7fbd6d"
+        },
+        {
+          "path": "icons/move_navigation_controller.webp",
+          "sha256": "0ad2bc70bb0794eb4155f98d7d84a3cb9baeb2a9004e1f9ea74f2abe2c6c195e"
+        },
+        {
+          "path": "icons/ps3_bluray_disc.webp",
+          "sha256": "bcd670edc12a34d83715b19995dd0a28629632a2339a1dec217f393235c770b7"
+        },
+        {
+          "path": "icons/psp_umd.webp",
+          "sha256": "8b2a7b9785855ce60db85930cdf622195245ae9d73d5cfcca046b480f15f3d95"
+        },
+        {
+          "path": "icons/psp.webp",
+          "sha256": "65295bb912651672a8ec363a04ef7ba1c8cdccce3cf584c533d2f2ca1aec1cac"
+        },
+        {
+          "path": "icons/ps3.webp",
+          "sha256": "97848bcc7505efb5e513f1c2e315a6a12fac59c0d9d0fb69a24d5ec3d0609c22"
+        },
+        {
+          "path": "icons/move.webp",
+          "sha256": "6c482c896450339c9bbdd6424f91d5a167535eb86dc7fae43d04264bb8bb86f5"
+        },
+        {
+          "path": "icons/ps_vita_card.webp",
+          "sha256": "39885f7a9270c4c0f99fa7ac2c743f0a7328d0f91a1477113a950b60d8a1e38d"
+        },
+        {
+          "path": "icons/ps4_camera.webp",
+          "sha256": "3b5215d5ee83df9ddbd4d509911c0542a7eeb00b3c3ebd0495f797908b6e0f3e"
+        },
+        {
+          "path": "icons/ds4.webp",
+          "sha256": "569c3c88d5f5b1d068fe7f6314385d9294da5f37f44f725a6e9bc74888989017"
+        },
+        {
+          "path": "icons/psvr_processing_unit.webp",
+          "sha256": "1a34cad3011f2540ff15c31c2666273308c15fad83b40bcbb451d6c9fb8e04b9"
+        },
+        {
+          "path": "icons/ps_vita.webp",
+          "sha256": "b779dc7d450fd0420235ff897206709d7feba6e0c799a4f289469d530767f204"
+        },
+        {
+          "path": "icons/psvr.webp",
+          "sha256": "605ca77a1bddc6cc585073e9ad3d254627a7eec92d872f93b2e8b2d6074e3b4d"
+        },
+        {
+          "path": "icons/psvr_aim_controller.webp",
+          "sha256": "0879ff8a510e035bef17ffa6c09eac87521d9d680901e8a9134d10e585d2085e"
+        },
+        {
+          "path": "icons/ps4.webp",
+          "sha256": "369e8ec6389a8dbeacd8c988d36f867f78d1387464f400f36bcc8968f31fae75"
+        },
+        {
+          "path": "icons/buzz_controller.webp",
+          "sha256": "6e0ba3c33e85df6f7057a95ed61a7e0e5e22d64b73be95c89414d8d1a923519b"
+        },
+        {
+          "path": "icons/ds2.webp",
+          "sha256": "6f4a645cee1765bdf9eda13550631629ae6d786dbb328f34d304c4f879a6ad18"
+        },
+        {
+          "path": "icons/ps2_multitap.webp",
+          "sha256": "8ea0015118aaf530f9aab067ef790fa17186cccecfef6f82ee76a6ed90fd8eb3"
+        },
+        {
+          "path": "icons/ps2_memory_card.webp",
+          "sha256": "d4e4cf771ba618fe76350da50eac01f67a6899615da91798decb8ef28360abbd"
+        },
+        {
+          "path": "icons/ps2_bluedisc.webp",
+          "sha256": "737a73567628c3fc9481ddf767bc290ac3baba3e435af196879fc8eb3a0ff465"
+        },
+        {
+          "path": "icons/eyetoy.webp",
+          "sha256": "f74ff34a0a026a33d69cfac1caf2a4dbc201efa0753a8d290116561f9e1c326a"
+        },
+        {
+          "path": "icons/ps2_slim.webp",
+          "sha256": "d849731557c017b3a1af7c666cf935418a7da07255e869bdad0666b3fb2a95f8"
+        },
+        {
+          "path": "icons/singstar_mic.webp",
+          "sha256": "083fb8f8fe6e76af376cedd4e8b9ad7ae612e29babc24c1ea09731ddf61791a4"
+        },
+        {
+          "path": "icons/ps2.webp",
+          "sha256": "bc1667df3427db6605d81994d705f31043f24438a1dde0244c3bcbd4a4d4d915"
+        },
+        {
+          "path": "icons/ps1_controller.webp",
+          "sha256": "08fe25bb2929bcb290833ed9885f198b7f4988a2689b21d8228fd44e26ba7d9c"
+        },
+        {
+          "path": "icons/ps1_mouse.webp",
+          "sha256": "7fc0030ddf4a28d638c48a729c64ffcfb74feb64480fc37b4058810d797bcd9b"
+        },
+        {
+          "path": "icons/ps1_memory_card.webp",
+          "sha256": "f968302fb5153ae3f2b91de3f2b0ef9b9833737a7e73e52f0595b929ec0c6dde"
+        },
+        {
+          "path": "icons/ps1_blackdisc.webp",
+          "sha256": "86cee53bf68ef357f665a3f00f9cd05205ed594ccc4e5e51355cfeec35126620"
+        },
+        {
+          "path": "icons/psone_screen.webp",
+          "sha256": "8e245cf2c3250465695b069772d07764ce1150744894545d867efe3b1d3fbc93"
+        },
+        {
+          "path": "icons/ps1_multitap.webp",
+          "sha256": "f64460a973aaab88790a8171cbdd0fd97d2d3af13b148be98899ee51e888f346"
+        },
+        {
+          "path": "icons/ds.webp",
+          "sha256": "f784eb745f52d6edbdd86b2873b5c855313342f10f7d30aaefd7b5a4dac8c071"
+        },
+        {
+          "path": "icons/pocket_station.webp",
+          "sha256": "8df9e187d3fd459927c5578596c7a44c48c1eb2bee5268c946c70f6686aaa50c"
+        },
+        {
+          "path": "icons/ps1.webp",
+          "sha256": "ded74e28ce2c69b202c7653a70dddcf78f34ed4b6fa1f2142f57cdc0e9aab858"
+        },
+        {
+          "path": "icons/ps5_sparkv_headphones.webp",
+          "sha256": "14f6e5a64357c58d7e603d9c587db29e2ab51de03f0eaf6bdaaf7ff29b301038"
+        },
+        {
+          "path": "icons/ps5_camera.webp",
+          "sha256": "249061becd90cc40c5bed20fcf3bfe151b0e9a1f1d3b66122548bf31be6eb138"
+        },
+        {
+          "path": "icons/ps5_ds5.webp",
+          "sha256": "7e53e40214432beaadb86c44635d87818810447460cfaa55bdee1d374201cb6d"
+        },
+        {
+          "path": "icons/ps5.webp",
+          "sha256": "945b7ff35fd3853b1a82cf585a2ae9799ae1e23a8dcc5f3fa004ce4ab67416dc"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://www.powerpyx.com/astros-playroom-all-collectible-locations-artefacts-puzzle-pieces/",
+        "author": "Sony Interactive Entertainment / Team ASOBI; screenshots by PowerPyx / Gage",
+        "license": "Rights reserved by Sony (SIE); used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://www.playstation.com/en-us/legal/copyright-and-trademark-notice/",
+        "retrieved": "2026-10-29",
+        "modifications": "Cropped artifact regions, resized to at most 96x96 for small hardware detail, encoded WebP quality 78. Exact source URLs and crop boxes in assets.source.md. Joins remain Inferred; PlayStation Mouse is a museum scene crop."
+      }
+    },
+    {
+      "id": "puzzle_image",
+      "kind": "assets",
+      "title": "Shared puzzle-piece category thumbnail",
+      "files": [
+        {
+          "path": "icons/puzzle.webp",
+          "sha256": "138167e693614b7968653a42e012b7ec72ee17f3cef68a9ab760f75b0ffab9a4"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://www.pushsquare.com/guides/astros-playroom-memory-meadow-all-collectibles-artefacts-puzzle-pieces",
+        "author": "Sony Interactive Entertainment / Team ASOBI; screenshot by Push Square / Sammy Barker",
+        "license": "Rights reserved by Sony (SIE); used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://www.playstation.com/en-us/legal/copyright-and-trademark-notice/",
+        "retrieved": "2026-10-29",
+        "modifications": "Cropped generic puzzle-piece appearance from Gusty Gateway screenshot to 64x60 WebP quality 82; shared by all 96 puzzle records. This is a category illustration, never an individual piece-location join."
+      }
+    },
+    {
+      "id": "world_map",
+      "kind": "assets",
+      "title": "World-selection reference map",
+      "files": [
+        {
+          "path": "maps/world-selection.webp",
+          "sha256": "e97e596b9e0bb66b833604c91684f3616056c3de8c858e81502df6e9d1b4abe6"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://www.actugaming.net/guide-emplacement-quatre-bots-speciaux-astros-playroom-667952/",
+        "author": "Sony Interactive Entertainment / Team ASOBI; screenshot by ActuGaming / Alexis",
+        "license": "Rights reserved by Sony (SIE); used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://www.playstation.com/en-us/legal/copyright-and-trademark-notice/",
+        "retrieved": "2026-10-29",
+        "modifications": "Cropped the 1920x1080 French world-selection screenshot to native rectangle (40,50)-(1180,980); retained diagram only, 1140x930 WebP quality 76. Crowns and artwork are static source state, not this save. Original schematic and no-coordinate collectible lists remain available. Stage aliases and manually digitized anchors are Inferred."
       }
     }
   ]

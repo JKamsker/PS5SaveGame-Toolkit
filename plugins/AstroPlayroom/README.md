@@ -70,7 +70,8 @@ source links. Puzzle aliases include an Inferred `stageKey` for their internal p
 Most artifact aliases also carry an Inferred candidate `worldKey`; the final 1994 Throwback aliases
 remain category-only because no matching saved world key is present in the observed schema.
 It is selected through the host's pinned `IReferenceContext`; missing packs fall back to raw keys. No
-runtime network/filesystem access or embedded game artwork is introduced.
+runtime network/filesystem access is introduced. Version 0.5.0 adds the separately attributed
+publisher media and short-caption datasets described below.
 Names require the exact schema fingerprint and a build-agnostic pack because the samples' patch
 version is unknown. A changed schema or duplicate saved key cannot silently inherit a mapping.
 
@@ -85,19 +86,94 @@ undo or redo the plugin requests a view refresh so ownership filters, section to
 reflect current values. F6 planning exposes reviewed coin and collect-existing actions, with explicit
 old/new values, skipped rows and warnings before apply. Each apply is one undo/redo group.
 
+
+## Publisher assets (0.5.0 / owner decision 2026-10-29)
+
+Pack `astro.catalogue.en` 1.1.0 adds **50 artifact screenshot thumbnails**, **one shared puzzle
+category image** used on all 96 puzzle records, **49 official in-game artifact captions** in
+`astro_captions` record descriptions, and **one world-selection map background**. The read-only
+row/inspection descriptions join the separately attributed captions without changing the existing
+CC BY-SA alias text. Artifact/puzzle catalogue records have F2 `assetId`s; F3 and F8 tables display
+them through the local asset endpoint. The PlayStation Mouse source has no readable caption;
+the 18 prop identities remain unresolved and receive no speculative images. All joins stay Inferred.
+
+**52 unique WebP images / 155,296 bytes**: 64,884 bytes for the 51 artifact/puzzle images;
+90,412 bytes for the 1140x930 map. Artifact thumbnails are at most 96x96 (the detailed-hardware
+exception); the puzzle image is 64x60. No source JPEGs or private save data are committed.
+The new caption JSON is 9,581 bytes; the complete embedded pack (including manifests and source
+sidecars) is 308,286 bytes. JSON is minified. The exact source URLs, crop boxes, processing settings, rights and limitations
+are in [assets.source.md](SaveToolkit.Plugins.AstroPlayroom/ReferencePacks/astro.catalogue.en/assets.source.md).
+
+The artwork map lazily resolves `references.GetAsset` and `AssetProvenance`; original screenshot
+pixels map to the cropped background with `MapTransform(1,1,-40,-50)`. Manually digitized stage
+tile centers are **Inferred**; no physical level/collectible coordinates are supplied. Baked-in
+crowns/highlights are static source state, explicitly distinguished from live saved-flag markers.
+World aggregates without a known tile remain in the text list. Unknown schemas/missing assets
+fall back to the original schematic, which remains separately available for every save.
+
+| Dataset | Source and authors (retrieved 2026-10-29) | Rights / modifications |
+| --- | --- | --- |
+| 50 artifact thumbnails + 49 game captions | [PowerPyx collectible guide](https://www.powerpyx.com/astros-playroom-all-collectible-locations-artefacts-puzzle-pieces/), Gage, 2020-11-17; game content Sony Interactive Entertainment / Team ASOBI | Publisher assets reused with attribution per owner decision 2026-10-29; crop/resize/WebP and short caption transcription. Official text is in its own dataset, not relicensed CC BY-SA. |
+| Shared puzzle-piece image | [Push Square Memory Meadow guide](https://www.pushsquare.com/guides/astros-playroom-memory-meadow-all-collectibles-artefacts-puzzle-pieces), Sammy Barker; game content Sony Interactive Entertainment / Team ASOBI | Same owner decision; one cropped generic appearance, not a physical puzzle-ID/location mapping. |
+| World-selection map | [ActuGaming special-bot guide](https://www.actugaming.net/guide-emplacement-quatre-bots-speciaux-astros-playroom-667952/), Alexis, 2024-09-04; game art Sony Interactive Entertainment / Team ASOBI | Same owner decision; diagram-only crop, WebP. Original digitized anchors GPL-3.0-or-later; candidate names remain CC BY-SA 3.0. |
+
+Each publisher dataset uses `Rights reserved by Sony (SIE); used with attribution per owner decision
+2026-10-29`; the full holder name is in its author field because F2 caps the licence field at 100
+characters. Capture authors are credited separately. Attribution is in the sidecar, this table,
+`Info.References`, record/inspection descriptions, map provenance and Sources panel. The host loads
+and validates each embedded pack once and shares its immutable asset buffers; plugin code does no
+I/O. Map construction and browser image loads are lazy. Physical-location and console evidence
+requirements in #31 are unchanged.
+
+### Asset-round verification and load measurement
+
+With `SAVETOOLKIT_ARTIFACTS=C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts`:
+**76 passed / 0 failed / 0 skipped** (both generations, all primary/backup records). Coverage includes
+all asset hashes, WebP signatures/dimensions/byte budget, resolvable catalogue icons, official-caption
+provenance, F3/F8 cells, shared buffers, spatial bounds/crop transform and missing-pack/schema fallback;
+the existing preservation/edit/reopen/undo tests also pass. API build: **0 warnings / 0 errors**.
+
+Release stopwatch in a temporary SDK console harness, .NET 10.0.400 on this workstation. The largest
+sample is 1,048,576 bytes (all four allocations tie; generation-1 primary chosen). Import/file discovery
+happened before timing. Cold scope: new `ReferencePackStore([plugin])`, pin context, open, BuildView and
+expand the original level schematic. Warm scope: open/BuildView/level schematic, 5 warmups then median
+of 15 iterations with one shared store/context. Allocations use `GC.GetTotalAllocatedBytes(true)` cold,
+`GC.GetAllocatedBytesForCurrentThread()` warm; these are allocated bytes, not retained-memory estimates.
+
+| Scope | Before (0.4.0) | After (0.5.0) |
+| --- | --- | --- |
+| Cold pack validation/load | 77.541 ms / 1,910,512 B | 66.463 ms / 6,726,320 B |
+| Cold pack + first open/view/level schematic | 119.489 ms / 7,091,008 B | 111.303 ms / 12,881,832 B |
+| Warm median open/view/level schematic | 4.519 ms / 4,591,848 B | 4.334 ms / 5,566,472 B |
+
+Before/after quick observations, not a benchmark suite; timings include JIT and machine noise and do not establish a
+speed improvement. Extra allocation reflects asset validation and attributed image/caption view data;
+packs are cached once and repeated asset requests return the same AssetContent instance.
+
+## Licence exclusions
+
+| Source / revision | Licence found | Material / status | Alternative / unblock condition |
+| --- | --- | --- | --- |
+| PowerPyx / Gage collectible guide, 2020-11-17, retrieved 2026-10-29 | Publisher game assets; rights reserved by Sony Interactive Entertainment; capture credit PowerPyx / Gage | **Resolved: imported (owner decision 2026-10-29)** — 50 thumbnail crops and 49 short official game captions. Previous art/text exclusion is superseded. | Physical ID/location confidence still requires owner validation; not a licence refusal. |
+| Previously unspecified icon/localization source (central register historical AstroPlayroom row), checked 2026-10-29 | No specific source was recorded before this round | **Resolved for imported English media** — concrete sources recorded above; no publisher-asset refusal remains. | No extra locales, unresolved-prop identities or physical puzzle coordinates are invented; no trustworthy level-specific official descriptions were found. |
+
+The central `docs/LICENCE_EXCLUSIONS.md` still contains the historical AstroPlayroom refusals. This
+plugin-only task cannot update it; the #11 handoff requests that the coordinating agent synchronize
+those two rows to the resolved status above.
+
 ## Framework feature adoption
 
 | Feature | Status | Concrete use or reason |
 | --- | --- | --- |
 | F1 SaveDiff | Used | `fixtures.json`, PluginViewDecoder and sample tests reproduce all 94 observed primitive transitions, byte changes and identical backups. Independent text oracles cover ownership output. |
-| F2 reference packs | Used | Offline schema-qualified English catalogue, per-record/dataset attribution, Sources panel and pinned context; no plugin I/O. |
-| F3 rich cells | Used | Read-only name/confidence fields, provenance/details and selected-row planned action. No game images: no cleared icon dataset was established. |
+| F2 reference packs | Used | Offline schema-qualified English catalogue, 49 official-caption records, 52 attributed WebP assets, Sources panel and pinned context; no plugin I/O. Pack 1.1.0; assets shared by host cache. |
+| F3 rich cells | Used | Read-only name/confidence fields, provenance/details and selected-row planned action; F3/F8 thumbnail cells for 50 artifacts and 96 puzzles (one shared puzzle illustration). Unresolved props retain a text fallback. |
 | F4 reference picker | Used | F6's planned candidate-world parameter uses `ReferenceSpec("astro_worlds")` with eligibility restricted to worlds that have existing mapped records. Read-only catalogue inspection parameters use the browse-only picker with attribution. |
 | F5 structural undo | N/A | Writer patches existing primitive spans only. Record creation/removal/reorder lacks a known game grammar/dependency repair; this round adds no structural writer. Existing batches use ordinary grouped value history. |
 | F6 planned actions / #27 | Added this round | Existing coins/collect-all plus candidate-world ownership and bounded gatcha-budget top-up presets. Core resolves all-matching F8 scopes and exclusions; preview/apply/one-step undo/redo are tested. |
 | F7 document groups | N/A | One gameplay allocation; no distinct coupled file/invariant identified. Identical backups are handled by same-generation framework export mirroring, not an independently editable partner document. |
 | F8 queryable tables | Added this round | Combined 164-record collection, whole-save search/exact filters/deterministic sort/paging, stable keys and rich cells. Individual groups switch to F8 above 100 records. |
-| F9 maps / graphs | Added this round | Lazy level schematic plus no-coordinate collectible maps and accessible marker lists; every supported marker links to an existing field/row. No prerequisite graph: no skill/perk tree or proven prerequisite edge exists in this format. |
+| F9 maps / graphs | Added this round | Lazy world-selection artwork with Inferred stage anchors, original level schematic plus no-coordinate collectible maps and accessible marker lists; every supported marker links to an existing field/row. No prerequisite graph: no skill/perk tree or proven prerequisite edge exists in this format. |
 | F10 exact values | Used | SDK integer transport preserves exact signed values with `IntegerSpec`/`FieldValue.Integer`; boolean flags use BoolSpec. There are no JSON numeric lexemes, nullable values or union discriminators requiring the additional specs. |
 | F11 shared codecs | N/A | The observed 1 MiB payload is uncompressed readable UTF-8; no Kraken/Oodle/SQLite content or local codec exists to replace. |
 | F12 | N/A | Astro has no plugin-owned test/research decoder: F1 uses the shared `PluginViewDecoder`, and the production view already publishes the bounded F8 collections. No decoder hook would add independent evidence. |
@@ -105,12 +181,14 @@ old/new values, skipped rows and warnings before apply. Each apply is one undo/r
 
 ## Spatial navigation and candidate-world presets
 
-The Maps tab uses F9: an **original list-order level schematic**, with no game art, route, adjacency
-or prerequisite claim; and separate artifact/puzzle/prop lists with **no physical coordinates**.
+The Maps tab uses F9: a **world-selection reference background with Inferred tile anchors**,
+an **original list-order level schematic**, and separate artifact/puzzle/prop lists with **no
+physical coordinates**. No route or prerequisite claim is introduced.
 Marker Found/Missing means only the associated saved boolean. Missing/ambiguous ownership is Unknown.
 Every map has a text alternative and an always-available searchable/filterable marker list. Original
 schematic provenance and CC BY-SA catalogue attribution are shown beside the map/in marker details.
-PowerPyx is an attributed external guide link; no guide prose, media or coordinates are imported.
+PowerPyx remains an attributed external guide link; version 0.5.0 also embeds selected artifact
+thumbnail crops and short game captions from its screenshots, with separate publisher provenance.
 Unknown oversized paths remain available in Raw instead of violating F9 publication limits.
 For groups above 100 rows, map navigation opens the exact lazy Raw ownership field rather than an
 unloaded F8 row. Maps/counts/query statuses refresh after edits, planned actions and undo/redo.
@@ -284,17 +362,21 @@ were 1.4–20.4 ms per sample; these are local observations, not a benchmark gua
 
 | Dataset / research | Source and authors | Licence / use and changes |
 | --- | --- | --- |
-| Artifact candidate names/categories (`astro_collectibles`) | [Artifacts](https://astrosplayroom.fandom.com/wiki/Artifacts), Astro's Playroom Wiki contributors; selection/joins/annotations by Toolkit contributors; retrieved 2026-10-28 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); factual names/worlds only, inferred exact-key joins; no game flavor text or media. |
+| Artifact candidate names/categories (`astro_collectibles`) | [Artifacts](https://astrosplayroom.fandom.com/wiki/Artifacts), Astro's Playroom Wiki contributors; selection/joins/annotations by Toolkit contributors; retrieved 2026-10-28 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); factual names/worlds only, inferred exact-key joins; original alias dataset contains no game flavor text; separately attributed publisher datasets in this table. |
 | Puzzle stage aliases (`astro_collectibles`) | Original Toolkit aliases plus inferred internal-prefix stage joins; [Puzzle Pieces](https://astrosplayroom.fandom.com/wiki/Puzzle_Pieces), wiki contributors, provides stage context; retrieved 2026-10-28 | Pack adaptation remains CC BY-SA 3.0; `stageKey` is Inferred from saved prefixes; no physical piece names, locations or cross-game rules imported. |
 | Prop raw-key aliases (`astro_collectibles`) | Original Toolkit aliases; [PlayStation Labo](https://astrosplayroom.fandom.com/wiki/PlayStation_Labo), wiki contributors, provides context only; retrieved 2026-10-28 | Pack adaptation remains CC BY-SA 3.0; readable literal keys only, no prize identity claim. |
 | World/stage candidates (`astro_worlds`) | [Artefacts](https://astro-bot-series.fandom.com/wiki/Artefacts), Astro Bot Wiki contributors; [CPU Plaza](https://astrosplayroom.fandom.com/wiki/CPU_Plaza), Astro's Playroom Wiki contributors; retrieved 2026-10-28 | CC BY-SA 3.0; selected names/order, original inferred raw-path joins, no walkthrough prose or art. |
 | Licence provenance | [Fandom Help:Licensing](https://community.fandom.com/wiki/Help:Licensing), Fandom contributors; retrieved 2026-10-28 | Research only: default text licence is CC BY-SA 3.0; media rights are separate. |
 | Gameplay guide comparison / gatcha arithmetic | [PowerPyx collectible guide](https://www.powerpyx.com/astros-playroom-all-collectible-locations-artefacts-puzzle-pieces/), Gage, 2020-11-17, rechecked 2026-10-28 | External research, no reuse grant established; counts/naming discrepancy checked and factual 100-coin cost independently represented. Original bounded arithmetic, no guide prose/images embedded; `AstroGatchaPlanning.source.md` records scope. |
 | Original schematic positions | [Toolkit contributors](https://github.com/JKamsker/PS5SaveGame-Toolkit/tree/main/plugins/AstroPlayroom), created 2026-10-28 | [GPL-3.0-or-later](https://www.gnu.org/licenses/gpl-3.0.html), original eight-column list layout; no physical coordinates/adjacency or game media. Sidecar: `AstroSpatialViews.source.md`; full provenance in MapNode and Info.References. Existing catalogue names retain CC BY-SA 3.0. |
+| Artifact media (`artifact_images`) and official text (`astro_captions`) | [PowerPyx / Gage](https://www.powerpyx.com/astros-playroom-all-collectible-locations-artefacts-puzzle-pieces/); Sony Interactive Entertainment / Team ASOBI; retrieved 2026-10-29 | Rights reserved by Sony (SIE); used with attribution per owner decision 2026-10-29. 50 thumbnail crops, 49 short game captions; exact URLs/crops in `assets.source.md`. |
+| Puzzle category image (`puzzle_image`) | [Push Square / Sammy Barker](https://www.pushsquare.com/guides/astros-playroom-memory-meadow-all-collectibles-artefacts-puzzle-pieces); Sony Interactive Entertainment / Team ASOBI; retrieved 2026-10-29 | Same publisher notice/owner decision; one 64x60 shared illustration, no individual-piece location claim. |
+| World-selection artwork (`world_map`) and original digitization | [ActuGaming / Alexis](https://www.actugaming.net/guide-emplacement-quatre-bots-speciaux-astros-playroom-667952/); Sony Interactive Entertainment / Team ASOBI; retrieved 2026-10-29 | Same publisher notice/owner decision for cropped artwork; original Toolkit anchor coordinates GPL-3.0-or-later. Explicit crop transform, Inferred aliases and schematic/list fallback. |
+
 
 Per-record source URLs, retrieval/access limitations, modification notices and share-alike terms are
 also in the pack's `data.source.md`/`pack.json` and [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md),
-`Info.References`, catalogue descriptions and the Sources panel. Live wiki revision fetches were
+`Info.References`, catalogue descriptions and the Sources panel. The original wiki revision fetches were
 blocked (402/403/robots); search-indexed article text and licence footers were checked. No oldid is
 fabricated: pack version/file hashes pin the selected data and `sourceVersion` states that limitation.
 
@@ -341,7 +423,7 @@ owner-blocked. Maturity stays Experimental. The central F4/F6 planned-reference 
 | --- | --- |
 | AP-R1, AP-R4, AP-R5, AP-R6 | Owner-blocked (#31): controlled pickup/clear/coin/bot/update/transfer captures and console persistence; no guessed missing-state insertion. |
 | AP-R2, AP-R3 | Done: F1 fixtures, attributed schema-qualified catalogue and candidate aliases; owner still verifies physical locations/identities. |
-| AP-R7, AP-R17 | Rights route resolved: original schematic, cleared CC BY-SA names and link-only guide; catalogue screenshots/locations remain owner-blocked. |
+| AP-R7, AP-R17 | Publisher assets imported under owner decision 2026-10-29: 50 artifact thumbnails, shared puzzle image, 49 official captions and world-selection artwork. Physical collectible locations and console validation remain owner-blocked. |
 | AP-R8–AP-R13 | Done with existing F3/F4/F6/F8/F9/F13: rich details, world/status filtering, live refresh, named changes/skips/warnings, read-only catalogue inspection and Core all-query scopes. |
 | AP-R14, AP-R15 | F2 pinned context used; additional optional image/localization ingestion not pursued because there is no cleared icon/localization dataset to ingest. |
 | AP-R16 | Done: preservation, malformed schemas, per-action atomicity/undo, independent byte oracle, F1, conformance and Core export regression checks. |
