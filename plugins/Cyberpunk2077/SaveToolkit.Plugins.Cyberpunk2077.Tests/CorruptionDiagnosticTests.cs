@@ -1,4 +1,5 @@
 using System.Globalization;
+using SaveToolkit.Testing;
 using System.Security.Cryptography;
 using System.Text;
 using SaveToolkit.Sdk;
@@ -17,7 +18,7 @@ public sealed class CorruptionDiagnosticTests
     public void MutationAndTruncationOutcomesKeepExactExceptionTypesAndMessages(bool compressed, string expected,
         string cultureName)
     {
-        using var ambientCulture = new CultureScope(CultureInfo.GetCultureInfo(cultureName));
+        using var ambientCulture = new TestCulture(CultureInfo.GetCultureInfo(cultureName));
         Assert.Equal(expected, TranscriptFingerprint(compressed));
         Assert.Equal(cultureName, CultureInfo.CurrentCulture.Name);
         Assert.Equal(cultureName, CultureInfo.CurrentUICulture.Name);
@@ -26,7 +27,7 @@ public sealed class CorruptionDiagnosticTests
     private static string TranscriptFingerprint(bool compressed)
     {
         // This golden pins historical diagnostics and numbers, independent of the machine's locale.
-        using var culture = new CultureScope(CultureInfo.InvariantCulture);
+        using var culture = new TestCulture(CultureInfo.InvariantCulture);
         var valid = CsavCorruptionFixture.Flat(compressed: compressed);
         var transcript = new StringBuilder();
         void Record(byte[] bytes)

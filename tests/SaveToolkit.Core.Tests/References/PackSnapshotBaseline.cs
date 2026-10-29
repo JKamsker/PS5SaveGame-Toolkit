@@ -1,7 +1,9 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.References;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Core.Tests.References;
 
@@ -50,6 +52,8 @@ internal static class PackSnapshotBaseline
 
     internal static string Hash(LoadedReferencePack pack, JsonElement manifest)
     {
+        // The historical payload includes attribution display dates, whose calendar is localized.
+        using var culture = new TestCulture(CultureInfo.InvariantCulture);
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         // Preserve the old decoded snapshot payload, resetting the hash for each pack.
         hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(pack.Info));

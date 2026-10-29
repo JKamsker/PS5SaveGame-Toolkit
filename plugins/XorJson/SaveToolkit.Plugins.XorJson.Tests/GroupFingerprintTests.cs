@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -5,6 +6,7 @@ using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.XorJson.Tests;
 
@@ -12,10 +14,23 @@ public sealed class GroupFingerprintTests
 {
     // Captured from the private member wrapper before adopting SDK-04. Never regenerate to accept a migration change.
     [Theory]
-    [InlineData(false, "B714D1C9E4898EF770C2E51D1D924C0D7A02C5A6854C4FB6A034DA6D16854CA0", "8D8C7AEA9FD9F685AE04FAC28625C9EDEF9E69174D77E18BAE8596A0C846599E")]
-    [InlineData(true, "75D1838D5794CA1F2AA5FA4F42BE39B4CB55FB441C7E38EE795EDFC0A022DC2A", "BD9ABAEC42D9E986964E8D804BE8CC0EED16E8A88CAF3D59ACE60FD868975FD8")]
-    public void ViewsAndProtocolMatchPreMigrationFingerprints(bool xor, string expectedView, string expectedProtocol)
+    [InlineData(false, "B714D1C9E4898EF770C2E51D1D924C0D7A02C5A6854C4FB6A034DA6D16854CA0", "8D8C7AEA9FD9F685AE04FAC28625C9EDEF9E69174D77E18BAE8596A0C846599E", "en-US")]
+    [InlineData(true, "75D1838D5794CA1F2AA5FA4F42BE39B4CB55FB441C7E38EE795EDFC0A022DC2A", "BD9ABAEC42D9E986964E8D804BE8CC0EED16E8A88CAF3D59ACE60FD868975FD8", "en-US")]
+    [InlineData(false, "B714D1C9E4898EF770C2E51D1D924C0D7A02C5A6854C4FB6A034DA6D16854CA0", "8D8C7AEA9FD9F685AE04FAC28625C9EDEF9E69174D77E18BAE8596A0C846599E", "th-TH")]
+    [InlineData(true, "75D1838D5794CA1F2AA5FA4F42BE39B4CB55FB441C7E38EE795EDFC0A022DC2A", "BD9ABAEC42D9E986964E8D804BE8CC0EED16E8A88CAF3D59ACE60FD868975FD8", "th-TH")]
+    public void ViewsAndProtocolMatchPreMigrationFingerprints(bool xor, string expectedView, string expectedProtocol,
+        string cultureName)
     {
+        using var ambientCulture = new TestCulture(CultureInfo.GetCultureInfo(cultureName));
+        AssertHistoricalFingerprints(xor, expectedView, expectedProtocol);
+        Assert.Equal(cultureName, CultureInfo.CurrentCulture.Name);
+        Assert.Equal(cultureName, CultureInfo.CurrentUICulture.Name);
+    }
+
+    private static void AssertHistoricalFingerprints(bool xor, string expectedView, string expectedProtocol)
+    {
+        // Historical view provenance uses Gregorian attribution dates.
+        using var culture = new TestCulture(CultureInfo.InvariantCulture);
         using var fixture = new GroupIdentityFixture(xor);
         var group = fixture.Group;
         var nodes = ViewTraversal.Nodes(group);

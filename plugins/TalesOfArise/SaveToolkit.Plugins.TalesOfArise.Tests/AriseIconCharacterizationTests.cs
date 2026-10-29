@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SaveToolkit.Sdk;
@@ -95,9 +96,21 @@ public sealed class AriseIconCharacterizationTests
         Assert.Equal(new TextNode("—"), Assert.Single(page.Rows).Cells["icon"]);
     }
 
-    [Fact]
-    public void CompleteCatalogRows_RetainViewFingerprint()
+    [Theory]
+    [InlineData("en-US")]
+    [InlineData("th-TH")]
+    public void CompleteCatalogRows_RetainViewFingerprint(string cultureName)
     {
+        using var ambientCulture = new TestCulture(CultureInfo.GetCultureInfo(cultureName));
+        AssertCatalogFingerprint();
+        Assert.Equal(cultureName, CultureInfo.CurrentCulture.Name);
+        Assert.Equal(cultureName, CultureInfo.CurrentUICulture.Name);
+    }
+
+    private static void AssertCatalogFingerprint()
+    {
+        // Historical row provenance uses Gregorian attribution dates.
+        using var culture = new TestCulture(CultureInfo.InvariantCulture);
         var references = new AriseReferences(AriseTestReferences.CreateContext());
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         foreach (var collection in references.Collections)
@@ -113,11 +126,23 @@ public sealed class AriseIconCharacterizationTests
     }
 
     [Theory]
-    [InlineData("SaveData_000.sav", "8940b7874cd36458c1d27a05f08da23d5f6c26c112130a92cf03205eb420e080")]
-    [InlineData("SaveData_001.sav", "82082a0763e0170ec1638f43ee7cd6e542e0587720e105a57331d16e3334ceff")]
-    [InlineData("SaveData_002.sav", "23184ee4532422c943b4465d77bd32aac82afa825bfc46e3d363178c228d237d")]
-    public void SampleViewAndInventory_RetainViewFingerprint(string fileName, string expected)
+    [InlineData("SaveData_000.sav", "8940b7874cd36458c1d27a05f08da23d5f6c26c112130a92cf03205eb420e080", "en-US")]
+    [InlineData("SaveData_001.sav", "82082a0763e0170ec1638f43ee7cd6e542e0587720e105a57331d16e3334ceff", "en-US")]
+    [InlineData("SaveData_002.sav", "23184ee4532422c943b4465d77bd32aac82afa825bfc46e3d363178c228d237d", "en-US")]
+    [InlineData("SaveData_000.sav", "8940b7874cd36458c1d27a05f08da23d5f6c26c112130a92cf03205eb420e080", "th-TH")]
+    [InlineData("SaveData_001.sav", "82082a0763e0170ec1638f43ee7cd6e542e0587720e105a57331d16e3334ceff", "th-TH")]
+    [InlineData("SaveData_002.sav", "23184ee4532422c943b4465d77bd32aac82afa825bfc46e3d363178c228d237d", "th-TH")]
+    public void SampleViewAndInventory_RetainViewFingerprint(string fileName, string expected, string cultureName)
     {
+        using var ambientCulture = new TestCulture(CultureInfo.GetCultureInfo(cultureName));
+        AssertSampleFingerprint(fileName, expected);
+        Assert.Equal(cultureName, CultureInfo.CurrentCulture.Name);
+        Assert.Equal(cultureName, CultureInfo.CurrentUICulture.Name);
+    }
+
+    private static void AssertSampleFingerprint(string fileName, string expected)
+    {
+        using var culture = new TestCulture(CultureInfo.InvariantCulture);
         var file = AriseSampleTests.GameplayFiles().First(file => file.FileName == fileName);
         using var document = new TalesOfArisePlugin().Open(file, AriseTestReferences.CreateContext());
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);

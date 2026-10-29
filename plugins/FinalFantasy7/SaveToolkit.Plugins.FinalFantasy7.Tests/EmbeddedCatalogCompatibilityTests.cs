@@ -1,7 +1,9 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.FinalFantasy7.Tests;
 
@@ -13,7 +15,24 @@ public sealed class EmbeddedCatalogCompatibilityTests
     [InlineData("PPSA08664", "488B78B9966579D3C48CE4C0A8AD3169747AB1B285BC2EBC630B52CFE8E1CFFB")]
     [InlineData("PPSA18936", "488B78B9966579D3C48CE4C0A8AD3169747AB1B285BC2EBC630B52CFE8E1CFFB")]
     public void CompleteFallbackRecordsKeepTheirPreMigrationFingerprint(string title, string expected)
+        => AssertFallbackFingerprint(title, expected);
+
+    [Theory]
+    [InlineData("en-US")]
+    [InlineData("sv-SE")]
+    [InlineData("th-TH")]
+    public void FallbackFingerprintRestoresAmbientCulture(string cultureName)
     {
+        using var ambient = new TestCulture(CultureInfo.GetCultureInfo(cultureName));
+        AssertFallbackFingerprint("PPSA01911", "AB46DFE774435B1D18D0106A1B511ACDC184F478B3C8C9D7A23E70F31FAF539C");
+        Assert.Equal(cultureName, CultureInfo.CurrentCulture.Name);
+        Assert.Equal(cultureName, CultureInfo.CurrentUICulture.Name);
+    }
+
+    private static void AssertFallbackFingerprint(string title, string expected)
+    {
+        // The recorded payload includes localized attribution display dates; keep its original calendar.
+        using var culture = new TestCulture(CultureInfo.InvariantCulture);
         var schema = Ff7Schema.ForTitle(title)!;
         var transcript = new StringBuilder();
         foreach (var id in new[] { "ff7r-items", "ff7r-materia", "ff7r-weapons" })

@@ -1,15 +1,16 @@
 using System.Globalization;
 
-namespace SaveToolkit.Plugins.Cyberpunk2077.Tests;
+namespace SaveToolkit.Testing;
 
-/// <summary>Scopes the culture and diagnostic language of historical test fingerprints.</summary>
-internal sealed class CultureScope : IDisposable
+/// <summary>Temporarily sets the current execution context's culture and diagnostic language.</summary>
+public sealed class TestCulture : IDisposable
 {
     private readonly CultureInfo _previousCulture = CultureInfo.CurrentCulture;
     private readonly CultureInfo _previousUiCulture = CultureInfo.CurrentUICulture;
 
-    public CultureScope(CultureInfo culture)
+    public TestCulture(CultureInfo culture)
     {
+        ArgumentNullException.ThrowIfNull(culture);
         CultureInfo.CurrentCulture = culture;
         CultureInfo.CurrentUICulture = culture;
     }
