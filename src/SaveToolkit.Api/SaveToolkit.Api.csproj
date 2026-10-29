@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <RootNamespace>SaveToolkit.Api</RootNamespace>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Performance.Tests/**</DefaultItemExcludes>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SaveToolkit.Core\SaveToolkit.Core.csproj" />

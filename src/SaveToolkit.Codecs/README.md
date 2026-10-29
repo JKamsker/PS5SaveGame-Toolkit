@@ -20,7 +20,8 @@ the supported scope of the source without silently ignoring integrity. Errors us
 
 Both input and declared output are bounded before allocation: 64 MiB by default, maximum caller
 limit 256 MiB; stored header overhead is allowed on input. Exact input consumption and output size
-are required. Scratch is 0x6C000 bytes plus 64 bytes of owned padding. Each byte/word access uses a
+are required. Entropy/LZ decoding lazily allocates scratch of 0x6C000 bytes plus 64 bytes of owned
+padding once per stream; stored and memset quanta do not allocate it. Each byte/word access uses a
 checked managed view. Entropy nesting is capped at 16; work is capped at the lesser of 256 million
 operations and 1 million + 64 times the sum of input/output sizes. No unsafe code, native decoder,
 reflection or static mutable decoder state is used. Typed table views currently require little endian.
