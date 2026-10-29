@@ -1,5 +1,7 @@
+using System.Text;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
@@ -15,15 +17,22 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
     private readonly Func<bool> _rejectRestore;
     private readonly string? _systemPath;
     private readonly byte[]? _systemBytes;
+    private readonly bool _omitSystemOutput;
+    private readonly bool _duplicateSystemOutput;
+    private string? _subtitle;
     public bool IsDisposed { get; private set; }
 
     public GroupDocument(DocumentGroupInput input, Func<bool> rejectApply, Func<bool> rejectRestore,
-        string? systemPath = null, byte[]? systemBytes = null)
+        string? systemPath = null, byte[]? systemBytes = null, bool omitSystemOutput = false,
+        bool duplicateSystemOutput = false)
     {
         _rejectApply = rejectApply;
         _rejectRestore = rejectRestore;
         _systemPath = systemPath;
         _systemBytes = systemBytes;
+        _omitSystemOutput = omitSystemOutput;
+        _duplicateSystemOutput = duplicateSystemOutput;
+        _subtitle = systemBytes is null ? null : ParamSfo.TryParse(systemBytes)?.SubTitle;
         foreach (var member in input.Members)
         {
             var (balance, items) = GroupPlugin.Read(member.File, member.Role == "character" ? "C" : "P");
@@ -37,6 +46,7 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
     public override ViewNode BuildView() => new SectionNode(Title,
     [
         Balance("character"), Balance("profile"),
+        .. MetadataView(),
         new SectionNode("Details", []) { LazyId = "details" },
         new ActionNode("transfer", "Transfer duplicate") { SupportsPlanning = true },
         new ActionNode("fail", "Fail after first member"),
@@ -51,6 +61,10 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
 
     private FieldNode Balance(string role) => Field($"{role}/balance", $"{role} balance", IntegerSpec.Int32,
         () => FieldValue.Of(_containers[role].Balance), value => _containers[role].Balance = value.AsInt32());
+
+    private IReadOnlyList<ViewNode> MetadataView() => _systemPath is null ? [] : [Field("metadata/subtitle", "Subtitle",
+        new TextSpec { MaxLength = 16 }, () => FieldValue.Of(_subtitle ?? ""),
+        value => _subtitle = value.AsString())];
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => lazyId == "details"
         ? [Field("profile/lazy", "Profile lazy balance", IntegerSpec.Int32,
@@ -76,6 +90,11 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
         {
             _containers["character"].Balance++;
             throw new InvalidOperationException("Second member rejected.");
+        }
+        if (actionId == "fail-metadata")
+        {
+            _subtitle = "Broken";
+            throw new InvalidOperationException("Metadata rejected after mutation.");
         }
         if (actionId == "grow") _containers["profile"].Items.Add(new Item(_nextId++, 7));
         _fault = actionId;
@@ -107,7 +126,8 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
             _fault == "bad-profile" && pair.Key == "profile" ? new byte[] { 0 } :
                 GroupPlugin.Create(pair.Key == "character" ? "C" : "P", pair.Value.Balance,
                     pair.Value.Items.Select(item => item.Value).ToArray()))).ToList();
-        if (_systemPath is not null) outputs.Add(new(_systemPath, _systemBytes!));
+        if (_systemPath is not null && !_omitSystemOutput) outputs.Add(new(_systemPath, SerializeSystem()));
+        if (_systemPath is not null && _duplicateSystemOutput) outputs.Add(new(_systemPath, SerializeSystem()));
         if (_fault == "unowned") outputs.Add(new("unowned.dat", new byte[] { 0 }));
         if (_fault == "duplicate") outputs.Add(outputs[0]);
         if (_fault == "omitted") outputs.RemoveAt(1);
@@ -117,8 +137,8 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
     public DocumentMemento CaptureMemento() => CaptureSnapshot();
     protected override DocumentMemento CaptureSnapshot() => DocumentMemento.Snapshot(
         new Snapshot(_containers.ToDictionary(pair => pair.Key, pair => new SavedContainer(pair.Value.Balance,
-            pair.Value.Items.Select(item => (item.Id, item.Value)).ToArray())), _nextId, _fault),
-        64 + _containers.Values.Sum(c => c.Items.Count * 32L));
+            pair.Value.Items.Select(item => (item.Id, item.Value)).ToArray())), _nextId, _fault, _subtitle),
+        64 + _containers.Values.Sum(c => c.Items.Count * 32L) + (_subtitle?.Length ?? 0) * 2L);
 
     protected override void LoadSnapshot(DocumentMemento snapshot)
     {
@@ -131,6 +151,7 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
         }
         _nextId = state.NextId;
         _fault = state.Fault;
+        _subtitle = state.Subtitle;
     }
 
     void IDisposable.Dispose() => IsDisposed = true;
@@ -138,5 +159,16 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
     private sealed class Container(string path, int balance, List<Item> items)
     { public string Path { get; } = path; public int Balance { get; set; } = balance; public List<Item> Items { get; set; } = items; }
     private sealed record SavedContainer(int Balance, (int Id, int Value)[] Items);
-    private sealed record Snapshot(Dictionary<string, SavedContainer> Containers, int NextId, string? Fault);
+    private sealed record Snapshot(Dictionary<string, SavedContainer> Containers, int NextId, string? Fault, string? Subtitle);
+
+    private byte[] SerializeSystem()
+    {
+        var bytes = _systemBytes!.ToArray();
+        var old = Encoding.UTF8.GetBytes("Old\0");
+        var value = Encoding.UTF8.GetBytes((_subtitle ?? "") + "\0");
+        var offset = bytes.AsSpan().IndexOf(old);
+        value.CopyTo(bytes.AsSpan(offset));
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(24), value.Length);
+        return bytes;
+    }
 }

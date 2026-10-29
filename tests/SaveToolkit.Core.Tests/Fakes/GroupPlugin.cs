@@ -19,10 +19,13 @@ public sealed class GroupPlugin : IGamePlugin, IDocumentGroupPlugin
     public bool RejectApply { get; set; }
     public bool RejectRestore { get; set; }
     public bool DeclareSystemOutput { get; set; }
+    public bool OmitSystemOutput { get; set; }
+    public bool DuplicateSystemOutput { get; set; }
     public FileOutput? AdditionalOutput { get; set; }
     public int? RequiredOutsideBalance { get; set; }
     public int RoleReopens { get; private set; }
     public Func<ISaveFile, IReadOnlyList<DocumentGroupProposal>>? Proposals { get; set; }
+    public Action? AfterRoleOpen { get; set; }
     public List<GroupDocument> Opened { get; } = [];
     public IReferenceContext? LastReferences { get; private set; }
 
@@ -36,7 +39,14 @@ public sealed class GroupPlugin : IGamePlugin, IDocumentGroupPlugin
         LastReferences = references;
         RoleReopens++;
         var (balance, _) = Read(file, file.FileName == "character.dat" ? "C" : "P");
-        return new SingleDocument(file, balance, () => AdditionalOutput);
+        var document = new SingleDocument(file, balance, () => AdditionalOutput);
+        if (file.FileName == "profile.dat")
+        {
+            var callback = AfterRoleOpen;
+            AfterRoleOpen = null;
+            callback?.Invoke();
+        }
+        return document;
     }
 
     public IReadOnlyList<DocumentGroupProposal> ProposeGroups(ISaveFile anchor) => Proposals?.Invoke(anchor) ??
@@ -65,7 +75,7 @@ public sealed class GroupPlugin : IGamePlugin, IDocumentGroupPlugin
             ? input.Members[0].File.Directory.FindAnyFile("sce_sys/param.sfo")
             : null;
         var document = new GroupDocument(input, () => RejectApply, () => RejectRestore,
-            system?.RelativePath, system?.ReadAllBytes());
+            system?.RelativePath, system?.ReadAllBytes(), OmitSystemOutput, DuplicateSystemOutput);
         Opened.Add(document);
         return document;
     }

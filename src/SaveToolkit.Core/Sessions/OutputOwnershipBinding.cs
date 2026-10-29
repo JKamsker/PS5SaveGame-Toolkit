@@ -19,10 +19,13 @@ internal sealed class OutputOwnershipBinding
         };
         foreach (var path in DeclaredPaths)
         {
-            var file = _saveSet.FindAnyFile(path)
+            var file = _saveSet.FindAnyFile(path) as DiskSaveFile
                 ?? throw new SaveFormatException($"Additional output '{path}' does not exist in the opened save directory.");
             using var stream = file.OpenRead();
-            fingerprints.Add(path, OperationCancellation.HashSha256(stream, CancellationToken.None));
+            var actual = OperationCancellation.HashSha256(stream, CancellationToken.None);
+            if (!string.Equals(actual, file.Sha256, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"Owned output '{path}' changed while the document was opening. Close and reimport the dump.");
+            fingerprints.Add(path, file.Sha256);
         }
 
         _fingerprints = fingerprints;

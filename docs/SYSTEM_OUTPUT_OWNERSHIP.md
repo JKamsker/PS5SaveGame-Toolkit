@@ -27,6 +27,12 @@ document or group cannot claim the same path until the first owner is closed. Be
 host rechecks the original SHA-256 fingerprints for the opened game file and all declarations.
 If any source changed, the export is rejected without publishing overrides.
 
+The declaration binding is based on the immutable imported bytes. During opening, the host compares
+the current file bytes with the imported `DiskSaveFile.Sha256` before accepting the reservation; a
+source changed after a plugin read it cannot become the new baseline. Failed group construction and
+candidate verification dispose every staged document before returning the original error, leaving a
+clean replacement owner usable when one was being replaced.
+
 An overridden `sce_sys/param.sfo` is parsed again by `OverlaySaveSet` under a 1 MiB bound. Invalid
 or oversized metadata rejects verification, while an untouched directory retains its imported
 `ParamSfo` object. This validation is host-side and does not establish console acceptance.

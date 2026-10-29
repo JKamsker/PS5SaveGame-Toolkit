@@ -43,10 +43,28 @@ public sealed class DocumentGroupSession
         using (var declarationProbe = Open())
             _declaredOutputPaths = OutputOwnershipPolicy.Resolve(set.FindById(members[0].FileId)!, declarationProbe);
         var staged = new StagedGroupDocument(Open, Verify, token => CheckFingerprints(token), limits.MaxSnapshotBytes);
-        Session = new DocumentSession(id, set.FindById(members[0].FileId)!, plugin, staged,
-            options: limits, openOriginal: Open, references: references);
-        _session = Session;
-        CheckFingerprints();
+        DocumentSession? created = null;
+        try
+        {
+            created = new DocumentSession(id, set.FindById(members[0].FileId)!, plugin, staged,
+                options: limits, openOriginal: Open, references: references);
+            _session = created;
+            CheckFingerprints();
+            Session = created;
+        }
+        catch (Exception failure) when (failure is not OutOfMemoryException)
+        {
+            try
+            {
+                if (created is not null) created.Dispose();
+                else staged.Dispose();
+            }
+            catch (Exception cleanup) when (cleanup is not OutOfMemoryException)
+            {
+                throw new AggregateException("Group construction and cleanup failed.", failure, cleanup);
+            }
+            throw;
+        }
     }
 
     public string Title { get; }
