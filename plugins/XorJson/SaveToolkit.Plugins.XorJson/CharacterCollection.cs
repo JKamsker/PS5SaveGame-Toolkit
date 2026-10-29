@@ -140,5 +140,8 @@ internal sealed record CharacterCell(string Text, JsonValueToken? Token = null, 
 
 internal sealed record CharacterRow(JsonValueToken Source, Dictionary<string, CharacterCell> Cells)
 {
-    public string Text(string key) => key == "details" ? Source.TypedPath : Cells.TryGetValue(key, out var cell) ? cell.Text : "";
+    private string? _path;
+
+    // Rows belong to one projection revision; structural changes discard them.
+    public string Text(string key) => key == "details" ? _path ??= Source.TypedPath : Cells.TryGetValue(key, out var cell) ? cell.Text : "";
 }

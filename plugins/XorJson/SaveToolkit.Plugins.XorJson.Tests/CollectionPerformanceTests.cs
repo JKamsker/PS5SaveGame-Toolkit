@@ -43,6 +43,34 @@ public sealed class CollectionPerformanceTests
     }
 
     [Fact]
+    public void WarmRawPathFiltersDoNotRebuildEveryTypedPath()
+    {
+        using var document = OpenRows();
+        var collection = Assert.IsAssignableFrom<IQueryableDocument>(document);
+        var id = Assert.Single(collection.Collections).Id;
+        var query = new QueryableCollectionQuery
+        {
+            Filters = new Dictionary<string, string> { ["details"] = "$.member(\"rows\",0).element(9999)" },
+            Limit = 1,
+        };
+        _ = collection.Query(id, query);
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        var page = collection.Query(id, query);
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        Assert.Equal("value/10001", Assert.Single(page.Rows).Key);
+        Assert.Equal(1, page.FilteredCount);
+        Assert.InRange(allocated, 1, PageBudget);
+        var removal = document.InvokeAction("json/remove/2", new Dictionary<string, FieldValue>());
+        Assert.Empty(collection.Query(id, query).Rows);
+        Assert.Equal("value/10001", Assert.Single(collection.Query(id, query with
+        {
+            Filters = new Dictionary<string, string> { ["details"] = "$.member(\"rows\",0).element(9998)" },
+        }).Rows).Key);
+        _ = document.RestoreMemento(removal.Revert!);
+        Assert.Equal("value/10001", Assert.Single(collection.Query(id, query).Rows).Key);
+    }
+
+    [Fact]
     public void CombinedQueriesRetainLexicalOrderStableTiesCountsAndEndPages()
     {
         using var document = XorJsonTests.Open(XorJsonTests.Encode("{\"rows\":[\"a\",\"B\",\"a\",\"C\",\"A\"," +
