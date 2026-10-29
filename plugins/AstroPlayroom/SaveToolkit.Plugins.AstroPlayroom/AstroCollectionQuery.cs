@@ -4,8 +4,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.AstroPlayroom;
 
-internal sealed class AstroCollectionQuery(AstroSchema schema, AstroLocations locations,
-    Func<AstroField, FieldValue> current, Func<AstroCollectionRecord, TableRow> row)
+internal sealed class AstroCollectionQuery
 {
     public const string CollectionId = "astro.collectibles";
     public const int EagerLimit = 100;
@@ -19,20 +18,64 @@ internal sealed class AstroCollectionQuery(AstroSchema schema, AstroLocations lo
         new("world", "Candidate world", new TextSpec()),
         new("details", "Evidence and provenance")
     ];
+    private static readonly IReadOnlySet<string> ColumnKeys = Columns.Select(column => column.Key).ToHashSet(StringComparer.Ordinal);
+    private static readonly IReadOnlySet<string> CollectionIds = Groups.Select(Id).Append(CollectionId).ToHashSet(StringComparer.Ordinal);
+    private static readonly InMemoryColumn<QueryRecord>[] Adapters = Columns.Select(column =>
+        new InMemoryColumn<QueryRecord>(column.Key)
+        {
+            SearchText = item => item.Value(column.Key),
+            FilterText = item => item.Value(column.Key),
+            Comparer = Comparer<QueryRecord>.Create((left, right) =>
+                StringComparer.OrdinalIgnoreCase.Compare(left.Value(column.Key), right.Value(column.Key)))
+        }).ToArray();
+    private static readonly InMemoryCollectionOptions<QueryRecord> Options = new()
+    {
+        ClampPaging = false,
+        DefaultComparer = Adapters.Single(column => column.Key == "key").Comparer,
+        NormalizeSearchText = text => string.IsNullOrWhiteSpace(text) ? null : text.Trim()
+    };
+    private readonly IReadOnlyList<QueryableCollection> _metadata;
+    private readonly Lazy<IReadOnlyDictionary<string, InMemoryCollection<QueryRecord>>> _queries;
 
-    public QueryableCollection Metadata => new(CollectionId, "All saved collectibles", Columns, schema.Records.Count)
-    { Description = "Search, sort and filter the entire save, then preview selected or all matching ownership changes. World aliases are Inferred; physical locations remain unknown." };
+    public AstroCollectionQuery(AstroSchema schema, AstroLocations locations,
+        Func<AstroField, FieldValue> current, Func<AstroCollectionRecord, TableRow> row)
+    {
+        _metadata = [
+            new(CollectionId, "All saved collectibles", Columns, schema.Records.Count)
+            {
+                Description = "Search, sort and filter the entire save, then preview selected or all matching ownership changes. World aliases are Inferred; physical locations remain unknown."
+            },
+            .. Groups.Select(group => new QueryableCollection(Id(group), group, Columns,
+                schema.Records.Count(record => record.Group == group)))
+        ];
+        // No catalogue query data is needed to open the first view. Resolve immutable projections
+        // once on demand; status and rich row cells continue to read the document's live values.
+        _queries = new(() =>
+        {
+            var records = schema.Records.Select(record => Project(record, locations, current)).ToArray();
+            return _metadata.ToDictionary(metadata => metadata.Id, metadata =>
+            {
+                var source = metadata.Id == CollectionId ? records :
+                    records.Where(item => Id(item.Record.Group) == metadata.Id).ToArray();
+                return new InMemoryCollection<QueryRecord>(metadata, () => source,
+                    item => item.Record.Element.Id, Adapters, item => row(item.Record), Options);
+            }, StringComparer.Ordinal);
+        });
+    }
+
+    public QueryableCollection Metadata => _metadata[0];
+    public IReadOnlyList<QueryableCollection> Collections => _metadata;
 
     public QueryableTableNode View() => new(CollectionId, Metadata.Title, Columns, Metadata.TotalCount)
     { Description = Metadata.Description };
 
-    public IReadOnlyList<QueryableCollection> Collections => [Metadata, .. Groups.Select(group =>
-        new QueryableCollection(Id(group), group, Columns, schema.Records.Count(record => record.Group == group)))];
+    public QueryableTableNode GroupView(string group)
+    {
+        var metadata = _metadata.Single(item => item.Id == Id(group));
+        return new(metadata.Id, group, Columns, metadata.TotalCount);
+    }
 
-    public QueryableTableNode GroupView(string group) => new(Id(group), group, Columns,
-        schema.Records.Count(record => record.Group == group));
-
-    public static bool KnownCollection(string id) => id == CollectionId || Groups.Any(group => id == Id(group));
+    public static bool KnownCollection(string id) => CollectionIds.Contains(id);
 
     private static string Id(string group) => CollectionId + "." + group;
 
@@ -42,45 +85,36 @@ internal sealed class AstroCollectionQuery(AstroSchema schema, AstroLocations lo
         if (query.Cursor is not null || query.Offset < 0 || query.Limit is < 1 or > QueryableCollectionLimits.MaxPageSize ||
             query.Text?.Length > QueryableCollectionLimits.MaxQueryLength || query.Filters.Count > QueryableCollectionLimits.MaxFilterCount)
             throw new ArgumentException("Unsupported ASTRO query bounds or cursor.");
-        var keys = Columns.Select(column => column.Key).ToHashSet(StringComparer.Ordinal);
-        if (query.SortColumn is { } sort && !keys.Contains(sort) ||
-            query.Filters.Any(filter => !keys.Contains(filter.Key) || filter.Value.Length > QueryableCollectionLimits.MaxFilterLength))
+        if (query.SortColumn is { } sort && !ColumnKeys.Contains(sort) ||
+            query.Filters.Any(filter => !ColumnKeys.Contains(filter.Key) || filter.Value.Length > QueryableCollectionLimits.MaxFilterLength))
             throw new ArgumentException("Unknown ASTRO query column or oversized filter.");
 
-        // Snapshot cheap projections once; rich cells are still rendered only for this page.
-        var source = schema.Records.Where(record => collectionId == CollectionId || collectionId == Id(record.Group))
-            .Select(record => new QueryRecord(record, Values(record))).ToArray();
-        var columns = Columns.Select(column => new InMemoryColumn<QueryRecord>(column.Key)
-        {
-            SearchText = item => item.Values[column.Key],
-            FilterText = item => item.Values[column.Key],
-            Comparer = Comparer<QueryRecord>.Create((left, right) =>
-                StringComparer.OrdinalIgnoreCase.Compare(left.Values[column.Key], right.Values[column.Key]))
-        }).ToArray();
-        return new InMemoryCollection<QueryRecord>(Metadata with { Id = collectionId, TotalCount = source.Length },
-            () => source, item => item.Record.Element.Id, columns, item => row(item.Record), new()
-            {
-                ClampPaging = false,
-                DefaultComparer = columns.Single(column => column.Key == "key").Comparer,
-                NormalizeSearchText = text => string.IsNullOrWhiteSpace(text) ? null : text.Trim()
-            }).Query(query);
+        return _queries.Value[collectionId].Query(query);
     }
 
-    private Dictionary<string, string> Values(AstroCollectionRecord record)
+    private static QueryRecord Project(AstroCollectionRecord record, AstroLocations locations, Func<AstroField, FieldValue> current)
     {
         var reference = locations.Reference(record);
-        return new Dictionary<string, string>(StringComparer.Ordinal)
-        {
-            ["key"] = AstroLocations.Key(record),
-            ["name"] = reference?.Name ?? AstroLocations.Key(record),
-            ["status"] = record.Ownership is not { } flag ? "Unknown" : current(flag).AsBool() ? "Owned" : "Missing",
-            ["category"] = reference?.Category ?? "Unmapped",
-            ["world"] = locations.World(record)?.Name ?? "Unmapped",
-            ["image"] = reference?.AssetId is null ? "No identified image" : "Candidate illustration",
-            ["details"] = reference is null ? "No matching schema-qualified reference; exact raw key retained."
-                : $"{reference.Description} {reference.AttributionText}"
-        };
+        return new(record, current, reference?.Name ?? record.Key, reference?.Category ?? "Unmapped",
+            locations.World(record)?.Name ?? "Unmapped",
+            reference?.AssetId is null ? "No identified image" : "Candidate illustration",
+            reference is null ? "No matching schema-qualified reference; exact raw key retained."
+                : $"{reference.Description} {reference.AttributionText}");
     }
 
-    private sealed record QueryRecord(AstroCollectionRecord Record, Dictionary<string, string> Values);
+    private sealed record QueryRecord(AstroCollectionRecord Record, Func<AstroField, FieldValue> Current,
+        string Name, string Category, string World, string Image, string Details)
+    {
+        public string Value(string column) => column switch
+        {
+            "key" => Record.Key,
+            "name" => Name,
+            "status" => Record.Ownership is not { } flag ? "Unknown" : Current(flag).AsBool() ? "Owned" : "Missing",
+            "category" => Category,
+            "world" => World,
+            "image" => Image,
+            "details" => Details,
+            _ => throw new ArgumentException("Unknown ASTRO projection column.", nameof(column))
+        };
+    }
 }
