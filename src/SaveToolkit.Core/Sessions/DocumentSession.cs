@@ -109,23 +109,44 @@ public sealed partial class DocumentSession : IDisposable
             throw _retired.Contains(lazyId) ? new StaleViewException() : new KeyNotFoundException($"Unknown lazy node '{lazyId}'.");
         }
 
-        var resolved = PublishView(staged =>
-        {
-            var nodes = Document.ExpandNode(lazyId);
-            staged.AddAll(nodes);
-            return ((SectionNode)staged.ResolveFieldReferences(Document, new SectionNode(string.Empty, nodes))).Children;
-        });
-        _expanded.Add(lazyId);
-        return resolved;
-    });
-
-    // A rejected response must publish neither bindings/metadata nor remembered group pages.
-    private T PublishView<T>(Func<ViewIndex, T> prepare, CancellationToken cancellationToken = default)
-    {
-        var staged = _index.Copy(cancellationToken);
+        // Read-only presentation output cannot affect bindings or metadata. Avoid copying the
+        // accumulated index for this bounded case; all index-bearing output keeps the transaction.
         var restoreGroup = (Document as Groups.StagedGroupDocument)?.CancellationRollback();
         try
         {
+            var nodes = Document.ExpandNode(lazyId);
+            if (ViewIndex.IsIndexNeutral(nodes))
+            {
+                _expanded.Add(lazyId);
+                restoreGroup = null;
+                return nodes;
+            }
+
+            var rollback = restoreGroup;
+            restoreGroup = null;
+            var resolved = PublishView(staged =>
+            {
+                staged.AddAll(nodes);
+                return ((SectionNode)staged.ResolveFieldReferences(Document, new SectionNode(string.Empty, nodes))).Children;
+            }, rollback: rollback);
+            _expanded.Add(lazyId);
+            return resolved;
+        }
+        catch
+        {
+            restoreGroup?.Invoke();
+            throw;
+        }
+    });
+
+    // A rejected response must publish neither bindings/metadata nor remembered group pages.
+    private T PublishView<T>(Func<ViewIndex, T> prepare, Action? rollback = null,
+        CancellationToken cancellationToken = default)
+    {
+        var restoreGroup = rollback ?? (Document as Groups.StagedGroupDocument)?.CancellationRollback();
+        try
+        {
+            var staged = _index.Copy(cancellationToken);
             var result = prepare(staged);
             cancellationToken.ThrowIfCancellationRequested();
             _index = staged;
