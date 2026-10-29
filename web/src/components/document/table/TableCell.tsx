@@ -26,65 +26,76 @@ export interface TableCellProps {
  * nested content as a button that opens the row details, unknown types as a visible placeholder.
  */
 export function TableCell({ node, columnConfidence, emptySlot, rowLabel, onOpenDetails }: TableCellProps) {
-  if (emptySlot) return <Cell>
-    <DetailsChip label="Empty slot" rowLabel={rowLabel} onOpen={onOpenDetails} />
-    {node?.type === "field" && <>
-      <CellConfidenceLabel confidence={node.confidence} columnConfidence={columnConfidence} />
-      <CellBadges confidence={node.confidence === columnConfidence ? undefined : node.confidence} />
-    </>}
-  </Cell>;
+  if (emptySlot) return <EmptySlotCell node={node} columnConfidence={columnConfidence} rowLabel={rowLabel} onOpenDetails={onOpenDetails} />;
   if (!node) return <div className="table__cell" role="cell" />;
   switch (node.type) {
     case "field":
       return <FieldCell node={node} columnConfidence={columnConfidence} rowLabel={rowLabel} onOpenDetails={onOpenDetails} />;
     case "text":
-      return (
-        <Cell className={isNumericCell(node) ? " table__cell--number" : ""}>
-          <span className={`cell-text cell-text--${node.tone ?? "Normal"}${node.monospace ? " mono" : ""}`} title={node.text}>
-            {node.text}
-          </span>
-        </Cell>
-      );
+      return <TextCell node={node} />;
     case "image":
-      return (
-        <Cell>
-          <CellImage node={node} />
-        </Cell>
-      );
+  return (
+    <Cell>
+      <CellImage node={node} />
+    </Cell>
+  );
     case "action":
-      return (
-        <Cell>
-          <ActionButton node={node} compact ariaLabel={`${node.label}: ${rowLabel}`} />
-        </Cell>
-      );
-    case "stats": {
-      const summary = statsSummary(node.items);
-      return (
-        <Cell>
-          <span className="cell-text" title={summary}>
-            {summary}
-          </span>
-        </Cell>
-      );
-    }
+  return (
+    <Cell>
+      <ActionButton node={node} compact ariaLabel={`${node.label}: ${rowLabel}`} />
+    </Cell>
+  );
+    case "stats":
+      return <StatsCell node={node} />;
     case "section":
     case "tabs":
     case "table":
     case "hex":
     case "graph":
     case "map":
-      return (
-        <Cell>
-          <DetailsChip label={nestedLabel(node)} rowLabel={rowLabel} onOpen={onOpenDetails} />
-        </Cell>
-      );
+  return (
+    <Cell>
+      <DetailsChip label={nestedLabel(node)} rowLabel={rowLabel} onOpen={onOpenDetails} />
+    </Cell>
+  );
     default:
-      return (
-        <Cell>
-          <span className="cell-placeholder">Unsupported: {(node as { type?: string }).type ?? "unknown"}</span>
-        </Cell>
-      );
+  return (
+    <Cell>
+      <span className="cell-placeholder">Unsupported: {(node as { type?: string }).type ?? "unknown"}</span>
+    </Cell>
+  );
   }
+}
+
+function TextCell({ node }: { node: Extract<ViewNode, { type: "text" }> }) {
+  return (
+    <Cell className={isNumericCell(node) ? " table__cell--number" : ""}>
+      <span className={`cell-text cell-text--${node.tone ?? "Normal"}${node.monospace ? " mono" : ""}`} title={node.text}>
+        {node.text}
+      </span>
+    </Cell>
+  );
+}
+
+function StatsCell({ node }: { node: Extract<ViewNode, { type: "stats" }> }) {
+  const summary = statsSummary(node.items);
+  return (
+    <Cell>
+      <span className="cell-text" title={summary}>
+        {summary}
+      </span>
+    </Cell>
+  );
+}
+
+function EmptySlotCell({ node, columnConfidence, rowLabel, onOpenDetails }: TableCellProps) {
+  return <Cell>
+    <DetailsChip label="Empty slot" rowLabel={rowLabel} onOpen={onOpenDetails} />
+    {node?.type === "field" && <>
+      <CellConfidenceLabel confidence={node.confidence} columnConfidence={columnConfidence} />
+      <CellBadges confidence={node.confidence === columnConfidence ? undefined : node.confidence} />
+    </>}
+  </Cell>;
 }
 
 function Cell({ children, className = "", fieldRef }: { children: ReactNode; className?: string; fieldRef?: Ref<HTMLDivElement> }) {
