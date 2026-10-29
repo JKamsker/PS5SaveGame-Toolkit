@@ -12,6 +12,7 @@ public sealed class LosslessJsonNode
     {
         Id = id;
         Kind = kind;
+        OriginalKind = kind;
         OriginalSpan = span;
         _childrenView = new ReadOnlyCollection<LosslessJsonNode>(_children);
     }
@@ -20,6 +21,8 @@ public sealed class LosslessJsonNode
     public int Id { get; }
     /// <summary>Current JSON value kind.</summary>
     public LosslessJsonNodeKind Kind { get; internal set; }
+    /// <summary>JSON value kind as imported, before scalar patches.</summary>
+    public LosslessJsonNodeKind OriginalKind { get; }
     /// <summary>Original byte span, including string quotes or container delimiters.</summary>
     public JsonByteSpan OriginalSpan { get; internal set; }
     /// <summary>Parent value, or null for the root.</summary>
@@ -34,8 +37,10 @@ public sealed class LosslessJsonNode
     public int PropertyOccurrence { get; internal set; }
     /// <summary>Decoded string value for string scalars; null for other kinds.</summary>
     public string? StringValue { get; internal set; }
+    internal string? ImportedStringValue { get; set; }
     /// <summary>Decoded boolean value for boolean scalars; null for other kinds.</summary>
     public bool? BooleanValue { get; internal set; }
+    internal bool? ImportedBooleanValue { get; set; }
     /// <summary>Whether the current scalar is JSON null.</summary>
     public bool IsNull => Kind == LosslessJsonNodeKind.Null;
     /// <summary>Original scalar token lexeme, including quotes for strings.</summary>

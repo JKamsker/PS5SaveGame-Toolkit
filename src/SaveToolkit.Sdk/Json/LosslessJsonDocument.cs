@@ -94,10 +94,16 @@ public sealed class LosslessJsonDocument
 
     /// <summary>
     /// Replaces one scalar token with another scalar lexeme. The source span is the only changed
-    /// region during serialization, so length changes do not rewrite neighboring bytes.
+    /// region during serialization, so length changes do not rewrite neighboring bytes. The
+    /// resulting serialized bytes must remain within <see cref="LosslessJsonLimits.MaxBytes"/>.
     /// </summary>
     /// <returns>True when the current lexeme changed; false for an exact no-op.</returns>
-    public bool ReplaceScalar(LosslessJsonNode node, string scalarLexeme) => ReplaceScalar(node.Id, scalarLexeme);
+    public bool ReplaceScalar(LosslessJsonNode node, string scalarLexeme)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+        EnsureOwned(node);
+        return ReplaceScalar(node.Id, scalarLexeme);
+    }
 
     /// <inheritdoc cref="ReplaceScalar(LosslessJsonNode, string)" />
     public bool ReplaceScalar(int nodeId, string scalarLexeme)
@@ -108,13 +114,10 @@ public sealed class LosslessJsonDocument
         var parsed = LosslessJsonScalar.Parse(scalarLexeme, Limits);
         var current = node.CurrentLexeme!;
         if (current == scalarLexeme) return false;
+        EnsureSerializedLength(nodeId, scalarLexeme == node.OriginalLexeme ? null : scalarLexeme);
         if (scalarLexeme == node.OriginalLexeme) _replacements.Remove(nodeId);
         else _replacements[nodeId] = scalarLexeme;
-        node.Kind = parsed.Kind;
-        node.StringValue = parsed.StringValue;
-        node.BooleanValue = parsed.Kind == LosslessJsonNodeKind.Boolean && scalarLexeme == "true" ? true
-            : parsed.Kind == LosslessJsonNodeKind.Boolean && scalarLexeme == "false" ? false : null;
-        node.CurrentLexeme = scalarLexeme;
+        Apply(node, parsed, scalarLexeme);
         return true;
     }
 
@@ -132,18 +135,26 @@ public sealed class LosslessJsonDocument
         ArgumentNullException.ThrowIfNull(snapshot);
         if (!ReferenceEquals(snapshot.Owner, _identity))
             throw new ArgumentException("Snapshot belongs to another JSON document.", nameof(snapshot));
+        var parsed = new Dictionary<int, ParsedScalar>();
         foreach (var pair in snapshot.Replacements)
         {
             if (!_byId.TryGetValue(pair.Key, out var node) || !node.IsScalar)
                 throw new ArgumentException("Snapshot belongs to another JSON document.", nameof(snapshot));
-            _ = LosslessJsonScalar.Parse(pair.Value, Limits);
+            parsed[pair.Key] = LosslessJsonScalar.Parse(pair.Value, Limits);
         }
+        EnsureSerializedLength(snapshot.Replacements);
         var prior = CaptureSnapshot();
         foreach (var node in Nodes.Where(candidate => candidate.OriginalLexeme is not null))
         {
-            var lexeme = snapshot.Replacements.TryGetValue(node.Id, out var replacement)
-                ? replacement : node.OriginalLexeme!;
-            Apply(node, lexeme);
+            if (parsed.TryGetValue(node.Id, out var replacement))
+                Apply(node, replacement, snapshot.Replacements[node.Id]);
+            else
+            {
+                node.Kind = node.OriginalKind;
+                node.StringValue = node.ImportedStringValue;
+                node.BooleanValue = node.ImportedBooleanValue;
+                node.CurrentLexeme = node.OriginalLexeme;
+            }
         }
         _replacements.Clear();
         foreach (var pair in snapshot.Replacements) _replacements.Add(pair.Key, pair.Value);
@@ -153,8 +164,9 @@ public sealed class LosslessJsonDocument
     /// <summary>Serializes original bytes plus current scalar replacements.</summary>
     public byte[] Serialize()
     {
+        var serializedLength = EnsureSerializedLength(_replacements);
         if (_replacements.Count == 0) return (byte[])_source.Clone();
-        using var output = new MemoryStream(_source.Length);
+        using var output = new MemoryStream(checked((int)serializedLength));
         var cursor = 0;
         foreach (var node in Nodes.Where(candidate => _replacements.ContainsKey(candidate.Id)).OrderBy(candidate => candidate.OriginalSpan.Offset))
         {
@@ -167,9 +179,40 @@ public sealed class LosslessJsonDocument
         return output.ToArray();
     }
 
-    private void Apply(LosslessJsonNode node, string lexeme)
+    private long EnsureSerializedLength(int? candidateNodeId = null, string? candidateLexeme = null)
     {
-        var parsed = LosslessJsonScalar.Parse(lexeme, Limits);
+        long length = _source.LongLength;
+        foreach (var node in Nodes.Where(candidate => candidate.OriginalLexeme is not null))
+        {
+            string? replacement;
+            if (node.Id == candidateNodeId)
+                replacement = candidateLexeme;
+            else if (!_replacements.TryGetValue(node.Id, out replacement))
+                continue;
+            if (replacement is null) continue;
+            length = checked(length - node.OriginalSpan.Length + StrictUtf8.GetByteCount(replacement));
+        }
+        if (length > Limits.MaxBytes)
+            throw new LosslessJsonException($"Serialized JSON exceeds the {Limits.MaxBytes}-byte safety limit.");
+        return length;
+    }
+
+    private long EnsureSerializedLength(IReadOnlyDictionary<int, string> replacements)
+    {
+        long length = _source.LongLength;
+        foreach (var pair in replacements)
+        {
+            if (!_byId.TryGetValue(pair.Key, out var node) || node.OriginalLexeme is null)
+                throw new ArgumentException("Snapshot belongs to another JSON document.", nameof(replacements));
+            length = checked(length - node.OriginalSpan.Length + StrictUtf8.GetByteCount(pair.Value));
+        }
+        if (length > Limits.MaxBytes)
+            throw new LosslessJsonException($"Serialized JSON exceeds the {Limits.MaxBytes}-byte safety limit.");
+        return length;
+    }
+
+    private static void Apply(LosslessJsonNode node, ParsedScalar parsed, string lexeme)
+    {
         node.Kind = parsed.Kind;
         node.StringValue = parsed.StringValue;
         node.BooleanValue = parsed.Kind == LosslessJsonNodeKind.Boolean && lexeme == "true" ? true

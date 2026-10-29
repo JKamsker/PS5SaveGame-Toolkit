@@ -87,4 +87,57 @@ public sealed class LosslessJsonDocumentTests
         Assert.Throws<LosslessJsonException>(() => document.ReplaceScalar(node, "\"\\uD800\""));
         Assert.Equal("{\"x\":1}", Encoding.UTF8.GetString(document.Serialize()));
     }
+
+    [Fact]
+    public void SerializedBudgetRejectsLengthGrowthBeforeMutatingState()
+    {
+        var bytes = Encoding.UTF8.GetBytes("[1]");
+        var document = LosslessJsonDocument.Parse(bytes, new LosslessJsonLimits { MaxBytes = bytes.Length });
+        var node = document.Root.Children[0];
+
+        Assert.Throws<LosslessJsonException>(() => document.ReplaceScalar(node, "123456"));
+        Assert.Equal("1", node.CurrentLexeme);
+        Assert.Equal(bytes, document.Serialize());
+    }
+
+    [Fact]
+    public void OversizedImportedNumberSurvivesNoOpRestoreAndOtherFieldUndoRedo()
+    {
+        const string source = "{\"huge\":1e1000000000,\"other\":1}";
+        var document = LosslessJsonDocument.Parse(Encoding.UTF8.GetBytes(source));
+        var huge = document.Root.Children[0];
+        var other = document.Root.Children[1];
+        var original = document.CaptureSnapshot();
+
+        document.RestoreSnapshot(original);
+        Assert.Equal(source, Encoding.UTF8.GetString(document.Serialize()));
+        Assert.Equal("1e1000000000", huge.CurrentLexeme);
+
+        Assert.True(document.ReplaceScalar(other, "2"));
+        var changed = document.CaptureSnapshot();
+        var redo = document.RestoreSnapshot(original);
+        Assert.Equal(source, Encoding.UTF8.GetString(document.Serialize()));
+        Assert.Equal("1e1000000000", huge.CurrentLexeme);
+        document.RestoreSnapshot(changed);
+        Assert.Equal("{\"huge\":1e1000000000,\"other\":2}", Encoding.UTF8.GetString(document.Serialize()));
+        document.RestoreSnapshot(original);
+        Assert.Equal(source, Encoding.UTF8.GetString(document.Serialize()));
+        document.RestoreSnapshot(redo);
+        Assert.Equal("{\"huge\":1e1000000000,\"other\":2}", Encoding.UTF8.GetString(document.Serialize()));
+        document.RestoreSnapshot(original);
+        Assert.Equal(source, Encoding.UTF8.GetString(document.Serialize()));
+    }
+
+    [Fact]
+    public void ForeignNodeIsRejectedEvenWhenItsPreorderIdMatches()
+    {
+        var document = LosslessJsonDocument.Parse(Encoding.UTF8.GetBytes("{\"x\":1}"));
+        var equalSource = LosslessJsonDocument.Parse(Encoding.UTF8.GetBytes("{\"x\":1}"));
+        var differentSource = LosslessJsonDocument.Parse(Encoding.UTF8.GetBytes("{\"other\":9}"));
+
+        Assert.Throws<ArgumentException>(() => document.ReplaceScalar(equalSource.Root.Children[0], "2"));
+        Assert.Throws<ArgumentException>(() => document.ReplaceScalar(differentSource.Root.Children[0], "2"));
+        Assert.Equal("{\"x\":1}", Encoding.UTF8.GetString(document.Serialize()));
+        Assert.Equal("1", document.Root.Children[0].CurrentLexeme);
+    }
 }

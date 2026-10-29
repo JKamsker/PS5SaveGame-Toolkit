@@ -86,7 +86,10 @@ internal static class LosslessJsonParser
             PropertyNameLexeme = pending.Lexeme,
             PropertyNameSpan = pending.Span,
             StringValue = stringValue,
+            ImportedStringValue = stringValue,
             BooleanValue = kind == LosslessJsonNodeKind.Boolean && lexeme == "true" ? true
+                : kind == LosslessJsonNodeKind.Boolean && lexeme == "false" ? false : null,
+            ImportedBooleanValue = kind == LosslessJsonNodeKind.Boolean && lexeme == "true" ? true
                 : kind == LosslessJsonNodeKind.Boolean && lexeme == "false" ? false : null,
             OriginalLexeme = kind is LosslessJsonNodeKind.Object or LosslessJsonNodeKind.Array ? null : lexeme,
             CurrentLexeme = kind is LosslessJsonNodeKind.Object or LosslessJsonNodeKind.Array ? null : lexeme,

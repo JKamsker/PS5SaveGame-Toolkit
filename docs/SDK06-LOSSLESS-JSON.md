@@ -24,12 +24,21 @@ braces included). `PropertyNameSpan` is the quoted member-name token; `PropertyN
 its original escape spelling. `PropertyOccurrence` is zero-based among equal decoded names in one
 object, so `{"x":1,"x":2}` has two distinct identities.
 
+`MaxBytes` applies to both the imported input and every possible serialized output. A replacement
+or snapshot restore computes the checked UTF-8 byte total before changing node state; an operation
+that would exceed the budget throws `LosslessJsonException` and leaves the previous lexemes and
+serialized bytes intact. `Serialize()` repeats the budget check before allocating its output buffer.
+The node overload of `ReplaceScalar` also verifies document ownership before looking up the stable
+ID, so an equal-ID node from another document cannot patch this document.
+
 Numbers are retained as raw syntax during parsing, including lexemes that exceed
 `ExactJsonNumber`'s editing limits. A replacement number must pass `ExactJsonNumber.Validate`
 using the document's `MaxNumberLength` and `MaxAbsoluteExponent`; callers can consequently expose
 an oversized imported number as read-only without losing its original bytes. String replacements
 must be one JSON string scalar and valid UTF-8; booleans and null remain distinct from a missing
-member (a missing member has no node).
+member (a missing member has no node). Snapshots restore imported scalar metadata directly, so an
+empty snapshot or an edit to a different field never reparses an oversized original number through
+the stricter editable-number limits.
 
 The default safety envelope matches the existing JSON plugins: 16 MiB input, 64 nesting levels and
 250,000 value nodes. `LosslessJsonLimits` permits lower budgets and bounded overrides. The parser
