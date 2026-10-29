@@ -1038,6 +1038,9 @@ Per-document field-aware API (only previously published fields/parameters are qu
 
 - `GET .../reference-fields/candidates?valueId=...&q=...&category=...&sortBy=Name&descending=false&offset=0&limit=30&revision=0`
 - `GET .../reference-fields/record?valueId=...&rawId=...&revision=0`
+- `POST .../reference-fields/records` with `pairs` of `fieldId`, `recordKey` and optional `actionId`,
+  plus optional `revision`, batches exact lookups for published fields. Results retain each pair's
+  status; an unknown field returns 404 for that pair, while a stale revision rejects the request.
 
 For action parameters also pass `actionId`. Paging clamps offset to zero and limit to 1–200.
 Candidate pages include the view revision. Pass it with subsequent queries/edits; stale queries return
