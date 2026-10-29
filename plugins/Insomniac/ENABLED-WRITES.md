@@ -17,7 +17,9 @@ preview/apply, rejects row/query scope and reports the integrity warning.
 ## Gameplay
 
 `player/CareerBolts` and `player/SpentBolts` retain actual unsigned width and
-conservative observed maxima. The final calculated balance must be nonnegative.
+conservative observed maxima. Both slots must have supported unsigned scalar
+encodings before either becomes writable. The final calculated balance must be nonnegative,
+except when restoring the exact original imported counter pair for lossless undo.
 These seven `player/` boolean fields change neither collectibles nor unlocks:
 
 ```text

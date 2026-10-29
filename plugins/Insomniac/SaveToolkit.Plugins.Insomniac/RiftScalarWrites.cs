@@ -23,7 +23,9 @@ internal sealed class RiftScalarWrites
     {
         _bytes = container.Bytes;
         if (!supportedTitle) return;
-        if (sections.Roots.TryGetValue(RiftPlayerView.CampaignTag, out var campaign))
+        // Both counters are needed for final-pair validation and the live calculated balance.
+        if (sections.Roots.TryGetValue(RiftPlayerView.CampaignTag, out var campaign) &&
+            SupportsCounter(campaign["CareerBolts"]) && SupportsCounter(campaign["SpentBolts"]))
         {
             AddCounter(CareerId, campaign["CareerBolts"], ObservedCareerBoltsMaximum);
             AddCounter(SpentId, campaign["SpentBolts"], ObservedSpentBoltsMaximum);
@@ -58,7 +60,12 @@ internal sealed class RiftScalarWrites
             if (edit.ValueId == CareerId) career = edit.Value.AsInteger();
             if (edit.ValueId == SpentId) spent = edit.Value.AsInteger();
         }
-        return career >= spent ? null : new FieldError(CareerId, "Career bolts must be at least spent bolts; the calculated balance cannot be negative.");
+        // Undo must be able to restore an accepted import, even when its balance was negative.
+        // This exception is for the exact original pair, never another negative allocation.
+        var restoresOriginal = career == _writes[CareerId].OriginalValue.AsInteger() &&
+            spent == _writes[SpentId].OriginalValue.AsInteger();
+        return career >= spent || restoresOriginal ? null : new FieldError(CareerId,
+            "Career bolts must be at least spent bolts, except when restoring the original imported pair.");
     }
 
     internal void Set(ScalarWrite write, FieldValue value)
@@ -77,10 +84,11 @@ internal sealed class RiftScalarWrites
         write.Field.SetScalar(value);
     }
 
+    private static bool SupportsCounter(DdlField field) => field.Count == 1 && field.Values.Count == 1 &&
+        field.Kind is DdlValueKind.UInt8 or DdlValueKind.UInt16 or DdlValueKind.UInt32 or DdlValueKind.UInt64;
+
     private void AddCounter(string id, DdlField field, long observedMaximum)
     {
-        if (field.Count != 1 || field.Values.Count != 1 ||
-            field.Kind is not (DdlValueKind.UInt8 or DdlValueKind.UInt16 or DdlValueKind.UInt32 or DdlValueKind.UInt64)) return;
         var wire = (IntegerSpec)field.Spec;
         var maximum = Int128.Min(wire.Max, Int128.Max(observedMaximum, field.Values[0].AsInteger()));
         Add(id, RiftPlayerView.CampaignTag, field, wire with { Max = maximum });
@@ -102,6 +110,7 @@ internal sealed class RiftScalarWrites
 
 internal sealed record ScalarWrite(DdlField Field, FieldSpec Spec)
 {
+    internal FieldValue OriginalValue { get; } = Field.Values[0];
     internal FieldValue Value => Field.Values[0];
     internal string? Validate(FieldValue value) => Spec switch
     {

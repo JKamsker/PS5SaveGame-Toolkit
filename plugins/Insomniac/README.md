@@ -124,11 +124,15 @@ name CRCs identify unchanged names and therefore need no repair. No save-body
 checksum/signature algorithm is established. Serialize reparses the complete DAT1,
 all supported DDL roots and inventory before returning an isolated copy.
 
-Bolt counters allow 0 through the smaller of their actual unsigned wire capacity
+Bolt counters are writable only when both career and spent slots have supported
+unsigned scalar encodings; other accepted layouts remain read-only. They allow
+0 through the smaller of their actual unsigned wire capacity
 and the conservative corpus maximum (CareerBolts 1,297,735; SpentBolts 260,875).
 An imported value above that maximum remains inspectable and extends only that
 field's upper bound to its original value. These are observed bounds, not proven
-game caps. Atomic batches validate final CareerBolts >= SpentBolts. Calculated
+game caps. Atomic batches validate final CareerBolts >= SpentBolts, with an
+exception only for restoring the exact original imported counter pair so undo
+can recover an accepted input whose calculated balance was already negative. Calculated
 available bolts and expanded raw scalar diagnostics update live and participate
 as derived changes; Core undo/redo restores the original bytes.
 
