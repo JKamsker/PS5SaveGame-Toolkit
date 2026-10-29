@@ -13,6 +13,7 @@
     <ProjectReference Include="..\..\src\SaveToolkit.Testing\SaveToolkit.Testing.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="References\EmbeddedPackHashes.txt" />
     <!-- Embedded reference pack for ItemsPlugin; same layout plugins use (see docs/PLUGIN_GUIDE.md). -->
     <EmbeddedResource Include="Fakes\ReferencePacks\**\*" LogicalName="refpacks/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
