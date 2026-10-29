@@ -1,7 +1,11 @@
-# F13: field specs independent of views — design proposal
+# F13: field specs independent of views — partially delivered proposal
 
-Issue #33 permits a design deliverable for this item. This proposal deliberately introduces no
-new production capability; plugins should retain existing preflight guards until it is implemented.
+Issue #33 permits a design deliverable for this item. **Status — 2026-10-29:** storage-only
+binding registration shipped in `a1c08c0`, through `BoundSaveDocument.RegisterField(...)` and
+`Field(valueId, label)`. That part of the proposal is done. Host metadata resolution, primary/alias
+classification and Core lifecycle integration below remain proposed; plugins must retain their
+preflight guards. See [the shipped contract](../PLUGIN_GUIDE.md#contract-srcsavetoolkitsdk) and
+[SDK-02 / SDK-32](../SDK_REQUESTS.md#prioritized-inventory).
 
 ## What the current code actually does
 
@@ -14,7 +18,8 @@ The unresolved problem is publishing enough information to make that replay *rel
 `ViewIndex` learns specs only from eager, expanded, queried or semantic-review-discovered fields.
 It cannot classify an unexposed ID as an editable primary versus a derived/read-only alias.
 `BoundSaveDocument.ApplyEdits` also needs a registered writable binding, independently of the Core
-index. `SemanticReview` can retain an action's old value for previously unexposed IDs before
+index. Plugins can now register it without rendering a node, but that does not publish metadata
+to Core. `SemanticReview` can retain an action's old value for previously unexposed IDs before
 structural edits, but lacks canonical labels/navigation and conservatively disallows individual
 reversion for those fallback records. Structural identity changes further limit matching.
 
@@ -34,9 +39,11 @@ field or build/expand a view.
 
 Resolving metadata must guarantee `GetValue` works, and for a writable field that `ApplyEdits`
 already has the canonical setter and plugin validation available without displaying its page.
-A `BoundSaveDocument` helper should register bindings independently from constructing `FieldNode`;
-`Field` can reuse that helper. Plugin-owned binding registration remains local bookkeeping, with
-no save-value changes. A descriptor without a usable binding violates this capability's contract.
+The delivered `BoundSaveDocument.RegisterField(valueId, spec, get, set, validate)` already registers
+bindings independently from constructing `FieldNode`; `Field` reuses it. `Field(valueId, label)`
+renders a registered binding later. Registration does not call the getter, and structural changes
+or restores clear registrations. Plugin-owned registration remains local bookkeeping with no save-value
+changes. A future descriptor without a usable binding violates the proposed metadata capability's contract.
 
 ## Core integration and lifecycle
 

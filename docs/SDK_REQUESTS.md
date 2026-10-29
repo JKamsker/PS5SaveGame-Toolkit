@@ -1,14 +1,23 @@
 # SDK and framework request triage
 
-Tracking: [#40](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40). Reviewed on
+Tracking: [#40](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40). Initial triage on
 2026-10-29 against local `main` at `72cd9973793c0d39556bbf3c233bb6374b80e8bb`.
 This is the local integration branch, not the older published `origin/main`.
-Evidence paths and line numbers below refer to that snapshot. The review covers
+Evidence paths and line numbers below refer to that initial snapshot. The original review covers
 `AGENTS.md`, `PLUGIN_GUIDE.md`, all 17 plugin README SDK-request/adoption sections,
 and the 292 comments available from `gh issue view 40 --comments` at collection time
 (through comment `6488004888`). No sample bytes or credentials were inspected.
 
-**40 deduplicated items: 8 open, 1 partially resolved, 28 resolved, 3 obsolete.**
+Capabilities rechecked on 2026-10-29 against local `main` at `1d38e84` for the framework-docs pass:
+SDK-05 and the nightly mutation workflow are now merged; the remaining dispositions below
+remain valid. In addition, inherited conformance `MutationFuzz` is shipped
+in `src/SaveToolkit.Testing/PluginConformanceTests.MutationFuzz.cs`; see its
+[bounded coverage contract](PLUGIN_GUIDE.md#deterministic-mutation-fuzzing-40).
+`AllocationProbe` is **not present** in that revision; do not document it as an available helper.
+Storage registration is delivered (SDK-32), while host metadata/alias discovery (SDK-02) and F8
+semantic-review traversal (SDK-01) remain pending. This recheck does not claim a new complete issue-comment census.
+
+**40 deduplicated items: 7 open, 1 partially resolved, 29 resolved, 3 obsolete.**
 Counts describe capabilities, not individual comments or plugin migrations. Related
 requests are merged; delivered foundations and genuinely different remaining contracts
 have separate IDs. “Requested by” also names the plugin candidates explicitly identified
@@ -49,7 +58,7 @@ and characterization tests, L = a substantial lifecycle/serialization integratio
 | SDK-21 | Opaque collection IDs containing `/` survive HTTP querying | GenericJson; UnrealGvas affected by the same route | resolved | `c1762df`; `src/SaveToolkit.Api/Endpoints/WorkspaceEndpoints.cs:76`; `web/src/api/client.ts` `queryCollection`; `tests/SaveToolkit.Core.Tests/OpaqueCollectionApiTests.cs` | 2 documented cases; every collection can keep its native opaque ID | — | Delivered additive route | Use `GET .../collections?collectionId=...`; keep old path route for compatibility. Do not indiscriminately decode the old route twice. URL-safe plugin IDs remain valid. |
 | SDK-22 | Explicit, atomic, fingerprinted multi-file ownership, staging, history and export | Gearbox (R4), XorJson | resolved | `6ae1c6c` (merged `7ff21ad`); `src/SaveToolkit.Sdk/DocumentGroups.cs:6`; `src/SaveToolkit.Core/Sessions/Groups/StagedGroupDocument.cs` | 2 adopted plugins; linked character/profile outputs commit and undo together | — | Delivered optional group capability | Use `IDocumentGroupPlugin` and `IGroupedSaveDocument.CaptureMemento`; no alternative output/transaction API is needed. SDK-04 only shares member adapters. |
 | SDK-23 | Overlay preserves untouched sibling bytes instead of exposing empty files | XorJson | resolved | `4532481`; `src/SaveToolkit.Core/Storage/OverlaySaveSet.cs`; `plugins/XorJson/README.md:329` | 1 reported case; safe verification of partial output sets | — | Delivered Core fix | Return changed outputs only; retain preservation/unchanged-file evidence. |
-| SDK-24 | Common F8 in-memory query pipeline and table shell | AstroPlayroom, AtomicHeart, Cyberpunk2077, EldenRing, FinalFantasy7, FinalFantasy16, Gearbox, Insomniac, Pragmata, TalesOfArise, UnrealGvas | resolved | [duplication item 1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `1bbf6a2`; `src/SaveToolkit.Sdk/Collections/InMemoryCollection.cs:15` | 11 named candidates; consistent full-model filtering/sorting with bounded rendering | — | Delivered additive helper | Use `InMemoryCollection<T>.Query` / `ToTableNode` where policy adapters preserve behavior; keep database/partial-model engines. |
+| SDK-24 | Common F8 in-memory query pipeline and table shell | AstroPlayroom, AtomicHeart, Cyberpunk2077, EldenRing, FinalFantasy7, FinalFantasy16, Gearbox, Insomniac, Pragmata, TalesOfArise, UnrealGvas | resolved | [duplication item 1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `1bbf6a2`; `src/SaveToolkit.Sdk/Collections/InMemoryCollection.cs:15` | 11 named candidates; consistent full-model filtering/sorting with bounded rendering | — | Delivered additive helper | Use `InMemoryCollection<T>.Query` and `QueryableCollection.ToTableNode()` where policy adapters preserve behavior; keep database/partial-model engines. |
 | SDK-25 | Common F6 plan equality/revalidation and scalar application | AstroPlayroom, AtomicHeart, Cyberpunk2077, EldenRing, FinalFantasy7, FinalFantasy16, GodOfWarRagnarok, Insomniac, SuckerPunch, TalesOfArise | resolved | [duplication item 2](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `1803b2d`; `src/SaveToolkit.Sdk/ActionPlans.cs:25` | 10 candidates; fewer stale/tampered-plan and warning-policy differences | — | Delivered additive helper | Use `ContentEquals`, `Revalidate`, `ApplyScalar`; explicitly select actual derived writes and warning merge policy. Core still owns tokens/revisions/query scope. |
 | SDK-26 | Bounded binary ranges/cursors and strict FString readers/writer | AtomicHeart, BaldursGate3, Cyberpunk2077, EldenRing, Gearbox, UnrealGvas, Witcher3 | resolved | [duplication item 3](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `9e12bfa`; `src/SaveToolkit.Sdk/Binary/BoundedBinaryCursor.cs:12`; `Binary/FStringCodec.cs:26` | 7 candidates; consistent malformed-input bounds while retaining format policy | — | Delivered additive helpers | Use `BinaryRange`, `BoundedBinaryCursor`, `FStringCodec` / `FStringLimits`; preserve diagnostic adapters, byte/unit limits and original encoding bytes. |
 | SDK-27 | Complete bounded reference-catalog traversal | EldenRing, FinalFantasy7, Insomniac, TalesOfArise, UnrealGvas, Witcher3 | resolved | [duplication item 7](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `b5397b4`; `src/SaveToolkit.Sdk/References/ReferenceCatalogReader.cs:11` | 6 candidates; malformed/incomplete catalogs cannot silently become complete indexes | — | Delivered additive helper | Use `ReadBounded` with an explicit budget; keep direct `Find`/`Search` for ordinary lookup and cache complete indexes once. |
@@ -69,10 +78,9 @@ and characterization tests, L = a substantial lifecycle/serialization integratio
 
 ## Resolved appendix
 
-The 28 resolved rows identify both the introducing commit and the surviving API or
-implementation above. The original 27 deliveries were checked as ancestors of the reviewed
-`main`; SDK-05 is delivered separately in `0e31467` on `feat/sdk05-icon-options` and has not
-been merged. An issue comment saying “fixed” was not treated as sufficient evidence by itself.
+The 29 resolved rows identify both the introducing commit and the surviving API or
+implementation above. All 29 deliveries, including SDK-05 (`0e31467`, merged in
+`bfb666d`), were checked as ancestors of the reviewed local `main`. An issue comment saying “fixed” was not treated as sufficient evidence by itself.
 
 - **Icon compatibility (SDK-05):** `0e31467` preserves the original four-argument overload
   and adds a five-argument overload with `ReferenceIconOptions.ExactAltText` and
@@ -170,4 +178,5 @@ likewise not missing framework capabilities. No new framework API can establish 
 Original triage validation: `python docs/tests/test_documentation.py`.
 The original triage assessed runtime behavior by source/history inspection and changed
 only this document. SDK-05's subsequent implementation and sample-backed validation
-are recorded separately in its resolved appendix entry above.
+are recorded separately in its resolved appendix entry above. The framework documentation pass
+also updates linked contracts and dependency-free drift checks.

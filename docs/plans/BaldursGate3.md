@@ -1,5 +1,10 @@
 # BaldursGate3 — improvement plan
 
+> **Status: superseded.** Framework foundations and supported plugin subsets have shipped;
+> the old phases below are not an active checklist or a claim that every proposed writer is done.
+> Remaining evidence/console work is in [the owner queue](../OWNER_CHECKLIST.md), and missing
+> framework contracts are in [SDK requests](../SDK_REQUESTS.md).
+>
 > **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
 > policy restrictions below describe that research round, not current implementation or permissions.
 > See [current plugin status](../PLUGINS.md), the linked plugin README,
