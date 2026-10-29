@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using SaveToolkit.Sdk;
@@ -9,10 +10,23 @@ public sealed class CorruptionDiagnosticTests
 {
     [Theory]
     // Captured on fc55788 before either helper migration. Includes successful trees as well as errors.
-    [InlineData(false, "12F34CA33D2573930BB5BB4730497CCF852EF8387CA780966C152499E7001BFF")]
-    [InlineData(true, "71D45478F30458F2AD34ADB2803AFB69A857EB76B0A7E67A33C370C888ACD067")]
-    public void MutationAndTruncationOutcomesKeepExactExceptionTypesAndMessages(bool compressed, string expected)
+    [InlineData(false, "12F34CA33D2573930BB5BB4730497CCF852EF8387CA780966C152499E7001BFF", "en-US")]
+    [InlineData(true, "71D45478F30458F2AD34ADB2803AFB69A857EB76B0A7E67A33C370C888ACD067", "en-US")]
+    [InlineData(false, "12F34CA33D2573930BB5BB4730497CCF852EF8387CA780966C152499E7001BFF", "sv-SE")]
+    [InlineData(true, "71D45478F30458F2AD34ADB2803AFB69A857EB76B0A7E67A33C370C888ACD067", "sv-SE")]
+    public void MutationAndTruncationOutcomesKeepExactExceptionTypesAndMessages(bool compressed, string expected,
+        string cultureName)
     {
+        using var ambientCulture = new CultureScope(CultureInfo.GetCultureInfo(cultureName));
+        Assert.Equal(expected, TranscriptFingerprint(compressed));
+        Assert.Equal(cultureName, CultureInfo.CurrentCulture.Name);
+        Assert.Equal(cultureName, CultureInfo.CurrentUICulture.Name);
+    }
+
+    private static string TranscriptFingerprint(bool compressed)
+    {
+        // This golden pins historical diagnostics and numbers, independent of the machine's locale.
+        using var culture = new CultureScope(CultureInfo.InvariantCulture);
         var valid = CsavCorruptionFixture.Flat(compressed: compressed);
         var transcript = new StringBuilder();
         void Record(byte[] bytes)
@@ -63,8 +77,7 @@ public sealed class CorruptionDiagnosticTests
             Record(bytes);
         }
 
-        var actual = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(transcript.ToString())));
-        Assert.True(expected == actual, actual);
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(transcript.ToString())));
     }
 
     [Theory]
@@ -92,5 +105,23 @@ public sealed class CorruptionDiagnosticTests
             Assert.Equal(expected, Assert.Throws<SaveFormatException>(() => BinaryData.UInt32(bytes, 2)).Message);
         }
         Assert.Empty(BinaryData.Slice(new byte[4], 4, 0).ToArray());
+    }
+
+    private sealed class CultureScope : IDisposable
+    {
+        private readonly CultureInfo _previousCulture = CultureInfo.CurrentCulture;
+        private readonly CultureInfo _previousUiCulture = CultureInfo.CurrentUICulture;
+
+        public CultureScope(CultureInfo culture)
+        {
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = culture;
+        }
+
+        public void Dispose()
+        {
+            CultureInfo.CurrentCulture = _previousCulture;
+            CultureInfo.CurrentUICulture = _previousUiCulture;
+        }
     }
 }
