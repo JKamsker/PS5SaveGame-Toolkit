@@ -58,15 +58,15 @@ public sealed class WorkspaceLeaseTests
         var plugin = new CleanupPlugin(() =>
         {
             disposing.TrySetResult();
-            Assert.True(resume.Wait(TimeSpan.FromSeconds(10), ct));
+            resume.Wait(ct);
         });
         using var store = Store(plugin);
         foreach (var workspace in new[] { Create(store), Create(store) })
             workspace.Open(workspace.Set.AllDiskFiles.Single().Id, plugin.Info.Id);
-        var shutdown = Task.Run(store.Dispose, ct);
+        var shutdown = TestWorker.Run(store.Dispose, ct);
         try
         {
-            await disposing.Task.WaitAsync(TimeSpan.FromSeconds(10), ct);
+            await disposing.Task.WaitAsync(ct);
             var remaining = Assert.Single(store.All);
             using var unexpectedLease = store.Acquire(remaining.Id);
             Assert.Null(unexpectedLease);

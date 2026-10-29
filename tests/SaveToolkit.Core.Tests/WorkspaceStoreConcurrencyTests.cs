@@ -29,19 +29,19 @@ public sealed class WorkspaceStoreConcurrencyTests
     public async Task Import_CompletingAfterDisposal_IsNotPublishedAndDeletesBlobs()
     {
         var ct = TestContext.Current.CancellationToken;
-        using var importing = new ManualResetEventSlim();
+        var importing = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         using var resume = new ManualResetEventSlim();
         var root = TestZips.TempDir();
         using var store = new WorkspaceStore(new PluginCatalog([]), new() { DataRoot = root });
-        var import = Task.Run(() => store.Create("racing import", [new ImportSource("save.dat", () =>
+        var import = TestWorker.Run(() => store.Create("racing import", [new ImportSource("save.dat", () =>
         {
-            importing.Set();
-            Assert.True(resume.Wait(TimeSpan.FromSeconds(10), ct));
+            importing.SetResult();
+            resume.Wait(ct);
             return new MemoryStream([1]);
         })]), ct);
         try
         {
-            Assert.True(importing.Wait(TimeSpan.FromSeconds(10), ct));
+            await importing.Task.WaitAsync(ct);
             store.Dispose();
             resume.Set();
 

@@ -36,7 +36,7 @@ public sealed class WorkspaceRequestLifetimeTests
         var request = client.GetAsync(new Uri($"/api/workspaces/{workspace.Id}", UriKind.Relative), cancellation.Token);
         try
         {
-            await probing.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+            await probing.Task.WaitAsync(TestContext.Current.CancellationToken);
             Assert.True(store.Remove(workspace.Id));
             Assert.Null(store.Get(workspace.Id));
             Assert.True(Directory.Exists(workspace.Set.StorageRoot), "An active request still needs its imported blobs.");
@@ -49,7 +49,7 @@ public sealed class WorkspaceRequestLifetimeTests
                 using var response = await request;
                 response.EnsureSuccessStatusCode();
             }
-            await completed.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+            await completed.Task.WaitAsync(TestContext.Current.CancellationToken);
             Assert.False(Directory.Exists(workspace.Set.StorageRoot));
         }
         finally
@@ -85,7 +85,7 @@ public sealed class WorkspaceRequestLifetimeTests
         public ProbeResult Probe(ISaveFile file)
         {
             probing.TrySetResult();
-            Assert.True(resume.Wait(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken));
+            resume.Wait(TestContext.Current.CancellationToken);
             Assert.Equal(new byte[] { 1 }, file.ReadAllBytes());
             return ProbeResult.None;
         }

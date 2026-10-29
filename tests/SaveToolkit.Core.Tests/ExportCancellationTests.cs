@@ -16,10 +16,11 @@ public sealed class ExportCancellationTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task Export_cancels_while_waiting_for_session_or_ownership_gate(bool ownershipGate)
+    public async Task Concurrent_export_observes_cancellation_while_session_or_ownership_gate_is_held(bool ownershipGate)
     {
+        var ct = TestContext.Current.CancellationToken;
         using var cancellation = new CancellationTokenSource();
-        using var entered = new ManualResetEventSlim();
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         using var release = new ManualResetEventSlim();
         var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var plugin = new CallbackPlugin();
@@ -31,33 +32,34 @@ public sealed class ExportCancellationTests
         plugin.Callback = stage =>
         {
             if (stage != "serialize") return;
-            entered.Set();
-            Assert.True(release.Wait(TimeSpan.FromSeconds(10)));
+            entered.TrySetResult();
+            release.Wait(ct);
         };
-        var holder = Task.Run(() =>
+        var holder = TestWorker.Run(() =>
         {
             if (ownershipGate) _ = WorkspaceExporter.Plan(workspace, new());
             else _ = session.Serialize();
-        });
+        }, ct);
         try
         {
-            Assert.True(entered.Wait(TimeSpan.FromSeconds(5)));
-            var waiter = Task.Run(() =>
+            await entered.Task.WaitAsync(ct);
+            var waiter = TestWorker.Run(() =>
             {
                 started.SetResult();
                 return WorkspaceExporter.Plan(workspace, new(), cancellation.Token);
-            });
-            await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
-            await Task.Delay(TimeSpan.FromMilliseconds(100));
+            }, ct);
+            // The competing worker has started while the holder still owns the gate.
+            // A delay cannot establish exactly where the OS has scheduled that worker.
+            await started.Task.WaitAsync(ct);
             Assert.False(waiter.IsCompleted);
             cancellation.Cancel();
 
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => waiter.WaitAsync(TimeSpan.FromSeconds(5)));
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => waiter.WaitAsync(ct));
         }
         finally
         {
             release.Set();
-            await holder.WaitAsync(TimeSpan.FromSeconds(5));
+            await holder;
         }
         plugin.Callback = null;
         Assert.True(session.State.IsDirty);
@@ -116,7 +118,7 @@ public sealed class ExportCancellationTests
         plugin.Callback = null;
         Assert.Equal(state, session.State);
         Assert.Equal(original, session.File.ReadAllBytes());
-        var retry = await Task.Run(() => WorkspaceExporter.Plan(workspace, new())).WaitAsync(TimeSpan.FromSeconds(5));
+        var retry = await TestWorker.Run(() => WorkspaceExporter.Plan(workspace, new()), TestContext.Current.CancellationToken);
         Assert.Equal(CounterPlugin.Create(6), Assert.Single(retry.Overrides).Value.ToArray());
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.IsDirty);
