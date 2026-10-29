@@ -43,9 +43,13 @@ public sealed class LiveNewAgeTests
         }
         source.Set(number, FieldValue.Of(number.Original - 1));
         var bytes = source.Write();
+        Assert.Equal(number.Original - 1, source.Get(number));
         Assert.Equal(number.Original - 1, LiveNewAgeFixture.Source(bytes).Numbers.Single(n => n.Key == number.Key).Original);
         var diff = ByteDiffer.Compare(original, bytes, options: new ByteDiffOptions { MergeGap = 0, ContextBytes = 0 });
-        Assert.All(diff.Ranges, range => Assert.Contains((int)range.Offset, number.Offsets));
+        Assert.NotEmpty(diff.Ranges);
+        var allowed = number.Offsets.SelectMany(offset => Enumerable.Range(offset, sizeof(uint))).ToHashSet();
+        Assert.All(diff.Ranges.SelectMany(range => Enumerable.Range((int)range.Offset, (int)range.Length)),
+            offset => Assert.Contains(offset, allowed));
     }
 
     [Fact]
