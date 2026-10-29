@@ -87,4 +87,3 @@ public sealed class InventoryPerformanceTests
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
-

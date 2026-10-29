@@ -101,5 +101,3 @@ public sealed class CollectionPerformanceTests
     private static SaveToolkit.Sdk.ISaveDocument OpenRows() => XorJsonTests.Open(XorJsonTests.Encode(
         "{\"rows\":[" + string.Join(',', Enumerable.Range(0, RowCount)) + "]}"));
 }
-
-

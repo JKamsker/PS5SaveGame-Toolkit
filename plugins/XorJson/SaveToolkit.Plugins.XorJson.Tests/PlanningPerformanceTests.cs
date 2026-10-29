@@ -57,4 +57,3 @@ public sealed class PlanningPerformanceTests
         Assert.Equal(bytes, document.Serialize().Single().Content.ToArray());
     }
 }
-

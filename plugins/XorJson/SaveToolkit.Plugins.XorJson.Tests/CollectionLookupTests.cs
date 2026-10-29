@@ -79,5 +79,3 @@ public sealed class CollectionLookupTests
         public ReferenceRecord? Find(string key) { found(); return inner.Find(key); }
     }
 }
-
-

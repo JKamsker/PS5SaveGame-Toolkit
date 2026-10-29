@@ -27,4 +27,3 @@ public sealed class EncodingPerformanceTests
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 }
-

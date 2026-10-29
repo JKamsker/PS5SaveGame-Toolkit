@@ -348,3 +348,12 @@ dependencies remain Unknown.
   bypasses Core.
 - No new SDK gap blocks these views or writes. Game-specific dependency validation,
   integrity behavior and PS5 write acceptance still need owner evidence.
+
+## Performance review
+
+See [PERFORMANCE.md](PERFORMANCE.md) for the #40 findings, reproducible D: harness,
+baseline/final allocation and latency measurements, regression budgets and cache
+invalidation rules. Measurements use Microsoft's
+[thread-local allocation API](https://learn.microsoft.com/en-us/dotnet/api/system.gc.getallocatedbytesforcurrentthread);
+allocation tests use xUnit's
+[isolated collection execution](https://xunit.net/docs/running-tests-in-parallel#selectively-opting-out-of-parallelism).
