@@ -78,9 +78,9 @@ only returns its own file, without silently changing the console backup twin.
 | F9 maps and graphs | Used | Skill-panel and arte prerequisite DAGs plus an attributed Dahna background behind the schematic map use bounded `GraphNode`/`MapNode` views, text alternatives, stable targets and spatial validation. |
 | F10 exact numbers / nullable unions | N/A | The supported PS5 schema is fixed-width integers and bytes; it contains no JSON numeric lexemes or nullable/union fields requiring F10. |
 | F11 shared codecs | N/A | Tales of Arise uses its measured AES/XOR/SHA1 format; it has no Kraken or SQLite payload, so `SaveToolkit.Codecs` does not apply. |
-| F12 SaveDiff F8 traversal and decoder hooks | Added | `TalesOfArisePlugin` registers `AriseDiff` through `ISaveDecoderProvider` as `tales-of-arise.sections-v1`; section-relative uint32 evidence has stable schema identities, explicit bounds and no Testing dependency. The shared view decoder also traverses rich F8 evidence with explicit test budgets. |
-| F13 inspect/picker/filter and float-duration improvements | Added | Every reference inspection declares `Mutates = false`; read-only item/arte/skill identities retain browse-only `ReferenceSpec` pickers. Standard category filtering and declared Key/Name/Category sorting delegate to F2; rich facts/character/title filters retain plugin policy. Float durations are N/A: the supported counters are integers and retain integer duration formatting. |
-| F14 empty inventory slots | Added this round | One F8 inventory table retains all 934 fixed slots; zero-ID rows carry `IsEmpty`, matching `EmptyRows` metadata and default hiding. Queries filter before visibility/paging and report matching hidden counts. F6 query scopes preserve visibility/exclusions and skip empty rows even when shown. |
+| F12 SaveDiff F8 traversal and decoder hooks | Used | `TalesOfArisePlugin` registers `AriseDiff` through `ISaveDecoderProvider` as `tales-of-arise.sections-v1`; section-relative uint32 evidence has stable schema identities, explicit bounds and no Testing dependency. The shared view decoder also traverses rich F8 evidence with explicit test budgets. |
+| F13 inspect/picker/filter and float-duration improvements | Used | Every reference inspection declares `Mutates = false`; read-only item/arte/skill identities retain browse-only `ReferenceSpec` pickers. Standard category filtering and declared Key/Name/Category sorting delegate to F2; rich facts/character/title filters retain plugin policy. Float durations are N/A: the supported counters are integers and retain integer duration formatting. |
+| F14 empty inventory slots | Used | One F8 inventory table retains all 934 fixed slots; zero-ID rows carry `IsEmpty`, matching `EmptyRows` metadata and default hiding. Queries filter before visibility/paging and report matching hidden counts. F6 query scopes preserve visibility/exclusions and skip empty rows even when shown. |
 
 ## Publisher assets (2026-10-29)
 
@@ -134,7 +134,7 @@ meanings are **Inferred** unless stated otherwise; the owner must complete the l
 [owner validation tracking issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31)
 before promoting any feature or plugin to Stable.
 
-| write | confidence | evidence | integrity status | owner validation needed |
+| Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
 | PartyProfile gald (`party/gald`) | Inferred | Body `+0x18` matches the cited PS4 mapping; fixed-width samples and atomic edit/reopen tests. All supplied samples are zero, so no in-game value change is proven. | Known ciphertext SHA1 is recomputed; AES/XOR re-encryption reparses and compares plaintext. | Buy and consume one item, then save/reload and test normal acquisition; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
 | Existing active-character level, current HP and SP (six fixed status blocks) | Inferred | Body offsets match the cited PS4/PC layout and sample values; edit/reopen and unrelated-byte preservation tests. Level dependencies and effective stats are intentionally untouched. | Known ciphertext SHA1 is recomputed and self-checked; load-screen preview and dependent caches are preserved. | Load a spare edited slot, verify menus, perform a normal level/HP/SP event, save/reload; [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31). |
@@ -353,6 +353,11 @@ Validation: **157 passed, 0 failed, 0 skipped** with samples; with `SAVETOOLKIT_
 unset, **81 passed, 0 failed, 76 skipped**, exit 0. The 47 added cases are sample-independent
 characterizations of existing behavior. Python parser: **3 passed**; API build: **0 warnings/errors**.
 
+Consistency follow-up (#40): **158 passed, 0 failed, 0 skipped** with samples;
+API build: **0 warnings/errors**. A generated-fixture regression pins the console warning
+on the overview, editable fields, edit outcome and quantity preview, retaining mapping,
+integrity, level-dependency and acquisition qualifications.
+
 ### Native SaveDiff evidence
 
 ```powershell
@@ -438,7 +443,7 @@ and UI descriptions/provenance. Dataset attribution appears in the Sources panel
 
 | Dataset | Coverage | Pinned source / attribution |
 | --- | --- | --- |
-| Publisher media overlay | 110 icons, 25 description records, one decorative Dahna background; rights reserved, owner decision 2026-10-29 | [Complete asset sidecar and source ledger](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/assets.source.md); Aselia text retains CC BY-SA 3.0 |
+| Publisher media overlay | 110 icons, 25 description records, one decorative Dahna background; Rights reserved by Bandai Namco Entertainment; used with attribution per owner decision 2026-10-29 | [Complete asset sidecar and source ledger](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/assets.source.md), retrieved 2026-10-29; Aselia text retains CC BY-SA 3.0 |
 | `items` (271) | All named consumables, materials, accessory materials, valuables, fishing items and artifacts | [Consumables r382800](https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800); all six lists in the [source ledger](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/data.source.md) |
 | `equipment` (675) | Six weapon/armor types, accessories, costumes, styles and attachments | [Swords r363915](https://aselia.fandom.com/wiki/ToA_-_Weapons_(Swords)?oldid=363915); every category/character revision in the source ledger |
 | `artes` (309) | Six playable and thirteen allied/enemy/cameo character pages; character-specific Boost Strikes | [Alphen artes r378115](https://aselia.fandom.com/wiki/ToA_-_Alphen:_Artes?oldid=378115); all 19 pages and Boost Strike cross-check in the source ledger |
@@ -465,17 +470,27 @@ PPSA02745 only. No complete licensed owl/quest identity table or save join was e
 
 ## Licence exclusions
 
-- **Resolved: imported with attribution.** The PS4 patch research crosswalk for 13
-  legacy consumable IDs and the Sora3100 six-character ordering are embedded only as
-  Inferred F2 attributes. Each record carries its source URL, pinned SHA-256 and
-  `No licence published; reused with attribution per owner decision 2026-10-28`.
-- **Still excluded: GPL-2.0-only or incompatible code.** GPL format research remains
-  a factual reference; the converter and Cheat Engine implementations were
-  reimplemented independently, not copied.
-- **Resolved: publisher assets imported (owner decision 2026-10-29).** The v3
-  icon, official-description and decorative Dahna-background overlay is attributed in
-  `assets.source.md`; publisher rights remain reserved. Commercial save-editor
-  tables, patch instructions and downloaded implementations remain research-only.
+No current source-specific licence-based refusal is recorded for this plugin.
+Historical exclusions and research-only choices are distinguished below; none
+establishes that a named source has GPL-2.0-only or no-redistribution terms.
+
+| Source / revision | Licence found | Disposition | Alternative | Unblock |
+| --- | --- | --- | --- | --- |
+| [ItsAllAboutTheCode/save-converters, `663239063e7c1cc8550f4248f772ee9dd47ed5b0`](https://github.com/ItsAllAboutTheCode/save-converters/tree/663239063e7c1cc8550f4248f772ee9dd47ed5b0/save_convert/tales_of/arise), retrieved 2026-10-28 | GPL-3.0, as recorded in the research and [section sidecar](SaveToolkit.Plugins.TalesOfArise/Resources/Sections.source.md); no more specific licence variant is recorded here. | Format research used; converter implementation not copied. This is an implementation choice, not a recorded licence refusal. | Independently written C# AES/XOR/SHA1 implementation and measured section schema. | No licence blocker recorded; any future code port must retain the recorded upstream notices and terms. |
+| [ロード, PS4 attachment 31135 (2022-04-03)](https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt), retrieved 2026-10-28; response SHA-256 pinned in the [crosswalk sidecar](SaveToolkit.Plugins.TalesOfArise/Resources/UnlicensedSources.source.md) | No licence published; reused with attribution per owner decision 2026-10-28 | Resolved: 13 legacy numeric consumable mappings imported as Inferred F2 attributes; patch instructions are not redistributed. | Attributed facts and independently implemented bounded quantity writes. | Unblocked by owner decision 2026-10-28; import complete. PS5 mapping validation remains an evidence gap. |
+| [Sora3100 `Arise.CT`, `c92871084d714d98b3854ba9fbb4e3f022145d7e`](https://github.com/Sora3100/Tales_of_Cheat_Tables/blob/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT), retrieved 2026-10-28; response SHA-256 pinned in the crosswalk sidecar | No licence published; reused with attribution per owner decision 2026-10-28 | Resolved: six-character ordering imported as Inferred F2 attributes; Cheat Engine addresses/scripts are not copied. | Attributed ordering and independently implemented save-field access. | Unblocked by owner decision 2026-10-28; import complete. PC addresses do not establish PS5 save joins. |
+| [PS4 research thread 30070](https://web.save-editor.com/bbs/patchcode/ps4/bbs.cgi?list=pickup&num=30070), retrieved 2026-10-28; response SHA-256 pinned in the crosswalk sidecar | No source-specific licence terms recorded. | Research cross-check; no licence refusal recorded. | Cite the thread; import the separately pinned attachment facts above. | No licence blocker recorded. |
+| [PS4 item discussion 30162](https://web.save-editor.com/bbs/patchcode/ps4/bbs.cgi?list=pickup&num=30162), retrieved 2026-10-28; response SHA-256 pinned in the crosswalk sidecar | No source-specific licence terms recorded. | Research cross-check for character/item layout and names; no licence refusal recorded. | Attributed, independently implemented field access and crosswalks. | No licence blocker recorded; further PS5 identity joins need evidence. |
+| [Gald Editor author page](https://www.nexusmods.com/talesofarise/mods/407), consulted 2026-10-28; no specific revision recorded | No source-specific licence terms recorded. | Research-only PC memory table; not PS5 save-layout evidence. No licence refusal recorded. | Independently implemented save-field access based on the cited format research and samples. | A build-matched save-layout source would address the evidence gap; no licence blocker recorded. |
+| [Aselia Wiki contributors, 62 pinned revisions](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/data.source.md), retrieved 2026-10-28 | CC BY-SA 3.0 | Imported attributed facts/adapted descriptions retain CC BY-SA 3.0 and modification notices. No refusal. | Not needed; catalog data is embedded. | Already imported; saved-state joins remain separate evidence gaps. |
+| [Aselia Tales of Arise guide index](https://aselia.fandom.com/wiki/Tales_of_Arise), unpinned external map source | CC BY-SA 3.0 text; no media grant recorded. | External reference retained; no guide-index art/coordinate import needed and no licence refusal recorded. | Separately attributed Dahna artwork and original schematic positions. | No licence blocker recorded; no further import needed for the current presentation. |
+| [Aselia owls](https://aselia.fandom.com/wiki/ToA_-_Owls), unpinned external map source | CC BY-SA 3.0 text; no media grant recorded. | External reference retained; attempted API title returned `missingtitle`. No licence refusal recorded. | Raw owl-section evidence and original schematic positions; saved states remain Unknown. | Accessible identity data and native save joins are missing. |
+| [Aselia camps](https://aselia.fandom.com/wiki/ToA_-_Camps), unpinned external map source | CC BY-SA 3.0 text; no media grant recorded. | External reference retained; no native camp identity/coordinate crosswalk imported. No licence refusal recorded. | Original schematic positions and separately attributed Dahna artwork. | Native camp/world semantics remain Unknown. |
+| [Aselia-hosted publisher icons and official-description transcriptions](SaveToolkit.Plugins.TalesOfArise/ReferencePacks/talesofarise.catalog/assets.source.md), pinned URLs/hashes in `asset-sources.json`, retrieved 2026-10-29 | Rights reserved by Bandai Namco Entertainment; used with attribution per owner decision 2026-10-29. Aselia text/transcriptions retain CC BY-SA 3.0. | Resolved: imported publisher-media overlay with attribution to Bandai Namco Entertainment Inc. and Aselia Wiki contributors. | Unmatched records retain text fallbacks. | Unblocked by owner decision 2026-10-29; documented overlay imported. |
+| [Gamer Guides Alphen artes](https://www.gamerguides.com/tales-of-arise/guide/characters/alphen/artes) and [Rinwell artes](https://www.gamerguides.com/tales-of-arise/guide/characters/rinwell/artes), pinned URLs/hashes in the asset ledger, retrieved 2026-10-29 | Rights reserved by Bandai Namco Entertainment; used with attribution per owner decision 2026-10-29. Gamer Guides is credited as a redistributor; no separate site licence terms are recorded. | Resolved: publisher artwork imported with publisher and host attribution. | Unmatched artes retain text fallbacks. | Unblocked by owner decision 2026-10-29; documented overlay imported. |
+| [Tales terminology dictionary (atwiki), Dahna map](https://w.atwiki.jp/talesofdic/pages/18355.html), pinned URLs/hashes in the asset ledger, retrieved 2026-10-29 | Rights reserved by Bandai Namco Entertainment; used with attribution per owner decision 2026-10-29. Atwiki is credited as a redistributor; no separate site licence terms are recorded. | Resolved: decorative Dahna background imported with publisher and host attribution. | Original schematic positions and text list remain available. | Unblocked by owner decision 2026-10-29; import complete. Geographic alignment remains unconfirmed. |
+| No specific source/revision recorded (former generic GPL-2.0-only or incompatible-code exclusion) | No source-specific licence terms recorded. The former generic wording does not identify any source with those terms. | No source-specific refusal can be established from that entry. | Retain the independently written implementation and the exact named-source terms above. | Identify a concrete source/revision and its exact terms before recording a licence refusal. |
+| No specific source/revision recorded (commercial save-editor tables, other patch instructions and downloaded implementations) | No source-specific licence terms recorded. | Remain research-only; no specific licence-based refusal is recorded. | Attributed format facts, independently implemented code and the documented imports above. | Identify a concrete source/revision, material and terms before assessing reuse. |
 
 ## SDK requests
 
