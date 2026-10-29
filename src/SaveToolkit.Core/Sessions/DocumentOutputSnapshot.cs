@@ -3,6 +3,9 @@ using SaveToolkit.Core.Sessions.Groups;
 
 namespace SaveToolkit.Core.Sessions;
 
+/// <summary>Immutable output bytes and session status captured under one session gate.</summary>
+internal sealed record DocumentOutputCapture(IReadOnlyList<FileOutput> Outputs, bool IsDirty, long Revision);
+
 /// <summary>Copies plugin-owned output while retaining cancellation boundaries between bounded chunks.</summary>
 internal static class DocumentOutputSnapshot
 {
