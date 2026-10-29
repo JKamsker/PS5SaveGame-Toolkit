@@ -16,6 +16,8 @@ public enum ReferenceIconAvailability
 }
 
 /// <summary>Explicit compatibility policies for icon rendering through <see cref="ReferenceViews"/>.</summary>
+/// <remarks>Immutable options may be shared between calls. The supplied reference context owns synchronization
+/// and Sources tracking. Availability changes presentation only; it never authorizes fetching remote bytes.</remarks>
 public sealed record ReferenceIconOptions
 {
     /// <summary>

@@ -10,6 +10,8 @@ namespace SaveToolkit.Sdk.References;
 /// Uses the host's decoder, hash normalization, catalog queries and build/locale/version selection.
 /// Only embedded packs are considered; supplied host contexts and game-specific joins remain plugin policy.
 /// No global cache is retained. Pack bytes and catalogs are shared between pinned contexts.
+/// Concurrent reads are supported when callers treat returned metadata, nested collections and asset
+/// buffers as read-only. Pin copies locale preferences. Limits apply per pack, not to the whole assembly.
 /// </remarks>
 public sealed class EmbeddedReferenceContext : IReferenceContext
 {
@@ -31,10 +33,13 @@ public sealed class EmbeddedReferenceContext : IReferenceContext
     /// are normalized as in the host. The returned unfiltered collection can be cached and pinned per open.
     /// </summary>
     /// <exception cref="EmbeddedReferencePackException">Any discovered pack is invalid or has a duplicate id.</exception>
+    /// <exception cref="ArgumentNullException">The assembly is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">A supplied limit is negative.</exception>
     public static EmbeddedReferenceContext Load(Assembly assembly, EmbeddedReferencePackLimits? limits = null)
     {
         ArgumentNullException.ThrowIfNull(assembly);
         limits ??= new();
+        limits.Validate();
         var packs = new Dictionary<string, DecodedReferencePack>(StringComparer.Ordinal);
         foreach (var source in EmbeddedPackSource.Discover(assembly))
         {
@@ -48,6 +53,9 @@ public sealed class EmbeddedReferenceContext : IReferenceContext
 
     /// <summary>Decodes an assembly's resources and pins packs matching the plugin and title.</summary>
     /// <exception cref="EmbeddedReferencePackException">Any discovered pack is invalid or has a duplicate id.</exception>
+    /// <exception cref="ArgumentNullException">The assembly or plugin ID is null.</exception>
+    /// <exception cref="ArgumentException">The plugin ID is blank or locale preferences contain null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">A supplied limit is negative.</exception>
     public static EmbeddedReferenceContext Load(Assembly assembly, string pluginId, string? titleId,
         EmbeddedReferencePackLimits? limits = null, IReadOnlyList<string>? preferredLocales = null) =>
         Load(assembly, limits).Pin(pluginId, titleId, preferredLocales);
@@ -57,9 +65,13 @@ public sealed class EmbeddedReferenceContext : IReferenceContext
     /// packs. Locale preference defaults to English; an empty list prefers language-neutral packs.
     /// Pin the unfiltered loaded collection for each open; pinning an already filtered context only narrows it.
     /// </summary>
+    /// <exception cref="ArgumentNullException">The plugin ID is null.</exception>
+    /// <exception cref="ArgumentException">The plugin ID is blank or locale preferences contain null.</exception>
     public EmbeddedReferenceContext Pin(string pluginId, string? titleId, IReadOnlyList<string>? preferredLocales = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(pluginId);
+        if (preferredLocales is not null && preferredLocales.Any(locale => locale is null))
+            throw new ArgumentException("Preferred locales must be non-null.", nameof(preferredLocales));
         return new([.. _packs.Where(p => p.AppliesTo(pluginId, titleId))],
             [.. preferredLocales ?? _preferredLocales]);
     }

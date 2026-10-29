@@ -18,6 +18,8 @@ public static class ReferenceViews
     /// Requests image provenance and resolves assets to register Sources. Exact alt text owns all visible notices;
     /// composed alt text still requires provenance, regardless of availability policy.
     /// </summary>
+    /// <exception cref="ArgumentNullException">The context is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The availability policy is not a defined enum value.</exception>
     public static ViewNode Icon(IReferenceContext context, ReferenceRecord? record, string? label,
         ViewNode? fallback, ReferenceIconOptions? options)
     {
