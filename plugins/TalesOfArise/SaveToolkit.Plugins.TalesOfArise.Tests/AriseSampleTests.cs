@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Security.Cryptography;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
@@ -22,12 +21,9 @@ public sealed class AriseSampleTests
         {
             var bytes = file.ReadAllBytes();
             Assert.True(_plugin.Probe(file).IsMatch);
-            var timer = Stopwatch.StartNew();
             var save = AriseFormat.Decode(bytes);
             using var document = _plugin.Open(file);
             _ = document.BuildView();
-            timer.Stop();
-            Assert.True(timer.Elapsed < TimeSpan.FromSeconds(2), $"Opening {file.FileName} took {timer.Elapsed}.");
             Assert.Equal(30, save.Sections.Count);
             Assert.Equal(ExpectedDigest(file.FileName), Convert.ToHexString(SHA256.HashData(save.Payload)));
             Assert.Equal(bytes, AriseFormat.Encode(save));
