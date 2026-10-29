@@ -1,7 +1,7 @@
 # Enabled scalar controls (0.6.0)
 
-All controls are **Inferred / Experimental**, not console-validated. Integrity
-coverage is unknown; **the game may reject the edited save**. See the README's
+All controls are **Inferred / Experimental**. **Not validated on console. The game may
+reject or overwrite the edited save.** Integrity coverage is unknown. See the README's
 evidence table and [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
 
 These are names observed in the supplied PPSA01474 corpus, not a claim about other

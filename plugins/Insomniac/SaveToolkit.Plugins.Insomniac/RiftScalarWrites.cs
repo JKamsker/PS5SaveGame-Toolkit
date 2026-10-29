@@ -7,8 +7,9 @@ namespace SaveToolkit.Plugins.Insomniac;
 /// <summary>Only existing fixed-width atoms. No resizing, unlocks or inventory construction.</summary>
 internal sealed class RiftScalarWrites
 {
-    internal const string Warning = "Not validated on console. Integrity coverage is unknown; the game may reject the edited save. " +
-        "Option unlocks and gameplay dependencies are not changed. Owner validation: https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31.";
+    internal const string Warning = "Not validated on console. The game may reject or overwrite the edited save. " +
+        "Integrity coverage is unknown. Option unlocks and gameplay dependencies are not changed. " +
+        "Owner validation: https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31.";
     // Maximum stored counters in the supplied 36 primary gameplay records, not game caps.
     internal const long ObservedCareerBoltsMaximum = 1_297_735;
     internal const long ObservedSpentBoltsMaximum = 260_875;

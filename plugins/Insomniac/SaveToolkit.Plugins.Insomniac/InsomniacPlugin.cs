@@ -11,7 +11,7 @@ public sealed class InsomniacPlugin : IGamePlugin, ISaveDecoderProvider
 
     public PluginInfo Info { get; } = new("insomniac", "Ratchet & Clank: Rift Apart", "0.8.0")
     {
-        Description = "Experimental bolt, gold-bolt option and boolean preference edits, with read-only arsenal/world inspection. Not console-validated; the game may reject edited saves.",
+        Description = "Experimental bolt, gold-bolt option and boolean preference edits, with read-only arsenal/world inspection. " + RiftScalarWrites.Warning,
         Games = [new GameTitle("PPSA01474", "Ratchet & Clank: Rift Apart")],
         Maturity = PluginMaturity.Experimental,
         References =
