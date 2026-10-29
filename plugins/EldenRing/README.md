@@ -277,8 +277,10 @@ and the regulation bytes remain unchanged. Only the owner may promote maturity t
 | F6 linked rune/history increase | Inferred | Same fixed offsets/invariants; sample-derived lower-history transition, no controlled gameplay pair | Preview lists held balance and derived history; history only raised to cover requested balance; both copies; atomic/group undo; unknown rules may cause rejection | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): balance above prior history, load/resave/reload |
 | F6 refill supported stacks | Inferred | Same finite two-ID allowlist and observed ceilings | Preview lists old/new values, skipped rows and warnings; scopes/exclusions checked; one atomic undo unit; unknown rules may cause rejection | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): two-row refill, filtered selection and undo/redo export |
 
-Names accept 1–16 UTF-16 code units, including valid surrogate pairs; whitespace-only names, embedded
-NUL/control characters and unpaired surrogates are rejected. Each mirror retains its own original
+New names accept 1–16 UTF-16 code units, including valid surrogate pairs; whitespace-only names,
+embedded NUL/control characters and unpaired surrogates are rejected. The exact original imported
+name remains restorable for undo, including control characters accepted by the parser; this does not
+permit authoring other names containing controls. Each mirror retains its own original
 trailing bytes after the new terminator. Reconstructing from those original buffers makes even
 longer → shorter → undo sequences byte-identical without erasing unexplained padding.
 

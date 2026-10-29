@@ -61,7 +61,7 @@ internal sealed class ValueWrites
     public FieldNode Name(CharacterSlot slot, BindWrite bind) => bind($"slots/{slot.Index}/name", "Name",
         new TextSpec { MaxLength = EldenRingLayout.NameCharacters },
         () => FieldValue.Of(EldenRingParser.ReadName(_bytes, slot.ProfileOffset)),
-        _save.CanEdit ? _names[slot.Index].Set : null, NameWriter.Validate) with
+        _save.CanEdit ? _names[slot.Index].Set : null, _names[slot.Index].Validate) with
     {
         Confidence = Confidence.Inferred,
         Description = Warning + " Updates live/menu UTF-16LE names and terminators, preserving each original buffer's trailing bytes.",
