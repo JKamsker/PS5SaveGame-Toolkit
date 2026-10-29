@@ -62,7 +62,7 @@ internal sealed class RiftPlayerView
 
         result.Add(new SectionNode("Collectibles", Collectibles(bind)));
         result.Add(LevelTable());
-        result.Add(new TextNode("Inventory shows inferred per-record XP/ammo slots; ownership, weapon names, health and level conversions remain unproven. Career weapon XP is an aggregate, and CurrentLevel is a location code.")
+        result.Add(new TextNode("Inventory shows inferred per-record XP/ammo slots. Weapon-name candidates are available through attributed config-path joins; ownership, health and level conversions remain unproven. Career weapon XP is an aggregate, and CurrentLevel is a location code.")
             { Tone = Tone.Info });
         return result;
     }
@@ -112,7 +112,7 @@ internal sealed class RiftPlayerView
             FieldValue.Of((long)BitOperations.PopCount(mask))) with
         {
             Confidence = Confidence.Inferred,
-            Description = "Population count of RYNOPlansCollected; bit-to-location mapping is unknown.",
+            Description = "Population count of RYNOPlansCollected; Collectibles shows inferred ordinal candidates for bit-to-location joins, not controlled pickup evidence.",
         });
         return result;
     }
