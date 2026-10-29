@@ -131,7 +131,7 @@ internal sealed class YoteiDocument : BoundSaveDocument, IActionPlanningDocument
     {
         var current = PlanAction(actionId, parameters, scope);
         if (current.Errors.Count > 0) return new EditOutcome { Errors = current.Errors };
-        if (!TsushimaQuantityPlanning.Matches(current, plan))
+        if (!QuantityPlanComparison.Matches(current, plan))
             return EditOutcome.Rejected(actionId, "The Yōtei quantity preview is stale or does not match the request. Preview again.");
         _ = BuildView();
         return ApplyEdits(current.Changes.Where(change => !change.Derived).Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray())

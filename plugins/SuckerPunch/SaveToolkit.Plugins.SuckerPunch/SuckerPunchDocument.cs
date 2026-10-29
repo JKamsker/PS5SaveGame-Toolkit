@@ -135,7 +135,7 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
             return new EditOutcome { Errors = current.Errors };
         }
 
-        if (!TsushimaQuantityPlanning.Matches(current, plan))
+        if (!QuantityPlanComparison.Matches(current, plan))
         {
             return EditOutcome.Rejected(actionId, "The quantity preview is stale or does not match the request. Preview again.");
         }
