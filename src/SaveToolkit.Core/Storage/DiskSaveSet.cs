@@ -27,6 +27,9 @@ public sealed class DiskSaveSet : ISaveSet
     /// <summary>The console backup twin (<c>sdimg_sce_bu_*</c>) of a primary directory, or the reverse.</summary>
     public DiskSaveDirectory? Twin(ISaveDirectory directory) => _directories.FirstOrDefault(d =>
         d != directory
+        // A loose SAVE folder is independent of the console's sdimg_SAVE, even with identical bytes.
+        && DiskSaveDirectory.IsConsoleSave(directory.RawName)
+        && DiskSaveDirectory.IsConsoleSave(d.RawName)
         && d.IsBackup != directory.IsBackup
         && d.Generation == directory.Generation
         && string.Equals(d.TitleId, directory.TitleId, StringComparison.OrdinalIgnoreCase)
@@ -45,6 +48,8 @@ public sealed class DiskSaveSet : ISaveSet
 
 public sealed class DiskSaveDirectory : ISaveDirectory
 {
+    private const string PrimaryPrefix = "sdimg_";
+
     internal DiskSaveDirectory(DiskSaveSet set, string id, string titleId, string rawName, int generation)
     {
         SaveSet = set;
@@ -73,17 +78,18 @@ public sealed class DiskSaveDirectory : ISaveDirectory
     /// <summary>Path prefix shared by all files of this directory inside the set.</summary>
     public string RelativeRoot => (Generation > 0 ? $"gen{Generation}/" : string.Empty) + $"{TitleId}/{RawName}";
 
+    internal static bool IsConsoleSave(string rawName) => rawName.StartsWith(PrimaryPrefix, StringComparison.OrdinalIgnoreCase);
+
     internal static (string Name, bool IsBackup) SplitRawName(string rawName)
     {
         const string backup = "sdimg_sce_bu_";
-        const string primary = "sdimg_";
         if (rawName.StartsWith(backup, StringComparison.OrdinalIgnoreCase))
         {
             return (rawName[backup.Length..], true);
         }
 
-        return rawName.StartsWith(primary, StringComparison.OrdinalIgnoreCase)
-            ? (rawName[primary.Length..], false)
+        return IsConsoleSave(rawName)
+            ? (rawName[PrimaryPrefix.Length..], false)
             : (rawName, false);
     }
 }

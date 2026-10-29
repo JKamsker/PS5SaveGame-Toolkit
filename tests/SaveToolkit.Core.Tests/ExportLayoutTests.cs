@@ -22,6 +22,11 @@ public sealed class ExportLayoutTests
         new[] { "保存🎮/未知.dat", "保存🎮/空.dat" },
         new[] { "sdimg_SAVE/mystery.dat", "sdimg_SAVE/sce_sys/param.sfo" },
         new[] { "unrecognized-layout/mystery.dat", "unrecognized-layout/mystery.dat" },
+        new[] { "PPSA00001/SAVE/data.bin", "PPSA00001/sdimg_SAVE/data.bin",
+            "PPSA00001/sdimg_sce_bu_SAVE/data.bin" },
+        new[] { "PPSA00001/sdimg_sce_bu_SAVE/data.bin", "PPSA00001/sdimg_SAVE/data.bin",
+            "PPSA00001/SAVE/data.bin" },
+        new[] { "PPSA00001/sdimg_SAVE/data.bin", "PPSA00001/sdimg_sce_bu_SAVE/data.bin" },
     };
 
     [Theory]

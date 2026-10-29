@@ -56,7 +56,7 @@ public sealed class ImportStorageMutationEffectivenessTests
         Assert.Same(backup, set.Twin(primary));
     }
 
-    [Fact(Skip = "#40 bug: backup twin lookup selects loose SAVE before sdimg_SAVE when both share a name.")]
+    [Fact]
     public void BackupTwinUsesTheSdimgPrimaryWhenALooseDirectoryHasTheSameName()
     {
         var set = Import(("PPSA00001/sdimg_SAVE/data.bin", [1]),
