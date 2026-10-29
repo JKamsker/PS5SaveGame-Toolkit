@@ -6,9 +6,18 @@ Downloads stay outside the repository. Source hashes deliberately reject other r
 
 import argparse
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import re
+import sys
+
+sys.dont_write_bytecode = True
+# -I excludes the script directory from sys.path; load only this local serializer.
+SPEC = importlib.util.spec_from_file_location("importer_json", Path(__file__).with_name("importer_json.py"))
+JSON = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(JSON)
+write_json = JSON.write_json
 
 REVISION = "014107f0ca1cff867b5f7565cb79d6684f9b35df"
 SOURCE_ROOT = f"https://github.com/ClayAmore/ER-Save-Editor/blob/{REVISION}"
@@ -25,16 +34,7 @@ PAIR = re.compile(r'\(\s*(\d+)\s*,\s*("(?:[^"\\]|\\.)*")\s*\),?')
 OUTPUT = Path(__file__).resolve().parent.parent / "SaveToolkit.Plugins.EldenRing" / "ReferencePacks" / "eldenring.names.en"
 
 
-def write_json(path, value):
-    content = json.dumps(value, ensure_ascii=False, indent=2) + "\n"
-    path.write_text(content, encoding="utf-8", newline="\n")
-    return hashlib.sha256(content.encode("utf-8")).hexdigest()
-
-
-def convert(source_directory, table, category, prefix, expected_hash):
-    raw = (source_directory / f"src_db_{table}_name.rs").read_bytes()
-    if hashlib.sha256(raw).hexdigest() != expected_hash:
-        raise ValueError(f"{table}: source differs from pinned revision {REVISION}")
+def name_records(raw, table, category, prefix, expected_hash):
     text = raw.decode("utf-8")
     body = text.split("HashMap::from([", 1)[1].split("]))", 1)[0]
     pairs = PAIR.findall(body)
@@ -71,17 +71,19 @@ def convert(source_directory, table, category, prefix, expected_hash):
             },
         })
     records.sort(key=lambda record: record["id"])
-    filename = f"{table}-names.json"
-    digest = write_json(OUTPUT / filename, {"records": records})
-    unnamed = sum(record["attributes"]["nameStatus"] == "unnamed" for record in records)
-    sidecar = f"""# {category.title()} names and IDs
+    return records
+
+
+def name_sidecar(table, category, prefix, expected_hash, count, unnamed):
+    source = f"{SOURCE_ROOT}/src/db/{table}_name.rs"
+    return f"""# {category.title()} names and IDs
 
 - Source: {source}
 - Author/project: ClayAmore / ER-Save-Editor contributors.
 - Licence: [MIT]({SOURCE_ROOT}/LICENSE-MIT); full notice in [LICENSE-MIT.txt](LICENSE-MIT.txt).
 - Retrieved: {RETRIEVED}; pinned revision `{REVISION}`.
 - Upstream SHA-256 (original bytes): `{expected_hash}`.
-- Records: **{len(records)}**, including **{unnamed}** empty upstream names.
+- Records: **{count}**, including **{unnamed}** empty upstream names.
 - Changes: parsed every literal ID/name pair without executing Rust; preserved all names verbatim,
   including test/unused entries; OR'ed representable IDs with category prefix `0x{prefix:08X}`; sorted by ID.
   Out-of-category upstream sentinels retain a noncanonical `category:upstream:decimal` key.
@@ -95,6 +97,17 @@ The identity-only importer emits MIT attribution. A later visual-enrichment step
 publisher text/icons and separate visuals.source.md provenance; those contributions do not become MIT.
 The shared picker, Sources panel and catalog/inventory details expose attribution.
 """
+
+
+def convert(source_directory, table, category, prefix, expected_hash):
+    raw = (source_directory / f"src_db_{table}_name.rs").read_bytes()
+    if hashlib.sha256(raw).hexdigest() != expected_hash:
+        raise ValueError(f"{table}: source differs from pinned revision {REVISION}")
+    records = name_records(raw, table, category, prefix, expected_hash)
+    filename = f"{table}-names.json"
+    digest = write_json(OUTPUT / filename, {"records": records})
+    unnamed = sum(record["attributes"]["nameStatus"] == "unnamed" for record in records)
+    sidecar = name_sidecar(table, category, prefix, expected_hash, len(records), unnamed)
     (OUTPUT / f"{table}-names.source.md").write_text(sidecar, encoding="utf-8", newline="\n")
     print(f"{table}: {len(records)} records; {unnamed} unnamed")
     return {"path": filename, "sha256": digest}
