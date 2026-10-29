@@ -78,4 +78,33 @@ public sealed class ProtobufRobustnessTests
         Assert.Equal(record, Parse(record).Encode());
         Assert.Throws<SaveFormatException>(() => Parse([.. record, .. record, .. record]));
     }
+
+    [Theory]
+    [InlineData(39, true)]
+    [InlineData(40, false)]
+    public void GroupDepthBudget_IsSharedWithKnownMessageNesting(int groups, bool accepted)
+    {
+        var schema = GearboxSchema.Bl3;
+        var spec = schema.Spec("Character", "player_class_data");
+        var opaque = Enumerable.Repeat(new byte[] { 0x9B, 0x06 }, groups)
+            .Concat(Enumerable.Repeat(new byte[] { 0x9C, 0x06 }, groups)).SelectMany(b => b).ToArray();
+        var child = ProtoMessage.Parse(opaque, schema, spec.Type);
+        var root = new ProtoMessage(schema, "Character", [new ProtoField(4, 2, spec, [], Array.Empty<byte>(), child)]);
+        var bytes = root.Encode();
+        if (accepted) Assert.Equal(bytes, Parse(bytes).Encode());
+        else Assert.Throws<SaveFormatException>(() => Parse(bytes));
+    }
+
+    [Fact]
+    public void RepairedOuterLengths_DoNotHideTruncatedKnownNestedFields()
+    {
+        byte[] child = [0x0A, 4, (byte)'t', (byte)'e', (byte)'s', (byte)'t'];
+        for (var length = 1; length < child.Length; length++)
+        {
+            byte[] bytes = [0x22, (byte)length, .. child[..length]];
+            Assert.Throws<SaveFormatException>(() => Parse(bytes));
+        }
+        byte[] valid = [0x22, (byte)child.Length, .. child];
+        Assert.Equal(valid, Parse(valid).Encode());
+    }
 }

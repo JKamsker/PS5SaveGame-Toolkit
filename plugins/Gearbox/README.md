@@ -447,6 +447,35 @@ All eight failed before the wording fix. README checks verified five-column excl
 relative links and F1–F13 adoption statuses. Test scratch was directed to
 `D:/Temp/saveeditor/test-scratch/review-consistency-gearbox`.
 
+Malformed-input review ([#40](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40)), 2026-10-29:
+**285 Gearbox tests passed, 0 failed, 0 skipped**; Release API build with warnings as errors:
+**0 warnings, 0 errors**. The 80 added cases cover every incomplete synthetic BL3/Wonderlands
+character/profile header (UTF-8 and UTF-16), custom-version count/table boundaries, corrupt string
+encodings and payload lengths, overflowing protobuf tags/lengths/values, malformed opaque groups,
+shared message/group depth and field/packed-element budgets, and small-allocation length rejection.
+The original implementation failed eight protobuf and twelve scalar regressions before their fixes.
+Valid noncanonical encodings, unknown groups, scalar upper bounds and unsupported read-only SDUs
+retain byte-identical output. Every supplied primary/backup save is mutated only in memory to check
+header truncations, re-encrypted malformed payloads and item-local truncated-serial diagnostics;
+an empty bank receives a synthetic damaged record for that test. Serial tests cover every raw and
+CRC-repaired payload prefix at signed seed boundaries, every encrypted body bit, excessive counts
+and nonzero padding. Scratch and TRX outputs use `D:/Temp/saveeditor/test-scratch/review-robust-gearbox`.
+
+Malformed containers and protobufs reject with the plugin's documented `SaveFormatException`.
+Wire validation checks physical lengths and the existing 40-level / 250,000-record limits before
+record allocation; packed elements and opaque group contents now share those limits. Unsupported
+character XP/play-time values reject with field names before document construction. Unsupported
+SDU values stay read-only without narrowing. Corrupt serials retain item-local diagnostics and
+original bytes; tail edits require located, validated tail fields. Existing header-only level patches
+remain available when the exact header bits and CRC are known, preserving an opaque tail.
+
+Format research was rechecked against the pinned
+[upstream GVAS/custom-table and ciphertext-feedback decoder](https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/bl3save.py)
+and the [Protocol Buffers wire specification](https://protobuf.dev/programming-guides/encoding/).
+The save cipher has no block padding: partial 32-byte feedback windows and trailing plaintext zeros
+are retained exactly. Serial bit padding is a separate, already-validated zero tail. No new upstream
+code or private sample data was copied into the plugin.
+
 Tests include conformance with meaningful currency/key edits, valid F2 packs and fixture archive hashes,
 every generation/twin, independent
 feedback-window vectors, known values, money/level/key reopen, Wonderlands extra points, framework
