@@ -4,6 +4,7 @@ import type { ViewNode } from "../../api/protocol";
 function identity(node: ViewNode): string {
   switch (node.type) {
     case "field": return JSON.stringify([node.type, node.valueId]);
+    case "fieldReference": return JSON.stringify([node.type, node.targetValueId, node.label]);
     case "action": return JSON.stringify([node.type, node.actionId]);
     case "queryableTable": return JSON.stringify([node.type, node.collectionId]);
     case "table": return JSON.stringify([node.type, node.selectionId ?? node.title]);
