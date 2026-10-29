@@ -45,10 +45,15 @@ internal static class SemanticTargetedAuthority
                 if (snapshot.Fields[id] is not { } semantic || index.Cached(id) is not { } metadata) continue;
                 snapshot.Fields[id] = semantic with
                 {
+                    Label = metadata.Label,
+                    Path = metadata.Path?.ToArray() ?? semantic.Path,
                     ReadOnly = metadata.Spec.ReadOnly,
                     CanonicalValueId = string.IsNullOrEmpty(metadata.CanonicalValueId) ? id : metadata.CanonicalValueId,
                     BindingKind = metadata.BindingKind,
+                    Presentation = metadata.Presentation,
+                    MetadataPublished = true,
                 };
+                snapshot.MetadataPublished = true;
             }
         }
     }

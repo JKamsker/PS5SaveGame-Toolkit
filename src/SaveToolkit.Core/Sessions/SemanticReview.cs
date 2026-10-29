@@ -8,7 +8,8 @@ namespace SaveToolkit.Core.Sessions;
 
 internal sealed record SemanticField(string ValueId, string Label, string[] Path, FieldValue Value, bool ReadOnly,
     SemanticCollectionTarget? Target = null, string? CanonicalValueId = null,
-    FieldBindingKind BindingKind = FieldBindingKind.Primary);
+    FieldBindingKind BindingKind = FieldBindingKind.Primary, FieldPresentation? Presentation = null,
+    bool MetadataPublished = false);
 
 internal sealed record SemanticReviewState(SemanticSnapshot? Original,
     IReadOnlyList<string> TargetedIds, IReadOnlyList<string> CaptureDiagnostics);
@@ -272,8 +273,17 @@ internal sealed class SemanticReview
         var complete = original.Complete && current.Complete && !_unreviewedReportedChanges
             && _captureDiagnostics.Count == 0;
         IReadOnlyList<string> warnings = complete ? [] : ["Semantic review is incomplete: the original could not be opened, a view exceeded its memory or traversal limit, a lazy section could not be read, or an internal field could not be matched after a structural change. Only proven changes are listed."];
-        return new SemanticChangeLog(changes, complete,
-            [.. warnings, .. _captureDiagnostics, .. original.QueryWarnings.Concat(current.QueryWarnings).Distinct(StringComparer.Ordinal)], revision);
+        List<string> allWarnings = [.. warnings, .. _captureDiagnostics,
+            .. original.QueryWarnings.Concat(current.QueryWarnings).Distinct(StringComparer.Ordinal)];
+        var coverage = original.MetadataPublished || current.MetadataPublished || !complete
+            ? new SemanticReviewCoverage(
+                Math.Max(original.ExaminedCount, current.ExaminedCount),
+                original.OmittedCount + current.OmittedCount,
+                _maxBytes,
+                Math.Max(original.Bytes, current.Bytes),
+                allWarnings)
+            : null;
+        return new SemanticChangeLog(changes, complete, allWarnings, revision) { Coverage = coverage };
     }
 
     public bool TryOriginal(string id, out FieldValue value)
