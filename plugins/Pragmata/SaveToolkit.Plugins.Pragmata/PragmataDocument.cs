@@ -14,8 +14,9 @@ namespace SaveToolkit.Plugins.Pragmata;
 
 internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IActionPlanningDocument
 {
-    internal const string EditWarning = "Experimental: not validated on console. Game limits and side effects are unverified. " +
-        "CityHash64 and Murmur3 are repaired; the RSA trailer is preserved but cannot be validated or regenerated. The game may reject edited saves.";
+    internal const string EditWarning = "Not validated on console. The game may reject or overwrite the edited save. " +
+        "Experimental. Game limits and side effects are unverified. " +
+        "CityHash64 and Murmur3 are repaired; the RSA trailer is preserved but cannot be validated or regenerated.";
     private const int MaximumStringPreviewBytes = 2048;
     private const int MaximumStructPreviewBytes = 64;
     private const long MicrosecondsPerSecond = 1_000_000;

@@ -13,17 +13,18 @@ internal sealed class InventoryView(PragmataDocument document)
         QuantityAction(),
     ];
 
-    private static ActionNode QuantityAction() => new(PragmataViews.QuantityAction, "Set stored quantities to N")
+    private static ActionNode QuantityAction() => new(PragmataViews.QuantityAction, "Set stored quantities")
         {
             SupportsPlanning = true,
             Tone = Tone.Warning,
-            Parameters = [new FieldNode("quantity", "N", IntegerSpec.Int32 with { Min = 0 }, FieldValue.Of(1L))],
+            Parameters = [new FieldNode("quantity", "Target quantity", IntegerSpec.Int32 with { Min = 0 }, FieldValue.Of(1L))],
             Description = PragmataDocument.EditWarning + " Preview selected rows from the table, or every existing row from document scope. Legal limits and game effects remain unverified. " +
                 "For large inventories, select all matching rows to include unloaded pages. Document scope requires loaded quantity bindings. Applying is one undo step. Does not add items or set unlock flags.",
         };
 
     private TableNode Table() => new(InventoryCollections.Columns.Select(column => new TableColumn(column.Key, column.Label)).ToArray(),
-        document.Layout.Items.Select(item => Row(document, item)).ToArray()) { Title = "_InventoryItems" };
+        document.Layout.Items.Select(item => Row(document, item)).ToArray())
+        { Title = InventoryCollections.Title, Description = InventoryCollections.NativeArrayDescription };
 
     internal static TableRow Row(PragmataDocument document, SaveNode item)
     {

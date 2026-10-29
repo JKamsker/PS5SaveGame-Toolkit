@@ -453,14 +453,14 @@ mission-text/save-ID gaps: [asset-round evidence](evidence/assets.md).
 | F3 rich cells | Used | Existing inventory/evidence cells plus lazy image/name/category/source rows for the illustrated library; icons are 64×64 with attribution. |
 | F4 pickers | Used | Writable inventory item IDs; browse-only mission/item-evidence and illustrated references. Wiki file keys are never eligible inventory IDs. |
 | F5 structural undo | N/A | Only fixed-size primitive patching exists; no preserve-first resizing writer. Unknown padding/count metadata prevents safe add/remove/reorder. |
-| F6 planned actions / #27 | Added this round | Existing quantity preview/apply; F8 whole-query selection, exclusions, stale-plan checks and one undo unit above 200 rows. No legal-max/loadout/progression preset has proven dependency rules. |
+| F6 planned actions / #27 | Used | Existing quantity preview/apply; F8 whole-query selection, exclusions, stale-plan checks and one undo unit above 200 rows. No legal-max/loadout/progression preset has proven dependency rules. |
 | F7 document groups | N/A | No proven coupled-file operation or partner identity. Claiming independent slot/system files would invent dependencies and lock unrelated saves. |
-| F8 queryable tables | Added this round | All evidence arrays already queryable; inventory switches above 200 rows, with search/filter/numeric quantity sort. |
+| F8 queryable tables | Used | All evidence arrays already queryable; inventory switches above 200 rows, with search/filter/numeric quantity sort. |
 | F9 graphs/maps | Used | Existing mission DAG and checkpoint field targets; local 2048×585 Cradle background and 26 community hatches in the original image-pixel frame. Raw save hashes remain unpositioned and all saved states Unknown. |
 | F10 exact/nullable/union | Used / N/A variants | UInt64/Int64 use exact Int128 wire strings; this binary schema has no numeric lexemes, null primitive or discriminated-union storage to expose. |
 | F11 shared codecs | N/A | Supported DSSS flags 0x10 contain uncompressed Mandarin AES-OFB, neither Kraken nor SQLite. Unsupported flags reject. |
-| F12 decoder/traversal | Added | SDK-only `ISaveDecoderProvider`/`ISaveDecoderHook` registers `pragmata-canonical-v1` with the stock CLI. `--decoder pragmata` uses shared bounded F8 traversal, tested across 251 inventory rows and row/page/byte caps. Research executable removed. |
-| F13 inspection/browse/sort/durations | Added this round / N/A float duration | `Mutates=false` mission inspection, browse-only references, catalogue category/sort. Known timers are integer microseconds already using Duration; unidentified floats have no proven time unit. |
+| F12 decoder/traversal | Used | SDK-only `ISaveDecoderProvider`/`ISaveDecoderHook` registers `pragmata-canonical-v1` with the stock CLI. `--decoder pragmata` uses shared bounded F8 traversal, tested across 251 inventory rows and row/page/byte caps. Research executable removed. |
+| F13 inspection/browse/sort/durations | Used / N/A float duration | `Mutates=false` mission inspection, browse-only references, catalogue category/sort. Known timers are integer microseconds already using Duration; unidentified floats have no proven time unit. |
 
 ## SDK requests
 
