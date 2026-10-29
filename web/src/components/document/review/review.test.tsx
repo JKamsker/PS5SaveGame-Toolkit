@@ -80,7 +80,7 @@ describe("action preview", () => {
     expect(screen.getByRole("alert").textContent).toContain("selection changed");
     expect(screen.queryByRole("button", { name: "Apply" })).toBeNull();
     expect(apply).not.toHaveBeenCalled();
-  });
+  }, 15_000); // full server-table flow; exceeds the 5 s default on slow Windows CI runners
 
   it("uses F3 selection, shows named and derived effects, warnings and skipped rows, and applies the retained token", async () => {
     const plan = vi.spyOn(actionReview, "plan").mockResolvedValue(preview);
