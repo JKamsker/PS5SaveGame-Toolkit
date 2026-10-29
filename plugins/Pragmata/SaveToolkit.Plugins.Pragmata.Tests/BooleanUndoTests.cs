@@ -34,15 +34,15 @@ public sealed class BooleanUndoTests
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
 
         // Assigning the displayed value must be a byte-identical no-op.
-        Assert.True(session.ApplyEdits([new(raw.ValueId, JsonSerializer.SerializeToElement(storedByte != 0))]).Ok);
+        Assert.True(session.ApplyEdits([new(raw.ValueId, JsonSerializer.SerializeToElement(storedByte != 0))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.False(session.State.CanUndo);
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
 
-        var outcome = session.ApplyEdits([new(raw.ValueId, JsonSerializer.SerializeToElement(storedByte == 0))]);
+        var outcome = session.ApplyEdits([new(raw.ValueId, JsonSerializer.SerializeToElement(storedByte == 0))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(outcome.Ok);
         Assert.Equal(2, outcome.Changes.Count);
         Assert.NotEmpty(outcome.Warnings);
-        var modified = session.Serialize().Single().Content.ToArray();
+        var modified = session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray();
         var expected = plaintext.ToArray();
         expected[target.Offset] = storedByte == 0 ? (byte)1 : (byte)0;
         Assert.Equal(expected, new DsssContainer(modified).Plaintext);
@@ -57,7 +57,7 @@ public sealed class BooleanUndoTests
             Assert.Equal(storedByte != 0, document.GetValue(raw.ValueId).AsBool());
             Assert.Equal(original, document.Serialize().Single().Content.ToArray());
             Assert.True(session.Redo().Ok);
-            Assert.Equal(modified, session.Serialize().Single().Content.ToArray());
+            Assert.Equal(modified, session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray());
         }
     }
 }

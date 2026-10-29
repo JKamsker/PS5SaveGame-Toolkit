@@ -112,11 +112,11 @@ public sealed class AriseReadOnlyViewTests
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("arise-r2", file, plugin, document, references: references);
         _ = session.BuildView();
-        var equipment = session.QueryCollection("equipment", new() { Offset = 300, Limit = 17 });
+        var equipment = session.QueryCollection("equipment", new() { Offset = 300, Limit = 17 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(17, equipment.Rows.Count);
-        var quest = session.QueryCollection("evidence/31047C4A", new() { Offset = 300, Limit = 7 });
+        var quest = session.QueryCollection("evidence/31047C4A", new() { Offset = 300, Limit = 7 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var field = Assert.IsType<FieldNode>(quest.Rows[0].Cells["value"]);
-        Assert.False(session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(1))]).Ok);
+        Assert.False(session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(1))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());

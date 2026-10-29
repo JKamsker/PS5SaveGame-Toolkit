@@ -22,17 +22,17 @@ public sealed class SavedQuantityWritingTests
         using var session = new DocumentSession("bg3-quantity", file, plugin, document);
         _ = session.BuildView();
         var field = PageQuantity();
-        Assert.True(session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(6))]).Ok);
-        var edited = Assert.Single(session.Serialize()).Content.ToArray();
+        Assert.True(session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(6))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var edited = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
         Assert.Equal(6, PageQuantity().Value.AsInt32());
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.CanUndo);
         Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.Equal(7, PageQuantity().Value.AsInt32());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(edited, Assert.Single(session.Serialize()).Content.ToArray());
+        Assert.Equal(edited, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
         Assert.Equal(field.ValueId, PageQuantity().ValueId);
-        Assert.False(session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(8))]).Ok);
+        Assert.False(session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(8))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
 
         FieldNode PageQuantity() => Assert.IsType<FieldNode>(Assert.Single(session.QueryCollection("bg3.saved-items",
             new QueryableCollectionQuery { Limit = 1, SortColumn = "quantity" }).Rows).Cells["quantity"]);

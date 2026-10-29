@@ -46,18 +46,18 @@ public sealed class ReadOnlyCatalogActionTests
             Assert.NotEmpty(filtered.Items);
             Assert.All(filtered.Items, candidate => Assert.Equal(selected.Category, candidate.Category));
             var result = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement>
-                { [parameter.ValueId] = JsonSerializer.SerializeToElement(selected.RawId) }, initialState.Revision);
+                { [parameter.ValueId] = JsonSerializer.SerializeToElement(selected.RawId) }, initialState.Revision, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
             Assert.Contains(selected.RawId, result.Message);
             Assert.Empty(result.Changes);
             Assert.Equal(initialState, session.State);
             Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
             Assert.False(session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement>
-                { [parameter.ValueId] = JsonSerializer.SerializeToElement("unknown") }).Ok);
+                { [parameter.ValueId] = JsonSerializer.SerializeToElement("unknown") }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             Assert.Equal(initialState, session.State);
         }
 
-        Assert.Empty(session.Serialize());
+        Assert.Empty(session.Serialize(cancellationToken: TestContext.Current.CancellationToken));
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);
         Assert.False(session.State.CanRedo);

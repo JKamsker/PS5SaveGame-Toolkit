@@ -46,7 +46,7 @@ public sealed class JsonMetadataStructureTests
         Assert.True(fixture.Session.Undo().Ok);
         Assert.Equal(Encoding.UTF8.GetBytes(Source), fixture.Bytes);
         var invalid = fixture.Session.PlanAction(setter.ActionId,
-            JsonArrayEditingTests.Parameters(("value", FieldValue.ExactNumber("51"))));
+            JsonArrayEditingTests.Parameters(("value", FieldValue.ExactNumber("51"))), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEmpty(invalid.Plan.Errors);
         JsonSemanticTestHelper.ApplyAndVerify(fixture, setter.ActionId, ("value", FieldValue.ExactNumber("55")));
     }
@@ -59,14 +59,14 @@ public sealed class JsonMetadataStructureTests
         var choices = Container(fixture, "array", "[\"values\"]#1");
         JsonArrayEditingTests.Apply(fixture, choices + "/move", ("from", FieldValue.Of(0L)), ("to", FieldValue.Of(1L)));
         var before = fixture.Bytes;
-        var preview = fixture.Session.PlanAction("semantic/defaults", JsonArrayEditingTests.Parameters());
+        var preview = fixture.Session.PlanAction("semantic/defaults", JsonArrayEditingTests.Parameters(), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Single(preview.Plan.Changes);
         Assert.Equal("100", preview.Plan.Changes[0].NewValue.AsUnion().Value.AsExactNumber());
         Assert.Contains(preview.Plan.SkippedRows, row => row.RowKey == "value/" + choice.ActionId.Split('/')[1]);
         Assert.Contains(preview.Plan.Warnings, warning => warning.Contains("game may reject", StringComparison.Ordinal));
         Assert.Equal(before, fixture.Bytes);
-        var outcome = fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision);
+        var outcome = fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(outcome.Ok);
         Assert.Contains(outcome.Warnings, warning => warning.Contains("game may reject", StringComparison.Ordinal));
         var expected = Encoding.UTF8.GetString(before).Replace("\"value\":50", "\"value\":100", StringComparison.Ordinal);

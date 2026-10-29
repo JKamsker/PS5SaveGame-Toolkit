@@ -28,11 +28,11 @@ public sealed class CoverageSampleTests
         ActionScope scope;
         if (action == "ammo/restore-imported")
         {
-            _ = session.QueryCollection("ammo", new() { Limit = 200 });
+            _ = session.QueryCollection("ammo", new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             var index = document.Root.Children("resource_pools").Select((pool, i) => (pool, i))
                 .First(p => p.pool.Float("amount") > 0 && GearboxAmmoRestore.Eligible(p.pool.Float("amount")) &&
                     SerialDatabase.For(title == "PPSA01493").Find(ItemCatalogs.Labels, p.pool.Text("resource_path"))?.Category == "ammo").i;
-            Assert.True(session.ApplyEdits([new("ammo/" + index, JsonSerializer.SerializeToElement("0"))]).Ok);
+            Assert.True(session.ApplyEdits([new("ammo/" + index, JsonSerializer.SerializeToElement("0"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             scope = new([index.ToString(System.Globalization.CultureInfo.InvariantCulture)]);
         }
         else
@@ -41,22 +41,22 @@ public sealed class CoverageSampleTests
                 e.Field.Message is { } message && GearboxItemMarks.Supported(message));
             scope = new([entry.Id]);
             if (action == "items/match-level")
-                Assert.True(session.ApplyEdits([new("character/level", JsonSerializer.SerializeToElement("17"))]).Ok);
+                Assert.True(session.ApplyEdits([new("character/level", JsonSerializer.SerializeToElement("17"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             else parameters["mark"] = JsonSerializer.SerializeToElement(GearboxItemMarks.Get(entry.Field.Message!) == 1 ? "2" : "1");
-            _ = session.QueryCollection("inventory_items", new() { Limit = 200 });
+            _ = session.QueryCollection("inventory_items", new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             _ = session.Expand("detail/" + entry.Id);
             if (action == "items/match-level")
                 scope = new() { QueryScope = new("inventory_items", new() { Limit = 1 }, session.State.Revision) };
         }
         var before = document.Serialize().Single().Content.ToArray();
         var originalRoot = document.Root.Clone();
-        var cancelled = session.PlanAction(action, parameters, scope);
+        var cancelled = session.PlanAction(action, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(cancelled.Plan.Errors);
         Assert.Equal(before, document.Serialize().Single().Content.ToArray());
-        var preview = session.PlanAction(action, parameters, scope);
+        var preview = session.PlanAction(action, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEmpty(preview.Plan.Changes);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
-        var after = session.Serialize().Single().Content.ToArray();
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var after = session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray();
         using var reopened = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, after));
         Assert.Equal(after, reopened.Serialize().Single().Content.ToArray());
         SerialWriteTests.AssertUnrelated(originalRoot, reopened.Root, action == "ammo/restore-imported" ? "resource_pools" : "inventory_items");
@@ -75,7 +75,7 @@ public sealed class CoverageSampleTests
         Assert.Equal(before, document.Serialize().Single().Content.ToArray());
         Assert.True(session.Redo().Ok);
         Assert.Equal(after, document.Serialize().Single().Content.ToArray());
-        Assert.False(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.False(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
     }
 
     [Theory]

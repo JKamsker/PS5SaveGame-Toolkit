@@ -105,7 +105,7 @@ public sealed class QueryableEvidenceTests
         var world = ((TabsNode)session.BuildView()).Tabs.Single(tab => tab.Title == "World");
         var table = world.Children.OfType<SectionNode>().SelectMany(section => session.Expand(section.LazyId!))
             .OfType<QueryableTableNode>().OrderByDescending(node => node.TotalCount).First();
-        var page = session.QueryCollection(table.CollectionId, new QueryableCollectionQuery { Limit = 5 }, session.State.Revision);
+        var page = session.QueryCollection(table.CollectionId, new QueryableCollectionQuery { Limit = 5 }, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(5, page.Rows.Count);
         foreach (var query in new[]
         {

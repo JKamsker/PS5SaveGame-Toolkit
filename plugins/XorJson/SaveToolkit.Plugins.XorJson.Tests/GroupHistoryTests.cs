@@ -51,7 +51,7 @@ public sealed class GroupHistoryTests
         Assert.Equal(character, original[CharacterPath]);
         Assert.Equal(global, original[GlobalPath]);
 
-        var batch = session.ApplyEdits([Edit(level.ValueId, FieldValue.ExactNumber("2")), Edit(volume.ValueId, FieldValue.ExactNumber("49"))]);
+        var batch = session.ApplyEdits([Edit(level.ValueId, FieldValue.ExactNumber("2")), Edit(volume.ValueId, FieldValue.ExactNumber("49"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(batch.Ok, Errors(batch));
         Assert.Contains(batch.Warnings, warning => warning.Contains("transaction", StringComparison.OrdinalIgnoreCase));
         var afterBatch = Bytes(workspace);
@@ -60,14 +60,14 @@ public sealed class GroupHistoryTests
 
         var oldRevision = session.State.Revision;
         var removeId = "character/json/remove/" + rows[0].Key.Split('/')[2];
-        var removal = session.InvokeAction(removeId, new Dictionary<string, JsonElement>(), oldRevision);
+        var removal = session.InvokeAction(removeId, new Dictionary<string, JsonElement>(), oldRevision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(removal.Ok, Errors(removal));
         Assert.True(removal.StructureChanged);
-        Assert.Equal(rows[1].Key, Assert.Single(session.QueryCollection(InventoryCollection, new()).Rows).Key);
-        Assert.True(session.ApplyEdits([Edit(volume.ValueId, FieldValue.ExactNumber("48"))], oldRevision).Stale);
+        Assert.Equal(rows[1].Key, Assert.Single(session.QueryCollection(InventoryCollection, new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows).Key);
+        Assert.True(session.ApplyEdits([Edit(volume.ValueId, FieldValue.ExactNumber("48"))], oldRevision, cancellationToken: TestContext.Current.CancellationToken).Stale);
         var afterRemove = Bytes(workspace);
 
-        Assert.True(session.ApplyEdits([Edit(survivor.ValueId, FieldValue.ExactNumber("3"))]).Ok);
+        Assert.True(session.ApplyEdits([Edit(survivor.ValueId, FieldValue.ExactNumber("3"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var afterScalar = Bytes(workspace);
         AssertRejectedBatchPreservesState(session, workspace, level, volume, online, afterScalar);
         AssertHistoryCycles(session, workspace, rows.Select(row => row.Key).ToArray(), new(original, afterBatch, afterRemove, afterScalar));

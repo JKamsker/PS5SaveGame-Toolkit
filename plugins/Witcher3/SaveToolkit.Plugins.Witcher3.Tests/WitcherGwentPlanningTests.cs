@@ -25,7 +25,7 @@ public sealed class WitcherGwentPlanningTests
             using var session = new DocumentSession("gwent-batch", file, plugin, document, references: references);
             _ = session.BuildView();
             // Only render one row: planning must bind changes on all remaining query pages itself.
-            var row = Assert.Single(session.QueryCollection(GwentCollection.CollectionId, new() { Limit = 1 }).Rows);
+            var row = Assert.Single(session.QueryCollection(GwentCollection.CollectionId, new() { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
             var action = Assert.IsType<ActionNode>(row.Cells[GwentPlanning.ActionColumn]);
             Assert.Equal(GwentPlanning.ActionId, action.ActionId);
             Assert.True(action.SupportsPlanning);
@@ -34,7 +34,7 @@ public sealed class WitcherGwentPlanningTests
             var scope = new ActionScope { QueryScope = new(GwentCollection.CollectionId, new() { Limit = 1 },
                 session.State.Revision) { ExcludedRowKeys = [GwentCollection.Key(excluded)] } };
             var parameters = Wire(target);
-            var preview = session.PlanAction(GwentPlanning.ActionId, parameters, scope);
+            var preview = session.PlanAction(GwentPlanning.ActionId, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(preview.PlanId);
             Assert.Empty(preview.Plan.Errors);
             Assert.Equal(before.Features.Cards!.Count - 1, preview.Scope.RowKeys!.Count);
@@ -50,8 +50,8 @@ public sealed class WitcherGwentPlanningTests
             Assert.Contains(preview.Plan.Warnings, w => w.StartsWith(WriteFields.ConsoleWarning, StringComparison.Ordinal));
             Assert.Equal(input, Assert.Single(document.Serialize()).Content.ToArray()); // Cancel = discard preview.
             Assert.False(session.State.CanUndo);
-            Assert.False(session.InvokeAction(GwentPlanning.ActionId, parameters).Ok);
-            var applied = session.ApplyActionPlan(preview.PlanId, preview.Revision);
+            Assert.False(session.InvokeAction(GwentPlanning.ActionId, parameters, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+            var applied = session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(applied.Ok);
             Assert.Equal(preview.Plan.Changes.Count, applied.Changes.Count);
             Assert.Equal(preview.Plan.Warnings, applied.Warnings);
@@ -118,15 +118,15 @@ public sealed class WitcherGwentPlanningTests
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("gwent-stale", file, plugin, document, references: references);
         _ = session.BuildView();
-        var cancelled = session.PlanAction(GwentPlanning.ActionId, Wire(0));
-        _ = session.PlanAction(GwentPlanning.ActionId, Wire(3));
-        Assert.False(session.ApplyActionPlan(cancelled.PlanId!, cancelled.Revision).Ok);
-        var fresh = session.PlanAction(GwentPlanning.ActionId, Wire(3));
-        Assert.True(session.ApplyActionPlan(fresh.PlanId!, fresh.Revision).Ok);
-        Assert.True(session.ApplyActionPlan(fresh.PlanId!, fresh.Revision).Stale);
+        var cancelled = session.PlanAction(GwentPlanning.ActionId, Wire(0), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        _ = session.PlanAction(GwentPlanning.ActionId, Wire(3), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.False(session.ApplyActionPlan(cancelled.PlanId!, cancelled.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var fresh = session.PlanAction(GwentPlanning.ActionId, Wire(3), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.True(session.ApplyActionPlan(fresh.PlanId!, fresh.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.True(session.ApplyActionPlan(fresh.PlanId!, fresh.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
         var none = session.PlanAction(GwentPlanning.ActionId, Wire(0), new() {
             QueryScope = new(GwentCollection.CollectionId, new() { Text = "no such card" }, session.State.Revision),
-        });
+        }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(none.Scope.RowKeys!);
         Assert.Empty(none.Plan.Changes);
         Assert.Empty(none.Plan.SkippedRows);
@@ -150,20 +150,20 @@ public sealed class WitcherGwentPlanningTests
         var scope = new ActionScope { QueryScope = new(GwentCollection.CollectionId, query, session.State.Revision) {
             ExcludedRowKeys = [excluded, "not-a-match"],
         } };
-        var preview = session.PlanAction(GwentPlanning.ActionId, Wire(0), scope);
+        var preview = session.PlanAction(GwentPlanning.ActionId, Wire(0), scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(ordinary.Where(c => GwentCollection.Key(c) != excluded).OrderByDescending(c => c.Index).Select(GwentCollection.Key),
             preview.Scope.RowKeys);
         Assert.Empty(preview.Plan.SkippedRows);
         Assert.Equal(ordinary.Length - 1, preview.Plan.Changes.Count);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var none = session.PlanAction(GwentPlanning.ActionId, Wire(3), scope with {
             QueryScope = scope.QueryScope with { Revision = session.State.Revision, ExcludedRowKeys = ordinary.Select(GwentCollection.Key).ToArray() },
-        });
+        }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(none.Scope.RowKeys!);
         Assert.Empty(none.Plan.Changes);
         Assert.Empty(none.Plan.SkippedRows);
-        var staleScope = session.PlanAction(GwentPlanning.ActionId, Wire(1), scope);
+        var staleScope = session.PlanAction(GwentPlanning.ActionId, Wire(1), scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(staleScope.Stale);
     }
 

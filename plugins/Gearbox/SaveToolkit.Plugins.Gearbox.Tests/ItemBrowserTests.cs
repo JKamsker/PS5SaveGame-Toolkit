@@ -68,13 +68,13 @@ public sealed class ItemBrowserTests
             var candidate = candidates.Items[0];
             Assert.NotNull(candidate.Dataset);
             Assert.True(candidate.Eligibility.Selectable);
-            var result = session.InvokeAction(action, new Dictionary<string, JsonElement> { [parameter] = JsonSerializer.SerializeToElement(candidate.RawId) });
+            var result = session.InvokeAction(action, new Dictionary<string, JsonElement> { [parameter] = JsonSerializer.SerializeToElement(candidate.RawId) }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(result.Ok);
             Assert.Contains(candidate.RawId, result.Message);
             Assert.Contains("Zlib", result.Message);
             Assert.False(result.State.IsDirty);
             Assert.False(result.State.CanUndo);
-            var rejected = session.InvokeAction(action, new Dictionary<string, JsonElement> { [parameter] = JsonSerializer.SerializeToElement("not-a-real-id") });
+            var rejected = session.InvokeAction(action, new Dictionary<string, JsonElement> { [parameter] = JsonSerializer.SerializeToElement("not-a-real-id") }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.False(rejected.Ok);
         }
         Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
@@ -91,9 +91,9 @@ public sealed class ItemBrowserTests
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("gearbox-browser", file, plugin, document, references: references);
         _ = session.BuildView();
-        var first = session.QueryCollection("inventory_items", new() { Limit = 1 });
+        var first = session.QueryCollection("inventory_items", new() { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(first.TotalCount > 1);
-        var last = session.QueryCollection("inventory_items", new() { Limit = 1, SortColumn = "index", Descending = true });
+        var last = session.QueryCollection("inventory_items", new() { Limit = 1, SortColumn = "index", Descending = true }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEqual(first.Rows[0].Key, last.Rows[0].Key);
         Assert.Equal((first.TotalCount - 1).ToString(System.Globalization.CultureInfo.InvariantCulture), Assert.IsType<TextNode>(last.Rows[0].Cells["index"]).Text);
         var name = Assert.IsType<FieldNode>(last.Rows[0].Cells["name"]);
@@ -102,9 +102,9 @@ public sealed class ItemBrowserTests
         Assert.Equal(name.Value, document.GetValue(name.ValueId));
         Assert.Contains("Zlib", name.Description);
         var query = new QueryableCollectionQuery { Text = name.Value.AsString(), Limit = 1 };
-        Assert.True(session.QueryCollection("inventory_items", query).FilteredCount > 0);
+        Assert.True(session.QueryCollection("inventory_items", query, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).FilteredCount > 0);
         var category = Assert.IsType<FieldNode>(last.Rows[0].Cells["category"]).Value.AsString();
-        var filtered = session.QueryCollection("inventory_items", new() { Filters = new Dictionary<string, string> { ["category"] = category } });
+        var filtered = session.QueryCollection("inventory_items", new() { Filters = new Dictionary<string, string> { ["category"] = category } }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.All(filtered.Rows, row => Assert.Equal(category, Assert.IsType<FieldNode>(row.Cells["category"]).Value.AsString()));
         var lazy = Assert.IsType<SectionNode>(last.Rows[0].Cells["detail"]);
         var details = session.Expand(lazy.LazyId!);
@@ -121,14 +121,14 @@ public sealed class ItemBrowserTests
         Assert.All(categoryPage.Items, candidate => Assert.Equal(candidates.Items[0].Category, candidate.Category));
         Assert.NotNull(session.FindReference(raw.ValueId, raw.Value.AsString()).Dataset);
         Assert.Null(session.FindReference(raw.ValueId, "unknown-current-id").Label);
-        Assert.False(session.ApplyEdits([new(raw.ValueId, JsonSerializer.SerializeToElement("changed"))]).Ok);
-        var catalogue = session.QueryCollection("catalogue", new() { Offset = 1000, Limit = 7, SortColumn = "name" });
+        Assert.False(session.ApplyEdits([new(raw.ValueId, JsonSerializer.SerializeToElement("changed"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var catalogue = session.QueryCollection("catalogue", new() { Offset = 1000, Limit = 7, SortColumn = "name" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(7, catalogue.Rows.Count);
         Assert.True(catalogue.TotalCount > 2000);
         var target = catalogue.Rows[^1].Key;
-        var exact = session.QueryCollection("catalogue", new() { Text = target, Limit = 200 });
+        var exact = session.QueryCollection("catalogue", new() { Text = target, Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Contains(exact.Rows, r => r.Key == target);
-        Assert.Throws<ArgumentException>(() => session.QueryCollection("catalogue", new() { SortColumn = "missing" }));
+        Assert.Throws<ArgumentException>(() => session.QueryCollection("catalogue", new() { SortColumn = "missing" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken));
         Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
         Assert.False(session.State.IsDirty);
     }

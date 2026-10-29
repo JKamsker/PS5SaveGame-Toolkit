@@ -96,12 +96,12 @@ public sealed class ReferenceAssetTests
         var tabs = Assert.IsType<TabsNode>(session.BuildView());
         Assert.Contains(Assert.Single(tabs.Tabs, tab => tab.Title == "Upgrades").Children.OfType<QueryableTableNode>(),
             table => table.CollectionId == "arsenal/reference-upgrades" && table.Title.Contains("not saved level", StringComparison.Ordinal));
-        var weapons = session.QueryCollection("arsenal/weapons", new() { Text = "Burst Pistol", Limit = 200 });
+        var weapons = session.QueryCollection("arsenal/weapons", new() { Text = "Burst Pistol", Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotEmpty(weapons.Rows);
         Assert.All(weapons.Rows, row => Assert.IsType<ImageNode>(row.Cells["icon"]));
-        var armour = session.QueryCollection("armour/collection", new() { Limit = 200 });
+        var armour = session.QueryCollection("armour/collection", new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(51, armour.Rows.Count(row => row.Cells["icon"] is ImageNode));
-        var upgrades = session.QueryCollection("arsenal/reference-upgrades", new() { Limit = 200 });
+        var upgrades = session.QueryCollection("arsenal/reference-upgrades", new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(20, upgrades.Rows.Count);
         Assert.Equal(19, upgrades.Rows.Count(row => row.Cells["icon"] is ImageNode));
         Assert.All(upgrades.Rows, row => Assert.Contains("not this save", Assert.IsType<TextNode>(row.Cells["description"]).Text));

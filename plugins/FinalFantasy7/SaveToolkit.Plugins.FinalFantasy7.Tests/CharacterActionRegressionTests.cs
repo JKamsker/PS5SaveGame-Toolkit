@@ -47,7 +47,7 @@ public sealed class CharacterActionRegressionTests
             Assert.Equal(openingXp, xp.OldValue.AsUInt32());
             Assert.Equal(targetXp, xp.NewValue.AsUInt32());
             Assert.NotNull(preview.PlanId);
-            Assert.True(fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+            Assert.True(fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
             Assert.Equal(TargetLevel, fixture.Document.GetValue(levelId).AsInt32());
             Assert.Equal(targetXp, fixture.Document.GetValue(xpId).AsUInt32());
             var edited = fixture.Bytes();
@@ -111,22 +111,22 @@ public sealed class CharacterActionRegressionTests
         Assert.True(documentAction.SupportsPlanning);
         var parameters = actionId == CoverageFixture.LevelAction
             ? new Dictionary<string, JsonElement> { ["level"] = JsonSerializer.SerializeToElement(TargetLevel) } : [];
-        var all = fixture.Session.PlanAction(documentAction.ActionId, parameters, new());
+        var all = fixture.Session.PlanAction(documentAction.ActionId, parameters, new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(all.Plan.Errors);
         Assert.Equal(Ff7Schema.CharacterCount, all.Plan.Changes.Select(change => change.ValueId.Split('/')[1]).Distinct().Count());
         var renderedAction = Assert.Single(cloud.Cells.Values.OfType<ActionNode>(), action => action.ActionId == actionId);
-        var empty = fixture.Session.PlanAction(renderedAction.ActionId, parameters, new([]));
+        var empty = fixture.Session.PlanAction(renderedAction.ActionId, parameters, new([]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(empty.Plan.Changes);
         Assert.NotNull(empty.PlanId);
-        Assert.True(fixture.Session.ApplyActionPlan(empty.PlanId, empty.Revision).Ok);
+        Assert.True(fixture.Session.ApplyActionPlan(empty.PlanId, empty.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(fixture.Original, fixture.Bytes());
-        var preview = fixture.Session.PlanAction(renderedAction.ActionId, parameters, new([cloud.Key]));
+        var preview = fixture.Session.PlanAction(renderedAction.ActionId, parameters, new([cloud.Key]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.Equal(new[] { cloud.Key }, preview.Scope.RowKeys);
         Assert.NotEmpty(preview.Plan.Changes);
         Assert.All(preview.Plan.Changes, change => Assert.StartsWith(cloud.Key + "/", change.ValueId));
         Assert.NotNull(preview.PlanId);
-        Assert.True(fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(fixture.Session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var offset = CharacterLayout.Offset(fixture.Schema, 0);
         var allowed = actionId == CoverageFixture.LevelAction
             ? new[] { offset }.Concat(Enumerable.Range(offset + CharacterLayout.ExperienceDelta, sizeof(uint)))

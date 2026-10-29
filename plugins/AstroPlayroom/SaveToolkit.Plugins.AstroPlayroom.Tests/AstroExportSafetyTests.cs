@@ -40,7 +40,7 @@ public sealed class AstroExportSafetyTests
         var actionPlan = ApplyPreset(session, actionId, plugin);
 
         var options = new ExportOptions { Scope = ExportScope.ChangedFiles };
-        var plan = WorkspaceExporter.Plan(workspace, options);
+        var plan = WorkspaceExporter.Plan(workspace, options, cancellationToken: TestContext.Current.CancellationToken);
         // Generation 1 already exceeds the requested budget: preserve it without dirtying/exporting.
         if (actionPlan.Changes.Count == 0)
         {
@@ -53,7 +53,7 @@ public sealed class AstroExportSafetyTests
             return;
         }
 
-        var edited = Assert.Single(session.Serialize()).Content.ToArray();
+        var edited = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
         var paths = new[] { primary.RelativePath, backup.RelativePath }.Order(StringComparer.Ordinal).ToArray();
         Assert.Equal(paths, plan.Overrides.Keys.Order(StringComparer.Ordinal));
         AssertZip(plan, paths, edited);
@@ -65,12 +65,12 @@ public sealed class AstroExportSafetyTests
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);
-        Assert.Empty(session.Serialize());
-        var undone = WorkspaceExporter.Plan(workspace, options);
+        Assert.Empty(session.Serialize(cancellationToken: TestContext.Current.CancellationToken));
+        var undone = WorkspaceExporter.Plan(workspace, options, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(undone.Files);
         Assert.Empty(undone.Overrides);
         Assert.True(session.Redo().Ok);
-        AssertZip(WorkspaceExporter.Plan(workspace, options), paths, edited);
+        AssertZip(WorkspaceExporter.Plan(workspace, options, cancellationToken: TestContext.Current.CancellationToken), paths, edited);
         Assert.True(session.Undo().Ok);
         Assert.All(AstroTestData.Samples(), file => Assert.Equal(originals[file.RelativePath], file.ReadAllBytes()));
     }
@@ -125,15 +125,15 @@ public sealed class AstroExportSafetyTests
         var coins = Assert.Single(Assert.IsType<TabsNode>(session.BuildView()).Tabs
             .Single(tab => tab.Title == "Overview").Children.OfType<FieldNode>(),
             field => field.Description == AstroTestData.CoinsPath);
-        Assert.True(session.ApplyEdits([new IncomingEdit(coins.ValueId, JsonSerializer.SerializeToElement(42))]).Ok);
+        Assert.True(session.ApplyEdits([new IncomingEdit(coins.ValueId, JsonSerializer.SerializeToElement(42))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var plan = WorkspaceExporter.Plan(workspace, new ExportOptions
         {
             Scope = ExportScope.ChangedFiles, MirrorBackups = mirrorBackups
-        });
+        }, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(file.RelativePath, Assert.Single(plan.Overrides).Key);
-        AssertZip(plan, [file.RelativePath], Assert.Single(session.Serialize()).Content.ToArray());
+        AssertZip(plan, [file.RelativePath], Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
         Assert.True(session.Undo().Ok);
-        Assert.Empty(session.Serialize());
+        Assert.Empty(session.Serialize(cancellationToken: TestContext.Current.CancellationToken));
     }
 
     private static DiskSaveFile Allocation(DiskSaveSet set, int generation, bool backup) =>

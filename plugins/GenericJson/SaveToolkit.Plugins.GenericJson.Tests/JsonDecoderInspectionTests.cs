@@ -56,7 +56,7 @@ public sealed class JsonDecoderInspectionTests
         Assert.True(fixture.Edit(field.ValueId, JsonEditingTests.Number("2.00000000000000000001")).Ok);
         var before = fixture.Bytes;
         var state = fixture.Session.State;
-        var result = fixture.Session.InvokeAction("inspect-json", new Dictionary<string, JsonElement>(), state.Revision);
+        var result = fixture.Session.InvokeAction("inspect-json", new Dictionary<string, JsonElement>(), state.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok);
         Assert.Contains("Exact token round-trip", result.Message);
         Assert.Equal(state, fixture.Session.State);

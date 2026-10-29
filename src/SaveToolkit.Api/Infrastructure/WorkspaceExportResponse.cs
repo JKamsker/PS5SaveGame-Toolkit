@@ -6,7 +6,11 @@ namespace SaveToolkit.Api.Infrastructure;
 internal static class WorkspaceExportResponse
 {
     internal static IResult Create(ExportPlan plan, string downloadName)
+        => Create(plan, downloadName, CancellationToken.None);
+
+    internal static IResult Create(ExportPlan plan, string downloadName, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var path = Path.Combine(Path.GetTempPath(), $"SaveToolkit-export-{Guid.NewGuid():N}.zip");
         var stream = new FileStream(path, new FileStreamOptions
         {
@@ -21,7 +25,8 @@ internal static class WorkspaceExportResponse
             // Content-Length. ZIP entry disposal still writes synchronously in .NET 10, so it
             // cannot target the HTTP response directly. File results copy asynchronously and
             // dispose the stream (deleting its scratch file), including aborted transfers.
-            WorkspaceExporter.WriteZip(plan, stream);
+            WorkspaceExporter.WriteZip(plan, stream, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
             stream.Position = 0;
             return Results.File(stream, "application/zip", downloadName);
         }

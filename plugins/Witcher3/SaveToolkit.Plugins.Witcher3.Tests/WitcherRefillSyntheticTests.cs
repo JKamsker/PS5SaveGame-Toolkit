@@ -22,13 +22,13 @@ public sealed class WitcherRefillSyntheticTests
         using var document = plugin.Open(file);
         using var session = new DocumentSession("synthetic-refill", file, plugin, document);
         _ = session.BuildView();
-        _ = session.QueryCollection(InventoryViews.CollectionId, new() { Limit = 200 });
+        _ = session.QueryCollection(InventoryViews.CollectionId, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         // The selection query below deliberately requests only the first row (currency).
-        Assert.Equal("1", Assert.Single(session.QueryCollection(InventoryViews.CollectionId, new() { Limit = 1 }).Rows).Key);
+        Assert.Equal("1", Assert.Single(session.QueryCollection(InventoryViews.CollectionId, new() { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows).Key);
         Assert.True(session.ApplyEdits([
             EnabledWriteFixture.Incoming("inventory/1/quantity", FieldValue.Of(300)),
             EnabledWriteFixture.Incoming("inventory/2/quantity", FieldValue.Of(1)),
-        ]).Ok);
+        ], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var reduced = Bytes(document);
         var state = session.State;
         var scope = selection switch {
@@ -36,7 +36,7 @@ public sealed class WitcherRefillSyntheticTests
             "query" => new ActionScope { QueryScope = new(InventoryViews.CollectionId, new() { Limit = 1 }, state.Revision) },
             _ => new ActionScope(),
         };
-        var preview = session.PlanAction(RefillPlanning.ActionId, new Dictionary<string, JsonElement>(), scope);
+        var preview = session.PlanAction(RefillPlanning.ActionId, new Dictionary<string, JsonElement>(), scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Empty(preview.Plan.Errors);
         var change = Assert.Single(preview.Plan.Changes);
@@ -47,7 +47,7 @@ public sealed class WitcherRefillSyntheticTests
         Assert.Equal(state, session.State);
         Assert.Equal(reduced, Bytes(document));
 
-        var result = session.ApplyActionPlan(preview.PlanId, preview.Revision);
+        var result = session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok);
         Assert.Equal(new ValueChange("inventory/2/quantity", FieldValue.Of(1), FieldValue.Of(5)), Assert.Single(result.Changes));
         Assert.Contains(RefillPlanning.Warning, result.Warnings);
@@ -84,14 +84,14 @@ public sealed class WitcherRefillSyntheticTests
         using var document = plugin.Open(file);
         using var session = new DocumentSession("excluded-refill", file, plugin, document);
         _ = session.BuildView();
-        _ = session.QueryCollection(InventoryViews.CollectionId, new() { Limit = 200 });
-        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming("inventory/2/quantity", FieldValue.Of(1))]).Ok);
+        _ = session.QueryCollection(InventoryViews.CollectionId, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming("inventory/2/quantity", FieldValue.Of(1))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var before = Bytes(document);
         var state = session.State;
         var scope = new ActionScope { QueryScope = new(InventoryViews.CollectionId, new() { Text = "Bread", Limit = 1 }, state.Revision) {
             ExcludedRowKeys = ["2"],
         } };
-        var preview = session.PlanAction(RefillPlanning.ActionId, new Dictionary<string, JsonElement>(), scope);
+        var preview = session.PlanAction(RefillPlanning.ActionId, new Dictionary<string, JsonElement>(), scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.Empty(preview.Plan.Changes);
         Assert.Empty(preview.Plan.SkippedRows);
@@ -144,14 +144,14 @@ public sealed class WitcherRefillSyntheticTests
         using var document = plugin.Open(file);
         using var session = new DocumentSession("stale-refill", file, plugin, document);
         _ = session.BuildView();
-        _ = session.QueryCollection(InventoryViews.CollectionId, new() { Limit = 200 });
-        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming("inventory/2/quantity", FieldValue.Of(1))]).Ok);
-        var preview = session.PlanAction(RefillPlanning.ActionId, new Dictionary<string, JsonElement>(), new());
+        _ = session.QueryCollection(InventoryViews.CollectionId, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming("inventory/2/quantity", FieldValue.Of(1))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var preview = session.PlanAction(RefillPlanning.ActionId, new Dictionary<string, JsonElement>(), new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
-        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming("inventory/2/quantity", FieldValue.Of(2))]).Ok);
+        Assert.True(session.ApplyEdits([EnabledWriteFixture.Incoming("inventory/2/quantity", FieldValue.Of(2))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var before = Bytes(document);
         var state = session.State;
-        var rejected = session.ApplyActionPlan(preview.PlanId, preview.Revision);
+        var rejected = session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.False(rejected.Ok);
         Assert.True(rejected.Stale);
         Assert.Empty(rejected.Changes);

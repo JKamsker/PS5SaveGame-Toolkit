@@ -87,7 +87,7 @@ public sealed class SpatialViewTests
         var marker = ((MapNode)nodes[0]).Markers[0];
         var field = Fields(nodes).Single(field => field.ValueId == marker.Target!.Id);
         var original = file.ReadAllBytes();
-        var result = session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(1 - field.Value.AsInt32()))]);
+        var result = session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(1 - field.Value.AsInt32()))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok);
         Assert.True(result.StructureChanged);
         var changed = Assert.Single(document.Serialize()).Content.ToArray();

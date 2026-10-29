@@ -58,23 +58,23 @@ public sealed class PointTargetValidationTests
         using var document = plugin.Open(file);
         using var session = new DocumentSession("point-stale", (DiskSaveFile)file, plugin, document);
         _ = session.BuildView();
-        var empty = session.PlanAction(PointTargetActionTests.ActionId, PointTargetActionTests.Targets(12, 9, 3), new([]));
+        var empty = session.PlanAction(PointTargetActionTests.ActionId, PointTargetActionTests.Targets(12, 9, 3), new([]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(empty.PlanId);
         Assert.Empty(empty.Plan.Changes);
-        Assert.True(session.ApplyActionPlan(empty.PlanId, empty.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(empty.PlanId, empty.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.False(session.State.CanUndo);
-        var unchanged = session.PlanAction(PointTargetActionTests.ActionId, PointTargetActionTests.Targets(7, 0, 0), new());
+        var unchanged = session.PlanAction(PointTargetActionTests.ActionId, PointTargetActionTests.Targets(7, 0, 0), new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(unchanged.PlanId);
         Assert.Empty(unchanged.Plan.Changes);
         Assert.Equal(4, unchanged.Plan.SkippedRows.Count);
-        Assert.True(session.ApplyActionPlan(unchanged.PlanId, unchanged.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(unchanged.PlanId, unchanged.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
-        var stale = session.PlanAction(PointTargetActionTests.ActionId, PointTargetActionTests.Targets(12, 9, 3), new());
+        var stale = session.PlanAction(PointTargetActionTests.ActionId, PointTargetActionTests.Targets(12, 9, 3), new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(stale.PlanId);
-        Assert.True(session.ApplyEdits([new("progression/points/Attribute", System.Text.Json.JsonSerializer.SerializeToElement("8"))]).Ok);
-        var edited = Assert.Single(session.Serialize()).Content.ToArray();
-        Assert.False(session.ApplyActionPlan(stale.PlanId, stale.Revision).Ok);
-        Assert.Equal(edited, Assert.Single(session.Serialize()).Content.ToArray());
+        Assert.True(session.ApplyEdits([new("progression/points/Attribute", System.Text.Json.JsonSerializer.SerializeToElement("8"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var edited = Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray();
+        Assert.False(session.ApplyActionPlan(stale.PlanId, stale.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.Equal(edited, Assert.Single(session.Serialize(cancellationToken: TestContext.Current.CancellationToken)).Content.ToArray());
     }
 
     [Theory]

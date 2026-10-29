@@ -9,13 +9,19 @@ public static class FieldMetadataPlanning
     /// <summary>Legacy documents return no descriptors and retain their existing planning behavior.</summary>
     public static IReadOnlyList<FieldMetadata> Validate(ViewIndex index, ISaveDocument document, ActionPlan plan,
         ReferenceFieldService? references = null)
+        => Validate(index, document, plan, references, CancellationToken.None);
+
+    internal static IReadOnlyList<FieldMetadata> Validate(ViewIndex index, ISaveDocument document, ActionPlan plan,
+        ReferenceFieldService? references, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         if (!index.HasFieldMetadata) return [];
-        index.ResolveMetadata(plan.Changes.Select(change => change.ValueId));
+        index.ResolveMetadata(plan.Changes.Select(change => change.ValueId), cancellationToken);
         var result = new List<FieldMetadata>(plan.Changes.Count);
         var ids = new HashSet<string>(StringComparer.Ordinal);
         foreach (var change in plan.Changes)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var metadata = index.ResolvedMetadata(change.ValueId)
                 ?? throw new InvalidOperationException($"Missing field metadata for '{change.ValueId}'.");
             if (!ids.Add(change.ValueId)) throw new InvalidOperationException($"Duplicate planned field '{change.ValueId}'.");

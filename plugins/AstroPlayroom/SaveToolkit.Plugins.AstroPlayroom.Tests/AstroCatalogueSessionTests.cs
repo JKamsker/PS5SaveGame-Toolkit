@@ -28,7 +28,7 @@ public sealed class AstroCatalogueSessionTests
         Assert.Equal(file.ReadAllBytes(), AstroTestData.Output(document));
 
         var revision = session.State.Revision;
-        var result = session.InvokeAction(action.ActionId, new Dictionary<string, System.Text.Json.JsonElement>(), revision);
+        var result = session.InvokeAction(action.ActionId, new Dictionary<string, System.Text.Json.JsonElement>(), revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
         Assert.Contains("Inspection only", result.Message, StringComparison.Ordinal);
         Assert.Equal(revision, session.State.Revision);
@@ -63,7 +63,7 @@ public sealed class AstroCatalogueSessionTests
             Assert.False(flag.Value.AsBool());
             var original = file.ReadAllBytes();
             var beforeBadge = AstroCatalogueTestData.Group(document, "Artifacts").Badge;
-            var result = session.ApplyEdits([new IncomingEdit(flag.ValueId, JsonSerializer.SerializeToElement(true))], session.State.Revision);
+            var result = session.ApplyEdits([new IncomingEdit(flag.ValueId, JsonSerializer.SerializeToElement(true))], session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
             Assert.True(result.Ok);
             Assert.True(result.StructureChanged);
             Assert.Single(result.Changes);

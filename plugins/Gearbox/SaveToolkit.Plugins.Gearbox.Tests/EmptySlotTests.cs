@@ -96,7 +96,7 @@ public sealed class EmptySlotTests : IDisposable
         Assert.Equal(0, all.HiddenEmptyCount);
         Assert.Contains(all.Rows, row => row.IsEmpty);
         var expected = Enumerable.Range(0, count).Where(i => i % 3 != 0).Select(i => i.ToString(CultureInfo.InvariantCulture)).ToArray();
-        var hidden = session.QueryCollection("slots", new() { Limit = 2, Offset = 1 });
+        var hidden = session.QueryCollection("slots", new() { Limit = 2, Offset = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(count - expected.Length, hidden.HiddenEmptyCount);
         Assert.Equal(expected.Length, hidden.FilteredCount);
         Assert.Equal(expected.Skip(1).Take(2), hidden.Rows.Select(r => r.Key));
@@ -111,13 +111,13 @@ public sealed class EmptySlotTests : IDisposable
         Assert.Equal(count - expected.Length, filtered.HiddenEmptyCount);
         var parameters = new Dictionary<string, JsonElement> { ["level"] = JsonSerializer.SerializeToElement("17") };
         var preview = session.PlanAction("items/level", parameters, new ActionScope
-        { QueryScope = new("slots", new() { Limit = 1 }, session.State.Revision) });
+        { QueryScope = new("slots", new() { Limit = 1 }, session.State.Revision) }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(expected, preview.Scope.RowKeys);
         Assert.False(preview.Scope.QueryScope!.Query.IncludeEmpty);
         // Equipment rows are not item identities: the item writer must still reject this scope.
         Assert.NotEmpty(preview.Plan.Errors);
         var shownSelection = session.PlanAction("items/level", parameters, new ActionScope
-        { QueryScope = new("slots", new() { IncludeEmpty = true, Limit = 1 }, session.State.Revision) { ExcludedRowKeys = ["0"] } });
+        { QueryScope = new("slots", new() { IncludeEmpty = true, Limit = 1 }, session.State.Revision) { ExcludedRowKeys = ["0"] } }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(count - 1, shownSelection.Scope.RowKeys!.Count);
         Assert.DoesNotContain("0", shownSelection.Scope.RowKeys);
         Assert.Equal(Enumerable.Range(1, count - 1).Select(i => i.ToString(CultureInfo.InvariantCulture)), shownSelection.Scope.RowKeys);
@@ -148,13 +148,13 @@ public sealed class EmptySlotTests : IDisposable
         using var session = new DocumentSession("large-ammo", file, plugin, document);
         _ = session.BuildView();
         Assert.IsType<QueryableTableNode>(Assert.Single(session.Expand("ammo")));
-        var page = session.QueryCollection("ammo", new() { Text = "Synthetic/pool/204" });
+        var page = session.QueryCollection("ammo", new() { Text = "Synthetic/pool/204" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var row = Assert.Single(page.Rows);
         Assert.Equal("204", row.Key);
         var field = Assert.IsType<FieldNode>(row.Cells["amount"]);
         Assert.Equal("ammo/204", field.ValueId);
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
-        Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(321))]).Ok);
+        Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(321))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = document.Serialize().Single().Content.ToArray();
         var reopened = GearboxContainer.Parse(edited, title, false).Decode();
         Assert.Equal(321, reopened.Children("resource_pools").ElementAt(204).Float("amount"));

@@ -72,13 +72,13 @@ public sealed class AtomicHeartPlanningTests
             new ReferenceQuery { SortBy = ReferenceSortKey.Category, Limit = 1 }, initial.Revision, action.ActionId);
         var selected = Assert.Single(candidates.Items);
         var result = session.InvokeAction(action.ActionId,
-            new Dictionary<string, JsonElement> { [parameter.ValueId] = JsonSerializer.SerializeToElement(selected.RawId) }, initial.Revision);
+            new Dictionary<string, JsonElement> { [parameter.ValueId] = JsonSerializer.SerializeToElement(selected.RawId) }, initial.Revision, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.True(result.Ok, string.Join("; ", result.Errors.Select(error => error.Message)));
         Assert.Contains(selected.RawId, result.Message);
         Assert.Empty(result.Changes);
         Assert.Equal(initial, session.State);
-        Assert.Empty(session.Serialize());
+        Assert.Empty(session.Serialize(cancellationToken: TestContext.Current.CancellationToken));
         Assert.False(session.State.CanUndo);
     }
 
@@ -117,16 +117,16 @@ public sealed class AtomicHeartPlanningTests
         var document = WriteTestData.Plugin.Open(file, context);
         using var session = new DocumentSession("atomic-bulk", file, WriteTestData.Plugin, document, references: context);
         _ = session.BuildView();
-        _ = session.QueryCollection(InventoryCollection.Id, new() { IncludeEmpty = true, Limit = QueryableCollectionLimits.MaxPageSize });
+        _ = session.QueryCollection(InventoryCollection.Id, new() { IncludeEmpty = true, Limit = QueryableCollectionLimits.MaxPageSize }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var rows = WriteTestData.Table(document).Rows.Where(r => !WriteTestData.Field(r, "amount").Spec.ReadOnly).Take(3).ToArray();
         Assert.Equal(3, rows.Length);
         var selected = new ActionScope(rows.Select(r => r.Key).ToArray());
-        Assert.False(session.InvokeAction(InventoryPlanning.ActionId, new Dictionary<string, JsonElement> { ["amount"] = JsonSerializer.SerializeToElement(1) }).Ok);
+        Assert.False(session.InvokeAction(InventoryPlanning.ActionId, new Dictionary<string, JsonElement> { ["amount"] = JsonSerializer.SerializeToElement(1) }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var preview = session.PlanAction(InventoryPlanning.ActionId,
-            new Dictionary<string, JsonElement> { ["amount"] = JsonSerializer.SerializeToElement(0) }, selected, session.State.Revision);
+            new Dictionary<string, JsonElement> { ["amount"] = JsonSerializer.SerializeToElement(0) }, selected, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(3, preview.Plan.Changes.Count);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, session.State.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var edited = WriteTestData.Output(document);
         _ = WriteTestData.IndependentDecode(file.ReadAllBytes(), edited);
         using (var reopened = WriteTestData.Open(edited))
@@ -136,7 +136,7 @@ public sealed class AtomicHeartPlanningTests
         Assert.Equal(file.ReadAllBytes(), WriteTestData.Output(document));
         Assert.True(session.Redo().Ok);
         Assert.Equal(edited, WriteTestData.Output(document));
-        Assert.False(session.ApplyActionPlan(preview.PlanId!, session.State.Revision).Ok);
+        Assert.False(session.ApplyActionPlan(preview.PlanId!, session.State.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
     }
 
     [Theory]
@@ -149,17 +149,17 @@ public sealed class AtomicHeartPlanningTests
         var document = WriteTestData.Plugin.Open(file, context);
         using var session = new DocumentSession("atomic-scalar", file, WriteTestData.Plugin, document, references: context);
         _ = session.BuildView();
-        _ = session.QueryCollection(InventoryCollection.Id, new() { IncludeEmpty = true, Limit = QueryableCollectionLimits.MaxPageSize });
+        _ = session.QueryCollection(InventoryCollection.Id, new() { IncludeEmpty = true, Limit = QueryableCollectionLimits.MaxPageSize }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var row = WriteTestData.Table(document).Rows.First(r => column == "asset"
             ? WriteTestData.Field(r, column).Value.AsString() == "DA_Item_Shved"
             : !WriteTestData.Field(r, column).Spec.ReadOnly);
         var field = WriteTestData.Field(row, column);
         var next = column == "asset" ? FieldValue.Of("DA_Item_ShotgunKS23") : FieldValue.Of(0);
         var preview = session.PlanAction(InventoryPlanning.ActionId,
-            new Dictionary<string, JsonElement> { ["amount"] = JsonSerializer.SerializeToElement(1) });
+            new Dictionary<string, JsonElement> { ["amount"] = JsonSerializer.SerializeToElement(1) }, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
-        Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(next))], session.State.Revision).Ok);
-        Assert.False(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(next))], session.State.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.False(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var output = WriteTestData.Output(document);
         using (var reopened = WriteTestData.Open(output)) Assert.Equal(next, reopened.GetValue(field.ValueId));
         Assert.True(session.Undo().Ok);

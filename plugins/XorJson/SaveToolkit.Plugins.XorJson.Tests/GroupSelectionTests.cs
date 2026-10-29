@@ -48,7 +48,7 @@ public sealed class GroupSelectionTests
         foreach (var keys in new[] { new[] { volume.ValueId, badKey }, new[] { badKey, volume.ValueId } })
         {
             var scope = new ActionScope(keys);
-            var preview = session.PlanAction(ActionId, IncomingParameters, scope);
+            var preview = session.PlanAction(ActionId, IncomingParameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             AssertRejected(preview.Plan, badKey);
             Assert.Null(preview.PlanId);
             AssertOriginalBytes(fixture, workspace);
@@ -85,7 +85,7 @@ public sealed class GroupSelectionTests
         using var scratch = new WorkspaceScratch();
         using var store = new WorkspaceStore(new PluginCatalog([fixture.Plugin]), new() { DataRoot = scratch.Root });
         var (workspace, session) = OpenSession(store, fixture);
-        var preview = session.PlanAction(ActionId, IncomingParameters, new([volume.ValueId, volume.ValueId]));
+        var preview = session.PlanAction(ActionId, IncomingParameters, new([volume.ValueId, volume.ValueId]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Null(preview.PlanId);
         Assert.Contains(preview.Plan.Errors, error => error.Message.Contains("distinct row keys", StringComparison.Ordinal));
         AssertOriginalBytes(fixture, workspace);
@@ -101,7 +101,7 @@ public sealed class GroupSelectionTests
         using var store = new WorkspaceStore(new PluginCatalog([fixture.Plugin]), new() { DataRoot = scratch.Root });
         var (workspace, session) = OpenSession(store, fixture);
         var volume = ViewTraversal.Nodes(session).OfType<FieldNode>().Single(field => field.Label == "volume");
-        var preview = session.PlanAction(ActionId, IncomingParameters, new([volume.ValueId]));
+        var preview = session.PlanAction(ActionId, IncomingParameters, new([volume.ValueId]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.NotNull(preview.PlanId);
         var change = Assert.Single(preview.Plan.Changes);
@@ -109,7 +109,7 @@ public sealed class GroupSelectionTests
         Assert.Equal(FieldValue.ExactNumber("50"), change.OldValue);
         Assert.Equal(FieldValue.ExactNumber("49"), change.NewValue);
         AssertOriginalBytes(fixture, workspace);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(change.NewValue, ViewTraversal.Nodes(session).OfType<FieldNode>().Single(field => field.ValueId == volume.ValueId).Value);
         Assert.True(session.Undo().Ok);
         AssertOriginalBytes(fixture, workspace);

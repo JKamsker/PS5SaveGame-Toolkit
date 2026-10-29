@@ -167,7 +167,7 @@ public sealed class CatalogCollectionTests
         {
             ["type"] = System.Text.Json.JsonSerializer.SerializeToElement("4294967294"),
             ["ap"] = System.Text.Json.JsonSerializer.SerializeToElement("0"),
-        });
+        }, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Null(bad.PlanId);
         Assert.NotEmpty(bad.Plan.Errors);
     }

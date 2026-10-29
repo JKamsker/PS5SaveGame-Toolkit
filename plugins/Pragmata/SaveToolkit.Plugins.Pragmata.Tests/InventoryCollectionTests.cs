@@ -56,21 +56,21 @@ public sealed class InventoryCollectionTests
         using var session = new DocumentSession("large-inventory", file, plugin, document);
         _ = session.BuildView();
         var parameters = new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("17") };
-        Assert.NotNull(session.PlanAction(PragmataViews.QuantityAction, parameters, new ActionScope()).PlanId);
+        Assert.NotNull(session.PlanAction(PragmataViews.QuantityAction, parameters, new ActionScope(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).PlanId);
         var query = new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["category"] = "unmapped" }, SortColumn = "quantity" };
         var excluded = document.Layout.Items[0];
         var excludedKey = Editing.QuantityActions.RowKey(excluded);
         var scope = new ActionScope { QueryScope = new ActionQueryScope(InventoryCollections.CollectionId, query, session.State.Revision)
             { ExcludedRowKeys = [excludedKey] } };
-        var preview = session.PlanAction(PragmataViews.QuantityAction, parameters, scope);
+        var preview = session.PlanAction(PragmataViews.QuantityAction, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(250, preview.Plan.Changes.Count);
         Assert.All(document.Layout.Items, item => Assert.True(document.HasPrimaryBinding(item.Find(KnownHashes.Quantity)!)));
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(0, document.Read(excluded.Find(KnownHashes.Quantity)!).AsInt32());
         Assert.All(document.Layout.Items.Skip(1), item => Assert.Equal(17, document.Read(item.Find(KnownHashes.Quantity)!).AsInt32()));
-        var modified = session.Serialize().Single().Content.ToArray();
+        var modified = session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray();
         using var reopened = new PragmataDocument(file.RelativePath, modified);
         Assert.All(reopened.Layout.Items.Skip(1), item => Assert.Equal(17, reopened.Read(item.Find(KnownHashes.Quantity)!).AsInt32()));
         var before = new DsssContainer(original).Plaintext;
@@ -79,7 +79,7 @@ public sealed class InventoryCollectionTests
         Assert.Equal(diff.RangeCount, diff.Ranges.Count);
         Assert.All(diff.Ranges, range => Assert.Contains(document.Layout.Items.Skip(1).Select(item => item.Find(KnownHashes.Quantity)!),
             quantity => range.Offset >= quantity.Offset && range.Offset + range.Length <= quantity.Offset + quantity.Size));
-        var review = session.GetChanges();
+        var review = session.GetChanges(cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(review.Complete);
         // SDK-02 reuses the canonical quantity identity across Raw and F8 projections.
         var changedQuantities = document.Layout.Items.Skip(1).Select(item => item.Find(KnownHashes.Quantity)!).ToArray();
@@ -95,24 +95,24 @@ public sealed class InventoryCollectionTests
         Assert.Equal(primaryId, raw.ValueId);
         var revertId = revertViaRawView ? raw.ValueId : primaryId;
         var originalQuantity = review.Changes.Single(change => change.ValueId == revertId).OriginalValue;
-        Assert.True(session.RevertChange(revertId, review.Revision).Ok);
+        Assert.True(session.RevertChange(revertId, review.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(originalQuantity, document.Read(changedQuantities[0]));
-        var afterRevert = session.GetChanges();
+        var afterRevert = session.GetChanges(cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(afterRevert.Complete);
         Assert.Equal(249, afterRevert.Changes.Count);
         Assert.DoesNotContain(afterRevert.Changes, change => change.ValueId == primaryId);
-        Assert.True(session.RevertChange(revertId, review.Revision).Stale);
-        Assert.False(session.RevertChange(revertId, afterRevert.Revision).Ok);
+        Assert.True(session.RevertChange(revertId, review.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
+        Assert.False(session.RevertChange(revertId, afterRevert.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(afterRevert.Revision, session.State.Revision);
         Assert.True(session.Undo().Ok); // Exactly one undo restores both presentations of this edit.
-        Assert.Equal(modified, session.Serialize().Single().Content.ToArray());
-        Assert.Equal(250, session.GetChanges().Changes.Count);
+        Assert.Equal(modified, session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray());
+        Assert.Equal(250, session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes.Count);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.CanUndo);
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
         Assert.True(session.Redo().Ok);
         Assert.Equal(modified, document.Serialize().Single().Content.ToArray());
-        Assert.Null(session.PlanAction(PragmataViews.QuantityAction, parameters, scope).PlanId);
+        Assert.Null(session.PlanAction(PragmataViews.QuantityAction, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).PlanId);
     }
 
     [Fact]

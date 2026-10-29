@@ -18,7 +18,7 @@ public sealed class HistoryWriteTests
         var slot = EldenRingParser.Parse(original).Slots[0];
         using var session = WriteTestSupport.Session(file, out var document);
         _ = session.Expand("characters/0");
-        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(HistoryId, 4426)]).Ok);
+        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(HistoryId, 4426)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var expected = original.ToArray();
         var offsets = HistoryOffsets(slot);
         foreach (var offset in offsets) BinaryPrimitives.WriteUInt32LittleEndian(expected.AsSpan(offset), 4426);
@@ -45,13 +45,13 @@ public sealed class HistoryWriteTests
         using var session = WriteTestSupport.Session(file, out var document, original);
         _ = session.Expand("characters/0");
         var incoming = new Dictionary<string, JsonElement> { ["runes"] = JsonSerializer.SerializeToElement(1148) };
-        var preview = session.PlanAction(LinkedId, incoming);
+        var preview = session.PlanAction(LinkedId, incoming, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(2, preview.Plan.Changes.Count);
         Assert.True(preview.Plan.Changes.Single(change => change.ValueId == HistoryId).Derived);
         Assert.NotEmpty(preview.Plan.Warnings);
         WriteTestSupport.EqualBytes(original, document);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var expected = original.ToArray();
         var offsets = HistoryOffsets(slot).Append(slot.PlayerOffset!.Value + EldenRingLayout.RunesOffset).ToArray();
         foreach (var offset in offsets) BinaryPrimitives.WriteUInt32LittleEndian(expected.AsSpan(offset), 1148);
@@ -66,9 +66,9 @@ public sealed class HistoryWriteTests
         WriteTestSupport.EqualBytes(original, document);
         Assert.True(session.Redo().Ok);
         WriteTestSupport.EqualBytes(expected, document);
-        var noop = session.PlanAction(LinkedId, incoming);
+        var noop = session.PlanAction(LinkedId, incoming, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(noop.Plan.Changes);
-        Assert.True(session.ApplyActionPlan(noop.PlanId!, noop.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(noop.PlanId!, noop.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         WriteTestSupport.EqualBytes(expected, document);
     }
 

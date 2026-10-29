@@ -35,8 +35,8 @@ public sealed class BoltPlanningTests
             Assert.Contains(plan.Warnings, w => w.Contains("game may reject", StringComparison.Ordinal));
             var original = file.ReadAllBytes();
             Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
-            var preview = session.PlanAction(action.ActionId, Incoming(target));
-            Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+            var preview = session.PlanAction(action.ActionId, Incoming(target), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+            Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
             Assert.Equal(oldSpent, document.GetValue(RiftScalarWrites.SpentId));
             Assert.Equal(target, document.GetValue(RiftScalarWrites.BalanceId).AsInteger());
             var patched = Assert.Single(document.Serialize()).Content.ToArray();
@@ -79,10 +79,10 @@ public sealed class BoltPlanningTests
         Assert.False(planner.ApplyActionPlan(action.ActionId, Parameters(1), new(), plan with { Changes = [] }).Succeeded);
         Assert.False(planner.ApplyActionPlan(action.ActionId, Parameters(1), new(), plan with { Warnings = [] }).Succeeded);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
-        var preview = session.PlanAction(action.ActionId, Incoming(1));
-        Assert.True(session.ApplyEdits([new(RiftScalarWrites.CareerId, JsonSerializer.SerializeToElement(FieldValue.Of(23445L)))]).Ok);
+        var preview = session.PlanAction(action.ActionId, Incoming(1), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.True(session.ApplyEdits([new(RiftScalarWrites.CareerId, JsonSerializer.SerializeToElement(FieldValue.Of(23445L)))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var after = Assert.Single(document.Serialize()).Content.ToArray();
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Stale);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
         Assert.False(planner.ApplyActionPlan(action.ActionId, Parameters(1), new(), plan).Succeeded);
         Assert.Equal(after, Assert.Single(document.Serialize()).Content.ToArray());
     }
@@ -134,12 +134,12 @@ public sealed class BoltPlanningTests
         var action = Assert.Single(Assert.IsType<TabsNode>(session.BuildView()).Tabs[0].Children.OfType<ActionNode>());
         _ = session.Expand("system/d436a987");
         _ = session.Expand("ddl/d436a987/CareerBolts");
-        Assert.True(session.ApplyEdits([new(RiftScalarWrites.SpentId, JsonSerializer.SerializeToElement(FieldValue.Of(0L)))]).Ok);
+        Assert.True(session.ApplyEdits([new(RiftScalarWrites.SpentId, JsonSerializer.SerializeToElement(FieldValue.Of(0L)))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var target = Assert.IsType<IntegerSpec>(action.Parameters[0].Spec).Max;
-        var preview = session.PlanAction(action.ActionId, Incoming(target));
+        var preview = session.PlanAction(action.ActionId, Incoming(target), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.Contains(preview.Plan.Changes, c => c.ValueId == "ddl/d436a987/CareerBolts/0" && c.Derived && c.NewValue.AsInteger() == target);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(target, document.GetValue("ddl/d436a987/CareerBolts/0").AsInteger());
         Assert.True(session.Undo().Ok);
         Assert.Equal(23444, document.GetValue("ddl/d436a987/CareerBolts/0").AsInteger());

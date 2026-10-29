@@ -56,7 +56,7 @@ public sealed class WitcherRichSampleTests
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("witcher-rich", file, plugin, document, references: references);
         _ = session.BuildView();
-        var page = session.QueryCollection(InventoryViews.CollectionId, new QueryableCollectionQuery { Text = "Kaer Morhen", Limit = 1 });
+        var page = session.QueryCollection(InventoryViews.CollectionId, new QueryableCollectionQuery { Text = "Kaer Morhen", Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var row = Assert.Single(page.Rows);
         Assert.Equal(30, page.TotalCount);
         Assert.Equal(1, page.FilteredCount);

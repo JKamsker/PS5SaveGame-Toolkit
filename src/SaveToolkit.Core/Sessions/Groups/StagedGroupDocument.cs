@@ -14,7 +14,7 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
     private const int MaxRememberedQueries = 256;
     private readonly Func<IGroupedSaveDocument> _open;
     private readonly Func<IGroupedSaveDocument, IReadOnlyList<FileOutput>> _verify;
-    private readonly Action _preflight;
+    private readonly Action<CancellationToken> _preflight;
     private readonly long _maxSnapshotBytes;
     private readonly HashSet<string> _expanded = new(StringComparer.Ordinal);
     private readonly Dictionary<string, (string Collection, QueryableCollectionQuery Query)> _queries = new(StringComparer.Ordinal);
@@ -23,6 +23,10 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
 
     public StagedGroupDocument(Func<IGroupedSaveDocument> open,
         Func<IGroupedSaveDocument, IReadOnlyList<FileOutput>> verify, Action preflight, long maxSnapshotBytes)
+        : this(open, verify, _ => preflight(), maxSnapshotBytes) { }
+
+    public StagedGroupDocument(Func<IGroupedSaveDocument> open,
+        Func<IGroupedSaveDocument, IReadOnlyList<FileOutput>> verify, Action<CancellationToken> preflight, long maxSnapshotBytes)
     {
         _open = open;
         _verify = verify;
@@ -87,19 +91,45 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
     // Even a buggy planner cannot mutate the live model. The usual F6 deterministic revalidation
     // still runs, with the same identities, pinned context and group-wide revision.
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
+        => PlanForSession(actionId, parameters, scope, CancellationToken.None);
+
+    internal ActionPlan PlanForSession(string actionId, IReadOnlyDictionary<string, FieldValue> parameters,
+        ActionScope scope, CancellationToken cancellationToken)
     {
-        using var candidate = CreateCandidate(_current.CaptureMemento());
-        return Planner(candidate).PlanAction(actionId, parameters, scope);
+        cancellationToken.ThrowIfCancellationRequested();
+        var memento = _current.CaptureMemento();
+        cancellationToken.ThrowIfCancellationRequested();
+        using var candidate = CreateCandidate(memento, rebind: true, cancellationToken);
+        var plan = Planner(candidate).PlanAction(actionId, parameters, scope);
+        cancellationToken.ThrowIfCancellationRequested();
+        return plan;
+    }
+
+    internal Action CancellationRollback()
+    {
+        var expanded = _expanded.ToArray();
+        var queries = _queries.ToArray();
+        return () =>
+        {
+            _expanded.Clear();
+            _expanded.UnionWith(expanded);
+            _queries.Clear();
+            foreach (var query in queries) _queries.Add(query.Key, query.Value);
+        };
     }
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
         Mutate(candidate => Planner(candidate).ApplyActionPlan(actionId, parameters, scope, plan));
 
-    public IReadOnlyList<FileOutput> Serialize()
+    public IReadOnlyList<FileOutput> Serialize() => SerializeForSnapshot(CancellationToken.None)
+        .Select(output => output with { Content = output.Content.ToArray() }).ToArray();
+
+    // Only the session snapshotter consumes this internal view; it copies the buffers under
+    // the session gate before returning them to any caller.
+    internal IReadOnlyList<FileOutput> SerializeForSnapshot(CancellationToken cancellationToken)
     {
-        _preflight();
-        // Never let a plugin-owned mutable buffer escape into an export plan.
-        return _outputs.Select(o => o with { Content = o.Content.ToArray() }).ToArray();
+        _preflight(cancellationToken);
+        return _outputs;
     }
 
     public DocumentMemento RestoreMemento(DocumentMemento memento)
@@ -145,22 +175,33 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
             throw new SaveFormatException("The group snapshot exceeds its undo budget. No changes were published.");
     }
 
-    private IGroupedSaveDocument CreateCandidate(DocumentMemento memento, bool rebind = true)
+    private IGroupedSaveDocument CreateCandidate(DocumentMemento memento, bool rebind = true,
+        CancellationToken cancellationToken = default)
     {
-        _preflight();
+        _preflight(cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
         var candidate = _open();
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
             _ = candidate.RestoreMemento(memento);
+            cancellationToken.ThrowIfCancellationRequested();
             _ = candidate.BuildView();
+            cancellationToken.ThrowIfCancellationRequested();
             foreach (var lazyId in rebind ? _expanded : [])
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 try { _ = candidate.ExpandNode(lazyId); }
                 catch (KeyNotFoundException) { } // An earlier structural commit retired this section.
+                cancellationToken.ThrowIfCancellationRequested();
             }
             if (rebind && candidate is IQueryableDocument queryable)
                 foreach (var (collection, query) in _queries.Values)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
                     if (queryable.Collections.Any(c => c.Id == collection)) _ = queryable.Query(collection, query);
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
             return candidate;
         }
         catch { candidate.Dispose(); throw; }

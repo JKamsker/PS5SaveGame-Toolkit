@@ -82,7 +82,7 @@ public sealed class JsonSemanticSampleTests(ITestOutputHelper output)
             var parameters = id == "semantic/present-flags" ? new[] { ("enabled", FieldValue.Of(false)) }
                 : id == "semantic/progress" ? actions.Single(a => a.ActionId == id).Parameters
                     .Select(p => (p.ValueId, FieldValue.Of(p.Value.AsString()[..^1]))).ToArray() : [];
-            var preview = fixture.Session.PlanAction(id, JsonArrayEditingTests.Parameters(parameters), expectedRevision: fixture.Session.State.Revision);
+            var preview = fixture.Session.PlanAction(id, JsonArrayEditingTests.Parameters(parameters), expectedRevision: fixture.Session.State.Revision, scope: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.NotNull(preview.PlanId);
             Assert.NotEmpty(preview.Plan.Warnings);
             if (preview.Plan.Changes.Count == 0) continue;

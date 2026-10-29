@@ -51,7 +51,7 @@ public sealed class WitcherSpatialTests
                 Navigate(document, marker.Target!);
                 Assert.False(document.ApplyEdits([new(marker.Target!.Id, FieldValue.Of("changed"))]).Succeeded);
             });
-            var page = session.QueryCollection(MapViews.CollectionId, new() { Limit = 200 });
+            var page = session.QueryCollection(MapViews.CollectionId, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Equal(tags.Count, page.TotalCount);
             Assert.Equal(tags.Select(t => t.Id), page.Rows.Select(r => r.Key));
             Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
@@ -69,7 +69,7 @@ public sealed class WitcherSpatialTests
         var graph = Assert.IsType<GraphNode>(Assert.Single(session.Expand("ability-graph/skills")));
         var item = graph.Items.Single(i => i.Id == "S_Sword_s01");
         foreach (var part in item.Target!.Path.Where(p => p.StartsWith("section:ability/", StringComparison.Ordinal))) { _ = session.Expand(part[8..]); }
-        var outcome = session.ApplyEdits([EnabledWriteFixture.Incoming(item.Target!.Id, FieldValue.Of(1))]);
+        var outcome = session.ApplyEdits([EnabledWriteFixture.Incoming(item.Target!.Id, FieldValue.Of(1))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(outcome.Ok);
         Assert.True(outcome.StructureChanged);
         Assert.Equal(GraphState.Unlocked, State());

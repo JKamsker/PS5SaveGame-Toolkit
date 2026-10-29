@@ -6,8 +6,11 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Core.Sessions;
 
 /// <summary>One snapshot's global F8 budgets. Providers own deterministic native row ordering.</summary>
-internal sealed class SemanticQueryableTraversal(ISaveDocument document, DocumentSessionOptions limits)
+internal sealed class SemanticQueryableTraversal(ISaveDocument document, DocumentSessionOptions limits, CancellationToken cancellationToken)
 {
+    public SemanticQueryableTraversal(ISaveDocument document, DocumentSessionOptions limits)
+        : this(document, limits, CancellationToken.None) { }
+
     private readonly HashSet<string> _visited = new(StringComparer.Ordinal);
     private readonly List<string> _warnings = [];
     private int _rows;
@@ -19,6 +22,7 @@ internal sealed class SemanticQueryableTraversal(ISaveDocument document, Documen
 
     public void Visit(QueryableTableNode table, Func<TableRow, SemanticCollectionTarget, string, bool> visit)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         if (!_visited.Add(table.CollectionId)) return;
         if (table.TotalCount == 0) return;
         if (table.TotalCount < 0 || document is not IQueryableDocument)
@@ -28,7 +32,7 @@ internal sealed class SemanticQueryableTraversal(ISaveDocument document, Documen
         }
 
         try { Read(table, (IQueryableDocument)document, visit); }
-        catch (Exception ex) when (ex is not OutOfMemoryException)
+        catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
         {
             Cut(table, "collection could not be read");
         }
@@ -43,6 +47,7 @@ internal sealed class SemanticQueryableTraversal(ISaveDocument document, Documen
         string? cursor = null;
         while (true)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (_rows >= limits.MaxReviewQueryRows) { Cut(table, $"row cap {limits.MaxReviewQueryRows}"); return; }
             if (_pages >= limits.MaxReviewQueryPages) { Cut(table, $"page cap {limits.MaxReviewQueryPages}"); return; }
             if (_bytes >= limits.MaxReviewQueryBytes) { Cut(table, $"byte cap {limits.MaxReviewQueryBytes}"); return; }
@@ -50,6 +55,7 @@ internal sealed class SemanticQueryableTraversal(ISaveDocument document, Documen
             var query = new QueryableCollectionQuery { Offset = cursor is null ? offset : 0, Cursor = cursor, Limit = size, IncludeEmpty = true };
             _pages++;
             var page = queryable.Query(table.CollectionId, query);
+            cancellationToken.ThrowIfCancellationRequested();
             if (page.CollectionId != table.CollectionId || page.Rows.Count > size || page.Limit != size || page.Offset < 0 ||
                 cursor is null && page.Offset != offset || page.TotalCount != table.TotalCount ||
                 page.FilteredCount != page.TotalCount || page.HiddenEmptyCount != 0 || page.Rows.Count > page.TotalCount - offset)
@@ -58,7 +64,7 @@ internal sealed class SemanticQueryableTraversal(ISaveDocument document, Documen
                 return;
             }
 
-            using var counter = new SemanticQueryByteCounter(limits.MaxReviewQueryBytes - _bytes);
+            using var counter = new SemanticQueryByteCounter(limits.MaxReviewQueryBytes - _bytes, cancellationToken);
             try { JsonSerializer.Serialize(counter, page); }
             catch (SemanticQueryByteLimitException)
             {
@@ -70,6 +76,7 @@ internal sealed class SemanticQueryableTraversal(ISaveDocument document, Documen
             _bytes += counter.BytesWritten;
             foreach (var row in page.Rows)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (string.IsNullOrWhiteSpace(row.Key) || !keys.Add(row.Key))
                 {
                     Cut(table, "duplicate or empty row identity");

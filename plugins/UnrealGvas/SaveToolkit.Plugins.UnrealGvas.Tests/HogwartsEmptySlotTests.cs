@@ -109,16 +109,16 @@ public sealed class HogwartsEmptySlotTests
         var plugin = new UnrealGvasPlugin();
         using var session = new DocumentSession("empty-count", file, plugin, plugin.Open(file));
         _ = session.BuildView();
-        var page = session.QueryCollection(HogwartsInventoryFixture.Collection, new() { IncludeEmpty = true, Limit = 1 });
+        var page = session.QueryCollection(HogwartsInventoryFixture.Collection, new() { IncludeEmpty = true, Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var field = Assert.IsType<FieldNode>(Assert.Single(page.Rows).Cells["Count"]);
         Assert.True(Assert.Single(page.Rows).IsEmpty);
-        var edit = session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(1))]);
+        var edit = session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(1))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(edit.Ok);
         Assert.True(edit.StructureChanged);
-        var changed = session.QueryCollection(HogwartsInventoryFixture.Collection, new());
+        var changed = session.QueryCollection(HogwartsInventoryFixture.Collection, new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal((208, 202), (changed.FilteredCount, changed.HiddenEmptyCount));
         Assert.True(session.Undo().Ok);
-        var undone = session.QueryCollection(HogwartsInventoryFixture.Collection, new());
+        var undone = session.QueryCollection(HogwartsInventoryFixture.Collection, new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal((207, 203), (undone.FilteredCount, undone.HiddenEmptyCount));
     }
 
@@ -132,15 +132,15 @@ public sealed class HogwartsEmptySlotTests
         var plugin = new UnrealGvasPlugin();
         using var session = new DocumentSession("scope", file, plugin, new InventoryScopeDocument(plugin.Open(file)));
         _ = session.BuildView();
-        var excluded = session.QueryCollection(HogwartsInventoryFixture.Collection, new() { Limit = 1 }).Rows[0].Key;
+        var excluded = session.QueryCollection(HogwartsInventoryFixture.Collection, new() { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows[0].Key;
         var query = new QueryableCollectionQuery { Text = "Bag", IncludeEmpty = includeEmpty ? true : null };
         var scope = new ActionScope { QueryScope = new(HogwartsInventoryFixture.Collection, query, session.State.Revision) { ExcludedRowKeys = [excluded] } };
-        var preview = session.PlanAction(InventoryScopeDocument.ActionId, new Dictionary<string, JsonElement>(), scope);
+        var preview = session.PlanAction(InventoryScopeDocument.ActionId, new Dictionary<string, JsonElement>(), scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.Equal(expected, preview.Scope.RowKeys!.Count);
         Assert.Equal(includeEmpty, preview.Scope.QueryScope!.Query.IncludeEmpty);
         Assert.DoesNotContain(excluded, preview.Scope.RowKeys);
-        var shown = session.QueryCollection(HogwartsInventoryFixture.Collection, new() { IncludeEmpty = true, Limit = 200 });
+        var shown = session.QueryCollection(HogwartsInventoryFixture.Collection, new() { IncludeEmpty = true, Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.All(shown.Rows.Where(row => row.IsEmpty), row => Assert.Equal(includeEmpty, preview.Scope.RowKeys.Contains(row.Key)));
     }
 

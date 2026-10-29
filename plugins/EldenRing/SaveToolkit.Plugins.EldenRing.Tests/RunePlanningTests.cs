@@ -27,7 +27,7 @@ public sealed class RunePlanningTests
         var action = Assert.Single(session.Expand("characters/0").OfType<ActionNode>(), action => action.ActionId == ActionId);
         Assert.Equal(ActionId, action.ActionId);
         Assert.True(action.SupportsPlanning);
-        var preview = session.PlanAction(ActionId, Incoming(1148));
+        var preview = session.PlanAction(ActionId, Incoming(1148), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Empty(preview.Plan.Errors);
         Assert.Single(preview.Plan.Changes);
@@ -35,20 +35,20 @@ public sealed class RunePlanningTests
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);
         Assert.True(original.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.True(expected.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));
         Assert.Equal(504U, document.GetValue("slots/0/vitals/hp/current").AsUInt32());
         Assert.Equal(504U, document.GetValue("slots/0/vitals/hp/effective-max").AsUInt32());
         Assert.Equal(476U, document.GetValue("slots/0/vitals/hp/base-max").AsUInt32());
         Assert.Equal(4427U, document.GetValue("slots/0/rune-memory").AsUInt32());
-        Assert.Equal("slots/0/runes", Assert.Single(session.GetChanges().Changes).ValueId);
+        Assert.Equal("slots/0/runes", Assert.Single(session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes).ValueId);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.CanUndo); // One action, one undo step.
         Assert.True(original.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));
         Assert.True(session.Redo().Ok);
         Assert.True(expected.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));
         Assert.True(session.Undo().Ok);
-        Assert.Empty(session.Serialize());
+        Assert.Empty(session.Serialize(cancellationToken: TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -118,15 +118,15 @@ public sealed class RunePlanningTests
         using var session = new DocumentSession("stale-runes", file, plugin, plugin.Open(file));
         _ = session.BuildView();
         _ = session.Expand("characters/0");
-        var noop = session.PlanAction(ActionId, Incoming(1147));
+        var noop = session.PlanAction(ActionId, Incoming(1147), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(noop.Plan.Changes);
-        Assert.True(session.ApplyActionPlan(noop.PlanId!, noop.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(noop.PlanId!, noop.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.False(session.State.CanUndo);
-        var preview = session.PlanAction(ActionId, Incoming(1148));
-        Assert.True(session.ApplyEdits([new IncomingEdit("slots/0/runes", JsonSerializer.SerializeToElement(1149))]).Ok);
-        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Stale);
+        var preview = session.PlanAction(ActionId, Incoming(1148), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.True(session.ApplyEdits([new IncomingEdit("slots/0/runes", JsonSerializer.SerializeToElement(1149))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.IsDirty);
-        Assert.False(session.InvokeAction(ActionId, Incoming(101)).Ok);
+        Assert.False(session.InvokeAction(ActionId, Incoming(101), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
     }
 }

@@ -86,24 +86,24 @@ public sealed class QuantityPlanningTests
         using var session = new DocumentSession("planned-quantity", file, new PragmataPlugin(), document);
         var table = ((TabsNode)session.BuildView()).Tabs.Single(tab => tab.Title == "Inventory").Children.OfType<TableNode>().Single();
         var parameters = new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("17") };
-        Assert.False(session.InvokeAction(PragmataViews.QuantityAction, parameters).Ok);
+        Assert.False(session.InvokeAction(PragmataViews.QuantityAction, parameters, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var scope = new ActionScope(table.Rows.Take(3).Select(row => row.Key).ToArray());
-        var preview = session.PlanAction(PragmataViews.QuantityAction, parameters, scope);
+        var preview = session.PlanAction(PragmataViews.QuantityAction, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.Equal(3, preview.Plan.Changes.Count);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
-        var modified = session.Serialize().Single().Content.ToArray();
-        Assert.False(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var modified = session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray();
+        Assert.False(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.True(session.Undo().Ok);
         Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
         Assert.False(session.State.CanUndo);
         Assert.True(session.Redo().Ok);
-        Assert.Equal(modified, session.Serialize().Single().Content.ToArray());
-        var stale = session.PlanAction(PragmataViews.QuantityAction, parameters, new ActionScope());
+        Assert.Equal(modified, session.Serialize(cancellationToken: TestContext.Current.CancellationToken).Single().Content.ToArray());
+        var stale = session.PlanAction(PragmataViews.QuantityAction, parameters, new ActionScope(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var target = EditingTests.Quantity(document);
-        Assert.True(session.ApplyEdits([new IncomingEdit(target.Path, JsonSerializer.SerializeToElement("19"))]).Ok);
+        Assert.True(session.ApplyEdits([new IncomingEdit(target.Path, JsonSerializer.SerializeToElement("19"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var beforeStale = document.Serialize().Single().Content.ToArray();
-        Assert.False(session.ApplyActionPlan(stale.PlanId!, stale.Revision).Ok);
+        Assert.False(session.ApplyActionPlan(stale.PlanId!, stale.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(beforeStale, document.Serialize().Single().Content.ToArray());
     }
 
@@ -126,12 +126,12 @@ public sealed class QuantityPlanningTests
         var item = document.Layout.Items.Single(item => item.Find(KnownHashes.Quantity) == target);
         var preview = session.PlanAction(PragmataViews.QuantityAction,
             new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("17") },
-            new ActionScope([QuantityActions.RowKey(item)]));
+            new ActionScope([QuantityActions.RowKey(item)]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         var change = Assert.Single(preview.Plan.Changes);
         Assert.False(change.Derived);
         Assert.Equal(raw.ValueId, change.ValueId);
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(17, document.GetValue(raw.ValueId).AsInt32());
         Assert.True(session.Undo().Ok);
         Assert.Equal(raw.Value, document.GetValue(raw.ValueId));

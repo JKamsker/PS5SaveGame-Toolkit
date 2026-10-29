@@ -94,7 +94,7 @@ public sealed class SampleFormatTests(ITestOutputHelper output)
             var id = profile ? "keys/2420693941" : "character/level";
             var value = System.Text.Json.JsonSerializer.SerializeToElement(profile ? 9 : 20);
             var before = document.Serialize().Single().Content.ToArray();
-            Assert.True(session.ApplyEdits([new IncomingEdit(id, value)]).Ok);
+            Assert.True(session.ApplyEdits([new IncomingEdit(id, value)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
             var edited = document.Serialize().Single().Content.ToArray();
             Assert.NotEqual(before, edited);
             Assert.True(session.Undo().Ok);

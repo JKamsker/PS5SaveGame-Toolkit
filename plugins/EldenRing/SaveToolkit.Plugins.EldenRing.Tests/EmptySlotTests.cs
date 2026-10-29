@@ -121,7 +121,7 @@ public sealed class EmptySlotTests
         using var disk = new SyntheticDiskSave(fixture.Save.Bytes);
         using var session = WriteTestSupport.Session(disk.File, out var document);
         var queryable = (IQueryableDocument)document;
-        var visible = Assert.Single(session.QueryCollection(id, new()).Rows);
+        var visible = Assert.Single(session.QueryCollection(id, new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         Assert.False(visible.IsEmpty);
         var identities = new HashSet<string>(StringComparer.Ordinal);
         for (var offset = 0; offset < capacity; offset += 137)
@@ -140,10 +140,10 @@ public sealed class EmptySlotTests
         Assert.Equal(entry.Key(0), visible.Key);
         Assert.Equal(visible.Key, Assert.Single(queryable.Query(id, new() { IncludeEmpty = true, Text = "0x400050F0" }).Rows).Key);
         var quantity = Assert.IsType<FieldNode>(visible.Cells["quantity"]);
-        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(quantity.ValueId, 2)]).Ok);
+        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(quantity.ValueId, 2)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         WriteTestSupport.OnlyRanges(fixture.Save.Bytes, WriteTestSupport.Bytes(document), (entry.Offset + sizeof(uint), sizeof(uint)));
         Assert.Equal(2U, EldenRingParser.ReadUInt32(WriteTestSupport.Bytes(document), entry.Offset + sizeof(uint)));
-        Assert.Equal(visible.Key, Assert.Single(session.QueryCollection(id, new()).Rows).Key);
+        Assert.Equal(visible.Key, Assert.Single(session.QueryCollection(id, new(), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows).Key);
         Assert.True(session.Undo().Ok);
         WriteTestSupport.EqualBytes(fixture.Save.Bytes, document);
     }
@@ -157,34 +157,34 @@ public sealed class EmptySlotTests
         fixture.Row("held", "key", 3, 0xB0002198, 1, 3);
         using var disk = new SyntheticDiskSave(fixture.Save.Bytes);
         using var session = WriteTestSupport.Session(disk.File, out var document);
-        _ = session.QueryCollection(HeldId, new() { Limit = 1 }); // Publish the table-cell F6 action.
+        _ = session.QueryCollection(HeldId, new() { Limit = 1 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken); // Publish the table-cell F6 action.
         ActionScope Scope(QueryableCollectionQuery query, params string[] exclusions) => new()
         {
             QueryScope = new(HeldId, query, session.State.Revision) { ExcludedRowKeys = exclusions },
         };
-        var preview = session.PlanAction(RefillId, NoParameters, Scope(new() { Limit = 1 }));
+        var preview = session.PlanAction(RefillId, NoParameters, Scope(new() { Limit = 1 }), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(preview.PlanId);
         Assert.False(preview.Scope.QueryScope!.Query.IncludeEmpty);
         Assert.Equal(3, preview.Scope.RowKeys!.Count);
         Assert.Equal(2, preview.Plan.Changes.Count);
         Assert.Single(preview.Plan.SkippedRows);
-        var fruit = Assert.Single(session.QueryCollection(HeldId, new() { Text = "0x400050F0" }).Rows);
-        var excluded = session.PlanAction(RefillId, NoParameters, Scope(new() { Limit = 1 }, fruit.Key));
+        var fruit = Assert.Single(session.QueryCollection(HeldId, new() { Text = "0x400050F0" }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
+        var excluded = session.PlanAction(RefillId, NoParameters, Scope(new() { Limit = 1 }, fruit.Key), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(2, excluded.Scope.RowKeys!.Count);
         Assert.DoesNotContain(fruit.Key, excluded.Scope.RowKeys);
         Assert.Single(excluded.Plan.Changes);
-        Assert.True(session.ApplyActionPlan(excluded.PlanId!, excluded.Revision).Ok);
+        Assert.True(session.ApplyActionPlan(excluded.PlanId!, excluded.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.True(session.Undo().Ok);
         WriteTestSupport.EqualBytes(fixture.Save.Bytes, document);
 
-        var hiddenOnly = session.PlanAction(RefillId, NoParameters, Scope(new() { Text = "Empty slot" }));
+        var hiddenOnly = session.PlanAction(RefillId, NoParameters, Scope(new() { Text = "Empty slot" }), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(hiddenOnly.Scope.RowKeys!);
         Assert.Empty(hiddenOnly.Plan.Changes);
         Assert.Empty(hiddenOnly.Plan.SkippedRows);
         var shown = session.PlanAction(RefillId, NoParameters, Scope(new()
         {
             IncludeEmpty = true, Filters = new Dictionary<string, string> { ["group"] = "key" }, Limit = 17,
-        }));
+        }), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(shown.Scope.QueryScope!.Query.IncludeEmpty);
         Assert.Equal(SemanticLayout.HeldKeyCapacity, shown.Scope.RowKeys!.Count);
         Assert.Equal(SemanticLayout.HeldKeyCapacity, shown.Plan.SkippedRows.Count);

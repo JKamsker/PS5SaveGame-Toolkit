@@ -11,8 +11,18 @@ public sealed class OverlaySaveSet : ISaveSet
     private readonly List<OverlayDirectory> _directories;
 
     public OverlaySaveSet(ISaveSet inner, IReadOnlyDictionary<string, ReadOnlyMemory<byte>> overrides)
+        : this(inner, overrides, CancellationToken.None) { }
+
+    internal OverlaySaveSet(ISaveSet inner, IReadOnlyDictionary<string, ReadOnlyMemory<byte>> overrides,
+        CancellationToken cancellationToken)
     {
-        _directories = inner.Directories.Select(d => new OverlayDirectory(this, d, overrides)).ToList();
+        cancellationToken.ThrowIfCancellationRequested();
+        _directories = new List<OverlayDirectory>(inner.Directories.Count);
+        foreach (var directory in inner.Directories)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            _directories.Add(new OverlayDirectory(this, directory, overrides, cancellationToken));
+        }
     }
 
     public IReadOnlyList<ISaveDirectory> Directories => _directories;
@@ -21,12 +31,13 @@ public sealed class OverlaySaveSet : ISaveSet
     {
         private readonly ISaveDirectory _inner;
 
-        public OverlayDirectory(OverlaySaveSet set, ISaveDirectory inner, IReadOnlyDictionary<string, ReadOnlyMemory<byte>> overrides)
+        public OverlayDirectory(OverlaySaveSet set, ISaveDirectory inner, IReadOnlyDictionary<string, ReadOnlyMemory<byte>> overrides,
+            CancellationToken cancellationToken)
         {
             SaveSet = set;
             _inner = inner;
-            Files = inner.Files.Select(f => Wrap(f, overrides)).ToList();
-            SystemFiles = inner.SystemFiles.Select(f => Wrap(f, overrides)).ToList();
+            Files = WrapFiles(inner.Files, overrides, cancellationToken);
+            SystemFiles = WrapFiles(inner.SystemFiles, overrides, cancellationToken);
         }
 
         public string Id => _inner.Id;
@@ -39,6 +50,18 @@ public sealed class OverlaySaveSet : ISaveSet
         public ParamSfo? ParamSfo => _inner.ParamSfo;
         public IReadOnlyList<ISaveFile> Files { get; }
         public IReadOnlyList<ISaveFile> SystemFiles { get; }
+
+        private List<ISaveFile> WrapFiles(IReadOnlyList<ISaveFile> files,
+            IReadOnlyDictionary<string, ReadOnlyMemory<byte>> overrides, CancellationToken cancellationToken)
+        {
+            var wrapped = new List<ISaveFile>(files.Count);
+            foreach (var file in files)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                wrapped.Add(Wrap(file, overrides));
+            }
+            return wrapped;
+        }
 
         // The explicit nullable type matters: `? content : null` would type the conditional as
         // ReadOnlyMemory<byte> and turn null into an empty override, hiding every untouched file.

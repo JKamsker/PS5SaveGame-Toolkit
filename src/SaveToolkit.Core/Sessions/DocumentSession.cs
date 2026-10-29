@@ -80,6 +80,8 @@ public sealed partial class DocumentSession : IDisposable
 
     public DocumentState State => Locked(StateUnlocked);
 
+    public DocumentState GetState(CancellationToken cancellationToken) => Locked(StateUnlocked, cancellationToken);
+
     /// <summary>Captures the view and its revision together, without an edit or undo interleaving.</summary>
     public DocumentViewSnapshot CaptureView() => Locked(() =>
         new DocumentViewSnapshot(Document.Title, Document.CanEdit, StateUnlocked(), BuildView()));
@@ -106,7 +108,10 @@ public sealed partial class DocumentSession : IDisposable
 
     /// <param name="incoming">Edits as sent by the client.</param>
     /// <param name="expectedRevision">The <see cref="DocumentState.Revision"/> the client's view was built at, if known.</param>
-    public SessionEditResult ApplyEdits(IReadOnlyList<IncomingEdit> incoming, long? expectedRevision = null) => Locked(() =>
+    public SessionEditResult ApplyEdits(IReadOnlyList<IncomingEdit> incoming, long? expectedRevision = null) =>
+        ApplyEdits(incoming, expectedRevision, CancellationToken.None);
+
+    public SessionEditResult ApplyEdits(IReadOnlyList<IncomingEdit> incoming, long? expectedRevision, CancellationToken cancellationToken) => Locked(() => RunPreflight(startApply =>
     {
         if (!Document.CanEdit)
         {
@@ -120,9 +125,10 @@ public sealed partial class DocumentSession : IDisposable
 
         var edits = new List<ValueEdit>(incoming.Count);
         var errors = new List<FieldError>();
-        if (ResolveEditMetadata(incoming.Select(edit => edit.ValueId)) is { } metadataError) return metadataError;
+        if (ResolveEditMetadata(incoming.Select(edit => edit.ValueId), cancellationToken) is { } metadataError) return metadataError;
         foreach (var edit in incoming)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (_index.ResolvedSpec(edit.ValueId) is not { } spec)
             {
                 errors.Add(new FieldError(edit.ValueId, "Unknown field."));
@@ -145,7 +151,9 @@ public sealed partial class DocumentSession : IDisposable
             return new SessionEditResult { Errors = errors, State = StateUnlocked() };
         }
 
-        EnsureOriginal();
+        EnsureOriginal(cancellationToken);
+        // Point of no return: mutation and history/revision publication must finish together.
+        startApply();
         var outcome = CallPlugin(() => Document.ApplyEdits(edits), edits.FirstOrDefault()?.ValueId);
         if (!outcome.Succeeded)
         {
@@ -156,7 +164,7 @@ public sealed partial class DocumentSession : IDisposable
             ? Record(new MementoStep(revert))
             : outcome.Changes.Count > 0 ? Record(new ValueStep(outcome.Changes)) : [];
         return AfterChange(FromOutcome(outcome), outcome.StructureChanged || outcome.Revert is not null, warnings);
-    });
+    }, cancellationToken), cancellationToken);
 
     public SessionEditResult Undo() => Locked(() =>
         _group is not null ? Rejected(string.Empty, "Undo is not available inside a grouped operation.")
@@ -172,9 +180,10 @@ public sealed partial class DocumentSession : IDisposable
     /// New file contents; empty when the document equals the original (never edited, or everything undone).
     /// Imported blobs are never modified, so exporting twice yields the same result.
     /// </summary>
-    public IReadOnlyList<FileOutput> Serialize() => Locked<IReadOnlyList<FileOutput>>(() => StateUnlocked().IsDirty
-        ? Document.Serialize().Select(output => output with { Content = output.Content.ToArray() }).ToArray()
-        : []);
+    public IReadOnlyList<FileOutput> Serialize() => Serialize(CancellationToken.None);
+
+    public IReadOnlyList<FileOutput> Serialize(CancellationToken cancellationToken) => Locked<IReadOnlyList<FileOutput>>(() =>
+        StateUnlocked().IsDirty ? DocumentOutputSnapshot.Capture(Document, cancellationToken) : [], cancellationToken);
 
     public AssetContent? GetAsset(string assetId) => Locked(() =>
         _index.KnowsAsset(assetId) && Document.GetAsset(assetId) is { } asset
@@ -266,11 +275,12 @@ public sealed partial class DocumentSession : IDisposable
         new(_history.CanUndo, _history.CanRedo, _history.CanUndo || _history.IrreversiblyChanged) { Revision = _revision };
 
     private T Locked<T>(Func<T> func)
-    {
-        lock (_gate)
+        => Locked(func, CancellationToken.None);
+
+    private T Locked<T>(Func<T> func, CancellationToken cancellationToken)
+        => OperationCancellation.Locked(_gate, () =>
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
             return func();
-        }
-    }
+        }, cancellationToken);
 }
