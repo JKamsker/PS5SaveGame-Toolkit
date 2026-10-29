@@ -168,3 +168,66 @@ Experimental confidence, title gates and console/integrity warnings. The SDK
 does not establish game semantics, external integrity, console acceptance or
 safe structural dependencies. The plugin continues to preserve all unknown data
 and reports unsupported/oversized scalar values as read-only.
+
+## Published-main merge and landing evidence (2026-10-30)
+
+The current consumer branch includes the published shared-workspace fixes by one
+ordinary merge. This merge did not alter the XorJson implementation or copy any
+framework patch:
+
+- PR61 plugin head checked by the failed hosted job: `7b4fced42c47927fce9bd7c2523276d5207d3dcd`.
+- Published `origin/main` fetched for the merge: `201dd690a48a93bf496f1825246bc6954cc5ec52`.
+- Merge commit: `82acfcf6bca70deab28880533fbc812e164ca9cb`.
+- Merge parents, in order: `7b4fced42c47927fce9bd7c2523276d5207d3dcd`,
+  `201dd690a48a93bf496f1825246bc6954cc5ec52`.
+- The pre-merge and post-merge plugin diff SHA-256 is
+  `18F1CF781381D6DFB0F659C455D8FAD85EF1360013E3B5B2417C1162D2ECE869`.
+  It was calculated from the binary `plugins/XorJson` diff before and after the
+  ordinary merge; the merge therefore brought no XorJson source change.
+- The SDK06 preallocation, source ownership, scalar transaction rollback,
+  diagnostics, envelope, identity, trivia, duplicate occurrence, and Release
+  allocation behavior remain those described above. F13 metadata adoption is
+  intentionally outside this PR.
+
+### Hosted failure diagnosis
+
+The exact completed hosted record was captured once, without retrying or
+polling:
+
+- Job metadata: `D:/Temp/saveeditor/test-scratch/sdk-full-roadmap-20261029/sdk-foundations/job-123748344525.json`.
+- Full log: `D:/Temp/saveeditor/test-scratch/sdk-full-roadmap-20261029/sdk-foundations/job-123748344525.log`.
+- Containing run metadata: `D:/Temp/saveeditor/test-scratch/sdk-full-roadmap-20261029/sdk-foundations/run-containing-123748344525.json`.
+- Job `123748344525`, run `40959528485`, workflow `CI`, job
+  `Validate (ubuntu-latest)`, completed with failure at the exact head
+  `7b4fced42c47927fce9bd7c2523276d5207d3dcd`.
+- The only failing assertion was the shared
+  `WorkspaceIdleRaceTests.Sweep_rechecks_snapshot_candidates_after_concurrent_activity`
+  lease case (`WorkspaceIdleRaceTests.cs:117`, expected `1`, actual `0`). The
+  XorJson hosted execution itself reported 309 tests, 19 expected sample skips,
+  and zero failures. No XorJson fix was warranted; the published main merge
+  carries the shared race fix.
+
+### Post-merge local evidence
+
+All commands used an isolated scratch root under
+`D:/Temp/saveeditor/test-scratch/sdk-full-roadmap-20261029/sdk-foundations/r6-validation`
+with no private samples. Direct xUnit executables were used where the local MTP
+`dotnet test --project` wrapper discovered no tests; the executable results are
+recorded in the scratch logs.
+
+- XorJson Release full suite: 309 passed, 19 expected `PPSA16064` skips, 0
+  failures; Debug full suite had the same result. Release and Debug builds had
+  zero warnings and zero errors.
+- Focused XorJson Release diagnostics/resource suites: ParserDiagnosticTests
+  3/3, Sdk06ResourceTests 3/3, EncodingPerformanceTests 2/2,
+  GroupHistoryTests 2/2, and CharacterGateTests 24/24; all passed.
+- API Release scratch build: zero warnings and zero errors.
+- Core Release scratch build: zero warnings and zero errors. Focused results:
+  WorkspaceIdleRaceTests 9/9, DocumentGroupOwnershipTests 16/16, and
+  SystemOutputOwnershipTests 23/23.
+- C# size guard: 1,971 files checked, 0 errors, 5 pre-existing warning-level
+  files. Guard regression tests: 26 passed, 8 platform skips. Documentation
+  tests at `HEAD`: 49 passed, 0 skips.
+
+The branch is ready for the parent’s fresh combined-head hosted validation and
+normal landing decision. No landing merge was performed in this handoff.
