@@ -57,8 +57,9 @@ internal sealed class JsonActionPlanner(JsonEditModel model, IReferenceContext r
             var skipped = new List<SkippedActionRow>();
             foreach (var key in selected.Distinct(StringComparer.Ordinal))
             {
-                if (!JsonActions.TryFind(model, key, out var row) || row.ValueId != key ||
-                    (id == JsonActions.Bulk ? row.IsContainer : array is null || row.Parent != array))
+                if (!JsonActions.TryFind(model, key, out var row) || row.ValueId != key)
+                    return Error(key, $"Unknown or malformed row key '{key}'.");
+                if (id == JsonActions.Bulk ? row.IsContainer : array is null || row.Parent != array)
                 { skipped.Add(new(key, "Unknown or incompatible row for this action.")); continue; }
                 var target = Target(id, row, parameters);
                 var reason = Eligible(id, row, value) ?? (target is null || target.IsContainer ? "Required existing scalar is absent, ambiguous or does not match the attribute." : null);

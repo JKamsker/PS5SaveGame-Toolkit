@@ -1243,6 +1243,12 @@ own cap. Each discovered folder must contain a valid pack. Invalid packs and dup
 `EmbeddedReferencePackException`; the SDK returns no partial context. Core retains its existing
 startup policy of reporting rejected packs and continuing to load other packs.
 
+Resource names that collide after backslash-to-slash and case normalization reject every affected
+pack folder, even for unlisted files; the error names both resources. Duplicate JSON properties in
+manifests or records files also reject the pack, with the property name and JSON location in the error.
+Model property names compare case-insensitively; attribute dictionary keys remain ordinal and may
+differ only by case. These checks are shared with Core, so neither path silently selects one value.
+
 `Pin` filters plugin/title case-insensitively; a null title excludes title-specific packs. Call `Pin`
 on the original loaded collection for each open, since pinning a filtered context only narrows it.
 `Catalog(id, gameBuild)` uses Core's build, locale (default `en`), version and ordinal pack-ID policy;

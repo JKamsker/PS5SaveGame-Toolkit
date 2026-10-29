@@ -33,6 +33,16 @@ public sealed class GroupFingerprintTests
         var unknown = planner.PlanAction("global/unknown", parameters, new([]));
         var invalid = planner.PlanAction("global/json/bulk-set", new Dictionary<string, FieldValue>(), scope);
         var skipped = planner.PlanAction("global/json/bulk-set", parameters, new(["global/value/999999"]));
+        Assert.NotEmpty(skipped.Errors);
+        Assert.Empty(skipped.Changes);
+        Assert.Empty(skipped.SkippedRows);
+        // #40 intentionally changes only this invalid-key response. Project its old shape into
+        // the historical fingerprint so every other protocol field keeps its original baseline.
+        var legacySkipped = new ActionPlan
+        {
+            SkippedRows = [new("global/value/999999", "Unknown or incompatible row for this action.")],
+            Warnings = plan.Warnings,
+        };
         var empty = planner.PlanAction("global/json/bulk-set", parameters, new([]));
         var inspection = group.InvokeAction("global/json/inspect", new Dictionary<string, FieldValue>());
         var rejected = planner.ApplyActionPlan("global/json/bulk-set", parameters, scope, new());
@@ -40,7 +50,7 @@ public sealed class GroupFingerprintTests
         Assert.True(applied.Succeeded);
         var protocol = Hash(new
         {
-            Plan = plan, Unknown = unknown, Invalid = invalid, Skipped = skipped, Empty = empty,
+            Plan = plan, Unknown = unknown, Invalid = invalid, Skipped = legacySkipped, Empty = empty,
             Inspection = inspection, Rejected = rejected,
             Applied = new { applied.Changes, applied.Errors, applied.Warnings, applied.StructureChanged },
             Exports = group.Serialize().Select(output => new { output.RelativePath, Hash = Convert.ToHexString(SHA256.HashData(output.Content.Span)) }),

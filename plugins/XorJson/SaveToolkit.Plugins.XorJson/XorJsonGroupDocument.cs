@@ -102,10 +102,14 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
     {
         var member = Resolve(actionId);
+        if (SelectionIdentityError(member, scope) is { } identityError) return new() { Errors = [identityError] };
         try
         {
             var plan = member.PlanAction(actionId, parameters, scope);
-            return plan with { Errors = LocalErrors(member, plan.Errors) };
+            // Keep local diagnostic IDs, but name the caller's full key in selection errors.
+            var errors = plan.Errors.Select(error => scope.RowKeys?.Contains(error.ValueId, StringComparer.Ordinal) == true
+                ? error with { Message = $"Selection key '{error.ValueId}': {error.Message}" } : error).ToArray();
+            return plan with { Errors = LocalErrors(member, errors) };
         }
         catch (KeyNotFoundException) { throw new KeyNotFoundException(UnknownMemberIdentity); }
     }
@@ -113,6 +117,7 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
     {
         var member = Resolve(actionId);
+        if (SelectionIdentityError(member, scope) is { } identityError) return new() { Errors = [identityError] };
         var before = CaptureMemento();
         try
         {
@@ -163,6 +168,10 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
     {
         foreach (var member in _members) member.Document.Dispose();
     }
+
+    private static FieldError? SelectionIdentityError(DocumentMemberAdapter member, ActionScope scope) =>
+        scope.RowKeys?.FirstOrDefault(key => !member.Owns(key) || member.Local(key).Length == 0) is { } key
+            ? new(key, $"Unknown, malformed or foreign row key '{key}' for member '{member.Role}'.") : null;
 
     private static FieldError[] LocalErrors(DocumentMemberAdapter member, IReadOnlyList<FieldError> errors) =>
         errors.Select(error => error.ValueId.Length == 0 ? error : error with { ValueId = member.Local(error.ValueId) }).ToArray();

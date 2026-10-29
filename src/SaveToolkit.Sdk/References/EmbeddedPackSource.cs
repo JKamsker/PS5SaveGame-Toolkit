@@ -64,7 +64,8 @@ internal static class PackFileReader
 /// <c>&lt;EmbeddedResource Include="ReferencePacks\**\*" LogicalName="refpacks/%(RecursiveDir)%(Filename)%(Extension)" /&gt;</c>.
 /// Backslashes from <c>%(RecursiveDir)</c> on Windows are normalised to '/'.
 /// </summary>
-internal sealed class EmbeddedPackSource(Assembly assembly, string folder, IReadOnlyDictionary<string, string> resources) : IPackFileSource
+internal sealed class EmbeddedPackSource(Assembly assembly, string folder,
+    IReadOnlyDictionary<string, string> resources, string? rejection = null) : IPackFileSource
 {
     public const string Prefix = "refpacks/";
 
@@ -72,6 +73,11 @@ internal sealed class EmbeddedPackSource(Assembly assembly, string folder, IRead
 
     public byte[]? Read(string path, long maxBytes)
     {
+        if (rejection is not null)
+        {
+            throw new EmbeddedReferencePackException(rejection);
+        }
+
         if (!resources.TryGetValue(path, out var name) || assembly.GetManifestResourceStream(name) is not { } stream)
         {
             return null;
@@ -87,10 +93,12 @@ internal sealed class EmbeddedPackSource(Assembly assembly, string folder, IRead
     public static IReadOnlyList<EmbeddedPackSource> Discover(Assembly assembly)
     {
         var folders = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
+        var names = new Dictionary<string, (string Name, string Folder)>(StringComparer.OrdinalIgnoreCase);
+        var rejections = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var name in assembly.GetManifestResourceNames())
         {
             var normalised = name.Replace('\\', '/');
-            if (!normalised.StartsWith(Prefix, StringComparison.Ordinal))
+            if (!normalised.StartsWith(Prefix, StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
@@ -103,14 +111,31 @@ internal sealed class EmbeddedPackSource(Assembly assembly, string folder, IRead
             }
 
             var folder = rest[..slash];
+            if (!names.TryAdd(normalised, (name, folder)))
+            {
+                var previous = names[normalised];
+                var message = $"Embedded resources '{previous.Name}' and '{name}' in {assembly.GetName().Name} " +
+                    "have the same path after separator and case normalization.";
+                rejections.TryAdd(previous.Folder, message);
+                rejections.TryAdd(folder, message);
+            }
+
+            // Case variants of the prefix still collide, but do not introduce new pack discovery rules.
+            if (!normalised.StartsWith(Prefix, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
             if (!folders.TryGetValue(folder, out var files))
             {
                 folders[folder] = files = new Dictionary<string, string>(StringComparer.Ordinal);
             }
 
-            files[rest[(slash + 1)..]] = name;
+            // A collision rejects every affected folder, including unlisted files. Never read a winner.
+            files.TryAdd(rest[(slash + 1)..], name);
         }
 
-        return [.. folders.OrderBy(f => f.Key, StringComparer.Ordinal).Select(f => new EmbeddedPackSource(assembly, f.Key, f.Value))];
+        return [.. folders.OrderBy(f => f.Key, StringComparer.Ordinal)
+            .Select(f => new EmbeddedPackSource(assembly, f.Key, f.Value, rejections.GetValueOrDefault(f.Key)))];
     }
 }

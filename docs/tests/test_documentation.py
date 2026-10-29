@@ -330,7 +330,7 @@ class DocumentationTests(unittest.TestCase):
 
     def test_edit_coverage_status_ids_exist_in_plugin_source(self):
         section = markdown_section(document("docs/EDIT_COVERAGE.md"), "## Implementation status")
-        header, rows = markdown_table(section)
+        header, rows = markdown_table(section.split("\n### ", 1)[0])
         self.assertEqual(["Rank", "Plugin", "Action/field ID", "Merge commit", "Tests",
                           "Known issues", "Remaining #31 owner validation"], header)
         self.assertEqual(list(range(1, 16)), [int(row[0]) for row in rows])
@@ -349,6 +349,57 @@ class DocumentationTests(unittest.TestCase):
                 with self.subTest(rank=rank, plugin=plugin, identifier=identifier):
                     self.assertIn(identifier, literals.get(plugin, set()),
                                   f"Documented ID missing from {CODE_REF} plugin source")
+
+    def test_field_discovery_commits_are_on_main_and_handoffs_are_well_formed(self):
+        section = markdown_section(document("docs/EDIT_COVERAGE.md"), "### Field discovery status")
+        header, rows = markdown_table(section)
+        self.assertEqual(["Plugin", "Field / outcome", "Confidence", "Merge commit",
+                          "Blocker for writes", "Owner capture needed (#31)"], header)
+        self.assertEqual(7, len(rows), "Keep one row per research outcome")
+        repository = "https://github.com/JKamsker/PS5SaveGame-Toolkit"
+        comment_pattern = re.escape(repository) + r"/issues/40#issuecomment-[1-9][0-9]*"
+        commits = set()
+        for row in rows:
+            links = re.findall(r"\[[^\]\n]+\]\(([^\s)]+)\)", " ".join(row))
+            comments = [url for url in links if "issuecomment" in url or "/issues/comments/" in url]
+            with self.subTest(plugin=row[0]):
+                self.assertEqual(1, len(comments), "Each outcome needs its #40 handoff")
+                for url in comments:
+                    self.assertRegex(url, rf"\A{comment_pattern}\Z")
+                self.assertIn(repository + "/commit/", row[3], "Each outcome needs its merge commit")
+        # Include the status snapshot and any implementation/evidence commits, not just merges.
+        for url in re.findall(r"\[[^\]\n]+\]\(([^\s)]+)\)", section):
+            if "/commit/" in url:
+                self.assertRegex(url, re.escape(repository) + r"/commit/[0-9a-f]{7,40}\Z")
+                commits.add(url.rsplit("/", 1)[1])
+            if "issuecomment" in url or "/issues/comments/" in url:
+                self.assertRegex(url, rf"\A{comment_pattern}\Z")
+        self.assertTrue(commits, "Field discovery must cite its merged evidence")
+        for commit in sorted(commits):
+            with self.subTest(commit=commit):
+                result = subprocess.run(["git", "merge-base", "--is-ancestor", commit, "main"],
+                                        cwd=ROOT, capture_output=True, text=True, check=False)
+                self.assertEqual(0, result.returncode, f"{commit} is not an ancestor of main: {result.stderr}")
+
+    def test_edit_coverage_inventory_counts_match_updated_demand_rows(self):
+        inventory = markdown_section(document("docs/EDIT_COVERAGE.md"), "## Per-plugin inventory")
+        _, rows = markdown_table(inventory.split("\n### ", 1)[0])
+        totals = Counter()
+        for plugin, enabled, read_only, not_located, gaps in rows:
+            section = markdown_section(inventory, next(
+                line for line in inventory.splitlines() if line.startswith(f"### {plugin} — ")))
+            counts = Counter(re.findall(r"(?m)^\| [A-Z]+[0-9]+ \| [^|]+ \| ([ERN]) —", section))
+            with self.subTest(plugin=plugin):
+                self.assertEqual([counts[code] for code in "ERN"],
+                                 [int(enabled), int(read_only), int(not_located)])
+                self.assertEqual(counts["R"] + counts["N"], int(gaps))
+            totals.update(counts)
+        summary = re.search(r"Across \*\*(\d+) demand groups\*\* after field discovery: "
+                            r"\*\*(\d+) enabled\*\*, \*\*(\d+) read-only\s+with evidence\*\* and\s+"
+                            r"\*\*(\d+) not located\*\*, giving \*\*(\d+) gaps\*\*", inventory)
+        self.assertIsNotNone(summary)
+        self.assertEqual([sum(totals.values()), *[totals[code] for code in "ERN"], totals["R"] + totals["N"]],
+                         [int(value) for value in summary.groups()])
 
     def test_documented_sdk_helpers_and_storage_signatures_exist(self):
         guide = document("docs/PLUGIN_GUIDE.md")

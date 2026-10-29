@@ -69,6 +69,7 @@ internal static class PackJson
     public static JsonSerializerOptions Options { get; } = new(JsonSerializerDefaults.Web)
     {
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        AllowDuplicateProperties = false,
         AllowTrailingCommas = true,
         ReadCommentHandling = JsonCommentHandling.Skip,
         MaxDepth = 16,
@@ -87,7 +88,8 @@ internal static class PackJson
         }
         catch (JsonException ex)
         {
-            throw new EmbeddedReferencePackException($"{what} is not valid: {ex.Message}", ex);
+            throw new EmbeddedReferencePackException(
+                $"{what} is not valid at {ex.Path} (line {ex.LineNumber}, byte {ex.BytePositionInLine}): {ex.Message}", ex);
         }
     }
 }
