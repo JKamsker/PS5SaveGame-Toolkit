@@ -102,7 +102,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     {
         return Bind(id, label, new TextSpec { MaxLength = writable ? limit : null }, () => FieldValue.Of(parent().Text(name)),
             writable ? v => parent().SetText(name, v.AsString()) : null,
-            v => ValidateName(v, limit));
+            v => ValidateName(v, limit), writable ? GearboxWriteWarnings.ConsoleValidation : null);
     }
 
     private static string? ValidateName(FieldValue value, int limit)
@@ -122,7 +122,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         return Bind(id, "Ammo", FloatSpec.Single with { Min = Math.Min(0, current), Max = Math.Max(maximumAmmo, current) },
             () => FieldValue.Of(parent().Float("amount")), editable ? v => parent().SetFloat("amount", (float)v.AsDouble()) : null,
             v => !double.IsFinite(v.AsDouble()) || v.AsDouble() is < 0 or > maximumAmmo ? "Unsupported ammo value." : null,
-            "The game may clamp ammo to the capacity provided by its SDU.");
+            GearboxWriteWarnings.ConsoleValidation + " The game may clamp ammo to the capacity provided by its SDU.");
     }
 
     internal FieldNode Level()
@@ -147,7 +147,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
             () => FieldValue.Of(Root.CategoryQuantity(list, hash)),
             current >= 0 && current <= maximum ? v => Root.SetCategoryQuantity(list, hash, v.AsInt64()) : null,
             v => v.Kind != FieldValueKind.Integer || v.AsInteger() < 0 || v.AsInteger() > maximum ? "Unsupported currency amount." : null,
-            "The game may clamp large values. Absent currency categories are created only when a nonzero amount is set.");
+            GearboxWriteWarnings.ConsoleValidation + " The game may clamp large values. Absent currency categories are created only when a nonzero amount is set.");
     }
 
     private FieldNode Bind(string id, string label, FieldSpec spec, Func<FieldValue> get, Action<FieldValue>? set,

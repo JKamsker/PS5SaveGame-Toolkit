@@ -15,7 +15,8 @@ internal sealed class GearboxOverview(GearboxDocument document)
 
     public IReadOnlyList<ViewNode> Build()
     {
-        List<ViewNode> nodes = [new TextNode("Experimental PS5 support; edits have not been tested in-game.") { Tone = Tone.Warning }];
+        List<ViewNode> nodes = [new TextNode(GearboxWriteWarnings.ConsoleValidation +
+            " Experimental PS5 support. The game may clamp or remove edited content.") { Tone = Tone.Warning }];
         if (document.Profile) BuildProfile(nodes);
         else BuildCharacter(nodes);
         return nodes;
