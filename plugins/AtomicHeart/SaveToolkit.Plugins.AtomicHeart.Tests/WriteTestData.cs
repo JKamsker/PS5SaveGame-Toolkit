@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Views;
@@ -15,7 +16,8 @@ internal static class WriteTestData
     internal static ISaveFile Sample() => SampleSaves.Load("PPSA10695").AllDiskFiles.First(f => !f.IsSystemFile);
     internal static byte[] Output(ISaveDocument document) => Assert.Single(document.Serialize()).Content.ToArray();
     internal static ISaveDocument Open(byte[] bytes) => Plugin.Open(MemorySaveSet.SingleFile("slot", bytes, "PPSA10695"), References());
-    internal static TableNode Table(ISaveDocument document) => Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("inventory/0")));
+    internal static QueryableCollectionPage Table(ISaveDocument document) => Assert.IsAssignableFrom<IQueryableDocument>(document)
+        .Query(InventoryCollection.Id, new() { IncludeEmpty = true, Limit = QueryableCollectionLimits.MaxPageSize });
     internal static FieldNode Field(TableRow row, string key) => Assert.IsType<FieldNode>(row.Cells[key]);
 
     /// <summary>

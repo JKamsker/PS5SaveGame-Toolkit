@@ -18,7 +18,9 @@ bytes, extracted records or private asset dumps are embedded. Attributed compact
 - Search/filter/sort all 4,063 records through F8, with at most 200 rows per query.
   Open record details for bounded lazy properties and original hex.
 - Query 90 serialized inventory slots through F8: resources, special resources, ammunition,
-  auxiliary items, quest items and the player grid. Empty slots stay visible.
+  auxiliary items, quest items and the player grid. F14 hides 79 confirmed vacant
+  slots by default, leaving 11 populated rows; Show restores the empty rows and
+  their raw read-only fields. One table covers the complete inventory with a container filter.
   Storage has no populated inspected slot records in this snapshot.
 - F2 supplies 48 item references: the original 45 weapon/ammunition pairs plus two sample resources and a Small Neuromed Capsule. Twelve weapon labels now use official English names/excerpts. Twenty-three compact icons cover weapons, resources, modules and a consumable; separate read-only guide catalogues add six unmapped resources, two KS-23 modules and nine Shok reference costs.
   F3 details show descriptions, raw identifiers, provenance and original bytes.
@@ -53,7 +55,7 @@ upgrade prerequisites, skill ownership or quest completion are invented.
 Existing populated slots expose bounded Amount edits and an F6 target-Amount
 action. Preview lists direct changes, skipped rows and warnings; selected rows
 and whole-document scopes are supported. F8 select-all-matching scopes resolve
-unloaded rows on the server and honor explicit exclusions (#27). An empty
+unloaded rows on the server and honor explicit exclusions and empty-slot visibility (#27, #38). An empty
 selection or a query with no matches changes nothing.
 Each apply is one undo group. Empty slots, raw metadata, record-explorer fields,
 native data and instance IDs remain read-only.
@@ -107,12 +109,45 @@ enabled paths.
 | F5 structural undo | N/A | No safe add/remove/move/split writer exists: opaque instance allocation, grid/indices, equipment and ownership references cannot be reconstructed from this snapshot. Scalar edits use normal undo. |
 | F6 planned actions | Used; query scopes added this round | `inventory/set-amount` previews selected, document and #27 F8 whole-query scopes with skipped rows, exclusions, warnings and grouped undo. Its only parameter is numeric target Amount, so no item parameter needs a `ReferenceSpec`. Skill/loadout/spend/refund presets have no safe underlying writer. |
 | F7 document groups | N/A | One self-contained gameplay file is rewritten. No coupled partner with a proved transaction contract exists; identical console backups are mirrored by the host. |
-| F8 queryable tables | Used; inventory added this round | All 4,063 records and all inventory slots; whole-model search/filter/sort, numeric Amount/ItemId ordering, stable IDs and bounded 200-row pages. Lazy original-byte inspection is retained separately. |
+| F8 queryable tables | Used | All 4,063 records and all inventory slots; whole-model search/filter/sort, numeric Amount/ItemId ordering, stable IDs and bounded 200-row pages. Inventory details/hex live in the single F8 table; original raw record inspection remains available. |
 | F9 maps/graphs | Added this round | Paged skill/weapon evidence graphs and external-only saved-level map, compact stable IDs, text alternatives, confidence and tested navigation. Prerequisites/coordinates/discovery remain unknown. |
 | F10 exact/nullable/union values | N/A | The decoded UE tags use fixed-width signed/unsigned integers and IEEE floating-point scalars; no JSON numeric lexemes, nullable scalar storage or tagged union is rewritten. Existing Int128 SDK values preserve all integer bits. |
 | F11 shared codecs | Used; optimized this round | `SaveToolkit.Codecs` Kraken decode/stored encode; retained compressed frames, exact output allocation, validated serialization cache and byte-identical no-op. No local codec. |
 | F12 SaveDiff F8 traversal/hooks | Used | Registered `atomic-heart.saveextension-v1`, a bounded SDK-only decoder for stable scalar tag paths; shared `PluginViewDecoder` now traverses the inventory F8 collection. |
 | F13 inspect/browse/filter/duration | Used | Catalogue item inspection is `Mutates = false`; read-only asset references use browse-only pickers, and the pinned 48-entry item catalogue supports category filtering and declared category/key/name sorting. Duration hints are N/A because no timer field is published. |
+| F14 inventory empties | Added this round | One F8 inventory table replaces the F8/eager-page duplicate. Confirmed `None`/zero slots with ItemId `0` or `-1` are marked empty; shared metadata hides them by default. Complete-model matching precedes visibility, sorting and paging; hidden counts and F6 scopes retain every stable slot identity. |
+
+## F14 table audit (2026-10-29)
+
+The inventory previously appeared both as a searchable F8 table and as a second
+99-row eager table with linked "More slots" pages. Only the F8 table remains;
+its row details still contain the raw asset, amount, ItemId, provenance and hex.
+The original slot keys, bindings and serialized order are unchanged. No inventory
+"Slots N–M" sections or linked inventory pages remain.
+
+The supplied snapshot has 79 rows with `ItemDataAsset = None` and `Amount = 0`:
+10 have `ItemId = 0`, and 69 have `ItemId = -1`. Only that combined sentinel
+pattern is hidden. Blank or unknown assets, other instance IDs and zero amounts
+on populated assets are not assumed vacant. An Amount edit to zero therefore
+leaves the populated asset visible, without inventing a structural removal.
+Empty slots remain read-only; enabled edits cannot change the vacancy marker.
+These observations describe this snapshot, not a broader game allocation rule.
+
+The remaining tables are the F8 record index, raw decoded-level/chunk inspection,
+and 48/8/9-entry reference catalogues. They contain records/reference facts rather
+than inventory slots and have no confirmed vacancy sentinel to hide. Their raw
+inspection navigation remains available, including the level-map targets.
+
+Regression coverage checks default/explicit visibility, all 90 stable keys,
+matching hidden counts before paging, a 450-slot mixed inventory, sentinel
+counterexamples, shown raw values, query edits/round trips, and F6 query scopes
+with both visibility choices, exclusions and undo/redo. The shared eager-only
+conformance edit walk is replaced locally by an explicit F8 edit round trip;
+the other shared conformance checks remain enabled.
+
+Validation: **79 tests passed, 0 failed, 0 skipped** with the supplied samples;
+the API build passed with **0 warnings and 0 errors**. All tracked changes stay
+inside `plugins/AtomicHeart`; no sample data is committed.
 
 ## Completion audit against the plan
 
@@ -255,6 +290,7 @@ The repository and derived public-tool label dataset are GPL-3.0-or-later.
 | Shared Kraken implementation | [TekkenMusicModManager, 8737709](https://github.com/AaryanKh/TekkenMusicModManager/blob/8737709e840c74efc935e23ac0d33cdb6aaef8f5/src/Tmm.Core/Pak/Kraken.cs), [Powzix ooz, 0503806](https://github.com/powzix/ooz/blob/05038060aa68f9187ae9923b2388ca8db40e58d1/kraken.cpp) | GPL-3.0-or-later. Used through the shared codec, no plugin-local port. See [codec notices](../../src/SaveToolkit.Codecs/README.md) and root THIRD-PARTY-NOTICES. |
 | Stored-block framing research | [hl-savetools hlsave.py, e568ded](https://github.com/producedbytmsh/hl-savetools/blob/e568dedcda2611f54cc793e6d0237c749ae25094/hlsave.py) | MIT. Comparative framing lead, rechecked for the write round; not evidence that a rewritten PS5 Atomic Heart save loads. No Python writer ported; output uses the existing shared managed codec. |
 | SHA-1 reference | [RFC 3174](https://www.rfc-editor.org/rfc/rfc3174) | Algorithm/vector reference; hashing uses .NET. |
+| F14 inventory presentation | [Framework issue #38](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/38), toolkit maintainers; final implementation comment read 2026-10-29 | Shared metadata/query contract from `docs/PLUGIN_GUIDE.md`. Existing upstream SaveExtension research was rechecked; it does not define Atomic Heart vacancy semantics. The conservative combined sentinel above was verified against the supplied bytes, not inferred from zero quantities or unrelated game formats. No external code/data imported this round. |
 
 Attribution lives beside the data in `ReferencePacks/atomic-heart.items.en/items.source.md`,
 in `assets.source.md` / `guide.source.md`, the pack manifest, this table, `PluginInfo.References`, per-field descriptions
@@ -312,10 +348,10 @@ Independent compressed-codec agreement and console captures are validation
 requests. Coupled skill/loadout, structural and story operations need a safe
 serialization/dependency model; no framework changes are requested here.
 F2 attribution licence fields are limited to 100 characters. The mixed item dataset uses `GPL-3.0+` shorthand alongside the complete Slimao owner-decision notice; original GPL-3.0-or-later terms and full screenshot rights remain in author/modification metadata and sidecars. The source-specific guide catalogues keep each rights notice within that limit. No framework change was needed.
-No SDK requests remain for F12/F13. The original bounded lazy inspection path
-remains reachable for F1/conformance, while the main inventory uses F8 and the
-production decoder hook covers native scalar evidence. No framework files were
-changed.
+No SDK requests remain for F12/F13/F14. Original decoded record/hex inspection
+remains reachable; the inventory uses only F8, SaveDiff explicitly includes empty
+rows, and the production decoder hook covers native scalar evidence. No framework
+files were changed.
 
 
 ## Asset round results (2026-10-29)

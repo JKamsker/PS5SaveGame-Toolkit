@@ -11,6 +11,10 @@ internal sealed record InventoryItem(string Key, string Container, TaggedPropert
 internal sealed class InventoryState
 {
     private const string ReferenceOnlyAttribute = "referenceOnly";
+    private const string EmptyAssetPath = "None";
+    private const long EmptyAmount = 0;
+    private const long DefaultEmptyItemId = 0;
+    private const long SentinelEmptyItemId = -1;
     internal const string WriteWarning = "Not validated on console. Stored Kraken blocks and unknown inner integrity mean the game may reject the edited save. Gameplay effects, ownership and safe limits are unverified; validate on a disposable copy (issue #31).";
     private readonly Dictionary<int, FieldValue> values = [];
     private readonly Dictionary<string, string> savedAssets = new(StringComparer.Ordinal);
@@ -78,6 +82,10 @@ internal sealed class InventoryState
     internal FieldValue Current(TaggedProperty property) => values.GetValueOrDefault(property.Payload.Offset, property.Value!.Value);
     internal void Set(TaggedProperty property, FieldValue value) => values[property.Payload.Offset] = value;
     internal string Asset(InventoryItem item) => Current(item.Asset).AsString();
+    // Both sentinel identities occur with None/zero in the supplied slot arrays.
+    // Unknown assets, blank paths and zero amounts alone are not proven vacancies.
+    internal bool IsEmpty(InventoryItem item) => Asset(item) == EmptyAssetPath &&
+        Current(item.Quantity).AsInt64() == EmptyAmount && item.InstanceId is DefaultEmptyItemId or SentinelEmptyItemId;
     internal bool CanReplace(InventoryItem item) => Populated(item) && Eligibility(item, ShortId(item.RawAsset)).Eligible;
 
     internal string? ValidateAmount(InventoryItem item, FieldValue value) => value.Kind != FieldValueKind.Integer ||

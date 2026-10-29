@@ -9,6 +9,7 @@ namespace SaveToolkit.Plugins.AtomicHeart;
 internal sealed class InventoryCollection(InventoryState state, InventoryViews views)
 {
     internal const string Id = "atomic-heart.inventory";
+    private static readonly EmptyRowPresentation EmptyRows = new("asset");
     private static readonly IReadOnlyList<QueryableColumn> Columns = [
         new("container", "Container", new TextSpec()), new("icon", "Icon"), new("asset", "Item reference", new TextSpec()),
         new("category", "Category", new TextSpec()), new("raw", "Saved object path", new TextSpec()),
@@ -16,9 +17,10 @@ internal sealed class InventoryCollection(InventoryState state, InventoryViews v
         new("action", "Bulk edit"), new("details", "Details"), new("span", "Original decoded span"),
     ];
 
-    internal QueryableCollection Info => new(Id, "Inventory slots", Columns, state.Items.Count);
+    internal QueryableCollection Info => new(Id, "Inventory slots", Columns, state.Items.Count) { EmptyRows = EmptyRows };
     internal QueryableTableNode View => new(Id, Info.Title, Columns, state.Items.Count) {
-        Description = "Searches all slots by current name, category, raw ID, container, ItemId or Amount. Exact filters and numeric sorts use current values. Empty slots remain visible. Select all matching for an Amount preview.",
+        EmptyRows = EmptyRows,
+        Description = "Search all slots by current name, category, raw ID, container, ItemId or Amount. Empty slots are hidden by default; show them to inspect their original values and bytes. Select all matching for an Amount preview.",
     };
 
     internal QueryableCollectionPage Query(QueryableCollectionQuery query)
@@ -37,7 +39,10 @@ internal sealed class InventoryCollection(InventoryState state, InventoryViews v
             ValidateColumn(column);
             entries = entries.Where(item => Text(item, column).Equals(value, StringComparison.OrdinalIgnoreCase));
         }
-        var filtered = entries.ToArray();
+        var matching = entries.ToArray();
+        var includeEmpty = query.IncludeEmpty ?? !EmptyRows.HideByDefault;
+        var hiddenEmptyCount = includeEmpty ? 0 : matching.Count(state.IsEmpty);
+        var filtered = includeEmpty ? matching : matching.Where(item => !state.IsEmpty(item)).ToArray();
         var sort = query.SortColumn ?? "container";
         ValidateColumn(sort);
         IOrderedEnumerable<InventoryItem> ordered;
@@ -48,7 +53,7 @@ internal sealed class InventoryCollection(InventoryState state, InventoryViews v
         var offset = Math.Max(0, query.Offset);
         var limit = Math.Clamp(query.Limit, 1, QueryableCollectionLimits.MaxPageSize);
         var rows = ordered.ThenBy(item => item.Key, StringComparer.Ordinal).Skip(offset).Take(limit).Select(views.Row).ToArray();
-        return new(Id, Columns, rows, state.Items.Count, filtered.Length, offset, limit);
+        return new(Id, Columns, rows, state.Items.Count, filtered.Length, offset, limit) { HiddenEmptyCount = hiddenEmptyCount };
     }
 
     private long Number(InventoryItem item, string column) => column == "instance" ? item.InstanceId : state.Current(item.Quantity).AsInt64();

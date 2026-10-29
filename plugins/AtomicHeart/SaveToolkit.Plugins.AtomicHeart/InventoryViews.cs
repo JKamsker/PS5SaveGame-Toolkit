@@ -24,23 +24,7 @@ internal sealed class InventoryViews(InventoryState state, InventoryBinding bind
         state.Catalog is null ? new TextNode("No pinned item catalogue is available for read-only inspection.") : CatalogueInspection.Action(state.Catalog),
         InventoryPlanning.Action(),
         new InventoryCollection(state, this).View,
-        SectionNode.Lazy("Slot details and original bytes", "inventory/0"),
     ];
-
-    internal IReadOnlyList<ViewNode> Expand(string lazyId)
-    {
-        var parts = lazyId.Split('/');
-        if (parts.Length != 2 || !int.TryParse(parts[1], out var start) || start < 0 || (start != 0 && start >= state.Items.Count))
-            throw new KeyNotFoundException(lazyId);
-        var rows = state.Items.Skip(start).Take(AtomicHeartDocument.PageSize).Select(Row).ToArray();
-        var nodes = new List<ViewNode> { new TableNode([
-            new("container", "Container"), new("icon", "Icon"), new("asset", "Item reference"), new("raw", "Saved object path"),
-            new("category", "Category"), new("instance", "ItemId"), new("amount", "Amount"), new("action", "Bulk edit"),
-            new("details", "Details"), new("span", "Original decoded span")], rows) };
-        if (start + AtomicHeartDocument.PageSize < state.Items.Count)
-            nodes.Add(SectionNode.Lazy("More slots", $"inventory/{start + AtomicHeartDocument.PageSize}"));
-        return nodes;
-    }
 
     internal TableRow Row(InventoryItem item)
     {
@@ -61,7 +45,7 @@ internal sealed class InventoryViews(InventoryState state, InventoryBinding bind
                 new TextNode($"Raw ID: {rawId}; instance: {item.InstanceId}. {InventoryState.WriteWarning}"),
                 RecordViews.Hex(item.Element.Tag, "Original slot bytes"),
             ]) { Collapsed = true },
-        });
+        }) { IsEmpty = state.IsEmpty(item) };
     }
 
     private (FieldNode Reference, FieldNode Amount) Fields(InventoryItem item)
