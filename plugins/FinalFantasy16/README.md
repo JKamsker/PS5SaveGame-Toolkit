@@ -186,6 +186,8 @@ These are experimental bounds, **not legal gameplay caps**.
 | Party scene/map/party IDs and member count | Inferred / Unknown unmapped map | Type 2 gate; fixed fields and observed bounds | CRC repaired; reparsed; transforms/quests untouched | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one ID/count at a time; verify location/member consistency; this is not validated teleportation |
 | Stored play-time seconds | Inferred | UserData gate; sample timestamp delta relationship | CRC repaired; reparsed; timestamps untouched | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): verify displayed duration and save/reload |
 | F6 explicit main-stack quantity action | Inferred policy | Existing fixed-width writer, 0..127811 corpus ceiling; deterministic selected/document scope | Exact CRC preview, atomic apply, one undo/redo | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small target on two selected rows; use/spend/sell, save/reload/re-export |
+| Named Gil / AP / Renown balance previews (#40 shortlist 4) | Verified storage; Inferred resource joins; Unknown gameplay caps | Main IDs 1 / 3 / 2 respectively, qualified existing resource catalog labels and one unchanged unique row; existing F6 ceiling 0..127811 | Existing CRC algorithm, exact preview, atomic apply, one undo/redo | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): each resource's exact gain/spend, adult/child/stage and cap behavior; AP ranks/refunds and Renown claims stay separate |
+| Restore imported ordinary main stacks (#40 shortlist 12) | Verified storage; Inferred ordinary eligibility and labels | Immutable opening identity/quantity; selected positive unchanged unique main rows; narrow ordinary allowlist and existing F6 ceiling | Existing CRC algorithm, exact preview, atomic apply, one undo/redo | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): separate ordinary consumable/material use/sell and bank-authority checks, save/reload/re-export |
 
 All these writes can produce gameplay-inconsistent state that the game rejects or
 resets despite a valid CRC. No quest, ownership, AP/refund, stat/growth, capacity,
@@ -203,6 +205,48 @@ foreign/duplicate row keys and invalid targets are rejected without mutation.
 Core resolves filtered query scopes to the complete matching key set, including
 unloaded pages and explicit exclusions; the plugin validates the collection and keys.
 It sets an **explicit stored target**, not a legal-max, refill or activation preset.
+
+The Overview's **Set Gil / AP / Renown balance** controls each preview one resource,
+with the same quantity setter and conservative F6 ceiling. Missing or duplicate
+rows, a changed opening identity, an unqualified reference name/category, foreign
+scope keys and unsupported/system layouts are rejected. A zero resource balance
+does not authorize any allocation. Resource warnings retain Gil spend/cap uncertainty,
+AP rank/cost/refund separation and Renown reward-claim separation. Descriptions
+retain the existing per-record reference attribution; no new names or offsets are imported.
+
+**Restore imported ordinary main-bank stacks** appears in Inventory and each main
+row's selected-row actions. It restores this workspace's immutable opening quantity
+only when the current value is lower and **both values are positive**. Reopening
+an edited export establishes a new baseline; repeated edits and undo/redo do not
+replace the live document's baseline. Values already above import stay unchanged.
+Empty selection remains empty; document scope visits all main rows, and Core-resolved
+filtered selections include unloaded rows. Every excluded row has a preview reason.
+
+The deliberately narrow ordinary policy allows named **Potion (5), High Potion (6),
+Strength/Stoneskin/Lionheart Tonics (8–10)** and common crafting materials
+**Wyrrite through Clutchmine (101–109)** from the existing attributed catalog.
+These categories remain Inferred, not proof of current ownership or legal capacity.
+Elixir/Last Elixir, rare/boss/progression materials, currency, key/quest/unique/upgrade
+items, unmapped IDs, duplicate identities at import or now, changed slot identities,
+nonpositive opening/current values and imported quantities above **127811** are skipped.
+Zero-count allocated records are **not proven vacancies** and are never filled by
+restoration. Secondary records, allocation/index/generation metadata, raw new-flag
+words and padding stay byte-identical; no lock-bit meaning is invented for opaque flags.
+The policy composes the existing quantity planner and shared `ActionPlans.ApplyScalar`;
+the CRC remains computed over the same payload with the same algorithm.
+
+Evidence is the pinned Nenkai ItemData layout (rechecked 2026-10-29), existing
+published/wiki ID crosswalks and private retail/demo bytes, all attributed below.
+The ordinary allowlist is a conservative workflow policy, not a newly discovered
+gameplay rule. Console validation remains needed for active bank, pouch capacities,
+crafting dependencies and effective resource caps; maturity stays **Experimental**.
+
+Edit-coverage validation (2026-10-29): **319 plugin tests passed, 0 failed,
+0 skipped**, including 43 new workflow cases, conformance and sample-backed retail/demo
+checks. **192 SaveDiff tests passed, 0 failed, 0 skipped**, including the FF16
+generations fixture. Release API build: **0 warnings, 0 errors**. Tests cover pure
+preview/cancel, exact CRC/ranges, immutable baselines, eligibility/skips, stale/forged
+plans, filtered unloaded rows/exclusions, export/reopen and one-step undo/redo.
 
 Still off for structural safety: add/remove/reorder/free-list edits (slot reuse,
 generation/index rules and dependent references are unknown), secondary ID-zero
@@ -584,6 +628,17 @@ filename/slot and exact UI values. First capture a save/reload/save no-action pa
     last stack, reacquiring it, a second distinct allocation and a slot-reuse case.
     Record allocation count, equipment/shortcuts and both banks before/after. Include
     the capacity boundary if possible; do not combine events in one pair.
+15. Validate **Set Gil / AP / Renown balance** separately on spare slots: record the
+    exact original/target/UI balance, preview and repaired CRC, apply/undo/redo,
+    export/load, earn and spend that resource, save/reload/re-export. Record adult/
+    child/stage context and any effective cap/reset. Verify AP ranks/refunds and
+    Renown reward-claim state were not implicitly reconciled.
+16. For **Restore imported ordinary main-bank stacks**, open a save with positive
+    potions/common materials, stage small reductions, preview selected rows, cancel,
+    preview again and apply/undo/redo. Confirm opening/current zero stacks, changed
+    identities, unique/key/upgrade/unknown/secondary records are excluded and values
+    above import stay unchanged. Export/load, use/sell, save/reload/re-export to
+    establish active-bank authority and persistence. Report results to #31.
 
 Still needed: controlled name observations; matched skill/command/growth data;
 normal/FF NG+/DLC/legacy/extended coverage; controlled bank/flag semantics and

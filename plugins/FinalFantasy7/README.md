@@ -3,6 +3,8 @@
 **Maturity: Experimental, v0.5.0.** The owner-authorized write-enable round turns on mapped existing
 character values, ordinary materia AP/star transitions, owned Rebirth weapon references, mapped
 non-equipment counts and individual progress bits on Remake/INTERmission, retail Rebirth and demo.
+Edit coverage adds previewed current-HP/MP recovery, batch character levels with synchronized XP,
+and a bounded first-record stored-time setter over the same Experimental write path.
 All writable fields are **Inferred**. Not validated on console. The game may reject or overwrite the edited save.
 Internal integrity is unconfirmed. Unknown bytes are preserved and `Serialize()` structurally reparses
 its output; this does not prove gameplay compatibility. Keep a backup and use a disposable slot.
@@ -22,6 +24,9 @@ are available on Remake/INTERmission, retail Rebirth and demo when their per-row
 | Current MP | Inferred | Public u32 offsets; sample values; bound by original current/max MP | Unknown; structural reparse | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): spend MP, resave/reimport |
 | Character XP | Inferred | Pinned MIT character curves; updates level atomically | Unknown; structural reparse | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): progression/stats/abilities |
 | Character level | Inferred | Same variant/character curves; sets XP to minimum tier value | Unknown; structural reparse | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): level-up and derived effects |
+| Recover selected current HP/MP (#40, shortlist #1) | Inferred | Existing eligible character setters and opening stored maxima; raises only deficient current values, never lowers over-max values | Unknown; only selected current-vital words change; structural reparse | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): damage/heal/MP use per variant and active character; battle/resave |
+| Batch selected character levels (#40, shortlist #8) | Inferred | Existing variant/character curves; preview includes derived XP at the minimum target-tier threshold; ambiguous tiers and locked records skipped | Unknown; selected level/XP pairs only; cached maxima, abilities and rewards are not repaired | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): controlled level-up separately for Remake, INTERmission, retail/demo; abilities/battle/resave |
+| Stored first-record play time (#40, shortlist #15) | Inferred write; retail meaning Verified, demo Inferred | Pinned public u32-seconds offsets and sample values; range zero through immutable opening seconds, including any unusually high original | Unknown; one u32 word only; older records and other menu/play counters preserved | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): displayed time, timed no-action pairs, native resave/normalization per variant |
 | Rebirth owned weapon reference | Inferred | Unique inventory/detail joins; original inferred source type family; rejects foreign, duplicate, dangling instances | Unknown; only reference word changes | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): sockets/capacity, proficiency, folios, combat |
 | Ordinary AP, including tier crossing | Inferred | 995 coherent retail rows and pinned strict AP curves; updates stored stars; F6 preview/apply | Unknown; AP word and dependent star byte only | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): below/at/above star threshold, ability effect |
 | Ordinary stored stars | Inferred | Same curves; sets AP to target tier threshold | Unknown; AP/star pair reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): both increase and decrease, equipped copies |
@@ -41,6 +46,39 @@ targets, skipped rows/reasons, dependent changes, attribution and integrity warn
 select-all-matching scopes; reject stale/tampered plans; and apply/undo/redo as one history entry.
 99 is the upstream editor policy, not a proven game cap. These presets need the same #31 console checks.
 
+### Edit-coverage actions and stored time (#40)
+
+The **Characters** tab provides **Recover selected characters' current HP/MP** and
+**Set selected character levels**. Both use F6 previews with old/new values, skipped-row reasons,
+source attribution and the common console/integrity warning. Explicit character row keys scope the
+operation; no selection means all seven displayed records, while an empty selection changes nothing.
+Character queries and foreign/noncanonical keys cannot broaden that scope. Records outside these
+seven mapped slots, including unqualified guest/past records, are not targets. Original out-of-curve
+levels remain locked. Recovery never changes maxima, XP, equipment or status effects. Level targets
+use the existing 1–50 Remake/INTERmission or 1–70 Rebirth/demo curves; duplicate-zero guest tiers
+that cannot represent the requested level coherently are skipped. Selecting the current level
+preserves its XP tuple. Apply is atomic and one undo/redo entry, including restoration of an
+inconsistent opening XP/level pair; dismissing a preview writes nothing. Stale or altered plans reject.
+
+The Overview **Play time** duration field edits only the first RESD u32 seconds at `0x2B0` (Remake/
+INTERmission) or `0x3C30` (Rebirth/demo). Its conservative bound is the observed opening value of
+this document, retained across view refreshes: reduce it to any whole second including zero, then
+restore it up to that opening value. This is editor policy, not a proven game cap or an increase-time
+preset. No historical records or other timers are synchronized. The pinned MIT
+[Remake template](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-remake/saveEditor/template.ts)
+and [Rebirth template](https://github.com/RyudoSynbios/game-tools-collection/blob/c7bdd6d8228304b87dcdf15e57155d092eb06fd2/src/lib/templates/final-fantasy-vii-rebirth/saveEditor/template.ts)
+were rechecked on 2026-10-29 for these offsets and seconds conversion; progression evidence remains
+the attributed [character-curve sidecar](SaveToolkit.Plugins.FinalFantasy7/Resources/character-curves.source.md).
+All three shortlist items are implemented within these bounds; console acceptance is still unverified.
+
+Validation on 2026-10-29: `dotnet test --project plugins/FinalFantasy7/SaveToolkit.Plugins.FinalFantasy7.Tests`
+passed **424 tests, 0 failures, 0 skips**, with all three private sample archives supplied and test
+scratch on D:. This includes 22 new coverage cases, all-sample byte-identical no-op round trips,
+conformance and mutation fuzzing. New tests cover each of the four file variants, preview/cancel,
+multi-row apply/undo/redo, scope/curve limits, locked and unknown rows, stale/tampered plans,
+exact write offsets and export/reopen framing. Internal integrity remains unconfirmed; no checksum
+or signature algorithm is asserted. The full API build passed with **0 warnings and 0 errors**.
+
 ## Framework feature adoption
 
 | Feature | Status | Adoption / concrete reason and verification |
@@ -50,7 +88,7 @@ select-all-matching scopes; reject stale/tampered plans; and apply/undo/redo as 
 | F3 rich table cells | Used | Inventory/catalog row-detail sections retain attributed official descriptions and imported `ImageNode` icons. Bound numeric cells carry confidence/warnings. Tested detail nodes, imported image identity and `GetAsset` routing. |
 | F4 reference pickers | Used | Both AP/star actions use an owned-eligible materia `ReferenceSpec`. Inventory/materia type IDs publish browse-only `ReferenceSpec`s. Main Owned items F8 tables display type IDs as text; only retained legacy owned-page endpoints bind browse-only weapon/materia type fields. Writable weapon references remain **instance IDs**, while catalog keys are **type IDs**; substituting that catalog would select the wrong domain. |
 | F5 reversible structure | N/A | No safe allocation/removal/reorder writer exists: free-slot initialization, serial uniqueness, acquisition order and all inventory/detail/owner dependencies remain unknown. Current writers patch fixed-size existing values. Owner acquisition/discard/capacity pairs are required before a structural transaction can be implemented. |
-| F6 planning / #27 scopes | Used | Existing AP plan plus star-tier and consumable-restock presets; pure previews, warnings, skipped rows, derived AP/stars, stale rejection and one undo group, including Core-resolved F8 query scopes. `MateriaPlanningTests`, `PresetPlanningTests`. |
+| F6 planning / #27 scopes | Used | Existing AP/star/restock presets plus current-HP/MP recovery and character-level targets with derived XP; pure previews, warnings, skipped rows, full-content revalidation through shared `ActionPlans`, and one undo group. Inventory/materia support Core-resolved F8 query scopes; seven-row character actions use explicit eager-table keys or document scope. `MateriaPlanningTests`, `PresetPlanningTests`, `CharacterCoverageTests`. |
 | F7 document groups | N/A | No implemented operation changes more than the primary gameplay file; common and prior-state RESD dependencies are unmapped. Grouping them would claim a coupling that has not been established. Existing backup mirroring remains framework-owned. |
 | F8 queryable tables | Used | Complete inventories, materia, catalogs, cards, progress, owned relationships, linked-header index (including common files), named enemy records (161 Remake / 230 Rebirth) and the 388-row research collection. `GameplayCollection` and `CollectionQuery` use SDK `InMemoryCollection<T>` with `ToTableNode`; whole-model search/filter/sort precedes page-only rendering. Legacy raw-word/lazy endpoints remain bounded. |
 | F9 graphs / maps | Used | Six attributed Rebirth regional backgrounds with local field targets and distinct bit domains; unverified coordinates remain list-only; seven read-only folio candidate graphs (238 bits) and seven Rebirth equipment-reference graphs. Accessible text alternatives, bounded/lazy groups, JSON/SDK validation and Core edit/undo refresh tests. No fabricated prerequisite edges, socket links, capacity, coordinates or weapon-upgrade grid. |
@@ -230,7 +268,8 @@ editing and refreshing bindings. Negative quantities, ambiguous gil and instance
 non-equipment counts are writable with the warnings above. Qualified ordinary AP can cross tiers and
 updates stored stars atomically; every summon, unknown type and AP/level mismatch remains read-only.
 Names, categories and source-metadata descriptions use the embedded MIT reference packs below.
-Play time, Remake chapter ID, type IDs and raw record/body controls remain read-only. Character
+Stored first-record play time is writable within the immutable opening-seconds bound described above.
+Remake chapter ID, type IDs and raw record/body controls remain read-only. Character
 maxima and all folio, socket, enemy-intel, relationship and crafting/minigame research values are
 also read-only; writable progress candidates are the separate Progress/local map bit controls.
 

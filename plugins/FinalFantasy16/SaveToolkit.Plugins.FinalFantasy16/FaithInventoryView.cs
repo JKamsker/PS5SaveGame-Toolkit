@@ -64,7 +64,9 @@ internal sealed class FaithInventoryView(byte[] bytes, FaithInventory inventory,
         ["details"] = new SectionNode("Source and storage", [new TextNode(catalog.Provenance(item.Id)),
             new TextNode($"Record at 0x{item.Offset:X}; allocation does not establish current ownership. " + FaithWriteMap.Warning)])
                 { Collapsed = true },
-        ["action"] = bank == "inventory" ? FaithQuantityPlanning.Action() : new TextNode("No secondary bulk action"),
+        ["action"] = bank == "inventory"
+            ? new SectionNode("Selected main-bank rows", [FaithQuantityPlanning.Action(), FaithCoveragePlanning.RestoreAction()])
+            : new TextNode("No secondary bulk action"),
     });
 
     private TableNode Table(IReadOnlyList<FaithItem> items, string bank,

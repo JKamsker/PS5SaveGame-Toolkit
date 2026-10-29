@@ -24,6 +24,7 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
     private readonly FaithCharacterContext _context;
     private readonly IReferenceContext _references;
     private readonly FaithWriteMap _writes;
+    private readonly FaithCoveragePlanning _coverage;
 
     public FaithDocument(ISaveFile file, byte[] bytes, FaithContainer container, FaithSchema schema, IReferenceContext references)
     {
@@ -37,6 +38,7 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
         _catalog = new FaithCatalog(references);
         _context = new FaithCharacterContext(bytes, container, schema, references, _catalog);
         _writes = new FaithWriteMap(bytes, container, schema, _inventory);
+        _coverage = new FaithCoveragePlanning(bytes, _inventory, container.IsSystem);
         // Register primary storage bindings independently of paging. F6/undo can address unloaded
         // rows, and the original document can resolve their values without building eager tables.
         foreach (var item in _inventory.Items)
@@ -55,6 +57,7 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
         new Tab("Overview", Overview()),
         new Tab("Inventory", [.. new FaithInventoryView(_bytes, _inventory, _catalog).Build(Quantity, ItemIdentity),
             FaithQuantityPlanning.Action(),
+            FaithCoveragePlanning.RestoreAction(),
             new FaithCapacityContext(_bytes, _inventory, _catalog).Build(BindContextField)]),
         new Tab("Character context", _context.Build(BindContextField, ItemIdentity)),
         new Tab(FaithAbilityView.TabTitle, [new TextNode("Optional reference tree contains Eikon/DLC spoilers. " +
@@ -139,19 +142,16 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
     }
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
-        new FaithQuantityPlanning(_bytes, _inventory, _catalog).Plan(actionId, parameters, scope);
+        actionId == FaithQuantityPlanning.ActionId
+            ? new FaithQuantityPlanning(_bytes, _inventory, _catalog).Plan(actionId, parameters, scope)
+            : _coverage.Plan(actionId, parameters, scope, _bytes, _inventory, _catalog);
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
-    {
-        var current = PlanAction(actionId, parameters, scope);
-        if (current.Errors.Count > 0) return new EditOutcome { Errors = current.Errors };
-        if (!current.Changes.SequenceEqual(plan.Changes) || !current.SkippedRows.SequenceEqual(plan.SkippedRows) ||
-            !current.Warnings.SequenceEqual(plan.Warnings) || plan.Errors.Count > 0)
-            return EditOutcome.Rejected(actionId, "The reviewed plan no longer matches this save.");
-        _ = BuildView();
-        return ApplyEdits(current.Changes.Where(change => !change.Derived)
-            .Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray()) with { Warnings = current.Warnings };
-    }
+        => ActionPlans.ApplyScalar(plan, () => PlanAction(actionId, parameters, scope),
+            new(actionId, "The reviewed plan no longer matches this save."), current => { _ = BuildView(); },
+            current => current.Changes.Where(change => !change.Derived)
+                .Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray(),
+            ApplyEdits, ActionPlanWarningPolicy.UsePlan);
 
     public override IReadOnlyList<FileOutput> Serialize()
     {
@@ -203,10 +203,7 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
         }
 
         var currency = _inventory.Items.Where(item => item.Id is 1 or 2 or 3).Select(item => (ViewNode)Quantity(item)).ToArray();
-        if (currency.Length > 0)
-        {
-            nodes.Add(new SectionNode("Resources", currency));
-        }
+        nodes.Add(new SectionNode("Resources", [.. currency, .. FaithCoveragePlanning.ResourceActions(_catalog)]));
 
         return nodes;
     }

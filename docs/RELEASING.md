@@ -202,10 +202,9 @@ Export assertions compare every path and decompressed payload byte; ZIP metadata
 No private samples or `SAVETOOLKIT_ARTIFACTS` are needed. Failures upload the Playwright HTML report
 with traces and screenshots.
 
-One `test.fixme` case records a known #40 gap: unknown-layout export path preservation in
-[import.e2e.ts](../web/e2e/import.e2e.ts). This skipped case is not validated behavior.
-Clearing a JSON-type column filter is covered by an active regression in
-[table.e2e.ts](../web/e2e/table.e2e.ts).
+Unknown-layout export path preservation is covered by an active regression in
+[import.e2e.ts](../web/e2e/import.e2e.ts), and clearing a JSON-type column filter by one in
+[table.e2e.ts](../web/e2e/table.e2e.ts). No browser case is currently skipped.
 
 Build the Release API and UI before running locally (Node.js 24):
 

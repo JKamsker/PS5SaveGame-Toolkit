@@ -10,7 +10,7 @@ extracted saves, or third-party implementation code are included in this plugin.
 
 The 2026-10-28 owner decision, **"Enable writes. Keep warnings."**, replaces console-evidence gates.
 Yōtei enables **14 existing quantity types** and one F6 target-quantity workflow using the
-expanded eleven-generation evidence. Tsushima scalar quantities, timer and both F6 actions are enabled.
+expanded eleven-generation evidence. Tsushima scalar quantities, timer and all three F6 actions are enabled.
 Console evidence is tracked separately in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31);
 no write is advertised as console-validated or Stable.
 
@@ -19,6 +19,7 @@ no write is advertised as console-validated or Stable.
 | Tsushima existing resource quantities | Inferred | Named five-word records and consistent values across all 25 Tsushima entries | Known additive checksum repaired; output reparsed; unrelated bytes preserved | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): +1 resources, labels, carry limits, load/resave/reload |
 | Tsushima existing ammo quantities and derived count copies | Verified byte structure; console effect unverified | Apollo named count-word targets; both copies agree in every sample | Both words updated together; checksum repaired; output reparsed; copies are not independently editable | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): fire/pick up ammo, capacity/clamping, load/resave/reload |
 | Tsushima F6 `inventory/set-quantity` and `inventory/set-goods-quantity` | Same Inferred/Verified byte evidence as individual fields | Uses the same existing-record eligibility and fixed-width writer; all 25 samples tested | Preview lists primary counts, derived ammo copies and checksum, skips and warnings; apply revalidates; one undo/redo group | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): validate a small multi-resource/ammo edit in each intended build/mode |
+| Tsushima F6 `inventory/restore-imported-ammo` (#40 shortlist #7) | Verified byte structure; console effect unverified; Experimental | Per-row opening counts captured once; existing paired-count writer and eligibility; all 25 Tsushima files tested | Pure preview lists both copies, checksum changes and skips; shared `ActionPlans` revalidation, atomic scalar apply and one undo/redo group; higher counts preserved | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): fire/pickup/reload and multiple ammo kinds; capacity/clamping, load/resave/reload |
 | Tsushima v48/v49 play time | Inferred | Four-byte float at difficulty-table + 231; whole minutes match all non-empty slot subtitles; 23 supported entries including backups | Only timer plus repaired checksum change; output reparsed; finite bounded values only | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small timer edit, load/resave/reload, inspect per-difficulty counters and stale subtitle normalization |
 | Yōtei existing Mon/Flowers, seven ingredients and five arrow/ammo quantities | Inferred | Same bounded 48-name, 21-byte-trailer layout across all 11 nonempty saves; changing quantities and matching ammo copies; eligibility word/byte retained | Recompute additive candidate at 0x0C and reparse; checksum tail coverage unknown: **game may reject the edited save**; no-op byte-identical | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): +1 pickup/edit/load/resave/reload, labels/caps, file roles and coverage; [exact checklist](YOTEI_FORMAT.md#exact-owner-captures-for-31) |
 | Yōtei F6 `yotei/inventory/set-quantity` | Inferred | Same eligible existing records; per-row conservative bounds | Pure preview with primary/derived changes, skips and warnings; stale-plan rejection; atomic apply and one undo/redo group | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): validate a small multi-row edit, record normalization and sibling-file changes |
@@ -39,7 +40,7 @@ an imported record extends its scalar field's bound; rows whose individual bound
 Tsushima scalar eligibility requires a supported raw identifier, flag word 1 or 3, an existing count
 at most 32767, and equal ammo copies. Resource IDs start with `Ingred` or are `Supplies`, `Hide`,
 `Flowers` or `NGPFlowers`; ammo IDs start with `Arrow`, `Dart` or `Ammo`. Friendly-name mapping
-confidence does not determine write eligibility. Both F6 actions additionally require version 47–49;
+confidence does not determine write eligibility. All three F6 actions additionally require version 47–49;
 the scalar quantity writer has no separate version gate. Play-time editing requires the recognized
 inventory and a finite nonnegative timer in a uniquely recognized v48/v49 progress block.
 
@@ -81,6 +82,17 @@ Still disabled for structural safety:
   on apply. A second action, `inventory/set-quantity`, extends the same workflow to all existing
   supported resource/ammo records, with derived ammo copies shown explicitly. Both actions use
   ordinary validated scalar edits and one Core undo/redo group. Neither unlocks items or claims a capacity.
+* `inventory/restore-imported-ammo` previews each eligible ammo row's immutable opening count,
+  restoring only rows reduced during this workspace session. Document scope covers existing ammo;
+  explicit selections exclude non-ammo with reasons, and an empty selection changes nothing.
+  Flags must remain 1 or 3, both counts must agree, and both imported/current counts must be within
+  0–32767. Locked, inconsistent, oversized and unsupported records stay unchanged. Counts already
+  at or above their opening value stay unchanged; no capacity, unlock or missing record is granted.
+  The baseline survives view rebuilds, intermediate edits, undo and redo. It is not the previous edit's
+  value and cannot recover ammo lost before import; re-importing an edited save starts a new baseline.
+  Preview/cancel changes no bytes. Apply uses shared `ActionPlans` revalidation and the existing atomic
+  scalar writer, updates both copies/checksum, and records one undo/redo step. Console/clamping warnings
+  appear in the control, preview and outcome; the operation remains Experimental.
 * Difficulty is **Inferred** and read-only. The **Inferred** v48/v49 play timer is writable, with the
   explicit metadata/counter warning and observed bound above. Every unedited slot's whole play-time
   minutes and difficulty match its `param.sfo SUBTITLE`. The timer publishes F13
@@ -150,7 +162,7 @@ additional production correctness defect requiring a parser change.
 | F3 rich table cells | Used | Inventory, equipment, technique and world tables expose raw IDs, descriptions, mapping-confidence cells, warning tones and F6 action controls. Equipment/technique tables and lazy guides show local attributed ImageNode cells (106 unique icons/thumbnails, 158 catalogue bindings); the SDK has no separate detail-cell node, and actions remain dedicated planned controls rather than blank table cells. Yōtei adds inventory symbols, read-only reference cells, raw statistics, warning/confidence metadata and F6 controls. |
 | F4 reference pickers | Used | Every catalog-backed inventory, equipment and technique ID is a read-only `ReferenceSpec` field with raw-ID fallback, category/description metadata and attribution. Yōtei item/technique/location catalog IDs are browse-only with raw fallback and provenance; no gear-name catalogue join is invented. |
 | F5 structural edits | N/A | No safe add/remove/reorder writer exists: enclosing sizes, references, ownership and acquisition side effects are unproven, so a plugin-local structural substitute would risk data loss. |
-| F6 planned actions | Used | Existing resource/ammo target actions provide pure previews, skipped rows, derived ammo/checksum changes, stale-plan rejection and one Core undo/redo group. Query scopes are rejected because the writable inventory is a bounded fixed table and the equipment collection is read-only. Yōtei adds one target-quantity action with per-row observed bounds and the same atomic preview/apply guarantees. |
+| F6 planned actions | Used | Existing resource/ammo target actions and Tsushima restore-imported-ammo provide pure previews, skipped rows, derived ammo/checksum changes, stale-plan rejection and one Core undo/redo group. Restore uses each eligible row's opening count only when lower. Query scopes are rejected because the writable inventory is a bounded fixed table and the equipment collection is read-only. Yōtei adds one target-quantity action with per-row observed bounds and the same atomic preview/apply guarantees. |
 | F7 document groups | N/A | No controlled capture proves that `memory.dat`, `dis.dat`, `param.sfo` or a backup must change with a supported edit; the safe contract rewrites only the selected file. |
 | F8 queryable collections | Used | The per-save equipment identifier view is `equipment/identifiers`, with stable IDs, bounded pages, search, filters and deterministic sorting. Small inventory/technique/world views remain eager because they are below the paging threshold. Yōtei adds `yotei/gear-registry` (1,037 entries); its 33 statistics remain a bounded eager table. |
 | F9 maps and graphs | Used | Techniques publish a validated read-only `GraphNode` with field targets and a text alternative; World publishes a validated `MapNode` with attributed whole-island art, row targets, Unknown statuses and unpositioned markers because alignment is unverified; the schematic/list fallback remains. Yōtei adds a 10-node Unknown technique graph and 16-location map/table; only Horizon View is placed on its local screenshot excerpt. |
@@ -161,15 +173,17 @@ additional production correctness defect requiring a parser change.
 | F14 inventory slots / empty rows | N/A | Both inventories contain fixed named definitions, not proven occupied/empty slots. All-zero Yōtei files are whole-file placeholders. No `EmptyRows` metadata or `TableRow.IsEmpty` semantics are published. |
 
 Shared SDK helper adoption: both documents use `BoundSaveDocument` for scalar bindings, validation
-and rollback. The optional `InMemoryCollection<T>`, `ActionPlans`, bounded binary cursor/range,
+and rollback. Tsushima planned actions use shared `ActionPlans.ApplyScalar` for ordered revalidation,
+binding preparation and primary scalar application, retaining the fresh plan's warnings.
+The optional `InMemoryCollection<T>`, bounded binary cursor/range,
 `ReferenceCatalogReader`, `ReferenceViews` and `ReferenceInspection` helpers are available but not
 adopted here. Collections retain the plugin's one-result query cache and title-specific matching/sort
-rules; plans use local ordered comparison and byte-sum checksum deltas; parsers and icon/guide readers
+rules; Yōtei plans retain local ordered comparison and both titles use byte-sum checksum deltas; parsers and icon/guide readers
 remain local. Neither format uses FStrings or IEEE CRC32, so those shared codecs are inapplicable.
 These are adoption choices, not missing SDK capabilities.
 
-The merged F4/F6 parameter fix (`63580dc`) is N/A here: all planned actions accept only a
-bounded integer target quantity, with no `EnumSpec` ID fallback or reference replacement parameter.
+The merged F4/F6 parameter fix (`63580dc`) is N/A here: target actions accept only a
+bounded integer quantity and ammo restoration takes no parameters, with no `EnumSpec` ID fallback or reference replacement parameter.
 
 The explicit F12 hook emits stable native paths for four header words, inferred difficulty/play
 seconds, all 48 existing Tsushima quantities and mirrored ammo counts. It reuses the validated
@@ -334,6 +348,16 @@ The checksum and paired ammo-write facts remain the basis of the existing writer
 independent inference from the supplied PS5 correlations, not a field documented by either tool.
 A fresh GitHub-focused Yōtei `memory.dat`/checksum/editor search yielded no usable primary-source
 quantity parser; no third-party code or new reference dataset was imported in the write round.
+
+Ammo-restoration recheck, **2026-10-29**: reread the pinned
+[Apollo paired-ammo codes at 273f032b](https://github.com/bucanero/apollo-patches/blob/273f032b4c31c017fed5c1588f209b8faf87ba6c/PS4/CUSA11456.savepatch)
+and [KOVRlN checksum notes at 519bb466](https://github.com/KOVRlN/ghostoftsushima-save-converter/blob/519bb46620ef20a4424f1ef899d11455f4381044/TECHNICAL.md).
+They support the existing count-word layout/checksum, not a game capacity or console acceptance.
+The new action composes that writer with immutable workspace-opening values; it adds no gameplay
+mapping or reference data. Tests reduce eligible ammo in every one of the 25 PS5 sample files,
+restore each row's own count, independently check the checksum and exact bytes, and re-open exports.
+Synthetic cases exercise flags 0/1/2/3, unequal copies, imported 0/32767/32768, higher counts,
+selection exclusions, unsupported versions/layouts, forged/stale plans, checksum carries and re-import baselines.
 
 * [KOVRlN technical notes](https://github.com/KOVRlN/ghostoftsushima-save-converter/blob/main/TECHNICAL.md):
   Tsushima header and additive checksum. Independently verified against every supplied Tsushima file.
@@ -505,7 +529,7 @@ load/save control. Then capture separate before/after pairs for:
 ## Validation and maintenance
 
 ```powershell
-$scratch = 'D:/Temp/saveeditor/test-scratch/docs/accuracy-suckerpunch'
+$scratch = 'D:/Temp/saveeditor/test-scratch/feat-coverage-suckerpunch'
 New-Item -ItemType Directory -Force -Path $scratch | Out-Null
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
 $env:SAVETOOLKIT_TEST_TEMP = $scratch
@@ -525,6 +549,18 @@ checks and the normal all-plugin SaveDiff fixture verification also passed. Samp
 run does not validate the corpus. `SampleSaves` uses the shared `TestScratch` helper, honors
 `SAVETOOLKIT_TEST_TEMP`, and attempts to remove its per-process sample imports on exit. TEMP/TMP also stay on D:
 for other tooling. Use a separate scratch folder for each concurrent run.
+
+Ammo-restoration validation on **2026-10-29**: the sample-backed Release suite passed
+**372 tests, 0 failed, 0 skipped**, including all 25 Tsushima files and the existing Yōtei,
+conformance and mutation-robustness checks. The API Release build with `--warnaserror` passed
+with **0 warnings and 0 errors**. Restoration-specific tests cover pure preview/cancel,
+per-row baselines, limits/skips, one-step multi-ammo undo/redo, stale/forged rejection,
+independent export checksums, re-open and exact byte/no-op preservation. Owner console
+validation is still required under #31; no console result is claimed.
+The central documentation check against `main` passed 26 of 27 checks: its existing
+`test_built_app_smoke_docs_cover_shipped_flows_and_skipped_regressions` still expects
+`test.fixme(` in `web/e2e/import.e2e.ts`, although that regression is now an active test.
+Those unchanged central files are outside this plugin-only task.
 
 Coverage includes all 25 Tsushima and 13 Yōtei files (including both zero placeholders), byte-identical
 no-op exports, exact count/copy/timer/checksum changes, export reparsing, atomic rejection and rollback,

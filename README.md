@@ -8,8 +8,8 @@ browser renders: stats, typed fields, tables, actions. Edits are validated and c
 the [history limits](docs/PLUGIN_GUIDE.md#structural-edits-add--remove--reorder). Export verifies output
 by re-opening it and retains recognized title/save-directory layouts, with optional backup mirroring where the twin held
 the same original bytes and ownership permits it. Explicit document groups manage their own backups.
-Unknown-layout exports can acquire an `UNKNOWN/` prefix; review the
-[export path limitations](docs/API.md#workspace-export) before restoring them.
+Unknown-layout exports keep their imported paths; review the
+[export path rules](docs/API.md#workspace-export) for wrapper prefixes and generations.
 
 The toolkit does not decrypt or re-sign PS5 save containers; use your save manager for that.
 **Edits are not console-validated. All game plugins are Experimental; the game may reject,
