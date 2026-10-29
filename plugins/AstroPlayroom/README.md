@@ -182,14 +182,10 @@ packs are cached once and repeated asset requests return the same AssetContent i
 
 ## Licence exclusions
 
-| Source / revision | Licence found | Material / status | Alternative / unblock condition |
-| --- | --- | --- | --- |
-| PowerPyx / Gage collectible guide, 2020-11-17, retrieved 2026-10-29 | Publisher game assets; rights reserved by Sony Interactive Entertainment; capture credit PowerPyx / Gage | **Resolved: imported (owner decision 2026-10-29)** — 50 thumbnail crops and 49 short official game captions. Previous art/text exclusion is superseded. | Physical ID/location confidence still requires owner validation; not a licence refusal. |
-| Previously unspecified icon/localization source (central register historical AstroPlayroom row), checked 2026-10-29 | No specific source was recorded before this round | **Resolved for imported English media** — concrete sources recorded above; no publisher-asset refusal remains. | No extra locales, unresolved-prop identities or physical puzzle coordinates are invented; no trustworthy level-specific official descriptions were found. |
-
-The central `docs/LICENCE_EXCLUSIONS.md` still contains the historical AstroPlayroom refusals. This
-plugin-only task cannot update it; the #11 handoff requests that the coordinating agent synchronize
-those two rows to the resolved status above.
+| Source / revision | Licence found | Disposition | Alternative | Unblock |
+| --- | --- | --- | --- | --- |
+| PowerPyx / Gage collectible guide, 2020-11-17, retrieved 2026-10-29 | Publisher game assets; rights reserved by Sony Interactive Entertainment; capture credit PowerPyx / Gage | **Resolved: imported (owner decision 2026-10-29)** — 50 thumbnail crops and 49 short official game captions. Previous art/text exclusion is superseded. | Not separately recorded in README. | Physical ID/location confidence still requires owner validation; not a licence refusal. |
+| Previously unspecified icon/localization source (central register historical AstroPlayroom row), checked 2026-10-29 | No specific source was recorded before this round | **Resolved for imported English media** — concrete sources recorded above; no publisher-asset refusal remains. | Not separately recorded in README. | No extra locales, unresolved-prop identities or physical puzzle coordinates are invented; no trustworthy level-specific official descriptions were found. |
 
 ## Framework feature adoption
 

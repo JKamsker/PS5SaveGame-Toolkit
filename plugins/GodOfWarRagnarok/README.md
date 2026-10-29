@@ -318,7 +318,7 @@ completion formula or legal maximum is displayed. Missing records remain raw IDs
 The new community pack has a [data sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.community.en/community.source.md), and the asset packs have
 [`assets.source.md` sidecars](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.assets.en/assets.source.md), plus the existing
 [GPL text](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.community.en/GPL-3.0.txt).
-[THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES.md) is plugin-local to respect this worker's scope.
+[THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES.md) records the plugin's third-party notices.
 Attribution reaches `Info.References`, pinned F2 Sources, every F8 source cell, icon descriptions,
 legacy wallet/anchor tables, container descriptions and direct callers. The selected wiki image files
 and short descriptions are embedded only in the bounded asset packs above; no bulk wiki dump or
@@ -331,11 +331,11 @@ authentication routine or complete StdNameHash algorithm. See the latest [resear
 
 ## Licence exclusions
 
-| Source (revision) | Licence found | Reason / disposition | What would unblock it |
-| --- | --- | --- | --- |
-| mooofin runtime table and spreadsheet, `7b1730217b92d27ab910d6d421efbd503cc109b2` (links above) | None published | **Resolved:** factual tables imported with attribution under owner decision 2026-10-28; no code copied | Already resolved |
-| ProtoBuffers / xcier 2018 crosswalk, `9342d5f3967ef74bac1161581dc4eab8bb41760d` (link above) | None published | **Resolved:** facts imported in a separate Unknown cross-game catalog; no code copied | Already resolved; PS5 gear/quest joins still need evidence |
-| Proprietary game art, textures, icons, screenshots and extracted dialogue/text | Rights reserved by the named holders | **Resolved: imported (owner decision 2026-10-29)** as a bounded, attributed asset round; no bulk extraction, dialogue dump or save-coordinate join | Already resolved for this round; future additions still require the same attribution and size budget |
+| Source / revision | Licence found | Disposition | Alternative | Unblock |
+| --- | --- | --- | --- | --- |
+| mooofin runtime table and spreadsheet, `7b1730217b92d27ab910d6d421efbd503cc109b2` (links above) | None published | **Resolved:** factual tables imported with attribution under owner decision 2026-10-28; no code copied | Not separately recorded in README. | Already resolved |
+| ProtoBuffers / xcier 2018 crosswalk, `9342d5f3967ef74bac1161581dc4eab8bb41760d` (link above) | None published | **Resolved:** facts imported in a separate Unknown cross-game catalog; no code copied | Not separately recorded in README. | Already resolved; PS5 gear/quest joins still need evidence |
+| Proprietary game art, textures, icons, screenshots and extracted dialogue/text | Rights reserved by the named holders | **Resolved: imported (owner decision 2026-10-29)** as a bounded, attributed asset round; no bulk extraction, dialogue dump or save-coordinate join | Not separately recorded in README. | Already resolved for this round; future additions still require the same attribution and size budget |
 
 ## Owner capture and validation checklist
 
