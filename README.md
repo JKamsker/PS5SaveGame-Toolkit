@@ -17,6 +17,7 @@ normalize or overwrite an edit even when format checks pass.** Keep an untouched
 on a disposable spare slot. The owner validation work is tracked in
 [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31) and the
 [owner checklist](docs/OWNER_CHECKLIST.md).
+See [owner actions](docs/OWNER_ACTIONS.md) for the prioritised console, capture, decision and release queue.
 
 ## Features
 
