@@ -52,7 +52,8 @@ public sealed partial class DocumentSession : IDisposable
     private bool _idleRetired;
 
     public DocumentSession(string id, DiskSaveFile file, IGamePlugin plugin, ISaveDocument document,
-        DocumentSessionOptions? options = null, Func<ISaveDocument>? openOriginal = null, ReferenceContext? references = null)
+        DocumentSessionOptions? options = null, Func<ISaveDocument>? openOriginal = null, ReferenceContext? references = null,
+        Func<IReadOnlyList<string>, IReadOnlyDictionary<string, SemanticMemberContext>>? memberContext = null)
     {
         Id = id;
         File = file;
@@ -66,7 +67,7 @@ public sealed partial class DocumentSession : IDisposable
         _references = referenceContext;
         _history = new EditHistory(limits);
         _referenceFields = new ReferenceFieldService(referenceContext);
-        _semantic = new SemanticReview(limits);
+        _semantic = new SemanticReview(limits, memberContext);
         // The original is re-opened with the same pinned reference packs so its field identities match the live document.
         _openOriginal = openOriginal ?? (() => plugin.Open(file, referenceContext));
     }

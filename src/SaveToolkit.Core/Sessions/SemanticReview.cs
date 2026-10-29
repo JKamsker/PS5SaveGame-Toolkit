@@ -31,6 +31,7 @@ internal sealed class SemanticReview
     private readonly List<string> _captureDiagnostics = [];
     private readonly SemanticSnapshotCapture _capture;
     private readonly SemanticTargetedCapture _targetedCapture;
+    private readonly Func<IReadOnlyList<string>, IReadOnlyDictionary<string, SemanticMemberContext>>? _memberContext;
     private readonly long _maxBytes;
 
     // Preflight can populate the baseline, but cancellation must leave it uncached.
@@ -51,13 +52,15 @@ internal sealed class SemanticReview
         };
     }
 
-    public SemanticReview(DocumentSessionOptions limits)
+    public SemanticReview(DocumentSessionOptions limits,
+        Func<IReadOnlyList<string>, IReadOnlyDictionary<string, SemanticMemberContext>>? memberContext = null)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(limits.MaxReviewQueryRows);
         ArgumentOutOfRangeException.ThrowIfNegative(limits.MaxReviewQueryPages);
         ArgumentOutOfRangeException.ThrowIfNegative(limits.MaxReviewQueryBytes);
         _capture = new SemanticSnapshotCapture(limits);
         _targetedCapture = new SemanticTargetedCapture(limits.MaxOriginalBytes);
+        _memberContext = memberContext;
         _maxBytes = limits.MaxOriginalBytes;
     }
 
@@ -266,8 +269,9 @@ internal sealed class SemanticReview
                 current.Complete = false;
             }
         }
+        var memberContext = ResolveMemberContext(original, current);
         var changes = SemanticSnapshotComparison.Compare(original.Fields, original.Complete,
-            current.Fields, current.Complete, document, cancellationToken);
+            current.Fields, current.Complete, document, memberContext, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
 
         var complete = original.Complete && current.Complete && !_unreviewedReportedChanges
@@ -284,6 +288,30 @@ internal sealed class SemanticReview
                 allWarnings)
             : null;
         return new SemanticChangeLog(changes, complete, allWarnings, revision) { Coverage = coverage };
+    }
+
+    private IReadOnlyDictionary<string, SemanticMemberContext> ResolveMemberContext(
+        SemanticSnapshot original, SemanticSnapshot current)
+    {
+        if (_memberContext is null) return new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal);
+        var ids = original.Fields.Values.Concat(current.Fields.Values)
+            .Where(field => field.MetadataPublished || field.CanonicalValueId is not null)
+            .Select(field => field.ValueId).Distinct(StringComparer.Ordinal).ToArray();
+        if (ids.Length == 0) return new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal);
+        try
+        {
+            var contexts = _memberContext(ids);
+            return contexts.GroupBy(pair => pair.Key, StringComparer.Ordinal).ToDictionary(
+                group => group.Key, group => group.Count() == 1
+                    ? group.Single().Value
+                    : throw new InvalidOperationException($"Duplicate group context for '{group.Key}'."),
+                StringComparer.Ordinal);
+        }
+        catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
+        {
+            _captureDiagnostics.Add($"Group member context is incomplete: {ex.Message}");
+            return new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal);
+        }
     }
 
     public bool TryOriginal(string id, out FieldValue value)

@@ -36,6 +36,10 @@ function ChangedFieldRow({ change, review, focusSummary }: ReviewProps & { chang
           <span>{alias.label}</span>
           {alias.bindingKind === "Derived" && <span className="review-badge">Derived</span>}
           {alias.presentation?.confidence && <span className="review-confidence">Confidence: {alias.presentation.confidence}</span>}
+          {alias.member && <span className="review-context">{alias.member.role} · {alias.member.relativePath}
+            {alias.member.groupTitle && <> · {alias.member.groupTitle}</>}
+            {alias.member.provenance && <> · {alias.member.provenance}</>}
+          </span>}
           <small>Technical ID: {alias.valueId} · path {alias.path.join(" › ") || "unavailable"}</small>
         </li>)}</ul>
       </details>}

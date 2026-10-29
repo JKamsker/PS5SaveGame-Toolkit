@@ -5,7 +5,8 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Core.Tests.Fakes;
 
-public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IActionPlanningDocument, IQueryableDocument
+public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IActionPlanningDocument, IQueryableDocument,
+    IFieldMetadataDocument, IGroupedFieldContext
 {
     private readonly Dictionary<string, Container> _containers = new(StringComparer.Ordinal);
     private int _nextId = 1;
@@ -29,6 +30,7 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
     public override string Title => "Grouped containers";
     public override ViewNode BuildView() => new SectionNode(Title,
     [
+        ItemMetadata("character"), ItemMetadata("profile"),
         Balance("character"), Balance("profile"),
         new SectionNode("Details", []) { LazyId = "details" },
         new ActionNode("transfer", "Transfer duplicate") { SupportsPlanning = true },
@@ -42,8 +44,41 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
         .. Collections.Select(c => (ViewNode)new QueryableTableNode(c.Id, c.Title, c.Columns, c.TotalCount)),
     ]);
 
-    private FieldNode Balance(string role) => Field($"{role}/balance", $"{role} balance", IntegerSpec.Int32,
-        () => FieldValue.Of(_containers[role].Balance), value => _containers[role].Balance = value.AsInt32());
+    private TextNode ItemMetadata(string role)
+    {
+        RegisterField(new FieldMetadata($"{role}/items", $"{role} item count", IntegerSpec.Int32)
+        { Path = [$"section:{role}", "section:items"] }, () => FieldValue.Of(_containers[role].Items.Count), _ => { });
+        return new TextNode($"{role} item metadata");
+    }
+
+    private SectionNode Balance(string role)
+    {
+        var id = $"{role}/balance";
+        var rawId = $"{role}/raw/balance";
+        var get = () => FieldValue.Of(_containers[role].Balance);
+        Action<FieldValue> set = value => _containers[role].Balance = value.AsInt32();
+        RegisterField(new FieldMetadata(id, $"{role} balance", IntegerSpec.Int32)
+        { Path = [$"section:{role}"], Presentation = new FieldPresentation { Confidence = Confidence.Verified } }, get, set);
+        RegisterField(new FieldMetadata(rawId, $"{role} raw balance", IntegerSpec.Int32 with { ReadOnly = true })
+        {
+            BindingKind = FieldBindingKind.Derived, CanonicalValueId = id,
+            Path = [$"section:{role}", "section:raw"],
+        }, get);
+        return new SectionNode(role,
+            [new FieldNode(id, $"{role} balance", IntegerSpec.Int32, get()),
+                new FieldNode(rawId, $"{role} raw balance", IntegerSpec.Int32 with { ReadOnly = true }, get())]);
+    }
+
+    public IReadOnlyList<DocumentGroupFieldContext> ResolveFieldContext(IReadOnlyList<string> valueIds)
+    {
+        var known = _containers.Keys.SelectMany(role => new[] { $"{role}/balance", $"{role}/raw/balance" })
+            .ToHashSet(StringComparer.Ordinal);
+        return valueIds.Where(known.Contains).Select(id =>
+        {
+            var role = _containers.Keys.Single(role => id == $"{role}/balance" || id == $"{role}/raw/balance");
+            return new DocumentGroupFieldContext(id, role, _containers[role].Path, "synthetic group input");
+        }).ToArray();
+    }
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => lazyId == "details"
         ? [Field("profile/lazy", "Profile lazy balance", IntegerSpec.Int32,

@@ -40,7 +40,8 @@ public sealed class DocumentGroupSession
         IGroupedSaveDocument Open() => _groupPlugin.OpenGroup(input, references);
         var staged = new StagedGroupDocument(Open, Verify, token => CheckFingerprints(token), limits.MaxSnapshotBytes);
         Session = new DocumentSession(id, set.FindById(members[0].FileId)!, plugin, staged,
-            options: limits, openOriginal: Open, references: references);
+            options: limits, openOriginal: Open, references: references,
+            memberContext: ids => ResolveFieldContext(staged, ids));
     }
 
     public string Title { get; }
@@ -109,4 +110,26 @@ public sealed class DocumentGroupSession
 
     private DocumentGroupInput Input(ISaveSet set) => new(Array.AsReadOnly(Members.Select(m =>
         new DocumentGroupFile(m.Role, set.FindFile(m.RelativePath)!)).ToArray()));
+
+    private IReadOnlyDictionary<string, SemanticMemberContext> ResolveFieldContext(
+        StagedGroupDocument staged, IReadOnlyList<string> valueIds)
+    {
+        var requested = valueIds.ToHashSet(StringComparer.Ordinal);
+        var contexts = new List<DocumentGroupFieldContext>();
+        foreach (var batch in valueIds.Distinct(StringComparer.Ordinal).Chunk(FieldMetadataLimits.MaxBatchSize))
+            contexts.AddRange(staged.ResolveFieldContext(batch));
+
+        var members = Members.ToDictionary(member => (member.Role, member.RelativePath));
+        var mapped = new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal);
+        foreach (var context in contexts)
+        {
+            if (!requested.Contains(context.ValueId)
+                || !members.ContainsKey((context.Role, context.RelativePath))
+                || !mapped.TryAdd(context.ValueId,
+                    new SemanticMemberContext(context.Role, context.RelativePath, Title, context.Provenance)))
+                throw new InvalidOperationException("The group returned duplicate or foreign field context.");
+        }
+
+        return mapped;
+    }
 }

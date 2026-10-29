@@ -7,7 +7,8 @@ namespace SaveToolkit.Core.Sessions;
 internal static class SemanticSnapshotComparison
 {
     public static IReadOnlyList<SemanticChange> Compare(IReadOnlyDictionary<string, SemanticField> original, bool originalComplete,
-        IReadOnlyDictionary<string, SemanticField> current, bool currentComplete, ISaveDocument document, CancellationToken cancellationToken)
+        IReadOnlyDictionary<string, SemanticField> current, bool currentComplete, ISaveDocument document,
+        IReadOnlyDictionary<string, SemanticMemberContext> memberContext, CancellationToken cancellationToken)
     {
         var changes = new List<SemanticChange>();
         // Explicit canonical metadata may expose one writable primary through several read-only
@@ -58,7 +59,7 @@ internal static class SemanticSnapshotComparison
                 .Select(group => group.First())
                 .Where(alias => alias.MetadataPublished && alias.ValueId != field.ValueId)
                 .Select(alias => new SemanticProjection(alias.ValueId, alias.Label, alias.Path,
-                    alias.BindingKind, alias.Presentation)).ToArray();
+                    alias.BindingKind, alias.Presentation, memberContext.GetValueOrDefault(alias.ValueId))).ToArray();
             var canRevert = before is not null && after is { ReadOnly: false } && document.CanEdit;
             changes.Add(new SemanticChange(field.ValueId, field.Label, field.Path,
                 before?.Value ?? FieldValue.Null, after?.Value ?? FieldValue.Null,
@@ -70,6 +71,7 @@ internal static class SemanticSnapshotComparison
                 CanonicalValueId = canonical,
                 BindingKind = field.MetadataPublished ? field.BindingKind : null,
                 Presentation = field.Presentation,
+                Member = memberContext.GetValueOrDefault(field.ValueId),
                 Aliases = aliases.Length == 0 ? null : aliases,
                 NavigationTarget = field.MetadataPublished ? navigation : null,
                 CanNavigate = field.MetadataPublished ? canNavigate : null,

@@ -44,6 +44,10 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
 
     internal bool MetadataEnabled => _current is IFieldMetadataDocument;
 
+    /// <summary>Forward only explicitly requested group ownership context from the current candidate.</summary>
+    internal IReadOnlyList<DocumentGroupFieldContext> ResolveFieldContext(IReadOnlyList<string> valueIds) =>
+        _current is IGroupedFieldContext context ? context.ResolveFieldContext(valueIds) : [];
+
     /// <summary>Forward bounded metadata to the currently published candidate.</summary>
     public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds) =>
         _current is IFieldMetadataDocument metadata ? metadata.ResolveFieldMetadata(valueIds) : [];

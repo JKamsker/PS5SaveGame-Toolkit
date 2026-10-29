@@ -168,6 +168,27 @@ public sealed class DocumentGroupTests : IDisposable
     }
 
     [Fact]
+    public void SemanticReviewPublishesAuthoritativeMemberContextForRenderedGroupFields()
+    {
+        var session = Open(Create()).Session;
+        Assert.True(session.ApplyEdits([Edit("character/balance", 11)], 0).Ok);
+
+        var changes = session.GetChanges().Changes;
+        var change = Assert.Single(changes, item => item.ValueId == "character/balance");
+        Assert.Equal("character", change.Member?.Role);
+        Assert.Equal(Root + "character.dat", change.Member?.RelativePath);
+        Assert.Equal("Character + profile", change.Member?.GroupTitle);
+        Assert.Equal("synthetic group input", change.Member?.Provenance);
+        foreach (var alias in changes.Where(item => item.ValueId is "character/raw/balance" or "profile/raw/balance"))
+        {
+            Assert.Equal(alias.ValueId.StartsWith("character/", StringComparison.Ordinal) ? "character" : "profile",
+                alias.Member?.Role);
+            Assert.Equal(alias.ValueId.StartsWith("character/", StringComparison.Ordinal)
+                ? Root + "character.dat" : Root + "profile.dat", alias.Member?.RelativePath);
+        }
+    }
+
+    [Fact]
     public void QueryScopedPlan_ResolvesStableKeysThroughGroupAdapter()
     {
         var session = Open(Create()).Session;

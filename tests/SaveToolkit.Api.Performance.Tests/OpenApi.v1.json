@@ -3437,6 +3437,16 @@
           "label": {
             "type": "string"
           },
+          "member": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SemanticMemberContext"
+              }
+            ]
+          },
           "path": {
             "items": {
               "type": "string"
