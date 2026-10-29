@@ -105,6 +105,7 @@ The job IDs below are the workflow keys, rather than matrix-expanded display nam
 | --- | --- | --- |
 | [ci.yml](../.github/workflows/ci.yml) | `validate` | Ubuntu/Windows backend and web checks; .NET coverage on Windows, web coverage and documentation/actionlint checks on Linux. |
 | [ci.yml](../.github/workflows/ci.yml) | `script-tests` | PowerShell script/scaffold regressions on Ubuntu, Windows and macOS. |
+| [ci.yml](../.github/workflows/ci.yml) | `csharp-size` | Exact PR/base-range C# size gate plus a full report-only debt audit. |
 | [ci.yml](../.github/workflows/ci.yml) | `e2e` | Ubuntu Chromium tests against the built API/UI. |
 | [dependency-drift.yml](../.github/workflows/dependency-drift.yml) | `report` | Weekly/manual report-only NuGet/npm version drift; no secrets, updates or auto-merge. |
 | [nightly-fuzz.yml](../.github/workflows/nightly-fuzz.yml) | `fuzz` | Ubuntu scheduled/manual mutation sweep with synthetic seeds, reproducible seed/count overrides and metadata-only failure reports. |
@@ -147,6 +148,10 @@ are additional). All commands below run from the repository root in PowerShell 7
 | `new-plugin.ps1` | `-Name`, `-Id`, `-TitleIds`, `-GameName` | Name/ID are required; title IDs default to empty, game name to Name. See the [scaffold walkthrough](PLUGIN_GUIDE.md#scaffold) for format and name restrictions. |
 | `release-notes.ps1` | `-Version`, `-PreviousTag`, `-Force` | Version is required (SemVer without `v` or build metadata). Previous tag defaults to the nearest reachable `v*` tag on the first-parent history. Writes a draft; existing notes require Force. No network. |
 | `release-check.ps1` | `-Version` | Version is required in the same format. Read-only pre-tag checks require committed notes and a clean main branch; queries exact-HEAD main push CI through gh, or warns when gh is unavailable. |
+
+The dependency-free [`check_csharp_size.py`](../scripts/check_csharp_size.py) uses `--staged`,
+`--changed --base`, `--all` and `--report-only`; its index/base-range behavior and policy are
+documented in the [C# source-size guard](CSHARP_SIZE_GUARD.md).
 
 ## Disk and scratch
 

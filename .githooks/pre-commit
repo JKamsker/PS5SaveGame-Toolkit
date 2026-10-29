@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+# Optional repository hook installed by scripts/install-hooks.ps1.
+set -u
+
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+  echo "C# size guard: cannot locate the repository root." >&2
+  exit 1
+}
+
+if command -v python3 >/dev/null 2>&1; then
+  python_command=python3
+elif command -v python >/dev/null 2>&1; then
+  python_command=python
+else
+  echo "C# size guard: Python 3 is required for the staged pre-commit check." >&2
+  exit 1
+fi
+
+"$python_command" "$repo_root/scripts/check_csharp_size.py" --staged
+status=$?
+if [ "$status" -ne 0 ]; then
+  exit "$status"
+fi
+
+# The installer moves an existing hook beside this wrapper so it remains part of the chain.
+original_hook="$(dirname "$0")/pre-commit.savetoolkit-original"
+if [ -f "$original_hook" ]; then
+  "$original_hook"
+  exit $?
+fi
+exit 0
