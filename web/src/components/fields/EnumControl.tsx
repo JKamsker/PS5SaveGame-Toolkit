@@ -20,7 +20,7 @@ export function EnumControl({ id, spec, value, onCommit, compact, labelledBy, on
     return <div className="enum-control">
       <input id={id} list={`${id}-options`} aria-labelledby={labelledBy} className={className} value={draft}
         onChange={(e) => setDraft(e.target.value)} onBlur={() => void commit()}
-        onKeyDown={(e) => { if (e.key === "Enter") void commit(); if (e.key === "Escape") setDraft(current); }} />
+        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void commit(); } if (e.key === "Escape") setDraft(current); }} />
       <datalist id={`${id}-options`}>
         {spec.options.map((o) => <option key={o.value} value={o.value}>{o.label}{o.description ? ` — ${o.description}` : ""}</option>)}
       </datalist>

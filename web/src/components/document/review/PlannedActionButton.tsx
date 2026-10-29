@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import { actionReview, reviewValue, type ActionPreview, type ActionScope } from "../../../api/actionReview";
 import type { ActionNode, FieldValue } from "../../../api/protocol";
 import { useDocument, useDocumentState } from "../../../state/documentStore";
@@ -13,11 +13,16 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
   const selection = useTableSelection();
   const dialog = useRef<HTMLDialogElement>(null);
   const id = useId();
-  const parameters = node.parameters ?? [];
+  const parameters = useMemo(() => (node.parameters ?? []).map(parameter => ({
+    ...parameter, spec: { ...parameter.spec, readOnly: false },
+  })), [node.parameters]);
   const [values, setValues] = useState<Record<string, FieldValue>>(() => Object.fromEntries(parameters.map(p => [p.valueId, p.value])));
   const [preview, setPreview] = useState<ActionPreview | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [parameterErrors, setParameterErrors] = useState<Record<string, string | undefined>>({});
+  const [formVersion, setFormVersion] = useState(0);
+  const invalid = Object.values(parameterErrors).some(Boolean);
   const queryScope = selection?.queryScope;
   const scope: ActionScope = queryScope ? { queryScope: {
     collectionId: queryScope.collectionId,
@@ -34,9 +39,11 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
   const stale = Boolean(preview && (preview.revision !== state.revision || previewScope !== scopeKey));
 
   const plan = async (params = values) => {
+    if (busy || invalid) return;
     setBusy(true);
     setError("");
     setPreview(null);
+    setParameterErrors({});
     try {
       const result = await actionReview.plan(doc.workspaceId, doc.documentId, node.actionId, params, scope, doc.store.state.revision);
       setPreview(result);
@@ -72,6 +79,8 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
   const open = () => {
     const defaults = Object.fromEntries(parameters.map(p => [p.valueId, p.value]));
     setValues(defaults);
+    setParameterErrors({});
+    setFormVersion(previous => previous + 1);
     setError("");
     setPreview(null);
     dialog.current?.showModal();
@@ -82,7 +91,7 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
     <button type="button" className={`btn${compact ? " btn--small" : ""}${node.tone === "Danger" ? " btn--danger" : ""}`} aria-label={ariaLabel} title={compact ? node.description : undefined} disabled={busy} onClick={open}>{node.label}</button>
     {node.description && !compact && <span className="action__description">{node.description}</span>}
     <dialog ref={dialog} className="dialog review-dialog" aria-labelledby={`${id}-title`}>
-      <form onSubmit={event => { event.preventDefault(); void (preview?.planId && !stale ? apply() : plan()); }}>
+      <form onSubmit={event => { event.preventDefault(); if (!busy && !invalid) void (preview?.planId && !stale ? apply() : plan()); }}>
         <div className="dialog__body">
           <h2 id={`${id}-title`} className="dialog__title">Preview: {node.label}</h2>
           <p>{scopeLabel}</p>
@@ -90,20 +99,22 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
           {!preview && parameters.map(p => {
             const value = values[p.valueId];
             return (
-              <div className="field" key={p.valueId}>
+              <div className="field" key={`${formVersion}-${p.valueId}`}>
                 <label className="field__label" htmlFor={`${id}-${p.valueId}`}>{p.label}</label>
                 <FieldControl
                   id={`${id}-${p.valueId}`}
                   valueId={p.valueId}
                   actionId={node.actionId}
-                  spec={{ ...p.spec, readOnly: false }}
+                  spec={p.spec}
                   value={value === undefined ? p.value : value}
                   disabled={busy}
+                  onLocalError={message => setParameterErrors(previous => ({ ...previous, [p.valueId]: message }))}
                   onCommit={next => {
                     setValues(previous => ({ ...previous, [p.valueId]: next }));
                     return true;
                   }}
                 />
+                {parameterErrors[p.valueId] && <span className="field__error" role="alert">{parameterErrors[p.valueId]}</span>}
                 {p.description && <span className="field__description">{p.description}</span>}
               </div>
             );
@@ -129,7 +140,7 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
         <div className="dialog__footer">
           <button type="button" className="btn btn--quiet" disabled={busy} onClick={() => dialog.current?.close()}>Cancel</button>
           {preview && <button type="button" className="btn" disabled={busy} onClick={() => { setPreview(null); setError(""); }}>Change parameters</button>}
-          <button type="submit" className={`btn ${node.tone === "Danger" ? "btn--danger" : "btn--primary"}`} disabled={busy || Boolean(preview?.planId && !stale && !doc.canEdit)}>
+          <button type="submit" className={`btn ${node.tone === "Danger" ? "btn--danger" : "btn--primary"}`} disabled={busy || invalid || Boolean(preview?.planId && !stale && !doc.canEdit)}>
             {preview?.planId && !stale ? "Apply" : "Preview"}
           </button>
         </div>

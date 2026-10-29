@@ -138,7 +138,11 @@ function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labe
         spellCheck={spec.kind === "text"}
         className={`${className}${spec.kind === "integer" && spec.format === "Hex" ? " mono" : ""}`}
         onKeyDown={(e) => {
-          if (e.key === "Enter") void commit();
+          if (e.key === "Enter") {
+            // Enter commits this draft; action forms must not submit a previous value implicitly.
+            e.preventDefault();
+            void commit();
+          }
           if (e.key === "Escape") revert();
           if (spec.kind === "integer" && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
             e.preventDefault();
