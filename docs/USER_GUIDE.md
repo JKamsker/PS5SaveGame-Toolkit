@@ -144,8 +144,12 @@ need space. Contributors running tests/builds should use the separate
 [disk and scratch guidance](RELEASING.md#disk-and-scratch).
 
 **A workspace is temporary.** Edits and undo history live in the running server session.
-Closing a dump discards its workspace; restarting the server clears imported workspaces,
-and workspaces idle for six hours expire by default. The home page's **Open dumps** list
+Closing a dump discards its workspace; restarting the server clears imported workspaces.
+Clean workspaces idle for six hours expire by default. Workspaces with committed edits,
+including related-file groups and edits that cannot be undone, survive automatic idle
+cleanup while the server keeps running. Undoing all reversible edits allows expiry again.
+Export and **Download file** leave edits marked dirty, so close finished documents or dumps
+to release their retained memory and working files. The home page's **Open dumps** list
 is for currently open workspaces, not saved editing projects. Export before closing or
 stopping the app. Keep originals and exported zips outside `data/`.
 
@@ -411,8 +415,10 @@ installing Node.js does not address it.
 
 ### Edits disappeared or the workspace is gone
 
-Closing a dump, server restart or idle expiration ends the workspace. Re-import your
-original or last exported zip. There is no persistent project/autosave recovery from
+Closing a dump or restarting the server ends its workspace and discards remaining edits.
+Automatic idle expiration applies only to clean workspaces; committed dirty edits stay
+available while the server runs. Re-import your original or last exported zip if the
+workspace is gone. There is no persistent project/autosave recovery from
 `data/workspaces/`; export before ending a session.
 
 ## Report a problem

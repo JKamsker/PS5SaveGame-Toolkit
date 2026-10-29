@@ -19,6 +19,7 @@ public sealed class Workspace : IDisposable
     private readonly DocumentGroupRegistry _groups;
     private int _documentCounter;
     private bool _disposed;
+    private bool _idleRetired;
     private long _lastAccessTicks;
 
     public Workspace(string id, string name, DiskSaveSet set, PluginCatalog catalog, ReferencePackStore? packs = null)
@@ -49,7 +50,7 @@ public sealed class Workspace : IDisposable
     internal T WithOwnershipLock<T>(Func<T> operation, CancellationToken cancellationToken)
         => OperationCancellation.Locked(_openGate, () =>
         {
-            ObjectDisposedException.ThrowIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed || _idleRetired, this);
             return operation();
         }, cancellationToken);
 
@@ -60,7 +61,7 @@ public sealed class Workspace : IDisposable
     {
         lock (_openGate)
         {
-            ObjectDisposedException.ThrowIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed || _idleRetired, this);
             var group = _groups.Open(proposalToken, $"doc{Interlocked.Increment(ref _documentCounter)}", releaseCleanDocumentId, options);
             _documents[group.Session.Id] = group.Session;
             _references[group.Session.Id] = group.References;
@@ -99,7 +100,7 @@ public sealed class Workspace : IDisposable
 
         lock (_openGate)
         {
-            ObjectDisposedException.ThrowIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed || _idleRetired, this);
             _groups.ThrowIfOwned(file.RelativePath);
             var existing = _documents.Values.FirstOrDefault(d => d.File.Id == fileId);
             if (existing is not null)
@@ -134,6 +135,38 @@ public sealed class Workspace : IDisposable
             try { session.Dispose(); }
             finally { _groups.Remove(documentId); }
             return true;
+        }
+    }
+
+    /// <summary>Atomically retires a clean, idle workspace without calling plugin code.</summary>
+    internal bool TryRetireClean(Func<bool> unregister)
+    {
+        // Lock order: workspace ownership -> all session gates -> store registration.
+        // The store never waits for workspace/session locks while holding its gate.
+        // Nonblocking attempts also skip reentrant/in-flight operations, even without a lease.
+        if (_openGate.IsHeldByCurrentThread || !_openGate.TryEnter()) return false;
+        DocumentSession[] sessions = [];
+        var entered = 0;
+        try
+        {
+            if (_idleRetired) return false;
+            sessions = [.. _documents.Values];
+            foreach (var session in sessions)
+            {
+                if (!session.TryEnterCleanState()) return false;
+                entered++;
+            }
+            if (!unregister()) return false;
+            _idleRetired = true;
+            // Reject callers already holding raw session references before releasing gates.
+            // Actual plugin disposal and blob deletion run outside the eviction decision.
+            foreach (var session in sessions) session.RetireCleanState();
+            return true;
+        }
+        finally
+        {
+            for (var index = entered - 1; index >= 0; index--) sessions[index].ExitCleanState();
+            _openGate.Exit();
         }
     }
 

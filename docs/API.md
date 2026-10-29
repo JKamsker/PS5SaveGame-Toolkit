@@ -50,8 +50,15 @@ host/proxy failures before application execution are outside generated operation
 
 Unless an endpoint states otherwise, success is **200**, resource removal is
 **204** with no body, and unknown workspace/document/file/plugin/catalog/record
-resources are **404**. A workspace may have expired; reimport it. The default idle
-timeout is six hours; cleanup runs periodically and active requests retain leases.
+resources are **404**. A clean workspace may have expired; reimport it. The default
+idle timeout is six hours; cleanup runs periodically and active requests retain leases.
+Automatic cleanup retains workspaces with dirty independent documents or document groups,
+including irreversible edits with no remaining undo. Undoing all reversible edits makes a
+workspace eligible for expiry again. The decision reads host history only, without
+serializing documents; busy operations are skipped and lease/access state is rechecked.
+Export and direct download leave documents dirty. Explicitly close finished documents or
+DELETE the workspace to release retained resources. Explicit close/delete, disposal and
+server shutdown still discard edits; this retention provides no restart persistence.
 
 All API error responses include these ProblemDetails fields and legacy extensions:
 

@@ -10,6 +10,7 @@ public sealed record WorkspaceStoreOptions
     /// <summary>Folder for imported blobs; wiped on startup.</summary>
     public required string DataRoot { get; init; }
 
+    /// <summary>Automatic expiry for clean workspaces only; dirty edits survive until explicit removal or shutdown.</summary>
     public TimeSpan IdleTimeout { get; init; } = TimeSpan.FromHours(6);
 
     public ImportLimits Limits { get; init; } = new();
@@ -101,16 +102,13 @@ public sealed class WorkspaceStore : IDisposable
         }
     }
 
-    public bool Remove(string id) => Remove(id, idleCutoff: null);
-
-    private bool Remove(string id, DateTimeOffset? idleCutoff)
+    public bool Remove(string id)
     {
         Registration registration;
         bool cleanup;
         lock (_lifetimeGate)
         {
             if (!_workspaces.TryGetValue(id, out registration!)) return false;
-            if (idleCutoff is { } cutoff && (registration.Leases > 0 || registration.Workspace.LastAccess >= cutoff)) return false;
             _workspaces.Remove(id);
             registration.Removed = true;
             cleanup = registration.Leases == 0;
@@ -119,14 +117,40 @@ public sealed class WorkspaceStore : IDisposable
         return true;
     }
 
-    /// <summary>Drops workspaces idle longer than the configured timeout.</summary>
+    private bool RemoveExpired(string id, DateTimeOffset cutoff)
+    {
+        Registration registration;
+        lock (_lifetimeGate)
+        {
+            if (_disposed || !_workspaces.TryGetValue(id, out registration!)
+                || registration.Leases > 0 || registration.Workspace.LastAccess >= cutoff) return false;
+        }
+
+        // Do not hold the store gate while acquiring ownership/session gates. Recheck
+        // registration identity, leases and access after the complete clean-state check.
+        if (!registration.Workspace.TryRetireClean(() =>
+        {
+            lock (_lifetimeGate)
+            {
+                if (_disposed || !_workspaces.TryGetValue(id, out var current) || !ReferenceEquals(current, registration)
+                    || registration.Leases > 0 || registration.Workspace.LastAccess >= cutoff) return false;
+                _workspaces.Remove(id);
+                registration.Removed = true;
+                return true;
+            }
+        })) return false;
+        Cleanup(registration.Workspace);
+        return true;
+    }
+
+    /// <summary>Drops clean, unleased workspaces idle longer than the configured timeout; retains dirty work.</summary>
     public int Sweep()
     {
         var cutoff = DateTimeOffset.UtcNow - _options.IdleTimeout;
         string[] ids;
         lock (_lifetimeGate) ids = [.. _workspaces.Keys];
         var removed = 0;
-        SessionCleanup.RunAll(ids, id => { if (Remove(id, cutoff)) removed++; });
+        SessionCleanup.RunAll(ids, id => { if (RemoveExpired(id, cutoff)) removed++; });
         return removed;
     }
 
