@@ -46,6 +46,7 @@ so a fresh group candidate cannot alias the original document or node state.
 - Assigned branch: `t3/xorjson-sdk06-adoption`
 - Branch base before dependency merge: `e76e51035fec308a56e5c26b5d97a9c08089f881`
 - Consumer head before R1 fixes: `8d7c4c17691b1de27e37922bfda3d7cb67177645`
+- Consumer follow-up head: `ab568661cc1a2945ad209c1091e98aa5fcfb41e9` (`fix(xorjson): close SDK06 scalar and snapshot gaps`)
 - Consumer PR base: `t3/sdk06-lossless-json` / reviewed SDK head above; parent may
   retarget the PR to `main` after #51 lands.
 
@@ -75,6 +76,8 @@ Validation from the sample-free run:
 passed **301 tests**, with **19 sample-dependent skips** and **0 failures**.
 The plugin project also builds with zero warnings. Missing `PPSA16064` samples
 were skipped by the existing test harness; no private sample bytes were copied.
+PR CI metadata: checks are pending on the dependency-base PR; parent owns CI
+watch and will revalidate after SDK PR #51 lands on `main`.
 
 ## Remaining limits
 
