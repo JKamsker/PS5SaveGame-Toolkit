@@ -40,10 +40,14 @@ public sealed class JsonAssetRoundTests
         Assert.Null(quality.Source);
 
         // These are settings choices, with no verified native icon associations.
-        Assert.All(catalog.Search(new()).Items, record => Assert.Null(record.AssetId));
+        var displayRecords = catalog.Search(new()).Items;
+        Assert.Equal(2, displayRecords.Count);
+        Assert.All(displayRecords, record => Assert.Null(record.AssetId));
         var difficulty = context.Catalog("cp2077-v136-difficulty", "136");
         Assert.NotNull(difficulty);
-        Assert.All(difficulty.Search(new()).Items, record =>
+        var difficultyRecords = difficulty.Search(new()).Items;
+        Assert.Equal(4, difficultyRecords.Count);
+        Assert.All(difficultyRecords, record =>
         {
             Assert.Null(record.AssetId);
             Assert.Contains("unverified", record.Description);
