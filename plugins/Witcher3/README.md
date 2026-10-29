@@ -527,10 +527,12 @@ shared file is intentionally left for the integrating owner because this task is
 
 ## SDK requests
 
-The plugin rejects duplicate value IDs in an edit batch before mutation (#40). Shared scalar history
-currently replays old values in order, so multiple transitions for one ID can undo to an intermediate
-value. A shared rejection or coalescing policy would remove the need for this local guard; no SDK
-change is required for the shipped plugin.
+**SDK-11 — obsolete:** the earlier duplicate-scalar undo defect report is superseded by the
+[central SDK request triage](../../docs/SDK_REQUESTS.md#prioritized-inventory). Core scalar history
+replays old values in reverse transition order: `0→1→2` undoes as `2→1→0`. No shared rejection or
+coalescing change is requested on this evidence. The plugin retains its stricter local policy of
+rejecting duplicate value IDs in an edit batch before mutation (#40); this is not a workaround for
+a current shared undo defect.
 
 No blocking SDK request for the shipped scope. F12 [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32)
 resolves the earlier request for bounded F8 traversal and native CLI decoder registration: the
