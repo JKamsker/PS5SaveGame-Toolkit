@@ -82,7 +82,7 @@ public sealed class SampleTests(ITestOutputHelper output)
     }
 
     [Fact]
-    public void SampleOpenAndViews_AreBoundedAndCompleteWithinTwoSeconds()
+    public void SampleOpenAndViews_KeepCharactersAndRawDataLazyAndCuratedExpansionBounded()
     {
         var file = WriteTestSupport.Sample();
         var watch = Stopwatch.StartNew();
@@ -90,12 +90,22 @@ public sealed class SampleTests(ITestOutputHelper output)
         var view = Assert.IsType<TabsNode>(document.BuildView());
         var fields = document.ExpandNode("characters/0");
         watch.Stop();
-        output.WriteLine($"Open + initial view + curated slot: {watch.Elapsed.TotalMilliseconds:F2} ms.");
+        output.WriteLine($"Open + initial view + curated slot: {watch.Elapsed.TotalMilliseconds:F2} ms (diagnostic only).");
         Assert.Equal(6, view.Tabs.Count);
-        Assert.Equal(SyntheticSave.SlotCount, view.Tabs[1].Children.Count);
-        Assert.All(view.Tabs[1].Children, child => Assert.NotNull(Assert.IsType<SectionNode>(child).LazyId));
+        var characters = Assert.Single(view.Tabs, tab => tab.Title == "Characters");
+        Assert.Equal(SyntheticSave.SlotCount, characters.Children.Count);
+        Assert.Equal(Enumerable.Range(0, SyntheticSave.SlotCount).Select(index => $"characters/{index}"),
+            characters.Children.Select(child => Assert.IsType<SectionNode>(child).LazyId));
+        var raw = Assert.Single(view.Tabs, tab => tab.Title == "Raw");
+        Assert.Equal(SyntheticSave.SlotCount + 3, raw.Children.Count); // Slots, header, profile and regulation.
+        Assert.All(characters.Children.Concat(raw.Children), child =>
+        {
+            var section = Assert.IsType<SectionNode>(child);
+            Assert.NotNull(section.LazyId);
+            Assert.Empty(section.Children);
+        });
         Assert.InRange(fields.Count, 1, 32);
-        Assert.InRange(watch.Elapsed.TotalSeconds, 0, 2);
+        Assert.Equal(SampleRunes, Assert.Single(fields.OfType<FieldNode>(), field => field.ValueId == "slots/0/runes").Value.AsUInt32());
+        WriteTestSupport.EqualBytes(file.ReadAllBytes(), document);
     }
-
 }

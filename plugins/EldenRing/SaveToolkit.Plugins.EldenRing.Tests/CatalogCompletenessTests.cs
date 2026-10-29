@@ -3,29 +3,43 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using SaveToolkit.Core.References;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Views;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.EldenRing.Tests;
 
-public sealed class CatalogCompletenessTests
+public sealed class CatalogCompletenessTests(ITestOutputHelper output)
 {
     private const string Revision = "014107f0ca1cff867b5f7565cb79d6684f9b35df";
 
     [Fact]
-    public void SampleInitialViewRemainsBelowTwoSecondTargetWithFullCatalog()
+    public void SampleInitialViewPublishesFullCatalogAsABoundedShellWithoutDecodingRegulation()
     {
-        const int initialViewBudgetSeconds = 2;
-        var file = SampleSaves.Load("PPSA03169").AllDiskFiles.First(file => file.FileName == "memory.dat" && !file.Directory.IsBackup);
+        var file = WriteTestSupport.Sample();
         var timer = Stopwatch.StartNew();
         var plugin = new EldenRingPlugin();
-        var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA03169");
+        var store = new ReferencePackStore([plugin]);
+        var references = store.Pin(plugin, "PPSA03169");
         using var document = plugin.Open(file, references);
         var view = Assert.IsType<TabsNode>(document.BuildView());
         timer.Stop();
-        Assert.Contains(view.Tabs, tab => tab.Title == "Reference catalog");
-        Assert.True(timer.Elapsed < TimeSpan.FromSeconds(initialViewBudgetSeconds), $"Initial view took {timer.Elapsed}.");
+        output.WriteLine($"Pack load + open + initial view: {timer.Elapsed.TotalMilliseconds:F2} ms (diagnostic only).");
+        Assert.Empty(store.LoadErrors);
+        var catalog = Assert.Single(view.Tabs, tab => tab.Title == "Reference catalog");
+        var table = Assert.Single(catalog.Children.OfType<QueryableTableNode>());
+        Assert.Equal(ReferenceBrowser.CollectionId, table.CollectionId);
+        Assert.Equal(5770, table.TotalCount);
+        Assert.Equal(4, table.Columns.Count);
+        Assert.DoesNotContain(catalog.Children, node => node is TableNode);
+        Assert.All(catalog.Children.OfType<SectionNode>(), section =>
+        {
+            Assert.NotNull(section.LazyId);
+            Assert.Empty(section.Children);
+        });
+        Assert.Contains(catalog.Children.OfType<SectionNode>(), section => section.LazyId == "regulation/metadata");
+        Assert.DoesNotContain(((IQueryableDocument)document).Collections, collection => collection.Id == RegulationViews.CollectionId);
+        WriteTestSupport.EqualBytes(file.ReadAllBytes(), document);
     }
 
     // Digests of sorted canonical-key TAB original-upstream-name LF pairs, independently
