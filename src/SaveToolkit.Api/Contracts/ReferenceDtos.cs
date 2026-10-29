@@ -18,7 +18,8 @@ public sealed record SourceDto(
     string? Title,
     int ItemCount,
     ReferenceAttribution Attribution,
-    bool Used);
+    bool Used,
+    string? ContentFingerprint);
 
 public sealed record DocumentSourcesDto(IReadOnlyList<SourceDto> Datasets);
 
@@ -62,7 +63,8 @@ internal static class ReferenceDtoMapper
         d.Dataset.Title,
         d.Dataset.ItemCount,
         d.Dataset.Attribution,
-        d.Used);
+        d.Used,
+        d.Pack.ContentFingerprint);
 
     public static ReferenceRecordDto ToDto(this ReferenceRecord r) => new(
         r.Key,

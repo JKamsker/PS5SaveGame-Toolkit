@@ -51,6 +51,9 @@ internal static class DtoMapper
         { GroupMembers = workspace?.DocumentGroups.FirstOrDefault(g => g.Session.Id == d.Id)?.Members };
     }
 
+    public static PresetDto ToDto(this ToolkitPreset preset) => new(
+        preset.SchemaVersion, preset.Id, preset.Name, preset.Compatibility, preset.Actions, preset.CreatedAt, preset.UpdatedAt);
+
     private static DirectoryDto ToDto(Workspace ws, DiskSaveDirectory dir, Dictionary<string, string> openByFile)
     {
         var twin = ws.Set.Twin(dir);

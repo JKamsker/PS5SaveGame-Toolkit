@@ -11,6 +11,8 @@ internal static class ToolkitOptionsRegistration
                 "Toolkit:DataRoot must be a valid, non-whitespace directory path.")
             .Validate(options => IsDirectoryPath(options.PackRoot),
                 "Toolkit:PackRoot must be a valid, non-whitespace directory path.")
+            .Validate(options => IsDirectoryPath(options.PresetRoot),
+                "Toolkit:PresetRoot must be a valid, non-whitespace directory path.")
             .ValidateOnStart();
         return services;
     }

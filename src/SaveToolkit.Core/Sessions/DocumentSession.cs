@@ -76,6 +76,8 @@ public sealed partial class DocumentSession : IDisposable
     public IGamePlugin Plugin { get; }
     public string Title => Locked(() => Document.Title);
     public bool CanEdit => Locked(() => Document.CanEdit);
+    /// <summary>Optional semantic preset capability published by the opened plugin document.</summary>
+    public IPresetDocument? PresetDocument => Locked(() => Document as IPresetDocument);
 
     private ISaveDocument Document { get; }
 

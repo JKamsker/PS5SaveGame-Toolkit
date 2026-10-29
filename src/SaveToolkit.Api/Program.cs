@@ -6,6 +6,7 @@ using SaveToolkit.Core;
 using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
+using SaveToolkit.Core.Presets;
 
 const long maxUploadBytes = 8L * 1024 * 1024 * 1024;
 const int maxFormValues = 100_000;
@@ -28,6 +29,8 @@ builder.Services.AddSingleton(_ => PluginCatalog.Discover());
 builder.Services.AddSingleton(sp => new ReferencePackStore(
     sp.GetRequiredService<PluginCatalog>().Plugins,
     sp.GetRequiredService<IOptions<ToolkitOptions>>().Value.ToPackOptions()));
+builder.Services.AddSingleton(sp => new PresetStore(
+    sp.GetRequiredService<IOptions<ToolkitOptions>>().Value.ToPresetOptions()));
 builder.Services.AddSingleton(sp => new WorkspaceStore(
     sp.GetRequiredService<PluginCatalog>(),
     sp.GetRequiredService<IOptions<ToolkitOptions>>().Value.ToWorkspaceOptions(),
@@ -50,6 +53,7 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();
 app.MapToolkitApi();
+app.MapPresetApi();
 app.MapReferenceApi();
 app.MapVersionApi();
 app.MapOpenApi();

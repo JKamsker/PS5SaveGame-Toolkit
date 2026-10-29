@@ -9,6 +9,7 @@ import { DocumentHeader } from "./DocumentHeader";
 import { useDocumentSession } from "./useDocumentSession";
 import { useEntryFocus } from "../ui/useEntryFocus";
 import { useDocumentCloseState } from "./documentClosures";
+import { PresetsPanel } from "./PresetsPanel";
 
 interface DocumentEditorProps {
   workspaceId: string;
@@ -75,6 +76,7 @@ function OpenDocument({ session, focusHeading, workspaceId, documentId, file, on
           />
           {!doc.canEdit && <p className="notice notice--Muted">This plugin shows the data but cannot write it.</p>}
           <ChangesPanel />
+          <PresetsPanel document={doc} onToast={onToast} />
           <ViewRenderer node={doc.view} />
         </article>
       </ReviewNavigationProvider>

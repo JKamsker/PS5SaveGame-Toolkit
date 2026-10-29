@@ -21,6 +21,8 @@ import type {
   WorkspaceSummary,
   CollectionQuery,
   QueryablePage,
+  ToolkitPreset,
+  PresetPreview,
 } from "./protocol";
 import { ApiError, cancelledMessage, fetchApi, networkMessage, readJson, responseError, timeoutMessage, TRANSFER_TIMEOUT_MS } from "./http";
 import { documentPath, postJson, workspacePath } from "./requests";
@@ -43,7 +45,8 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
       // ProblemDetails may also contain an `errors` extension, which is not an EditResult.
       if ((response.status === 422 || response.status === 409) && body && typeof body === "object") {
         if (("ok" in body && "state" in body && "errors" in body && Array.isArray(body.errors)) ||
-          ("plan" in body && body.plan && typeof body.plan === "object" && "errors" in body.plan)) return body as T;
+          ("plan" in body && body.plan && typeof body.plan === "object" && "errors" in body.plan) ||
+          ("preview" in body && body.preview && typeof body.preview === "object" && "plan" in body.preview)) return body as T;
       }
       throw responseError(response.status, body);
     }
@@ -59,6 +62,13 @@ export const api = {
   deleteWorkspace: (id: string) => request<void>(workspacePath(id), { method: "DELETE" }),
 
   titles: () => request<TitleInfo[]>("/titles"),
+  presets: () => request<ToolkitPreset[]>("/presets"),
+  createPreset: (name: string, compatibility: ToolkitPreset["compatibility"], actions: ToolkitPreset["actions"]) =>
+    request<ToolkitPreset>("/presets", postJson({ name, compatibility, actions })),
+  capturePreset: (wsId: string, docId: string, name: string, action: { actionId: string; parameters: Record<string, unknown>; scopeKind?: string; selectedRowKeys?: string[]; allMatches?: boolean }) =>
+    request<ToolkitPreset>(`${documentPath(wsId, docId)}/presets/capture`, postJson({ name, ...action })),
+  renamePreset: (id: string, name: string) => request<ToolkitPreset>(`/presets/${encodeURIComponent(id)}`, { ...postJson({ name }), method: "PATCH" }),
+  deletePreset: (id: string) => request<void>(`/presets/${encodeURIComponent(id)}`, { method: "DELETE" }),
 
   /** Uploads zips or loose files; `path` keeps folder structure for directory drops. */
   upload: (files: { file: File; path: string }[], name?: string, onProgress?: (fraction: number) => void) =>
@@ -110,6 +120,10 @@ export const api = {
     request<EditResult>(`${documentPath(wsId, docId)}/edits`, postJson({ edits, revision })),
   action: (wsId: string, docId: string, actionId: string, parameters: Record<string, FieldValue>, revision?: number) =>
     request<EditResult>(`${documentPath(wsId, docId)}/actions`, postJson({ actionId, parameters, revision })),
+  presetPreview: (wsId: string, docId: string, presetId: string, revision?: number, choices?: Record<string, string>) =>
+    request<PresetPreview>(`${documentPath(wsId, docId)}/presets/${encodeURIComponent(presetId)}/preview`, postJson({ revision, choices })),
+  presetApply: (wsId: string, docId: string, presetId: string, planId: string, revision: number) =>
+    request<EditResult>(`${documentPath(wsId, docId)}/presets/${encodeURIComponent(presetId)}/apply`, postJson({ planId, revision })),
   undo: (wsId: string, docId: string) => request<EditResult>(`${documentPath(wsId, docId)}/undo`, { method: "POST" }),
   redo: (wsId: string, docId: string) => request<EditResult>(`${documentPath(wsId, docId)}/redo`, { method: "POST" }),
   assetUrl: (wsId: string, docId: string, assetId: string) => `/api${documentPath(wsId, docId)}/assets?id=${encodeURIComponent(assetId)}`,

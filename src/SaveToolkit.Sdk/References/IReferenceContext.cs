@@ -22,6 +22,15 @@ public interface IReferenceContext
     IReadOnlyList<ReferencePackInfo> Packs { get; }
 
     /// <summary>
+    /// Deterministic identity of the pinned pack contents, suitable for a host compatibility
+    /// boundary. It is null when no pack is pinned; plugins must not manufacture it from file I/O.
+    /// </summary>
+    string? ContentIdentity => Packs.Count == 0 ? null : string.Join("|", Packs
+        .OrderBy(pack => pack.Id, StringComparer.Ordinal)
+        .ThenBy(pack => pack.ContentFingerprint, StringComparer.Ordinal)
+        .Select(pack => $"{pack.Id}@{pack.Version}:{pack.ContentFingerprint ?? "unknown"}"));
+
+    /// <summary>
     /// Best catalog with this id for the document, or null. With <paramref name="gameBuild"/> set,
     /// packs made for other builds are skipped and an exact build match wins. Ties go to the preferred
     /// locale, then user packs over embedded ones, then the higher version.
@@ -38,6 +47,7 @@ public interface IReferenceContext
 internal sealed class EmptyReferenceContext : IReferenceContext
 {
     public IReadOnlyList<ReferencePackInfo> Packs => [];
+    public string? ContentIdentity => null;
 
     public IReferenceCatalog? Catalog(string catalogId, string? gameBuild = null) => null;
 
