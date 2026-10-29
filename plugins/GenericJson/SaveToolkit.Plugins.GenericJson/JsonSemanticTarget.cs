@@ -39,8 +39,8 @@ internal sealed record JsonSemanticTarget(JsonValueToken Node, FieldSpec Spec, F
     private FieldNode ViewParameter()
     {
         var parameter = Parameter();
-        // F6's shared dialog currently omits valueId/actionId, disabling ReferenceSpec controls.
-        // Keep the browse-only F4 field; use the same attributed raw IDs in the planned edit form.
+        // The shared F6 dialog supports ReferenceSpec since 63580dc; migration remains pending here.
+        // Keep the browse-only F4 field and the existing attributed raw-ID enum until that migration.
         return Spec is ReferenceSpec && ChoiceKeys is { } keys
             ? parameter with { Spec = new EnumSpec(keys.Select(key => new EnumOption(key, JsonLabels.Friendly(key))).ToArray()) }
             : parameter;

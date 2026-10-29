@@ -9,7 +9,7 @@ namespace SaveToolkit.Plugins.GenericJson;
 internal sealed class JsonSemanticActions
 {
     internal const string Prefix = "semantic/";
-    internal const string Warning = "Not validated on console. External integrity and game dependencies are unknown; the game may reject or overwrite the edited save. "
+    internal const string Warning = JsonWriteWarnings.ConsoleRisk + " External integrity and game dependencies are unknown. "
         + "Use a spare save; owner validation is tracked in https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31.";
     internal const string DefaultsId = "semantic/defaults";
     internal const string FlagsId = "semantic/present-flags";
