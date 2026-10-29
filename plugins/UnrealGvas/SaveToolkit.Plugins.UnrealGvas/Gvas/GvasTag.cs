@@ -70,7 +70,7 @@ internal sealed record GvasTag(string Name, string Type, int SizeOffset, int Siz
 
     private static TypeName ReadType(ref BoundedBinaryCursor reader, int depth)
     {
-        if (depth > 16) throw new SaveFormatException("UE5 type name nesting exceeds the safety limit.");
+        if (depth > 16) throw new GvasRejectionException("UE5 type name nesting exceeds the safety limit.");
         var name = reader.String();
         var count = reader.ReadCount(16);
         var children = new List<TypeName>();

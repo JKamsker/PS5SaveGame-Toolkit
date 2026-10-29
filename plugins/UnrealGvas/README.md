@@ -51,6 +51,12 @@ GVAS parsing before the actor overlay is constructed. Unsupported native/custom
 layouts keep their documented opaque, read-only fallback; bytes after the root
 `None` terminator remain game-owned and preserved.
 
+The 64-level parsing limit, UE5 complete-type nesting limit and 100,000-node
+budget reject even inside speculative custom structs. Collection counts are
+validated before reading entries, with both key and value charged for each map
+entry. Synthetic tests cover rejected over-budget streams and accepted exact
+depth/node boundaries through full and headerless parsing.
+
 The size interpretation was rechecked against the existing credited
 [uesave tag/array writer at revision 1917a22](https://github.com/trumank/uesave/blob/1917a22ab69e9a4045e613d9d7f39a49fe00bd46/uesave/src/lib.rs),
 which measures payload bytes separately from tags, and against the supplied PS5
