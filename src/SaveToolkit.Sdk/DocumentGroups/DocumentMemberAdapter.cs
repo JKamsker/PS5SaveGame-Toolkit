@@ -9,12 +9,16 @@ namespace SaveToolkit.Sdk;
 /// It dispatches only to that member. The group retains transaction, dependency, serialization,
 /// snapshot and disposal policy; replace member Revert tokens with whole-group snapshots.
 /// </summary>
+/// <remarks>Does not synchronize member access. Serialize calls with the owning group and its policy callbacks.
+/// Input views/plans must be finite and remain unchanged while mapping. Host limits still apply.</remarks>
 public sealed class DocumentMemberAdapter
 {
     private readonly DocumentMemberIdentityPolicy _policy;
     private readonly DocumentMemberViewMapper _views;
 
     /// <summary>Create an adapter for a stable role and the current member model.</summary>
+    /// <exception cref="ArgumentNullException">The document or role is null.</exception>
+    /// <exception cref="ArgumentException">The role is blank or a required policy callback is null.</exception>
     public DocumentMemberAdapter(string role, ISaveDocument document, DocumentMemberIdentityPolicy? identityPolicy = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(role);
@@ -22,6 +26,7 @@ public sealed class DocumentMemberAdapter
         Role = role;
         Document = document;
         _policy = identityPolicy ?? new();
+        _policy.Validate(nameof(identityPolicy));
         _views = new(this, _policy);
     }
 

@@ -8,10 +8,11 @@ namespace SaveToolkit.Sdk;
 /// Register storage with RegisterField, or register and render with Field while building views.
 /// Batches are applied atomically: on a validation failure or exception every applied edit is rolled back.
 /// </summary>
+/// <remarks>Not thread-safe. Serialize document access, including view construction and metadata registration.</remarks>
 public abstract class BoundSaveDocument : ISaveDocument
 {
     private readonly Dictionary<string, Binding> _bindings = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, FieldMetadata> _metadata = new(StringComparer.Ordinal);
+    private readonly FieldMetadataRegistry _metadata = new();
 
     /// <inheritdoc />
     public abstract string Title { get; }
@@ -77,16 +78,14 @@ public abstract class BoundSaveDocument : ISaveDocument
     /// Publishes canonical metadata together with live storage. Implement IFieldMetadataDocument
     /// to opt in to host discovery. Derived fields must be read-only and have no setter.
     /// </summary>
+    /// <exception cref="ArgumentNullException">Metadata, its spec or the getter is null.</exception>
+    /// <exception cref="ArgumentException">An ID, label or binding policy is invalid.</exception>
     protected void RegisterField(FieldMetadata metadata, Func<FieldValue> get,
         Action<FieldValue>? set = null, Func<FieldValue, string?>? validate = null)
     {
-        ArgumentException.ThrowIfNullOrEmpty(metadata.ValueId);
-        ArgumentException.ThrowIfNullOrEmpty(metadata.Label);
-        if (!Enum.IsDefined(metadata.BindingKind) || (!metadata.Spec.ReadOnly && set is null)
-            || (metadata.BindingKind == FieldBindingKind.Derived && (!metadata.Spec.ReadOnly || set is not null)))
-            throw new ArgumentException("Metadata requires a writable primary or a read-only binding.", nameof(metadata));
+        metadata = FieldMetadataRegistry.Prepare(metadata, get, set);
         RegisterField(metadata.ValueId, metadata.Spec, get, set, validate);
-        _metadata[metadata.ValueId] = metadata with { Path = metadata.Path is { } path ? Array.AsReadOnly(path.ToArray()) : null };
+        _metadata.Register(metadata);
     }
 
     /// <summary>
@@ -94,18 +93,16 @@ public abstract class BoundSaveDocument : ISaveDocument
     /// does not opt in: implement IFieldMetadataDocument. Override to register requested live bindings
     /// on demand, including after structural changes or memento restores, before calling the base.
     /// </summary>
+    /// <exception cref="ArgumentNullException">The requested list is null.</exception>
+    /// <exception cref="ArgumentException">A requested ID is null or empty.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The list exceeds <see cref="FieldMetadataLimits.MaxBatchSize"/>.</exception>
+    /// <exception cref="InvalidOperationException">A published spec or derived binding no longer matches storage.</exception>
     public virtual IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
-    {
-        var fields = valueIds.Distinct(StringComparer.Ordinal).Where(_metadata.ContainsKey).Select(id => _metadata[id]).ToArray();
-        foreach (var field in fields)
+        => _metadata.Resolve(valueIds, id =>
         {
-            var binding = Lookup(field.ValueId);
-            var spec = binding.Set is null ? binding.Spec with { ReadOnly = true } : binding.Spec;
-            if (!FieldSpecMetadata.Agree(spec, field.Spec))
-                throw new InvalidOperationException($"Published metadata no longer agrees with binding '{field.ValueId}'.");
-        }
-        return fields;
-    }
+            var binding = Lookup(id);
+            return (binding.Spec, binding.Set is not null);
+        });
 
     /// <summary>
     /// Renders a registered binding using its current value and retained spec, without replacing it.

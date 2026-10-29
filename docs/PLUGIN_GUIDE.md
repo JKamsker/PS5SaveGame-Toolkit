@@ -163,6 +163,12 @@ RegisterField(new FieldMetadata("inventory/total", "Total quantity", IntegerSpec
 
 The inherited `ResolveFieldMetadata(ids)` returns these registrations. For large or structural
 models, override it to register only the requested current bindings before calling the base method.
+`FieldMetadataLimits.MaxBatchSize` is 200, counting duplicates before deduplication. The base
+resolver rejects larger batches, null lists and null/empty IDs before resolving bindings. Its
+returned descriptor list is read-only. Keep published specs and their nested collections unchanged;
+`FieldSpecMetadata.Snapshot` makes an independent collection snapshot when needed. Registration
+copies navigation paths but retains the spec and delegates. The document is not thread-safe:
+direct callers must serialize registration/resolution with views, edits, planning and restores.
 Structural changes and memento restores clear both bindings and published metadata; resolve them
 again from stable logical identity. Do not capture objects from a model replaced by undo or group
 publication. Group implementations opting in must forward resolution to their current/staged members
@@ -481,6 +487,11 @@ that compose existing member documents. `Prefix` / `Local` map opaque identities
 ordinal `role + "/" + id`, with no escaping, decoding or normalization. For a different encoding,
 provide paired `ToGroupId` / `TryToLocalId` callbacks (the latter returns null for another member).
 Keep roles and callbacks stable across fresh opens and restores.
+All policy callbacks except `LocalScope` must be non-null; construction rejects invalid policies.
+The router rejects null members and duplicate roles before accepting its copied member list.
+Adapters do not own locks, member lifetimes or limits: serialize dispatch through the group, keep
+mapping inputs finite and unchanged, and continue to enforce host view/page/plan budgets. Immutable
+policy records do not freeze callback closures or make member documents thread-safe.
 
 `Node`, `Collection` and `Page` recursively map fields, lazy sections, eager/queryable rows,
 actions, blobs and map/graph targets. Action parameter names, column/filter keys, image assets,
@@ -806,15 +817,41 @@ eviction. `DocumentSessionOptions.MaxOriginalBytes` defaults to 16 MiB of estima
 field data; walks are also bounded to 100,000 nodes/rows/tabs and depth 128. Exceeding a bound,
 failure to open the original, failing lazy expansion, or unmatchable internal identities yields
 `Complete = false` with a visible warning. Missing coverage is never reported as a proven addition
-or removal. The current walker does not page `QueryableTableNode` collections (see
-[SDK-01](SDK_REQUESTS.md#prioritized-inventory)); `Complete = true` describes that walk, not coverage
-of every F8 field. This is a field-level review; it does not describe binary differences or record
+or removal. The walker also pages exposed `QueryableTableNode` collections within the per-snapshot
+F8 budgets described above; budget cuts and failed/invalid pages make coverage incomplete.
+This is a field-level review; it does not describe binary differences or record
 order. Use structural undo for reorder-only changes.
 
 Jump opens parent sections/tabs and lazy views, clears table filters, scrolls virtual rows and
 focuses the field. Individual revert restores an **existing editable field** through normal
 validation, so dependent values are recomputed and the revert itself can be undone. Added,
 removed, read-only and unexposed fields require undo rather than guessed inverse edits.
+
+### Selection-scope conformance proposal (#40)
+
+No automatic selection-scope conformance fact is currently shipped. A planned action inside an
+eager or queryable table cell receives that table's selection. A sibling action receives document
+scope, even when its label mentions selected rows. The view protocol cannot declare which table
+a sibling action intends to target: eager tables have no stable table ID and `ActionNode` has no
+table association. Labels, ID prefixes and sibling proximity cannot establish that relationship.
+Placement alone also does not declare selection support: addressed container/index operations can
+intentionally reject row scopes, as GenericJson's structural actions do.
+Likewise, a plan's value IDs do not identify row ownership. Legitimate derived effects may live
+outside the selected row, and a restore plan on an untouched sample may contain no changes.
+
+The minimal proposed association is an optional `ActionNode.SelectionTableId`, matching an F8
+`CollectionId` or an optional stable `TableNode.SelectionId` for eager tables. These are **proposed,
+not available SDK members**. Null would preserve current behavior. A future host integration must
+explicitly define how a declared sibling action obtains that table's selection; a hint alone does
+not change the UI. Member adapters would also need to map both identities consistently.
+
+An opt-in test fixture could then supply deterministic action parameters, a meaningful staged
+state, expected row-owned value IDs and permitted shared/derived effects. It should select one row,
+plan twice, compare results and reject effects owned by another row. Missing association, unknown
+ownership, validation errors, no-op-only coverage and traversal cuts must report **not evaluated**,
+not a passing selection assertion. Keep this advisory until every plugin has sufficient evidence;
+ordinary conformance must retain its existing behavior. Browser tests remain necessary to verify
+that the actual control sends explicit/query selection and exclusions.
 
 ## Shared SDK helpers
 
@@ -1038,10 +1075,11 @@ Per-document field-aware API (only previously published fields/parameters are qu
 
 - `GET .../reference-fields/candidates?valueId=...&q=...&category=...&sortBy=Name&descending=false&offset=0&limit=30&revision=0`
 - `GET .../reference-fields/record?valueId=...&rawId=...&revision=0`
-- `POST .../reference-fields/records` with `{pairs:[{fieldId,recordKey,actionId?}],revision?}`: the
-  same exact lookup for up to 256 pairs, one result per pair in input order; each pair uses its own
-  field's catalog and eligibility (see [API.md](API.md)). The web client batches reference cells
-  per page through it.
+- `POST .../reference-fields/records` with `{pairs:[{fieldId,recordKey,actionId?}],revision?}`
+
+The batched record route accepts at most 256 pairs, retains order and duplicates, and evaluates
+each field's own catalog/eligibility policy. Missing fields return per-pair 404 results; stale
+revisions reject the entire batch. The web client batches reference cells per page through it. See [the batch API contract](API.md#post-apiworkspacesworkspaceiddocumentsdocumentidreference-fieldsrecords).
 
 For action parameters also pass `actionId`. Paging clamps offset to zero and limit to 1–200.
 Candidate pages include the view revision. Pass it with subsequent queries/edits; stale queries return

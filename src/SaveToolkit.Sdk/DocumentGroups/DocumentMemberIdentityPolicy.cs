@@ -8,6 +8,9 @@ namespace SaveToolkit.Sdk;
 /// and an opaque local ID with '/', without escaping or decoding either. Callbacks must be stable
 /// across fresh group instances and must not mutate their arguments.
 /// </summary>
+/// <remarks>All callbacks except LocalScope are required. Captured state is caller-owned; init-only properties
+/// do not make callbacks thread-safe. Mapping work is proportional to the supplied finite view/page/plan;
+/// this helper adds no traversal or transaction budget.</remarks>
 public sealed record DocumentMemberIdentityPolicy
 {
     /// <summary>Map a local field, action, collection, lazy, blob or target ID into the group.</summary>
@@ -44,7 +47,7 @@ public sealed record DocumentMemberIdentityPolicy
     /// <summary>Collection metadata title, given role and original title. View table titles stay unchanged.</summary>
     public Func<string, string, string> CollectionTitle { get; init; } = static (role, title) => role + ": " + title;
 
-    /// <summary>Optional metadata-column policy, for example member-specific read-only flags. Page columns stay unchanged.</summary>
+    /// <summary>Metadata-column policy, defaulting to unchanged; for example member-specific read-only flags. Page columns stay unchanged.</summary>
     public Func<ISaveDocument, QueryableColumn, QueryableColumn> CollectionColumn { get; init; } = static (_, column) => column;
 
     /// <summary>
@@ -53,4 +56,12 @@ public sealed record DocumentMemberIdentityPolicy
     /// Use the supplied adapter's Document so restored/reopened models are never captured accidentally.
     /// </summary>
     public Func<DocumentMemberAdapter, ActionScope, ActionScope>? LocalScope { get; init; }
+
+    internal void Validate(string parameterName)
+    {
+        if (ToGroupId is null || TryToLocalId is null || QueryRowIdentity is null || TableRowIdentity is null
+            || TableCellScope is null || ExpansionScope is null || NavigationPath is null
+            || CollectionTitle is null || CollectionColumn is null)
+            throw new ArgumentException("Identity policy callbacks must be non-null; only LocalScope may be null.", parameterName);
+    }
 }

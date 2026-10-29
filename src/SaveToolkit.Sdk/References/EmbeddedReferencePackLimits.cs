@@ -1,6 +1,8 @@
 namespace SaveToolkit.Sdk.References;
 
 /// <summary>Per-pack guards for embedded resources, with the same defaults as the host loader.</summary>
+/// <remarks>Every limit must be nonnegative. Zero permits no content in that category. Bounds apply per pack,
+/// not across all packs in an assembly; MaxTotalBytes excludes manifests. Load rejects negative limits before discovery.</remarks>
 public sealed record EmbeddedReferencePackLimits
 {
     /// <summary>Sum of all listed dataset files, measured before text normalization.</summary>
@@ -23,6 +25,17 @@ public sealed record EmbeddedReferencePackLimits
 
     /// <summary>Maximum records across all files of one catalog.</summary>
     public int MaxRecordsPerCatalog { get; init; } = 250_000;
+
+    internal void Validate()
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(MaxTotalBytes);
+        ArgumentOutOfRangeException.ThrowIfNegative(MaxManifestBytes);
+        ArgumentOutOfRangeException.ThrowIfNegative(MaxRecordsFileBytes);
+        ArgumentOutOfRangeException.ThrowIfNegative(MaxAssetBytes);
+        ArgumentOutOfRangeException.ThrowIfNegative(MaxImageDimension);
+        ArgumentOutOfRangeException.ThrowIfNegative(MaxFiles);
+        ArgumentOutOfRangeException.ThrowIfNegative(MaxRecordsPerCatalog);
+    }
 }
 
 /// <summary>An embedded pack failed validation; no partial context is returned.</summary>

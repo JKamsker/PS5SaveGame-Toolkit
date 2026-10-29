@@ -286,6 +286,9 @@ excludedRowKeys?:string[]}`. `query` uses the collection query model (`text`,
 `filters`, `sortColumn`, `descending`, `includeEmpty`, `offset`, `limit`, `cursor`);
 Core resolves all matching rows, bounded to 5,000 before exclusions, rather than
 only the visible page. Do not supply both row keys and a query scope.
+Table-cell controls send their enclosing table's selection. Controls outside a table send document
+scope; action labels do not establish a table association. Explicit SDK calls with row keys alone
+cannot verify that a browser control is wired to that selection.
 
 Returns `{planId?,revision,scope,plan:{changes,skippedRows,warnings,errors},stale,
 code?}` and ETag; scope is normalized. Each consequence includes ID/label,
@@ -326,6 +329,9 @@ bounded to 100,000 nodes and depth 128. Hosts can configure query budgets with
 `DocumentSessionOptions.MaxReviewQueryRows`, `MaxReviewQueryPages`, and
 `MaxReviewQueryBytes`. No collection-dirtiness capability exists, so exposed
 collections are scanned to discover changes; only changed fields are returned.
+The navigation target is a Core/HTTP review contract, separate from SDK `ViewTarget` and field
+metadata discovery. Clients must not synthesize a target from an ID prefix or reuse its page query
+after the log revision changes.
 
 `complete:false` means bounded traversal/baseline coverage is partial; do not
 infer missing changes or field additions/removals from unvisited data. F8 budget

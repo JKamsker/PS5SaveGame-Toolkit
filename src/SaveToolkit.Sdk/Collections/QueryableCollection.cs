@@ -13,6 +13,9 @@ public interface IQueryableDocument
     /// Filters and sorts the complete model, then returns a bounded page with stable row keys.
     /// Rendered editable fields must register the same bindings as ordinary document views.
     /// Resolve an omitted IncludeEmpty from the collection's presentation policy for direct callers.
+    /// Semantic review also calls this on separate original/current documents with IncludeEmpty=true,
+    /// native ordering and bounded offset/cursor pages. Keep IDs, specs, totals and ordering stable
+    /// for an unchanged model; do not rely on a previously rendered page or UI query state.
     /// </summary>
     QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query);
 }
