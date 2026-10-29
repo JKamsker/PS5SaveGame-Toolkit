@@ -8,6 +8,7 @@ internal sealed class GvasParser(byte[] bytes)
     private readonly List<SizeRegion> _sizes = [];
     private GvasHeader _header = null!;
     private int _nodeCount;
+    private int _typeNameCount;
 
     public GvasFile Parse()
     {
@@ -33,7 +34,7 @@ internal sealed class GvasParser(byte[] bytes)
         var nodes = new List<GvasNode>();
         while (true)
         {
-            var tag = GvasTag.Read(ref reader, _header);
+            var tag = GvasTag.Read(ref reader, _header, ref _typeNameCount);
             if (tag is null) return nodes;
             if (tag.Size > reader.Remaining) throw new SaveFormatException($"Truncated GVAS property '{tag.Name}'.");
             var start = reader.Position;
@@ -163,7 +164,7 @@ internal sealed class GvasParser(byte[] bytes)
         SizeRegion? innerSize = null;
         if (tag.Type == "ArrayProperty" && tag.InnerType == "StructProperty" && !_header.CompleteTypeNames && _header.HasPropertyGuid)
         {
-            var inner = GvasTag.Read(ref reader, _header);
+            var inner = GvasTag.Read(ref reader, _header, ref _typeNameCount);
             if (inner is null || inner.Type != "StructProperty") throw new SaveFormatException("Missing struct array inner tag.");
             structType = inner.StructType;
             if (inner.Size != reader.Remaining)
