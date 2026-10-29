@@ -35,6 +35,15 @@ public sealed class WitcherWorldQueryAllocationTests
         var identity = Assert.IsType<TextNode>(last.Rows[^1].Cells["id"]).Text;
         var exact = view.Query(id, query with { Filters = new Dictionary<string, string> { ["id"] = identity } });
         Assert.Equal(last.Rows[^1].Key, Assert.Single(exact.Rows).Key);
+        before = GC.GetAllocatedBytesForCurrentThread();
+        var search = view.Query(id, query with { Text = identity });
+        allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        Assert.Equal(last.Rows[^1].Key, Assert.Single(search.Rows).Key);
+        Assert.True(allocated <= maximumPageAllocation,
+            $"{kind} allocated {allocated:N0} bytes for its first text search over existing metadata.");
+        var rowKind = Assert.IsType<TextNode>(last.Rows[^1].Cells["kind"]).Text;
+        var acrossFields = view.Query(id, query with { Text = identity + "\n" + rowKind });
+        Assert.Equal(last.Rows[^1].Key, Assert.Single(acrossFields.Rows).Key);
         if (kind != "recipes")
         {
             var details = Assert.IsType<SectionNode>(last.Rows[^1].Cells["details"]);

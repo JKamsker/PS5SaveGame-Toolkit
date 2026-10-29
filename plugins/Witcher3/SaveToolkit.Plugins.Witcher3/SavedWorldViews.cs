@@ -137,7 +137,13 @@ internal sealed class SavedWorldViews(SavedWorldData data, IReferenceCatalog? it
         ? [SectionNode.Lazy("Next saved entries", $"{prefix}/{start + DetailPageSize}")] : [];
     private sealed record SavedRow(string Key, string Id, string Kind, string State, Func<ViewNode> Details, string Search)
     {
-        private string? _text;
-        public bool Contains(string text) => (_text ??= $"{Id}\n{Kind}\n{State}\n{Search}").Contains(text, StringComparison.OrdinalIgnoreCase);
+        public bool Contains(string text)
+        {
+            // Only multiline searches can cross the separators between fields. Preserve that behavior
+            // without allocating or retaining a second copy of every record's searchable metadata.
+            if (text.Contains('\n')) { return $"{Id}\n{Kind}\n{State}\n{Search}".Contains(text, StringComparison.OrdinalIgnoreCase); }
+            return Id.Contains(text, StringComparison.OrdinalIgnoreCase) || Kind.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+                State.Contains(text, StringComparison.OrdinalIgnoreCase) || Search.Contains(text, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }
