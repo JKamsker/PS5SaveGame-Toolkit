@@ -113,9 +113,9 @@ public sealed class AriseIconCharacterizationTests
     }
 
     [Theory]
-    [InlineData("SaveData_000.sav", "8940b7874cd36458c1d27a05f08da23d5f6c26c112130a92cf03205eb420e080")]
-    [InlineData("SaveData_001.sav", "82082a0763e0170ec1638f43ee7cd6e542e0587720e105a57331d16e3334ceff")]
-    [InlineData("SaveData_002.sav", "23184ee4532422c943b4465d77bd32aac82afa825bfc46e3d363178c228d237d")]
+    [InlineData("SaveData_000.sav", "5f86054c4e50ac2b596dd6b2cbfcf5ad5d531a29cdff118f75d350f218f2d6f7")]
+    [InlineData("SaveData_001.sav", "ec624ff8e59a2366c1fcfde076358be7eb62e52b7b8d64afbce917d3ba27bd13")]
+    [InlineData("SaveData_002.sav", "1cd339e69b265eaa91efa58852f9dce666730170a103ffa5cf37b12d11806d7d")]
     public void SampleViewAndInventory_RetainViewFingerprint(string fileName, string expected)
     {
         var file = AriseSampleTests.GameplayFiles().First(file => file.FileName == fileName);
@@ -123,7 +123,7 @@ public sealed class AriseIconCharacterizationTests
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         var view = Assert.IsType<TabsNode>(document.BuildView());
         Assert.Single(view.Tabs.SelectMany(tab => tab.Children).OfType<ActionNode>(), action => action.ActionId == AriseInventoryActions.RestoreImportedAction);
-        // Restore and CP additions are covered separately; retain every pre-existing node's fingerprint.
+        // Restore and CP additions are covered separately. Pins include the set-quantity control's console warning.
         view = view with { Tabs = view.Tabs.Select(tab => tab with
         {
             Children = tab.Children.Where(node => node is not ActionNode { ActionId: AriseInventoryActions.RestoreImportedAction }
