@@ -8,6 +8,9 @@ are editable, with an F6 restore-to-imported-values action. **Integrity unknown 
 this save.** Integrity dependencies and the complete serialization grammar remain unresolved.
 An unsuccessful checksum search does not establish game acceptance. Preferences remain read-only.
 
+See [PERFORMANCE.md](PERFORMANCE.md) for the #40 allocation review, reproducible before/after
+measurements and deterministic paging, lookup and planning regression budgets.
+
 ## Framework feature adoption
 
 | Feature | Status and evidence |

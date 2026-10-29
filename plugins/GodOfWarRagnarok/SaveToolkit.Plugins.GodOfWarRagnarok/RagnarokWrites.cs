@@ -17,6 +17,8 @@ internal sealed class RagnarokWrites
     public const string RestoreActionId = "resources/restore-imported";
     private readonly byte[] _bytes;
     private readonly Dictionary<int, RagnarokCounter> _counters = [];
+    private readonly Dictionary<string, RagnarokCounter> _countersByValue = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, RagnarokCounter> _resourcesByRow = new(StringComparer.Ordinal);
     public IReadOnlyCollection<RagnarokCounter> Counters => _counters.Values;
 
     public RagnarokWrites(byte[] bytes, RagnarokRecordIndex index, RagnarokReferences references)
@@ -51,6 +53,8 @@ internal sealed class RagnarokWrites
     public RagnarokCounter Counter(int offset) => _counters.TryGetValue(offset, out var counter)
         ? counter : throw new KeyNotFoundException("This byte range is not a decoded counter.");
 
+    public RagnarokCounter Counter(string valueId) => _countersByValue[valueId];
+
     public uint Read(RagnarokCounter counter) => RagnarokFormat.UInt32(_bytes, counter.Offset);
 
     public string? Validate(RagnarokCounter counter, FieldValue value) =>
@@ -80,15 +84,25 @@ internal sealed class RagnarokWrites
             (scope.RowKeys is null || query.CollectionId is not ("resources" or "xp" or "collectibles")))
             return Reject("Use resolved resource, XP or collectible row keys for this query scope.");
 
-        var resources = Counters.Where(counter => counter.Resource).ToArray();
-        var selected = scope.RowKeys?.ToHashSet(StringComparer.Ordinal);
-        if (selected is not null && (selected.Count != scope.RowKeys!.Count ||
-            selected.Except(resources.Select(counter => counter.RowKey), StringComparer.Ordinal).Any()))
-            return Reject("Selection contains duplicate or unknown resource rows.");
+        IEnumerable<RagnarokCounter> resources = _resourcesByRow.Values;
+        if (scope.RowKeys is { } keys)
+        {
+            var selected = new List<RagnarokCounter>(keys.Count);
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var key in keys)
+            {
+                if (!seen.Add(key) || !_resourcesByRow.TryGetValue(key, out var counter))
+                    return Reject("Selection contains duplicate or unknown resource rows.");
+                selected.Add(counter);
+            }
+            // Selections can arrive in UI order; plans retain the native physical row order.
+            selected.Sort(static (left, right) => left.Offset.CompareTo(right.Offset));
+            resources = selected;
+        }
 
         var changes = new List<PlannedChange>();
         var skipped = new List<SkippedActionRow>();
-        foreach (var counter in resources.Where(counter => selected is null || selected.Contains(counter.RowKey)))
+        foreach (var counter in resources)
         {
             var current = Read(counter);
             if (current == counter.Imported)
@@ -100,5 +114,10 @@ internal sealed class RagnarokWrites
         return new() { Changes = changes, SkippedRows = skipped, Warnings = [IntegrityWarning, EvidenceWarning] };
     }
 
-    private void Add(RagnarokCounter counter) => _counters.Add(counter.Offset, counter);
+    private void Add(RagnarokCounter counter)
+    {
+        _counters.Add(counter.Offset, counter);
+        _countersByValue.Add(counter.ValueId, counter);
+        if (counter.Resource) _resourcesByRow.Add(counter.RowKey, counter);
+    }
 }

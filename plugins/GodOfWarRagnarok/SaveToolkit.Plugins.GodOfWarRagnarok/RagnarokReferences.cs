@@ -21,6 +21,7 @@ internal sealed class RagnarokReferences
     private readonly IReferenceCatalog? _evidence;
     private readonly IReferenceCatalog? _assets;
     private readonly IReferenceContext _context;
+    private readonly Dictionary<ulong, ResolvedReference> _resolved = [];
     public RagnarokSkillReferences Skills { get; }
     public RagnarokCommunityTables Community { get; }
 
@@ -35,7 +36,19 @@ internal sealed class RagnarokReferences
         _assets = context.Catalog(AssetCatalogId, Build);
     }
 
-    public ReferenceRecord? Find(ulong id)
+    public ReferenceRecord? Find(ulong id) => Resolve(id).Record;
+
+    private ResolvedReference Resolve(ulong id)
+    {
+        if (_resolved.TryGetValue(id, out var resolved)) return resolved;
+        var record = FindUncached(id);
+        resolved = new(record, record?.Name ?? $"Unknown ID 0x{id:X16}", record?.AttributionText ??
+            "No sourced name mapping is available; the raw ID is preserved.");
+        _resolved.Add(id, resolved);
+        return resolved;
+    }
+
+    private ReferenceRecord? FindUncached(ulong id)
     {
         var key = Key(id);
         var runtime = Community.Runtime(key);
@@ -47,7 +60,7 @@ internal sealed class RagnarokReferences
             _evidence?.Find(key) ?? community ?? runtime ?? Community.Older(key);
     }
 
-    public string Name(ulong id) => Find(id)?.Name ?? $"Unknown ID 0x{id:X16}";
+    public string Name(ulong id) => Resolve(id).Name;
 
     public string Category(ulong id) => id == XpCandidateId ? "XP" : Find(id)?.Category ?? "Unknown";
 
@@ -58,8 +71,7 @@ internal sealed class RagnarokReferences
         _ => $"Unknown container 0x{id:X16}",
     };
 
-    public string Attribution(ulong id) => Find(id)?.AttributionText ??
-        "No sourced name mapping is available; the raw ID is preserved.";
+    public string Attribution(ulong id) => Resolve(id).Attribution;
 
     public ReferenceRecord? AssetRecord(string id) => _assets?.Find(id);
 
@@ -77,4 +89,6 @@ internal sealed class RagnarokReferences
         BinaryPrimitives.WriteUInt64LittleEndian(bytes, id);
         return Convert.ToHexString(bytes);
     }
+
+    private sealed record ResolvedReference(ReferenceRecord? Record, string Name, string Attribution);
 }
