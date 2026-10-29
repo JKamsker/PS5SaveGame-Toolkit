@@ -19,7 +19,12 @@ internal sealed class TsushimaPlayTime(byte[] bytes, int offset, float originalS
         Format = FloatFormat.Duration, UnitsPerSecond = 1,
     };
     public FieldValue Read() => FieldValue.Of(BinaryPrimitives.ReadSingleLittleEndian(bytes.AsSpan(offset)));
-    public void Write(FieldValue value) => BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset), (float)value.AsDouble());
+    public void Write(FieldValue value)
+    {
+        var seconds = (float)value.AsDouble();
+        // Numeric zero has two encodings; returning to the imported value must restore its exact bits.
+        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset), seconds == originalSeconds ? originalSeconds : seconds);
+    }
 
     public string? Validate(FieldValue value)
     {
