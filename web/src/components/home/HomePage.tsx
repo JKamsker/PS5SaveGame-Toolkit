@@ -16,6 +16,7 @@ export function HomePage() {
   const navigate = useNavigate();
   const [dragging, setDragging] = useState(false);
   const [status, setStatus] = useState<{ text: string; isError: boolean } | null>(null);
+  const [failedUpload, setFailedUpload] = useState<UploadFile[]>([]);
   const zipInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
   const plugins = useQuery({ queryKey: ["plugins"], queryFn: api.plugins });
@@ -25,6 +26,7 @@ export function HomePage() {
 
   const upload = async (files: UploadFile[]) => {
     if (files.length === 0) return;
+    setFailedUpload([]);
     const total = files.reduce((n, f) => n + f.file.size, 0);
     const label = files.length === 1 ? files[0]?.path : `${files.length} files`;
     setStatus({ text: `Importing ${label} (${Math.round(total / 1048576)} MiB)…`, isError: false });
@@ -34,6 +36,7 @@ export function HomePage() {
       );
       navigate(`/w/${ws.id}`);
     } catch (error) {
+      setFailedUpload(files);
       setStatus({ text: error instanceof ApiError ? error.message : "The import failed. Is the server running?", isError: true });
     }
   };
@@ -91,8 +94,13 @@ export function HomePage() {
                 Open zip
               </button>
             </div>
-            {status && <p className={status.isError ? "notice notice--Danger" : "drop__status"} role="status">{status.text}</p>}
-            <input ref={zipInput} type="file" accept=".zip" multiple hidden onChange={(e) => e.target.files && void upload(fromInput(e.target.files))} />
+            {status && <p className={status.isError ? "notice notice--Danger" : "drop__status"} role={status.isError ? "alert" : "status"}>{status.text}</p>}
+            {status?.isError && failedUpload.length > 0 && <button type="button" className="btn btn--small" onClick={() => void upload(failedUpload)}>Retry import</button>}
+            <input ref={zipInput} type="file" accept=".zip" multiple hidden onChange={(e) => {
+              const files = e.target.files ? fromInput(e.target.files) : [];
+              e.target.value = "";
+              void upload(files);
+            }} />
             <input
               ref={folderInput}
               type="file"
@@ -107,6 +115,10 @@ export function HomePage() {
               }}
             />
           </div>
+          {recent.isError && <div>
+            <p role="alert" className="notice notice--Danger">Could not load open dumps: {recent.error.message}</p>
+            <button type="button" className="btn btn--small" disabled={recent.isFetching} onClick={() => void recent.refetch()}>Retry open dumps</button>
+          </div>}
           {recent.data && recent.data.length > 0 && (
             <section className="recent">
               <h2>Open dumps</h2>
@@ -125,7 +137,13 @@ export function HomePage() {
             </section>
           )}
         </div>
-        <GameList plugins={plugins.data} />
+        <div>
+          {plugins.isError && <div>
+            <p role="alert" className="notice notice--Danger">Could not load supported games: {plugins.error.message}</p>
+            <button type="button" className="btn btn--small" disabled={plugins.isFetching} onClick={() => void plugins.refetch()}>Retry supported games</button>
+          </div>}
+          <GameList plugins={plugins.data} />
+        </div>
       </div>
       <AppVersion />
     </main>
