@@ -30,6 +30,10 @@ The [performance review](PERFORMANCE.md) records largest-sample open/first-view,
 query allocation and retained-memory measurements, regression coverage, and the
 lazy saved-world metadata and per-query Gwent snapshot changes from #40.
 
+The [malformed-input review](ROBUSTNESS.md) records chunk preflight, directory/index boundaries,
+recognized token lengths and the combined 128-level nesting limit, with synthetic corruption,
+truncation and in-memory sample mutation tests from #40.
+
 ## Framework feature adoption
 
 | Feature | Status | Adoption / concrete scope |
@@ -188,6 +192,10 @@ have absolute ends. Reserved header bytes and any opaque container trailer survi
 
 Limits: 128 MiB input, 64 MiB expanded data, 4096 chunks, 200,000 indexed/explorer entries,
 128 nesting levels and a uint16-sized name dictionary. Invalid bounds/lengths raise `SaveFormatException`.
+All compressed chunks are checked for valid raw LZ4 structure and exact expanded sizes before the
+payload is allocated. K4os performs decoding after that check. The depth limit counts indexed
+ancestors together with embedded children; an `SS` cannot contain indexed children. Game-variable
+spans must end before RB; the complete MANU span is the sole metadata-index exception.
 
 ## SAV3 layout and preserving serialization
 
@@ -468,6 +476,7 @@ text; no downloaded editor/script was run. The plugin is independently written b
 | Native inventory/tagged property research and layout adaptation | [cahian converter](https://github.com/cahian/witcher3-remastered-to-nextgen-save-converter/tree/7ae8b6fe71c4b36e571246ad25629d03c7ec8219/w3save) | MIT, [notice](SaveConverter-LICENSE.txt) | Independently bounded PS5 readers; retained raw attributes/flags/prefixes; no PC schema conversion. |
 | Skill/mutagen socket occupancy research | [PlayerAbilityManager script mirror, a85e52c](https://github.com/Lknechtli/BetterCombatEvolved/blob/a85e52c3e3841863999b45afc2a0fd1f284a6bc0/Witcher3/content/scripts/game/gameplay/ability/PlayerAbilityManager.ws), CD PROJEKT RED; mirror/modifications by Lknechtli and contributors | Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29. Research only; no script copied. | Independently implemented conservative empty-slot presentation using `socketedSkill`/`item` semantics; checked against all eight PS5 records. Unknown layouts remain visible. [Sidecar](SaveToolkit.Plugins.Witcher3/AbilitySlots.source.md). |
 | Raw LZ4 codec | [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4), Milosz Krajewski | MIT, existing managed package | No copied source or reference dataset. |
+| Raw LZ4 validation rules | [LZ4 block specification at 3dad297](https://github.com/lz4/lz4/blob/3dad297255098df1a8b0111402bfbdbd2cd0161f/doc/lz4_Block_format.md), Yann Collet; consulted 2026-10-29 | Format documentation consulted; no source implementation or prose copied | Independently written output-length preflight, bounded references and terminal checks; K4os remains the decoder. [Review evidence](ROBUSTNESS.md). |
 | Native spatial projections and regional reference backgrounds | Native saved definitions/map-tag blocks; [witcher3map](https://legacy.witcher3map.com/), untamed0 and contributors; [pinned tiles df7fa74](https://github.com/witcher3map/witcher3map-maps/tree/df7fa74609df7587afc324e569d2574cf5b4f1ec) | Projection code GPL-3.0-or-later; labels/text CC BY-SA 3.0. Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29. Host community work remains CC BY-NC-SA. [Spatial sidecar](SaveToolkit.Plugins.Witcher3/SpatialViews.source.md), [asset sidecar](SaveToolkit.Plugins.Witcher3/ReferencePacks/assets.source.md). | Five local publisher-art backgrounds assembled with verified TMS orientation; no community marker/coordinate dataset or code. Native region/position joins unknown: saved tags remain an independent text list, never plotted on art. F9 attribution and Sources panel. |
 | 371 item/ability/Gwent icons and 150 expanded tooltip/effect descriptions | [Witcher Wiki](https://witcher.fandom.com/wiki/Category:The_Witcher_3_images), pinned catalogue article revisions; [GwentTracker art d8eab8c](https://github.com/vishalgupta-git/GwentTracker/tree/d8eab8c25c409be42a0ea7b43b901a43dfefed18/public/cards), CD PROJEKT RED and hosting contributors | Art: Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29. Wiki text keeps CC BY-SA 3.0. [Full source table](ASSETS.md), [hash/URL audit](SaveToolkit.Plugins.Witcher3/ReferencePacks/assets.source.json). | Exact identity joins, bounded 64×64 WebP icons, byte deduplication, minified tooltip/effect text with cross-build caveats. Separate text/image provenance in F3/F4/Sources and Info.References. |
 

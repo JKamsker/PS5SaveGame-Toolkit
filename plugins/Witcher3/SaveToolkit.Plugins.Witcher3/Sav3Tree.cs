@@ -27,6 +27,7 @@ internal sealed class Sav3Tree
     {
         var result = new Sav3Tree(data, directory.Names);
         var parents = new Stack<Sav3Node>();
+        var archives = new List<(Sav3Node Node, int Depth)>();
         var previousOffset = -1;
         foreach (var entry in directory.Entries)
         {
@@ -45,24 +46,22 @@ internal sealed class Sav3Tree
                 throw new SaveFormatException("SAV3 variable nesting exceeds the supported limit.");
             }
 
+            if (parents.TryPeek(out var parent) && parent.Tag == "SS")
+            {
+                throw new SaveFormatException("SAV3 SS archive contains an unsupported indexed child.");
+            }
+
             var node = result.Add(entry.Offset, entry.Size);
             (parents.Count > 0 ? parents.Peek().Children : result.Roots).Add(node.Id);
+            if (node.Tag == "SS") { archives.Add((node, parents.Count + 1)); }
             parents.Push(node);
             previousOffset = entry.Offset;
         }
 
         // Indexed BS spans already describe their children. SS wraps a separate, non-indexed archive.
-        foreach (var node in result.Nodes.ToArray())
+        foreach (var (node, depth) in archives)
         {
-            if (node.Tag == "SS" && node.Children.Count == 0)
-            {
-                if (node.Size < 6 || BinaryData.Int32(data, node.Offset + 2) != node.Size - 6)
-                {
-                    throw new SaveFormatException("SAV3 SS archive size disagrees with its indexed span.");
-                }
-
-                result.ReadSequence(node.Offset + 6, node.Offset + node.Size, node.Children, 0);
-            }
+            result.ReadSequence(node.Offset + 6, node.Offset + node.Size, node.Children, depth);
         }
 
         return result;
@@ -70,7 +69,7 @@ internal sealed class Sav3Tree
 
     private void ReadSequence(int start, int end, List<int> children, int depth)
     {
-        if (depth > MaximumDepth)
+        if (start < end && depth >= MaximumDepth)
         {
             throw new SaveFormatException("SAV3 embedded archive exceeds the supported nesting limit.");
         }
@@ -188,6 +187,11 @@ internal sealed class Sav3Tree
         }
 
         _ = BinaryData.Slice(raw, 0, opaque ? 0 : valueStart);
+        if ((tag is "SS" or "BLCK" or "PORP" or "AVAL") && BinaryData.Int32(raw, valueStart - sizeof(int)) != size - valueStart)
+        {
+            throw new SaveFormatException($"SAV3 {tag} token length disagrees with its indexed or embedded span.");
+        }
+
         var node = new Sav3Node(Nodes.Count, offset, size, tag, name ?? $"Bytes at 0x{offset:X}", type, offset + valueStart, size - valueStart);
         Nodes.Add(node);
         return node;
