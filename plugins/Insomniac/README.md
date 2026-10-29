@@ -226,15 +226,16 @@ The hook preserves existing campaign/schema/inventory evidence paths, avoids fog
 expansion, and excludes campaign IDs, timestamps and system files. Its probe requires
 PPSA01474, a gameplay/preferences filename and DAT1 framing. It has no Testing dependency
 or I/O beyond the host's save-file abstraction; all output respects the host sink.
-Reduced depth budgets stop DDL parsing or evidence traversal and mark input incomplete.
+Reduced host depth budgets mark input incomplete and stop evidence emission/traversal
+after bounded format validation; supported DDL and inventory are still fully checked.
 The DAT1/DDL/inventory parsers retain their existing fixed allocation/count bounds.
 Opaque record identities or duplicate GUID occurrences mark evidence incomplete.
 Repeated container tags retain their measured stored-occurrence identity and emit a
 warning: reordered containers are not proven semantic matches. This evidence remains
 storage research, with no new claims about ownership, integrity or game acceptance.
 
-All six embedded catalogs (`rift-weapons`, `rift-armor`, `rift-world`, `rift-schema`,
-`rift-item-types`, `rift-guide-markers`) use F13's shared category/search/sort/paging implementation, without
+All seven embedded catalogs (`rift-weapons`, `rift-armor`, `rift-world`, `rift-schema`,
+`rift-item-types`, `rift-weapon-upgrades`, `rift-guide-markers`) use F13's shared category/search/sort/paging implementation, without
 a second plugin-side metadata index. The arsenal's hash-to-record dictionary remains
 an identity join, not a browsing/filter index. Existing read-only reference controls
 retain raw unknown IDs, descriptions and provenance; browsing offers no save mutation.
@@ -249,11 +250,19 @@ Use the environment assignment and test command in the **same shell invocation**
 
 ```powershell
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
-dotnet test --project plugins/Insomniac/SaveToolkit.Plugins.Insomniac.Tests
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+$env:SAVETOOLKIT_TEST_TEMP = 'D:/Temp/saveeditor/test-scratch'
+$env:TEMP = 'D:/Temp/saveeditor/test-scratch/insomniac'
+$env:TMP = $env:TEMP
+New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
+dotnet test --project plugins/Insomniac/SaveToolkit.Plugins.Insomniac.Tests --configuration Release
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj --configuration Release --warnaserror
 ```
 
-Latest sample-backed plugin run: **128 passed, 0 failed, 0 skipped**. All **76** game
+Maintainability review (2026-10-29): **298 passed, 0 failed, 0 skipped**, from a
+**279-test** baseline. Nineteen added characterizations pin validation precedence,
+complete initial-view/first-page protocols and ordered evidence for early/late gameplay
+and preferences, sink refusal and eager field traversal. Existing allocation budgets
+and exact robustness diagnostics remain unchanged. All **76** game
 records round-trip byte-identically, including duplicate generations and backup twins.
 The tests cover all 36 primary inventories, field/name vectors, nested alignment,
 parent bounds/depth/count corruption, unknown payloads, embedded pack hashes/licensing,
@@ -282,7 +291,7 @@ tests skip when samples are absent.
 
 F12/F13 follow-up tests cover production hook discovery/probing, deterministic decode
 of all 76 game records, immediate sink refusal, file/value/depth caps, uncertain
-inventory identities, filter/sort/paging for all five catalogs, attributed browse-only
+inventory identities, filter/sort/paging for the original five catalogs, attributed browse-only
 Core sessions with rejected edits, and unchanged float32 fractional Playtime values.
 The CLI lists `insomniac-evidence` as a hook owned by `insomniac`.
 
