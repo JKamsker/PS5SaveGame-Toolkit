@@ -4,6 +4,9 @@ Branch: `plugin/eldenring-assets`. Baseline: `a9585cde273a186eafb23b787cca2d78e8
 Plugin 0.7.0; `eldenring.names.en` 3.0.0. All authored changes stay under `plugins/EldenRing`.
 No sample data, full-resolution downloads or upstream implementation is committed.
 
+This is a historical implementation/measurement report. The shared Core pack-reader allocation
+issue described below is resolved on the current baseline; see [PERFORMANCE_REVIEW.md](PERFORMANCE_REVIEW.md).
+
 ## Content and size
 
 - 1,245 official descriptions and illustrated catalogue records: 437 weapons/shields, 593 goods,
@@ -79,6 +82,7 @@ dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj --nologo -v quiet
 - Original no-op/edit/undo/redo byte-preservation and write-warning tests pass. All C# files stay below
   300 lines. No repo tooling, sample artifacts, external-source execution, push or merge is introduced.
 
-The central `docs/LICENCE_EXCLUSIONS.md` still needs the integration owner's corresponding EldenRing-row
-updates (publisher-asset refusal resolved; Map Genie retained only as an optional link). It is deliberately
-not changed here because the task explicitly restricts authored changes to this plugin folder.
+The integration owner has since updated the central `docs/LICENCE_EXCLUSIONS.md` EldenRing rows:
+selected publisher assets are Imported, Map Genie is Not used (an optional external link remains),
+and restricted er-save-manager content is Still refused. The plugin's five-column exclusion table
+matches that register; no central documentation edit is needed for the accuracy pass.

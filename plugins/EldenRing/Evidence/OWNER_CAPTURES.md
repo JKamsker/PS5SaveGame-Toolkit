@@ -33,7 +33,7 @@ do not establish legal stack limits, equip eligibility, upgrade paths or tempora
 | Owned equipment/loadout | Read-only four-representation/quick/pouch joins | Missing profile-summary mirror/empty/unarmed/unlock/modifier writer; changing only displayed joins would leave inconsistent state |
 | Upgrades/affinity/AoW | No complete writer: read-only | Missing compatible PARAM rules and maximum-ever matchmaking-history transaction |
 | Structural/F5 and grouped/F7 | No prepared writer | Free handles, growth/count/acquisition and dependent-reference cleanup unmodeled; only one memory.dat is currently modified; backups remain framework-owned |
-| Progress/maps/classes | 499 source candidates and ten class references, read-only, with F9 maps/character dependency graph | Raw bits are Inferred; marker status remains Unknown. Verify entities/source IDs independently; no quest edges, pools, world writes or legal class minima claimed |
+| Progress/maps/classes | 499 original and 1,748 community source candidates and ten class references, read-only, with F9 maps/character dependency graph | Raw bits and geographic alignment are Inferred; marker status remains Unknown. Verify entities/source IDs independently; no quest edges, pools, world writes or legal class minima claimed |
 
 F6 handles held-only runes, linked history and ordinary refill with shared review/group undo.
 The remaining restrictions protect unmodeled dependent structure; owner evidence alone is not their
@@ -114,7 +114,9 @@ only missing ingredient. No local preview substitute or hidden item creation is 
 Completion uses the corrected event start `0x36600` in the one baseline, with 16-byte acquisition
 rows and explicit source byte/bit lookups. This is structural evidence, not a discovery/completion
 certificate. The named F9 candidates deliberately stay Unknown; the UI exposes the raw bit and
-source/event ID separately. Art/coordinates are external links only and require no new reuse permission.
+source/event ID separately. The separate names pack supplies optional local map backgrounds and
+inferred event-ID placements with publisher/source attribution; Map Genie remains an external link.
+These reference coordinates do not validate saved discovery/completion or require another owner approval.
 
 - [ ] `progress-baseline`: on the original character, observe Church of Elleh and The First Step
   in the game's grace menu. Compare `grace:ChurchofElleh` (source event 76100) and the separately
@@ -148,14 +150,15 @@ source/event ID separately. Art/coordinates are external links only and require 
   attribution; attributed CC BY-SA text may also be embedded with share-alike. Implemented for all
   five name tables. The 2026-10-28 owner decision also unblocks attributed community facts from
   Paramdex/TGA/ER-Save-Lib; imported in `eldenring.community.en`. Explicit NC/no-redistribution
-  content (including er-save-manager) and game descriptions/artwork remain excluded. No repeated approval needed.
+  content (including er-save-manager) remains excluded. Selected game descriptions/artwork now ship
+  under the separate attributed-use owner decision of 2026-10-29. No repeated approval needed.
 - [ ] Supply an audited normalized F2 pack with source/author/licence/date/modifications per dataset,
   locale, game/regulation versions, category-qualified IDs, and exact validated caps only where proven.
   Keep technical slot capacity, carry limit, storage limit and shared container capacity distinct.
 - [ ] Exact-build pack compatibility uses the 64-character lowercase SHA-256 shown in the regulation
   directory view (hash of allocation `0x1960070..0x1BA007F`). Put that key in `gameBuilds`.
-  The bundled build-agnostic identity-only pack claims complete pinned-source coverage, not verified
-  caps, DLC completeness or verified records on every region/version.
+  The bundled build-agnostic packs supply identities, selected text/art and inferred reference facts;
+  they do not establish verified caps, DLC completeness or verified records on every region/version.
 - [x] Completion exposes named source candidates as optional spoiler content in **World / progress**,
   following the owner directive to adopt F9. It does not publish quest branches, named quest prerequisites
   or verified completion. No further permission decision is required for the attributed MIT subset.

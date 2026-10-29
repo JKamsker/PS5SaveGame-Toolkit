@@ -123,8 +123,9 @@ for all five tables and traverse every F8 page, including affinity variants and 
 preserved regulation allocation** as its compatibility key. This is a content fingerprint, not a guessed
 app patch or regulation version. An audited exact pack uses that key in `gameBuilds`; an unrelated
 build-specific pack is skipped. A changed IV/padding also changes this conservative key. Build-agnostic
-packs may supply identity labels only; the bundled catalog applies to all four registered titles without
-claiming that their layouts or individual records are sample-verified. The Sources panel records
+packs supply identity labels, selected text/art and inferred reference facts, without establishing
+gameplay rules. The bundled catalog applies to all four registered titles without claiming that their
+layouts or individual records are sample-verified. The Sources panel records
 resolved data; field descriptions, row details and the picker carry provenance. Optional imported icons
 use the SDK asset service and show their separate asset attribution. Selected bundled content is described below.
 
@@ -138,7 +139,7 @@ use F6's resolved row keys, exclusions and revision checks, including rows not y
 F4 `ReferenceSpec` fields show exact canonical IDs and attributed names. Inventory references are
 read-only. **Inspect an item reference** uses the shared searchable picker and returns provenance
 without changes, dirty state or clearing rune undo history. On read-only document versions, the F8
-catalog remains available; Core currently blocks all actions when `CanEdit=false`.
+catalog and this `Mutates=false` inspection action remain available; save edits remain rejected.
 
 ## Read-only regulation directory
 
@@ -230,21 +231,26 @@ references, never asserted legal respec minima or used to enable a stat writer.
 
 ## Framework feature adoption
 
+Statuses describe the current implementation. Historical round names below identify when features
+were introduced. F6 application uses the shared `ActionPlans.ApplyScalar` helper; community F8
+catalog indexing uses `ReferenceCatalogReader.ReadBounded`. Inventory/progress queries, the primary
+item index, binary readers, icons and inspection bindings still use their local implementations.
+
 | Feature | Status | Where / concrete reason |
 | --- | --- | --- |
-| F1 SaveDiff | Added this round | SDK-only `eldenring-evidence` hook, `Evidence/fixtures.json`, endpoint privacy masks and intended-only byte diffs. Existing paths and privacy allowlist retained; fixtures now use the shared hook adapter. |
+| F1 SaveDiff | Used | SDK-only `eldenring-evidence` hook, `Evidence/fixtures.json`, endpoint privacy masks and intended-only byte diffs. Existing paths and privacy allowlist retained; fixtures now use the shared hook adapter. |
 | F2 reference packs | Used | Complete 5,770 identities, 1,245 official descriptions and illustrated records, 1,096 deduplicated icons, 597 inferred placements and three backgrounds; separate text/image/coordinate attribution. Progress/classes/community packs retained. |
 | F3 rich cells | Used | Catalogue and inventory details display bundled attributed icons and official text. Inferred/Unknown badges, refill actions and raw identity fallback retained. |
-| F4 reference pickers | Added this round | Class/progress/equipment semantic identities now join inventory and inspection through `ReferenceSpec`; F13 provides browse-only lookup on read-only fields/saves. Immutable raw diagnostics retain their numeric encoding. All current semantic references preserve unknown IDs. |
+| F4 reference pickers | Used | Class/progress/equipment semantic identities now join inventory and inspection through `ReferenceSpec`; F13 provides browse-only lookup on read-only fields/saves. Immutable raw diagnostics retain their numeric encoding. All current semantic references preserve unknown IDs. |
 | F5 structural undo | N/A | No safe structural writer exists: free-handle allocation, variable GaItem growth, counts/acquisition and dependent equipment cleanup are unproven. Fixed-size scalar edits already have exact undo; arbitrary insertion/removal would corrupt unknown structure. |
 | F6 action planning | Used | Held-only runes, linked rune/history and supported-stack refill; pure previews, warnings/skips, semantic review, stale/tampered-plan rejection, atomic group undo and #27 whole-query selections/exclusions. Respec/loadout presets lack complete dependency writers. |
 | F7 document groups | N/A | Every enabled operation changes one `memory.dat`; there is no independently coupled character/profile partner file. Originally identical backups are mirrored atomically by Core export, not a new plugin-owned group. |
-| F8 queryable tables | Added this round | Existing inventory/storage/5,770-item catalog, new 499-entry progress table and formerly eager 186-table regulation directory. Remaining eager regional/equipment/raw lists are bounded to at most 100 rows. |
+| F8 queryable tables | Used | Inventory/storage, the 5,770-item catalog, 499-entry progress table, community item/flag/layout catalogs and community progress collections, plus the lazy 186-table regulation directory. Remaining eager regional/equipment/raw lists are bounded to at most 100 rows. |
 | F9 maps/graphs | Used | Local surface/underground/DLC art with inferred event-ID positions, bounded regional candidates, Unknown states and raw-field targets. Missing/unpositioned candidates retain accessible lists; attribute-to-level DAG retained. Spatial validation, protocol, Core navigation and preservation tested. |
 | F10 exact/nullable/union values | Used | UInt32 fields and UInt64 millisecond durations use exact SDK integer transport. Decimal lexemes/nullable/union specs are N/A: modeled scalars are binary integers or fixed text without tagged/null states; inactive slots omit fields. |
 | F11 shared codecs | N/A | This format uses public AES/DCX/DFLT plus BND/PARAM directories; it has neither Kraken nor SQLite. BCL AES/ZLib remain bounded and preserve original encrypted bytes; no redundant shared-codec route or dependency added. |
-| F12 decoder hooks / F8 traversal | Added this round | Adopted merged #32: `EldenRingPlugin` publishes `eldenring-evidence` through `ISaveDecoderProvider`; shared `HookSaveDecoder` replaces the test-only decoder. Shared view traversal is tested across 203 inventory rows with 17-row pages and explicit truncation. CLI discovery and fixture selection verified. |
-| F13 read-only inspection / browsing | Added this round | Adopted merged #33: `references/inspect` has `Mutates=false` and is published on read-only saves. Shared F4 category filtering/Key–Name–Category sorting and immutable browse-only fields are tested through Core; inspection preserves bytes, revision and undo/redo. Float duration is N/A because saved play time is exact UInt64 milliseconds with existing integer duration formatting. |
+| F12 decoder hooks / F8 traversal | Used | Adopted merged #32: `EldenRingPlugin` publishes `eldenring-evidence` through `ISaveDecoderProvider`; shared `HookSaveDecoder` replaces the test-only decoder. Shared view traversal is tested across 203 inventory rows with 17-row pages and explicit truncation. CLI discovery and fixture selection verified. |
+| F13 read-only inspection / browsing | Used | Adopted merged #33: `references/inspect` has `Mutates=false` and is published on read-only saves. Shared F4 category filtering/Key–Name–Category sorting and immutable browse-only fields are tested through Core; inspection preserves bytes, revision and undo/redo. Float duration is N/A because saved play time is exact UInt64 milliseconds with existing integer duration formatting. |
 | F14 empty slots | Used | Held/storage retain every physical slot in their existing single F8 tables; all-zero vacancies are flagged and hidden by default, with matching hidden counts and raw details. Inactive profiles are flagged in their eager table. F6 query scopes exclude hidden vacancies; SaveDiff view traversal explicitly includes them. |
 
 ## F14 inventory and table audit
@@ -375,12 +381,17 @@ contention failures. Missing-sample behavior is checked separately and never sub
 sample-backed validation. Dated counts below describe their individual rounds; current lens-review
 results are recorded on [#40](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40).
 
+Documentation accuracy pass on 2026-10-29: **393 plugin tests passed / 0 failed / 0 skipped**
+with private samples; API build: **0 warnings / 0 errors**. Asset and performance evidence is under
+[Evidence/ASSET_ROUND.md](Evidence/ASSET_ROUND.md) and
+[Evidence/PERFORMANCE_REVIEW.md](Evidence/PERFORMANCE_REVIEW.md).
+
 Run with `SAVETOOLKIT_ARTIFACTS` pointing to the private artifacts folder:
 
 ```powershell
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
-$env:SAVETOOLKIT_TEST_TEMP = 'D:/Temp/saveeditor/test-scratch'
-$env:TEMP = 'D:/Temp/saveeditor/test-scratch/EldenRing'
+$env:SAVETOOLKIT_TEST_TEMP = 'D:/Temp/saveeditor/test-scratch/docs/accuracy-eldenring'
+$env:TEMP = $env:SAVETOOLKIT_TEST_TEMP
 $env:TMP = $env:TEMP
 New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
 dotnet test --project plugins/EldenRing/SaveToolkit.Plugins.EldenRing.Tests
@@ -540,7 +551,8 @@ under the separate attribution policy; they do not establish save-build or gamep
 Phase 3 now enables the fixed-size name/ordinary-quantity/history operations and F6 refill/linked-rune
 previews above. Phase 4 retains read-only equipment joins. Phase 5 now has source-only progress
 candidates and F9 map navigation, plus the character calculation DAG; verified statuses, quest edges
-and world/upgrade/equipment writer dependencies remain owner-blocked. Phase 6 allocation/cleanup
+and world/upgrade/equipment writer dependencies still lack verified semantics and complete
+transaction implementations. Phase 6 allocation/cleanup
 semantics remain unproven. No full Phase 2–6 completion or console acceptance is claimed.
 
 The exact before/after capture and console-validation checklist is in

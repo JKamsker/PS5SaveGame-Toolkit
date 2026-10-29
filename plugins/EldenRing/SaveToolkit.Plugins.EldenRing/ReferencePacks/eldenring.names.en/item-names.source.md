@@ -14,5 +14,8 @@
 - Coverage: complete for this source table/revision, not every game version or DLC. Names alone
   never authorize item creation, quantity changes, equipment compatibility or upgrade writes.
 
-This file is one constituent of the `eldenring-items` F2 dataset. Its record-level source and the
-dataset's MIT attribution are shown by the shared picker, Sources panel and catalog/inventory details.
+This sidecar documents the MIT identity-label contribution to the `eldenring-items` F2 dataset.
+The combined v3.0.0 dataset also contains selected publisher text/icons, with separate provenance in
+[visuals.source.md](visuals.source.md). Identity labels retain MIT; the combined dataset declares
+publisher rights under the owner decision of 2026-10-29. The shared picker, Sources panel and
+catalog/inventory details expose attribution.

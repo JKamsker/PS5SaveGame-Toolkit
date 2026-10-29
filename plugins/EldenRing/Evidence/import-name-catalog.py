@@ -90,8 +90,10 @@ def convert(source_directory, table, category, prefix, expected_hash):
 - Coverage: complete for this source table/revision, not every game version or DLC. Names alone
   never authorize item creation, quantity changes, equipment compatibility or upgrade writes.
 
-This file is one constituent of the `eldenring-items` F2 dataset. Its record-level source and the
-dataset's MIT attribution are shown by the shared picker, Sources panel and catalog/inventory details.
+This sidecar documents the MIT identity-label contribution to the `eldenring-items` F2 dataset.
+The identity-only importer emits MIT attribution. A later visual-enrichment step adds selected
+publisher text/icons and separate visuals.source.md provenance; those contributions do not become MIT.
+The shared picker, Sources panel and catalog/inventory details expose attribution.
 """
     (OUTPUT / f"{table}-names.source.md").write_text(sidecar, encoding="utf-8", newline="\n")
     print(f"{table}: {len(records)} records; {unnamed} unnamed")

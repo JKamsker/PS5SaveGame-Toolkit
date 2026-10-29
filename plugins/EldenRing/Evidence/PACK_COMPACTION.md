@@ -1,6 +1,9 @@
 # Community reference pack compaction
 
 Measured 2026-10-29 against `c63ba1b474eada759fa018854504589310379361`.
+Sizes, timings and validation counts below describe that compaction round before publisher assets
+were added. See [ASSET_ROUND.md](ASSET_ROUND.md) for those additions and
+[PERFORMANCE_REVIEW.md](PERFORMANCE_REVIEW.md) for later baseline measurements.
 Community pack v1.1.0 retains 3,221 item identities, 1,748 flag candidates and 1,072
 technical layout records. Pack JSON and its manifest are minified, with regenerated SHA-256 hashes.
 
@@ -42,8 +45,9 @@ labels and repeated descriptions are omitted. The sidecar documents these joins,
 modifications remain visible in browser details alongside attribution.
 
 Independent semantic digests computed from the previous commit verify every retained ID,
-name, category and used item/group/flag/layout fact. Explicit NC/no-redistribution sources,
-game-extracted descriptions and artwork remain excluded.
+name, category and used item/group/flag/layout fact. This community pack excludes game-extracted
+descriptions/artwork; selected publisher content is now in the separate names pack under the
+2026-10-29 owner policy. Explicit NC/no-redistribution sources remain excluded.
 
 ## First-load measurements
 
