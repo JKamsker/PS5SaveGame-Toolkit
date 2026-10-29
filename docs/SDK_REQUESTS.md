@@ -18,6 +18,12 @@ remain separate from plugin migration. Shared testing helpers are documented in 
 [mutation fuzzing](PLUGIN_GUIDE.md#deterministic-mutation-fuzzing-40) and
 [allocation probes](PLUGIN_GUIDE.md#allocation-tests-allocationprobe).
 
+Documentation reconciliation against `8d6a261c4afc539224996eb4f67d5a8cc0b4f1e4` confirms these
+delivered capabilities and the four open requests below. The subsequent functionality/UX improvement
+wave remains unmerged, with integration validation and review pending; it is not counted as delivery
+here. SDK-06/07 remain substantial optional infrastructure, SDK-08 needs a concrete presentation
+consumer, and SDK-10 needs controlled evidence before an ownership contract or writer is justified.
+
 **41 deduplicated items: 4 open, 0 partially resolved, 34 resolved, 3 obsolete.**
 Counts describe capabilities, not individual comments or plugin migrations. Related
 requests are merged; delivered foundations and genuinely different remaining contracts
@@ -49,7 +55,7 @@ and characterization tests, L = a substantial lifecycle/serialization integratio
 | SDK-11 | Reject/coalesce duplicate scalar IDs because undo allegedly replays old values forward | Witcher3 | obsolete | `plugins/Witcher3/README.md:530`; `src/SaveToolkit.Core/Sessions/DocumentSession.cs:231` uses `useOld ? batch.Reverse() : batch`, present since `e08c5b0`; [SDK rollback report](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6485651871) explicitly preserves ordered duplicates | 1 stale defect report; no established shared undo failure on this baseline | S (docs) | A global rejection would change the existing ordered-transition contract | Correct the backlog claim; retain the plugin's stricter local guard if desired. Do not introduce rejection/coalescing solely on this reproduction. Reverse transitions `0→1→2` restore `2→1→0`; a different failure needs its own reproduction. |
 | SDK-12 | Treat full-payload shared CRC latency as a framework defect | FinalFantasy16 performance review | obsolete | [deferred opportunities](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6487461287); [framework disposition](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6487860350); `src/SaveToolkit.Sdk/Binary/Crc32Ieee.cs:12` computes the required coverage | 1 measurement; no validated avoidable work or correctness defect | S (docs) | Replacing/skipping coverage risks integrity | Won't remove mandatory checksum/reparse work. Record the measurement as a profiling observation; only optimize an equivalent algorithm after independent vectors and actual comparative evidence. |
 | SDK-13 | Longer F2 licence field for mixed-source notices | AtomicHeart | obsolete | `plugins/AtomicHeart/README.md` SDK requests records the accepted shorthand/sidecar workaround; `src/SaveToolkit.Core/References/PackManifestValidator.cs:121` caps licence text at 100 characters | 1 plugin; full rights notices are already preserved in attribution/sidecars | S (docs) | Increasing limits is additive but unnecessary for the reported dataset | Document concise licence identifiers plus complete author/modification metadata and source sidecars. No framework change requested or needed for this case. |
-| SDK-14 | Shared bounded SaveDiff traversal of F8 views beyond the first 200 rows | BaldursGate3, Cyberpunk2077, EldenRing, FinalFantasy7, FinalFantasy16, Gearbox, Insomniac, Pragmata, SuckerPunch, TalesOfArise, UnrealGvas, Witcher3 | resolved | `8063471`; `src/SaveToolkit.Testing/Diff/PluginViewTraversal.cs:9`; `Diff/QueryableViewTraversal.cs:25` | 12 named README consumers; complete bounded evidence with explicit truncation | — | Delivered additive traversal | Use `PluginViewDecoder` and `DecodeLimits`; this is independent of semantic review (SDK-01), whose backend is delivered with web UI pending. |
+| SDK-14 | Shared bounded SaveDiff traversal of F8 views beyond the first 200 rows | BaldursGate3, Cyberpunk2077, EldenRing, FinalFantasy7, FinalFantasy16, Gearbox, Insomniac, Pragmata, SuckerPunch, TalesOfArise, UnrealGvas, Witcher3 | resolved | `8063471`; `src/SaveToolkit.Testing/Diff/PluginViewTraversal.cs:9`; `Diff/QueryableViewTraversal.cs:25` | 12 named README consumers; complete bounded evidence with explicit truncation | — | Delivered additive traversal | Use `PluginViewDecoder` and `DecodeLimits`; this is independent of semantic review (SDK-01), whose backend and web navigation/revert UI are also delivered. |
 | SDK-15 | Production SDK-only native decoder registration in stock SaveDiff CLI | AtomicHeart, Cyberpunk2077, EldenRing, FinalFantasy7, FinalFantasy16, Gearbox, Insomniac, Pragmata, SuckerPunch, TalesOfArise, UnrealGvas, Witcher3 | resolved | `8063471`; `src/SaveToolkit.Sdk/Diff/ISaveDecoderProvider.cs:6` | 12 named SDK sections; native evidence without a Testing dependency or custom CLI | — | Delivered optional capability | Implement `ISaveDecoderProvider.Decoders` / `ISaveDecoderHook`; select hooks explicitly. No hook is required when the shared view decoder suffices. |
 | SDK-16 | Non-mutating inspection on read-only documents | Cyberpunk2077, EldenRing (R22), FinalFantasy16, Gearbox, Insomniac, TalesOfArise, UnrealGvas, Witcher3 | resolved | `8b83aaa`; `src/SaveToolkit.Sdk/Views/ViewNode.cs` `ActionNode.Mutates`; `src/SaveToolkit.Core/Sessions/InspectionActionRunner.cs:11` | 8 README consumers; attributed inspection remains available when save writes are disabled | — | Delivered additive opt-in | Publish `Mutates = false`; respect isolated-copy and message-only outcome rules. |
 | SDK-17 | Browse-only reference pickers and native catalog category filtering/sorting | BaldursGate3, Cyberpunk2077, EldenRing, FinalFantasy16, Gearbox, Insomniac, TalesOfArise, UnrealGvas, Witcher3 | resolved | `8b83aaa`; `src/SaveToolkit.Sdk/References/IReferenceCatalog.cs`; `src/SaveToolkit.Core/References/LoadedReferencePack.cs` | 9 named SDK sections; users can inspect IDs/provenance without enabling edits or building local picker indexes | — | Delivered additive query/picker support | Use `ReferenceSpec`, `ReferenceQuery.Category` / `SortBy` and declared `SortKeys`; keep genuinely richer plugin-specific F8 filters. |
@@ -79,23 +85,23 @@ and characterization tests, L = a substantial lifecycle/serialization integratio
 
 | SDK-41 | Explicit selection-table binding for sibling planned controls and opt-in ownership evidence | FinalFantasy7, TalesOfArise, SuckerPunch; SDK API review | resolved | [API review proposal](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489901577); `src/SaveToolkit.Sdk/Views/ViewNode.cs` `ActionNode.SelectionTableId` / `TableNode.SelectionId`; `src/SaveToolkit.Testing/SelectionScopeFixture.cs` | Sibling controls can use explicit or full-query selections/exclusions without moving into cells | — | Delivered additive opt-in; no plugin migration | Adopt only with explicit ownership evidence and browser scope coverage. See the authoritative [shipped contract](PLUGIN_GUIDE.md#selection-table-binding-and-advisory-conformance-40). |
 
-### SDK-01 alias follow-up through SDK-02
+### SDK-01 review identities after SDK-02 adoption
 
-SDK-01 retains distinct value IDs as distinct review entries. Pragmata's existing
-250 raw quantity changes now appear alongside 250 newly traversed primary F8
-quantity changes (500 entries for 250 underlying edits). Core must not infer alias
-identity from matching values, transitions or ID prefixes. Reverting either entry
-recomputes the review: both entries disappear together, the other cannot be
-reverted again, unrelated rows remain changed, and one undo restores both entries.
-Synthetic Core tests and the existing Pragmata integration test cover both revert
-directions, stale revisions and rejected double revert.
+SDK-01 retains distinct exposed value IDs as distinct review entries; Core must not infer alias
+identity from matching values, transitions or ID prefixes. The earlier Pragmata example of
+500 entries for 250 quantity edits is historical. Its current Raw, F8 and evidence quantity
+projections reuse canonical IDs. `InventoryCollectionTests.cs` asserts **250 review entries for
+250 edits** in a 251-row fixture, individual revert through either projection, stale/double-revert
+rejection and exact undo/redo. `UnloadedQuantitySessionTests.cs` separately asserts one review
+entry when legacy read-only derived aliases are reported. Both files are under
+`plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Tests/`; the identity/alias definitions are in
+`plugins/Pragmata/SaveToolkit.Plugins.Pragmata/Editing/PragmataBindings.cs`.
 
-**Follow-up for the SDK-02 primary/derived binding policy:** publish explicit
-canonical field/alias relationships, then deduplicate semantic review presentation
-and navigation/revert ownership using that metadata. Preserve complete direct and
-derived effects and undo semantics; do not hide distinct unclassified fields.
-The SDK-01 backend deliberately leaves this duplication visible until that policy
-is implemented. The web navigation/coverage UI has shipped; semantic alias deduplication remains a separate follow-up.
+SDK-02 supplies primary/derived replay policy; `FieldMetadata` does not publish a general
+cross-ID canonical relationship. Targeted original/current semantic metadata capture, automatic
+group forwarding and generic cross-ID review deduplication remain separate integrations, not
+pending SDK-02 delivery or a remaining Pragmata quantity-duplication defect. Preserve complete
+direct/derived effects and undo semantics, and do not hide distinct unclassified fields.
 
 ## Resolved appendix
 
