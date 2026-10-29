@@ -25,12 +25,22 @@ public sealed class DiskSaveSet : ISaveSet
     public DiskSaveDirectory? FindDirectory(string directoryId) => _directories.FirstOrDefault(d => d.Id == directoryId);
 
     /// <summary>The console backup twin (<c>sdimg_sce_bu_*</c>) of a primary directory, or the reverse.</summary>
-    public DiskSaveDirectory? Twin(ISaveDirectory directory) => _directories.FirstOrDefault(d =>
-        d != directory
-        && d.IsBackup != directory.IsBackup
-        && d.Generation == directory.Generation
-        && string.Equals(d.TitleId, directory.TitleId, StringComparison.OrdinalIgnoreCase)
-        && string.Equals(d.Name, directory.Name, StringComparison.Ordinal));
+    public DiskSaveDirectory? Twin(ISaveDirectory directory) => Twin(directory, CancellationToken.None);
+
+    internal DiskSaveDirectory? Twin(ISaveDirectory directory, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        foreach (var candidate in _directories)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (candidate != directory
+                && candidate.IsBackup != directory.IsBackup
+                && candidate.Generation == directory.Generation
+                && string.Equals(candidate.TitleId, directory.TitleId, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(candidate.Name, directory.Name, StringComparison.Ordinal)) return candidate;
+        }
+        return null;
+    }
 
     internal void Add(DiskSaveDirectory directory)
     {

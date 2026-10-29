@@ -1,0 +1,4 @@
+# Legacy overload calls intentionally verify that token-free consumers keep working.
+# Cancellation regressions pass explicit, controlled tokens instead of the runner token.
+[*.cs]
+dotnet_diagnostic.xUnit1051.severity = none

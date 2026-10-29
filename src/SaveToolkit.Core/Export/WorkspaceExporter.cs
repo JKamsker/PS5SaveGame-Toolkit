@@ -1,4 +1,3 @@
-using System.IO.Compression;
 using System.Security.Cryptography;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
@@ -40,21 +39,26 @@ public sealed class ExportException(string message, Exception? innerException = 
 public static class WorkspaceExporter
 {
     public static ExportPlan Plan(Workspace workspace, ExportOptions options)
-        => workspace.WithOwnershipLock(() => PlanLocked(workspace, options));
+        => Plan(workspace, options, CancellationToken.None);
 
-    private static ExportPlan PlanLocked(Workspace workspace, ExportOptions options)
+    public static ExportPlan Plan(Workspace workspace, ExportOptions options, CancellationToken cancellationToken)
+        => workspace.WithOwnershipLock(() => PlanLocked(workspace, options, cancellationToken), cancellationToken);
+
+    private static ExportPlan PlanLocked(Workspace workspace, ExportOptions options, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var set = workspace.Set;
         var overrides = new Dictionary<string, ReadOnlyMemory<byte>>(StringComparer.OrdinalIgnoreCase);
         var reasons = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var dirty = workspace.Documents.Where(d => d.State.IsDirty).ToList();
+        var dirty = workspace.Documents.Where(d => d.GetState(cancellationToken).IsDirty).ToList();
         var groups = workspace.DocumentGroups;
-        foreach (var group in groups) group.CheckFingerprints();
+        foreach (var group in groups) group.CheckFingerprints(cancellationToken);
 
         foreach (var session in dirty)
         {
-            foreach (var output in session.Serialize())
+            foreach (var output in session.Serialize(cancellationToken))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (groups.Any(g => g.Session.Id != session.Id && g.Owns(output.RelativePath)))
                     throw new ExportException($"'{output.RelativePath}' is owned by another document group.");
                 if (((ISaveSet)set).FindFile(output.RelativePath) is null)
@@ -74,65 +78,64 @@ public static class WorkspaceExporter
 
         if (options.MirrorBackups)
         {
-            var protectedPaths = groups.SelectMany(g => g.Members.Select(m => m.RelativePath))
-                .Concat(workspace.Documents.Select(d => d.File.RelativePath)).ToHashSet(StringComparer.OrdinalIgnoreCase);
-            var groupPaths = groups.SelectMany(g => g.Members.Select(m => m.RelativePath)).ToHashSet(StringComparer.OrdinalIgnoreCase);
-            MirrorBackups(set, overrides, reasons, protectedPaths, groupPaths);
+            var groupPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var member in groups.SelectMany(group => group.Members))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                groupPaths.Add(member.RelativePath);
+            }
+            var protectedPaths = new HashSet<string>(groupPaths, StringComparer.OrdinalIgnoreCase);
+            foreach (var document in workspace.Documents)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                protectedPaths.Add(document.File.RelativePath);
+            }
+            MirrorBackups(set, overrides, reasons, protectedPaths, groupPaths, cancellationToken);
         }
 
         // Mirrored siblings can participate in plugin/group invariants too. Validate the
         // complete overlay that will be exported, after every automatic override is added.
-        Verify(workspace, dirty, overrides);
+        Verify(workspace, dirty, overrides, cancellationToken);
 
-        var included = Select(set, overrides, options.Scope);
-        var files = included
-            .Select(f => new ExportedFile(
-                ExportPath(f),
-                overrides.TryGetValue(f.RelativePath, out var c) ? c.Length : f.Length,
-                reasons.GetValueOrDefault(f.RelativePath, "unchanged")))
-            .ToList();
+        var included = Select(set, overrides, options.Scope, cancellationToken);
+        var files = new List<ExportedFile>(included.Count);
+        foreach (var file in included)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            files.Add(new ExportedFile(ExportPath(file),
+                overrides.TryGetValue(file.RelativePath, out var content) ? content.Length : file.Length,
+                reasons.GetValueOrDefault(file.RelativePath, "unchanged")));
+        }
         return new ExportPlan(files, overrides, included);
     }
 
-    public static void WriteZip(ExportPlan plan, Stream output)
-    {
-        using var zip = new ZipArchive(output, ZipArchiveMode.Create, leaveOpen: true);
-        foreach (var file in plan.Included)
-        {
-            var entry = zip.CreateEntry(ExportPath(file), CompressionLevel.Fastest);
-            using var target = entry.Open();
-            if (plan.Overrides.TryGetValue(file.RelativePath, out var content))
-            {
-                target.Write(content.Span);
-            }
-            else
-            {
-                using var source = file.OpenRead();
-                source.CopyTo(target);
-            }
-        }
-    }
+    public static void WriteZip(ExportPlan plan, Stream output) => WriteZip(plan, output, CancellationToken.None);
 
-    private static string ExportPath(ISaveFile file) => file is DiskSaveFile disk ? disk.ExportRelativePath : file.RelativePath;
+    public static void WriteZip(ExportPlan plan, Stream output, CancellationToken cancellationToken)
+        => ExportZipWriter.Write(plan, output, cancellationToken);
 
-    private static void Verify(Workspace workspace, IReadOnlyList<DocumentSession> dirty, Dictionary<string, ReadOnlyMemory<byte>> overrides)
+    internal static string ExportPath(ISaveFile file) => file is DiskSaveFile disk ? disk.ExportRelativePath : file.RelativePath;
+
+    private static void Verify(Workspace workspace, IReadOnlyList<DocumentSession> dirty, Dictionary<string, ReadOnlyMemory<byte>> overrides, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         if (overrides.Count == 0)
         {
             return;
         }
 
-        var overlay = new OverlaySaveSet(workspace.Set, overrides);
+        var overlay = new OverlaySaveSet(workspace.Set, overrides, cancellationToken);
         foreach (var session in dirty)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (workspace.DocumentGroups.FirstOrDefault(g => g.Session.Id == session.Id) is { } group)
             {
                 try
                 {
                     group.VerifyOutputs(overrides.Where(o => group.Owns(o.Key))
-                        .ToDictionary(o => o.Key, o => o.Value, StringComparer.OrdinalIgnoreCase), overlay);
+                        .ToDictionary(o => o.Key, o => o.Value, StringComparer.OrdinalIgnoreCase), overlay, cancellationToken);
                 }
-                catch (Exception ex) when (ex is not OutOfMemoryException)
+                catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
                 {
                     throw new ExportException($"Group verification failed: {ex.Message}", ex);
                 }
@@ -142,9 +145,11 @@ public static class WorkspaceExporter
             try
             {
                 using var doc = session.Plugin.Open(reopened, workspace.References(session.Id));
+                cancellationToken.ThrowIfCancellationRequested();
                 _ = doc.BuildView();
+                cancellationToken.ThrowIfCancellationRequested();
             }
-            catch (Exception ex) when (ex is not OutOfMemoryException)
+            catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
             {
                 throw new ExportException($"Verification failed: {session.Plugin.Info.Name} could not re-open its own output for '{session.File.RelativePath}': {ex.Message}", ex);
             }
@@ -152,10 +157,11 @@ public static class WorkspaceExporter
     }
 
     private static void MirrorBackups(DiskSaveSet set, Dictionary<string, ReadOnlyMemory<byte>> overrides,
-        Dictionary<string, string> reasons, HashSet<string> protectedPaths, HashSet<string> groupPaths)
+        Dictionary<string, string> reasons, HashSet<string> protectedPaths, HashSet<string> groupPaths, CancellationToken cancellationToken)
     {
         foreach (var (path, content) in overrides.ToList())
         {
+            cancellationToken.ThrowIfCancellationRequested();
             // Group backups are explicit members. Independent open backup sessions also retain ownership.
             if (groupPaths.Contains(path)) continue;
             if (((ISaveSet)set).FindFile(path) is not DiskSaveFile original || original.Directory.IsBackup)
@@ -163,9 +169,13 @@ public static class WorkspaceExporter
                 continue;
             }
 
-            var twin = set.Twin(original.Directory)?.Files
+            var twin = set.Twin(original.Directory, cancellationToken)?.Files
                 .OfType<DiskSaveFile>()
-                .FirstOrDefault(f => string.Equals(f.PathInDirectory, original.PathInDirectory, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(f =>
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    return string.Equals(f.PathInDirectory, original.PathInDirectory, StringComparison.OrdinalIgnoreCase);
+                });
             if (twin is not null && twin.Sha256 == original.Sha256 && !overrides.ContainsKey(twin.RelativePath)
                 && !protectedPaths.Contains(twin.RelativePath))
             {
@@ -175,17 +185,25 @@ public static class WorkspaceExporter
         }
     }
 
-    private static List<ISaveFile> Select(DiskSaveSet set, Dictionary<string, ReadOnlyMemory<byte>> overrides, ExportScope scope)
+    private static List<ISaveFile> Select(DiskSaveSet set, Dictionary<string, ReadOnlyMemory<byte>> overrides,
+        ExportScope scope, CancellationToken cancellationToken)
     {
-        IEnumerable<ISaveFile> all = set.Directories.SelectMany(d => d.SystemFiles.Concat(d.Files));
-        return scope switch
+        var included = new List<ISaveFile>();
+        foreach (var directory in set.Directories)
         {
-            ExportScope.Everything => [.. all],
-            ExportScope.ChangedFiles => [.. all.Where(f => overrides.ContainsKey(f.RelativePath))],
-            _ => [.. set.Directories
-                .Where(d => d.Files.Concat(d.SystemFiles).Any(f => overrides.ContainsKey(f.RelativePath)))
-                .SelectMany(d => d.SystemFiles.Concat(d.Files))],
-        };
+            cancellationToken.ThrowIfCancellationRequested();
+            var files = new List<ISaveFile>();
+            var changed = false;
+            foreach (var file in directory.SystemFiles.Concat(directory.Files))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var rewritten = overrides.ContainsKey(file.RelativePath);
+                changed |= rewritten;
+                if (scope != ExportScope.ChangedFiles || rewritten) files.Add(file);
+            }
+            if (scope is ExportScope.Everything or ExportScope.ChangedFiles || changed) included.AddRange(files);
+        }
+        return included;
     }
 
     /// <summary>Hex SHA-256, handy for reports and tests.</summary>

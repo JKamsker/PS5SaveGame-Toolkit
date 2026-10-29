@@ -44,13 +44,14 @@ public sealed class Workspace : IDisposable
     public IReadOnlyList<DocumentGroupSession> DocumentGroups => _groups.All;
 
     internal T WithOwnershipLock<T>(Func<T> operation)
-    {
-        lock (_openGate)
+        => WithOwnershipLock(operation, CancellationToken.None);
+
+    internal T WithOwnershipLock<T>(Func<T> operation, CancellationToken cancellationToken)
+        => OperationCancellation.Locked(_openGate, () =>
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
             return operation();
-        }
-    }
+        }, cancellationToken);
 
     public IReadOnlyList<DocumentGroupOffer> ProposeGroups(string fileId, string pluginId) =>
         WithOwnershipLock(() => _groups.Propose(fileId, pluginId));

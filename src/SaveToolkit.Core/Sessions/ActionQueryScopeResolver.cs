@@ -8,8 +8,9 @@ namespace SaveToolkit.Core.Sessions;
 internal static class ActionQueryScopeResolver
 {
     public static ActionScope Resolve(ActionQueryScope scope, int maxRows,
-        Func<QueryableCollectionQuery, QueryableCollectionPage> queryPage)
+        Func<QueryableCollectionQuery, QueryableCollectionPage> queryPage, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(scope.Query);
         ArgumentNullException.ThrowIfNull(scope.ExcludedRowKeys);
         if (scope.ExcludedRowKeys.Count > maxRows
@@ -35,7 +36,9 @@ internal static class ActionQueryScopeResolver
         var pageQuery = query;
         while (true)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var page = queryPage(pageQuery);
+            cancellationToken.ThrowIfCancellationRequested();
             if (page.FilteredCount > maxRows)
             {
                 throw new ArgumentException($"Query selection exceeds the limit of {maxRows} matching rows; narrow the query.");
@@ -49,6 +52,7 @@ internal static class ActionQueryScopeResolver
             filteredCount = page.FilteredCount;
             foreach (var row in page.Rows)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (!seen.Add(row.Key))
                 {
                     throw new InvalidOperationException("Collection repeated a row across query-selection pages.");
@@ -67,6 +71,7 @@ internal static class ActionQueryScopeResolver
             pageQuery = query with { Offset = page.NextCursor is null ? seen.Count : 0, Cursor = page.NextCursor };
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
         return new ActionScope(Array.AsReadOnly(selected.ToArray())) { QueryScope = normalized };
     }
 }

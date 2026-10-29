@@ -3,7 +3,7 @@ namespace SaveToolkit.Core.Sessions;
 internal sealed class SemanticQueryByteLimitException : IOException;
 
 /// <summary>Counts full serialized pages, including read-only cells, without retaining a JSON copy.</summary>
-internal sealed class SemanticQueryByteCounter(long limit) : Stream
+internal sealed class SemanticQueryByteCounter(long limit, CancellationToken cancellationToken = default) : Stream
 {
     public long BytesWritten { get; private set; }
     public override bool CanRead => false;
@@ -14,6 +14,7 @@ internal sealed class SemanticQueryByteCounter(long limit) : Stream
     public override void Write(byte[] buffer, int offset, int count) => Write(buffer.AsSpan(offset, count));
     public override void Write(ReadOnlySpan<byte> buffer)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         if (buffer.Length > limit - BytesWritten) throw new SemanticQueryByteLimitException();
         BytesWritten += buffer.Length;
     }

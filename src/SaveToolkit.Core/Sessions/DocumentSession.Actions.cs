@@ -11,7 +11,11 @@ public sealed partial class DocumentSession
     /// <param name="actionId">Action id from an indexed <see cref="ActionNode"/>.</param>
     /// <param name="parameters">Parameter values as sent by the client; missing ones use the published defaults.</param>
     /// <param name="expectedRevision">The <see cref="DocumentState.Revision"/> the client's view was built at, if known.</param>
-    public SessionEditResult InvokeAction(string actionId, IReadOnlyDictionary<string, JsonElement> parameters, long? expectedRevision = null) => Locked(() =>
+    public SessionEditResult InvokeAction(string actionId, IReadOnlyDictionary<string, JsonElement> parameters, long? expectedRevision = null) =>
+        InvokeAction(actionId, parameters, expectedRevision, CancellationToken.None);
+
+    public SessionEditResult InvokeAction(string actionId, IReadOnlyDictionary<string, JsonElement> parameters,
+        long? expectedRevision, CancellationToken cancellationToken) => Locked(() => RunPreflight(startApply =>
     {
         if (StaleCheck(expectedRevision, [actionId]) is { } stale)
         {
@@ -44,15 +48,18 @@ public sealed partial class DocumentSession
             try
             {
                 var inspection = InspectionActionRunner.Run(Plugin, File, Document, _references, _expanded, actionId, values);
+                cancellationToken.ThrowIfCancellationRequested();
                 return new SessionEditResult { Message = inspection.Message, Warnings = inspection.Warnings, State = StateUnlocked() };
             }
-            catch (Exception ex) when (ex is not OutOfMemoryException)
+            catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
             {
                 return Rejected(actionId, $"Inspection failed: {ex.Message}");
             }
         }
 
-        EnsureOriginal();
+        EnsureOriginal(cancellationToken);
+        // Point of no return: finish action, rollback if needed, and history publication without cancellation.
+        startApply();
         ActionOutcome outcome;
         try
         {
@@ -95,7 +102,7 @@ public sealed partial class DocumentSession
             State = StateUnlocked(),
         };
         return AfterChange(result, result.StructureChanged, warnings);
-    });
+    }, cancellationToken), cancellationToken);
 
     private (Dictionary<string, FieldValue> Values, List<FieldError> Errors) CoerceParameters(
         ActionNode action, IReadOnlyDictionary<string, JsonElement> parameters)
