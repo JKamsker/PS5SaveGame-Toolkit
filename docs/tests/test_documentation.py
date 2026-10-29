@@ -19,7 +19,8 @@ ROOT = Path(__file__).resolve().parents[2]
 CODE_REF = "HEAD"
 EXCLUDED = ROOT / "docs/LICENCE_EXCLUSIONS.md"
 FRAMEWORK_PAGES = ("README.md", "AGENTS.md", "docs/PLUGIN_GUIDE.md", "docs/RELEASING.md",
-                   "docs/API.md", "docs/USER_GUIDE.md", "docs/SDK_REQUESTS.md", "docs/SAMPLES.md")
+                   "docs/API.md", "docs/USER_GUIDE.md", "docs/SDK_REQUESTS.md", "docs/SAMPLES.md",
+                   "docs/PERFORMANCE.md")
 
 
 def document(path):
@@ -272,6 +273,19 @@ class DocumentationTests(unittest.TestCase):
             path = scripts[name.strip("`")]
             with self.subTest(script=path):
                 self.assertEqual(script_parameters(path), set(re.findall(r"`-(\w+)`", parameters)))
+
+    def test_benchmarks_are_explicitly_opt_in(self):
+        project = "tests/benchmarks/SaveToolkit.Benchmarks/SaveToolkit.Benchmarks.csproj"
+        code = source(project)
+        self.assertIn("<IsTestProject>false</IsTestProject>", code)
+        self.assertIn("<IsTestingPlatformApplication>false</IsTestingPlatformApplication>", code)
+        self.assertNotIn("TestAdapter", code)
+        self.assertIn("*.Tests.csproj", source("scripts/test.ps1"))
+        self.assertFalse(project.endswith(".Tests.csproj"))
+        self.assertNotIn("bench.ps1", source(".github/workflows/ci.yml"))
+        self.assertIn(project, source("SaveToolkit.slnx"))
+        for page in ("README.md", "docs/RELEASING.md"):
+            self.assertIn("PERFORMANCE.md", document(page))
 
     def test_documented_script_invocations_use_real_parameters(self):
         invocations = 0
