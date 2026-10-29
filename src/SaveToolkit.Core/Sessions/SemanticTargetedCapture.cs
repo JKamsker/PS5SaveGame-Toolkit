@@ -1,5 +1,6 @@
 using SaveToolkit.Core.Editing;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Core.Sessions;
 
@@ -55,20 +56,17 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                 {
                     snapshot.Fields[field.ValueId] = existing with
                     {
-                        Label = field.Label, Path = field.Path?.ToArray() ?? existing.Path,
                         ReadOnly = field.Spec.ReadOnly, CanonicalValueId = canonical, BindingKind = field.BindingKind,
-                        Presentation = field.Presentation, MetadataPublished = true,
+                        Spec = FieldSpecMetadata.Snapshot(field.Spec), Label = field.Label,
+                        Path = field.Path?.ToArray() ?? existing.Path,
                     };
-                    snapshot.MetadataPublished = true;
                     continue;
                 }
 
                 var semantic = new SemanticField(field.ValueId, field.Label, field.Path?.ToArray() ?? [],
                     document.GetValue(field.ValueId), field.Spec.ReadOnly,
-                    CanonicalValueId: canonical, BindingKind: field.BindingKind);
-                semantic = semantic with { Presentation = field.Presentation, MetadataPublished = true };
-                snapshot.MetadataPublished = true;
-                snapshot.ExaminedCount++;
+                    CanonicalValueId: canonical, BindingKind: field.BindingKind,
+                    Spec: FieldSpecMetadata.Snapshot(field.Spec));
                 var cost = SemanticSnapshot.Estimate(semantic);
                 if (cost > maxBytes - snapshot.Bytes)
                 {
@@ -80,11 +78,7 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                 snapshot.Fields.Add(field.ValueId, semantic);
             }
 
-            if (seen.Count != requested.Count)
-            {
-                snapshot.Complete = false;
-                snapshot.OmittedCount += requested.Count - seen.Count;
-            }
+            if (seen.Count != requested.Count) snapshot.Complete = false;
         }
     }
 }
