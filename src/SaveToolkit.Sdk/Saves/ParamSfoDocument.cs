@@ -134,16 +134,8 @@ public sealed class ParamSfoDocument
             throw Error($"SFO key '{key}' has unsupported format 0x{entry.Format:X4}.");
 
         var originalText = DecodeOriginalText(entry);
-        byte[] encoded;
-        try
-        {
-            encoded = StrictUtf8.GetBytes(newText);
-        }
-        catch (EncoderFallbackException exception)
-        {
-            throw Error($"Replacement for '{key}' is not valid UTF-8: {exception.Message}");
-        }
-        ValidateReplacementLength(key, encoded.Length, entry.MaximumLength);
+        var payloadLength = GetStrictUtf8ByteCount(newText, $"Replacement for '{key}'");
+        ValidateReplacementLength(key, payloadLength, entry.MaximumLength);
 
         return new ParamSfoPatchPlan(
             key, entry.Format, entry.Index, entry.DataOffset, entry.Length, entry.MaximumLength,
@@ -176,10 +168,9 @@ public sealed class ParamSfoDocument
         if (plan.NewText.Contains('\0', StringComparison.Ordinal))
             throw Error("The patch plan replacement contains an embedded NUL.");
 
-        byte[] encoded;
-        try { encoded = StrictUtf8.GetBytes(plan.NewText); }
-        catch (EncoderFallbackException exception) { throw Error($"Patch plan replacement is not valid UTF-8: {exception.Message}"); }
-        ValidateReplacementLength(entry.Key, encoded.Length, entry.MaximumLength);
+        var payloadLength = GetStrictUtf8ByteCount(plan.NewText, "Patch plan replacement");
+        ValidateReplacementLength(entry.Key, payloadLength, entry.MaximumLength);
+        var encoded = GetStrictUtf8Bytes(plan.NewText, "Patch plan replacement");
         if (plan.IsNoOp) return _bytes.ToArray();
 
         var output = _bytes.ToArray();
@@ -262,6 +253,18 @@ public sealed class ParamSfoDocument
             throw Error($"Replacement for '{key}' including its terminator exceeds MaxEncodedValueBytes {_limits.MaxEncodedValueBytes}.");
         if (payloadLength > maximumLength - 1)
             throw Error($"Replacement for '{key}' including its terminator exceeds the {maximumLength}-byte reserved slot.");
+    }
+
+    private static int GetStrictUtf8ByteCount(string text, string description)
+    {
+        try { return StrictUtf8.GetByteCount(text); }
+        catch (EncoderFallbackException exception) { throw Error($"{description} is not valid UTF-8: {exception.Message}"); }
+    }
+
+    private static byte[] GetStrictUtf8Bytes(string text, string description)
+    {
+        try { return StrictUtf8.GetBytes(text); }
+        catch (EncoderFallbackException exception) { throw Error($"{description} is not valid UTF-8: {exception.Message}"); }
     }
 
     private static ParamSfoPatchException Error(string message) => new(message);

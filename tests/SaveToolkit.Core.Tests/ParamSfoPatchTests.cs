@@ -198,6 +198,28 @@ public sealed class ParamSfoPatchTests
     }
 
     [Fact]
+    public void StrictUtf8ByteCountPreflightsPlanAndApplyBeforeEncoding()
+    {
+        var source = Build(new Entry("TITLE", Utf8, "old", 8));
+        var exactLimits = new ParamSfoPatchLimits(4096, 128, 32, 3);
+        var exact = ParamSfoDocument.Parse(source, exactLimits);
+        var huge = new string('é', 100_000);
+        var before = exact.OriginalBytes.ToArray();
+
+        Assert.Throws<ParamSfoPatchException>(() => exact.PlanExistingUtf8("TITLE", huge));
+        Assert.Throws<ParamSfoPatchException>(() => exact.PlanExistingUtf8("TITLE", "\uD800"));
+        Assert.Equal(before, exact.OriginalBytes.ToArray());
+
+        var exactPlan = exact.PlanExistingUtf8("TITLE", "a");
+        var exactBoundary = exactPlan with { NewText = "é" };
+        var exactOutput = exact.Apply(exactBoundary).ToArray();
+        Assert.Equal("é\0", Encoding.UTF8.GetString(exactOutput, DataStart(source, exact.Entries[0]), 3));
+        Assert.Throws<ParamSfoPatchException>(() => exact.Apply(exactPlan with { NewText = huge }));
+        Assert.Throws<ParamSfoPatchException>(() => exact.Apply(exactPlan with { NewText = "\uD800" }));
+        Assert.Equal(before, exact.OriginalBytes.ToArray());
+    }
+
+    [Fact]
     public void UnsupportedEntryFormatsCannotBeTargeted()
     {
         var source = Build(new Entry("COUNT", Integer, 1, 4));
