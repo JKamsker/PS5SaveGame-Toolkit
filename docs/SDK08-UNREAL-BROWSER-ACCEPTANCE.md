@@ -95,6 +95,8 @@ Release API/UI and install Chromium as documented there. Then, from `web/`:
 
 ```powershell
 npm run typecheck
+npm run e2e -- --trace on
+# Focused developer run (the same official entry preserves file filters):
 npm run e2e -- unreal-reference.e2e.ts unreal-presentation.e2e.ts --trace on
 ```
 
@@ -108,8 +110,12 @@ The browser tests retain successful screenshots, actual host JSON and generator
 logs as attachments. `--trace on` retains successful traces as well as failures.
 The standard Playwright teardown stops its API and removes only that invocation's
 workspace/reference-pack directory. Reports, downloads and synthetic inputs remain
-in test output for review. Hosted CI discovers both browser files and the fixture
-unit project through the existing workflows; no private data is required.
+in test output for review. The official local/CI entry partitions discovered tests
+into the original canonical and added real-Unreal suites, verifies their union has
+no omissions or duplicates, and runs both with separate unchanged 180-second,
+one-worker, zero-retry gates. Each has a unique server/scratch/report lifecycle;
+the aggregate allowance includes both mandatory suites. Hosted CI collects both
+reports and discovers the fixture unit project; no private data is required.
 
 Unresolved/deleted references are not emitted by these supported scalar fixtures.
 Their UI state remains covered by separate framework/component tests; this suite

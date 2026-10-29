@@ -417,7 +417,15 @@ by projects named `*.Tests` in `Directory.Packages.props`; new test projects sho
 
 ## Built app browser smoke tests
 
-The Ubuntu-only `e2e` CI job runs alongside validation with a 12-minute limit. Chromium imports
+The Ubuntu-only `e2e` CI job runs alongside validation with a 12-minute limit. The official
+`npm run e2e` entry runs two complementary suites sequentially: the original canonical tests,
+then the real Unreal plugin tests with generated synthetic binary saves. Each suite retains its
+own 180-second overall deadline, 30-second test timeout, one worker and zero retries. The aggregate
+wall allowance grows with the added mandatory coverage; all tests do not share one 180-second budget.
+Discovery verifies that both suites partition every selected test exactly once and records their IDs.
+Either suite or teardown failure fails the command, and both suites still run when the first fails.
+CLI file/grep filters remain supported, for example `npm run e2e -- unreal-reference.e2e.ts`.
+Chromium imports
 the committed synthetic fixtures through the bundled UI. The suite covers import errors and recovery,
 raw read-only inspection, editing/review/undo, document isolation and redo, full-collection search/filter/
 sort/paging, bulk preview/cancel/apply, keyboard-only application interaction, and repeated exports.
@@ -459,7 +467,9 @@ Pop-Location
 
 Playwright's `webServer` starts the real API with `--no-build` on a free loopback port and uses
 temporary workspace/reference-pack directories, removed after the run. Test output and the HTML
-report remain under scratch. `SAVETOOLKIT_E2E_SCRATCH` overrides the platform default (the D: path
+report remain under a unique `invocation-*/canonical` or `invocation-*/unreal` scratch directory,
+with separate JUnit/HTML reports, server ports and temporary workspaces. CI collects both reports
+and the discovery manifest. `SAVETOOLKIT_E2E_SCRATCH` overrides the platform default (the D: path
 above on Windows, a directory under the system temp folder elsewhere).
 
 ## Build and check bundles locally
