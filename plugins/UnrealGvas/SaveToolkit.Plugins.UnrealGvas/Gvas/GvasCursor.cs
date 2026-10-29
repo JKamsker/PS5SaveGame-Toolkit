@@ -1,13 +1,11 @@
 using System.Buffers.Binary;
-using System.Text;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Binary;
 
 namespace SaveToolkit.Plugins.UnrealGvas.Gvas;
 
 internal sealed class GvasCursor(ReadOnlyMemory<byte> data, int start = 0, int? end = null)
 {
-    private static readonly Encoding Utf8 = new UTF8Encoding(false, true);
-    private static readonly Encoding Utf16 = new UnicodeEncoding(false, false, true);
     public ReadOnlyMemory<byte> Data { get; } = data;
     public int Position { get; set; } = start;
     public int End { get; } = end ?? data.Length;
@@ -38,18 +36,7 @@ internal sealed class GvasCursor(ReadOnlyMemory<byte> data, int start = 0, int? 
     public string String()
     {
         var length = Int32();
-        return GvasString.Decode(length, Take(GvasString.ByteLength(length)));
-    }
-
-    public static byte[] EncodeString(string value, bool wide)
-    {
-        if (value.Length >= GvasFile.MaxStringLength || value.Contains('\0'))
-            throw new ArgumentException("String is too long or contains NUL.", nameof(value));
-        wide |= value.Any(c => c > 127);
-        var body = (wide ? Utf16 : Utf8).GetBytes(value + '\0');
-        var result = new byte[4 + body.Length];
-        BinaryPrimitives.WriteInt32LittleEndian(result, wide ? -body.Length / 2 : body.Length);
-        body.CopyTo(result, 4);
-        return result;
+        var body = Take(FStringCodec.ByteLength(length, GvasBinary.Limits, GvasBinary.Context));
+        return FStringCodec.Decode(length, body, GvasBinary.Limits, GvasBinary.Context);
     }
 }

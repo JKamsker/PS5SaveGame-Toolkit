@@ -20,7 +20,7 @@ public sealed class GvasScalar(GvasScalarKind kind, int offset, int length, obje
 
     internal byte[] Encode()
     {
-        if (Kind == GvasScalarKind.String) return GvasCursor.EncodeString((string)Value, wide);
+        if (Kind == GvasScalarKind.String) return GvasBinary.EncodeString((string)Value, wide);
         var result = new byte[Length];
         switch (Kind)
         {
