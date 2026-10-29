@@ -135,6 +135,7 @@ public sealed class Workspace : IDisposable
             try
             {
                 session = new DocumentSession($"doc{Interlocked.Increment(ref _documentCounter)}", file, plugin, document, references: references);
+                ThrowIfOutputPathOwned(session.OwnedOutputPaths, existing?.Id);
                 view = session.CaptureView();
                 if (existing is not null && !ReleaseCleanDocument(existing.Id))
                     throw new InvalidOperationException("This file acquired unsaved edits while opening another plugin. No replacement was opened.");
@@ -147,6 +148,21 @@ public sealed class Workspace : IDisposable
             _references[session.Id] = references;
             _documents[session.Id] = session;
             return session;
+        }
+    }
+
+    internal void ThrowIfOutputPathOwned(IReadOnlyList<string> paths, string? releasingDocumentId = null)
+    {
+        foreach (var path in paths)
+        {
+            if (_groups.All.FirstOrDefault(group => group.Owns(path)) is { } owner)
+                throw new InvalidOperationException($"'{path}' is owned by document group '{owner.Session.Id}'. Close that group first.");
+            foreach (var document in _documents.Values)
+            {
+                if (document.Id != releasingDocumentId && document.OwnedOutputPaths.Any(owned =>
+                    string.Equals(owned, path, StringComparison.OrdinalIgnoreCase)))
+                    throw new InvalidOperationException($"'{path}' is already owned by document '{document.Id}'. Close it first.");
+            }
         }
     }
 
