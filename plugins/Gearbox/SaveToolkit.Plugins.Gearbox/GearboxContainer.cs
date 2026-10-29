@@ -48,6 +48,15 @@ internal sealed record GearboxContainer(byte[] Original, int PayloadOffset, int 
         var root = ProtoMessage.Parse(BogoCrypt.Decode(Original.AsSpan(PayloadOffset, PayloadLength), Profile), Schema, RootType);
         if (Profile ? !root.Fields.Any(f => f.Spec is not null) : string.IsNullOrEmpty(root.Child("player_class_data")?.Text("player_class_path")))
             throw new SaveFormatException("Gearbox payload is missing the expected game records.");
+        if (!Profile)
+        {
+            // These values feed level arithmetic and TimeSpan presentation. Reject corrupt wire
+            // integers here, before document initialization or a later view can overflow.
+            if (root.Integer("experience_points") is < 0 or > int.MaxValue)
+                throw new SaveFormatException("Gearbox experience_points is outside the supported nonnegative Int32 range.");
+            if (root.Integer("time_played_seconds") is < 0 or > uint.MaxValue)
+                throw new SaveFormatException("Gearbox time_played_seconds is outside the UInt32 range.");
+        }
         return root;
     }
 

@@ -78,7 +78,8 @@ internal sealed class GearboxTables(GearboxDocument document, GearboxLazyViews l
     private ViewNode Sdu(string list, ProtoMessage message, int index)
     {
         var maximum = GearboxWritePolicies.SduMaximum(message.Text("sdu_data_path"), document.Root.Schema.Wonderlands);
-        if (maximum is null) return document.Integer($"sdu/{index}", "Purchased level", () => document.Root.Children(list).ElementAt(index), "sdu_level", writable: false);
+        if (maximum is null || message.Integer("sdu_level") < 0 || message.Integer("sdu_level") > maximum.Value)
+            return document.Integer($"sdu/{index}", "Purchased level", () => document.Root.Children(list).ElementAt(index), "sdu_level", writable: false);
         return document.ItemNumber($"sdu/{index}", "Purchased level", 0, maximum.Value,
             () => checked((int)document.Root.Children(list).ElementAt(index).Integer("sdu_level")), value =>
             {
