@@ -7,7 +7,13 @@
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
   </ItemGroup>
+  <!-- MTP applies optional mutation-run filters without changing ordinary test discovery. -->
+  <ItemGroup Condition="'$(SAVETOOLKIT_MUTATION_CONFIG)' != ''">
+    <Content Include="$(SAVETOOLKIT_MUTATION_CONFIG)" Link="$(AssemblyName).testconfig.json"
+             CopyToOutputDirectory="Always" CopyToPublishDirectory="Never" />
+  </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\SaveToolkit.Sdk\SaveToolkit.Sdk.csproj" />
     <ProjectReference Include="..\..\src\SaveToolkit.Core\SaveToolkit.Core.csproj" />
     <ProjectReference Include="..\..\src\SaveToolkit.Api\SaveToolkit.Api.csproj" />
     <ProjectReference Include="..\..\src\SaveToolkit.Testing\SaveToolkit.Testing.csproj" />
