@@ -41,8 +41,21 @@ internal sealed record RagnarokNestedRecords(
         }
 
         var end = End(bytes, heroOffset, length);
-        var wallets = new List<RagnarokWallet>();
         var identities = new HashSet<ulong>();
+        var wallets = ReadWallets(bytes, heroOffset, end, identities);
+        var (linksEnd, linkCount) = ReadLinks(bytes, end);
+        var flagsLength = UShort(bytes, linksEnd);
+        var flagsOffset = linksEnd + sizeof(ushort);
+        var flagsEnd = End(bytes, flagsOffset, flagsLength);
+        var groups = ReadFlagGroups(bytes, flagsOffset, flagsEnd, identities);
+        return new(heroOffset - sizeof(uint), end, wallets, end + sizeof(ushort) + sizeof(uint),
+            linkCount, linksEnd, flagsEnd, groups);
+    }
+
+    private static List<RagnarokWallet> ReadWallets(ReadOnlySpan<byte> bytes, int heroOffset, int end,
+        HashSet<ulong> identities)
+    {
+        var wallets = new List<RagnarokWallet>();
         var cursor = heroOffset;
         while (cursor < end)
         {
@@ -58,6 +71,11 @@ internal sealed record RagnarokNestedRecords(
             cursor = wallet.End;
         }
 
+        return wallets;
+    }
+
+    private static (int End, int Count) ReadLinks(ReadOnlySpan<byte> bytes, int end)
+    {
         // A u16 byte length encloses a u32 count and that many 22-byte opaque link records.
         var linksLength = UShort(bytes, end);
         var linksEnd = End(bytes, end + sizeof(ushort), linksLength);
@@ -67,9 +85,12 @@ internal sealed record RagnarokNestedRecords(
             throw new SaveFormatException("Nested Ragnarök link count does not consume its declared byte length.");
         }
 
-        var flagsLength = UShort(bytes, linksEnd);
-        var flagsOffset = linksEnd + sizeof(ushort);
-        var flagsEnd = End(bytes, flagsOffset, flagsLength);
+        return (linksEnd, linkCount);
+    }
+
+    private static List<RagnarokFlagGroup> ReadFlagGroups(ReadOnlySpan<byte> bytes, int flagsOffset, int flagsEnd,
+        HashSet<ulong> identities)
+    {
         Require(flagsOffset, GroupPrefixSize, flagsEnd);
         if (RagnarokFormat.UInt64(bytes, flagsOffset) != ulong.MaxValue ||
             RagnarokFormat.UInt32(bytes, flagsOffset + sizeof(ulong)) != 1)
@@ -85,7 +106,7 @@ internal sealed record RagnarokNestedRecords(
 
         var groups = new List<RagnarokFlagGroup>();
         identities.Clear();
-        cursor = flagsOffset + GroupPrefixSize;
+        var cursor = flagsOffset + GroupPrefixSize;
         for (var group = 0; group < groupCount; group++)
         {
             Require(cursor, sizeof(ulong) + sizeof(uint), flagsEnd);
@@ -106,8 +127,7 @@ internal sealed record RagnarokNestedRecords(
             throw new SaveFormatException("Nested Ragnarök flags do not consume their declared byte length.");
         }
 
-        return new(heroOffset - sizeof(uint), end, wallets, end + sizeof(ushort) + sizeof(uint),
-            linkCount, linksEnd, flagsEnd, groups);
+        return groups;
     }
 
     private static RagnarokWallet ReadWallet(ReadOnlySpan<byte> bytes, int offset, int end)
