@@ -12,11 +12,6 @@ internal sealed class PresetLibraryStorage(PresetStoreOptions options, JsonSeria
 
     internal PresetStorageSnapshot Read(bool allowMissing)
     {
-        if (!File.Exists(Path))
-        {
-            if (allowMissing) return new([], PresetStorageIdentity.Missing);
-            throw new InvalidDataException("Preset storage disappeared during reload.");
-        }
         try
         {
             using var stream = new FileStream(Path, FileMode.Open, FileAccess.Read,
@@ -35,11 +30,20 @@ internal sealed class PresetLibraryStorage(PresetStoreOptions options, JsonSeria
                 content.Write(buffer, 0, read);
             }
             var bytes = content.ToArray();
-            return new(JsonSerializer.Deserialize<List<ToolkitPreset>>(bytes, jsonOptions) ?? [],
+            return new(JsonSerializer.Deserialize<List<ToolkitPreset>>(bytes, jsonOptions)
+                ?? throw new InvalidDataException("Preset storage must contain a record array."),
                 PresetStorageIdentity.Fingerprint(bytes));
         }
-        catch (FileNotFoundException ex) { throw new InvalidDataException("Preset storage disappeared during load.", ex); }
-        catch (DirectoryNotFoundException ex) { throw new InvalidDataException("Preset storage disappeared during load.", ex); }
+        catch (FileNotFoundException ex)
+        {
+            if (allowMissing) return new([], PresetStorageIdentity.Missing);
+            throw new InvalidDataException("Preset storage disappeared during load.", ex);
+        }
+        catch (DirectoryNotFoundException ex)
+        {
+            if (allowMissing) return new([], PresetStorageIdentity.Missing);
+            throw new InvalidDataException("Preset storage disappeared during load.", ex);
+        }
         catch (JsonException ex) { throw new InvalidDataException("Preset storage is not valid JSON.", ex); }
         catch (InvalidDataException) { throw; }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

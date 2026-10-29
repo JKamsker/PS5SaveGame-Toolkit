@@ -130,6 +130,49 @@ public sealed class PresetTransferApiTests(IsolatedApiFactory factory) : IClassF
         Assert.True(JsonElement.DeepEquals(before.GetProperty("state"), after.GetProperty("state")));
     }
 
+    [Fact]
+    public async Task LockedReadReturns503ForReloadAndTransferAndPreservesReviewedImport()
+    {
+        Assert.SkipUnless(OperatingSystem.IsWindows(), "Requires Windows exclusive file sharing.");
+        using var client = Client();
+        var document = await Open(client);
+        var before = await client.GetFromJsonAsync<JsonElement>(document, Ct);
+        var source = PresetTransferFixture.Preset();
+        var created = await client.PostAsJsonAsync("/api/presets", new { name = "A", source.Compatibility, source.Actions }, Ct);
+        Assert.Equal(HttpStatusCode.OK, created.StatusCode);
+        var existing = (await created.Content.ReadFromJsonAsync<JsonElement>(Ct)).GetProperty("id").GetString()!;
+        var preview = await Preview(client);
+        var resolved = await client.PostAsJsonAsync(Transfer + "/resolve", new PresetImportResolution(preview.Token, [new(0, "keepBoth")]), Ct);
+        var review = (await resolved.Content.ReadFromJsonAsync<PresetImportPreview>(Ct))!;
+        var path = Path.Combine(_presetRoot, "presets.json");
+        var bytes = File.ReadAllBytes(path);
+        using (var locked = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+        {
+            await AssertProblem(await client.PostAsync("/api/presets/reload", null, Ct), 503, "presetStorageUnavailable");
+            using var content = new ByteArrayContent(PresetPackageCodec.Encode([source]));
+            await AssertProblem(await client.PostAsync(Transfer + "/preview", content, Ct), 503, "presetStorageUnavailable");
+            await AssertProblem(await client.PostAsJsonAsync(Transfer + "/export", new PresetExportRequest([existing]), Ct), 503, "presetStorageUnavailable");
+            Assert.Single((await client.GetFromJsonAsync<JsonElement[]>("/api/presets", Ct))!);
+        }
+        Assert.Equal(bytes, File.ReadAllBytes(path));
+        Assert.Equal(HttpStatusCode.OK, (await client.PostAsJsonAsync(Transfer + "/commit", new PresetImportCommit(review.Token), Ct)).StatusCode);
+        var after = await client.GetFromJsonAsync<JsonElement>(document, Ct);
+        Assert.True(JsonElement.DeepEquals(before.GetProperty("state"), after.GetProperty("state")));
+    }
+
+    [Fact]
+    public async Task NullDurableArrayIs422AndDoesNotPublishAnEmptyLibrary()
+    {
+        using var client = Client();
+        var source = PresetTransferFixture.Preset();
+        Assert.Equal(HttpStatusCode.OK, (await client.PostAsJsonAsync("/api/presets", new { name = "A", source.Compatibility, source.Actions }, Ct)).StatusCode);
+        var path = Path.Combine(_presetRoot, "presets.json");
+        File.WriteAllText(path, "null");
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await client.PostAsync("/api/presets/reload", null, Ct)).StatusCode);
+        Assert.Equal("null", File.ReadAllText(path));
+        Assert.Single((await client.GetFromJsonAsync<JsonElement[]>("/api/presets", Ct))!);
+    }
+
     private static async Task<PresetImportPreview> Preview(HttpClient client)
     {
         using var content = new ByteArrayContent(PresetPackageCodec.Encode([PresetTransferFixture.Preset()]));

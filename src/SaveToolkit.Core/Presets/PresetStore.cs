@@ -25,6 +25,7 @@ public sealed class PresetStore
     public const string CurrentSchemaVersion = "1";
     private readonly PresetStoreOptions _options;
     private readonly PresetLibraryStorage _storage;
+    private readonly PresetLibraryStaging _staging;
     private readonly object _gate = new();
     private readonly Dictionary<string, ToolkitPreset> _presets = new(StringComparer.Ordinal);
     private readonly PresetStorageIdentity _identity;
@@ -36,6 +37,7 @@ public sealed class PresetStore
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.MaxPayloadBytes);
         _options = options;
         _storage = new(options, JsonOptions);
+        _staging = new(options, _storage, ValidateRecord);
         _identity = new(options);
         Directory.CreateDirectory(options.StorageRoot);
         Load();
@@ -52,7 +54,7 @@ public sealed class PresetStore
         lock (_gate)
         {
             var snapshot = _storage.Read(allowMissing: false);
-            var staged = Stage(snapshot.Records, allowUnknownSchema: true);
+            var staged = _staging.Stage(snapshot.Records);
             _presets.Clear();
             foreach (var pair in staged) _presets.Add(pair.Key, pair.Value);
             _identity.Publish(snapshot.Fingerprint);
@@ -90,31 +92,17 @@ public sealed class PresetStore
 
     private Dictionary<string, ToolkitPreset> StageImport(IReadOnlyList<ToolkitPreset> records)
     {
-        try { return Stage(records, allowUnknownSchema: false); }
+        try { return _staging.Stage(records); }
         catch (Exception ex) when (ex is ArgumentException or InvalidDataException or InvalidOperationException)
         {
             throw new PresetTransferException("invalidPresetLibrary", $"The resulting preset library is invalid: {ex.Message}");
         }
     }
 
-    private Dictionary<string, ToolkitPreset> Stage(IReadOnlyList<ToolkitPreset> records, bool allowUnknownSchema)
+    private void ValidateRecord(ToolkitPreset preset)
     {
-        if (records.Count > _options.MaxPresets) throw new InvalidDataException("Preset storage exceeds the configured count limit.");
-        var staged = new Dictionary<string, ToolkitPreset>(StringComparer.Ordinal);
-        foreach (var preset in records)
-        {
-            if (preset is null || preset.SchemaVersion != CurrentSchemaVersion || string.IsNullOrWhiteSpace(preset.Id))
-            {
-                if (allowUnknownSchema) continue;
-                throw new InvalidDataException("Every imported preset needs a supported schema and an ID.");
-            }
-            ValidateName(preset.Name);
-            ValidatePayload(preset.Compatibility, preset.Actions);
-            if (!staged.TryAdd(preset.Id, ClonePreset(preset)))
-                throw new InvalidDataException("Preset storage contains duplicate IDs.");
-        }
-        _ = _storage.Serialize(staged.Values);
-        return staged;
+        ValidateName(preset.Name);
+        ValidatePayload(preset.Compatibility, preset.Actions);
     }
 
     /// <summary>Stable fingerprint of the reviewed preset payload, excluding mutable timestamps.</summary>
@@ -224,7 +212,7 @@ public sealed class PresetStore
     private void Load()
     {
         var snapshot = _storage.Read(allowMissing: true);
-        var staged = Stage(snapshot.Records, allowUnknownSchema: true);
+        var staged = _staging.Stage(snapshot.Records);
         lock (_gate)
         {
             foreach (var pair in staged) _presets.Add(pair.Key, pair.Value);
@@ -255,6 +243,8 @@ public sealed class PresetStore
             || compatibility.CapabilitySchemaVersion is { Length: > PresetContractValidation.MaxMetadataLength })
             throw new ArgumentException("Preset compatibility metadata exceeds the bounded limit.");
         if (actions.Count is < 1 or > 32) throw new ArgumentException("A preset must contain between one and 32 actions.");
+        if (PresetContractValidation.ValidateAggregateInstances(actions) is { } aggregateError)
+            throw new ArgumentException(aggregateError);
         if (actions.Any(action => action is null || string.IsNullOrWhiteSpace(action.ActionId) || action.ActionId.Length > PresetContractValidation.MaxKeyLength
             || action.Parameters is null || action.Parameters.Count > 128
             || action.Parameters.Keys.Any(key => string.IsNullOrWhiteSpace(key) || key.Length > PresetContractValidation.MaxKeyLength)

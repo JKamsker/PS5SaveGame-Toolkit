@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { PresetTransferToolbar } from "./preset-transfer/PresetTransferToolbar";
 import type { SaveFileInfo } from "../../api/protocol";
 import { DocumentContext } from "../../state/documentStore";
 import { SourcesPanel } from "./SourcesPanel";
@@ -79,7 +80,7 @@ function OpenDocument({ session, focusHeading, workspaceId, documentId, file, on
           {!doc.canEdit && <p className="notice notice--Muted">This plugin shows the data but cannot write it.</p>}
           <ChangesPanel />
           <Suspense fallback={<p className="presets-loading" aria-live="polite">Loading toolkit presets…</p>}>
-            <PresetsPanel document={doc} onToast={onToast} />
+            <PresetsPanel document={doc} onToast={onToast}><PresetTransferToolbar /></PresetsPanel>
           </Suspense>
           <ViewRenderer node={doc.view} />
         </article>

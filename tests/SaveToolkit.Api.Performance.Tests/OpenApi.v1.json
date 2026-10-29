@@ -2501,6 +2501,9 @@
               "string"
             ]
           },
+          "currentPluginVersion": {
+            "type": "string"
+          },
           "currentReferencePackIdentity": {
             "type": [
               "null",
@@ -2561,6 +2564,9 @@
               "string"
             ]
           },
+          "savedPluginVersion": {
+            "type": "string"
+          },
           "savedReferencePackIdentity": {
             "type": [
               "null",
@@ -2585,6 +2591,8 @@
           "readOnly",
           "canPreview",
           "presetKind",
+          "savedPluginVersion",
+          "currentPluginVersion",
           "unsupportedActions"
         ],
         "type": "object"

@@ -94,8 +94,11 @@ until a successful bounded reload; a fresh preview alone cannot acknowledge a ne
 file while retaining an older live map. The dialog offers **Reload library and preview
 again**, preserves the selected file and filter, and refreshes server-owned list summaries. Reload and import share a
 validated staged map and bounded storage helper under the store lock, preventing a
-concurrent host CRUD operation from being lost during publication. Unknown historical
-schemas retain the existing load policy (skipped); transfers reject unsupported schemas.
+concurrent host CRUD operation from being lost during publication. Every durable array
+must validate completely: null records, unsupported schemas, blank IDs and malformed
+known records reject the whole reload without changing the last-good map or identity.
+Direct bounded file opens classify malformed/disappeared storage as 422 and I/O or
+authorization failures as retryable 503. Transfers also reject unsupported schemas.
 Tokens expire after ten minutes, are single-use after successful commit, and the service
 retains at most eight pending previews. `DELETE /previews/{token}` cancels read-only
 staging; expiry also cleans it up. A failed/aborted confirmation should be checked by

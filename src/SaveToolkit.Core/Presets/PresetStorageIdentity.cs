@@ -34,20 +34,24 @@ internal sealed class PresetStorageIdentity(PresetStoreOptions options)
 
     private static string Read(string path, int maxBytes)
     {
-        if (!File.Exists(path)) return Missing;
-        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        if (stream.Length > maxBytes) throw Changed();
-        var buffer = new byte[BufferSize];
-        long total = 0;
-        while (true)
+        try
         {
-            var count = stream.Read(buffer, 0, (int)Math.Min(buffer.Length, (long)maxBytes + 1 - total));
-            if (count == 0) return Convert.ToHexString(hash.GetHashAndReset());
-            total += count;
-            if (total > maxBytes) throw Changed();
-            hash.AppendData(buffer.AsSpan(0, count));
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+            if (stream.Length > maxBytes) throw Changed();
+            var buffer = new byte[BufferSize];
+            long total = 0;
+            while (true)
+            {
+                var count = stream.Read(buffer, 0, (int)Math.Min(buffer.Length, (long)maxBytes + 1 - total));
+                if (count == 0) return Convert.ToHexString(hash.GetHashAndReset());
+                total += count;
+                if (total > maxBytes) throw Changed();
+                hash.AppendData(buffer.AsSpan(0, count));
+            }
         }
+        catch (FileNotFoundException) { return Missing; }
+        catch (DirectoryNotFoundException) { return Missing; }
     }
 
     private static PresetTransferException Changed() => new("presetLibraryReloadRequired",

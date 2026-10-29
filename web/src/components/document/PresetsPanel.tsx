@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError, api, isStaleError } from "../../api/client";
 import { reviewValue, type ActionPreview } from "../../api/actionReview";
@@ -6,23 +6,25 @@ import type { ActionNode, FieldValue, PresetActionCapability, PresetCapability, 
 import { useDocument } from "../../state/documentStore";
 import { ActionParameterFields } from "./ActionParameterFields";
 import { useActionSelection } from "./table/selectionBindings";
-import { PresetTransferToolbar } from "./preset-transfer/PresetTransferToolbar";
 import "./presets.css";
 
-interface PresetsPanelProps { document: SaveDocument; onToast: (message: string, isError?: boolean) => void }
+interface PresetsPanelProps { document: SaveDocument; onToast: (message: string, isError?: boolean) => void; children?: ReactNode }
 
-export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
+export function PresetsPanel({ document, onToast, children }: PresetsPanelProps) {
   const context = useDocument();
   const client = useQueryClient();
   const actions = useMemo(() => collectActions(document.view), [document.view]);
+  const captureActions = useMemo(() => document.presetCapability
+    ? actions.filter(action => document.presetCapability?.actions.some(candidate => candidate.actionId === action.actionId && candidate.supportsCapture !== false))
+    : actions, [actions, document.presetCapability]);
   // A view without planned actions has no meaningful preset surface. Keep the
   // panel mounted for consistent layout, but avoid an unnecessary global store
   // request (and its error state) in read-only/document-only views.
   const presets = useQuery({ queryKey: ["presets", context.workspaceId, context.documentId], queryFn: () => api.documentPresets(context.workspaceId, context.documentId), enabled: actions.length > 0 });
   const [name, setName] = useState("");
-  const [actionId, setActionId] = useState(actions[0]?.actionId ?? "");
-  const [scopeKind, setScopeKind] = useState("document");
-  const [parameters, setParameters] = useState<Record<string, FieldValue>>(() => actionParameters(actions[0]));
+  const [actionId, setActionId] = useState(captureActions[0]?.actionId ?? "");
+  const [scopeKind, setScopeKind] = useState(() => firstScope(captureActions[0], document.presetCapability));
+  const [parameters, setParameters] = useState<Record<string, FieldValue>>(() => actionParameters(captureActions[0]));
   const [parameterErrors, setParameterErrors] = useState<Record<string, string | undefined>>({});
   const [preview, setPreview] = useState<{ preset: ToolkitPreset; preview: ActionPreview }>();
   const [stale, setStale] = useState(false);
@@ -31,8 +33,9 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
   const [pendingDelete, setPendingDelete] = useState<ToolkitPreset>();
   const [retryPresetId, setRetryPresetId] = useState<string>();
   const heading = useRef<HTMLHeadingElement>(null);
-  const selectedAction = actions.find(action => action.actionId === actionId);
-  const capability = document.presetCapability?.actions.find(action => action.actionId === actionId);
+  const activeActionId = captureActions.some(action => action.actionId === actionId) ? actionId : captureActions[0]?.actionId ?? "";
+  const selectedAction = captureActions.find(action => action.actionId === activeActionId);
+  const capability = document.presetCapability?.actions.find(action => action.actionId === activeActionId);
   const supportedScopes = supportedScopeKinds(capability, document.presetCapability);
   const binding = useActionSelection(selectedAction?.selectionTableId);
   const selection = binding.selection;
@@ -56,7 +59,7 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
   };
   const create = useMutation({
     mutationFn: () => api.capturePreset(context.workspaceId, context.documentId, name,
-      { actionId, parameters: parameters as Record<string, unknown>, scopeKind,
+      { actionId: activeActionId, parameters: parameters as Record<string, unknown>, scopeKind,
         selectedRowKeys: scopeKind === "selected" ? [...(selection?.selectedKeys ?? [])] : undefined,
         allMatches: scopeKind === "allEligible" || scopeKind === "allCopies" }),
     onSuccess: result => { setName(""); setMessage(`Saved “${result.name}”.`); void client.invalidateQueries({ queryKey: ["presets"] }); },
@@ -79,7 +82,7 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
     onError: error => { if (isStaleError(error)) setStale(true); onToast(error instanceof Error ? error.message : "Could not apply preset.", true); },
   });
   const selectAction = (id: string) => {
-    const next = actions.find(action => action.actionId === id);
+    const next = captureActions.find(action => action.actionId === id);
     setActionId(id); setParameters(actionParameters(next)); setParameterErrors({});
     setScopeKind(supportedScopeKinds(document.presetCapability?.actions.find(action => action.actionId === id), document.presetCapability)[0] ?? "document");
   };
@@ -90,7 +93,7 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
       {presets.isPending && actions.length > 0 && <p aria-live="polite" aria-atomic="true">Loading presets…</p>}
       {actions.length === 0 && <p className="notice notice--Muted">No planned preset actions. Import or export below.</p>}
       <h3 ref={heading} tabIndex={-1}>Saved presets</h3>
-      <PresetTransferToolbar />
+      {children}
       {presets.isError && <><p role="alert">Could not load presets: {presets.error.message}</p><button type="button" className="btn btn--small" onClick={() => void reloadPresets().catch(error => setMessage(error instanceof Error ? error.message : "Could not reload presets."))}>Retry loading presets</button></>}
       {presets.data?.length === 0 && <p className="notice notice--Muted">No presets saved for this toolkit yet.</p>}
       {presets.data && <><label>Filter presets <input className="input" value={filter} onChange={event => setFilter(event.target.value)} placeholder="Name or action" /></label><ul className="presets-list">{visiblePresets.map(row => <PresetRow key={row.preset.id} row={row}
@@ -105,11 +108,12 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
         {!document.canEdit && <p className="notice notice--Muted">This document is read-only; presets can be reviewed but not created or applied.</p>}
         <label>Name <input className="input" value={name} onChange={event => setName(event.target.value)} required maxLength={100} disabled={!document.canEdit || create.isPending} /></label>
         <p className="presets-meta">The host records the current title, plugin, variant, build and reference-pack boundary when the plugin publishes them.</p>
-        <label>Action <select className="input" value={actionId} onChange={event => selectAction(event.target.value)} disabled={!document.canEdit || create.isPending || actions.length === 0}>{actions.map(action => <option key={action.actionId} value={action.actionId}>{action.label}</option>)}</select></label>
-        <label>Scope <select className="input" value={scopeKind} onChange={event => setScopeKind(event.target.value)} disabled={!document.canEdit || create.isPending}>{supportedScopes.map(scope => <option key={scope} value={scope}>{scopeLabel(scope)}</option>)}</select></label>
+        {document.presetCapability && captureActions.length === 0 && <p className="notice notice--Muted">No published capture actions are available for this document.</p>}
+        <label>Action <select className="input" value={activeActionId} onChange={event => selectAction(event.target.value)} disabled={!document.canEdit || create.isPending || captureActions.length === 0}>{captureActions.map(action => <option key={action.actionId} value={action.actionId}>{action.label}</option>)}</select></label>
+        <label>Scope <select className="input" value={scopeKind} onChange={event => setScopeKind(event.target.value)} disabled={!document.canEdit || create.isPending || captureActions.length === 0}>{supportedScopes.map(scope => <option key={scope} value={scope}>{scopeLabel(scope)}</option>)}</select></label>
         {scopeKind === "selected" && <p className="presets-meta" role="status">{selectedScopeUnavailable ? (binding.unavailable ? "This action has no reachable selection table." : "Clear the whole-query selection before capturing selected rows.") : `${selection?.count ?? 0} selected row${selection?.count === 1 ? "" : "s"} will be captured explicitly.`}</p>}
         {selectedAction?.parameters?.length ? <ActionParameterFields form={{ parameters: selectedAction.parameters, values: parameters, errors: parameterErrors, setValues: setParameters, setErrors: setParameterErrors }} idPrefix="preset-parameter" actionId={actionId} busy={!document.canEdit || create.isPending} variant="direct" /> : <p className="presets-meta">This action has no parameters.</p>}
-        <button className="btn btn--primary btn--small" type="submit" disabled={!document.canEdit || create.isPending || !actionId || selectedScopeUnavailable}>{create.isPending ? "Saving…" : "Save preset"}</button>
+        <button className="btn btn--primary btn--small" type="submit" disabled={!document.canEdit || create.isPending || !activeActionId || captureActions.length === 0 || selectedScopeUnavailable}>{create.isPending ? "Saving…" : "Save preset"}</button>
       </form>
     </div>
   </details>;
@@ -122,7 +126,7 @@ function PresetRow({ row, busy, onPreview, onDelete, onRename }: { row: Document
     : !row.compatibility.canPreview || row.compatibility.unsupportedActions.length > 0
       ? row.compatibility.previewReason ?? "This preset is not supported by the current document."
       : undefined;
-  return <li className="presets-list__item"><div>{renaming ? <form onSubmit={event => { event.preventDefault(); void onRename(name).then(() => setRenaming(false)); }}><label>Preset name <input className="input" value={name} onChange={event => setName(event.target.value)} maxLength={100} /></label><button className="btn btn--small" type="submit">Save name</button><button className="btn btn--small" type="button" onClick={() => setRenaming(false)}>Cancel</button></form> : <><strong>{row.preset.name}</strong><span className="presets-meta">{row.preset.compatibility.titleIds.join(", ")} · {row.preset.compatibility.gameBuild ?? "build unknown"} · {row.preset.actions.length} action{row.preset.actions.length === 1 ? "" : "s"}</span>{reason && <span className="presets-meta notice--Warning" role="status">{reason}</span>}</>}</div>
+  return <li className="presets-list__item"><div>{renaming ? <form onSubmit={event => { event.preventDefault(); void onRename(name).then(() => setRenaming(false)); }}><label>Preset name <input className="input" value={name} onChange={event => setName(event.target.value)} maxLength={100} /></label><button className="btn btn--small" type="submit">Save name</button><button className="btn btn--small" type="button" onClick={() => setRenaming(false)}>Cancel</button></form> : <><strong>{row.preset.name}</strong><span className="presets-meta">{row.preset.compatibility.titleIds.join(", ")} · {row.preset.compatibility.gameBuild ?? "build unknown"} · {row.preset.actions.length} action{row.preset.actions.length === 1 ? "" : "s"}</span>{reason && <span className="presets-meta notice--Warning" role="status">{reason}</span>}<details className="presets-boundaries"><summary>Compatibility boundaries</summary><dl><dt>Plugin</dt><dd>{row.compatibility.savedPluginVersion} → {row.compatibility.currentPluginVersion}</dd><dt>Variant</dt><dd>{boundary(row.compatibility.savedFormatVariant, row.compatibility.currentFormatVariant)}</dd><dt>Reference pack</dt><dd>{boundary(row.compatibility.savedReferencePackIdentity, row.compatibility.currentReferencePackIdentity)}</dd><dt>Schema</dt><dd>{boundary(row.compatibility.savedSchemaFingerprint, row.compatibility.currentSchemaFingerprint)}</dd><dt>Role</dt><dd>{boundary(row.compatibility.savedFileRole, row.compatibility.currentFileRole)}</dd><dt>Capability schema</dt><dd>{boundary(row.compatibility.savedCapabilitySchemaVersion, row.compatibility.currentCapabilitySchemaVersion)}</dd></dl></details></>}</div>
     <div className="bar__actions"><button className="btn btn--small" type="button" disabled={busy || Boolean(reason)} onClick={() => void onPreview()}>{reason ?? "Preview"}</button><button className="btn btn--small" type="button" disabled={busy || row.compatibility.readOnly} onClick={() => setRenaming(true)}>Rename</button>
       <button className="btn btn--small btn--danger" type="button" onClick={() => void onDelete()}>Delete</button></div></li>;
 }
@@ -159,9 +163,18 @@ function PreviewCard({ preview, busy, stale, canApply, onApply, onCancel, onPrev
 }
 
 function supportedScopeKinds(action: PresetActionCapability | undefined, capability: PresetCapability | undefined): string[] {
-  if (!action || capability?.actions.every(candidate => candidate.actionId !== action.actionId)) return ["document"];
+  if (!action) return capability ? [] : ["document"];
   const scopes = action.scopeKinds?.length ? action.scopeKinds : action.scopeKind ? [action.scopeKind] : ["document"];
   return [...new Set(scopes)];
+}
+
+function firstScope(action: ActionNode | undefined, capability: PresetCapability | undefined): string {
+  const published = capability?.actions.find(candidate => candidate.actionId === action?.actionId);
+  return supportedScopeKinds(published, capability)[0] ?? "document";
+}
+
+function boundary(saved: string | undefined, current: string | undefined): string {
+  return `${saved ?? "unknown"} → ${current ?? "unknown"}`;
 }
 
 function scopeLabel(scope: string): string { return ({ document: "Whole document", allEligible: "All eligible", allCopies: "All copies", selected: "Selected rows" } as Record<string, string>)[scope] ?? scope; }

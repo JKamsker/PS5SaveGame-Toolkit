@@ -27,7 +27,7 @@ it("captures the current selected table rows through the selected scope", async 
     actions: [{ actionId: "capture", parameters: {}, scopeKind: "selected" }], createdAt: "", updatedAt: "",
   });
   renderSpatial(<><ViewRenderer node={view} /><PresetsPanel document={document} onToast={vi.fn()} /></>);
-  fireEvent.click(screen.getByText("Toolkit presets"));
+  fireEvent.click(await screen.findByText("Toolkit presets"));
   await screen.findByRole("button", { name: "Save preset" });
   fireEvent.click(screen.getByRole("checkbox", { name: "Select all shown rows" }));
   fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Selected" } });
@@ -41,11 +41,11 @@ it("reload recovery retains server-incompatible summaries instead of enabling a 
     actions: [{ actionId: "capture", parameters: {}, scopeKind: "document" }], createdAt: "", updatedAt: "" };
   const fetch = vi.spyOn(api, "documentPresets").mockRejectedValueOnce(new Error("Storage unavailable")).mockResolvedValue([{
     preset, compatibility: { compatible: false, reason: "Server plugin mismatch", code: "pluginUnavailable", readOnly: false, canPreview: false,
-      presetKind: "toolkit.action-parameters", unsupportedActions: [] },
+      savedPluginVersion: "1", currentPluginVersion: "2", presetKind: "toolkit.action-parameters", unsupportedActions: [] },
   }]);
   const reload = vi.spyOn(api, "reloadPresets").mockResolvedValue([preset]);
   renderSpatial(<PresetsPanel document={document} onToast={vi.fn()} />);
-  fireEvent.click(screen.getByText("Toolkit presets"));
+  fireEvent.click(await screen.findByText("Toolkit presets"));
   fireEvent.click(await screen.findByRole("button", { name: "Retry loading presets" }));
   const preview = await screen.findByRole("button", { name: "Server plugin mismatch" });
   expect(preview.hasAttribute("disabled")).toBe(true);
@@ -57,8 +57,35 @@ it("shows a truthful no-actions state without a never-ending loading message", a
   const noActions = { ...document, view: { type: "section" as const, title: "Root", children: [] } };
   const presets = vi.spyOn(api, "presets");
   renderSpatial(<PresetsPanel document={noActions} onToast={vi.fn()} />);
-  fireEvent.click(screen.getByText("Toolkit presets"));
+  fireEvent.click(await screen.findByText("Toolkit presets"));
   expect((await screen.findByText(/no planned preset actions/i)).textContent).toContain("No planned preset actions. Import or export below.");
   expect(screen.queryByText("Loading presets…")).toBeNull();
   expect(presets).not.toHaveBeenCalled();
+});
+
+it("filters capture actions to published scopes and starts on the first scope", async () => {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([]);
+  const unpublished = { ...action, actionId: "unpublished", label: "Unpublished" };
+  const semanticDocument = { ...document, view: { ...view, children: [action, unpublished, view.children[1]!] },
+    presetCapability: { schemaVersion: "1", maxActions: 1, actions: [{ actionId: "capture", label: "Capture", parameterIds: [], scopeKinds: ["allEligible"] }] } };
+  renderSpatial(<PresetsPanel document={semanticDocument} onToast={vi.fn()} />);
+  fireEvent.click(await screen.findByText("Toolkit presets"));
+  await screen.findByRole("button", { name: "Save preset" });
+  expect((screen.getByLabelText("Action") as HTMLSelectElement).value).toBe("capture");
+  expect((screen.getByLabelText("Scope") as HTMLSelectElement).value).toBe("allEligible");
+  expect(screen.queryByRole("option", { name: "Unpublished" })).toBeNull();
+});
+
+it("shows server-owned saved and current compatibility boundaries", async () => {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([{
+    preset: { schemaVersion: "1", id: "p", name: "Boundaries", compatibility: { pluginId: "test", pluginVersion: "1.0", titleIds: ["PPSA00001"] },
+      actions: [{ actionId: "capture", parameters: {}, scopeKind: "document" }], createdAt: "", updatedAt: "" },
+    compatibility: { compatible: true, readOnly: false, canPreview: true, presetKind: "toolkit.action-parameters", savedPluginVersion: "1.0", currentPluginVersion: "1.1", savedFormatVariant: "remake", currentFormatVariant: "rebirth", savedReferencePackIdentity: "saved-pack", currentReferencePackIdentity: "current-pack", savedSchemaFingerprint: "saved-schema", currentSchemaFingerprint: "current-schema", savedFileRole: "save", currentFileRole: "save", savedCapabilitySchemaVersion: "1", currentCapabilitySchemaVersion: "2", unsupportedActions: [] },
+  }]);
+  renderSpatial(<PresetsPanel document={document} onToast={vi.fn()} />);
+  fireEvent.click(await screen.findByText("Toolkit presets"));
+  await screen.findByText("Compatibility boundaries");
+  expect(screen.getByText("1.0 → 1.1")).not.toBeNull();
+  expect(screen.getByText("saved-pack → current-pack")).not.toBeNull();
+  expect(screen.getByText("remake → rebirth")).not.toBeNull();
 });

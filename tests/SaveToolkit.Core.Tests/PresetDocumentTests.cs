@@ -67,6 +67,38 @@ public sealed class PresetDocumentTests
     }
 
     [Fact]
+    public void AggregateInstanceBoundRejectsBeforeAdapterResolution()
+    {
+        var document = new PresetFixtureDocument();
+        using var fixture = new MutationSessionFixture(document);
+        var references = Enumerable.Range(0, 128).Select(index => new PresetInstanceReference("owned", $"a-{index}")).ToArray();
+        var extra = new PresetInstanceReference("owned", "b-extra");
+        var preset = Preset("aggregate") with
+        {
+            Actions = [new PresetAction("set", new Dictionary<string, JsonElement>(), references),
+                new PresetAction("set", new Dictionary<string, JsonElement>(), [.. references.Select(reference => reference with { StableId = $"b-{reference.StableId}" }), extra])],
+        };
+
+        var preview = fixture.Session.PlanPreset(preset);
+
+        Assert.Null(preview.PlanId);
+        Assert.Contains("aggregate", preview.Plan.Errors.Single().Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(0, document.ResolveCalls);
+    }
+
+    [Fact]
+    public void AdapterResolutionFailureBecomesRecoverablePreviewError()
+    {
+        var document = new PresetFixtureDocument { ThrowOnResolve = true };
+        using var fixture = new MutationSessionFixture(document);
+        var preview = fixture.Session.PlanPreset(Preset("resolve-failure"));
+
+        Assert.Null(preview.PlanId);
+        Assert.Contains("planning failed", preview.Plan.Errors.Single().Message, StringComparison.OrdinalIgnoreCase);
+        Assert.False(fixture.Session.State.CanUndo);
+    }
+
+    [Fact]
     public void OptInCapabilityRejectsMissingPublishedCompatibilityBoundaries()
     {
         using var fixture = new MutationSessionFixture(new PresetFixtureDocument());
@@ -109,6 +141,8 @@ public sealed class PresetDocumentTests
     private sealed class PresetFixtureDocument : BoundSaveDocument, IPresetDocument
     {
         public int Value { get; private set; }
+        public int ResolveCalls { get; private set; }
+        public bool ThrowOnResolve { get; init; }
         public PresetInstanceResolutionStatus Resolution { get; init; } = PresetInstanceResolutionStatus.Resolved;
         public string? GameBuild { get; init; } = "r19";
         public override string Title => "Preset fixture";
@@ -116,12 +150,18 @@ public sealed class PresetDocumentTests
         public override ViewNode BuildView() => new SectionNode("Fixture", [Field("value", "Value", IntegerSpec.Int32,
             () => FieldValue.Of((long)Value), v => Value = v.AsInt32())]);
         public PresetResolution ResolvePresetInstances(IReadOnlyList<PresetInstanceReference> instances) =>
-            new(instances.Select(instance => new PresetInstanceResolution(instance, Resolution)).ToArray());
+            Resolve(instances);
         public PresetResolution ResolvePresetInstances(IReadOnlyList<PresetInstanceReference> instances, IReadOnlyDictionary<string, string> choices) =>
             choices.Count > 0
                 ? new(instances.Select(instance => new PresetInstanceResolution(instance, PresetInstanceResolutionStatus.Resolved,
                     [new("owned", choices[instance.StableId])])).ToArray())
                 : ResolvePresetInstances(instances);
+        private PresetResolution Resolve(IReadOnlyList<PresetInstanceReference> instances)
+        {
+            ResolveCalls++;
+            if (ThrowOnResolve) throw new InvalidOperationException("synthetic resolver failure");
+            return new(instances.Select(instance => new PresetInstanceResolution(instance, Resolution)).ToArray());
+        }
         public ActionPlan PlanPreset(IReadOnlyList<PresetAction> actions, PresetResolution resolution) =>
             new() { Changes = [new PlannedChange("value", "Value", FieldValue.Of((long)Value), FieldValue.Of(9L))] };
         public EditOutcome ApplyPreset(IReadOnlyList<PresetAction> actions, PresetResolution resolution, ActionPlan plan) =>

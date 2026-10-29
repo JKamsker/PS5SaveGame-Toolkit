@@ -142,6 +142,43 @@ public sealed class PresetTransferCompositionTests
         Assert.True(PresetTransferLimits.MaxControlBytes < PresetPackageCodec.MaxBytes);
     }
 
+    [Theory]
+    [InlineData("nullArray")]
+    [InlineData("nullRecord")]
+    [InlineData("schema")]
+    [InlineData("blankId")]
+    [InlineData("malformed")]
+    public void MalformedReloadCannotPartiallyPublishOrRotateTransferIdentity(string failure)
+    {
+        var root = TestZips.TempDir();
+        var store = PresetTransferFixture.Store(root);
+        var source = PresetTransferFixture.Preset();
+        var original = store.Create("A", source.Compatibility, source.Actions);
+        var identity = store.Snapshot().Identity;
+        var service = new PresetTransferService(store);
+        var review = PresetTransferFixture.Resolve(service, service.Preview(PresetPackageCodec.Encode([source with { Name = "C" }])));
+        var path = Path.Combine(root, "presets.json");
+        var goodBytes = File.ReadAllBytes(path);
+        var malformed = failure switch
+        {
+            "schema" => source with { SchemaVersion = "future" },
+            "blankId" => source with { Id = " " },
+            "malformed" => source with { Name = "" },
+            _ => null,
+        };
+        var badBytes = failure == "nullArray" ? "null"u8.ToArray()
+            : JsonSerializer.SerializeToUtf8Bytes(new[] { original, malformed }, JsonOptions);
+        File.WriteAllBytes(path, badBytes);
+        Assert.Throws<InvalidDataException>(() => store.Reload());
+        Assert.Equal(original.Id, Assert.Single(store.List()).Id);
+        Assert.Equal(badBytes, File.ReadAllBytes(path));
+        Assert.Equal("presetLibraryReloadRequired", Assert.Throws<PresetTransferException>(() => store.Snapshot()).Code);
+        File.WriteAllBytes(path, goodBytes);
+        Assert.Equal(identity, store.Snapshot().Identity);
+        service.Commit(new(review.Token));
+        Assert.Equal(2, PresetTransferFixture.Store(root).List().Count);
+    }
+
     private sealed class ImportClock : TimeProvider
     {
         internal DateTimeOffset Now { get; set; } = new(2026, 10, 29, 0, 0, 0, TimeSpan.Zero);
