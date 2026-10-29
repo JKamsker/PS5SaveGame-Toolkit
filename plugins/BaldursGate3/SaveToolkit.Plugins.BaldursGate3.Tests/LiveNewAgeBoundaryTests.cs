@@ -59,6 +59,22 @@ public sealed class LiveNewAgeBoundaryTests
     }
 
     [Fact]
+    public void PartiallyOverlappingEditableWordsAreRejected()
+    {
+        var bytes = LiveNewAgeFixture.Create();
+        var health = (int)System.Buffers.Binary.BinaryPrimitives.ReadUInt64LittleEndian(
+            bytes.AsSpan(LsmfFixture.Descriptor(bytes, 9) + 40)) + 48;
+        var statsDescriptor = LsmfFixture.Descriptor(bytes, 10);
+        LsmfFixture.U64(bytes, statsDescriptor + 40, (ulong)(health - 48 + 2));
+        var stats = health + 2;
+        for (var row = 0; row < 2; row++)
+            for (var ability = 0; ability < 6; ability++)
+                LsmfFixture.U32(bytes, stats + row * 36 + 8 + ability * 4, 10);
+
+        Assert.Throws<SaveFormatException>(() => LiveNewAgeFixture.Source(bytes));
+    }
+
+    [Fact]
     public void QuerySortAndExactFiltersUseCurrentValuesAndRemainBounded()
     {
         using var document = Open();

@@ -58,7 +58,8 @@ internal sealed class LsmfLiveSource
                 stack.AmountOffsets.Count, stack.Original, false) { Original = stack.Original, Family = "Stacks", Row = stack.EntityRow });
         ReadCharacters();
         // Reject overlapping editable ranges rather than letting aliases create inconsistent bindings.
-        BinaryData.Require(_numbers.SelectMany(n => n.Offsets).Distinct().Count() == _numbers.Sum(n => n.Offsets.Count),
+        var editableOffsets = _numbers.SelectMany(number => number.Offsets).OrderBy(offset => offset).ToArray();
+        BinaryData.Require(editableOffsets.Zip(editableOffsets.Skip(1)).All(pair => pair.Second >= pair.First + sizeof(uint)),
             "Overlapping editable LSMF storage.");
         var numberBytes = _numbers.SelectMany(n => n.Offsets).SelectMany(offset => Enumerable.Range(offset, 4)).ToHashSet();
         BinaryData.Require(Slots.All(slot => !numberBytes.Contains(slot.KeyOffset) && !numberBytes.Contains(slot.KeyOffset + 1)),
