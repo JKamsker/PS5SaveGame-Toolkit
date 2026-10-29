@@ -1038,6 +1038,10 @@ Per-document field-aware API (only previously published fields/parameters are qu
 
 - `GET .../reference-fields/candidates?valueId=...&q=...&category=...&sortBy=Name&descending=false&offset=0&limit=30&revision=0`
 - `GET .../reference-fields/record?valueId=...&rawId=...&revision=0`
+- `POST .../reference-fields/records` with `{pairs:[{fieldId,recordKey,actionId?}],revision?}`: the
+  same exact lookup for up to 256 pairs, one result per pair in input order; each pair uses its own
+  field's catalog and eligibility (see [API.md](API.md)). The web client batches reference cells
+  per page through it.
 
 For action parameters also pass `actionId`. Paging clamps offset to zero and limit to 1–200.
 Candidate pages include the view revision. Pass it with subsequent queries/edits; stale queries return
