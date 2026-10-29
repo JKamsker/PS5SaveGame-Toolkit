@@ -7,7 +7,7 @@ namespace SaveToolkit.Plugins.AtomicHeart.Tests;
 internal static class InventoryFixture
 {
     internal static byte[] Create(bool duplicateContainer = false, bool duplicateCollection = false,
-        string amountType = "IntProperty")
+        string amountType = "IntProperty", string? unsignedField = null, ulong unsignedValue = 0)
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
@@ -54,8 +54,12 @@ internal static class InventoryFixture
         {
             Property(target, "ItemDataAsset", "ObjectProperty", null,
                 value => SlotFixture.String(value, "/Game/Authored/" + asset + "." + asset));
-            Property(target, "Amount", amountType, null, value => value.Write(4));
-            Property(target, "ItemId", "Int64Property", null, value => value.Write(instance));
+            if (unsignedField == "Amount")
+                Property(target, "Amount", "UInt64Property", null, value => value.Write(unsignedValue));
+            else Property(target, "Amount", amountType, null, value => value.Write(4));
+            if (unsignedField == "ItemId")
+                Property(target, "ItemId", "UInt64Property", null, value => value.Write(unsignedValue));
+            else Property(target, "ItemId", "Int64Property", null, value => value.Write(instance));
             PlainFixture.End(target);
         }
     }

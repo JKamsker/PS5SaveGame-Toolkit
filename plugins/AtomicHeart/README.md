@@ -250,6 +250,10 @@ types/native structures remain opaque. The robustness review rechecked the
 and [Epic's property-tag reference](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/FPropertyTag)
 on 2026-10-29. These describe structural leads; the fixed-width rules are also
 verified against the supplied PS5 bytes and authored corruption fixtures.
+Inventory `Amount` and `ItemId` must fit the supported signed 64-bit range;
+oversized unsigned values reject with a field-specific `SaveFormatException`.
+Representable unsigned values remain inspectable; unsigned Amount tags do not
+become write targets.
 
 ## Validation
 

@@ -50,14 +50,16 @@ internal sealed class InventoryState
                 if (asset?.Value is not { Kind: FieldValueKind.Text } text ||
                     quantity?.Value is not { Kind: FieldValueKind.Integer } amount ||
                     instance?.Value is not { Kind: FieldValueKind.Integer } instanceId) continue;
-                var key = $"{record.Id}/{property.Name}/item/{instanceId.AsInt64()}";
+                var storedAmount = ReadInteger(amount, quantity.Name);
+                var storedInstanceId = ReadInteger(instanceId, instance.Name);
+                var key = $"{record.Id}/{property.Name}/item/{storedInstanceId}";
                 if (!keys.Add(key))
                 {
                     key += $"/slot/{element.Name}";
                     if (!keys.Add(key)) throw new SaveFormatException("Duplicate inventory slot identity.");
                 }
                 var item = new InventoryItem(key, record.Name + "/" + property.Name, element,
-                    text.AsString(), instanceId.AsInt64(), amount.AsInt64(), asset, quantity, container);
+                    text.AsString(), storedInstanceId, storedAmount, asset, quantity, container);
                 items.Add(item);
                 values[asset.Payload.Offset] = text;
                 values[quantity.Payload.Offset] = amount;
@@ -71,6 +73,14 @@ internal sealed class InventoryState
             }
         }
         Items = items;
+    }
+
+    private static long ReadInteger(FieldValue value, string name)
+    {
+        var integer = value.AsInteger();
+        if (integer < long.MinValue || integer > long.MaxValue)
+            throw new SaveFormatException($"Inventory {name} is outside the supported signed 64-bit range.");
+        return (long)integer;
     }
 
     private static TaggedProperty? Unique(TaggedProperty element, string name)
