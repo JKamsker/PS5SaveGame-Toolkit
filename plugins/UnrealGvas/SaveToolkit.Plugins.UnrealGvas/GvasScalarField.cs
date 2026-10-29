@@ -29,6 +29,8 @@ internal static class GvasScalarField
         {
             var candidate = new GvasScalar(scalar.Kind, scalar.Offset, scalar.Length, scalar.Value);
             SetScalar(candidate, value);
+            // Restoring the imported value reuses its original span; no new encoding is emitted.
+            if (scalar.IsOriginalValue(candidate.Value)) return null;
             _ = candidate.Encode();
             return null;
         }

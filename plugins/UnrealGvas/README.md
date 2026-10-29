@@ -111,6 +111,21 @@ All enabled writes are Experimental. Warnings are shown beside each field and re
 in the edit outcome. Hogwarts does not edit identity columns, blobs, catalog reference
 cells, metadata-only files or malformed/partial database pairs.
 
+Compressed outer envelopes, including Hogwarts zlib and Astroneer wrappers, remain
+read-only until envelope recompression is verified. Database inspection is still
+available and serialization preserves the exact imported wrapper.
+Jedi's `UncompressedActorRecordsSize` also remains read-only: changing this paired
+length without rebuilding the preserved compressed actor stream invalidates it.
+Hogwarts tracks cell changes against each independent imported image. Changed
+images are rebuilt from their baseline in deterministic table/row/column order;
+untouched images retain their exact compressed payloads. Reverting every cell,
+including rollback of a rejected batch, restores the original file bytes. This
+avoids relying on inverse SQL to restore SQLite page layout and change counters
+([SQLite atomic commit documentation](https://www.sqlite.org/atomiccommit.html)).
+Accepted imported GVAS strings can be restored exactly even when their original
+length-delimited encoding contains an embedded NUL. This exception only restores
+the original scalar bytes; newly supplied NUL-containing strings remain rejected.
+
 ## Sample coverage and file roles
 
 Observations apply to the supplied archives, not every release of each title.

@@ -16,6 +16,7 @@ public sealed class GvasScalar(GvasScalarKind kind, int offset, int length, obje
     public int Length { get; } = length;
     public object Value { get; set; } = value;
     public bool Changed => !Value.Equals(_original);
+    internal bool IsOriginalValue(object candidate) => candidate.Equals(_original);
 
     internal byte[] Encode()
     {
