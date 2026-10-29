@@ -56,6 +56,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
                     new Stat("Integrity", "Ciphertext SHA1 verified · 30 linked sections"),
                 ]),
                 Number("party/gald", "Gald", party.Offset + GaldOffset, MaximumGald),
+                .. ReadOnlyViews.PartyCpView((id, label, get) => Field(id, label, IntegerSpec.UInt16 with { ReadOnly = true }, get)),
                 Number("party/play-seconds", "Play time (seconds)", party.Offset + PlaySecondsOffset, uint.MaxValue, writable: false)
                     with { Spec = IntegerSpec.UInt32 with { ReadOnly = true, Format = IntegerFormat.Duration, UnitsPerSecond = 1 } },
                 Number("party/play-ticks", "Play time (60 ticks/second, inferred)", party.Offset + PlayTicksOffset, uint.MaxValue, writable: false),

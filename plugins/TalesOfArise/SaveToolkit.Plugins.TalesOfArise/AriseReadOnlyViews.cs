@@ -1,4 +1,6 @@
+using System.Buffers.Binary;
 using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using static SaveToolkit.Plugins.TalesOfArise.AriseSchema;
 
@@ -33,6 +35,20 @@ internal sealed class AriseReadOnlyViews
     public IReadOnlyList<QueryableCollection> Collections => _words.Values.Select(words => words.Metadata).ToArray();
     public bool Handles(string id) => _words.ContainsKey(id);
     public QueryableCollectionPage Query(string id, QueryableCollectionQuery query, Func<string, string, int, FieldNode> field) => _words[id].Query(query, field);
+
+    public IReadOnlyList<FieldNode> PartyCpView(Func<string, string, Func<FieldValue>, FieldNode> field)
+    {
+        var party = _save.Sections.Single(section => section.Name == "PartyProfile");
+        return [Cp("party/current-cp", "Current CP (inferred)", CurrentCpOffset), Cp("party/max-cp", "Max CP (inferred)", MaximumCpOffset)];
+
+        FieldNode Cp(string id, string label, int relative) => field(id, label,
+            () => FieldValue.Of((long)BinaryPrimitives.ReadUInt16LittleEndian(_save.Payload.AsSpan(party.Offset + relative)))) with
+        {
+            Confidence = Confidence.Inferred,
+            Description = $"PartyProfile body +0x{relative:X2}, uint16 little-endian. " + CpAttribution,
+            Warning = "Read-only: no controlled PS5 CP spend/refill or level-up pair establishes current/max authority or dependencies. No CP restoration or maximum editing is enabled.",
+        };
+    }
 
     public IReadOnlyList<ViewNode> CharacterView(Func<string, string, int, FieldNode> field) =>
     [
