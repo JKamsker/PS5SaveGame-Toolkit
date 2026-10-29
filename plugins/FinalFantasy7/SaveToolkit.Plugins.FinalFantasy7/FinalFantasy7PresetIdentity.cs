@@ -89,7 +89,13 @@ internal static class FinalFantasy7PresetIdentity
     public static string CandidateRow(PresetTarget target, PresetInstanceReference candidate)
     {
         var parts = candidate.StableId.Split('/');
-        return target.Domain == PresetIdentityDomain.ItemType ? $"inventory/{parts[^1]}" : $"materia/{parts[^1]}";
+        return target.Domain switch
+        {
+            PresetIdentityDomain.ItemType => $"inventory/{parts[^1]}",
+            PresetIdentityDomain.CharacterIndex => $"character/{parts[^1]}",
+            PresetIdentityDomain.MateriaInstance or PresetIdentityDomain.MateriaType => $"materia/{parts[^1]}",
+            _ => throw new ArgumentException("Foreign FFVII semantic identity."),
+        };
     }
 
     public static bool Equivalent(SdkPresetResolution left, SdkPresetResolution right) =>

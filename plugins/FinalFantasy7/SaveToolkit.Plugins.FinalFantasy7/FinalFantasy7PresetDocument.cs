@@ -199,8 +199,7 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
         foreach (var id in expected)
         {
             var value = values[id];
-            result[id] = id == "type" ? value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString())
-                ? FieldValue.Of(value.GetString()!) : throw new ArgumentException("Materia type must be a raw catalog id.")
+            result[id] = id == "type" ? FieldValue.Of(ReadCatalogType(value))
                 : FieldValue.Of(ReadInteger(value, id));
         }
         return result;
@@ -211,6 +210,17 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
         if (value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out var number)) return number;
         if (value.ValueKind == JsonValueKind.String && TryParseInteger(value.GetString(), out number)) return number;
         throw new ArgumentException($"Preset parameter '{id}' must be an invariant integer.");
+    }
+
+    private static string ReadCatalogType(JsonElement value)
+    {
+        if (value.ValueKind != JsonValueKind.String)
+            throw new ArgumentException("Materia type must be a canonical decimal catalog id.");
+        var text = value.GetString();
+        if (text is null || !uint.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out var type)
+            || !string.Equals(text, type.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal))
+            throw new ArgumentException("Materia type must be a canonical decimal catalog id.");
+        return text;
     }
 
     private static bool TryParseInteger(string? text, out long value)
@@ -260,6 +270,10 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
 
     private static ActionPlan Error(string field, string message) => new() { Errors = [new(field, message)] };
 
-    private static uint ReadType(IReadOnlyDictionary<string, FieldValue> parameters) =>
-        uint.Parse(parameters["type"].AsString(), NumberStyles.None, CultureInfo.InvariantCulture);
+    private static uint ReadType(IReadOnlyDictionary<string, FieldValue> parameters)
+    {
+        if (!uint.TryParse(parameters["type"].AsString(), NumberStyles.None, CultureInfo.InvariantCulture, out var type))
+            throw new ArgumentException("Materia type must be a canonical decimal catalog id.");
+        return type;
+    }
 }

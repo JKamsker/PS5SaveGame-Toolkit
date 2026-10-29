@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Buffers.Binary;
 using SaveToolkit.Core.Presets;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
@@ -76,6 +77,69 @@ public sealed class Sdk07PresetAdapterTests
         var plan = adapter.PlanPreset([tampered], resolution);
         Assert.NotEmpty(plan.Errors);
         Assert.Equal(fixture.Original, fixture.Bytes());
+    }
+
+    [Theory]
+    [InlineData("not-a-number")]
+    [InlineData("4294967296")]
+    [InlineData("0x10020")]
+    [InlineData("4294967295")]
+    [InlineData("999999")]
+    public void InvalidMateriaTypesRejectPlanAndApplyWithoutPlannerOrHistory(string type)
+    {
+        using var fixture = new BulkSelectionFixture("PPSA08664", MateriaPlanning.ActionId);
+        var adapter = (IPresetDocument)fixture.Document;
+        var action = new PresetAction(MateriaPlanning.ActionId, new Dictionary<string, JsonElement>
+        {
+            ["type"] = JsonSerializer.SerializeToElement(type),
+            ["ap"] = JsonSerializer.SerializeToElement("20"),
+        }, [], PresetScopeKinds.Document);
+        var resolution = new SaveToolkit.Sdk.PresetResolution([]);
+        var plan = adapter.PlanPreset([action], resolution);
+        Assert.NotEmpty(plan.Errors);
+        var outcome = adapter.ApplyPreset([action], resolution, plan);
+        Assert.False(outcome.Succeeded);
+        Assert.Equal(fixture.Original, fixture.Bytes());
+        Assert.False(fixture.Session.State.CanUndo);
+    }
+
+    [Theory]
+    [InlineData(CharacterPlanning.RecoveryActionId)]
+    [InlineData(CharacterPlanning.LevelActionId)]
+    public void SelectedCharacterActionUsesOnlySelectedCharacterAndOneHistoryUnit(string actionId)
+    {
+        using var fixture = new BulkSelectionFixture("PPSA08664", InventoryPlanning.ActionId, arrange: ArrangeCharacters);
+        var adapter = (IPresetDocument)fixture.Document;
+        var parameters = actionId == CharacterPlanning.LevelActionId
+            ? new Dictionary<string, JsonElement> { ["level"] = JsonSerializer.SerializeToElement(25) }
+            : new Dictionary<string, JsonElement>();
+        var action = fixture.Session.CapturePreset(new(actionId, parameters, PresetScopeKinds.Selected, ["character/0"]));
+        var resolution = adapter.ResolvePresetInstances(action.Instances);
+        var plan = adapter.PlanPreset([action], resolution);
+        Assert.NotEmpty(plan.Changes);
+        Assert.All(plan.Changes, change => Assert.StartsWith("character/0/", change.ValueId));
+        Assert.DoesNotContain(plan.Changes, change => change.ValueId.StartsWith("character/1/", StringComparison.Ordinal));
+        if (actionId == CharacterPlanning.RecoveryActionId)
+            Assert.Equal(["character/0/hp", "character/0/mp"], plan.Changes.Select(change => change.ValueId).ToArray());
+        else
+            Assert.Equal(["character/0/level", "character/0/experience"], plan.Changes.Select(change => change.ValueId).ToArray());
+
+        var preset = new ToolkitPreset("1", "selected-character", "selected character", new(
+            "ff7r", "0.5.0", ["PPSA08664"], adapter.PresetCapability.GameBuild, adapter.PresetCapability.FormatVariant,
+            adapter.PresetCapability.ReferencePackIdentity, true, adapter.PresetCapability.PresetKind,
+            adapter.PresetCapability.SchemaFingerprint, adapter.PresetCapability.FileRole, adapter.PresetCapability.SchemaVersion),
+            [action], DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch);
+        var preview = fixture.Session.PlanPreset(preset, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Empty(preview.Plan.Errors);
+        Assert.True(fixture.Session.ApplyPresetPlan(preview.PlanId!, preview.Revision,
+            cancellationToken: TestContext.Current.CancellationToken).Ok);
+        var changed = fixture.Bytes();
+        Assert.NotEqual(fixture.Original, changed);
+        Assert.True(fixture.Session.Undo().Ok);
+        Assert.Equal(fixture.Original, fixture.Bytes());
+        Assert.False(fixture.Session.State.CanUndo);
+        Assert.True(fixture.Session.Redo().Ok);
+        Assert.Equal(changed, fixture.Bytes());
     }
 
     [Fact]
@@ -189,5 +253,19 @@ public sealed class Sdk07PresetAdapterTests
         Assert.Equal("rebirth", retailCapability.FormatVariant);
         Assert.Equal("rebirth-demo", demoCapability.FormatVariant);
         Assert.NotEqual(retailCapability.SchemaFingerprint, demoCapability.SchemaFingerprint);
+    }
+
+    private static void ArrangeCharacters(byte[] bytes, Ff7Schema schema)
+    {
+        for (var character = 0; character < Ff7Schema.CharacterCount; character++)
+        {
+            var offset = CharacterLayout.Offset(schema, character);
+            bytes[offset] = 40;
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + CharacterLayout.ExperienceDelta), 0);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + CharacterLayout.HpDelta), character == 0 ? 1U : 2U);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + CharacterLayout.HpDelta + CharacterLayout.MaximumVitalDelta), 500);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + CharacterLayout.MpDelta), character == 0 ? 1U : 2U);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + CharacterLayout.MpDelta + CharacterLayout.MaximumVitalDelta), 50);
+        }
     }
 }
