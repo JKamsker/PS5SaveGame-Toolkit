@@ -80,7 +80,7 @@ public sealed partial class DocumentSession
             return new SessionEditResult { State = StateUnlocked() };
         }
 
-        var run = Replay(steps, undo: true);
+        var run = HistoryReplay.Run(steps, undo: true, ApplyStep);
         IReadOnlyList<string> warnings = [];
         if (!run.Outcome.Succeeded)
         {
@@ -142,7 +142,7 @@ public sealed partial class DocumentSession
 
     private SessionEditResult Step(HistoryEntry entry, bool undo)
     {
-        var run = Replay(entry.Steps, undo);
+        var run = HistoryReplay.Run(entry.Steps, undo, ApplyStep);
         if (!run.Outcome.Succeeded)
         {
             IReadOnlyList<string> notice = [];
@@ -161,57 +161,12 @@ public sealed partial class DocumentSession
         return AfterChange(FromOutcome(run.Outcome), run.NeedsRebuild, warnings);
     }
 
-    /// <summary>
-    /// Applies <paramref name="steps"/> backwards (undo) or forwards (redo). On failure, the steps
-    /// already applied are reverted so the document is where it started.
-    /// </summary>
-    private ReplayRun Replay(IReadOnlyList<HistoryStep> steps, bool undo)
-    {
-        var swapped = new HistoryStep[steps.Count];
-        var done = new List<int>(steps.Count);
-        var changes = new List<ValueChange>();
-        var warnings = new List<string>();
-        var structural = false;
-        var needsRebuild = false;
-        void Track(StepResult r)
-        {
-            structural |= r.Outcome.StructureChanged;
-            needsRebuild = !r.Rebuilt && (needsRebuild || r.Outcome.StructureChanged);
-        }
-
-        for (var n = 0; n < steps.Count; n++)
-        {
-            var i = undo ? steps.Count - 1 - n : n;
-            var step = ApplyStep(steps[i], undo);
-            Track(step);
-            if (!step.Outcome.Succeeded)
-            {
-                var rollbackFailed = false;
-                for (var k = done.Count - 1; k >= 0; k--)
-                {
-                    var back = ApplyStep(swapped[done[k]], !undo);
-                    Track(back);
-                    rollbackFailed |= !back.Outcome.Succeeded;
-                }
-
-                return new ReplayRun(step.Outcome with { StructureChanged = structural }, swapped, needsRebuild, rollbackFailed);
-            }
-
-            swapped[i] = step.Inverse;
-            done.Add(i);
-            changes.AddRange(step.Outcome.Changes);
-            warnings.AddRange(step.Outcome.Warnings);
-        }
-
-        return new ReplayRun(new EditOutcome { Changes = changes, Warnings = warnings, StructureChanged = structural }, swapped, needsRebuild, RollbackFailed: false);
-    }
-
-    private StepResult ApplyStep(HistoryStep step, bool undo)
+    private HistoryReplay.StepResult ApplyStep(HistoryStep step, bool undo)
     {
         switch (step)
         {
             case ValueStep values:
-                return new StepResult(Revert(values.Changes, useOld: undo), values, Rebuilt: false);
+                return new HistoryReplay.StepResult(Revert(values.Changes, useOld: undo), values, Rebuilt: false);
             case MementoStep memento:
                 try
                 {
@@ -219,12 +174,12 @@ public sealed partial class DocumentSession
 
                     // Later steps in the same entry may edit values of the restored records: re-bind them now.
                     var warnings = RebuildIndex();
-                    return new StepResult(new EditOutcome { StructureChanged = true, Warnings = warnings }, new MementoStep(inverse), Rebuilt: true);
+                    return new HistoryReplay.StepResult(new EditOutcome { StructureChanged = true, Warnings = warnings }, new MementoStep(inverse), Rebuilt: true);
                 }
                 catch (Exception ex) when (ex is not OutOfMemoryException)
                 {
                     // The document rolled itself back, but may have replaced model objects: re-index.
-                    return new StepResult(EditOutcome.Rejected(string.Empty, $"Plugin error: {ex.Message}") with { StructureChanged = true }, step, Rebuilt: false);
+                    return new HistoryReplay.StepResult(EditOutcome.Rejected(string.Empty, $"Plugin error: {ex.Message}") with { StructureChanged = true }, step, Rebuilt: false);
                 }
 
             default:
@@ -307,9 +262,4 @@ public sealed partial class DocumentSession
         return expanded;
     }
 
-    private sealed record StepResult(EditOutcome Outcome, HistoryStep Inverse, bool Rebuilt);
-
-    /// <param name="NeedsRebuild">A structural change happened after the last index rebuild.</param>
-    /// <param name="RollbackFailed">A step failed and the steps before it could not all be reverted.</param>
-    private sealed record ReplayRun(EditOutcome Outcome, IReadOnlyList<HistoryStep> Swapped, bool NeedsRebuild, bool RollbackFailed);
 }
