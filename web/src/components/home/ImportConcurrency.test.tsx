@@ -7,6 +7,9 @@ import type { Workspace } from "../../api/protocol";
 import * as libraryStore from "../../state/libraryStore";
 import { deferred } from "../../test/deferred";
 import { HomePage } from "./HomePage";
+import { walkEntries, type UploadFile } from "./collectFiles";
+
+vi.mock("./collectFiles", async original => ({ ...await original<typeof import("./collectFiles")>(), walkEntries: vi.fn() }));
 
 const clients: QueryClient[] = [];
 beforeEach(() => { notifyManager.setScheduler(queueMicrotask); });
@@ -59,4 +62,19 @@ it.each(["zip", "remembered"])("ignores a completed %s import after leaving home
   fireEvent.click(screen.getByRole("link", { name: "Leave" }));
   await act(async () => { pending.resolve(ws); await pending.promise; });
   expect(screen.getByLabelText("Location").textContent).toBe("/away");
+});
+
+it("retires slow drop enumeration when a newer folder is chosen", async () => {
+  const pending = deferred<UploadFile[]>();
+  vi.mocked(walkEntries).mockReturnValue(pending.promise);
+  const scan = vi.spyOn(libraryStore.library, "scanFiles").mockResolvedValue(undefined);
+  await mount();
+  await act(async () => { fireEvent.drop(screen.getByText("Drop a folder or zip here").parentElement!, {
+    dataTransfer: { items: [{ webkitGetAsEntry: () => ({ isDirectory: true, name: "Old folder" }) }] },
+  }); });
+  const file = new File(["fixture"], "save.dat");
+  Object.defineProperty(file, "webkitRelativePath", { value: "New folder/save.dat" });
+  fireEvent.change(document.querySelector('input[webkitdirectory]')!, { target: { files: [file] } });
+  await act(async () => { pending.resolve([]); await pending.promise; });
+  expect(scan).toHaveBeenCalledExactlyOnceWith("New folder", [{ file, path: "New folder/save.dat" }]);
 });

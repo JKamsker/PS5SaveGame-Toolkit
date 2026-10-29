@@ -134,13 +134,13 @@ export const library = {
   supportsHandles: (): boolean => typeof window !== "undefined" && typeof window.showDirectoryPicker === "function",
 
   /** Opens the folder picker (File System Access API). Returns false if unsupported or cancelled. */
-  async pickFolder(): Promise<boolean> {
+  async pickFolder(isCurrent: () => boolean = () => true): Promise<boolean> {
     if (!window.showDirectoryPicker) return false;
     const sequence = ++pickerSequence;
     const generation = scanGeneration;
     try {
       const handle = await window.showDirectoryPicker({ id: "savebench-dumps", mode: "read" });
-      if (sequence !== pickerSequence || generation !== scanGeneration) return true;
+      if (!isCurrent() || sequence !== pickerSequence || generation !== scanGeneration) return true;
       await scanHandle(handle);
       return true;
     } catch (error) {

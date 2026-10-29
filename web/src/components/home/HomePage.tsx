@@ -10,6 +10,7 @@ import { AppVersion } from "../ui/AppVersion";
 import { useEntryFocus } from "../ui/useEntryFocus";
 import { useAsyncTask } from "../ui/useAsyncTask";
 import { ImportTaskContext } from "./importTask";
+import { useLatestRequest } from "../ui/useLatestRequest";
 
 const maturityText = { ReadOnly: "view only", Experimental: "editing, untested on console", Stable: "editing, tested in-game" } as const;
 
@@ -17,6 +18,7 @@ export function HomePage() {
   const focusHeading = useEntryFocus("home");
   const navigate = useNavigate();
   const importTask = useAsyncTask();
+  const beginFolderSelection = useLatestRequest("home-folder");
   const [dragging, setDragging] = useState(false);
   const [status, setStatus] = useState<{ text: string; isError: boolean } | null>(null);
   const [failedUpload, setFailedUpload] = useState<UploadFile[]>([]);
@@ -48,22 +50,31 @@ export function HomePage() {
   };
 
   const chooseFolder = async () => {
+    const isCurrent = beginFolderSelection();
     setStatus(null);
-    if (!(library.supportsHandles() && (await library.pickFolder()))) folderInput.current?.click();
+    const handled = library.supportsHandles() && await library.pickFolder(isCurrent);
+    if (!handled && isCurrent()) folderInput.current?.click();
   };
 
   const onDrop = (e: DragEvent) => {
     e.preventDefault();
     setDragging(false);
+    const isCurrent = beginFolderSelection();
     // DataTransfer is only readable synchronously inside the event, so grab entries/handles first.
     const items = Array.from(e.dataTransfer.items);
     const entries = items.map((i) => i.webkitGetAsEntry?.()).filter((x): x is FileSystemEntry => !!x);
     const handle = entries.length === 1 && entries[0]!.isDirectory ? items[0]?.getAsFileSystemHandle?.() : undefined;
     void (async () => {
-      if (!entries.some((x) => x.isDirectory)) return upload(await walkEntries(entries));
+      if (!entries.some((x) => x.isDirectory)) {
+        const files = await walkEntries(entries);
+        if (isCurrent()) return upload(files);
+        return;
+      }
       const resolved = await handle;
+      if (!isCurrent()) return;
       if (resolved?.kind === "directory") return library.scanHandle(resolved as FileSystemDirectoryHandle);
-      return library.scanFiles(entries.length === 1 ? entries[0]!.name : "Dropped folders", await walkEntries(entries));
+      const files = await walkEntries(entries);
+      if (isCurrent()) return library.scanFiles(entries.length === 1 ? entries[0]!.name : "Dropped folders", files);
     })();
   };
 
@@ -116,6 +127,7 @@ export function HomePage() {
               onChange={(e) => {
                 const files = e.target.files;
                 if (!files || files.length === 0) return;
+                beginFolderSelection();
                 const root = files[0]!.webkitRelativePath.split("/")[0] || "Folder";
                 void library.scanFiles(root, fromInput(files));
               }}
