@@ -41,8 +41,9 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
         // rows, and the original document can resolve their values without building eager tables.
         foreach (var item in _inventory.Items)
         {
-            _ = Quantity(item);
-            _ = ItemIdentity($"inventory/{item.Slot}/item", item.Id);
+            _ = BindMainQuantity(item, "");
+            _ = BindStorageField($"inventory/{item.Slot}/item", "", new ReferenceSpec(FaithCatalog.ItemsId) { AllowCustom = true },
+                () => FieldValue.Of(FaithCatalog.Key(item.Id)));
         }
     }
 
@@ -222,19 +223,24 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
         if (bank == "secondary") return BindContextField($"secondary/{item.Slot}/quantity", $"{_catalog.Name(item.Id)} stored stack",
             IntegerSpec.Int32, () => FieldValue.Of(ReadInt(offset)), Confidence.Unknown,
             "Secondary bank role is unconfirmed; this may be historical/stage state. ID zero has unknown meaning and its identity stays read-only. " + _catalog.Provenance(item.Id));
-        var writable = !_container.IsSystem && ReadInt(offset) >= 0;
-        return Field(item.QuantityId, $"{_catalog.Name(item.Id)} stack",
-            writable ? new IntegerSpec(0, int.MaxValue) : IntegerSpec.Int32,
-            () => FieldValue.Of(ReadInt(offset)),
-            writable ? value => BinaryPrimitives.WriteInt32LittleEndian(_bytes.AsSpan(offset), value.AsInt32()) : null,
-            value => value.Kind != FieldValueKind.Integer || value.AsInteger() < 0 || value.AsInteger() > int.MaxValue
-                ? "Stack must be a non-negative signed 32-bit integer." : null) with
+        return BindMainQuantity(item, $"{_catalog.Name(item.Id)} stack") with
         {
             Confidence = Confidence.Verified,
             Description = $"ItemData slot {item.Slot}, stack at file offset 0x{offset:X}. " +
                 _catalog.Provenance(item.Id),
             Warning = FaithStackPolicy.Warning(item.Id, _catalog.Category(item.Id)),
         };
+    }
+
+    private FieldNode BindMainQuantity(FaithItem item, string label)
+    {
+        var offset = item.Offset + QuantityOffset;
+        var writable = !_container.IsSystem && ReadInt(offset) >= 0;
+        return Field(item.QuantityId, label, writable ? new IntegerSpec(0, int.MaxValue) : IntegerSpec.Int32,
+            () => FieldValue.Of(ReadInt(offset)),
+            writable ? value => BinaryPrimitives.WriteInt32LittleEndian(_bytes.AsSpan(offset), value.AsInt32()) : null,
+            value => value.Kind != FieldValueKind.Integer || value.AsInteger() < 0 || value.AsInteger() > int.MaxValue
+                ? "Stack must be a non-negative signed 32-bit integer." : null);
     }
 
     private FieldNode ContextInt(string id, string label, int offset, IntegerSpec? spec = null) =>
@@ -253,8 +259,22 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
     private FieldNode BindContextField(string id, string label, FieldSpec spec, Func<FieldValue> get,
         Confidence confidence, string description)
     {
+        var field = BindStorageField(id, label, spec, get);
         var write = _writes.Find(id);
-        if (write is null) return Field(id, label, spec, get) with { Confidence = confidence, Description = description };
+        if (write is null) return field with { Confidence = confidence, Description = description };
+        return field with
+        {
+            Confidence = confidence == Confidence.Verified ? Confidence.Inferred : confidence,
+            Description = description + $" Fixed-width file range 0x{write.Offset:X}..0x{write.Offset + write.Width:X}. " +
+                FaithWriteMap.Warning + $"Conservative observed/type bounds {write.Minimum}..{write.Maximum}; original values are preserved.",
+            Warning = FaithWriteMap.Warning,
+        };
+    }
+
+    private FieldNode BindStorageField(string id, string label, FieldSpec spec, Func<FieldValue> get)
+    {
+        var write = _writes.Find(id);
+        if (write is null) return Field(id, label, spec, get);
         var catalog = (spec as ReferenceSpec)?.CatalogId;
         if (spec is ReferenceSpec reference) spec = reference with
         {
@@ -262,13 +282,7 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
                 ? new ReferenceEligibility { Eligible = false, Reasons = [error] } : new ReferenceEligibility(),
         };
         return Field(id, label, write.Spec(spec), () => write.Get(catalog is not null),
-            value => write.Set(value, catalog is not null), value => write.Validate(value, catalog, _catalog)) with
-        {
-            Confidence = confidence == Confidence.Verified ? Confidence.Inferred : confidence,
-            Description = description + $" Fixed-width file range 0x{write.Offset:X}..0x{write.Offset + write.Width:X}. " +
-                FaithWriteMap.Warning + $"Conservative observed/type bounds {write.Minimum}..{write.Maximum}; original values are preserved.",
-            Warning = FaithWriteMap.Warning,
-        };
+            value => write.Set(value, catalog is not null), value => write.Validate(value, catalog, _catalog));
     }
 
     private int ReadInt(int offset) => BinaryPrimitives.ReadInt32LittleEndian(_bytes.AsSpan(offset));
