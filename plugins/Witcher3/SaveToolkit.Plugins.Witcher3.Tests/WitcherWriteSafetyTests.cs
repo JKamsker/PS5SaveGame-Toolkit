@@ -1,7 +1,5 @@
 using SaveToolkit.Core.Sessions;
-using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk.Values;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Witcher3.Tests;
 
@@ -30,7 +28,7 @@ public sealed class WitcherWriteSafetyTests
     public void DuplicateFieldEditsAreRejectedBeforeChangingValuesOrHistory(bool previouslyEdited)
     {
         var input = SyntheticPlayerSave.Create();
-        var file = Import(input);
+        var file = WitcherTestFiles.Import(input);
         var plugin = new Witcher3Plugin();
         using var document = plugin.Open(file);
         using var session = new DocumentSession("duplicate-writes", file, plugin, document);
@@ -57,8 +55,4 @@ public sealed class WitcherWriteSafetyTests
         Assert.Equal(previouslyEdited, session.Undo().Ok);
         Assert.Equal(input, Assert.Single(document.Serialize()).Content.ToArray());
     }
-
-    private static DiskSaveFile Import(byte[] input) => Assert.Single(SaveSetImporter.Import(
-        [new ImportSource("PPSA04018/sdimg_TEST/Manual.sav", () => new MemoryStream(input))],
-        Path.Combine(TestScratch.ProcessFolder, Guid.NewGuid().ToString("N"))).AllDiskFiles);
 }

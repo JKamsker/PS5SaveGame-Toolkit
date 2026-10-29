@@ -18,7 +18,7 @@ public sealed class WitcherEnabledWriteTests
             var before = EnabledWriteFixture.Read(input);
             var rank = before.Features.SkillEdits!.Ranks.Single(r => r.Entry.Id == id);
             Assert.Null(rank.Entry.Record.Find("level"));
-            using var document = new Witcher3Plugin().Open(SaveToolkit.Testing.MemorySaveSet.SingleFile("Manual.sav", input, "PPSA04018"));
+            using var document = WitcherTestFiles.Open(input);
             _ = document.BuildView();
             _ = document.ExpandNode("ability/skills/0");
             var applied = document.ApplyEdits([new(rank.ValueId, FieldValue.Of(rank.Maximum))]);

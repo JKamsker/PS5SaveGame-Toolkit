@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.Text.Json;
 using SaveToolkit.Core.Sessions;
-using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
@@ -18,7 +17,7 @@ public sealed class WitcherRefillSyntheticTests
     public void RefillPersistsOnlySelectedQuantityAndUndoRedoKeepEarlierCurrencyEdit(string selection)
     {
         var input = SyntheticPlayerSave.Create();
-        var file = Import(input);
+        var file = WitcherTestFiles.Import(input);
         var plugin = new Witcher3Plugin();
         using var document = plugin.Open(file);
         using var session = new DocumentSession("synthetic-refill", file, plugin, document);
@@ -80,7 +79,7 @@ public sealed class WitcherRefillSyntheticTests
     [Fact]
     public void QueryExclusionProducesAnEmptyPlanWithoutChangingBytesOrHistory()
     {
-        var file = Import(SyntheticPlayerSave.Create());
+        var file = WitcherTestFiles.Import(SyntheticPlayerSave.Create());
         var plugin = new Witcher3Plugin();
         using var document = plugin.Open(file);
         using var session = new DocumentSession("excluded-refill", file, plugin, document);
@@ -108,7 +107,7 @@ public sealed class WitcherRefillSyntheticTests
     [InlineData("stale")]
     public void ForgedAndStalePlansRejectWithoutChangingAnyValuesOrBytes(string mutation)
     {
-        using var document = new Witcher3Plugin().Open(MemorySaveSet.SingleFile("Manual.sav", SyntheticPlayerSave.Create(), "PPSA04018"));
+        using var document = WitcherTestFiles.Open(SyntheticPlayerSave.Create());
         _ = document.BuildView();
         Assert.True(document.ApplyEdits([new("inventory/2/quantity", FieldValue.Of(1))]).Succeeded);
         var planner = Assert.IsAssignableFrom<IActionPlanningDocument>(document);
@@ -140,7 +139,7 @@ public sealed class WitcherRefillSyntheticTests
     public void SessionRejectsOldRevisionAndPreservesItsExistingUndoHistory()
     {
         var input = SyntheticPlayerSave.Create();
-        var file = Import(input);
+        var file = WitcherTestFiles.Import(input);
         var plugin = new Witcher3Plugin();
         using var document = plugin.Open(file);
         using var session = new DocumentSession("stale-refill", file, plugin, document);
@@ -175,7 +174,7 @@ public sealed class WitcherRefillSyntheticTests
     public void InvalidRequestsRejectBeforePlanningOrWriting(string request)
     {
         var input = request == "readonly" ? SyntheticSave.Create() : SyntheticPlayerSave.Create();
-        using var document = new Witcher3Plugin().Open(MemorySaveSet.SingleFile("Manual.sav", input, "PPSA04018"));
+        using var document = WitcherTestFiles.Open(input);
         _ = document.BuildView();
         if (document.CanEdit) { Assert.True(document.ApplyEdits([new("inventory/2/quantity", FieldValue.Of(1))]).Succeeded); }
         var before = Bytes(document);
@@ -202,8 +201,4 @@ public sealed class WitcherRefillSyntheticTests
     }
 
     private static byte[] Bytes(ISaveDocument document) => Assert.Single(document.Serialize()).Content.ToArray();
-
-    private static DiskSaveFile Import(byte[] input) => Assert.Single(SaveSetImporter.Import(
-        [new ImportSource("PPSA04018/sdimg_TEST/Manual.sav", () => new MemoryStream(input))],
-        Path.Combine(TestScratch.ProcessFolder, Guid.NewGuid().ToString("N"))).AllDiskFiles);
 }

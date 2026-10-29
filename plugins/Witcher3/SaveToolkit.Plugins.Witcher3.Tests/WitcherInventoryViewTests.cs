@@ -53,9 +53,7 @@ public sealed class WitcherInventoryViewTests
     public void PackProvidesExactAttributedRecordsAndRejectsUnknownPickerIds()
     {
         var plugin = new Witcher3Plugin();
-        var store = new ReferencePackStore([plugin]);
-        Assert.Empty(store.LoadErrors);
-        var context = store.Pin(plugin, "PPSA04018");
+        var context = ReferencePackFixture.Pin(plugin);
         var catalog = context.Catalog("items")!;
         var page = catalog.Search(new SaveToolkit.Sdk.References.ReferenceQuery { Limit = 200 });
         Assert.Equal(4011, page.Total);
@@ -73,7 +71,7 @@ public sealed class WitcherInventoryViewTests
         Assert.True(FieldValueCoercer.Normalize(FieldValue.Of("Bread"), spec, references: service).Ok);
         Assert.False(FieldValueCoercer.Normalize(FieldValue.Of("bread"), spec, references: service).Ok);
         Assert.False(FieldValueCoercer.Normalize(FieldValue.Of("not-listed"), spec, references: service).Ok);
-        Assert.Null(new ReferencePackStore([plugin]).Pin(plugin, "PPSA99999").Catalog("items"));
+        Assert.Null(ReferencePackFixture.Pin(plugin, "PPSA99999").Catalog("items"));
     }
 
     private static FieldNode Quantity(InventoryItem item) => new(item.ValueId, "Quantity", IntegerSpec.UInt16, FieldValue.Of(item.Quantity));

@@ -37,34 +37,40 @@ internal static class AbilityReader
         foreach (var (name, type, key) in Arrays)
         {
             if (manager.Find(name) is not { } property) { continue; }
-            if (property.Type != $"array:2,0,{type}") { throw new SaveFormatException($"Unsupported {name} array type."); }
-            var count = BinaryData.Int32(property.Value, 0);
-            if (count is < 0 or > MaximumArrayRecords || count > (property.Value.Length - sizeof(int)) / 3)
-            {
-                throw new SaveFormatException($"Invalid {name} array count.");
-            }
-
-            position = property.Offset + 12;
-            end = property.Offset + property.Bytes.Length;
-            var entries = new List<AbilityEntry>(count);
-            var ids = new HashSet<string>(StringComparer.Ordinal);
-            for (var i = 0; i < count; i++)
-            {
-                var record = TaggedRecord.Read(data, ref position, end, names);
-                var identity = record.Find(key);
-                // Empty definition slots have no native identity; retain their slot, without inventing a skill.
-                var id = identity is null ? $"unnamed-slot-{i}" : key == "id"
-                    ? record.Integer(key).ToString(System.Globalization.CultureInfo.InvariantCulture)
-                    : NameValue(identity, names);
-                if (!ids.Add(id)) { throw new SaveFormatException($"Ambiguous {name} record identity '{id}'."); }
-                entries.Add(new AbilityEntry(id, record) { IsEmpty = AbilitySlots.IsEmpty(name, record, names) });
-            }
-
-            if (position != end) { throw new SaveFormatException($"Trailing {name} array bytes."); }
-            result.Add(new AbilityArray(name, entries));
+            result.Add(ReadArray(property, name, type, key, data, names));
         }
 
         return result;
+    }
+
+    private static AbilityArray ReadArray(TaggedProperty property, string name, string type, string key,
+        byte[] data, IReadOnlyList<string> names)
+    {
+        if (property.Type != $"array:2,0,{type}") { throw new SaveFormatException($"Unsupported {name} array type."); }
+        var count = BinaryData.Int32(property.Value, 0);
+        if (count is < 0 or > MaximumArrayRecords || count > (property.Value.Length - sizeof(int)) / 3)
+        {
+            throw new SaveFormatException($"Invalid {name} array count.");
+        }
+
+        var position = property.Offset + 12;
+        var end = property.Offset + property.Bytes.Length;
+        var entries = new List<AbilityEntry>(count);
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        for (var i = 0; i < count; i++)
+        {
+            var record = TaggedRecord.Read(data, ref position, end, names);
+            var identity = record.Find(key);
+            // Empty definition slots have no native identity; retain their slot, without inventing a skill.
+            var id = identity is null ? $"unnamed-slot-{i}" : key == "id"
+                ? record.Integer(key).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                : NameValue(identity, names);
+            if (!ids.Add(id)) { throw new SaveFormatException($"Ambiguous {name} record identity '{id}'."); }
+            entries.Add(new AbilityEntry(id, record) { IsEmpty = AbilitySlots.IsEmpty(name, record, names) });
+        }
+
+        if (position != end) { throw new SaveFormatException($"Trailing {name} array bytes."); }
+        return new AbilityArray(name, entries);
     }
 
     public static string NameValue(TaggedProperty property, IReadOnlyList<string> names)

@@ -1,7 +1,5 @@
 using System.Text.Json;
-using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
-using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
@@ -18,10 +16,9 @@ public sealed class WitcherInspectionTests
         try
         {
             var input = SyntheticSave.Create();
-            var set = SaveSetImporter.Import([new ImportSource("PPSA04018/sdimg_TEST/Manual.sav", () => new MemoryStream(input))], temporary.FullName);
-            var file = Assert.Single(set.AllDiskFiles);
+            var file = WitcherTestFiles.Import(input, temporary.FullName);
             var plugin = new Witcher3Plugin();
-            var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA04018");
+            var references = ReferencePackFixture.Pin(plugin);
             using var document = plugin.Open(file, references);
             using var session = new DocumentSession("inspection", file, plugin, document, references: references);
             Assert.False(session.CanEdit);
@@ -59,7 +56,7 @@ public sealed class WitcherInspectionTests
     public void SavedAbilityReferencesBrowseAttributedCategoriesAndSortWithoutAllowingIdentityEdits()
     {
         var plugin = new Witcher3Plugin();
-        var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA04018");
+        var references = ReferencePackFixture.Pin(plugin);
         var file = EnabledWriteFixture.Files()[0];
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("browse", file, plugin, document, references: references);

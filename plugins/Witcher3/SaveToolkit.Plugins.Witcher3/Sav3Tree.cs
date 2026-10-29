@@ -140,51 +140,7 @@ internal sealed class Sav3Tree
             raw = [];
         }
 
-        var tag = "Opaque";
-        string? name = null;
-        string? type = null;
-        var valueStart = 0;
-        if (raw.StartsWith("BS"u8))
-        {
-            tag = "BS";
-            name = Name(BinaryData.UInt16(raw, 2));
-            valueStart = 4;
-        }
-        else if (raw.StartsWith("VL"u8) || raw.StartsWith("OP"u8))
-        {
-            tag = raw.StartsWith("VL"u8) ? "VL" : "OP";
-            name = Name(BinaryData.UInt16(raw, 2));
-            type = Name(BinaryData.UInt16(raw, 4));
-            valueStart = 6;
-        }
-        else if (raw.StartsWith("PORP"u8) || raw.StartsWith("AVAL"u8))
-        {
-            tag = raw.StartsWith("PORP"u8) ? "PORP" : "AVAL";
-            name = Name(BinaryData.UInt16(raw, 4));
-            type = Name(BinaryData.UInt16(raw, 6));
-            valueStart = 12;
-        }
-        else if (raw.StartsWith("BLCK"u8))
-        {
-            tag = "BLCK";
-            name = Name(BinaryData.UInt16(raw, 4));
-            valueStart = 10;
-        }
-        else if (raw.StartsWith("SS"u8))
-        {
-            tag = "SS";
-            name = "Embedded archive";
-            valueStart = 6;
-        }
-        else if (raw.StartsWith("SXAP"u8) || raw.StartsWith("MANU"u8))
-        {
-            tag = raw.StartsWith("SXAP"u8) ? "SXAP" : "MANU";
-            name = tag == "MANU" ? "Name table" : "Archive version header";
-            if (tag == "SXAP")
-            {
-                _ = BinaryData.Slice(raw, 0, 16);
-            }
-        }
+        var (tag, name, type, valueStart) = ReadHeader(raw);
 
         _ = BinaryData.Slice(raw, 0, opaque ? 0 : valueStart);
         if ((tag is "SS" or "BLCK" or "PORP" or "AVAL") && BinaryData.Int32(raw, valueStart - sizeof(int)) != size - valueStart)
@@ -195,6 +151,36 @@ internal sealed class Sav3Tree
         var node = new Sav3Node(Nodes.Count, offset, size, tag, name ?? $"Bytes at 0x{offset:X}", type, offset + valueStart, size - valueStart);
         Nodes.Add(node);
         return node;
+    }
+
+    private (string Tag, string? Name, string? Type, int Size) ReadHeader(ReadOnlySpan<byte> raw)
+    {
+        if (raw.StartsWith("BS"u8)) { return NamedHeader(raw, "BS", 2, null, 4); }
+        if (raw.StartsWith("VL"u8) || raw.StartsWith("OP"u8))
+        {
+            return NamedHeader(raw, raw.StartsWith("VL"u8) ? "VL" : "OP", 2, 4, 6);
+        }
+        if (raw.StartsWith("PORP"u8) || raw.StartsWith("AVAL"u8))
+        {
+            return NamedHeader(raw, raw.StartsWith("PORP"u8) ? "PORP" : "AVAL", 4, 6, 12);
+        }
+        if (raw.StartsWith("BLCK"u8)) { return NamedHeader(raw, "BLCK", 4, null, 10); }
+        if (raw.StartsWith("SS"u8)) { return ("SS", "Embedded archive", null, 6); }
+        if (raw.StartsWith("SXAP"u8))
+        {
+            _ = BinaryData.Slice(raw, 0, 16);
+            return ("SXAP", "Archive version header", null, 0);
+        }
+        if (raw.StartsWith("MANU"u8)) { return ("MANU", "Name table", null, 0); }
+        return ("Opaque", null, null, 0);
+    }
+
+    private (string Tag, string Name, string? Type, int Size) NamedHeader(ReadOnlySpan<byte> raw, string tag,
+        int nameOffset, int? typeOffset, int size)
+    {
+        var name = Name(BinaryData.UInt16(raw, nameOffset));
+        var type = typeOffset is { } offset ? Name(BinaryData.UInt16(raw, offset)) : null;
+        return (tag, name, type, size);
     }
 
     private string Name(int index)

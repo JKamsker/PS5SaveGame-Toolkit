@@ -24,14 +24,7 @@ internal static class WitcherWriter
 
         var header = container.Original.AsSpan(0, container.HeaderSize).ToArray();
         var chunkSizes = ChunkSizes(container, payload.Length);
-        var extraDescriptors = (chunkSizes.Count - container.Chunks.Count) * DescriptorSize;
-        var oldTableEnd = TableOffset + container.Chunks.Count * DescriptorSize;
-        if (extraDescriptors > header.Length - oldTableEnd ||
-            header.AsSpan(oldTableEnd, extraDescriptors).ContainsAnyExcept((byte)0))
-        {
-            throw new SaveFormatException("Additional Witcher chunks would overwrite reserved header data.");
-        }
-
+        ValidateHeaderCapacity(container, header, chunkSizes.Count);
         using var output = new MemoryStream();
         output.Write(header);
         var position = 0;
@@ -39,26 +32,7 @@ internal static class WitcherWriter
         {
             var chunk = index < container.Chunks.Count ? container.Chunks[index] : null;
             var expanded = chunkSizes[index];
-            var raw = payload.AsSpan(position, expanded);
-            byte[] encoded;
-            if (chunk is not null && expanded == chunk.ExpandedSize && position <= container.Payload.Length - expanded &&
-                raw.SequenceEqual(container.Payload.AsSpan(position, expanded)))
-            {
-                encoded = container.Original.AsSpan(chunk.Offset, chunk.StoredSize).ToArray();
-            }
-            else
-            {
-                var buffer = new byte[LZ4Codec.MaximumOutputSize(expanded)];
-                var stored = LZ4Codec.Encode(raw, buffer, LZ4Level.L12_MAX);
-                if (stored <= 0)
-                {
-                    throw new SaveFormatException("Could not LZ4-compress the edited Witcher chunk.");
-                }
-
-                // Native writers store incompressible blocks verbatim (equal stored/expanded sizes).
-                encoded = stored < expanded ? buffer.AsSpan(0, stored).ToArray() : raw.ToArray();
-            }
-
+            var encoded = EncodeChunk(container, chunk, payload.AsSpan(position, expanded), position);
             output.Write(encoded);
             var descriptor = header.AsSpan(TableOffset + index * DescriptorSize, DescriptorSize);
             BinaryPrimitives.WriteInt32LittleEndian(descriptor, encoded.Length);
@@ -81,6 +55,43 @@ internal static class WitcherWriter
         BinaryPrimitives.WriteInt32LittleEndian(header.AsSpan(12), container.HeaderSize);
         output.Write(header);
         var bytes = output.ToArray();
+        Verify(bytes, payload);
+        return bytes;
+    }
+
+    private static void ValidateHeaderCapacity(WitcherContainer container, byte[] header, int chunkCount)
+    {
+        var extraDescriptors = (chunkCount - container.Chunks.Count) * DescriptorSize;
+        var oldTableEnd = TableOffset + container.Chunks.Count * DescriptorSize;
+        if (extraDescriptors > header.Length - oldTableEnd ||
+            header.AsSpan(oldTableEnd, extraDescriptors).ContainsAnyExcept((byte)0))
+        {
+            throw new SaveFormatException("Additional Witcher chunks would overwrite reserved header data.");
+        }
+
+    }
+
+    private static byte[] EncodeChunk(WitcherContainer container, WitcherChunk? chunk, ReadOnlySpan<byte> raw, int position)
+    {
+        var expanded = raw.Length;
+        if (chunk is not null && expanded == chunk.ExpandedSize && position <= container.Payload.Length - expanded &&
+            raw.SequenceEqual(container.Payload.AsSpan(position, expanded)))
+        {
+            return container.Original.AsSpan(chunk.Offset, chunk.StoredSize).ToArray();
+        }
+        var buffer = new byte[LZ4Codec.MaximumOutputSize(expanded)];
+        var stored = LZ4Codec.Encode(raw, buffer, LZ4Level.L12_MAX);
+        if (stored <= 0)
+        {
+            throw new SaveFormatException("Could not LZ4-compress the edited Witcher chunk.");
+        }
+
+        // Native writers store incompressible blocks verbatim (equal stored/expanded sizes).
+        return stored < expanded ? buffer.AsSpan(0, stored).ToArray() : raw.ToArray();
+    }
+
+    private static void Verify(byte[] bytes, byte[] payload)
+    {
         var check = WitcherContainer.Parse(bytes);
         if (!check.Payload.AsSpan().SequenceEqual(payload))
         {
@@ -88,7 +99,6 @@ internal static class WitcherWriter
         }
 
         _ = Sav3Tree.Parse(check.Payload, Sav3Directory.Parse(check));
-        return bytes;
     }
 
     private static IReadOnlyList<int> ChunkSizes(WitcherContainer container, int payloadSize)

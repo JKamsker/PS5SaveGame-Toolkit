@@ -1,4 +1,3 @@
-using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
@@ -14,7 +13,7 @@ public sealed class WitcherCatalogQueryTests
     public void CatalogTablesDelegateBoundedCategorySearchAndDeclaredSortToThePinnedCatalog(string column, ReferenceSortKey sort)
     {
         var plugin = new Witcher3Plugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA04018");
+        var context = ReferencePackFixture.Pin(plugin);
         var catalog = new TrackingCatalog(context.Catalog("items")!);
         var view = new CatalogViews(new TrackingContext(catalog), "sav3-64.23.163", () => null);
         var category = catalog.Find("NGP Bear Armor")!.Category!;
@@ -42,7 +41,7 @@ public sealed class WitcherCatalogQueryTests
     public void UndeclaredSortUsesCatalogOrderAndExtendedFiltersKeepFullDatasetCoverage()
     {
         var plugin = new Witcher3Plugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA04018");
+        var context = ReferencePackFixture.Pin(plugin);
         var catalog = new TrackingCatalog(context.Catalog("items")!) { SortKeys = [] };
         var view = new CatalogViews(new TrackingContext(catalog), "sav3-64.23.163", () => null);
         var page = view.Query("catalog/items", new QueryableCollectionQuery { SortColumn = "name", Limit = 2 });
@@ -69,7 +68,7 @@ public sealed class WitcherCatalogQueryTests
     public void FullMetadataSearchRetainsDescriptionCategoryAttributesAndSavedStateMatches()
     {
         var plugin = new Witcher3Plugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA04018");
+        var context = ReferencePackFixture.Pin(plugin);
         var view = new CatalogViews(context, "sav3-64.23.163", () => [new GwentCard(108, 1)]);
         var bread = context.Catalog("items")!.Find("Bread")!;
         foreach (var text in new[] { bread.Description![..20], bread.Category!, bread.Attributes["mappingConfidence"] })

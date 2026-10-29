@@ -22,42 +22,22 @@ internal sealed record PlayerData(PlayerProgress Progress, PlayerInventory? Inve
             return null;
         }
 
-        var playerIds = Children(players[0]).Where(n => n.Name == "id" && n.Type == "IdTag" && n.ValueSize == 17).ToArray();
+        var playerIds = Children(players[0], tree).Where(n => n.Name == "id" && n.Type == "IdTag" && n.ValueSize == 17).ToArray();
         if (playerIds.Length != 1)
         {
             return null;
         }
 
         var playerId = data.AsMemory(playerIds[0].ValueOffset, 17);
-        var owners = tree.Nodes.Where(n => n.Tag == "BS" && n.Name == "entityData" &&
-            Children(n).Any(c => c.Name == "idTag" && c.Type == "IdTag" && c.ValueSize == 17 &&
-                data.AsSpan(c.ValueOffset, 17).SequenceEqual(playerId.Span))).ToArray();
-        if (owners.Length != 1)
-        {
-            return null;
-        }
-
-        var archives = Children(owners[0]).Where(n => n.Tag == "SS").ToArray();
-        if (archives.Length != 1)
-        {
-            return null;
-        }
-
-        var archive = archives[0];
-        var roots = Children(archive).ToArray();
-        var versions = roots.Where(n => n.Tag == "SXAP").ToArray();
-        if (versions.Length != 1 || !data.AsSpan(versions[0].Offset + 4, 12).SequenceEqual(data.AsSpan(4, 12)))
-        {
-            return null;
-        }
-
+        var archive = FindArchive(playerId, tree, data, out var roots);
+        if (archive is null) { return null; }
         var entities = roots.Where(n => n.Tag == "BLCK" && n.Name == "Entity").ToArray();
         if (entities.Length != 1)
         {
             return null;
         }
 
-        var managers = Children(entities[0]).Where(n => n.Tag == "PORP" && n.Name == "levelManager" && n.Type == "handle:W3LevelManager").ToArray();
+        var managers = Children(entities[0], tree).Where(n => n.Tag == "PORP" && n.Name == "levelManager" && n.Type == "handle:W3LevelManager").ToArray();
         if (managers.Length != 1)
         {
             return null;
@@ -66,15 +46,43 @@ internal sealed record PlayerData(PlayerProgress Progress, PlayerInventory? Inve
         var progress = new PlayerProgress(managers[0], data, directory.Names);
         var tails = roots.Where(n => n.Tag == "Opaque" && n.Offset + n.Size == archive.Offset + archive.Size).ToArray();
         var inventory = tails.Length == 1 ? PlayerInventory.Read(tails[0], data, directory.Names) : null;
-        var abilities = Children(entities[0]).Where(n => n.Tag == "PORP" && n.Name == "abilityManager" && n.Type == "handle:W3AbilityManager").ToArray();
+        var abilities = Children(entities[0], tree).Where(n => n.Tag == "PORP" && n.Name == "abilityManager" && n.Type == "handle:W3AbilityManager").ToArray();
         return new PlayerData(progress, inventory) {
             EntityId = Convert.ToHexString(playerId.Span),
             AbilityManager = abilities.Length == 1 ? abilities[0] : null,
             Entity = entities[0],
         };
-
-        IEnumerable<Sav3Node> Children(Sav3Node node) => node.Children.Select(id => tree.Nodes[id]);
     }
+
+    private static Sav3Node? FindArchive(ReadOnlyMemory<byte> playerId, Sav3Tree tree, byte[] data, out Sav3Node[] roots)
+    {
+        roots = [];
+        var owners = tree.Nodes.Where(n => n.Tag == "BS" && n.Name == "entityData" &&
+            Children(n, tree).Any(c => c.Name == "idTag" && c.Type == "IdTag" && c.ValueSize == 17 &&
+                data.AsSpan(c.ValueOffset, 17).SequenceEqual(playerId.Span))).ToArray();
+        if (owners.Length != 1)
+        {
+            return null;
+        }
+
+        var archives = Children(owners[0], tree).Where(n => n.Tag == "SS").ToArray();
+        if (archives.Length != 1)
+        {
+            return null;
+        }
+
+        var archive = archives[0];
+        roots = Children(archive, tree).ToArray();
+        var versions = roots.Where(n => n.Tag == "SXAP").ToArray();
+        if (versions.Length != 1 || !data.AsSpan(versions[0].Offset + 4, 12).SequenceEqual(data.AsSpan(4, 12)))
+        {
+            return null;
+        }
+
+        return archive;
+    }
+
+    private static IEnumerable<Sav3Node> Children(Sav3Node node, Sav3Tree tree) => node.Children.Select(id => tree.Nodes[id]);
 
     public IEnumerable<Sav3Patch> Patches(Sav3Directory directory, WitcherContainer container) =>
         Progress.Patches(directory, container).Concat(Inventory?.Patches() ?? []);

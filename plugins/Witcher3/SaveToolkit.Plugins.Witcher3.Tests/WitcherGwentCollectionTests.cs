@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
@@ -45,7 +44,7 @@ public sealed class WitcherGwentCollectionTests
         var input = file.ReadAllBytes();
         var before = EnabledWriteFixture.Read(input);
         var plugin = new Witcher3Plugin();
-        var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA04018");
+        var references = ReferencePackFixture.Pin(plugin);
         using var document = plugin.Open(file, references);
         using var session = new DocumentSession("gwent-query", file, plugin, document, references: references);
         _ = session.BuildView();

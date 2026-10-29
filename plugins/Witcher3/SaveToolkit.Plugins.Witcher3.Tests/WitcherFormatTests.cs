@@ -24,7 +24,7 @@ public sealed class WitcherFormatTests
         Assert.Equal(FieldValue.Of(true), ScalarReader.Read(enabled, container.Payload, directory.Names)!.Value);
         var block = Assert.Single(tree.Nodes, node => node.Tag == "BLCK");
         Assert.Equal(3, block.Children.Count);
-        using var document = Open(bytes);
+        using var document = WitcherTestFiles.Open(bytes);
         Assert.False(document.CanEdit);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
@@ -41,7 +41,7 @@ public sealed class WitcherFormatTests
     {
         var bytes = SyntheticSave.Create();
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(offset), value);
-        Assert.Throws<SaveFormatException>(() => Open(bytes));
+        Assert.Throws<SaveFormatException>(() => WitcherTestFiles.Open(bytes));
     }
 
     [Theory]
@@ -53,7 +53,7 @@ public sealed class WitcherFormatTests
     public void RejectsInvalidInnerStructure(int offset)
     {
         var bytes = SyntheticSave.Create(payload => BinaryPrimitives.WriteInt32LittleEndian(payload.AsSpan(offset), int.MaxValue));
-        Assert.Throws<SaveFormatException>(() => Open(bytes));
+        Assert.Throws<SaveFormatException>(() => WitcherTestFiles.Open(bytes));
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public sealed class WitcherFormatTests
         ];
         foreach (var mutation in mutations)
         {
-            Assert.Throws<SaveFormatException>(() => Open(SyntheticSave.Create(mutation)));
+            Assert.Throws<SaveFormatException>(() => WitcherTestFiles.Open(SyntheticSave.Create(mutation)));
         }
     }
 
@@ -87,13 +87,13 @@ public sealed class WitcherFormatTests
         var bytes = SyntheticSave.Create();
         for (var length = 0; length < bytes.Length - 2; length++)
         {
-            Assert.Throws<SaveFormatException>(() => Open(bytes[..length]));
+            Assert.Throws<SaveFormatException>(() => WitcherTestFiles.Open(bytes[..length]));
         }
 
         bytes[SyntheticSave.HeaderSize] = 0;
         bytes[SyntheticSave.HeaderSize + 1] = 0;
         bytes[SyntheticSave.HeaderSize + 2] = 0;
-        Assert.Throws<SaveFormatException>(() => Open(bytes));
+        Assert.Throws<SaveFormatException>(() => WitcherTestFiles.Open(bytes));
     }
 
     [Fact]
@@ -105,6 +105,4 @@ public sealed class WitcherFormatTests
         Assert.False(plugin.Probe(MemorySaveSet.SingleFile("Manual.sav", bytes, "PPSA04027")).IsMatch);
         Assert.False(plugin.Probe(MemorySaveSet.SingleFile("user.settings", bytes, "PPSA04018")).IsMatch);
     }
-
-    private static ISaveDocument Open(byte[] bytes) => new Witcher3Plugin().Open(MemorySaveSet.SingleFile("Manual.sav", bytes, "PPSA04018"));
 }

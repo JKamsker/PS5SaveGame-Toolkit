@@ -1,4 +1,3 @@
-using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
 
@@ -14,7 +13,7 @@ public sealed class WitcherCatalogStateTests
     public void EachGwentQueryCapturesCurrentCardsOnceAndRefreshesAfterEdits(string mode)
     {
         var plugin = new Witcher3Plugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA04018");
+        var context = ReferencePackFixture.Pin(plugin);
         var calls = 0;
         var copies = 1;
         var view = new CatalogViews(context, "sav3-64.23.163", () => {
@@ -52,7 +51,7 @@ public sealed class WitcherCatalogStateTests
     public void MissingAndEmptyCollectionsRetainTheirDistinctMeanings(bool available, string expected)
     {
         var plugin = new Witcher3Plugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA04018");
+        var context = ReferencePackFixture.Pin(plugin);
         var view = new CatalogViews(context, "sav3-64.23.163", () => available ? [] : null);
         var page = view.Query("catalog/gwent", new() { Filters = new Dictionary<string, string> { ["raw"] = "108" } });
         Assert.Equal(expected, Assert.IsType<TextNode>(Assert.Single(page.Rows).Cells["owned"]).Text);

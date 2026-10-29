@@ -1,6 +1,5 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Witcher3.Tests;
 
@@ -17,7 +16,7 @@ public sealed class WitcherSampleCorruptionTests
             var cuts = headerCuts.Concat(container.Chunks.SelectMany(c => new[] { c.Offset + c.StoredSize / 2, c.Offset + c.StoredSize - 1 }));
             foreach (var cut in cuts.Distinct())
             {
-                Assert.Throws<SaveFormatException>(() => RobustnessSave.OpenContainer(bytes[..cut]));
+                Assert.Throws<SaveFormatException>(() => WitcherTestFiles.Open(bytes[..cut]));
             }
             Assert.Equal(bytes, file.ReadAllBytes());
         }
@@ -79,7 +78,7 @@ public sealed class WitcherSampleCorruptionTests
         // Independently wrap as a raw chunk using the same virtual-offset origin. The production
         // writer deliberately reparses/rejects malformed payloads, so it cannot construct these inputs.
         var changed = RobustnessSave.StoredChunk(payload, payload.Length, original.HeaderSize);
-        var error = Assert.Throws<SaveFormatException>(() => RobustnessSave.OpenContainer(changed));
+        var error = Assert.Throws<SaveFormatException>(() => WitcherTestFiles.Open(changed));
         Assert.False(string.IsNullOrWhiteSpace(error.Message));
     }
 

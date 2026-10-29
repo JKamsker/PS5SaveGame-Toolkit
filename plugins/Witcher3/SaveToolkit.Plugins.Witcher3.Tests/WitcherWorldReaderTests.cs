@@ -74,7 +74,7 @@ public sealed class WitcherWorldReaderTests
     {
         foreach (var file in EnabledWriteFixture.Files())
         {
-            var (container, directory, tree, player) = Parse(file.ReadAllBytes());
+            var (container, directory, tree, player) = PlayerSaveFixture.Read(file.ReadAllBytes());
             var data = new SavedWorldData(player, tree, container.Payload, directory.Names);
             Assert.Empty(data.Warnings);
             Assert.Equal(54, data.Recipes!.Count(r => r.Kind == "craftingSchematics"));
@@ -128,7 +128,7 @@ public sealed class WitcherWorldReaderTests
     public void CorruptOptionalReadersFailIndependentlyAndJournalRejectsMalformedLinks()
     {
         var file = SampleSaves.Load("PPSA04018").AllDiskFiles.First(f => f.FileName.EndsWith(".sav", StringComparison.Ordinal));
-        var (container, directory, tree, player) = Parse(file.ReadAllBytes());
+        var (container, directory, tree, player) = PlayerSaveFixture.Read(file.ReadAllBytes());
         var facts = tree.Nodes.Single(n => n.Tag == "BS" && n.Name == "facts");
         var stream = tree.Nodes[Assert.Single(facts.Children)];
         var corrupt = container.Payload.ToArray();
@@ -153,14 +153,6 @@ public sealed class WitcherWorldReaderTests
         corrupt = container.Payload.ToArray();
         corrupt[unread.ValueOffset] = 2;
         Assert.Throws<SaveFormatException>(() => JournalReader.Read(tree, corrupt, directory.Names));
-    }
-
-    private static (WitcherContainer, Sav3Directory, Sav3Tree, PlayerData) Parse(byte[] bytes)
-    {
-        var container = WitcherContainer.Parse(bytes);
-        var directory = Sav3Directory.Parse(container);
-        var tree = Sav3Tree.Parse(container.Payload, directory);
-        return (container, directory, tree, PlayerData.Read(container, directory, tree)!);
     }
 
     private static byte[] EmptyFacts() => [.. "SXAP"u8.ToArray(), .. new byte[12], .. "SBDF"u8.ToArray(), 0, 0, 0, 0, .. "EBDF"u8.ToArray()];

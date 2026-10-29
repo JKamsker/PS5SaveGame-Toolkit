@@ -40,12 +40,20 @@ internal static class SyntheticSave
         writer.Write(checked((int)archive.Length));
         writer.Write(archive.ToArray());
         var rootEnd = checked((int)data.Position);
-        var rb = checked((int)data.Position);
+        WriteDirectory(writer, rootEnd);
+        var payload = data.ToArray();
+        mutatePayload?.Invoke(payload);
+        return Wrap(payload);
+    }
+
+    private static void WriteDirectory(BinaryWriter writer, int rootEnd)
+    {
+        var rb = checked((int)writer.BaseStream.Position);
         writer.Write("RB"u8);
         writer.Write(1);
         writer.Write((ushort)1);
         writer.Write(HeaderSize + RootOffset);
-        var nm = checked((int)data.Position);
+        var nm = checked((int)writer.BaseStream.Position);
         writer.Write("NMMANU"u8);
         string[] names = ["Root", "count", "Uint32", "example", "Int32", "label", "String", "enabled", "Bool"];
         writer.Write(names.Length);
@@ -58,11 +66,11 @@ internal static class SyntheticSave
 
         writer.Write(0);
         writer.Write("ENOD"u8);
-        var namesEnd = checked((int)data.Position);
+        var namesEnd = checked((int)writer.BaseStream.Position);
         writer.Write(nm + HeaderSize);
         writer.Write(rb + HeaderSize);
         writer.Write("SC"u8);
-        var table = checked((int)data.Position);
+        var table = checked((int)writer.BaseStream.Position);
         writer.Write(4);
         WriteEntry(writer, RootOffset, rootEnd - RootOffset);
         WriteEntry(writer, ScalarOffset, 10);
@@ -70,9 +78,6 @@ internal static class SyntheticSave
         WriteEntry(writer, nm + 2, namesEnd - nm - 2);
         writer.Write(table + HeaderSize);
         writer.Write("SE"u8);
-        var payload = data.ToArray();
-        mutatePayload?.Invoke(payload);
-        return Wrap(payload);
     }
 
     public static byte[] Wrap(byte[] payload)

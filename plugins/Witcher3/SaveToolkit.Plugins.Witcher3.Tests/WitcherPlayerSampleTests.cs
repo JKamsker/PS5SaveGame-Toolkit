@@ -22,7 +22,7 @@ public sealed class WitcherPlayerSampleTests
         foreach (var file in saves)
         {
             var container = WitcherContainer.Parse(file.ReadAllBytes());
-            var player = ReadPlayer(container);
+            var player = PlayerSaveFixture.Read(container).Player;
             var known = expected[file.FileName];
             Assert.Equal(1, player.Progress.Level);
             Assert.Equal(50, player.Progress.MaximumDefinedLevel);
@@ -65,7 +65,7 @@ public sealed class WitcherPlayerSampleTests
             var output = Assert.Single(document.Serialize());
             Assert.Equal(file.RelativePath, output.RelativePath); // No companion rewrite.
             var after = WitcherContainer.Parse(output.Content.ToArray());
-            var edited = ReadPlayer(after);
+            var edited = PlayerSaveFixture.Read(after).Player;
             Assert.Equal(2, edited.Progress.Level);
             Assert.Equal(player.Progress.Experience + 25, edited.Progress.Experience);
             Assert.Equal(7, edited.Progress.AbilityPoints);
@@ -101,7 +101,7 @@ public sealed class WitcherPlayerSampleTests
         foreach (var file in EnabledWriteFixture.Files())
         {
             var before = WitcherContainer.Parse(file.ReadAllBytes());
-            var player = ReadPlayer(before);
+            var player = PlayerSaveFixture.Read(before).Player;
             var crowns = Assert.Single(player.Inventory!.Items, i => i.Name == "Crowns");
             using var document = new Witcher3Plugin().Open(file);
             _ = document.BuildView();
@@ -118,11 +118,5 @@ public sealed class WitcherPlayerSampleTests
             Assert.Equal(first.Length - after.HeaderSize, chunk.StoredSize);
             Assert.Equal(before.Chunks[0].EndOffset == 0 ? 0 : first.Length, chunk.EndOffset);
         }
-    }
-
-    private static PlayerData ReadPlayer(WitcherContainer container)
-    {
-        var directory = Sav3Directory.Parse(container);
-        return Assert.IsType<PlayerData>(PlayerData.Read(container, directory, Sav3Tree.Parse(container.Payload, directory)));
     }
 }
