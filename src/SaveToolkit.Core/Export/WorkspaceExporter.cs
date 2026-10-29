@@ -62,7 +62,8 @@ public static class WorkspaceExporter
                     throw new ExportException($"Plugin '{session.Plugin.Info.Id}' tried to write unknown file '{output.RelativePath}'.");
                 }
 
-                if (!overrides.TryAdd(output.RelativePath, output.Content.ToArray()))
+                // Serialize already snapshots plugin-owned buffers under the session lock.
+                if (!overrides.TryAdd(output.RelativePath, output.Content))
                 {
                     throw new ExportException($"Two open documents both rewrite '{output.RelativePath}'. Close one of them.");
                 }
