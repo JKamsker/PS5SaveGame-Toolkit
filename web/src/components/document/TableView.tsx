@@ -111,6 +111,7 @@ export function TableView({ node }: { node: TableNode }) {
           <EmptyRowsToggle presentation={node.emptyRows} includeEmpty={includeEmpty} hiddenCount={hiddenEmptyCount} onChange={setIncludeEmpty} />
         </TableToolbar>
         {node.description && <p className="section__description">{node.description}</p>}
+        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex -- The named scroll region handles keyboard paging of virtualized rows. */}
         <div className="table__scroller" ref={scroller} tabIndex={0} role="region" aria-label={`${node.title ?? "Table"} rows`}
           onKeyDown={event => scrollTableByKey(event, virtualizer.getTotalSize(), ROW_HEIGHT)}>
           <div className="table__grid" role="table" aria-label={node.title} aria-rowcount={entries.length + 1} style={{ gridTemplateColumns: template }}>

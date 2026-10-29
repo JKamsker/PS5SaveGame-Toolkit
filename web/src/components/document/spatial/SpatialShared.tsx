@@ -10,6 +10,7 @@ export const MAX_GRAPH_EDGES = 2048;
 const TEXT_PAGE_SIZE = 50;
 
 export function httpsUrl(value: string): URL | null {
+  // eslint-disable-next-line no-control-regex -- Reject literal control characters before URL parsing can normalize them.
   if (!/^https:\/\//i.test(value) || /[\s\\\x00-\x1f\x7f]/.test(value)) return null;
   try {
     const url = new URL(value);

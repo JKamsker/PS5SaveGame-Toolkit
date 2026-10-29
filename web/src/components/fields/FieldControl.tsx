@@ -73,11 +73,13 @@ function FlagsControl({ id, spec, value, onCommit, labelledBy, describedBy, inva
   const bits = value === null ? 0n : BigInt(String(value));
   const { busy, commit } = useValueCommit(id, onCommit);
   const toggle = (bit: number) => void commit((bits ^ (1n << BigInt(bit))).toString());
+  const isSet = (bit: number) => (bits & (1n << BigInt(bit))) !== 0n;
   return (
+    // eslint-disable-next-line jsx-a11y/role-supports-aria-props -- The flags group exposes the existing shared validation state for its field.
     <div className="flags" id={id} role="group" aria-labelledby={labelledBy} aria-describedby={describedBy} aria-invalid={invalid || undefined}>
       {spec.bits.map((b) => (
         <label key={b.bit} title={b.description}>
-          <input type="checkbox" disabled={busy} checked={(bits & (1n << BigInt(b.bit))) !== 0n} onChange={() => toggle(b.bit)} />
+          <input type="checkbox" disabled={busy} checked={isSet(b.bit)} onChange={() => toggle(b.bit)} />
           {b.label}
         </label>
       ))}
@@ -182,17 +184,17 @@ function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labe
           if (e.key === "Escape") revert();
           if (spec.kind === "integer" && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
             e.preventDefault();
-            step(e.key === "ArrowUp" ? 1n : -1n);
+            void step(e.key === "ArrowUp" ? 1n : -1n);
           }
         }}
       />
       {spec.kind === "integer" && !compact && (
         <span className="stepper">
-          <button type="button" aria-labelledby={`${id}-decrease-label${labelledBy ? ` ${labelledBy}` : ""}`} onClick={() => step(-1n)}>
+          <button type="button" aria-labelledby={`${id}-decrease-label${labelledBy ? ` ${labelledBy}` : ""}`} onClick={() => void step(-1n)}>
             <span id={`${id}-decrease-label`} className="visually-hidden">Decrease</span>
             <span aria-hidden="true">−</span>
           </button>
-          <button type="button" aria-labelledby={`${id}-increase-label${labelledBy ? ` ${labelledBy}` : ""}`} onClick={() => step(1n)}>
+          <button type="button" aria-labelledby={`${id}-increase-label${labelledBy ? ` ${labelledBy}` : ""}`} onClick={() => void step(1n)}>
             <span id={`${id}-increase-label`} className="visually-hidden">Increase</span>
             <span aria-hidden="true">+</span>
           </button>

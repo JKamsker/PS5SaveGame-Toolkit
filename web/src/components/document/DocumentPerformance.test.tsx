@@ -60,6 +60,7 @@ it("keeps a 20,000-row document idle through 30 workspace status updates", async
   reads.mockClear(); durations.length = 0;
   const started = performance.now();
   for (let i = 0; i < 30; i++) act(() => rerender(tree(`Workspace update ${i}`)));
+  // eslint-disable-next-line no-console -- PERF_REPORT explicitly enables these performance measurements.
   if (process.env.PERF_REPORT) console.info(JSON.stringify({ rows: 20_000, mountedRows, mountMs,
     updates: 30, fieldReads: reads.mock.calls.length, elapsedMs: performance.now() - started,
     profilerMs: durations.reduce((sum, duration) => sum + duration, 0) }));
@@ -105,6 +106,7 @@ it("loads one current Changes snapshot after a revert instead of refetching the 
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Revert Flag" })); });
   expect(screen.getByText("No semantic changes.")).toBeTruthy();
   expect(screen.getByRole("switch", { name: /^flag0/ }).getAttribute("aria-checked")).toBe("false");
+  // eslint-disable-next-line no-console -- PERF_REPORT explicitly enables these performance measurements.
   if (process.env.PERF_REPORT) console.info(JSON.stringify({ changesRequestsIncludingOpen: changes.mock.calls.length }));
   expect(changes).toHaveBeenCalledTimes(2);
 });

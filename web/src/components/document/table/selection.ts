@@ -1,6 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import type { TableRow } from "../../../api/protocol";
-import type { CollectionQuery } from "../../../api/protocol";
+import type { CollectionQuery, TableRow } from "../../../api/protocol";
 
 /**
  * Row selection of one table. Kept in a small hook + context so bulk features (F6 action preview)

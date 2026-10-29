@@ -23,9 +23,30 @@ locally with `./scripts/self-test.ps1 -ScratchDirectory <path>`. Only superseded
 validations cancel running CI; pushes (including main) and release validations finish their current run.
 Private samples are absent, so sample-dependent tests skip while synthetic tests still run.
 There is no sample download step. This validates the sample-free path, not gameplay or console
-compatibility. Web checks include lint when configured, TypeScript, Vitest and the production build.
+compatibility. Web checks include ESLint, TypeScript, Vitest and the production build.
 NuGet/npm downloads are cached; per-project TRX and web JUnit results are uploaded even on failure,
-and the validation jobs write summaries. The repository currently has no web lint script.
+and the validation jobs write summaries.
+
+The web package's `lint` script runs `eslint src e2e`, using `web/eslint.config.js` (flat config).
+The `validate` job invokes `npm run lint --if-present` on both Ubuntu and Windows immediately
+after installing web dependencies, before typecheck, Vitest and the production build; lint errors
+fail that step. The script is present, so `--if-present` does not skip linting. Recommended ESLint,
+TypeScript, React Hooks and JSX accessibility rules cover unused variables, type imports, duplicate
+imports, hooks, floating/misused promises, console calls and debugger statements. File size over
+400 lines and functions over 50 lines are warnings, including JSX and test bodies; warnings do not
+fail CI. Existing dependency/virtualizer warnings remain visible for controller refactoring.
+
+Narrow exceptions in the config preserve existing request lifetimes, render snapshots and effect
+timing; line-level exceptions preserve keyboard scrolling, combobox active-descendant navigation,
+validation metadata and intentional test diagnostics. Every exception includes a reason. No broad
+disable directives are used, and unused disable directives are errors.
+
+Typed linting uses the TypeScript 6 API through the `typescript` npm alias; the `@typescript/native`
+alias retains TypeScript 7's `tsc` for typecheck and builds, following Microsoft's
+[side-by-side guidance](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6.0).
+The targeted `eslint-plugin-jsx-a11y` peer override permits ESLint 10 while that plugin's published
+peer range ends at ESLint 9. Keep these compatibility choices under review when upgrading the tools;
+plain `npm ci` must succeed without legacy peer-dependency flags.
 
 The job IDs below are the workflow keys, rather than matrix-expanded display names:
 

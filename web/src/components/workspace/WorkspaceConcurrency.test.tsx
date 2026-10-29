@@ -17,7 +17,7 @@ let pendingEdit: ReturnType<typeof deferred<void>> | null = null;
 vi.mock("../document/DocumentEditor", () => ({ DocumentEditor: ({ documentId, onSwitchPlugin }: { documentId: string; onSwitchPlugin: (id: string) => void }) => {
   const activity = useContext(WorkspaceActivityContext);
   return <div>Editor {documentId}<button onClick={() => onSwitchPlugin("plugin-a")}>Plugin A</button><button onClick={() => onSwitchPlugin("plugin-b")}>Plugin B</button>
-    <button onClick={() => { if (pendingEdit) activity?.track(pendingEdit.promise); }}>Start edit</button></div>;
+    <button onClick={() => { if (pendingEdit) void activity?.track(pendingEdit.promise); }}>Start edit</button></div>;
 } }));
 
 const clients: QueryClient[] = [];

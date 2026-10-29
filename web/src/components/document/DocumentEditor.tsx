@@ -28,6 +28,7 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
   const activity = useContext(WorkspaceActivityContext);
   const query = useQuery({ queryKey: ["document", workspaceId, documentId], queryFn: () => api.document(workspaceId, documentId), refetchOnMount: "always" });
   const store = useMemo(() => (query.data ? new DocumentStore(query.data.state) : null), [query.data]);
+  // Document identity deliberately starts a new request lifetime even when the initial values match.
   const lifetime = useMemo(() => ({ active: true, generation: 0, tail: Promise.resolve() }), [workspaceId, documentId]);
   const currentStore = useRef(store);
   const pendingEdits = useRef(new Map<string, { value: FieldValue; promise: Promise<boolean> }>());

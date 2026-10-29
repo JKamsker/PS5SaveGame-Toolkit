@@ -79,8 +79,8 @@ function applyZip64Extra(cd: DataView, start: number, length: number, entry: Zip
     const size = cd.getUint16(q + 2, true);
     if (id === 0x0001) {
       let r = q + 4;
-      if (entry.size === U32_MAX) (entry.size = u64(cd, r)), (r += 8);
-      if (entry.compressedSize === U32_MAX) (entry.compressedSize = u64(cd, r)), (r += 8);
+      if (entry.size === U32_MAX) { entry.size = u64(cd, r); r += 8; }
+      if (entry.compressedSize === U32_MAX) { entry.compressedSize = u64(cd, r); r += 8; }
       if (entry.localHeaderOffset === U32_MAX) entry.localHeaderOffset = u64(cd, r);
       return;
     }

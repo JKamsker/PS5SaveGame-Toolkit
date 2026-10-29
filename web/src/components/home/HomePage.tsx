@@ -40,7 +40,7 @@ export function HomePage() {
         const ws = await api.upload(files, undefined, (p) =>
           { if (isCurrent()) setStatus({ text: `Importing ${label}: ${Math.round(p * 100)} %`, isError: false }); },
         );
-        if (isCurrent()) navigate(`/w/${ws.id}`);
+        if (isCurrent()) void navigate(`/w/${ws.id}`);
       } catch (error) {
         if (!isCurrent()) return;
         setFailedUpload(files);

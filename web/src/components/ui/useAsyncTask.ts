@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 /** A synchronous submit guard with a lifetime for suppressing obsolete UI side effects. */
 export function useAsyncTask(key?: unknown) {
+  // Changing the owner key retires pending work; ordinary renders must preserve the submit guard.
   const lifetime = useMemo(() => ({ active: true, pending: false }), [key]);
   const [pending, setPending] = useState<typeof lifetime | null>(null);
   useEffect(() => {

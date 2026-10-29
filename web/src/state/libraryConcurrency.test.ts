@@ -1,12 +1,13 @@
+import type * as LibraryStoreModule from "./libraryStore";
+import type * as LibraryModule from "../lib/library";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import type { LibraryGame } from "../lib/library";
 import { deferred } from "../test/deferred";
 
-vi.mock("../lib/library", async original => ({ ...await original<typeof import("../lib/library")>(), groupIntoGames: vi.fn(), listDirectory: vi.fn() }));
-let library: typeof import("./libraryStore").library;
-let group: typeof import("../lib/library").groupIntoGames;
-let list: typeof import("../lib/library").listDirectory;
-const game = (key: string): LibraryGame => ({ key, titleId: null, fallbackName: key, kind: "zip", sources: [], saveDirs: 1, totalBytes: 1, icon: null });
+vi.mock("../lib/library", async original => ({ ...await original<typeof LibraryModule>(), groupIntoGames: vi.fn(), listDirectory: vi.fn() }));
+let library: typeof LibraryStoreModule.library;
+let group: typeof LibraryModule.groupIntoGames;
+let list: typeof LibraryModule.listDirectory;
+const game = (key: string): LibraryModule.LibraryGame => ({ key, titleId: null, fallbackName: key, kind: "zip", sources: [], saveDirs: 1, totalBytes: 1, icon: null });
 beforeEach(async () => {
   vi.resetModules(); vi.stubGlobal("indexedDB", undefined);
   ({ library } = await import("./libraryStore"));

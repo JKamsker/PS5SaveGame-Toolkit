@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { api, ApiError } from "../../api/client";
-import type { SectionNode, ViewNode } from "../../api/protocol";
+import type { EditResult, SectionNode, ViewNode } from "../../api/protocol";
 import { DocumentContext, DocumentStore } from "../../state/documentStore";
 import { ViewList } from "./ViewRenderer";
 
@@ -64,7 +64,7 @@ function mount(nodes: ViewNode[], strict = false, cachedNodes: Record<string, Vi
   const context = { workspaceId: "w", documentId: "fake", canEdit: true, structureVersion: 1,
     store: new DocumentStore({ canUndo: false, canRedo: false, isDirty: false }),
     refresh: vi.fn(async () => {}), commit: vi.fn(async () => false),
-    mutate: async (call: () => Promise<import("../../api/protocol").EditResult>) => call(), acceptResult: vi.fn(async () => {}), runAction: vi.fn() };
+    mutate: async (call: () => Promise<EditResult>) => call(), acceptResult: vi.fn(async () => {}), runAction: vi.fn() };
   const view = (version: number) => <QueryClientProvider client={client}>
     <DocumentContext.Provider value={{ ...context, structureVersion: version }}>
       <ViewList nodes={nodes} />

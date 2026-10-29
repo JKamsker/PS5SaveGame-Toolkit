@@ -62,7 +62,7 @@ it("isolates documents and revisions and ignores obsolete responses", async () =
 
 it("has a typed batch client that sends exact opaque pairs and propagates problems", async () => {
   const pairs = [{ fieldId: "field/#? ", recordKey: "18446744073709551615", actionId: "action/?" }];
-  const fetch = vi.fn(async (_url: string, _init?: RequestInit) => response({ status: 413, error: "At most 256 pairs." }, 413));
+  const fetch = vi.fn<(url: string, init?: RequestInit) => Promise<Response>>(async () => response({ status: 413, error: "At most 256 pairs." }, 413));
   vi.stubGlobal("fetch", fetch);
   await expect(api.referenceRecords("w", "d", pairs, 7)).rejects.toMatchObject({ status: 413 });
   expect(JSON.parse(String(fetch.mock.calls[0]?.[1]?.body))).toEqual({ pairs, revision: 7 });

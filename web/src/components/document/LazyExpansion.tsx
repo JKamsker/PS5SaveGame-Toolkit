@@ -16,6 +16,7 @@ export function LazyExpansionBoundary({ children }: { children: ReactNode }) {
 
 function LazyExpansionScope({ children }: { children: ReactNode }) {
   const document = useContext(DocumentContext);
+  // Each document gets a fresh expansion budget; unrelated renders retain the consumed entries.
   const budget = useMemo(() => new Set<string>(), [document?.workspaceId, document?.documentId]);
   return <AutomaticLoads.Provider value={budget}>{children}</AutomaticLoads.Provider>;
 }

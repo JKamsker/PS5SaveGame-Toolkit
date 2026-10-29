@@ -134,6 +134,7 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
           {preview && <>
             {preview.plan.errors.map((e, i) => <p role="alert" tabIndex={-1} key={i}>{e.valueId}: {e.message}</p>)}
             {preview.plan.warnings.map((warning, i) => <p className="notice notice--Warning" key={i}>{warning}</p>)}
+            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Keyboard users must be able to scroll the preview table. */}
             <div className="review-scroll" role="region" aria-label="Preview changes" tabIndex={0}><table className="review-table" aria-label="Preview changes">
               <thead><tr><th>Field</th><th>Before</th><th>After</th></tr></thead>
               <tbody>{changesPage.items.map((change, i) => <tr key={i}>
