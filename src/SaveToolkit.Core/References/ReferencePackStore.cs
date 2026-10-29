@@ -34,9 +34,14 @@ public sealed class ReferencePackStore
     private volatile ImmutableList<LoadedReferencePack> _packs = [];
 
     public ReferencePackStore(IEnumerable<IGamePlugin> plugins, ReferencePackOptions? options = null)
+        : this(options, plugins.Select(p => p.GetType().Assembly))
+    {
+    }
+
+    internal ReferencePackStore(ReferencePackOptions? options, IEnumerable<Assembly> assemblies)
     {
         Options = options ?? new ReferencePackOptions();
-        LoadEmbedded(plugins);
+        LoadEmbedded(assemblies);
         LoadStored();
     }
 
@@ -123,9 +128,9 @@ public sealed class ReferencePackStore
         }
     }
 
-    private void LoadEmbedded(IEnumerable<IGamePlugin> plugins)
+    private void LoadEmbedded(IEnumerable<Assembly> pluginAssemblies)
     {
-        var assemblies = plugins.Select(p => p.GetType().Assembly).Distinct().OrderBy(a => a.GetName().Name, StringComparer.Ordinal);
+        var assemblies = pluginAssemblies.Distinct().OrderBy(a => a.GetName().Name, StringComparer.Ordinal);
         var loaded = new List<LoadedReferencePack>();
         foreach (var source in assemblies.SelectMany(EmbeddedSources))
         {
