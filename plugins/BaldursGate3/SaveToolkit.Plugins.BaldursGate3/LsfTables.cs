@@ -37,6 +37,16 @@ internal static class LsfTables
         var nodes = new List<ResourceNode>(nodeCount);
         var attributes = new List<ResourceAttribute>(attributeCount);
         var roots = new List<int>();
+        var firstAttributes = ReadNodes(names, nodeData, adjacency, nodes, roots, nodeCount, recordSize);
+        var nextAttributes = ReadAttributes(names, attributeData, values, adjacency, attributes, attributeCount, recordSize);
+        AssignAttributes(nodes, firstAttributes, nextAttributes, attributeCount);
+        ReadKeys(names, keys, nodes);
+        return new LarianResource("LSOF", nodes, attributes, roots);
+    }
+
+    private static int[] ReadNodes(Dictionary<uint, string> names, byte[] nodeData, bool adjacency,
+        List<ResourceNode> nodes, List<int> roots, int nodeCount, int recordSize)
+    {
         var firstAttributes = new int[nodeCount];
         for (var i = 0; i < nodeCount; i++)
         {
@@ -49,7 +59,7 @@ internal static class LsfTables
                 BinaryData.Require(sibling == -1 || (sibling > i && sibling < nodeCount), "Invalid LSOF sibling reference.");
             }
 
-            nodes.Add(new ResourceNode(Name(BinaryData.U32(row, 0)), parent));
+            nodes.Add(new ResourceNode(Name(names, BinaryData.U32(row, 0)), parent));
             firstAttributes[i] = BinaryData.I32(row, adjacency ? LsfLayout.ExtendedFirstAttribute : LsfLayout.CompactFirstAttribute);
             if (parent == -1)
             {
@@ -61,6 +71,12 @@ internal static class LsfTables
             }
         }
 
+        return firstAttributes;
+    }
+
+    private static int[] ReadAttributes(Dictionary<uint, string> names, byte[] attributeData, byte[] values,
+        bool adjacency, List<ResourceAttribute> attributes, int attributeCount, int recordSize)
+    {
         var nextAttributes = new int[attributeCount];
         Array.Fill(nextAttributes, -1);
         var ownerLastAttribute = new Dictionary<int, int>();
@@ -92,15 +108,20 @@ internal static class LsfTables
             }
 
             BinaryData.Slice(values, valueOffset, length);
-            var attribute = new ResourceAttribute(Name(BinaryData.U32(row, 0)), (LarianAttributeType)typeId,
+            var attribute = new ResourceAttribute(Name(names, BinaryData.U32(row, 0)), (LarianAttributeType)typeId,
                 values.AsMemory(valueOffset, length));
             AttributeDecoder.Validate(attribute);
             attributes.Add(attribute);
             valueOffset += length;
         }
 
+        return nextAttributes;
+    }
+
+    private static void AssignAttributes(List<ResourceNode> nodes, int[] firstAttributes, int[] nextAttributes, int attributeCount)
+    {
         var assigned = new bool[attributeCount];
-        for (var i = 0; i < nodeCount; i++)
+        for (var i = 0; i < nodes.Count; i++)
         {
             var attribute = firstAttributes[i];
             while (attribute != -1)
@@ -114,20 +135,23 @@ internal static class LsfTables
         }
 
         BinaryData.Require(assigned.All(value => value), "LSOF contains unreachable attributes.");
+    }
+
+    private static void ReadKeys(Dictionary<uint, string> names, byte[] keys, List<ResourceNode> nodes)
+    {
         var keyCount = RecordCount(keys, LsfLayout.KeyRecordSize);
         var keyedNodes = new HashSet<int>();
         for (var i = 0; i < keyCount; i++)
         {
             var nodeIndex = BinaryData.I32(keys, i * LsfLayout.KeyRecordSize);
-            BinaryData.Require(nodeIndex >= 0 && nodeIndex < nodeCount && keyedNodes.Add(nodeIndex), "Invalid or duplicate LSOF key node reference.");
-            nodes[nodeIndex].KeyAttribute = Name(BinaryData.U32(keys, i * LsfLayout.KeyRecordSize + LsfLayout.KeyName));
+            BinaryData.Require(nodeIndex >= 0 && nodeIndex < nodes.Count && keyedNodes.Add(nodeIndex), "Invalid or duplicate LSOF key node reference.");
+            nodes[nodeIndex].KeyAttribute = Name(names, BinaryData.U32(keys, i * LsfLayout.KeyRecordSize + LsfLayout.KeyName));
         }
 
-        return new LarianResource("LSOF", nodes, attributes, roots);
-
-        string Name(uint reference) => names.TryGetValue(reference, out var name) ? name :
-            throw new SaveFormatException("Invalid LSOF name-table reference.");
     }
+
+    private static string Name(Dictionary<uint, string> names, uint reference) => names.TryGetValue(reference, out var name) ? name :
+        throw new SaveFormatException("Invalid LSOF name-table reference.");
 
     private static int RecordCount(byte[] data, int recordSize)
     {

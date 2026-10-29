@@ -14,12 +14,24 @@ internal static class LsxReader
         budget ??= new ResourceBudget();
         budget.Reserve(bytes.Length, 0, 0);
         using var stream = new MemoryStream(bytes, false);
-        using var reader = XmlReader.Create(stream, new XmlReaderSettings
-        {
-            DtdProcessing = DtdProcessing.Prohibit,
-            XmlResolver = null,
-            MaxCharactersInDocument = BinaryData.MaxBufferSize,
-        });
+        using var reader = CreateReader(stream);
+        Preflight(reader, budget);
+        stream.Position = 0;
+        using var secondReader = CreateReader(stream);
+        var document = XDocument.Load(secondReader);
+        BinaryData.Require(document.Root?.Name == "save", "LSX must have a <save> root element.");
+        return Project(document.Root!);
+    }
+
+    private static XmlReader CreateReader(Stream stream) => XmlReader.Create(stream, new XmlReaderSettings
+    {
+        DtdProcessing = DtdProcessing.Prohibit,
+        XmlResolver = null,
+        MaxCharactersInDocument = BinaryData.MaxBufferSize,
+    });
+
+    private static void Preflight(XmlReader reader, ResourceBudget budget)
+    {
         // Charge the complete model before materializing XML, including wrapper elements.
         var elementCount = 0;
         var attributeCount = 0;
@@ -47,19 +59,14 @@ internal static class LsxReader
 
         budget.Reserve(0, elementCount, attributeCount);
 
-        stream.Position = 0;
-        using var secondReader = XmlReader.Create(stream, new XmlReaderSettings
-        {
-            DtdProcessing = DtdProcessing.Prohibit,
-            XmlResolver = null,
-            MaxCharactersInDocument = BinaryData.MaxBufferSize,
-        });
-        var document = XDocument.Load(secondReader);
-        BinaryData.Require(document.Root?.Name == "save", "LSX must have a <save> root element.");
+    }
+
+    private static LarianResource Project(XElement root)
+    {
         var nodes = new List<ResourceNode>();
         var attributes = new List<ResourceAttribute>();
         var pending = new Queue<(XElement Element, int Parent)>();
-        pending.Enqueue((document.Root!, -1));
+        pending.Enqueue((root, -1));
         while (pending.TryDequeue(out var item))
         {
             BinaryData.Require(nodes.Count < BinaryData.MaxRecords, "Too many LSX elements.");

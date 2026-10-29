@@ -67,7 +67,14 @@ internal sealed class LsfBinary
 
         (budget ?? new ResourceBudget()).Reserve(total, sizes[LsfLayout.NodesPair - shift].Expanded / recordSize,
             sizes[LsfLayout.AttributesPair - shift].Expanded / recordSize);
-        var sections = new Section[pairs];
+        var (sections, position) = ReadSections(bytes, headerSize, flags, method, sizes, order);
+        return new LsfBinary(bytes, headerSize, position, flags, order, sections);
+    }
+
+    private static (Section[] Sections, int End) ReadSections(byte[] bytes, int headerSize, byte flags,
+        LarianCompressionMethod method, (int Expanded, int Stored)[] sizes, int[] order)
+    {
+        var sections = new Section[sizes.Length];
         var position = headerSize;
         foreach (var index in order)
         {
@@ -82,7 +89,7 @@ internal sealed class LsfBinary
             position += length;
         }
 
-        return new LsfBinary(bytes, headerSize, position, flags, order, sections);
+        return (sections, position);
     }
 
     private static void ValidateTableSize(int size, int recordSize) =>
