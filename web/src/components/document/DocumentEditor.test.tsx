@@ -37,6 +37,17 @@ function setup() {
 }
 
 describe("document snapshot lifecycle", () => {
+  it("focuses the opened document heading without stealing focus on refresh", async () => {
+    const { client } = setup();
+    const heading = await screen.findByRole("heading", { name: "Group save" });
+    expect(document.activeElement).toBe(heading);
+    const control = await screen.findByRole("switch", { name: "Profile flag" });
+    control.focus();
+    await act(async () => { await client.refetchQueries({ queryKey: ["document", "w", "d"] }); });
+    expect(document.activeElement).toBe(control);
+    client.clear();
+  });
+
   it("keeps expanded group fields current after edits, undo/redo and background refresh", async () => {
     const { client } = setup();
     const control = await screen.findByRole("switch", { name: "Profile flag" });

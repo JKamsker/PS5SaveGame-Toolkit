@@ -7,10 +7,12 @@ import { library } from "../../state/libraryStore";
 import { fromInput, walkEntries, type UploadFile } from "./collectFiles";
 import { GameLibrary } from "./GameLibrary";
 import { AppVersion } from "../ui/AppVersion";
+import { useEntryFocus } from "../ui/useEntryFocus";
 
 const maturityText = { ReadOnly: "view only", Experimental: "editing, untested on console", Stable: "editing, tested in-game" } as const;
 
 export function HomePage() {
+  const focusHeading = useEntryFocus("home");
   const navigate = useNavigate();
   const [dragging, setDragging] = useState(false);
   const [status, setStatus] = useState<{ text: string; isError: boolean } | null>(null);
@@ -57,7 +59,7 @@ export function HomePage() {
   };
 
   return (
-    <div className="home">
+    <main className="home">
       <div className="home__brand">
         <span className="bar__mark" aria-hidden="true" />
         Savebench
@@ -65,7 +67,7 @@ export function HomePage() {
       <GameLibrary onChooseFolder={() => void chooseFolder()} />
       <div className="home__grid">
         <div>
-          <h1 className="home__headline">Open a PS5 save dump</h1>
+          <h1 ref={focusHeading} tabIndex={-1} className="home__headline">Open a PS5 save dump</h1>
           <p className="home__lede">
             Choose the folder where you keep your decrypted dumps to see every game in it, or drop a single zip. Everything stays on this computer
             until you open a game.
@@ -126,7 +128,7 @@ export function HomePage() {
         <GameList plugins={plugins.data} />
       </div>
       <AppVersion />
-    </div>
+    </main>
   );
 }
 
