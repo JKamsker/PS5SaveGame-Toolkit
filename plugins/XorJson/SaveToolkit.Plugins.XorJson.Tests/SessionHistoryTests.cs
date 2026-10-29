@@ -15,8 +15,8 @@ public sealed class SessionHistoryTests
     public void CoreReplaysScalarAndStructuralHistoryAndRejectsStaleReferences()
     {
         var original = XorJsonTests.Encode("{\"rows\":[{\"text\":\"\\u0041\",\"n\":-0},{\"text\":\"other\",\"n\":1.00E+02}]}");
-        var root = Path.Combine(Path.GetTempPath(), "SaveToolkit.XorJson.Tests", Guid.NewGuid().ToString("N"));
-        using var store = new WorkspaceStore(new PluginCatalog([new XorJsonPlugin()]), new WorkspaceStoreOptions { DataRoot = root });
+        using var scratch = new WorkspaceScratch();
+        using var store = new WorkspaceStore(new PluginCatalog([new XorJsonPlugin()]), new WorkspaceStoreOptions { DataRoot = scratch.Root });
         using var zipBytes = new MemoryStream();
         using (var zip = new ZipArchive(zipBytes, ZipArchiveMode.Create, leaveOpen: true))
         {

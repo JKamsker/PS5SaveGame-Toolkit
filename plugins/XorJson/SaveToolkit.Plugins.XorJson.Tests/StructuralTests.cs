@@ -43,24 +43,38 @@ public sealed class StructuralTests
     }
 
     [Theory]
-    [InlineData("{\"items\":[]}", "[7,{\"unknown\":1.00E-02}]")]
-    [InlineData("{\"items\":[1]}", "null")]
-    [InlineData("{\"items\":{ }}", "{\"nested\":true}")]
-    public void AddAndReplacePreserveUnrelatedTokensAndAreReversible(string original, string inserted)
+    [InlineData("{\"items\":[]}", "[7,{\"unknown\":1.00E-02}]",
+        "{\"items\":[[7,{\"unknown\":1.00E-02}]]}", "{\"items\":[[7,{\"unknown\":{\"replacement\":1.2300E+02}}]]}", false)]
+    [InlineData("{\"items\":[]}", "[7,{\"unknown\":1.00E-02}]",
+        "{\"items\":[[7,{\"unknown\":1.00E-02}]]}", "{\"items\":[[7,{\"unknown\":{\"replacement\":1.2300E+02}}]]}", true)]
+    [InlineData("{\"items\":[1]}", "null",
+        "{\"items\":[1,null]}", "{\"items\":[1,{\"replacement\":1.2300E+02}]}", false)]
+    [InlineData("{\"items\":[1]}", "null",
+        "{\"items\":[1,null]}", "{\"items\":[1,{\"replacement\":1.2300E+02}]}", true)]
+    [InlineData("{\"items\":{ }}", "{\"nested\":true}",
+        "{\"items\":{\"new/key\":{\"nested\":true} }}", "{\"items\":{\"new/key\":{\"nested\":{\"replacement\":1.2300E+02}} }}", false)]
+    [InlineData("{\"items\":{ }}", "{\"nested\":true}",
+        "{\"items\":{\"new/key\":{\"nested\":true} }}", "{\"items\":{\"new/key\":{\"nested\":{\"replacement\":1.2300E+02}} }}", true)]
+    public void AddAndReplacePreserveUnrelatedTokensAndAreReversible(
+        string original, string inserted, string expectedAdded, string expectedReplaced, bool xor)
     {
-        var bytes = XorJsonTests.Encode(original);
+        var bytes = XorJsonTests.Encode(original, xor);
         using var document = XorJsonTests.Open(bytes);
         var actions = Nodes(document).OfType<ActionNode>().ToArray();
         var add = actions.Last(a => a.Label == "Add row/member");
         var parameters = new Dictionary<string, FieldValue> { ["json"] = FieldValue.Of(inserted), ["key"] = FieldValue.Of("new/key") };
         var addition = document.InvokeAction(add.ActionId, parameters);
         var afterAdd = document.Serialize()[0].Content.ToArray();
+        Assert.Equal(XorJsonTests.Encode(expectedAdded, xor), afterAdd);
         using var reopened = XorJsonTests.Open(afterAdd);
+        Assert.Equal(XorJsonTests.Fields(document).Select(field => field.Value), XorJsonTests.Fields(reopened).Select(field => field.Value));
         Assert.Equal(afterAdd, reopened.Serialize()[0].Content.ToArray());
         var replace = Nodes(document).OfType<ActionNode>().Last(a => a.Label == "Replace row/member");
         var replacement = document.InvokeAction(replace.ActionId, new Dictionary<string, FieldValue> { ["json"] = FieldValue.Of("{\"replacement\":1.2300E+02}") });
         var afterReplace = document.Serialize()[0].Content.ToArray();
-        Assert.NotEqual(afterAdd, afterReplace);
+        Assert.Equal(XorJsonTests.Encode(expectedReplaced, xor), afterReplace);
+        using var reopenedReplacement = XorJsonTests.Open(afterReplace);
+        Assert.Equal("1.2300E+02", XorJsonTests.Fields(reopenedReplacement).Single(field => field.Label == "replacement").Value.AsExactNumber());
         _ = document.RestoreMemento(replacement.Revert!);
         Assert.Equal(afterAdd, document.Serialize()[0].Content.ToArray());
         _ = document.RestoreMemento(addition.Revert!);

@@ -71,12 +71,27 @@ public sealed class WriteEnableTests
             new(level.ValueId, FieldValue.ExactNumber("2")), new(volume.ValueId, FieldValue.ExactNumber("49")),
         ]);
         Assert.True(result.Succeeded);
-        Assert.Equal(2, group.Serialize().Count);
+        Assert.Equal(2, result.Changes.Count);
+        foreach (var (field, expected) in new[] { (level, "2"), (volume, "49") })
+        {
+            var change = Assert.Single(result.Changes, change => change.ValueId == field.ValueId);
+            Assert.Equal(field.Value, change.OldValue);
+            Assert.Equal(FieldValue.ExactNumber(expected), change.NewValue);
+            Assert.Equal(change.NewValue, group.GetValue(field.ValueId));
+        }
+        var changed = group.Serialize().ToDictionary(output => output.RelativePath, output => output.Content.ToArray());
+        Assert.Equal(2, changed.Count);
+        using var reopenedCharacter = plugin.Open(MemorySaveSet.SingleFile(character.RelativePath, changed[character.RelativePath]));
+        using var reopenedGlobal = plugin.Open(MemorySaveSet.SingleFile(global.RelativePath, changed[global.RelativePath]));
+        Assert.Equal("2", Fields(reopenedCharacter).Single(field => field.Label == "Level" && field.Description!.Contains("MetaData", StringComparison.Ordinal)).Value.AsExactNumber());
+        Assert.Equal("49", Fields(reopenedGlobal).Single(field => field.Label == "masterVolume").Value.AsExactNumber());
         Assert.Contains(result.Warnings, warning => warning.Contains("transaction", StringComparison.OrdinalIgnoreCase));
-        _ = group.RestoreMemento(before);
+        var redo = group.RestoreMemento(before);
         var restored = group.Serialize().ToDictionary(output => output.RelativePath, output => output.Content.ToArray(), StringComparer.OrdinalIgnoreCase);
         Assert.Equal(character.ReadAllBytes(), restored[character.RelativePath]);
         Assert.Equal(global.ReadAllBytes(), restored[global.RelativePath]);
+        _ = group.RestoreMemento(redo);
+        foreach (var output in group.Serialize()) Assert.Equal(changed[output.RelativePath], output.Content.ToArray());
     }
 
     private static IReadOnlyList<FieldNode> Fields(ISaveDocument document)
