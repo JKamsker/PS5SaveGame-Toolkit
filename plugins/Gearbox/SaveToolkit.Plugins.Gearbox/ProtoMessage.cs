@@ -6,8 +6,6 @@ namespace SaveToolkit.Plugins.Gearbox;
 
 internal sealed class ProtoMessage(GearboxSchema schema, string type, List<ProtoField> fields)
 {
-    private const int MaxDepth = 40;
-    private const int MaxFields = 250_000;
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
     public string Type { get; } = type;
     public IReadOnlyList<ProtoField> Fields => fields;
@@ -17,8 +15,8 @@ internal sealed class ProtoMessage(GearboxSchema schema, string type, List<Proto
     {
         try
         {
-            var remaining = MaxFields;
-            return ParseCore(bytes, schema, type, 0, ref remaining);
+            ProtoWireValidation.Validate(bytes, schema, type);
+            return ParseCore(bytes, schema, type);
         }
         catch (Exception ex) when (ex is InvalidProtocolBufferException or DecoderFallbackException or OverflowException)
         {
@@ -26,15 +24,13 @@ internal sealed class ProtoMessage(GearboxSchema schema, string type, List<Proto
         }
     }
 
-    private static ProtoMessage ParseCore(byte[] bytes, GearboxSchema schema, string type, int depth, ref int remaining)
+    private static ProtoMessage ParseCore(byte[] bytes, GearboxSchema schema, string type)
     {
-        if (depth > MaxDepth) throw new SaveFormatException("Gearbox protobuf nesting exceeds the supported limit.");
         using var reader = new CodedInputStream(bytes);
         var fields = new List<ProtoField>();
         var singularMessages = new HashSet<int>();
         while (!reader.IsAtEnd)
         {
-            if (--remaining < 0) throw new SaveFormatException("Gearbox protobuf has too many fields.");
             var start = checked((int)reader.Position);
             var tag = reader.ReadTag();
             var number = WireFormat.GetTagFieldNumber(tag);
@@ -58,25 +54,13 @@ internal sealed class ProtoMessage(GearboxSchema schema, string type, List<Proto
                     value = data;
                     if (spec?.Type == "string") value = StrictUtf8.GetString(data);
                     else if (spec is not null && schema.IsMessage(spec.Type))
-                        child = ParseCore(data, schema, spec.Type, depth + 1, ref remaining);
-                    else if (packed) ValidatePacked(data, spec!.WireType);
+                        child = ParseCore(data, schema, spec.Type);
                     break;
                 default: reader.SkipLastField(); break; // Unknown legacy groups remain verbatim.
             }
             fields.Add(new ProtoField(number, wire, spec, bytes[start..checked((int)reader.Position)], value, child));
         }
         return new ProtoMessage(schema, type, fields);
-    }
-
-    private static void ValidatePacked(byte[] bytes, int wire)
-    {
-        using var reader = new CodedInputStream(bytes);
-        while (!reader.IsAtEnd)
-        {
-            if (wire == 0) _ = reader.ReadUInt64();
-            else if (wire == 1) _ = reader.ReadFixed64();
-            else _ = reader.ReadFixed32();
-        }
     }
 
     public IEnumerable<ProtoField> All(string name)
