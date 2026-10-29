@@ -12,7 +12,7 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
 - Verifies SHA1 before decryption; follows and validates the shuffled section chain;
   rejects bad alignment, bounds, overlap, cycles, counts, IDs, sizes and versions.
 - Curated gald, six status blocks' levels/current HP/SP, existing recognised consumable
-  quantities, and read-only play time, experience and base HP. All gameplay meanings
+  quantities, and read-only party current/max CP, play time, experience and base HP. All gameplay meanings
   carry **Inferred** confidence for the PS5 mapping.
 - Party stats and character table, one lazy F8 inventory table, lazy read-only explorer of
   all 30 sections / 138,832 primitive uint32 words, and paged plaintext/outer hex views.
@@ -237,6 +237,7 @@ offset discrepancy above.
 | Section | Offset | Field | Access / evidence |
 | --- | --- | --- | --- |
 | PartyProfile | `0x18` | Gald, uint32 | Editable 0–999,999,999; source ID +`0x24`; zero in all supplied slots |
+| PartyProfile | `0x0C` / `0x0E` | Current / max party CP, two uint16 values | Read-only, Inferred; 155/155 in every slot/twin, matching the source-guided CP/gald record layout; see [CP discovery](#party-cp-field-discovery-40-2026-10-29) |
 | PartyProfile | `0xAF8` | Play seconds, uint32 | Read-only; equals outer header `+8` in every slot |
 | PartyProfile | `0x2000` | Play ticks, uint32 | Read-only; `/60` floors to seconds; duplicate at `0x2008` preserved |
 | ArisePCStatus_000..005 | `0x04` | Level, uint32 | Editable 1–100; PS4 source ID +`0x10`, all six are level 5 |
@@ -294,6 +295,91 @@ not six independent play sessions. No repeated ZIP path generations exist here.
 Base/current HP are 321, 282, 255, 291, 339, 312 for character indices 0–5 in all
 three slots. Slot 002 adds an Apple Gel stack of one at inventory record 24.
 
+### Party CP field discovery (#40, 2026-10-29)
+
+**Outcome: expose read-only, Inferred current CP (`party/current-cp`) and max CP
+(`party/max-cp`). No CP writer or restore action.** Both are little-endian uint16
+values in PartyProfile (schema `8CC3AF4C`, version 100), at body `+0x0C` and `+0x0E`.
+Reading the pair as uint32 would incorrectly display 10,158,235 instead of 155/155.
+
+The public-source lead is Tuuuup!'s v9 PC table: its captured record has current/max
+CP at `+0x0C/+0x0E` and gald at `+0x18`. An earlier table has CP at `+0x9C` and money
+at `+0xA8`, preserving the same relative spacing after subtracting `0x90`.
+These are hypotheses about PS5, not transferable PC save addresses. The measured
+PS5 halfword pair, existing source-guided gald join, fixed supported schema and
+level-5 context consistently fit that record layout. Both PC tables are by the
+same author, not independent confirmations. No external code was executed or ported.
+
+The sole available Tales archive contains three gameplay slots, three byte-identical
+backup twins, and two opaque system blobs. Every gameplay entry was read directly
+from the read-only archive, decoded with the plugin's actual `AriseFormat.Decode`,
+and re-encrypted with `AriseFormat.Encode` to prove a byte-identical no-op. All 30
+section bodies (138,832 aligned uint32 words per file) were compared by schema ID
+and relative offset, then scanned as uint16 pairs as well. Scratch scripts,
+decoded observations, downloads and build/test output stayed under
+`D:/Temp/saveeditor/test-scratch/research-talesofarise-cp`; private data was not
+copied into the repository. System blobs were not interpreted as gameplay records.
+
+| Slot (and identical twin) | Current / max CP | Main character levels | XP per main character | HP per main character | Apple Gel, fixed slot 24 |
+| --- | --- | --- | --- | --- | --- |
+| 000 | 155 / 155 | All 5 | 0 | 321, 282, 255, 291, 339, 312 | Empty |
+| 001 | 155 / 155 | All 5 | 33 | Same | Empty |
+| 002 | 155 / 155 | All 5 | 33 | Same | ID 1, quantity 1 |
+
+The PartyProfile body moves to different physical addresses in each slot. Its CP
+bytes remain unchanged while play seconds advance 1,890 → 2,770 → 3,166, XP/SP
+change, and the known Apple Gel appears. There is **no level variation and no
+recorded on-screen CP reading** for these samples: 155/155 is the source-guided
+interpretation of the bytes, not an independently observed game-menu value.
+The publisher confirms CP is shared, spent on healing/support, restored by rest/items,
+and raised by levels/items; this is consistent context, not a growth formula or
+proof of recruitment. Preinitialized character blocks cannot establish active-party CP.
+
+Rejected alternatives, retained here so a later pass need not repeat the same guesses:
+
+| Candidate (body-relative) | Slot 000 / 001 / 002 evidence | Why not CP |
+| --- | --- | --- |
+| PartyProfile `+0x0C` as a uint32 | 10,158,235 throughout | Wrong width; the public layout identifies two uint16 values, each 155. |
+| PartyProfile `+0x1C/+0x20` near gald | Both zero throughout | Adjacency/zeros alone give no CP meaning or usable max relationship. |
+| PartyProfile `+0xB3C` | 469 / 668 / 784; next uint32 is zero | Changes without a level change; no observed CP value, source join or plausible following max. Meaning remains Unknown. |
+| PartyProfile `+0xB6C/+0xB70` | 0/0 → 791/1 → 791/1 | Fails the current ≤ max interpretation; no CP event attribution. |
+| PartyProfile `+0x47C/+0x48C/+0x49C/+0x4AC` | Each 1000 throughout, every 16 bytes | Repeated record pattern, not a unique party resource; no CP-specific evidence. |
+| PartyProfile `+0x2040` | 47 throughout | UTF-16 slash at the end of a path-shaped text run; not a numeric CP join. |
+| ArisePCStatus `+0x08/+0x50` or `+0x10/+0x30` | Known HP/base HP, XP/SP observations above | Existing character-specific mappings; substituting them for a shared party resource conflicts with the known layout. |
+
+A deliberately broad positive-pair heuristic (`0 < current ≤ max ≤ 2000`) finds
+3,306 adjacent uint32 pairs and 38 adjacent uint16 pairs across the aligned bodies;
+none varies across the three slots. The 2000 ceiling is only a search heuristic,
+not a game cap. Numeric plausibility alone therefore cannot select CP; the public
+halfword layout and neighbouring gald anchor are essential to the Inferred reading.
+
+**Why read-only:** stored adjacency and SHA-1 coverage are established, but all
+samples have equal candidate current/max. No native spend/refill distinguishes
+authority from a cached/initial value, and no level-up shows which fields derive
+the maximum. Existing integrity repair covers both bytes and self-checks encryption,
+but does not validate those semantics. Even a synthetic above-max pair is shown
+unchanged for inspection, never clamped or made writable. No PC offset or test-authored
+value proves game acceptance. Obtain labelled control re-saves, one CP spend, one
+rest/refill, and one level-up, recording menu current/max CP, active party, HP and
+consumables; compare Astral Flower/bonus changes separately before proposing writes.
+
+Nine tests were written first and failed because the fields did not exist. Three
+sample cases assert both values and neighbouring observations for every slot/twin.
+Six sample-free synthetic cases distinguish the two halfwords, zero/full/16-bit
+boundaries, reversed physical sections and above-max data; they reject direct CP
+edits and mixed edit batches, preserve raw Unknown evidence, exercise existing gald
+edit/reopen/undo, and assert byte-identical no-op/undo output. Synthetic fixtures
+test access/preservation only. Existing sample-view fingerprints exclude only the
+two separately asserted new fields and the previously excluded restore control.
+
+Suggested `docs/EDIT_COVERAGE.md` update (central file intentionally not edited):
+`TA07: CP current/max are now R — I at PartyProfile +0x0C/+0x0E (uint16), 155/155
+in three slots plus identical twins. No CP writes: controlled spend/refill and
+level-up/bonus captures are missing. Equipment and arte/skill/title joins remain N.`
+Replace the shortlist's bare “Tales CP requires field discovery” with
+“Tales CP is located read-only (Inferred); writes require controlled spend/refill,
+growth/bonus and authority evidence.”
+
 ### F14 inventory audit
 
 Previously the eager inventory omitted empty records while a separate read-only F8
@@ -320,6 +406,30 @@ and skips empty rows if shown. Direct page edits, grouped actions, undo/redo and
 byte-identical no-op serialization retain the original slot identities.
 
 ## Validation
+
+CP discovery (#40), **2026-10-29**: Release suite **392 passed, 0 failed,
+0 skipped** with samples, including nine new CP cases, conformance, all six
+byte-identical sample round trips and mutation fuzz (**200 cases**, seed
+`0x40C0FFEE`, one selected real-sample seed; no failures). Fuzz is malformed-input
+robustness coverage, not a security review or CP gameplay qualification. API Release
+build with warnings as errors: **0 warnings, 0 errors**. The existing sample-view
+fingerprints remain identical after excluding the two independently asserted CP fields.
+The initial nine-test red run failed for missing CP fields; the implemented rerun
+passed. The six synthetic CP cases also passed with `SAVETOOLKIT_ARTIFACTS` pointing
+to an empty external directory (**6 passed, 0 skipped**). `git diff --check` passed.
+Reproduce without copying samples:
+
+```powershell
+$taskScratch = 'D:/Temp/saveeditor/test-scratch/research-talesofarise-cp'
+New-Item -ItemType Directory -Force $taskScratch | Out-Null
+$env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
+$env:SAVETOOLKIT_TEST_TEMP = "$taskScratch/tests"
+$env:TEMP = $env:TMP = $env:TMPDIR = $taskScratch
+dotnet test --project plugins/TalesOfArise/SaveToolkit.Plugins.TalesOfArise.Tests -c Release `
+  -p:UseArtifactsOutput=true "-p:ArtifactsPath=$taskScratch/build" --results-directory "$taskScratch/results"
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj -c Release --warnaserror `
+  -p:UseArtifactsOutput=true "-p:ArtifactsPath=$taskScratch/build"
+```
 
 From the repository root, with the private sample archive available in the external
 task scratch's `samples/` directory:
@@ -444,7 +554,8 @@ preset and structural mutations remain unavailable. Bulk actions use
 ## Open questions
 
 - In-game loading and gameplay behavior after PS5 edits; this blocks Stable maturity.
-- CP, grade/score, remaining field meanings, equipment, accessories and flags.
+- CP current/max authority and growth dependencies beyond the read-only inferred
+  pair; grade/score, remaining field meanings, equipment, accessories and flags.
 - Meaning of duplicated play counters, additional party members, section ID hashing,
   and unknown outer metadata/integrity dependencies. The outer preview is not refreshed.
 - Nonzero gald evidence and controlled PS5 inventory/HP/SP changes; supplied saves
@@ -452,6 +563,26 @@ preset and structural mutations remain unavailable. Bulk actions use
 - Alternate platform/algorithm selectors, other save versions and Beyond the Dawn.
 
 ## Sources and attribution
+
+CP research sources below were accessed **2026-10-29**. Downloads were read as
+untrusted text and never executed. Only offset/width facts and original analysis
+are reused; no new upstream implementation or guide dataset is bundled. The
+[CP attribution sidecar](SaveToolkit.Plugins.TalesOfArise/Resources/CurePoints.source.md)
+pins both Tuuuup! response hashes, extracted facts and independent implementation.
+The reused CP facts also appear in `Info.References` and both field descriptions.
+
+| CP research source / author | URL / revision | Result and licence / use |
+| --- | --- | --- |
+| Tuuuup!, author post and v9 table (updated 2022-04-13) | [Author post](https://fearlessrevolution.com/viewtopic.php?t=17367#p210160), [attachment 41559](https://fearlessrevolution.com/download/file.php?id=41559) | PC current/max uint16 `+0x0C/+0x0E`, gald uint32 `+0x18`; reused as an attributed hypothesis, independently checked on PS5. No licence published; reused with attribution per owner decision 2026-10-28. |
+| Tuuuup!, earlier table (script 2021-09-10) | [Attachment 35223](https://fearlessrevolution.com/download/file.php?id=35223) | CP `+0x9C`, money `+0xA8`; same relative spacing, different runtime base. No licence published; reused with attribution per owner decision 2026-10-28. |
+| Bandai Namco Entertainment, Pro Guide (2021-09-07) | [Publisher guide](https://en.bandainamcoent.eu/tales-of/news/tales-of-arise-pro-guide-ultimate-tips) | Party-shared CP, spend/refill and level/item growth context; no serialized offsets. Rights reserved by Bandai Namco Entertainment; used with attribution per owner decision 2026-10-29. Research paraphrase only. |
+| ItsAllAboutTheCode/save-converters | [Notes r6632390](https://github.com/ItsAllAboutTheCode/save-converters/blob/663239063e7c1cc8550f4248f772ee9dd47ed5b0/save_convert/tales_of/arise/save_NOTES.md) | PS5 section/cipher mapping; no CP location. GPL-3.0 format research; existing independently authored decoder used. |
+| ロード, PS4 patch/reference attachment (2022-04-03) | [Attachment 31135](https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt), [thread 30070](https://web.save-editor.com/bbs/patchcode/ps4/bbs.cgi?list=pickup&num=30070) | Gald/status anchors; level-999 patch warns CP rises, but does not locate CP. Accessory CP effects are not party CP. No licence published; reused with attribution per owner decision 2026-10-28. No patch executed. |
+| Sora3100, Arise.CT | [r c928710](https://github.com/Sora3100/Tales_of_Cheat_Tables/blob/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT) | Existing character layout; arte CP cost is not party current/max CP. No licence published; reused with attribution per owner decision 2026-10-28. No new dataset/code imported. |
+| DrummerIX / Cheat Evolution | [Trainer author page](https://cheatevolution.com/tales-of-arise/) | Lists current/max CP runtime controls; no save offset published on the page. Research only, trainer not downloaded/executed. No licence published; reused with attribution per owner decision 2026-10-28. |
+| ColonelRVH / The Cheat Script | [2021-09-10 author page](https://www.thecheatscript.com/2021/09/tales-of-arise.html) | Battle-only unlimited CP feature does not locate serialized party state. Research only; table not imported/executed. No licence published; reused with attribution per owner decision 2026-10-28. |
+| EnvyOfMen, Gald Editor v1.0 | [Nexus author page](https://www.nexusmods.com/talesofarise/mods/407) | PC process-attached currency table, no CP/save layout evidence. Research only; no new import. No licence published; reused with attribution per owner decision 2026-10-28. |
+| emoose/Arise-SDK | [Classes r3efa5d4](https://github.com/emoose/Arise-SDK/blob/3efa5d41fa6d86d066d6db0f3d1afef9b7146a60/src/SDK/Arise_classes.h), [structs](https://github.com/emoose/Arise-SDK/blob/3efa5d41fa6d86d066d6db0f3d1afef9b7146a60/src/SDK/Arise_structs.h) | Reflected PartyProfile API does not supply a serialized CP member layout. Inspected as text only; no data/code imported and no licence-based refusal. |
 
 Research performed 2026-10-28. Downloaded implementations were read as untrusted
 text; none was executed. The algorithm and public constants were independently

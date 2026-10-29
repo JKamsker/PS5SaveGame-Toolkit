@@ -11,6 +11,13 @@ internal static class AriseSchema
     public const int ExperienceOffset = 0x10;
     public const int SkillPointsOffset = 0x30;
     public const int BaseHpOffset = 0x50;
+    // PartyProfile body offsets, distinct from the character-status fields above.
+    public const int CurrentCpOffset = 0x0C;
+    public const int MaximumCpOffset = 0x0E;
+    public const string CpSource = "https://fearlessrevolution.com/download/file.php?id=41559";
+    public const string CpAttribution = "Tuuuup!, Tales of Arise-v9.CT (2022-04-13), retrieved 2026-10-29: " + CpSource + ". "
+        + "No licence published; reused with attribution per owner decision 2026-10-28. "
+        + "PC halfword layout independently inferred on PS5 from three slots and their identical backups (155/155), beside the existing gald mapping; no code port.";
     public const string CharacterAttribution = "Aselia Wiki contributors, CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), retrieved 2026-10-28: https://aselia.fandom.com/wiki/Template:ToA_Characters?oldid=300086. Status-index joins are inferred from the Sora3100 Arise.CT ordering (https://raw.githubusercontent.com/Sora3100/Tales_of_Cheat_Tables/c92871084d714d98b3854ba9fbb4e3f022145d7e/Arise.CT). No licence published; reused with attribution per owner decision 2026-10-28. This does not establish recruitment or PS5 identity.";
     public const string ConsumableAttribution = "Aselia Wiki contributors, CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), retrieved 2026-10-28: https://aselia.fandom.com/wiki/ToA_-_Consumables?oldid=382800. Numeric identities are legacy inferred mappings from the PS4 patch research attachment (https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt); the wiki does not establish PS5 IDs. No licence published; reused with attribution per owner decision 2026-10-28.";
     public const string SectionSource = "https://github.com/ItsAllAboutTheCode/save-converters/blob/663239063e7c1cc8550f4248f772ee9dd47ed5b0/save_convert/tales_of/arise/save_NOTES.md";

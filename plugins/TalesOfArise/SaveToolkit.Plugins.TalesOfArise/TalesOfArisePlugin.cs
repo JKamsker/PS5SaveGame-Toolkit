@@ -18,6 +18,8 @@ public sealed class TalesOfArisePlugin : IGamePlugin, ISaveDecoderProvider
         [
             "https://github.com/ItsAllAboutTheCode/save-converters/tree/main/save_convert/tales_of/arise",
             AriseSchema.SectionSource,
+            AriseSchema.CpSource,
+            "https://fearlessrevolution.com/viewtopic.php?t=17367#p210160",
             "https://web.save-editor.com/bbs/patchcode/ps4/bbs.cgi?list=pickup&num=30070",
             "https://web.save-editor.com/bbs/patchcode/ps4/bbs.cgi?list=pickup&num=30162",
             "https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt",

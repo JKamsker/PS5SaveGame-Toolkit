@@ -123,10 +123,11 @@ public sealed class AriseIconCharacterizationTests
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         var view = Assert.IsType<TabsNode>(document.BuildView());
         Assert.Single(view.Tabs.SelectMany(tab => tab.Children).OfType<ActionNode>(), action => action.ActionId == AriseInventoryActions.RestoreImportedAction);
-        // The restore control is covered separately; retain the exact fingerprint of every existing node.
+        // Restore and CP additions are covered separately; retain every pre-existing node's fingerprint.
         view = view with { Tabs = view.Tabs.Select(tab => tab with
         {
-            Children = tab.Children.Where(node => node is not ActionNode { ActionId: AriseInventoryActions.RestoreImportedAction }).ToArray(),
+            Children = tab.Children.Where(node => node is not ActionNode { ActionId: AriseInventoryActions.RestoreImportedAction }
+                and not FieldNode { ValueId: "party/current-cp" or "party/max-cp" }).ToArray(),
         }).ToArray() };
         hash.AppendData(JsonSerializer.SerializeToUtf8Bytes((ViewNode)view));
         hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(document.LoadInventory()));
