@@ -67,6 +67,19 @@ public sealed class PresetDocumentTests
     }
 
     [Fact]
+    public void CoreCaptureDoesNotPassSelectionKeysToNonSelectedScope()
+    {
+        var document = new PresetFixtureDocument();
+        using var fixture = new MutationSessionFixture(document);
+        _ = fixture.Session.BuildView();
+
+        _ = fixture.Session.CapturePreset(new PresetCaptureRequest("set",
+            new Dictionary<string, JsonElement>(), PresetScopeKinds.Document, ["physical-row"]));
+
+        Assert.Null(document.CapturedSelection);
+    }
+
+    [Fact]
     public void AggregateInstanceBoundRejectsBeforeAdapterResolution()
     {
         var document = new PresetFixtureDocument();
@@ -159,12 +172,18 @@ public sealed class PresetDocumentTests
     {
         public int Value { get; private set; }
         public int ResolveCalls { get; private set; }
+        public IReadOnlyList<string>? CapturedSelection { get; private set; }
         public bool ThrowOnResolve { get; init; }
         public ResolutionShape Shape { get; init; }
         public PresetInstanceResolutionStatus Resolution { get; init; } = PresetInstanceResolutionStatus.Resolved;
         public string? GameBuild { get; init; } = "r19";
         public override string Title => "Preset fixture";
         public PresetCapability PresetCapability => new("1", GameBuild, [new("set", "Set", [])], 4, "fixture", "pack");
+        public PresetAction CapturePreset(PresetCaptureRequest request)
+        {
+            CapturedSelection = request.SelectedRowKeys;
+            return new(request.ActionId, request.Parameters, [], request.ScopeKind);
+        }
         public override ViewNode BuildView() => new SectionNode("Fixture", [Field("value", "Value", IntegerSpec.Int32,
             () => FieldValue.Of((long)Value), v => Value = v.AsInt32())]);
         public PresetResolution ResolvePresetInstances(IReadOnlyList<PresetInstanceReference> instances) =>
@@ -179,13 +198,18 @@ public sealed class PresetDocumentTests
             ResolveCalls++;
             if (ThrowOnResolve) throw new InvalidOperationException("synthetic resolver failure");
             var results = instances.Select(instance => new PresetInstanceResolution(instance, Resolution,
-                Resolution == PresetInstanceResolutionStatus.Ambiguous ? [new("owned", "candidate")] : [])).ToList();
+                Resolution == PresetInstanceResolutionStatus.Ambiguous
+                    ? [new PresetInstanceReference("owned", "candidate"), new PresetInstanceReference("owned", "candidate-2")]
+                    : Resolution == PresetInstanceResolutionStatus.Resolved
+                        ? [new PresetInstanceReference("owned", "candidate")]
+                        : [])).ToList();
             return Shape switch
             {
                 ResolutionShape.Omitted => new(results.Skip(1).ToArray()),
                 ResolutionShape.Injected => new([.. results, new(new("owned", "extra"), PresetInstanceResolutionStatus.Resolved)]),
                 ResolutionShape.Duplicate => new([.. results, results[0]]),
-                ResolutionShape.ForgedResolved => new([new(results[0].Requested, PresetInstanceResolutionStatus.Resolved, [new("owned", "forged")])]),
+                ResolutionShape.ForgedResolved => new([new(results[0].Requested, PresetInstanceResolutionStatus.Resolved,
+                    [new PresetInstanceReference("owned", "forged"), new PresetInstanceReference("owned", "forged-2")])]),
                 _ => new(results),
             };
         }

@@ -23,13 +23,20 @@ public sealed partial class DocumentSession
     /// <summary>Runs the optional pure plugin capture adapter while the document is locked.</summary>
     public PresetAction CapturePreset(PresetCaptureRequest request) => Locked(() =>
     {
+        var effectiveRequest = request with
+        {
+            SelectedRowKeys = request.ScopeKind == PresetScopeKinds.Selected ? request.SelectedRowKeys : null,
+        };
         if (Document is IPresetDocument semanticAdapter && semanticAdapter.PresetCapability is null)
             throw new ArgumentException("The semantic preset capability is malformed.", nameof(request));
-        if (PresetContractValidation.ValidateCapture(PresetCapability, request, _referenceFields) is { } error)
+        if (PresetContractValidation.ValidateCapture(PresetCapability, effectiveRequest, _referenceFields) is { } error)
             throw new ArgumentException(error, nameof(request));
-        return Document is IPresetDocument adapter
-            ? adapter.CapturePreset(request)
-            : new PresetAction(request.ActionId, request.Parameters, [], request.ScopeKind);
+        var action = Document is IPresetDocument adapter
+            ? adapter.CapturePreset(effectiveRequest)
+            : new PresetAction(effectiveRequest.ActionId, effectiveRequest.Parameters, [], effectiveRequest.ScopeKind);
+        if (PresetContractValidation.ValidateCapturedAction(PresetCapability, effectiveRequest, action, _referenceFields) is { } actionError)
+            throw new ArgumentException(actionError, nameof(request));
+        return action;
     });
 
     public PresetActionPreview PlanPreset(ToolkitPreset preset, long? expectedRevision = null,

@@ -253,6 +253,20 @@ public sealed class PresetApiTests(IsolatedApiFactory factory) : IClassFixture<I
     }
 
     [Fact]
+    public async Task LengthlessRenameEnvelopeIsRejectedBeforeJsonBinding()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        using var content = new LengthlessContent(new byte[PresetRequestBodyLimits.RenameBytes + 1]);
+        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+        var response = await _client.PatchAsync("/api/presets/missing", content, ct);
+
+        Assert.Equal(HttpStatusCode.RequestEntityTooLarge, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+        Assert.Equal("presetPayloadTooLarge", body.GetProperty("code").GetString());
+    }
+
+    [Fact]
     public async Task CaptureRouteUsesDocumentCompatibilityAndNeverStoresRowKeys()
     {
         var ct = TestContext.Current.CancellationToken;
@@ -301,5 +315,17 @@ public sealed class PresetApiTests(IsolatedApiFactory factory) : IClassFixture<I
         var opened = await _client.PostAsJsonAsync($"/api/workspaces/{workspaceId}/files/{fileId}/open", new { pluginId = "test.planning" }, ct);
         var document = await opened.Content.ReadFromJsonAsync<JsonElement>(ct);
         return $"/api/workspaces/{workspaceId}/documents/{document.GetProperty("id").GetString()}";
+    }
+
+    private sealed class LengthlessContent(byte[] bytes) : HttpContent
+    {
+        protected override bool TryComputeLength(out long length)
+        {
+            length = 0;
+            return false;
+        }
+
+        protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) => stream.WriteAsync(bytes).AsTask();
+
     }
 }

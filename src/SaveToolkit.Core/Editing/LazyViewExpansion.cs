@@ -19,7 +19,9 @@ internal static class LazyViewExpansion
             if (ready.Length == 0) break;
             foreach (var id in ready)
             {
-                index.AddAll(document.ExpandNode(id));
+                var nodes = document.ExpandNode(id);
+                index.AddAll(nodes);
+                _ = index.ResolveFieldReferences(document, new SaveToolkit.Sdk.Views.SectionNode(string.Empty, nodes));
                 expanded.Add(id);
                 pending.Remove(id);
             }

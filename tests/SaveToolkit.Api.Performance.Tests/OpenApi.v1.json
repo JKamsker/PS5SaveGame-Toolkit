@@ -998,6 +998,40 @@
         ],
         "type": "object"
       },
+      "FieldReferenceNode": {
+        "additionalProperties": false,
+        "description": "Another presentation of a canonical field, never a new binding or catalog reference.\nThe host resolves the target through loaded fields or targeted IFieldMetadataDocument discovery.\nAvailable targets are sent as ordinary FieldNodes; unresolved targets remain unavailable references.",
+        "properties": {
+          "description": {
+            "description": "Optional contextual explanation, appended to any canonical explanation.",
+            "maxLength": 4096,
+            "minLength": 0,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "label": {
+            "description": "Optional contextual label. Canonical spec, confidence and warning are retained.",
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetValueId": {
+            "description": "Direct canonical value ID. References cannot target other presentation nodes.",
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "targetValueId"
+        ],
+        "type": "object"
+      },
       "FieldSpec": {
         "anyOf": [
           {
@@ -2465,6 +2499,9 @@
       },
       "PresetCompatibilitySummaryDto": {
         "properties": {
+          "canApply": {
+            "type": "boolean"
+          },
           "canPreview": {
             "type": "boolean"
           },
@@ -2504,6 +2541,9 @@
           "currentPluginVersion": {
             "type": "string"
           },
+          "currentPresetKind": {
+            "type": "string"
+          },
           "currentReferencePackIdentity": {
             "type": [
               "null",
@@ -2511,6 +2551,12 @@
             ]
           },
           "currentSchemaFingerprint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "currentTitleId": {
             "type": [
               "null",
               "string"
@@ -2533,6 +2579,9 @@
           },
           "readOnly": {
             "type": "boolean"
+          },
+          "readiness": {
+            "type": "string"
           },
           "reason": {
             "type": [
@@ -2578,6 +2627,12 @@
               "null",
               "string"
             ]
+          },
+          "savedTitleIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "unsupportedActions": {
             "items": {
@@ -4860,6 +4915,9 @@
             "$ref": "#/components/schemas/ViewNodeFieldNode"
           },
           {
+            "$ref": "#/components/schemas/ViewNodeFieldReferenceNode"
+          },
+          {
             "$ref": "#/components/schemas/ViewNodeTableNode"
           },
           {
@@ -4892,6 +4950,7 @@
           "mapping": {
             "action": "#/components/schemas/ViewNodeActionNode",
             "field": "#/components/schemas/ViewNodeFieldNode",
+            "fieldReference": "#/components/schemas/ViewNodeFieldReferenceNode",
             "graph": "#/components/schemas/ViewNodeGraphNode",
             "hex": "#/components/schemas/ViewNodeHexNode",
             "image": "#/components/schemas/ViewNodeImageNode",
@@ -4939,6 +4998,25 @@
           "type": {
             "enum": [
               "field"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
+      "ViewNodeFieldReferenceNode": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FieldReferenceNode"
+          }
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "fieldReference"
             ],
             "type": "string"
           }
@@ -6728,6 +6806,16 @@
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          },
           "415": {
             "content": {
               "application/json": {
@@ -6958,6 +7046,16 @@
               }
             },
             "description": "Precondition Failed"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
           },
           "422": {
             "content": {
@@ -8812,6 +8910,16 @@
               }
             },
             "description": "Precondition Failed"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
           },
           "422": {
             "content": {
@@ -11173,6 +11281,16 @@
               }
             },
             "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
           },
           "415": {
             "content": {

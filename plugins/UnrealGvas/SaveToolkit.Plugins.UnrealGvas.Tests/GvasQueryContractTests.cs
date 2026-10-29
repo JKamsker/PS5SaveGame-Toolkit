@@ -1,4 +1,5 @@
 using System.Globalization;
+using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -33,7 +34,7 @@ public sealed class GvasQueryContractTests
             SortColumn = "value", Descending = descending, Limit = pageSize,
             Filters = new Dictionary<string, string> { ["type"] = "iNtPrOpErTy" },
         };
-        var rows = ReadAll(queryable, query, IntegerCount);
+        var rows = ReadAll(document, queryable, query, IntegerCount);
         Assert.Equal(ordered.Select(entry => (entry.Key, entry.Value)), rows);
         Assert.Empty(queryable.Query(Collection, query with { Offset = int.MaxValue }).Rows);
     }
@@ -51,7 +52,7 @@ public sealed class GvasQueryContractTests
             Filters = new Dictionary<string, string> { ["type"] = "INTPROPERTY", ["value"] = "-3" },
         };
         int[] matching = Enumerable.Range(0, IntegerCount).Where(index => index % 2 == 0 && Value(index) == "-3").ToArray();
-        Assert.Equal(matching.Select(Key).Order(StringComparer.Ordinal), ReadAll(queryable, query, matching.Length).Select(row => row.Key));
+        Assert.Equal(matching.Select(Key).Order(StringComparer.Ordinal), ReadAll(document, queryable, query, matching.Length).Select(row => row.Key));
         Assert.Empty(queryable.Query(Collection, query with { Text = "absent-name" }).Rows);
         Assert.Equal(0, queryable.Query(Collection, query with { Text = "absent-name" }).FilteredCount);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
@@ -60,15 +61,15 @@ public sealed class GvasQueryContractTests
         int removed = matching[0];
         Assert.True(document.ApplyEdits([new(Key(0), FieldValue.Of(-3)), new(Key(removed), FieldValue.Of(99))]).Succeeded);
         string[] expected = matching.Where(index => index != removed).Append(0).Select(Key).Order(StringComparer.Ordinal).ToArray();
-        Assert.Equal(expected, ReadAll(queryable, query, expected.Length).Select(row => row.Key));
+        Assert.Equal(expected, ReadAll(document, queryable, query, expected.Length).Select(row => row.Key));
         byte[] changed = Assert.Single(document.Serialize()).Content.ToArray();
         using var reopened = plugin.Open(MemorySaveSet.SingleFile("query.sav", changed));
-        Assert.Equal(expected, ReadAll(Assert.IsAssignableFrom<IQueryableDocument>(reopened), query, expected.Length).Select(row => row.Key));
+        Assert.Equal(expected, ReadAll(reopened, Assert.IsAssignableFrom<IQueryableDocument>(reopened), query, expected.Length).Select(row => row.Key));
         Assert.True(document.ApplyEdits([new(Key(0), FieldValue.Of(-8)), new(Key(removed), FieldValue.Of(-3))]).Succeeded);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 
-    private static List<(string Key, string Value)> ReadAll(IQueryableDocument document, QueryableCollectionQuery query, int expectedCount)
+    private static List<(string Key, string Value)> ReadAll(ISaveDocument owner, IQueryableDocument document, QueryableCollectionQuery query, int expectedCount)
     {
         var result = new List<(string, string)>();
         for (int offset = 0; offset < expectedCount + query.Limit; offset += query.Limit)
@@ -76,10 +77,17 @@ public sealed class GvasQueryContractTests
             var page = document.Query(Collection, query with { Offset = offset });
             Assert.Equal((TotalCount, expectedCount, offset, query.Limit), (page.TotalCount, page.FilteredCount, page.Offset, page.Limit));
             Assert.Equal(Math.Min(query.Limit, Math.Max(0, expectedCount - offset)), page.Rows.Count);
-            result.AddRange(page.Rows.Select(row => (row.Key, Assert.IsType<TextNode>(row.Cells["value"]).Text)));
+            result.AddRange(page.Rows.Select(row => (row.Key, ValueText(owner, row))));
         }
         return result;
     }
+
+    private static string ValueText(ISaveDocument document, TableRow row) => row.Cells["value"] switch
+    {
+        TextNode text => text.Text,
+        FieldReferenceNode reference => document.GetValue(reference.TargetValueId).ToString(),
+        _ => throw new Xunit.Sdk.XunitException("Property value cell is neither text nor a canonical reference."),
+    };
 
     private static string Key(int index) => $"property/{index}";
     private static string Value(int index) => (index % 17 - 8).ToString(CultureInfo.InvariantCulture);

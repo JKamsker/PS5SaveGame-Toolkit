@@ -33,6 +33,31 @@ public sealed class PresetContractValidationTests
     }
 
     [Fact]
+    public void DescriptorListMayAdvertiseFiveActionsWhenOneActionIsPersisted()
+    {
+        var actions = Enumerable.Range(0, 5)
+            .Select(index => new PresetActionCapability($"action-{index}", $"Action {index}", []))
+            .ToArray();
+        var capability = new PresetCapability("1", null, actions, MaxActions: 1);
+
+        Assert.Null(PresetContractValidation.ValidateCapability(capability));
+        Assert.Null(PresetContractValidation.ValidateActions(capability,
+            [new PresetAction("action-0", new Dictionary<string, JsonElement>())]));
+    }
+
+    [Fact]
+    public void CapabilityRejectsInvalidScopeAndOversizedDescriptorMetadata()
+    {
+        var invalidScope = new PresetCapability("1", null,
+            [new PresetActionCapability("set", "Set", [], ScopeKinds: [ScopeKinds.Invalid])]);
+        var oversizedLabel = new PresetCapability("1", null,
+            [new PresetActionCapability("set", new string('x', PresetContractValidation.MaxMetadataLength + 1), [])]);
+
+        Assert.Contains("malformed", PresetContractValidation.ValidateCapability(invalidScope), StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("malformed", PresetContractValidation.ValidateCapability(oversizedLabel), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void ResolutionBoundsRejectOversizedCandidateGraphsWithoutReturningThem()
     {
         var requested = new PresetInstanceReference("owned", "target");
@@ -60,13 +85,23 @@ public sealed class PresetContractValidationTests
             new(new PresetInstanceReference("owned", "extra"), PresetInstanceResolutionStatus.Resolved)]);
         Assert.Contains("exactly one result", PresetContractValidation.ValidateResolution(injected, [requested], null, false, out _), StringComparison.OrdinalIgnoreCase);
 
-        var ambiguous = new PresetResolution([new(requested, PresetInstanceResolutionStatus.Ambiguous, [candidate])]);
+        var ambiguous = new PresetResolution([new(requested, PresetInstanceResolutionStatus.Ambiguous,
+            [candidate, new PresetInstanceReference("owned", "candidate-2")])]);
         Assert.Contains("current ambiguous", PresetContractValidation.ValidateResolution(ambiguous, [requested],
             new Dictionary<string, string> { [requested.StableId] = "forged" }, false, out _), StringComparison.OrdinalIgnoreCase);
-        var forged = new PresetResolution([new(requested, PresetInstanceResolutionStatus.Resolved, [candidate])]);
-        Assert.Contains("unchosen", PresetContractValidation.ValidateResolution(forged, [requested], null, false, out _), StringComparison.OrdinalIgnoreCase);
+        var forged = new PresetResolution([new(requested, PresetInstanceResolutionStatus.Resolved,
+            [candidate, new PresetInstanceReference("owned", "candidate-2")])]);
+        Assert.Contains("exactly one", PresetContractValidation.ValidateResolution(forged, [requested], null, false, out _), StringComparison.OrdinalIgnoreCase);
+
+        var unique = new PresetResolution([new(requested, PresetInstanceResolutionStatus.Resolved, [candidate])]);
+        Assert.Null(PresetContractValidation.ValidateResolution(unique, [requested], null, false, out _));
     }
 
     private static PresetCapability Capability(PresetActionCapability action) =>
         new("1", null, [action], 1, "fixture", "sha256:fixture", "toolkit.action-parameters", "schema", "save");
+
+    private static class ScopeKinds
+    {
+        public const string Invalid = "session";
+    }
 }

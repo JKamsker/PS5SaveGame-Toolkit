@@ -16,14 +16,14 @@ public sealed class ApiContractFixture : IDisposable
 
     public ApiContractFixture() : this(new CounterPlugin()) { }
 
-    internal ApiContractFixture(IGamePlugin plugin)
+    internal ApiContractFixture(params IGamePlugin[] plugins)
     {
         _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseEnvironment("Production").UseSetting("Toolkit:DataRoot", TestZips.TempDir())
                 .UseSetting("Toolkit:PackRoot", TestZips.TempDir())
                 .UseSetting("Toolkit:PresetRoot", TestZips.TempDir());
-            builder.ConfigureServices(services => services.AddSingleton(new PluginCatalog([plugin])));
+            builder.ConfigureServices(services => services.AddSingleton(new PluginCatalog(plugins)));
         });
     }
 

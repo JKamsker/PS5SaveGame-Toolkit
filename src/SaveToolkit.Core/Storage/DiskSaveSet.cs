@@ -8,6 +8,7 @@ public sealed class DiskSaveSet : ISaveSet
     private readonly List<DiskSaveDirectory> _directories = [];
     private readonly Dictionary<string, DiskSaveFile> _filesById = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ISaveFile> _gameFilesByPath = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, ISaveFile> _allFilesByPath = new(StringComparer.OrdinalIgnoreCase);
 
     internal DiskSaveSet(string storageRoot) => StorageRoot = storageRoot;
 
@@ -21,6 +22,8 @@ public sealed class DiskSaveSet : ISaveSet
 
     /// <summary>Indexed lookup with the same game-file-only semantics as <see cref="ISaveSet.FindFile"/>.</summary>
     public ISaveFile? FindFile(string relativePath) => _gameFilesByPath.GetValueOrDefault(relativePath);
+
+    public ISaveFile? FindAnyFile(string relativePath) => _allFilesByPath.GetValueOrDefault(relativePath);
 
     public DiskSaveDirectory? FindDirectory(string directoryId) => _directories.FirstOrDefault(d => d.Id == directoryId);
 
@@ -51,6 +54,7 @@ public sealed class DiskSaveSet : ISaveSet
         foreach (var f in directory.Files.Concat(directory.SystemFiles).Cast<DiskSaveFile>())
         {
             _filesById.Add(f.Id, f);
+            _allFilesByPath.TryAdd(f.RelativePath, f);
             if (!f.IsSystemFile) _gameFilesByPath.TryAdd(f.RelativePath, f);
         }
     }

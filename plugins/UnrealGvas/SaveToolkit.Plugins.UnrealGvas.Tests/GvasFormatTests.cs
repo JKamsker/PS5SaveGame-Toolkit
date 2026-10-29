@@ -170,6 +170,19 @@ public sealed class GvasFormatTests
         {
             Assert.True(budget-- > 0, "View expansion exceeded test safety budget.");
             if (node is FieldNode field) result.Add(field);
+            else if (node is FieldReferenceNode reference)
+            {
+                var metadata = Assert.IsAssignableFrom<IFieldMetadataDocument>(document)
+                    .ResolveFieldMetadata([reference.TargetValueId]).Single();
+                var presentation = metadata.Presentation;
+                result.Add(new FieldNode(metadata.ValueId, metadata.Label, metadata.Spec,
+                    document.GetValue(metadata.ValueId)) with
+                {
+                    Confidence = presentation?.Confidence,
+                    Description = presentation?.Description,
+                    Warning = presentation?.Warning,
+                });
+            }
             IEnumerable<ViewNode> children = node switch
             {
                 TabsNode tabs => tabs.Tabs.SelectMany(t => t.Children),

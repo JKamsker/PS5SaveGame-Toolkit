@@ -20,7 +20,8 @@ internal static class PresetEndpoints
             Results.Ok(store.Create(request.Name, request.Compatibility, request.Actions).ToDto()))
             .WithMetadata(new PresetRequestBodyLimitMetadata(PresetRequestBodyLimits.CreateBytes));
         api.MapPatch("/presets/{presetId}", (string presetId, RenamePresetRequest request, PresetStore store) =>
-            Results.Ok(store.Rename(presetId, request.Name).ToDto()));
+            Results.Ok(store.Rename(presetId, request.Name).ToDto()))
+            .WithMetadata(new PresetRequestBodyLimitMetadata(PresetRequestBodyLimits.RenameBytes));
         api.MapDelete("/presets/{presetId}", (string presetId, PresetStore store) =>
             store.Delete(presetId) ? Results.NoContent() : Results.NotFound());
 
