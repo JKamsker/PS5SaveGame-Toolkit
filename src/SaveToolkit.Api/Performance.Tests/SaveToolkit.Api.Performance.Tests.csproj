@@ -8,5 +8,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <ProjectReference Include="../SaveToolkit.Api.csproj" />
     <Using Include="Xunit" />
+    <Compile Include="../../../tests/SaveToolkit.Core.Tests/References/PackBuilder.cs" Link="PackBuilder.cs" />
   </ItemGroup>
 </Project>
