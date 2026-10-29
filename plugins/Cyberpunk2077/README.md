@@ -42,6 +42,10 @@ The host validates and caches embedded packs once; documents pin immutable share
 code performs no file/network I/O and builds image cells only for requested rows; map lookup happens
 on lazy map expansion. The host's embedded loader is eager, so pack bytes are loaded at startup.
 
+The skills/perks table searches both stored identifiers and the attributed perk names it displays,
+case-insensitively, using the document's pinned reference pack. Missing names retain raw identifiers;
+duplicate labels keep distinct saved rows. Column filters and sorting still use stored values.
+
 The [source sidecar](SaveToolkit.Plugins.Cyberpunk2077/ReferencePacks/cyberpunk2077.game-assets.en/data.source.md),
 [upstream ledger](SaveToolkit.Plugins.Cyberpunk2077/ReferencePacks/cyberpunk2077.game-assets.en/upstream.json),
 manifest, Sources panel, image-cell captions and `Info.References` retain full attribution.
