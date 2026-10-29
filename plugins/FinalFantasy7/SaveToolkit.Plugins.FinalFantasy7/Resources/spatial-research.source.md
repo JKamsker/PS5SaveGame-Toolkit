@@ -46,8 +46,12 @@ and eight `0xAC` armor materia reference positions, with character stride `0x100
 positions, not verified usable capacity. Names join only unique materia detail instances; unknown
 and duplicate references retain raw IDs. No links, socket legality or upgrade purchases are inferred.
 
-Regional F9 marker labels/bit states reuse `progress.source.md`; coordinates and art are not imported.
-The [PowerPyx regional-map page](https://www.powerpyx.com/final-fantasy-7-vii-rebirth-full-world-map-revealed/),
-by PowerPyx, published 2024-02-29, retrieved 2026-10-28, is an external link only. No reuse licence was
-established, so its map artwork, coordinates and prose are not embedded. No remote resources are
-fetched by the plugin or used as a map background. Original UI summaries describe limitations.
+Regional F9 marker labels/bit states reuse `progress.source.md`; unverified coordinates remain list-only.
+Earlier research retrieved the [PowerPyx regional-map page](https://www.powerpyx.com/final-fantasy-7-vii-rebirth-full-world-map-revealed/),
+by PowerPyx, published 2024-02-29, on 2026-10-28. No reuse licence was established then, so the page
+was initially external-link-only. Resolved: imported (owner decision 2026-10-29). Six downscaled
+WebP backgrounds were retrieved 2026-10-29 and are embedded in `ReferencePacks/ff7r.rebirth.en`;
+its `catalog.source.md` and `pack.json` record processing and provenance.
+Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29.
+Coordinates and map-page prose remain unimported. No remote resources are fetched by the plugin
+or used as a map background. Original UI summaries describe limitations.
