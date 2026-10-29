@@ -27,7 +27,8 @@ internal static class ListCommand
             d.ParamSfo?.SubTitle,
             [.. d.Files.Concat(d.SystemFiles).Cast<Core.Storage.DiskSaveFile>().Select(f => new ListedFile(f.PathInDirectory, f.Length, f.Sha256))])).ToList();
 
-        CliApp.Emit(output, stdout, json ? DiffJson.Serialize(new { source = loaded.Source, directories }) + "\n" : Render(loaded.Source, directories));
+        var source = CliApp.DisplayPath(loaded.Source);
+        CliApp.Emit(output, stdout, json ? DiffJson.Serialize(new { source, directories }) + "\n" : Render(source, directories));
         return CliApp.ExitSame;
     }
 

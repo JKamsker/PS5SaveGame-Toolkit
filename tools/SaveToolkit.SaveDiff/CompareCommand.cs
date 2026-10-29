@@ -18,7 +18,7 @@ internal static class CompareCommand
         using var afterOwned = samePath ? null : SaveSetLoader.Load(args.Positionals[1]);
         var after = afterOwned ?? before;
 
-        var report = SaveSetDiffer.Compare(before.Set, after.Set, options, args.Positionals[0], args.Positionals[1]);
+        var report = SaveSetDiffer.Compare(before.Set, after.Set, options, CliApp.DisplayPath(args.Positionals[0]), CliApp.DisplayPath(args.Positionals[1]));
         CliApp.Emit(output, stdout, json ? DiffJson.Serialize(report) + "\n" : TextReportWriter.Render(report, args.Has("all")));
         return report.HasChanges ? CliApp.ExitDifferent : CliApp.ExitSame;
     }

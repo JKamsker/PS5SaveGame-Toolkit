@@ -116,7 +116,7 @@ internal static class VerifyCommand
     private static string Render(IReadOnlyList<FixtureResult> results, string artifacts)
     {
         var w = new StringBuilder();
-        w.Append($"artifacts: {artifacts}\n");
+        w.Append($"artifacts: {CliApp.DisplayPath(artifacts)}\n");
         foreach (var result in results)
         {
             if (result.Verification is { } verification)
