@@ -12,7 +12,7 @@ interface MapDiagramProps {
   documentId: string;
   markers: MapMarker[];
   selected: string | null;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, trigger: HTMLButtonElement) => void;
   position: (marker: MapMarker) => { x: number; y: number } | null;
   canEmbed: boolean;
   failedAsset: string | null;
@@ -32,7 +32,7 @@ export function MapDiagram({ node, workspaceId, documentId, markers, selected, o
         if (!point) return null;
         return <button key={marker.id} type="button" className={`spatial-marker spatial-state--${marker.status}`}
           style={{ left: `${point.x * 100}%`, top: `${point.y * 100}%` }} aria-pressed={selected === marker.id}
-          aria-label={`${marker.label}: ${marker.status}, ${marker.category}`} title={marker.label} onClick={() => onSelect(marker.id)}>
+          aria-label={`${marker.label}: ${marker.status}, ${marker.category}`} title={marker.label} onClick={event => onSelect(marker.id, event.currentTarget)}>
           {marker.status === "Found" ? "✓" : marker.status === "Missing" ? "!" : "?"}
         </button>;
       })}
