@@ -86,9 +86,41 @@ public sealed class FaithQuantityPlanningTests
         foreach (var keys in new[] { new[] { "secondary/0" }, new[] { "inventory/999" }, new[] { "inventory/0", "inventory/0" } })
             Assert.NotEmpty(planner.PlanAction(FaithQuantityPlanning.ActionId, Parameters(0), new ActionScope(keys)).Errors);
         var plan = planner.PlanAction(FaithQuantityPlanning.ActionId, Parameters(0), new ActionScope());
-        var forged = plan with { Changes = [new("inventory/0/item", "Forged identity", FieldValue.Of("1"), FieldValue.Of("5"))] };
-        Assert.False(planner.ApplyActionPlan(FaithQuantityPlanning.ActionId, Parameters(0), new ActionScope(), forged).Succeeded);
-        Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        var invalidParameters = new List<Dictionary<string, FieldValue>>
+        {
+            new(),
+            new() { ["unexpected"] = FieldValue.Of(0) },
+            new() { [FaithQuantityPlanning.QuantityParameter] = FieldValue.Of(0), ["extra"] = FieldValue.Of(0) },
+        };
+        foreach (var value in new[] { FieldValue.Null, FieldValue.Of("0"), FieldValue.Of(false), FieldValue.Of(0.5),
+            FieldValue.Of((Int128)int.MinValue - 1), FieldValue.Of((Int128)int.MaxValue + 1) })
+            invalidParameters.Add(new() { [FaithQuantityPlanning.QuantityParameter] = value });
+        foreach (var parameters in invalidParameters)
+        {
+            var rejectedPlan = planner.PlanAction(FaithQuantityPlanning.ActionId, parameters, new ActionScope());
+            Assert.NotEmpty(rejectedPlan.Errors);
+            Assert.Empty(rejectedPlan.Changes);
+            var rejectedApply = planner.ApplyActionPlan(FaithQuantityPlanning.ActionId, parameters, new ActionScope(), plan);
+            Assert.False(rejectedApply.Succeeded);
+            Assert.Empty(rejectedApply.Changes);
+            Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        }
+        foreach (var forged in new[]
+        {
+            plan with { Changes = [new("inventory/0/item", "Forged identity", FieldValue.Of("1"), FieldValue.Of("5"))] },
+            plan with { Warnings = [] },
+            plan with { SkippedRows = [new("inventory/0", "Forged skip")] },
+            plan with { Errors = [new("quantity", "Forged error")] },
+            plan with { Changes = [plan.Changes[0] with { Derived = true }, .. plan.Changes.Skip(1)] },
+            plan with { Changes = [plan.Changes[0] with { OldExists = false }, .. plan.Changes.Skip(1)] },
+            plan with { Changes = [plan.Changes[0] with { NewExists = false }, .. plan.Changes.Skip(1)] },
+        })
+        {
+            var rejected = planner.ApplyActionPlan(FaithQuantityPlanning.ActionId, Parameters(0), new ActionScope(), forged);
+            Assert.False(rejected.Succeeded);
+            Assert.Empty(rejected.Changes);
+            Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        }
         Assert.True(document.ApplyEdits([new("inventory/0/quantity", FieldValue.Of(2))]).Succeeded);
         var changed = Assert.Single(document.Serialize()).Content.ToArray();
         Assert.False(planner.ApplyActionPlan(FaithQuantityPlanning.ActionId, Parameters(0), new ActionScope(), plan).Succeeded);
