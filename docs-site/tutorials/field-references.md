@@ -92,8 +92,13 @@ as a substitute for missing data.
 References in views, lazy expansions and collection pages are normalized to ordinary fields before
 HTTP delivery. The complete normalized value, annotations and combined projections are bounded to
 2 MiB; an oversized root or page returns 413 without partial output. Collections still render only
-their requested bounded page. Long values use the existing bounded text fallback, while identity,
-search/filter/sort, provenance and canonical `FieldValue` data remain intact.
+their requested bounded page. A plugin or other consumer must choose a bounded text/detail fallback
+for very long scalars **before** emitting references. The host then normalizes the complete
+canonical values, specs and annotations, measures the combined 2 MiB budget, and returns 413 without
+partial output when it is exceeded. It never clips a canonical `FieldValue` or automatically
+replaces an oversized reference. The consumer's fallback must preserve identity, provenance,
+search/filter/sort behavior and genuine canonical values. See the authoritative
+[`FIELD_REFERENCES.md` budget guidance](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/FIELD_REFERENCES.md#host-lifecycle-and-wire-contract).
 
 Changing a projection label, selecting a row, opening a details panel or navigating to a field must
 not mutate the canonical value. The existing field control's commit, or an explicitly reviewed

@@ -238,13 +238,18 @@ The host resolves loaded fields or targeted `IFieldMetadataDocument` results; un
 remain unavailable references. `FieldMetadata.Presentation` carries canonical nullable
 `Confidence`, `Warning` and `Description`: `null` means unspecified, while an empty
 `FieldPresentation` explicitly carries no annotations. A projection cannot override canonical
-readOnly, spec, confidence or warning policy. Normalized reference-bearing output is bounded to
-the existing 2 MiB response limit and long values use the bounded text fallback.
+readOnly, spec, confidence or warning policy. A plugin/consumer selects any bounded text/detail
+fallback for very long values before emitting references; the host normalizes complete canonical
+values, specs and annotations, measures the combined 2 MiB response budget and returns 413 without
+partial output when it is exceeded. It never clips canonical `FieldValue` data or automatically
+replaces an oversized reference. Preserve identity, provenance, search/filter/sort and genuine
+canonical values in the consumer fallback. See the authoritative
+[FIELD_REFERENCES.md budget guidance](FIELD_REFERENCES.md#host-lifecycle-and-wire-contract).
 
 See the [canonical field-reference tutorial](../docs-site/tutorials/field-references.md) and
 `tests/SaveToolkit.Core.Tests/FieldReference*Tests.cs`. SDK-08 remains open until a real UnrealGvas
-projection is merged on `main` and covers unavailable targets, metadata conflicts, long-text
-fallback and bounded normalized output. The UnrealGvas preparation handoff is evidence for
+projection is merged on `main` and covers unavailable targets, metadata conflicts, consumer-selected
+long-text fallback and bounded normalized output. The UnrealGvas preparation handoff is evidence for
 readiness only, not adoption.
 
 ### Existing-entry SFO patch substrate (SDK-10 foundation)
