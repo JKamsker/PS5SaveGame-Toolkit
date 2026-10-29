@@ -11,6 +11,12 @@ An unsuccessful checksum search does not establish game acceptance. Preferences 
 See [PERFORMANCE.md](PERFORMANCE.md) for the #40 allocation review, reproducible before/after
 measurements and deterministic paging, lookup and planning regression budgets.
 
+The [GOWTool MIT follow-up](GOWTOOL_ASSESSMENT.md) pins the 2026-10-29 licence addition and
+rechecks its actual scope against this plugin and all 156 sample records. MIT now explicitly
+permits code reuse with its notice, but the inspected source targets **God of War 2018 assets**;
+it supplies no additional save parser, integrity routine or resource/skill/gear crosswalk to import.
+No new writer or confidence upgrade follows from the licence change.
+
 ## Framework feature adoption
 
 | Feature | Status and evidence |
@@ -336,7 +342,7 @@ not an invented upstream grant. See pinned revisions, hashes, sidecars and plugi
 | [Continue? PC reader, inspected revision](https://github.com/Alexsander720/continue/blob/51e19b2a292c60f9acdf3c13c561809657104ea2/plugin/py_modules/ddsaves/god_of_war_ragnarok.py) | Wallet ID, counted rows, metadata/time/counter. PC revision is `00660404`; transferred ideas checked on all PS5 samples. |
 | [2018 layout data](https://github.com/xcier/GoW-2018-PS4-editor/blob/main/app/core/gow2018_data.py), [item data](https://github.com/xcier/GoW-2018-PS4-editor/blob/main/app/resources/database/gow2018_items.json) | XP/EconomyXP ID and reason to exclude the 2018 container. |
 | [Codes Prince console editor](https://codesprince.com/2022/12/06/ps4-ps5-save-editor-for-gow-ragnarok/), [PC editor](https://codesprince.com/2024/09/24/pc-editor-for-gow-ragnarok/) | Separate platform/version support; no public parser/integrity algorithm obtained. |
-| [GOWTool](https://github.com/kainotoa/GOWTool), [smpack](https://github.com/iArtorias/smpack) | Asset/WAD leads; no proof that asset hashing or WTOC/LZ4 applies to saves. |
+| [GOWTool, f2899f6c](https://github.com/kainotoa/GOWTool/tree/f2899f6c89cb85bf0f313f8a844fb1884ff23633), [smpack](https://github.com/iArtorias/smpack) | Separate asset/WAD leads. GOWTool targets 2018 assets and is now MIT; its stored texture/LOD hashes and external Oodle declarations provide no save-integrity evidence. WTOC/LZ4 findings belong to other asset tools. [Pinned assessment](GOWTOOL_ASSESSMENT.md). |
 | [Regional catalogue](https://sharpemu.app/game/PPSA08329/), [PPSA08329](https://prosperopatches.com/PPSA08329), [PPSA08330](https://prosperopatches.com/PPSA08330), [PPSA08331](https://prosperopatches.com/PPSA08331), [PPSA08332](https://prosperopatches.com/PPSA08332), [PPSA08334](https://prosperopatches.com/PPSA08334) | Title identity/IDs; not save compatibility. |
 | [Leviathan Axe](https://godofwar.fandom.com/wiki/Leviathan_Axe), [Blades of Chaos](https://godofwar.fandom.com/wiki/Blades_of_Chaos), [Draupnir Spear](https://godofwar.fandom.com/wiki/Draupnir_Spear), [Skill Labors](https://godofwar.fandom.com/wiki/Skill_Labors_%28Ragnar%C3%B6k%29) | CC-BY-SA skill names, branches, explicitly listed costs/levels and prerequisite facts in the skill-facts pack; five showcase thumbnails from the Axe/Spear pages in the separate visual catalogue. Saved state remains unknown. |
 | [PlayStation combat guide](https://www.playstation.com/en-us/games/god-of-war-ragnarok/god-of-war-combat-refresher-course/) and [God of War Wiki gear pages](https://godofwar.fandom.com/wiki/Berserker_Set) | Short weapon/gear descriptions and six gear/rune/map references in the eleven-record visual catalogue; the other five records are skill thumbnails. No saved ownership or equipped-state join is asserted. |
@@ -363,6 +369,7 @@ completion formula or legal maximum is displayed. Missing records remain raw IDs
 
 | Dataset / role | Pinned source and author | Licence / changes |
 | --- | --- | --- |
+| GOWTool applicability research only | [kainotoa / GOWTool, f2899f6c89cb85bf0f313f8a844fb1884ff23633](https://github.com/kainotoa/GOWTool/tree/f2899f6c89cb85bf0f313f8a844fb1884ff23633), retrieved 2026-10-29 | [MIT, copyright (c) 2026 kainotoa](https://github.com/kainotoa/GOWTool/blob/f2899f6c89cb85bf0f313f8a844fb1884ff23633/LICENSE), added in f0e92b0c. Source inspected as text; no implementation/data/assets imported. No licence refusal; [technical gaps and smallest inputs](GOWTOOL_ASSESSMENT.md#smallest-useful-next-inputs-and-maintainer-follow-up). |
 | Original 31 resource names/categories and fallback | [God of War Wiki contributors](https://godofwar.fandom.com/wiki/Resources/GOW_%28Ragnar%C3%B6k%29), retrieved 2026-10-28; existing dataset retained | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); normalized names/categories; IDs cross-checked against cited community resources; no new wiki text imported in round 2. |
 | Chaos Flame and Frozen Flame icons | God of War Wiki image pages; Sony Interactive Entertainment / Santa Monica Studio, retrieved 2026-10-29; [resource icon sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.ps5.en/assets.source.md) | Rights reserved by Sony Interactive Entertainment and Santa Monica Studio; used with attribution per owner decision 2026-10-29. Two downscaled WebP icons in the resource pack; the factual name dataset retains CC BY-SA 3.0. |
 | 36 additional ID candidates | [Apollo patch contributors / bucanero, 273f032b](https://github.com/bucanero/apollo-patches/blob/273f032b4c31c017fed5c1588f209b8faf87ba6c/PS4/CUSA34384.savepatch) | [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html); extracted unique literal search IDs and section categories, omitted writes and preset quantities; no invented item names. |
@@ -388,8 +395,10 @@ Runtime and 2018 factual tables are now imported under the owner decision. The l
 pack adds inferred definition joins, while verified equipped-state/quest joins remain absent;
 this is an evidence limitation, not a licence gate.
 Asset tools remain format research because WAD/TEXPACK layouts do not establish a save grammar.
-Their LZ4 checksum does not establish save integrity; no newly inspected source supplies a save
-authentication routine or complete StdNameHash algorithm. See the latest [research log](RESEARCH.md).
+Other asset tools' LZ4 checksums do not establish save integrity; GOWTool's MIT revision instead
+contains stored asset-hash lookups and external Oodle declarations. No newly inspected source supplies
+a save authentication routine or complete StdNameHash algorithm. See the [pinned GOWTool assessment](GOWTOOL_ASSESSMENT.md)
+and [research log](RESEARCH.md).
 
 ## Licence exclusions
 

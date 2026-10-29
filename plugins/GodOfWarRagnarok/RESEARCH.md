@@ -1,5 +1,14 @@
 # Ragnarök PS5 research log
 
+The [GOWTool MIT follow-up](GOWTOOL_ASSESSMENT.md) supersedes the earlier unpinned GOWTool
+licence status: f2899f6c89cb85bf0f313f8a844fb1884ff23633 includes MIT, copyright (c) 2026 kainotoa,
+added by f0e92b0c720fd5abc44023a0d01b55d416516088. Only LICENSE changed from its pre-licence parent.
+The pinned source targets 2018 WAD/texture/mesh assets and supplies no new saved-ID mappings,
+StdNameHash implementation or save-integrity repair. It is technically inapplicable to new save
+features with the available inputs; no code/data port or write/confidence change was made.
+The report records primary paths/hashes, aggregate sample checks, 270 passing sample-backed Release
+tests and the separate 220-pass/50-skip empty-sample run, plus exact next inputs and maintainer follow-up.
+
 The [2026-10-29 gear/skills/XP discovery report](FIELD_DISCOVERY.md) supplements this historical
 log. A newly located public gear sheet yields inferred definition/catalog-level joins across every
 primary gameplay save. Core weapon levels, named saved skills, equipped-slot state, XP totals and
