@@ -16,7 +16,6 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
     private readonly IReferenceContext _references;
     private readonly CharacterProfile? _character;
     private readonly JsonEditModel _model;
-    private readonly bool _allowStructure;
     internal const string WriteWarning = "Experimental write: no checksum or console reload has been verified. The game may reject, repair, or clamp this save; keep a backup and validate on a spare slot.";
     private IReadOnlyList<CharacterCollection>? _collections;
     private readonly JsonActionPlanner _planner;
@@ -32,7 +31,6 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         _references = references;
         _character = CharacterProfile.Read(tree);
         _model = new(tree);
-        _allowStructure = true;
         _planner = new JsonActionPlanner(_model, references, () => CanEdit);
     }
 
@@ -79,12 +77,12 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
             if (range.Start == 0 && range.Count == range.Parent.Children.Count &&
                 Projections.FirstOrDefault(c => c.Metadata.Id == JsonCollections.Id(range.Parent)) is { } queryable)
                 children.Insert(0, queryable.View());
-            if (_allowStructure && range.Start == 0 && range.Count == range.Parent.Children.Count)
+            if (range.Start == 0 && range.Count == range.Parent.Children.Count)
                 return [new SectionNode("Structural actions", StructureActions(range.Parent).ToArray()), new SectionNode("Values", children)];
             return children;
         }
         var pages = new List<ViewNode>();
-        if (_allowStructure) pages.AddRange(StructureActions(range.Parent));
+        pages.AddRange(StructureActions(range.Parent));
         if (range.Start == 0 && range.Count == range.Parent.Children.Count &&
             Projections.FirstOrDefault(c => c.Metadata.Id == JsonCollections.Id(range.Parent)) is { } paged)
             pages.Add(paged.View());
@@ -153,7 +151,6 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         if (JsonActions.IsPlanned(actionId))
             throw new InvalidOperationException("Bulk writes require an F6 preview and apply.");
         if (!CanEdit) throw new SaveFormatException("Writes are disabled for this character version or online mode.");
-        if (!_allowStructure) throw new SaveFormatException("Structural writes are disabled for this document.");
         var parts = actionId.Split('/');
         if (parts.Length != 3 || parts[0] != "json" || parts[1] is not ("add" or "remove" or "replace") ||
             !int.TryParse(parts[2], NumberStyles.None, CultureInfo.InvariantCulture, out var id))
@@ -237,7 +234,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         };
         // Character collection cells remain direct fields so F8 tables can edit them without
         // expanding a per-cell wrapper. Raw container expansion still exposes F5 actions.
-        return _allowStructure && _character is null ? new SectionNode(node.Label, [field, .. StructureActions(node)]) : field;
+        return _character is null ? new SectionNode(node.Label, [field, .. StructureActions(node)]) : field;
     }
 
     private IEnumerable<ActionNode> StructureActions(JsonValueToken node)

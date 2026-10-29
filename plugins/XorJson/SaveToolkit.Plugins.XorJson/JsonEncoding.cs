@@ -26,7 +26,7 @@ internal sealed record JsonEncoding(bool Xor, bool Plain = false)
         {
             var plainTree = JsonTokenTree.Parse(bytes);
             if (CharacterProfile.Read(plainTree) is not null)
-                return new DecodedJson(bytes, plainTree, new JsonEncoding(false, true));
+                return new DecodedJson(plainTree, new JsonEncoding(false, true));
             throw new SaveFormatException("Plain JSON is not an FCharacterSaveV1 document.");
         }
         DecodedJson? match = null;
@@ -38,7 +38,7 @@ internal sealed record JsonEncoding(bool Xor, bool Plain = false)
             try { tree = JsonTokenTree.Parse(plain); }
             catch (SaveFormatException) { continue; }
             if (match is not null) throw new SaveFormatException("Ambiguous JSON encoding; refusing to guess.");
-            match = new DecodedJson(plain, tree, encoding);
+            match = new DecodedJson(tree, encoding);
         }
         return match ?? throw new SaveFormatException("Not valid XOR-1 or byte-minus-one UTF-8 JSON.");
     }
@@ -65,4 +65,4 @@ internal sealed record JsonEncoding(bool Xor, bool Plain = false)
     }
 }
 
-internal sealed record DecodedJson(byte[] Bytes, JsonTokenTree Tree, JsonEncoding Encoding);
+internal sealed record DecodedJson(JsonTokenTree Tree, JsonEncoding Encoding);
