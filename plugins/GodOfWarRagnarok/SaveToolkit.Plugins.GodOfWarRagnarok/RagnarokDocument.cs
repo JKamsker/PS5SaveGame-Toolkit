@@ -160,7 +160,7 @@ internal sealed class RagnarokDocument(string path, string name, byte[] bytes, R
         if (plan.Errors.Count > 0 || !current.Changes.SequenceEqual(plan.Changes) ||
             !current.SkippedRows.SequenceEqual(plan.SkippedRows) || !current.Warnings.SequenceEqual(plan.Warnings))
             return EditOutcome.Rejected(actionId, "The preview changed; preview the action again.") with { Warnings = current.Warnings };
-        foreach (var counter in _writes.Counters.Where(counter => counter.Resource)) _ = CounterField(counter.Offset);
+        foreach (var change in current.Changes) _ = CounterField(_writes.Counter(change.ValueId).Offset);
         return ApplyEdits(current.Changes.Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray());
     }
 
