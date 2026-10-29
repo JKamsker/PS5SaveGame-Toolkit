@@ -1,5 +1,7 @@
 using System.Globalization;
 using Google.Protobuf;
+using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.Gearbox;
@@ -40,29 +42,29 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
                 name == "is_rank_system_enabled" ? 1 : Math.Max(current.Integer(name), 1_000_000), name != "guardian_reward_random_seed"));
         }
         if (Has(current, "rank_rewards")) fields.Add(lazy.Register(id + "/rewards", "Guardian reward allocations (raw assets)",
-            () => GuardianRows(get, id, "rank_rewards", "reward_data_path", 0)));
+            () => [GuardianTable(get, id, "rank_rewards", "reward_data_path").Build()]));
         if (Has(current, "rank_perks")) fields.Add(lazy.Register(id + "/perks", "Guardian perks (raw assets)",
-            () => GuardianRows(get, id, "rank_perks", "perk_data_path", 0)));
+            () => [GuardianTable(get, id, "rank_perks", "perk_data_path").Build()]));
         nodes.Add(new SectionNode(title, fields));
     }
 
-    private IReadOnlyList<ViewNode> GuardianRows(Func<ProtoMessage?> get, string id, string list, string asset, int offset)
-    {
-        var entries = get()!.Children(list).ToArray();
-        var rows = entries.Skip(offset).Take(GearboxLazyViews.PageSize).Select((entry, index) =>
-        {
-            var position = offset + index;
-            var cells = new Dictionary<string, ViewNode> { ["asset"] = document.InspectionField($"{id}/{list}/{position}/asset", "Raw asset", entry.Text(asset), Confidence.Unknown, null) };
-            foreach (var field in RewardScalars)
-                cells[field] = Has(entry, field) ? AccountNumber($"{id}/{list}/{position}/{field}", field,
-                    () => get()!.Children(list).ElementAt(position), field, field == "is_enabled" ? 1 : Math.Max(entry.Integer(field), 1000)) : new TextNode("Absent");
-            return new TableRow($"{id}/{list}/{position}", cells);
-        }).ToArray();
-        List<ViewNode> result = [new TableNode([new("asset", "Raw asset"), new("num_tokens", "Tokens invested"), new("is_enabled", "Enabled (raw)")], rows)];
-        if (offset + GearboxLazyViews.PageSize < entries.Length)
-            result.Add(lazy.Register($"{id}/{list}/{offset + GearboxLazyViews.PageSize}", "More allocations", () => GuardianRows(get, id, list, asset, offset + GearboxLazyViews.PageSize)));
-        return result;
-    }
+    private GearboxTable GuardianTable(Func<ProtoMessage?> get, string id, string list, string asset) =>
+        new(id + "/" + list, list == "rank_rewards" ? "Guardian reward allocations" : "Guardian perks",
+            [new("asset", "Raw asset"), new("num_tokens", "Tokens invested", IntegerSpec.Int32), new("is_enabled", "Enabled (raw)", IntegerSpec.Int32)],
+            () => get()!.Children(list).Select((entry, position) =>
+            {
+                var key = $"{id}/{list}/{position}";
+                var values = new Dictionary<string, string> { ["asset"] = entry.Text(asset) };
+                foreach (var field in RewardScalars) values[field] = Has(entry, field) ? entry.Integer(field).ToString(CultureInfo.InvariantCulture) : "Absent";
+                return new GearboxQueryRow(key, values, () =>
+                {
+                    var cells = new Dictionary<string, ViewNode> { ["asset"] = document.InspectionField(key + "/asset", "Raw asset", entry.Text(asset), Confidence.Unknown, null) };
+                    foreach (var field in RewardScalars)
+                        cells[field] = Has(entry, field) ? AccountNumber(key + "/" + field, field,
+                            () => get()!.Children(list).ElementAt(position), field, field == "is_enabled" ? 1 : Math.Max(entry.Integer(field), 1000)) : new TextNode("Absent");
+                    return new TableRow(key, cells);
+                });
+            }));
 
     private void Wonderlands(List<ViewNode> nodes)
     {
@@ -89,30 +91,51 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         foreach (var (name, label) in new[] { ("prestige_experience", "Stored Myth XP"), ("last_upgrade_tree_index", "Last upgrade tree index (raw)") })
             if (Has(current, name)) values.Add(AccountNumber(id + "/" + name, label, () => get()!, name,
                 name == "last_upgrade_tree_index" ? 3 : Math.Max(current.Integer(name), 1_000_000)));
-        values.Add(lazy.Register(id + "/allocations", "Myth indexed allocations", () => MythRows(get, id, 0)));
+        values.Add(lazy.Register(id + "/allocations", "Myth indexed allocations", () => [new TextNode("Upstream index labels; PS5 allocation rotation/caps unproven. No computed Myth rank."), MythTable(get, id).Build()]));
         nodes.Add(new SectionNode(document.Profile ? "Profile Myth state" : "Character cloud Myth mirror", values));
     }
 
-    private IReadOnlyList<ViewNode> MythRows(Func<ProtoMessage?> get, string id, int offset)
-    {
-        var values = Integers(get()!, "points_spent_by_index_order").Skip(offset).Take(GearboxLazyViews.PageSize + 1).ToArray();
-        var rows = values.Take(GearboxLazyViews.PageSize).Select((value, index) =>
+    private GearboxTable MythTable(Func<ProtoMessage?> get, string id) => new(id + "/allocations", "Myth indexed allocations",
+        [new("index", "Array index", IntegerSpec.Int32), new("name", "Upstream stat label"), new("points", "Stored points", IntegerSpec.Int32)],
+        () => Integers(get()!, "points_spent_by_index_order").Select((value, position) =>
         {
-            var position = offset + index;
             var record = document.World.Find("myth:" + position.ToString(CultureInfo.InvariantCulture));
-            return new TableRow($"{id}/{position}", new Dictionary<string, ViewNode>
+            var key = $"{id}/{position}";
+            var values = new Dictionary<string, string> { ["index"] = position.ToString(CultureInfo.InvariantCulture),
+                ["name"] = record?.Name ?? "Unknown index", ["points"] = value.ToString(CultureInfo.InvariantCulture) };
+            return new GearboxQueryRow(key, values, () => new(key, new Dictionary<string, ViewNode>
             {
-                ["index"] = new TextNode(position.ToString(CultureInfo.InvariantCulture)),
-                ["name"] = document.InspectionField($"{id}/{position}/name", "Stat", record?.Name ?? "Unknown index", record is null ? Confidence.Unknown : Confidence.Inferred, record?.AttributionText),
+                ["index"] = new TextNode(values["index"]),
+                ["name"] = document.InspectionField(key + "/name", "Stat", values["name"], record is null ? Confidence.Unknown : Confidence.Inferred, record?.AttributionText),
                 ["points"] = MythPoints(get, id, position, value,
                     SerialDatabase.For(true).Find(GearboxWorldCatalog.CatalogId, "myth:" + position.ToString(CultureInfo.InvariantCulture))?.Attributes.GetValueOrDefault("upstreamCap"), record?.AttributionText),
-            });
-        }).ToArray();
-        List<ViewNode> nodes = [new TextNode("Upstream index labels; PS5 allocation rotation/caps unproven. No computed Myth rank."),
-            new TableNode([new("index", "Array index"), new("name", "Upstream stat label"), new("points", "Stored points")], rows)];
-        if (values.Length > GearboxLazyViews.PageSize)
-            nodes.Add(lazy.Register($"{id}/allocations/{offset + GearboxLazyViews.PageSize}", "More Myth allocations", () => MythRows(get, id, offset + GearboxLazyViews.PageSize)));
-        return nodes;
+            }));
+        }));
+
+    public IReadOnlyList<QueryableCollection> Collections => Tables.Select(t => t.Collection).ToArray();
+    public QueryableCollectionPage Query(string id, QueryableCollectionQuery query) => Tables.Single(t => t.Collection.Id == id).Query(query);
+
+    private IEnumerable<GearboxTable> Tables
+    {
+        get
+        {
+            if (document.Root.Schema.Wonderlands)
+            {
+                Func<ProtoMessage?> get = document.Profile ? () => document.Root.Child("player_prestige")
+                    : () => document.Root.Child("profile_cloud_data")?.Child("player_prestige");
+                if (get() is not null) yield return MythTable(get, document.Profile ? "account/myth" : "account/myth-mirror");
+                yield break;
+            }
+            var parents = document.Profile ? new[] { ("account/profile", "guardian_rank") }
+                : [("account/legacy", "guardian_rank"), ("account/character", "guardian_rank_character_data")];
+            foreach (var (id, name) in parents)
+            {
+                Func<ProtoMessage?> get = () => document.Root.Child(name);
+                if (get() is not { } parent) continue;
+                if (Has(parent, "rank_rewards")) yield return GuardianTable(get, id, "rank_rewards", "reward_data_path");
+                if (Has(parent, "rank_perks")) yield return GuardianTable(get, id, "rank_perks", "perk_data_path");
+            }
+        }
     }
 
     internal static IEnumerable<int> Integers(ProtoMessage message, string name)

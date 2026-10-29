@@ -135,6 +135,37 @@ bad CRCs, unmapped indices/families, nonzero customizations and unknown tails pr
 diagnostics. They never prevent unrelated currency/progression editing. Header-only items do not
 advertise decoded reroll/Chaos values. Stable document-local row IDs distinguish identical serials.
 
+## Inventory and list presentation (F14)
+
+Every stored inventory/allocation list is presented as one table. Equipped slots, SDUs, ammo
+pools, Guardian rewards/perks and Myth allocations previously used linked 100-row eager pages;
+these now use one eager table through 100 rows and one F8 searchable/filterable/sortable table
+above that limit. Default order, slot/record row keys, field IDs and save bytes are retained.
+Bindings for large lists are created only for the requested query page.
+
+Confirmed `equipped_inventory_list.inventory_list_index == -1` rows publish `IsEmpty` and
+`EmptyRows("slot")`, hiding vacant equipment by default. Showing them displays **Empty slot**;
+the original slot asset, enabled flag and raw index remain available in details. F8 filtering
+runs over the complete list before visibility, sorting and paging; hidden counts include only
+matching vacant slots. Direct SDK queries and F6 whole-query scopes use the same visibility
+rule. Equipment row keys remain equipment identities and are still rejected by item actions.
+Zero indices and disabled slots are not empty; other negative indices stay visible as unknown.
+
+The vacancy fact was checked against all supplied BL3 and Wonderlands character snapshots,
+including backups, and against apocalyptech's pinned Zlib sources (retrieved 2026-10-29):
+[BL3 `get_equipped_items` / `wipe_inventory`](https://github.com/apocalyptech/bl3-cli-saveedit/blob/d459b28a7e88f1a5ae0f16118272d8a5383b8b04/bl3save/bl3save.py)
+and [Wonderlands equivalents](https://github.com/apocalyptech/ttwl-cli-saveedit/blob/1fde90dc43e7f7ee261413d85c366e0a7236dd9b/ttwlsave/ttwlsave.py).
+Both clear equipment references to `-1`. This change implements presentation metadata from
+that existing format fact; no upstream code was copied.
+
+Audit of the remaining tables: Backpack, Bank and Lost loot already use one F8 table each and
+store repeated item records, with no confirmed vacancy sentinel. Empty/invalid/unmapped serial
+records therefore remain visible and preserved. Balance/world/skill catalogues, stored skill
+allocations and missions already use F8; zero allocations/statuses are real records, not vacant
+slots. The item-detail parts table holds at most 63 regular plus 15 generic serial parts, not
+unused slots. Zero ammo, SDU levels and Guardian/Myth allocations remain visible. Bounded raw,
+skill-graph and map expansions are inspection/spatial views, not chunked inventory tables.
+
 ## Skill graphs, mission checklists and part selection
 
 The Skills tab separates **stored allocations** from **named calculator references**. The save's
@@ -494,6 +525,7 @@ of the pinned zlib `datalib.py` implementations. No downloaded implementation wa
 | TTWL `skill-crosswalk` | [TTWLSaveEditor mapping](https://github.com/somefunguy/TTWLSaveEditor/tree/c6d701ec4a5ae1c115017de54d39df4813c035c1/BL3Tools/GameData/Items/Mappings) | somefunguy / contributors | No licence published; reused with attribution per owner decision 2026-10-28 | 2026-10-29 | Seven class tree-prefix joins; exact skill names are never inferred by order |
 | BL3/TTWL export provenance | [`bl3data`](https://github.com/apocalyptech/bl3data/tree/b0bfc16865d82d01bed7104bb357561c702c2561), [`wldata`](https://github.com/apocalyptech/wldata/tree/7d1d53ff86f227b4574fd8b1a294590b42b5f7aa) | apocalyptech / community contributors | No licence published for the game exports; reused with attribution per owner decision 2026-10-28 | 2026-10-29 | Object/path conventions were cross-checked; no proprietary export payloads, artwork or icons are redistributed |
 | External community map links | [BL3](https://mapgenie.io/borderlands-3), [Wonderlands](https://mapgenie.io/tiny-tinas-wonderlands) | Map Genie | Reuse unverified; **link only** | 2026-10-28 | No art, coordinates, map content or descriptions imported; current host blocks automated access |
+| Equipment vacancy (`-1`) | BL3 `bl3save.py` at [d459b28][bl3-root]; TTWL `ttwlsave.py` at [1fde90d][ttwl-root] (direct links in F14 section) | CJ Kucera / apocalyptech | [Zlib][bl3-license], [Zlib][ttwl-license] | 2026-10-29 | Existing format fact cross-checked against supplied PS5 snapshots; original F14 presentation implementation, no copied code |
 | SDU tiers, item flags and new-record metadata policy | [BL3 constants][bl3-constants], [TTWL constants][ttwl-constants], BL3 `bl3save.py`, TTWL `datalib.py` in the pinned repositories | CJ Kucera / Abram Hindle | [Zlib][bl3-license], [Zlib][ttwl-license] | 2026-10-28 | Altered C# definitions/flag handling; capacity formulas are original conservative editor policies |
 | Serial envelope / layout adapter | [BL3][bl3-serial], [TTWL][ttwl-serial] | CJ Kucera / Abram Hindle; upstream credits Baysix | [Zlib][bl3-license], [Zlib][ttwl-license] | 2026-10-28 | Altered bounded C# adaptation with exact-bit writes and original-seed CRC repair |
 | `Bl3.tsv`, `Bl3Xp.tsv` | [BL3 editor][bl3-root] | CJ Kucera; schemas credit Rick/Gibbed | [Zlib][bl3-license] | 2026-10-28 | Separate schema facts and exact XP thresholds |

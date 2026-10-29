@@ -1,4 +1,5 @@
 using Google.Protobuf;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
@@ -80,7 +81,7 @@ public sealed class AccountEvidenceTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void MythPackedAndUnpackedValues_PaginateAndPreserveUnknownIndices(bool packed)
+    public void MythPackedAndUnpackedValues_UseOneQueryableTableAndPreserveUnknownIndices(bool packed)
     {
         var values = Enumerable.Range(0, 205).Select(i => i == 204 ? -1 : i).ToArray();
         using var payload = new MemoryStream();
@@ -105,15 +106,19 @@ public sealed class AccountEvidenceTests
         var view = new GearboxAccountViews(document, lazy).Build();
         var section = Assert.Single(view.OfType<SectionNode>());
         var first = lazy.Expand(Assert.Single(section.Children.OfType<SectionNode>()).LazyId!);
-        Assert.Equal(100, Assert.Single(first.OfType<TableNode>()).Rows.Count);
-        var second = lazy.Expand(Assert.Single(first.OfType<SectionNode>()).LazyId!);
-        Assert.Equal(100, Assert.Single(second.OfType<TableNode>()).Rows.Count);
-        var third = lazy.Expand(Assert.Single(second.OfType<SectionNode>()).LazyId!);
-        var last = Assert.Single(third.OfType<TableNode>()).Rows;
+        var table = Assert.Single(first.OfType<QueryableTableNode>());
+        Assert.Empty(first.OfType<SectionNode>());
+        Assert.Equal(205, table.TotalCount);
+        var page = document.Query(table.CollectionId, new() { Offset = 200, Limit = 100, SortColumn = "index" });
+        Assert.Equal(205, page.FilteredCount);
+        Assert.Equal(0, page.HiddenEmptyCount);
+        var last = page.Rows;
         Assert.Equal(5, last.Count);
+        Assert.All(last, row => Assert.False(row.IsEmpty));
         Assert.Equal("Unknown index", Assert.IsType<FieldNode>(last[^1].Cells["name"]).Value.AsString());
         Assert.Equal("-1", Assert.IsType<FieldNode>(last[^1].Cells["points"]).Value.AsString());
-        Assert.Empty(third.OfType<SectionNode>());
+        var zero = document.Query(table.CollectionId, new() { Filters = new Dictionary<string, string> { ["points"] = "0" } });
+        Assert.Equal("account/myth/0", Assert.Single(zero.Rows).Key);
         Assert.Equal(payload.ToArray(), prestige.Encode());
     }
 
