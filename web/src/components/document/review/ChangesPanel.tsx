@@ -14,12 +14,16 @@ export function ChangesPanel() {
 
 function ChangesPanelBody({ review, focusSummary }: { review: ReturnType<typeof useChangesPanel>; focusSummary: () => void }) {
   const { busy, search, setSearch, query, error, partial, changes } = review;
+  const searchInput = useRef<HTMLInputElement>(null);
   return <div className="section__body">
     <p>Changed fields only. Reverting an editable field recomputes dependent values. Use Undo for added, removed or derived fields.</p>
-    <label>Find a changed field <input className="input" type="search" value={search} onChange={event => setSearch(event.target.value)} /></label>
+    <label>Find a changed field <input ref={searchInput} className="input" type="search" value={search} onChange={event => setSearch(event.target.value)} /></label>
     <p role="status" aria-label="Changes review" aria-atomic="true">{busy ? "Updating changes…" : query.isFetching ? "Loading changes…" : query.data ? `${changes.length} of ${query.data.changes.length} changed fields` : ""}</p>
     {(error || query.isError) && <p role="alert">{error || query.error?.message}</p>}
-    {query.isError && <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={() => void query.refetch()}>Retry changes</button>}
+    {query.isError && <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={event => {
+      if (document.activeElement === event.currentTarget) searchInput.current?.focus();
+      void query.refetch();
+    }}>Retry changes</button>}
     {partial && <p className="notice notice--Warning" role="status">Review coverage is incomplete. Only proven changes are listed; other changes may be unreviewed.</p>}
     {query.data?.warnings.map((warning, index) => <p className="notice notice--Warning" key={index}>{warning}</p>)}
     {query.data && query.data.changes.length === 0 && <p>{partial ? "No proven changes in the reviewed portion." : "No semantic changes."}</p>}
