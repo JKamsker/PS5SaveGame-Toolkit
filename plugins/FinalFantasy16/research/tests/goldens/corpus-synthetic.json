@@ -1,0 +1,131 @@
+{
+  "format": "ffxvi-corpus-evidence/1",
+  "analyzedOn": "2026-10-28",
+  "status": "Uncontrolled archive occurrences, not chronological event pairs",
+  "titles": [
+    {
+      "titleId": "PPSA10665",
+      "archive": "PPSA10665_saves_dec.zip",
+      "archiveSha256": "69c52a78b6402f6ca487c5d49ce802d62df0c4a320b970ef8567d16731ba94ed",
+      "counts": {
+        "crcValid": 4,
+        "fixedWidthPatchChecks": 2,
+        "framingValid": 4,
+        "gameplay": 3,
+        "populatedGameplay": 2,
+        "records": 4,
+        "system": 1
+      },
+      "distinctContents": 3,
+      "distinctMainIds": 2,
+      "namedMainIds": 1,
+      "explicitUnknownMainIds": 1,
+      "blockTriples": [
+        {
+          "type": 1,
+          "version": 1,
+          "payloadLength": 8,
+          "occurrences": 1
+        },
+        {
+          "type": 6,
+          "version": 2021110401,
+          "payloadLength": 36448,
+          "occurrences": 3
+        }
+      ],
+      "records": [
+        {
+          "path": "slot/game-save-data",
+          "occurrence": 0,
+          "role": "gameplay",
+          "length": 36484,
+          "sha256": "a083183a7caf32cc99f41b5f2d32b5d822279ef628ed039c7f47d556a9b3904b"
+        },
+        {
+          "path": "slot/game-save-data",
+          "occurrence": 1,
+          "role": "gameplay",
+          "length": 36484,
+          "sha256": "a083183a7caf32cc99f41b5f2d32b5d822279ef628ed039c7f47d556a9b3904b"
+        },
+        {
+          "path": "empty/game-save-data-01",
+          "occurrence": 0,
+          "role": "gameplay",
+          "length": 36484,
+          "sha256": "a782db0ca451e15c109f8f53a8979550197b1a97c3d930acb4729d964669c198"
+        },
+        {
+          "path": "system-save-data",
+          "occurrence": 0,
+          "role": "system",
+          "length": 44,
+          "sha256": "d1be29fd7a7ab01acb0d1ee80e8f7be6da9709d6927e04726f459250b4f58d94"
+        }
+      ]
+    },
+    {
+      "titleId": "PPSA13803",
+      "archive": "PPSA13803_saves_dec.zip",
+      "archiveSha256": "69c52a78b6402f6ca487c5d49ce802d62df0c4a320b970ef8567d16731ba94ed",
+      "counts": {
+        "crcValid": 4,
+        "fixedWidthPatchChecks": 2,
+        "framingValid": 4,
+        "gameplay": 3,
+        "populatedGameplay": 2,
+        "records": 4,
+        "system": 1
+      },
+      "distinctContents": 3,
+      "distinctMainIds": 2,
+      "namedMainIds": 1,
+      "explicitUnknownMainIds": 1,
+      "blockTriples": [
+        {
+          "type": 1,
+          "version": 1,
+          "payloadLength": 8,
+          "occurrences": 1
+        },
+        {
+          "type": 6,
+          "version": 2021110401,
+          "payloadLength": 36448,
+          "occurrences": 3
+        }
+      ],
+      "records": [
+        {
+          "path": "slot/game-save-data",
+          "occurrence": 0,
+          "role": "gameplay",
+          "length": 36484,
+          "sha256": "a083183a7caf32cc99f41b5f2d32b5d822279ef628ed039c7f47d556a9b3904b"
+        },
+        {
+          "path": "slot/game-save-data",
+          "occurrence": 1,
+          "role": "gameplay",
+          "length": 36484,
+          "sha256": "a083183a7caf32cc99f41b5f2d32b5d822279ef628ed039c7f47d556a9b3904b"
+        },
+        {
+          "path": "empty/game-save-data-01",
+          "occurrence": 0,
+          "role": "gameplay",
+          "length": 36484,
+          "sha256": "a782db0ca451e15c109f8f53a8979550197b1a97c3d930acb4729d964669c198"
+        },
+        {
+          "path": "system-save-data",
+          "occurrence": 0,
+          "role": "system",
+          "length": 44,
+          "sha256": "d1be29fd7a7ab01acb0d1ee80e8f7be6da9709d6927e04726f459250b4f58d94"
+        }
+      ]
+    }
+  ]
+}
