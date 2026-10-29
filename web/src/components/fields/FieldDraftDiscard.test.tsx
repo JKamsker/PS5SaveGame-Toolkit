@@ -13,14 +13,19 @@ const variants: FieldNode[] = [scalar, { ...scalar, spec: { kind: "nullable", in
   { ...scalar, spec: { kind: "union", options: [{ id: "text", label: "Text", spec: { kind: "text" } }] },
     value: { kind: "union", type: "text", value: "2" } }];
 
-function setup(node = scalar, compact = false) {
+function setup(node = scalar, compact = false, detailed = true) {
   const state = { canUndo: true, canRedo: false, isDirty: true, revision: 1 };
   const store = new DocumentStore(state);
   const rejection = (message = "Quantity rejected"): EditResult => ({ ok: false, changes: [], warnings: ["Keep this warning"],
     errors: [{ valueId: "quantity", message }], structureChanged: false, state });
   const submit = vi.fn<(value: FieldValue) => Promise<EditResult>>(async () => rejection());
-  const commit = vi.fn(async (_id: string, value: FieldValue) => { const result = await submit(value); store.apply(result); return result.ok; });
-  const context: DocumentContextValue = { workspaceId: "w", documentId: "d", canEdit: true, structureVersion: 0, store, commit,
+  const commit = vi.fn(async (id: string, value: FieldValue) => {
+    const result = await submit(value);
+    const diagnostics = store.applyWithDiagnostics(result);
+    return { accepted: result.ok, rejection: result.ok ? undefined : diagnostics.get(id) };
+  });
+  const context: DocumentContextValue = { workspaceId: "w", documentId: "d", canEdit: true, structureVersion: 0, store,
+    commit: async (id, value) => (await commit(id, value)).accepted, commitWithDiagnostics: detailed ? commit : undefined,
     mutate: call => call(), acceptResult: vi.fn(), runAction: vi.fn(), refresh: vi.fn() };
   render(<DocumentContext.Provider value={context}>{compact
     ? <TableCell node={node} rowLabel="Potion" onOpenDetails={() => {}} /> : <FieldRow node={node} />}</DocumentContext.Provider>);
@@ -134,4 +139,13 @@ it("does not treat an unchanged value or an unrelated diagnostic as a rejected d
   fireEvent.keyDown(input, { key: "Escape" });
   expect(store.error("quantity")).toBe("Current saved value diagnostic");
   expect(commit).not.toHaveBeenCalled();
+});
+
+it("keeps a diagnostic when a boolean-only commit cannot prove submission ownership", async () => {
+  const { input, store } = setup(scalar, false, false);
+  await enter(input, "9");
+  fireEvent.keyDown(input, { key: "Escape" });
+  expect(input.value).toBe("2");
+  expect(store.error("quantity")).toBe("Quantity rejected");
+  expect(input.getAttribute("aria-invalid")).toBe("true");
 });

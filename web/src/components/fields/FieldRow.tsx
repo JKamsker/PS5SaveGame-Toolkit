@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { FieldNode } from "../../api/protocol";
 import { describeDuration, describeRange, sameValue } from "../../lib/values";
-import { useDocument, useFieldValue } from "../../state/documentStore";
+import { useDocument, useFieldValue, type FieldDiagnosticReceipt } from "../../state/documentStore";
 import { FieldControl } from "./FieldControl";
 
 const confidenceText = { Verified: "verified", Inferred: "inferred", Unknown: "meaning unknown" } as const;
@@ -54,36 +54,38 @@ export function FieldRow({ node }: { node: FieldNode }) {
 export function useLiveField(node: FieldNode) {
   const doc = useDocument();
   const live = useFieldValue(node.valueId, node.value);
-  const submission = useRef({ pending: 0, request: 0, notifications: 0, rejection: undefined as string | undefined });
+  const submission = useRef({ pending: 0, request: 0, rejection: undefined as FieldDiagnosticReceipt | undefined });
   useEffect(() => {
     const current = submission.current;
     current.request++;
     current.rejection = undefined;
     // A fresh field diagnostic (even the same message) must never be dismissed as an old rejection.
-    return doc.store.subscribe(node.valueId, () => { current.notifications++; current.rejection = undefined; });
+    return doc.store.subscribe(node.valueId, () => { current.rejection = undefined; });
   }, [doc.store, node.valueId]);
   const commit = async (value: Parameters<typeof doc.commit>[1]) => {
     const current = submission.current;
     const request = ++current.request;
-    const notifications = current.notifications;
     current.pending++;
     current.rejection = undefined;
     try {
-      const accepted = await doc.commit(node.valueId, value);
-      if (!accepted && request === current.request && notifications !== current.notifications) {
-        current.rejection = doc.store.error(node.valueId);
+      const outcome = doc.commitWithDiagnostics ? await doc.commitWithDiagnostics(node.valueId, value)
+        : { accepted: await doc.commit(node.valueId, value), rejection: undefined };
+      if (!outcome.accepted && request === current.request && outcome.rejection !== undefined
+        && outcome.rejection === doc.store.diagnostic(node.valueId)) {
+        current.rejection = outcome.rejection;
       }
-      return accepted;
+      return outcome.accepted;
     } finally {
       current.pending--;
     }
   };
   const discardDraft = () => {
     const current = submission.current;
-    if (current.pending || current.rejection === undefined || current.rejection !== doc.store.error(node.valueId)) return;
+    if (current.pending || current.rejection === undefined) return;
     if (!sameValue(live.value, doc.store.value(node.valueId, node.value))) return;
+    const receipt = current.rejection;
     current.rejection = undefined;
-    doc.store.setError(node.valueId, undefined);
+    doc.store.clearError(node.valueId, receipt);
   };
   return { ...live, commit, discardDraft };
 }
