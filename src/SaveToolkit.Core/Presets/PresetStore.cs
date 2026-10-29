@@ -176,11 +176,6 @@ public sealed class PresetStore
     private Dictionary<string, ToolkitPreset> ReadSnapshot(bool allowMissing)
     {
         var path = Path.Combine(_options.StorageRoot, FileName);
-        if (!File.Exists(path))
-        {
-            if (allowMissing) return new(StringComparer.Ordinal);
-            throw new InvalidDataException("Preset storage disappeared during reload.");
-        }
         try
         {
             using var stream = new FileStream(path, FileMode.Open, FileAccess.Read,
@@ -198,21 +193,33 @@ public sealed class PresetStore
                     throw new InvalidDataException("Preset storage exceeds the configured size limit.");
                 content.Write(buffer, 0, read);
             }
-            var records = JsonSerializer.Deserialize<List<ToolkitPreset>>(content.ToArray(), JsonOptions) ?? [];
+            var records = JsonSerializer.Deserialize<List<ToolkitPreset>>(content.ToArray(), JsonOptions)
+                ?? throw new InvalidDataException("Preset storage must contain a record array.");
             if (records.Count > _options.MaxPresets) throw new InvalidDataException("Preset storage exceeds the configured limit.");
             var staged = new Dictionary<string, ToolkitPreset>(StringComparer.Ordinal);
             foreach (var preset in records)
             {
-                if (preset is null || preset.SchemaVersion != CurrentSchemaVersion || string.IsNullOrWhiteSpace(preset.Id))
-                    continue;
-                ValidatePayload(preset.Compatibility, preset.Actions);
+                if (preset is null) throw new InvalidDataException("Preset storage contains a null record.");
+                if (preset.SchemaVersion != CurrentSchemaVersion)
+                    throw new InvalidDataException($"Preset schema '{preset.SchemaVersion}' is not supported.");
+                if (string.IsNullOrWhiteSpace(preset.Id)) throw new InvalidDataException("Preset storage contains a blank id.");
+                try { ValidatePayload(preset.Compatibility, preset.Actions); }
+                catch (ArgumentException ex) { throw new InvalidDataException("Preset storage contains a malformed record.", ex); }
                 if (!staged.TryAdd(preset.Id, ClonePreset(preset)))
                     throw new InvalidDataException($"Preset storage contains duplicate id '{preset.Id}'.");
             }
             return staged;
         }
-        catch (FileNotFoundException ex) { throw new InvalidDataException("Preset storage disappeared during load.", ex); }
-        catch (DirectoryNotFoundException ex) { throw new InvalidDataException("Preset storage disappeared during load.", ex); }
+        catch (FileNotFoundException ex)
+        {
+            if (allowMissing) return new(StringComparer.Ordinal);
+            throw new InvalidDataException("Preset storage disappeared during load.", ex);
+        }
+        catch (DirectoryNotFoundException ex)
+        {
+            if (allowMissing) return new(StringComparer.Ordinal);
+            throw new InvalidDataException("Preset storage disappeared during load.", ex);
+        }
         catch (JsonException ex)
         {
             throw new InvalidDataException("Preset storage is not valid JSON.", ex);
@@ -262,6 +269,8 @@ public sealed class PresetStore
             || compatibility.CapabilitySchemaVersion is { Length: > PresetContractValidation.MaxMetadataLength })
             throw new ArgumentException("Preset compatibility metadata exceeds the bounded limit.");
         if (actions.Count is < 1 or > 32) throw new ArgumentException("A preset must contain between one and 32 actions.");
+        if (PresetContractValidation.ValidateAggregateInstances(actions) is { } aggregateError)
+            throw new ArgumentException(aggregateError);
         if (actions.Any(action => action is null || string.IsNullOrWhiteSpace(action.ActionId) || action.ActionId.Length > PresetContractValidation.MaxKeyLength
             || action.Parameters is null || action.Parameters.Count > 128
             || action.Parameters.Keys.Any(key => string.IsNullOrWhiteSpace(key) || key.Length > PresetContractValidation.MaxKeyLength)

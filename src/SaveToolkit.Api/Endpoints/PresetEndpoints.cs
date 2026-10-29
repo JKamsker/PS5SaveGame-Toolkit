@@ -53,7 +53,12 @@ internal static class PresetEndpoints
         var referenceFields = references is null ? null : new ReferenceFieldService(references);
         if (PresetContractValidation.ValidateCapture(capability, captureRequest, referenceFields) is { } captureError)
             return Results.UnprocessableEntity(new ErrorDto(captureError, "presetContract"));
-        var action = document.Value.CapturePreset(captureRequest);
+        PresetAction? action;
+        try { action = document.Value.CapturePreset(captureRequest); }
+        catch (Exception ex) when (ex is not OperationCanceledException and not OutOfMemoryException)
+        {
+            return Results.UnprocessableEntity(new ErrorDto($"Preset capture failed: {ex.Message}", "presetContract"));
+        }
         if (action is null)
             return Results.UnprocessableEntity(new ErrorDto("The capture adapter returned no action.", "presetContract"));
         if (PresetContractValidation.ValidateCapturedAction(capability, captureRequest, action, referenceFields) is { } actionError)

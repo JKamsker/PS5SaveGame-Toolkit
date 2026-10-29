@@ -224,6 +224,7 @@ export interface ToolkitPreset {
 }
 export interface PresetCompatibilitySummary {
   compatible: boolean; code?: string; reason?: string; readOnly: boolean; canPreview: boolean; previewCode?: string; previewReason?: string; presetKind: string;
+  savedPluginVersion: string; currentPluginVersion: string;
   savedGameBuild?: string; currentGameBuild?: string; savedFormatVariant?: string; currentFormatVariant?: string;
   savedReferencePackIdentity?: string; currentReferencePackIdentity?: string; savedSchemaFingerprint?: string; currentSchemaFingerprint?: string;
   savedFileRole?: string; currentFileRole?: string; savedCapabilitySchemaVersion?: string; currentCapabilitySchemaVersion?: string;

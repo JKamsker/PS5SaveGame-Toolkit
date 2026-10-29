@@ -57,18 +57,19 @@ public sealed partial class DocumentSession
             return Error(preset, emptyResolution, actionError);
         if (preset.Actions.Count == 0 || preset.Actions.Count > capability.MaxActions)
             return Error(preset, emptyResolution, "The preset contains an unsupported number of actions.");
-        var instances = preset.Actions.SelectMany(action => action.Instances ?? []).ToArray();
         var selected = choices is null
             ? new Dictionary<string, string>(StringComparer.Ordinal)
             : new Dictionary<string, string>(choices, StringComparer.Ordinal);
-        var resolution = planner.ResolvePresetInstances(instances, selected);
-        if (PresetContractValidation.ValidateResolution(resolution, out var resolutionBytes) is { } resolutionError)
-            return Error(preset, emptyResolution, resolutionError);
-        if (!resolution.Succeeded)
-            return new(null, _revision, preset, resolution, new ActionPlan { Errors = ResolutionErrors(resolution) });
+        var resolution = emptyResolution;
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
+            var instances = preset.Actions.SelectMany(action => action.Instances ?? []).ToArray();
+            resolution = planner.ResolvePresetInstances(instances, selected);
+            if (PresetContractValidation.ValidateResolution(resolution, out var resolutionBytes) is { } resolutionError)
+                return Error(preset, emptyResolution, resolutionError);
+            if (!resolution.Succeeded)
+                return new(null, _revision, preset, resolution, new ActionPlan { Errors = ResolutionErrors(resolution) });
             var plan = planner.PlanPreset(preset.Actions, resolution);
             var bytes = JsonSerializer.SerializeToUtf8Bytes(plan);
             if (bytes.LongLength > MaxPlanBytes)

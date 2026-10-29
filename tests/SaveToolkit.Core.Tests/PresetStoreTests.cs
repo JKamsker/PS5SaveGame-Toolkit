@@ -34,7 +34,7 @@ public sealed class PresetStoreTests
         var store = new PresetStore(new() { StorageRoot = root });
         Assert.Throws<ArgumentException>(() => store.Create("bad", new("p", "1", []), [new("a", new Dictionary<string, JsonElement>())]));
         File.WriteAllText(Path.Combine(root, "presets.json"), "[{\"schemaVersion\":\"99\",\"id\":\"future\"}]");
-        Assert.Empty(new PresetStore(new() { StorageRoot = root }).List());
+        Assert.Throws<InvalidDataException>(() => new PresetStore(new() { StorageRoot = root }));
     }
 
     [Fact]
@@ -111,6 +111,23 @@ public sealed class PresetStoreTests
 
         Assert.Throws<InvalidDataException>(() => store.Reload());
         Assert.Equal(created.Id, Assert.Single(store.List()).Id);
+    }
+
+    [Fact]
+    public void ReloadMalformedRecordPreservesLastGoodLibraryAndFile()
+    {
+        var root = TestZips.TempDir();
+        var store = new PresetStore(new() { StorageRoot = root });
+        var created = store.Create("safe", new("p", "1", ["T"]),
+            [new PresetAction("set", new Dictionary<string, JsonElement>())]);
+        var path = Path.Combine(root, "presets.json");
+        var original = File.ReadAllText(path);
+        File.WriteAllText(path, "[{\"schemaVersion\":\"1\",\"id\":\"\"}]");
+
+        Assert.Throws<InvalidDataException>(() => store.Reload());
+        Assert.Equal(created.Id, Assert.Single(store.List()).Id);
+        Assert.NotEqual(original, File.ReadAllText(path));
+        Assert.Contains("\"id\":\"\"", File.ReadAllText(path), StringComparison.Ordinal);
     }
 
     [Fact]
