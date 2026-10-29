@@ -15,6 +15,11 @@ public interface ISaveSet
     /// <summary>Finds a game file by save-set relative path, ignoring case; returns null when absent.</summary>
     ISaveFile? FindFile(string relativePath) =>
         AllFiles.FirstOrDefault(f => string.Equals(f.RelativePath, relativePath, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>Finds any file, including system metadata, by save-set relative path.</summary>
+    ISaveFile? FindAnyFile(string relativePath) =>
+        Directories.SelectMany(d => d.Files.Concat(d.SystemFiles))
+            .FirstOrDefault(f => string.Equals(f.RelativePath, relativePath, StringComparison.OrdinalIgnoreCase));
 }
 
 /// <summary>
@@ -54,6 +59,11 @@ public interface ISaveDirectory
 
     /// <summary>System files under <c>sce_sys/</c> (param.sfo, keystone, icon0.png).</summary>
     IReadOnlyList<ISaveFile> SystemFiles { get; }
+
+    /// <summary>Finds a game or system file by path relative to this directory.</summary>
+    ISaveFile? FindAnyFile(string pathInDirectory) =>
+        Files.Concat(SystemFiles).FirstOrDefault(f =>
+            string.Equals(f.PathInDirectory, pathInDirectory, StringComparison.OrdinalIgnoreCase));
 }
 
 /// <summary>A single file inside a save directory. Content is immutable for the lifetime of the set.</summary>

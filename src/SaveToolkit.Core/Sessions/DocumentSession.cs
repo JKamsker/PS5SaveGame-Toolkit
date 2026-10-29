@@ -67,6 +67,7 @@ public sealed partial class DocumentSession : IDisposable
         _history = new EditHistory(limits);
         _referenceFields = new ReferenceFieldService(referenceContext);
         _semantic = new SemanticReview(limits);
+        OutputOwnership = new OutputOwnershipBinding(file, document);
         // The original is re-opened with the same pinned reference packs so its field identities match the live document.
         _openOriginal = openOriginal ?? (() => plugin.Open(file, referenceContext));
     }
@@ -78,6 +79,13 @@ public sealed partial class DocumentSession : IDisposable
     public bool CanEdit => Locked(() => Document.CanEdit);
 
     private ISaveDocument Document { get; }
+    private OutputOwnershipBinding OutputOwnership { get; }
+
+    /// <summary>Full save-set paths reserved by this document, including exact declared system files.</summary>
+    internal IReadOnlyList<string> OwnedOutputPaths => OutputOwnership.OwnedPaths;
+    internal IReadOnlyList<string> DeclaredOutputPaths => OutputOwnership.DeclaredPaths;
+    internal bool RequiresCompleteOutputs => OutputOwnership.RequiresCompleteOutputs;
+    internal void CheckOutputFingerprints(CancellationToken cancellationToken) => OutputOwnership.Check(cancellationToken);
 
     public DocumentState State => Locked(StateUnlocked);
 
@@ -206,8 +214,17 @@ public sealed partial class DocumentSession : IDisposable
     /// </summary>
     public IReadOnlyList<FileOutput> Serialize() => Serialize(CancellationToken.None);
 
-    public IReadOnlyList<FileOutput> Serialize(CancellationToken cancellationToken) => Locked<IReadOnlyList<FileOutput>>(() =>
-        StateUnlocked().IsDirty ? DocumentOutputSnapshot.Capture(Document, cancellationToken) : [], cancellationToken);
+    public IReadOnlyList<FileOutput> Serialize(CancellationToken cancellationToken) =>
+        CaptureOutputs(cancellationToken).Outputs;
+
+    /// <summary>Captures output bytes and the dirty/revision state that produced them atomically.</summary>
+    internal DocumentOutputCapture CaptureOutputs(CancellationToken cancellationToken) =>
+        Locked(() =>
+        {
+            var state = StateUnlocked();
+            var outputs = state.IsDirty ? DocumentOutputSnapshot.Capture(Document, cancellationToken) : [];
+            return new DocumentOutputCapture(outputs, state.IsDirty, state.Revision);
+        }, cancellationToken);
 
     public AssetContent? GetAsset(string assetId) => Locked(() =>
         _index.KnowsAsset(assetId) && Document.GetAsset(assetId) is { } asset

@@ -21,9 +21,9 @@ public static class DocumentDownloader
 
             // Serialize snapshots plugin-owned buffers under the session lock exactly once.
             // Later edits cannot change the captured bytes being reopened or returned.
-            var outputs = session.Serialize(cancellationToken);
+            var capture = session.CaptureOutputs(cancellationToken);
             var overrides = new Dictionary<string, ReadOnlyMemory<byte>>(StringComparer.OrdinalIgnoreCase);
-            DocumentOutputVerifier.AddOutputs(workspace, session, outputs, overrides, cancellationToken);
+            DocumentOutputVerifier.AddOutputs(workspace, session, capture, overrides, cancellationToken);
             DocumentOutputVerifier.Verify(workspace, [session], overrides, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             return overrides.TryGetValue(session.File.RelativePath, out var primary)
