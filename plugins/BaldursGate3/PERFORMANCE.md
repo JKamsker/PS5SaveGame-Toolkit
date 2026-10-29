@@ -1,6 +1,10 @@
 # Performance and memory review (#40)
 
 Reviewed 2026-10-29 on `review/perf-baldursgate3`, starting at `0856545`.
+Measurements and test counts below describe that review revision, before the
+subsequent [robustness changes](ROBUSTNESS.md), including additional codec
+validation passes. They are historical comparisons, not current latency estimates.
+Current validation is recorded in [README.md](README.md#validation).
 All five confirmed findings were medium severity and are fixed:
 
 | Finding | Fix | Commit |

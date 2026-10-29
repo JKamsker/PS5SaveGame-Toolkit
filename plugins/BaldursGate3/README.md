@@ -18,9 +18,8 @@ explicit LSF quantity candidates with warnings, following the owner's decision
 See [LSMF.md](LSMF.md) for the independent implementation record and
 [EVIDENCE.md](EVIDENCE.md) for phase status and the exact owner capture checklist.
 
-The [performance review](PERFORMANCE.md) records five fixes from #40, reproducible
-Release measurements on the largest sample, allocation/scaling regressions and
-validation (**247 passed, 0 failed, 0 skipped**; API build with zero warnings/errors).
+The [performance review](PERFORMANCE.md) records five fixes from #40, historical
+2026-10-29 Release measurements on the largest sample and allocation/scaling regressions.
 Warm first-view allocation fell from 233.6 MB to 138.2 MB; twenty ten-row live pages
 fell from 51.0 MB to 0.9 MB. Mandatory digest/resource validation and Experimental
 write warnings remain intact.
@@ -29,8 +28,8 @@ The [malformed-input review](ROBUSTNESS.md) records four medium and one low
 correctness findings fixed after that performance review: allocation preflight for
 compressed data and LSF/LSX tables, unfinished zlib rejection, and missing compressed
 members. Regression coverage includes exhaustive synthetic truncation prefixes and
-in-memory sample mutations. Final validation: **306 passed, 0 failed, 0 skipped**;
-API Release build with zero warnings/errors. Stream codecs validate with bounded
+in-memory sample mutations. Its historical validation is recorded in that review;
+current validation is below. Stream codecs validate with bounded
 scratch before allocating their declared output; validated package payload reuse
 and Experimental write warnings are retained.
 
@@ -83,7 +82,8 @@ source revisions, original hashes and modification notes are in
 The framework validates/caches packs once and shares image content across pinned
 documents; the plugin performs no runtime loading, decoding or network access.
 
-An isolated Debug stopwatch run on the largest sample (`AutoSave_0.lsv`, 8,073,350
+An isolated Debug stopwatch run during the 2026-10-29 asset import, before the
+subsequent performance and robustness fixes, used the largest sample (`AutoSave_0.lsv`, 8,073,350
 bytes), excluding sample import and including first pack load, open, root view,
 first ten rows of every collection and catalog icon resolution, measured:
 
@@ -99,14 +99,12 @@ first load/view and 244,796,760 allocated bytes, showing first-use timing varian
 `AssetLoadMeasurementTests` repeats the operation and optionally writes the result
 when `BG3_ASSET_BENCHMARK_OUTPUT` names a scratch output file.
 
-Validation: **214 passed, 0 failed, 0 skipped** with
-`SAVETOOLKIT_ARTIFACTS=C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts`.
-API build: **0 warnings, 0 errors**. Coverage includes all embedded hashes/types,
+Asset-import regression coverage includes all embedded hashes/types,
 asset-ID resolution, deduplication, shared cached content, attributed rich catalog
 cells, exact sample class/spell resolution, Unknown graph state, missing-pack/raw-ID
 fallbacks, icon-column sorting and byte-identical sample export. Offline image QA
-verified every image decodes at at most 64×64; all C# sources remain under 300 lines
-(largest: 261). All repository edits are inside this plugin folder.
+verified every image decodes at at most 64×64. These historical measurements are
+not current performance baselines; see [PERFORMANCE.md](PERFORMANCE.md).
 
 ## Supported scope and preservation
 
@@ -233,29 +231,29 @@ key bytes, reopen and exact undo. Existing sample and conformance tests cover al
 saved-item occurrences, 638 live entries, canonical quantity edits and byte-identical no-op
 serialization.
 
-F14 validation: all 220 plugin tests passed with the supplied artifacts, zero skipped;
-the API build completed with zero warnings and zero errors. Test scratch used
-`D:/Temp/saveeditor/test-scratch/BaldursGate3`; automatic approval review blocked
-its deletion, so the scratch folder remains for cleanup.
+The inventory-presentation tests are included in the current validation below.
 
 ## Enabled writes and their evidence
 
-All writes remain **Experimental**. Newly writable fields carry `Inferred` or
-`Unknown` confidence, a “Not validated on console” description and a visible
-warning that the game may reject the edited save. No owner evidence is needed to
+All writes remain **Experimental**. Writable fields carry `Inferred` or
+`Unknown` confidence and visible warnings about absent console validation and
+possible loading or consistency failures. No owner evidence is needed to
 use these enabled paths. Metadata changes do not update live NewAge state.
+Outer digest repair applies when an edited resource is inside an LSPK v18;
+standalone LSFs have structural validation and no discovered content checksum.
 
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
+| Existing LSF integer, boolean, finite float/double and ordinary string primitives | Unknown in Resources; the Party `LeaderName` alias is Inferred | `AttributeEncoder` supports stored signed/unsigned integers, bool, float/double and String/Path/FixedString/LSString/WString/LSWString. Only inline attributes up to 4 KiB are published as fields. Synthetic type/codec/layout vectors and sample edits prove preservation and reopen; conformance changes LeaderName length. These are raw storage edits, not validated gameplay controls. | LSF sections are rebuilt and re-parsed with expected attribute-byte comparisons; packaged writes require v18 and repaired/verified MD5+1. No discovered standalone LSF checksum; unknown gameplay dependencies are not repaired. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): spare-slot load/resave/reload tests for each intended field; LeaderName changes metadata only. |
 | Existing SaveInfo party `Level` | Inferred | Three real PS5 JSON rows; exact-token edit/reopen, F1 byte diff and session undo/redo. Base-game cap 12 from [Experience](https://bg3.wiki/wiki/Experience); higher existing levels extend only to the observed maximum. | v18 MD5+1 repaired and verified; output JSON re-parsed. Other game consistency checks unknown; save may be rejected or summary overwritten. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): test level metadata independently, inspect save selection and live sheet, resave/reload/redump. |
 | Existing SaveInfo party current-level XP | Inferred | Three PS5 tokens (30,30,0). Nonnegative range bounded by the current summary's observed maximum (30 in supplied save); no gameplay limit claimed. | Same verified v18 digest and JSON checks; unknown game consistency checks may reject/overwrite edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): change one summary XP token, inspect metadata/live state, resave/reload/redump. |
 | Existing SaveInfo party total XP | Inferred | Three PS5 tokens (30,30,0); same conservative observed bounds; persistence, intended-token diff and undo/redo tests. | Same verified v18 digest and JSON checks; unknown game consistency checks may reject/overwrite edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): test total XP separately and compare both summary and live XP after resave. |
 | Explicit existing LSF Item quantity candidate (`Quantity`, `Amount`, `Count`, `StackAmount`, `StackCount`) | Unknown | Existing candidate-name inspection plus proven primitive writer. Synthetic standalone/package fixtures test bytes, persistence, invalid batches, raw/page binding consistency and session undo/redo. **No supplied item has a direct quantity attribute.** | LSF structure re-parsed; v18 digest repaired and verified when packaged. Cross-representation dependencies/integrity unknown; game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): supply a save with a direct positive integer quantity, identify owner/stack, reduce by one, load/use/trade/resave/reload/redump. |
 | NewAge existing positive member quantity | Unknown | All 38 sample groups / 39 members follow explicit group→member/entry references. Multiple contributions are summed; every contribution stays positive. Range: contribution count through imported member total. | Fixed u32 patches; surrounding bytes preserved, output NewAge/LSF/package re-parsed, v18 digest repaired. Inner integrity/dependencies unknown; game may reject edits. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): identify one non-quest stack/owner, reduce by one, use/trade/rest, native resave/reload/redump. |
-| NewAge current / temporary HP candidates (2 write kinds) | Unknown | Whole PS5 380-row profile validates. Current HP: 0..stored maximum; temporary HP: 0..max(imported temporary HP, stored temporary maximum). Owner/epoch joins remain unproven. | Same fixed-width preservation and outer digest repair; inner integrity/dependent health state unknown. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): separate damage/heal/temp-HP captures and spare-slot edit checks, including unrelated characters and later combat/rest. |
+| NewAge current / temporary HP candidates (2 write kinds) | Unknown | Whole PS5 380-row profile validates. Current HP: 0..stored maximum; temporary HP: 0..max(imported temporary HP, stored temporary maximum). Save-local joins exist; authoritative owner/epoch semantics remain unproven. | Same fixed-width preservation and outer digest repair; inner integrity/dependent health state unknown. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): separate damage/heal/temp-HP captures and spare-slot edit checks, including unrelated characters and later combat/rest. |
 | NewAge six effective ability-cache candidates | Unknown | Whole PS5 256-row profile validates six i32 values after an opaque 8-byte per-record prefix. Each range is 1..its imported value. These are effective/cache candidates, not base scores or respec. | Same preservation/checks; boosts, progression and cache authority unknown. Game may reject or regenerate values. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): reduce one supported value, inspect sheet/boosts/combat and resave/reload/redump; test each ability separately. |
-| F5/F6 swap two existing container map keys | Unknown | Two existing u16 keys in one validated container; membership, dense ordinals, generation words, item pointers and all other bytes are preserved. Scoped memento supports one-step undo/redo. | NewAge structure re-parsed and v18 digest repaired; map-key/grid semantics and external dependencies unconfirmed. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): two ordinary unequipped items in one inventory, observe order/ownership/equipment after swap, undo/redo, resave/reload/redump. |
-| F6 restore imported stack quantities | Unknown | Preview includes changed/skipped rows and integrity warnings; explicit, document and Core-resolved F8 query scopes with exclusions. Reuses bounded quantity setters; one history step. | Same quantity integrity limits. No missing stack, gold ownership, template identity or quantity of one is fabricated. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): reduce two existing quantities, restore selected/filtered rows, verify preview and grouped undo plus native resave/reload. |
+| F5/F6 swap two existing container map keys | Unknown storage meaning; planning action has no field confidence label | Exactly two selected entries in one validated source/container; explicit selection or Core-resolved slots query scope, no document scope. Membership, dense ordinals, generation words, item pointers and all other bytes are preserved. Scoped memento supports one-step undo/redo. | NewAge structure re-parsed and v18 digest repaired; map-key/grid semantics and external dependencies unconfirmed. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): two ordinary unequipped items in one inventory, observe order/ownership/equipment after swap, undo/redo, resave/reload/redump. |
+| F6 restore imported stack quantities | Unknown target fields; planning action has no field confidence label | Preview includes changed/skipped rows and integrity warnings; explicit, document and Core-resolved F8 query scopes with exclusions. Reuses bounded quantity setters; one history step. | Same quantity integrity limits. No missing stack, gold ownership, template identity or quantity of one is fabricated. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): reduce two existing quantities, restore selected/filtered rows, verify preview and grouped undo plus native resave/reload. |
 
 The round 2 joins do not make three writers safe. Learned-spell rows are empty in
 the supplied sample (`LearnedSpells` uses the empty sentinel); prepared-spell
@@ -293,7 +291,7 @@ an F4-compatible `ReferenceSpec` with custom values allowed and read-only confid
 the pack's build, module and load-order are unspecified, so these records are candidate
 labels rather than live joins. The original NewAge inspection section reports only component-family
 presence (character, health, classes, spellbook, containers and stack candidates). The
-Story tab reports bounded byte markers for known Osiris database families, without claiming
+Story tab reports bounded ASCII/UTF-16LE byte markers for known Osiris database families, without claiming
 tuple values, approval totals, quest completion or romance state.
 
 The framework loads the embedded `bg3.starter.en` pack and injects it through
@@ -414,7 +412,11 @@ output sizes, XML structure, the LSMF signature, byte-identical no-op preservati
 the supplied package digest and preservation of every unedited compressed payload.
 Raw fields carry `Confidence.Unknown` because their **gameplay meaning** is unvalidated.
 Curated Party metadata and exact-reference label candidates use `Confidence.Inferred`;
-unresolved names and raw fingerprints use `Unknown`. Live character names, level/XP,
+unresolved names and raw fingerprints use `Unknown`. Live spell/class reference
+fields explicitly remain `Unknown` even with a catalog match. Structural inspection
+fields (for example EntityId and nominal row counts) are `Inferred`; graphs use
+`GraphState.Unknown`. These labels describe the view, not console validation.
+Live character names, level/XP,
 gold ownership, authoritative abilities and native party semantics need
 controlled PS5 observations. The software party/body/storage identity joins are
 sample-proven, but no player-gold total, base-stat setter, guessed item name, tree insertion/deletion,
@@ -428,16 +430,26 @@ input at 1 MiB, depth at 32 and rows at 128; unsupported JSON remains available 
 Explorer collections page in groups of 128 with
 hierarchical page links for very large lists. Binary attributes above 4 KiB use a raw
 view; XML values above 4,096 characters use a bounded preview. Views are lazy; models and compressed resource tables validate
-during opening. Opening and initial view construction took approximately 0.4 s
-on the development machine; this is an observation, not a timing assertion in CI.
+during opening. Historical timing observations and their measurement conditions
+are recorded in [PERFORMANCE.md](PERFORMANCE.md); no latency guarantee is claimed.
 
 ## Validation
 
+The documentation accuracy pass on 2026-10-29 ran the Release plugin suite with
+private samples: **370 passed, 0 failed, 0 skipped**. API Release build with
+`--warnaserror`: **0 warnings, 0 errors**. All 14 documentation checks passed.
+Historical review counts below refer to their respective revisions, not the current suite.
+
 ```powershell
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+$scratch = 'D:/Temp/saveeditor/test-scratch/docs/accuracy-baldursgate3'
+New-Item -ItemType Directory -Force -Path $scratch | Out-Null
+$env:SAVETOOLKIT_TEST_TEMP = $scratch
+$env:TEMP = $scratch
+$env:TMP = $scratch
 $env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
-dotnet test --project plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3.Tests
-dotnet test --project tests/SaveToolkit.Core.Tests
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj -c Release --warnaserror
+dotnet test --project plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3.Tests -c Release
+python docs/tests/test_documentation.py
 ```
 
 Tests cover the shared conformance suite, every sample resource and no-op copy,
@@ -487,7 +499,7 @@ Quantity write tests use synthetic data because the actual sample has no direct
 quantity attribute; this does not establish live NewAge stack behavior.
 
 Validation for 0.3.0 on .NET SDK 10.0.400: API build passed with zero warnings/errors;
-all 148 plugin tests pass. F1 `verify plugins/BaldursGate3/fixtures.json` passes,
+148 plugin tests passed at that revision. F1 `verify plugins/BaldursGate3/fixtures.json` passes,
 with one generation, identical package twins and zero changes. With an empty
 `SAVETOOLKIT_ARTIFACTS` directory, 128 plugin tests pass and 20 sample-dependent
 tests skip. The source-size test
@@ -496,7 +508,10 @@ hooks, scripts, build targets or repository tooling are installed.
 
 ## SDK requests
 
-No SDK request blocks this subset. After rebasing onto main, F12's generic plugin
+**Resolved:** bounded binary reads/ranges (`BoundedBinaryCursor`), reference icon
+resolution (`ReferenceViews.Icon`), F12 bounded F8 semantic traversal, and F13
+browse-only references and catalog filtering/sorting are available and used.
+No SDK request blocks this subset. F12's generic plugin
 view decoder traverses live F8 fields; regression tests compare an edited quantity
 across one-row pages and verify explicit incomplete evidence on budget exhaustion.
 There is no separate test-only/native decoder to migrate to the optional hook.
@@ -524,20 +539,20 @@ the existing node type. No SDK change is required for this migration.
 
 | Feature | Status | Where / concrete limit |
 | --- | --- | --- |
-| F1 SaveDiff | Used | Pinned baseline `fixtures.json`, original whole/component fingerprints, intended-byte diffs and F12 live-value semantic checks. No fake event/control or churn mask. |
-| F2 reference packs | Used / expanded | Embedded catalogs and 51 compact game icons, pinned per-file source revisions, mixed-rights attribution and Sources panel; host cache shares assets across documents. |
-| F3 rich cells | Used / expanded | Catalog and saved-item image cells, game descriptions with sources, class badges and spell-detail icons; raw fields and confidence/warnings remain available. |
-| F4 ReferenceSpec | Used / expanded | Catalog raw IDs, saved CurrentTemplate, origin IDs, saved spell IDs and class UUIDs; F13 browse-only where replacement needs an unimplemented dependency writer. |
-| F5 structural undo | Added this round | Two-existing-container-key reorder with scoped inverse memento, stable row IDs, exact bytes on undo. Allocation/removal/transfers remain unsupported. |
-| F6 preview/apply | Added this round | Quantity restoration and structural reorder, skipped rows/warnings, query scopes/exclusions and one-step undo. |
+| F1 SaveDiff | Used | Pinned byte-only baseline `fixtures.json` (no decoder); original whole/component fingerprints and F12 live-value semantic checks use `PluginViewDecoder` / `--decoder bg3`. Intended-byte assertions separately check writes. No fake event/control or churn mask. |
+| F2 reference packs | Used | Embedded catalogs and 51 compact game icons, pinned per-file source revisions, mixed-rights attribution and Sources panel; host cache shares assets across documents. |
+| F3 rich cells | Used | Catalog and saved-item image cells, game descriptions with sources, class badges and spell-detail icons; raw fields and confidence/warnings remain available. |
+| F4 ReferenceSpec | Used | Catalog raw IDs, saved CurrentTemplate, origin IDs, saved spell IDs and class UUIDs; F13 browse-only where replacement needs an unimplemented dependency writer. |
+| F5 structural undo | Used | Two-existing-container-key reorder with scoped inverse memento, stable row IDs, exact bytes on undo. Allocation/removal/transfers remain unsupported. |
+| F6 preview/apply | Used | Restore imported quantities supports explicit/document/Core-resolved values-query scopes with exclusions; swap requires exactly two entries in one source/container via explicit/slots-query selection and rejects document scope. Preview includes changes, skipped rows and warnings; each apply is one undo step. |
 | F7 document groups | N/A | Gameplay/summary resources are already members of one atomically rewritten LSPK. Backup twins are identical archival copies, not a demonstrated coupled gameplay invariant. |
-| F8 collections | Used / expanded | Catalogs, saved items, live values, slots, classes and spell books; bounded text/filter/sort pages. |
-| F9 graph/map | Added this round | Saved spell presence graphs, text alternatives and field targets, Unknown states, no guessed prerequisite edges. Map N/A: no proven saved discovery/coordinate transform. |
-| F10 exact values | Used | IntegerSpec/Int128 transports exact stored u32/i32/u64 values (including class levels). Nullable/union/exact-JSON specs N/A: supported mutable fields have fixed binary types or existing bounded integer JSON tokens. |
+| F8 collections | Used | Catalogs, saved items, live values, slots, classes, spell books, party identity joins, recursive inventory and gold candidates; bounded text/filter/sort pages. Gold collection is empty in the sample; unresolved LSF gold-template occurrences are not synthesized as live items. |
+| F9 graph/map | Used | Saved spell presence graphs, text alternatives and field targets, Unknown states, no guessed prerequisite edges. Map N/A: no proven saved discovery/coordinate transform. |
+| F10 exact values | N/A | Supported fields use fixed binary types or bounded existing integer JSON tokens, without nullable/union/arbitrary-number editing. IntegerSpec/Int128 already preserves u32/i32/u64 (including class levels); this is the existing integer transport, not adoption of ExactNumberSpec/NullableSpec/UnionSpec. |
 | F11 shared codecs | N/A | No Kraken or SQLite payload exists in this supported Larian path. LZ4/zstd/zlib use the existing attributed managed codecs. |
-| F12 | Added this round | Generic `bg3` decoder traverses live F8 rows with host budgets; one-row-page changed-quantity and truncation tests. No private decoder needs a separate hook. |
-| F13 | Added this round | Browse-only read-only reference fields; host category filtering and declared Key/Name/Category sorting. Inspection actions N/A: both actions mutate storage. Float duration N/A: no proven mutable float timer semantics. |
-| F14 | Added this round | One saved-item F8 table replaces duplicate numbered eager pages; provenance and full-list filters retained. Live containers already use F8. Vacancy hiding N/A: decoded sparse maps contain existing item references only; no confirmed empty row sentinel. See the inventory presentation audit and regressions above. |
+| F12 | Used | Generic `bg3` decoder traverses live F8 rows with host budgets; one-row-page changed-quantity and truncation tests. No private decoder needs a separate hook. |
+| F13 | Used | Browse-only read-only reference fields; host category filtering and declared Key/Name/Category sorting. Inspection actions N/A: both actions mutate storage. Float duration N/A: no proven float timer semantics. |
+| F14 | Used | One saved-item F8 table replaces duplicate numbered eager pages; provenance and full-list filters retained. Live containers already use F8. Vacancy hiding N/A: decoded sparse maps contain existing item references only; no confirmed empty row sentinel. See the inventory presentation audit and regressions above. |
 
 ## Sources and attribution
 
@@ -563,7 +578,8 @@ the existing node type. No SDK change is required for this migration.
 
 ## Licence exclusions
 
-Only the following sources or material were refused. Unlicensed factual research is
+The table retains the legacy wiki refusal and the resolved publisher-asset decision,
+matching the [central register](../../docs/LICENCE_EXCLUSIONS.md). Unlicensed factual research is
 permitted by the owner decision dated 2026-10-28; its behaviour is independently
 reimplemented and attributed in the table above.
 

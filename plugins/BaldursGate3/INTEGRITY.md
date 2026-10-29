@@ -88,5 +88,8 @@ editor claims. No downloaded executable or upstream script was run.
 
 The digest is now reproduced rather than assumed unnecessary. No in-game or
 console test has been performed. Experimental maturity is based on conformance,
-byte preservation, checksum validation and edit/reopen tests only. Opaque LSMF
-and story data are never edited; their internal integrity remains outside scope.
+byte preservation, checksum validation and edit/reopen tests only. At the original
+digest investigation, LSMF and story data were read-only. The
+current plugin permits only the bounded fixed-width NewAge edits described in
+[NEWAGE.md](NEWAGE.md); arbitrary opaque LSMF data and all story data remain
+read-only. NewAge inner integrity and gameplay dependencies are still unknown.
