@@ -12,6 +12,7 @@ internal sealed class HogwartsSpatialViews
     private const string GuideUrl = "https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/tree/02525dde0fd9bc0be72982478680377dccb41246";
     private const string ExternalMapUrl = "https://mapgenie.io/hogwarts-legacy/maps/hogwarts";
     private const string Attribution = "Legilimens contributors, MIT; link only for external guide/map navigation. No map art, guide prose, or coordinates are embedded.";
+    private const string MapAssetId = "hogwarts.legilimens:maps/highlands-schematic.webp";
     private static readonly ReferenceAttribution SchematicAttribution = new(
         "https://github.com/JKamsker/PS5SaveGame-Toolkit",
         "PS5 Save Game Toolkit contributors",
@@ -20,10 +21,12 @@ internal sealed class HogwartsSpatialViews
         new DateOnly(2026, 10, 28),
         "Original schematic positions group attributed catalogue regions; no game coordinates or map art were copied.");
     private readonly IReadOnlyList<ReferenceRecord> _records;
+    private readonly IReferenceContext _references;
 
-    public HogwartsSpatialViews(IReferenceCatalog? catalog)
+    public HogwartsSpatialViews(IReferenceCatalog? catalog, IReferenceContext references)
     {
         _records = catalog is null ? [] : ReadAll(catalog).ToArray();
+        _references = references;
     }
 
     public IReadOnlyList<ViewNode> Build()
@@ -71,6 +74,9 @@ internal sealed class HogwartsSpatialViews
             CoordinateSpace = "Plugin-authored schematic grid; region grouping only",
             CoordinateAttribution = SchematicAttribution,
             CoordinateEmbeddingPermitted = true,
+            Background = _references.GetAsset(MapAssetId) is not null && _references.AssetProvenance(MapAssetId) is { } provenance
+                ? new MapBackground(MapAssetId, "Original aligned Hogwarts Highlands schematic; marker positions use its 0–100 grid.", provenance.Attribution, true)
+                : null,
             ExternalSource = new ExternalViewLink(ExternalMapUrl, "Open external Hogwarts map", "MapGenie contributors; link only, no artwork or coordinates imported; reuse licence unconfirmed."),
         };
     }

@@ -48,45 +48,49 @@
       "id": "CostumeSaveData",
       "name": "Costume save records",
       "category": "costumes",
-      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported. A curated costume thumbnail is shown in the schema table as reference art; it is not a saved-value decode.",
       "attributes": {
         "confidence": "VerifiedStorage; InferredMeaning",
         "locale": "en"
       },
-      "source": "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29"
+      "source": "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29",
+      "assetId": "icons/Costume_Amazon_Bird_Of_Paradise_Outfit_Icon.webp"
     },
     {
       "id": "CostumeWardrobe",
       "name": "Saved wardrobe",
       "category": "costumes",
-      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported. A curated costume thumbnail is shown in the schema table as reference art; it is not a saved-value decode.",
       "attributes": {
         "confidence": "VerifiedStorage; InferredMeaning",
         "locale": "en"
       },
-      "source": "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29"
+      "source": "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29",
+      "assetId": "icons/Costume_Amazon_Bird_Of_Paradise_Base_Icon.webp"
     },
     {
       "id": "EquippedCostumeData",
       "name": "Equipped costume records",
       "category": "costumes",
-      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported. A curated costume thumbnail is shown in the schema table as reference art; it is not a saved-value decode.",
       "attributes": {
         "confidence": "VerifiedStorage; InferredMeaning",
         "locale": "en"
       },
-      "source": "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29"
+      "source": "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29",
+      "assetId": "icons/Costume_Amazon_Bird_Of_Paradise_Head_Icon.webp"
     },
     {
       "id": "CostumeItemName",
       "name": "Raw costume item ID",
       "category": "costumes",
-      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported.",
+      "description": "Observed PS5 serialized property. Caption inferred from its name; ownership, completion/reward meaning, units, prerequisites and legal limits are unverified. External guide is a research link only; no guide content imported. A curated costume thumbnail is shown in the schema table as reference art; it is not a saved-value decode.",
       "attributes": {
         "confidence": "VerifiedStorage; InferredMeaning",
         "locale": "en"
       },
-      "source": "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29"
+      "source": "https://wiki.imagisphere.me/Zom_Zom%27s_Shop_%28Sackboy%3A_A_Big_Adventure%29",
+      "assetId": "icons/Costume_Amazon_Lion_Outfit_Icon.webp"
     },
     {
       "id": "CostumeItemTintColourName",

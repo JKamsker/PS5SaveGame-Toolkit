@@ -22,6 +22,10 @@ public sealed class HogwartsSpatialViewTests
         SpatialViewValidation.Validate(map);
         SpatialViewValidation.Validate(graph);
         Assert.Equal(26, map.Markers.Count);
+        var background = Assert.IsType<MapBackground>(map.Background);
+        Assert.Equal("hogwarts.legilimens:maps/highlands-schematic.webp", background.AssetId);
+        Assert.True(background.EmbeddingPermitted);
+        Assert.NotNull(document.GetAsset(background.AssetId));
         Assert.Contains(map.Markers, marker => marker.Category == "Fast travel" && marker.X is null);
         Assert.All(map.Markers.Where(marker => marker.X.HasValue), marker => Assert.Equal(Confidence.Inferred, marker.Confidence));
         Assert.Contains("catalogue grouping only", graph.TextAlternative, StringComparison.OrdinalIgnoreCase);

@@ -34,8 +34,8 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
         _envelope = envelope;
         _raw = new(path, envelope, references, ReadOnlyReason);
         _catalog = references.Catalog(CatalogId);
-        _catalogues = new(references, CatalogId);
-        _spatial = new HogwartsSpatialViews(_catalog);
+        _catalogues = new(references, CatalogId, UnrealGvasReferences.HogwartsGear);
+        _spatial = new HogwartsSpatialViews(_catalog, references);
         try
         {
             foreach (string name in new[] { "RawDatabaseImage", "RawExclusiveImage" })
@@ -65,6 +65,8 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
     public override string Title => "Hogwarts Legacy · database inspector";
     public override bool CanEdit => _databases.Count == 2 && _warnings.Count == 0;
     public IReadOnlyList<QueryableCollection> Collections { get; }
+
+    public override AssetContent? GetAsset(string assetId) => _raw.GetAsset(assetId);
 
     public new FieldValue GetValue(string valueId) => valueId.StartsWith("property/", StringComparison.Ordinal)
         ? _raw.GetValue(valueId)

@@ -30,6 +30,9 @@ public sealed class UnrealGvasPlugin : IGamePlugin, ISaveDecoderProvider
             "https://www.rfc-editor.org/rfc/rfc1950",
             "https://github.com/producedbytmsh/hl-savetools/tree/e568dedcda2611f54cc793e6d0237c749ae25094",
             "https://github.com/Malin001/Legilimens-Hogwarts-Legacy-Collectible-Finder/tree/02525dde0fd9bc0be72982478680377dccb41246",
+            "https://hogwartslegacy.gamesref.com/gear",
+            "https://cdn.eip.gg/hogwarts-legacy/icons/gear/",
+            "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Costume_Icons",
             "https://github.com/JKamsker/PS5SaveGame-Toolkit/tree/main/src/SaveToolkit.Codecs",
         ],
     };

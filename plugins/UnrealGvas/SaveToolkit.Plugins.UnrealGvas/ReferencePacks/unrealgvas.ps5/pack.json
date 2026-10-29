@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "id": "unrealgvas.ps5",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "title": "Unreal GVAS PS5 schema evidence",
-  "description": "Versioned, read-only property-name catalogs for the supplied Sackboy and Jedi PS5 generations. These names document serialized storage only; they do not grant game-effect or write safety.",
+  "description": "Versioned PS5 schema evidence with curated attributed Sackboy costume icons for read-only catalogue and schema views.",
   "plugins": [
     "engine.unreal-gvas"
   ],
@@ -19,7 +19,7 @@
       "files": [
         {
           "path": "sackboy-fields.json",
-          "sha256": "eecc81363ac44a916ff7bbe37c4da4206a74814ed77ab0e2c811a238b2eb3297"
+          "sha256": "1a6131ff7403a3fc5ec9386dca1ef5a8b212b9b17b46858952f588aefc0ddfed"
         }
       ],
       "attribution": {
@@ -28,7 +28,7 @@
         "license": "GPL-3.0-or-later; original storage observations and captions",
         "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.html",
         "retrieved": "2026-10-28",
-        "modifications": "Original captions inferred from PS5 serialized names. External links carry no imported wiki/guide content. No sample values, limits, icons or game assets embedded."
+        "modifications": "Original captions inferred from PS5 serialized names. Four curated Sackboy costume icon references are included in the separate costume-art dataset; no sample values, limits or game-effect claims."
       }
     },
     {
@@ -86,6 +86,56 @@
         "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.html",
         "retrieved": "2026-10-28",
         "modifications": "Original captions inferred from PS5 serialized names. External links carry no imported wiki/guide content. No sample values, limits, icons or game assets embedded."
+      }
+    },
+    {
+      "id": "unrealgvas_sackboy_costumes",
+      "kind": "records",
+      "title": "Sackboy costume icon references",
+      "files": [
+        {
+          "path": "sackboy-costumes.json",
+          "sha256": "ec0a36bd733391bccf6b3ec77273a614112961c009c0fcd4dea4c2e2b6d40665"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Costume_Icons",
+        "author": "Imagisphere contributors; Sony Interactive Entertainment / Sumo Digital game assets",
+        "license": "Publisher assets; rights reserved; owner decision 2026-10-29",
+        "licenseUrl": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Costume_Icons",
+        "retrieved": "2026-10-29",
+        "modifications": "Four costume-piece icons downscaled to 64x64 WebP; records are reference-only and are not asserted as PS5 save-ID joins."
+      }
+    },
+    {
+      "id": "unrealgvas_sackboy_costume_art",
+      "kind": "assets",
+      "title": "Sackboy costume thumbnails",
+      "files": [
+        {
+          "path": "icons/Costume_Amazon_Bird_Of_Paradise_Base_Icon.webp",
+          "sha256": "5c2cb9d36c55b07b3ecb0914a7733d62d3b361771a44b03df4dd32ba581e15ad"
+        },
+        {
+          "path": "icons/Costume_Amazon_Bird_Of_Paradise_Head_Icon.webp",
+          "sha256": "7f5259cc908275ad338da6869865fb4208780ea10791b23c77d654ed1b5d0076"
+        },
+        {
+          "path": "icons/Costume_Amazon_Bird_Of_Paradise_Outfit_Icon.webp",
+          "sha256": "1ae2f6fff09d64c58503528d2640e50550d43e66c865427d088db6cd665b68b5"
+        },
+        {
+          "path": "icons/Costume_Amazon_Lion_Outfit_Icon.webp",
+          "sha256": "b08ebd5a84f4f81cdd3cbf678b9b668f60c7eda9dd570024b1348f03acba4976"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Costume_Icons",
+        "author": "Imagisphere contributors; Sony Interactive Entertainment / Sumo Digital game assets",
+        "license": "Publisher assets; rights reserved; owner decision 2026-10-29",
+        "licenseUrl": "https://wiki.imagisphere.me/Category:Sackboy:_A_Big_Adventure_Costume_Icons",
+        "retrieved": "2026-10-29",
+        "modifications": "Four costume-piece icons downscaled to 64x64 WebP; no complete costume or save ownership is claimed."
       }
     }
   ]

@@ -31,14 +31,16 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
         _envelope = envelope;
         _references = references;
         _schema = UnrealGvasSchema.Detect(envelope.File);
-        _catalogues = new(references, UnrealGvasReferences.PropertyTypes, _schema.Kind switch
-        {
-            UnrealGvasSchemaKind.SackboyGeneral => UnrealGvasReferences.SackboyFields,
-            UnrealGvasSchemaKind.SackboyImageSet => UnrealGvasReferences.SackboyImageFields,
-            UnrealGvasSchemaKind.JediGameplay => UnrealGvasReferences.JediFields,
-            UnrealGvasSchemaKind.JediSettings => UnrealGvasReferences.JediSettings,
-            _ => UnrealGvasReferences.PropertyTypes,
-        });
+        var catalogueIds = new List<string> { UnrealGvasReferences.PropertyTypes };
+        if (_schema.Kind == UnrealGvasSchemaKind.SackboyGeneral)
+            catalogueIds.AddRange([UnrealGvasReferences.SackboyFields, UnrealGvasReferences.SackboyCostumes]);
+        else if (_schema.Kind == UnrealGvasSchemaKind.SackboyImageSet)
+            catalogueIds.Add(UnrealGvasReferences.SackboyImageFields);
+        else if (_schema.Kind == UnrealGvasSchemaKind.JediGameplay)
+            catalogueIds.Add(UnrealGvasReferences.JediFields);
+        else if (_schema.Kind == UnrealGvasSchemaKind.JediSettings)
+            catalogueIds.Add(UnrealGvasReferences.JediSettings);
+        _catalogues = new(references, [.. catalogueIds]);
         Index(envelope.File.Properties, "property");
         _actorStream = ReadActorStream();
         if (readOnlyReason is not null) _readOnlyReason = readOnlyReason;
@@ -54,6 +56,7 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
 
     public override string Title => _envelope.File.Header.SaveClass;
     public override bool CanEdit => _readOnlyReason is null;
+    public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
     internal JediActorStream? ActorStream => _actorStream;
     internal GvasFile CurrentFile => _envelope.File;
 

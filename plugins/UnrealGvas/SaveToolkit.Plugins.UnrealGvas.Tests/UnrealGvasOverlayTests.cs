@@ -16,7 +16,7 @@ public sealed class UnrealGvasOverlayTests
         var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA01288");
         var catalog = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("unrealgvas_sackboy_fields"));
 
-        Assert.Equal("1.1.0", catalog.Pack.Version);
+        Assert.Equal("1.2.0", catalog.Pack.Version);
         Assert.Equal(ReferencePackOrigin.Embedded, catalog.Pack.Origin);
         Assert.Equal(24, catalog.Count);
         Assert.Null(catalog.Find("CollectabellsStored")!.Limit);
