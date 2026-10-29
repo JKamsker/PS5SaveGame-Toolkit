@@ -1,5 +1,110 @@
 # Performance baselines
 
+## Web bundle budgets
+
+Measured **2026-10-29** on Windows, Node **24.19.0**, npm **11.17.0**, Vite **8.3.5** and the
+checked-in lockfile. Before: `42236a9a`; after: `feat/web-bundle-budget` editor split.
+Reproduce from `web/` after installing dependencies, with the
+[scratch environment](RELEASING.md#disk-and-scratch) configured:
+
+```powershell
+npm run build
+npm run check:bundle
+```
+
+Vite's production output is `src/SaveToolkit.Api/wwwroot`, not `web/dist`.
+The check resolves that path from Vite config and reads `.vite/manifest.json` plus actual emitted
+files. All numbers below are **bytes**, with **gzip level 6** from Node `zlib`, measured separately
+per file; sums represent independently compressed HTTP resources, not a single combined archive.
+Vite 8's console gzip estimates use a different compressor and can differ slightly (the original
+console reported 119.96 kB for initial JS; this reproducible check measures 118.70 kB).
+Raw/gzip sizes describe transfer payloads, excluding HTTP headers and execution/parse time.
+
+### Before and after
+
+Hashes are omitted because they change with imports. Workspace/editor styles move to the
+DocumentEditor CSS chunk without CSS source changes.
+
+| Chunk | Before raw | Before gzip | After raw | After gzip |
+| --- | ---: | ---: | ---: | ---: |
+| index.js | 379931 | 118695 | 379762 | 118587 |
+| index.css | 37478 | 9943 | 37478 | 9943 |
+| WorkspacePage.js | 156784 | 45486 | 14267 | 5131 |
+| DocumentEditor.js (new split) | — | — | 143127 | 41652 |
+| Workspace/editor CSS | 5131 | 1504 | 5131 | 1504 |
+| GraphView.js | 4146 | 1748 | 4142 | 1747 |
+| MapView.js | 5133 | 2127 | 5134 | 2129 |
+| SpatialShared.js | 4660 | 1785 | 4661 | 1788 |
+| SpatialShared.css | 2763 | 911 | 2763 | 911 |
+
+**Loading graph:**
+
+- `/` loads index JS and CSS: **118587 / 9943 gzip bytes** after the change. React DOM,
+  React Router and TanStack Query are the largest initial dependencies. Initial JS remains well
+  under the ~300 kB target and CSS under ~50 kB (decimal kB).
+- `/w/:workspaceId` adds WorkspacePage JS: **5131 gzip bytes**. Before, it also fetched the
+  editor, tables, virtualizer and reference-picker code immediately (**45486 gzip bytes**).
+  JS for home plus the empty workspace falls from **164181 to 123718 gzip bytes** (24.6%).
+- Selecting a document, or opening a `?doc=...` deep link, additionally loads DocumentEditor JS
+  (**41652 gzip bytes**) and its CSS (**1504**). The existing Opening status covers the code load.
+  Eager/queryable tables, hex virtualization, the reference picker and TanStack Virtual stay together
+  in this chunk; they are deferred with the editor, not independently split. Their recursive renderer
+  and shared field/state imports make further boundaries a less clear safe win at this size.
+- GraphView and MapView already use independent `React.lazy` imports and Suspense, plus spatial
+  shared JS/CSS. They load only when the corresponding view renders.
+- Reference icons are fetched from document reference-asset API URLs when picker candidate/preview
+  images mount. Table/document images use native lazy image loading. No game icon/catalog packs
+  are embedded in the web JS; opening a file does not fetch all reference icons.
+- Seven unchanged WOFF2 font subsets total **151892 raw bytes**; CSS unicode ranges select the
+  subsets needed by page text. Fonts/images/API payloads are not part of the JS/CSS gate.
+
+All JS chunks together grow from **169841 to 171034 gzip bytes** (0.7%) because separate compressed
+resources and dynamic-import glue add overhead. This trades a small total increase for a much
+smaller file-picker transfer. No UI design, session, mutation or export behavior changes.
+
+**Dependency inspection:** a local uncommitted Vite `generateBundle` analysis and
+`npm ls --omit=dev --all` found one version/copy of each runtime package, shared across chunks.
+Before final minification, rendered module contributions were approximately React DOM 537 kB,
+React Router 213 kB, Query core/bindings 76 kB and Virtual core/bindings 60 kB. These module
+lengths are attribution hints, not additive compressed transfer measurements. No dead runtime
+dependency or unexpectedly retained barrel import was confirmed. `fflate` is used by e2e fixtures
+only and is absent from production chunks. The analysis used existing Vite APIs on D: scratch;
+no visualizer, analysis artifact or dependency was added to the repository.
+
+### Enforced gzip limits
+
+`web/bundle-budgets.json` owns these limits, with approximately 10% headroom over the after result.
+The initial totals traverse every static entry import and associated CSS, counting shared files
+once and excluding dynamic imports. Each emitted JS/CSS file, including lazy chunks, also has
+its own limit keyed by Vite's stable chunk name (without a content hash). A new chunk needs an
+explicit reviewed budget; it cannot silently escape the check. Missing output, missing import
+targets and untracked emitted JS/CSS fail rather than reporting zero. Builds keep Vite's empty
+output-directory behavior, so the check never removes or rewrites output.
+
+| Metric | Measured gzip bytes | Budget bytes |
+| --- | ---: | ---: |
+| Initial JS | 118587 | 130500 |
+| Initial CSS | 9943 | 11000 |
+| index.js | 118587 | 130500 |
+| index.css | 9943 | 11000 |
+| WorkspacePage.js | 5131 | 5700 |
+| DocumentEditor.js | 41652 | 45900 |
+| DocumentEditor.css | 1504 | 1660 |
+| GraphView.js | 1747 | 1930 |
+| MapView.js | 2129 | 2350 |
+| SpatialShared.js | 1788 | 1970 |
+| SpatialShared.css | 911 | 1010 |
+
+CI `validate` runs `npm run check:bundle` immediately after its production build on **both Ubuntu
+and Windows**. Synthetic Vitest regressions cover shared imports/cycles, lazy JS/CSS, aggregate
+and individual failures, exact limits, new chunks, missing builds/assets/imports and untracked
+output. A built-app Playwright regression checks that the file picker does not download editor or
+spatial chunks, holds the editor download to exercise Opening, then edits and reloads a deep link.
+After intentional output/dependency changes, review the loading graph and remeasure before updating
+both JSON limits and this table with a reason; see the [release checks](RELEASING.md#continuous-integration).
+
+## Backend benchmarks
+
 The opt-in `tests/benchmarks/SaveToolkit.Benchmarks` executable measures Core startup and
 GenericJson/XorJson workflows with [BenchmarkDotNet](https://benchmarkdotnet.org/), plus a
 separate fresh-process startup/idle observation mode.

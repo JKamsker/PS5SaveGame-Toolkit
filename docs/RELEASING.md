@@ -25,7 +25,7 @@ have run-specific CI concurrency groups so even pending gate runs cannot replace
 Release publication remains serialized by version and never cancels an in-progress run.
 Private samples are absent, so sample-dependent tests skip while synthetic tests still run.
 There is no sample download step. This validates the sample-free path, not gameplay or console
-compatibility. Web checks include ESLint, TypeScript, Vitest and the production build.
+compatibility. Web checks include ESLint, TypeScript, Vitest, the production build and gzip bundle budgets.
 NuGet/npm downloads are cached; per-project TRX and web JUnit results are uploaded even on failure.
 Test-count summaries parse those reports and show passed/failed/skipped counts, or explicitly say
 when reports are unavailable. Script jobs retain their log/counts, and e2e retains JUnit counts.
@@ -82,6 +82,22 @@ alias retains TypeScript 7's `tsc` for typecheck and builds, following Microsoft
 The targeted `eslint-plugin-jsx-a11y` peer override permits ESLint 10 while that plugin's published
 peer range ends at ESLint 9. Keep these compatibility choices under review when upgrading the tools;
 plain `npm ci` must succeed without legacy peer-dependency flags.
+
+After the production build, the `validate` matrix runs the identical `npm run check:bundle` step
+on Ubuntu and Windows. It reads Vite's `.vite/manifest.json` and the actual JS/CSS files in the
+configured build output (`src/SaveToolkit.Api/wwwroot`, rather than `web/dist`). The check uses
+Node's gzip level 6, sums the initial entry's static JS imports and CSS once, and checks every
+initial/lazy JS/CSS file against `web/bundle-budgets.json`. Missing builds/assets/imports,
+untracked files, unbudgeted chunks and exceeded limits fail the step. The script's synthetic
+regressions run with `npm test`.
+
+The [web bundle baseline and limits](PERFORMANCE.md#web-bundle-budgets) record per-chunk raw/gzip
+bytes and approximately 10% headroom. Initial JS is limited to **130,500 gzip bytes**, CSS to
+**11,000 gzip bytes**, below the broader ~300 kB JS / ~50 kB CSS targets. When a dependency or
+intentional split changes the output, remeasure with `npm run build` followed by
+`npm run check:bundle`; review the loading graph and update the JSON limits and performance
+table together with a reason. Do not raise limits solely to silence a regression. Fonts, images,
+reference-pack downloads and API responses are outside the JS/CSS budget.
 
 The job IDs below are the workflow keys, rather than matrix-expanded display names:
 
@@ -181,6 +197,7 @@ npm run lint --if-present
 npm run typecheck
 npm test
 npm run build
+npm run check:bundle
 Pop-Location
 ```
 
