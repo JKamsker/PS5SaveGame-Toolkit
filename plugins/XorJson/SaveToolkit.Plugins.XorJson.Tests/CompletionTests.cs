@@ -90,16 +90,30 @@ public sealed class CompletionTests
         {
             QueryScope = new ActionQueryScope("character/inventory", new QueryableCollectionQuery { Text = "Sword", Limit = 50 }, session.State.Revision),
         };
+        var original = Encoding.UTF8.GetBytes(CharacterJson());
         var preview = session.PlanAction("character/set-stacks", new Dictionary<string, JsonElement>
         {
             ["value"] = JsonSerializer.SerializeToElement(2),
         }, scope);
         Assert.True(preview.PlanId is not null, string.Join("; ", preview.Plan.Errors.Select(error => error.Message)));
-        Assert.Single(preview.Plan.Changes);
+        var change = Assert.Single(preview.Plan.Changes);
+        Assert.Equal(FieldValue.ExactNumber("1"), change.OldValue);
+        Assert.Equal(FieldValue.ExactNumber("2"), change.NewValue);
+        Assert.Equal(original, document.Serialize().Single().Content.ToArray()); // Preview is pure.
         Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.Equal(change.NewValue, document.GetValue(change.ValueId));
+        var expected = Encoding.UTF8.GetBytes(CharacterJson(swordStack: 2));
+        Assert.Equal(expected, document.Serialize().Single().Content.ToArray());
+        using var reopened = plugin.Open(MemorySaveSet.SingleFile("hero.sav", expected), references);
+        var stacks = Assert.IsAssignableFrom<IQueryableDocument>(reopened).Query("character/inventory", new()).Rows;
+        Assert.Equal(["2", "1"], stacks.Select(row => Assert.IsType<FieldNode>(row.Cells["stack"]).Value.AsExactNumber()));
         Assert.True(session.State.CanUndo);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.IsDirty);
+        Assert.False(session.State.CanUndo);
+        Assert.Equal(original, document.Serialize().Single().Content.ToArray());
+        Assert.True(session.Redo().Ok);
+        Assert.Equal(expected, document.Serialize().Single().Content.ToArray());
     }
 
     [Fact]
@@ -132,7 +146,7 @@ public sealed class CompletionTests
         }
     }
 
-    private static string CharacterJson() => JsonSerializer.Serialize(new
+    private static string CharacterJson(int swordStack = 1) => JsonSerializer.Serialize(new
     {
         SerializeMeta = new { HardFormat = "FCharacterSaveV1", SoftVersion = 2, FormatHash = 3777917472 },
         CharacterSaveV1 = new
@@ -141,7 +155,7 @@ public sealed class CompletionTests
             Ability = new { Attributes = new[] { new { AttributeName = "Emeralds", CurrentValue = 1 } } },
             Inventory = new { Entries = new object[]
             {
-                new { ItemData = new { TypeTag = "SW.Item.Sword", RarityTag = "SW.Rarity.Common", TargetSlotOverride = "None" }, StackCount = 1 },
+                new { ItemData = new { TypeTag = "SW.Item.Sword", RarityTag = "SW.Rarity.Common", TargetSlotOverride = "None" }, StackCount = swordStack },
                 new { ItemData = new { TypeTag = "SW.Item.Bow", RarityTag = "SW.Rarity.Rare", TargetSlotOverride = "Merchant" }, StackCount = 1 },
             } },
             quest = new { FocusedQuestId = "CA00", Quests = new[] { new { QuestName = "CA00", State = "Available", TaskData = Array.Empty<object>() } } },
