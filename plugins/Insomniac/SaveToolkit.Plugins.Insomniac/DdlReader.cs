@@ -41,6 +41,7 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section, in
     private DdlObject ReadObject(int depth)
     {
         if (maxDepth is { } budget && depth > budget && budget < MaxDepth)
+            // Continue format validation: a host evidence cap cannot make malformed bytes valid.
             DepthLimitExceeded = true;
         if (depth > MaxDepth || ++_totalObjects > MaxObjects)
             throw Invalid("Object depth or node budget exceeded.");

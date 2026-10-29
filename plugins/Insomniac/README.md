@@ -113,6 +113,24 @@ See [EVIDENCE.md](EVIDENCE.md) for the measured layouts and F1 comparisons.
 
 ## Integrity and writing
 
+Malformed DAT1 descriptors, supported DDL roots and inventory framing reject with
+`SaveFormatException` and a container/section-specific message. DAT1 lengths outside
+16 bytes through 64 MiB reject before reading the body. DDL validates type/name
+tables, nested object boundaries, UTF-8, string terminators and aggregate field,
+object, value and text budgets. Host evidence depth/value limits apply after this
+bounded validation, so a shallow or full sink cannot hide later corruption. The
+evidence hook accepts an absent optional gold-bolt section; missing required player
+fields still reject when opening the editor. Unknown sections, inventory payload
+variants and unconfirmed padding remain byte-preserved rather than guessed corrupt.
+
+Robustness regressions use authored nested arrays and in-memory mutations of the
+38 primary sample files. They cover every incomplete synthetic prefix with original
+and repaired sizes, prefixed DDL roots, child type tables/string arrays, sibling
+boundaries and exact aggregate budget limits. Existing no-op and write tests remain
+the preservation controls. Format references remain the pinned Rivet and ALERT
+sources in [Sources and attribution](#sources-and-attribution); this review introduces
+no new wire-format interpretation or checksum claim.
+
 **Not validated on console. The game may reject or overwrite the edited save.
 Integrity coverage is unknown.** Every writable field repeats this warning and retains Inferred
 confidence. No edited save has been validated in-game. Conformance establishes
