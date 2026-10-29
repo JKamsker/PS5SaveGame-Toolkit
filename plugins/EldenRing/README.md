@@ -521,11 +521,12 @@ requests; console evidence is not a prerequisite for the enabled Experimental wr
 ## SDK requests
 
 No blocking SDK request. F9/F8 meet the shipped map/graph/regulation requirements.
-Asset-round performance follow-up: Core `PackFileReader.ReadBounded` allocates a fresh 81,920-byte
-temporary buffer per embedded file. The 1,099 new images add about 90 MB of transient read-buffer
-allocations at the one-time pack load. Reusing/pooling that shared buffer would remove most of the
-measured increase without changing asset contracts. This plugin does not modify Core; exact before/after
-time/allocation measurements are in [ASSET_ROUND.md](Evidence/ASSET_ROUND.md).
+The asset-round performance follow-up is resolved on the current baseline: Core `PackFileReader.ReadBounded`
+reads seekable embedded resources into exact arrays and pools its nonseekable scratch buffer. The older
+81,920-byte-per-file measurements in [ASSET_ROUND.md](Evidence/ASSET_ROUND.md) are historical.
+The [performance review](Evidence/PERFORMANCE_REVIEW.md) measures current pack loading, Open/first view,
+lazy regulation and repeated browsing on the largest sample. Plugin fixes remove successful-row diagnostic
+allocations and reuse shared provenance during catalog search; save validation and preservation are retained.
 ELDENRING-R22 is resolved through merged [F13 #33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33):
 `Mutates=false` reference inspection works on otherwise valid v150/profile-91 read-only saves,
 while save edits remain rejected. Browse-only F4 controls use native category filtering and declared
