@@ -74,6 +74,32 @@ public sealed class NameWriteTests
     }
 
     [Theory]
+    [InlineData("Hero\t0")]
+    [InlineData("Hero\n0")]
+    [InlineData("Hero\u007F0")]
+    public void ImportedControlCharacters_CanBeRestoredExactlyBySessionUndo(string importedName)
+    {
+        var fixture = new SyntheticSave([0]);
+        fixture.Rename(0, importedName);
+        var offsets = new[] { fixture.Players[0] + SyntheticSave.Name, fixture.Profile(0) };
+        var paddingStart = (importedName.Length + 1) * sizeof(ushort);
+        fixture.Bytes.AsSpan(offsets[0] + paddingStart, SyntheticSave.NameBytes - paddingStart).Fill(0x35);
+        fixture.Bytes.AsSpan(offsets[1] + paddingStart, SyntheticSave.NameBytes - paddingStart).Fill(0x72);
+        using var session = WriteTestSupport.Session(WriteTestSupport.Sample(), out var document, fixture.Bytes);
+        const string nameId = "slots/0/name";
+        WriteTestSupport.EqualBytes(fixture.Bytes, document);
+        Assert.True(session.ApplyEdits([WriteTestSupport.Incoming(nameId, "Renamed")]).Ok);
+        var renamed = WriteTestSupport.Bytes(document);
+        Assert.False(session.ApplyEdits([WriteTestSupport.Incoming(nameId, "Other\tName")]).Ok);
+        WriteTestSupport.EqualBytes(renamed, document);
+        Assert.True(session.Undo().Ok);
+        Assert.False(session.State.IsDirty);
+        WriteTestSupport.EqualBytes(fixture.Bytes, document);
+        Assert.True(session.Redo().Ok);
+        WriteTestSupport.EqualBytes(renamed, document);
+    }
+
+    [Theory]
     [InlineData("")]
     [InlineData("   ")]
     [InlineData("12345678901234567")]

@@ -8,19 +8,23 @@ internal sealed class NameWriter
 {
     private readonly byte[] _bytes;
     private readonly (int Offset, byte[] Original)[] _buffers;
+    private readonly string _originalName;
     private static readonly UnicodeEncoding Encoding = new(false, false, true);
 
     public NameWriter(byte[] bytes, CharacterSlot slot)
     {
         _bytes = bytes;
+        _originalName = EldenRingParser.ReadName(bytes, slot.ProfileOffset);
         _buffers = new[] { slot.PlayerOffset!.Value + EldenRingLayout.NameOffset, slot.ProfileOffset }
             .Select(offset => (offset, bytes.AsSpan(offset, EldenRingLayout.NameBytes).ToArray())).ToArray();
     }
 
-    public static string? Validate(FieldValue value)
+    public string? Validate(FieldValue value)
     {
         if (value.Kind != FieldValueKind.Text) return "Choose a character name as text.";
         var name = value.AsString();
+        // Accepted imports may predate the authoring rules. Undo must restore their exact value.
+        if (name == _originalName) return null;
         if (string.IsNullOrWhiteSpace(name) || name.Length > EldenRingLayout.NameCharacters
             || name.Any(char.IsControl))
             return "Use 1–16 UTF-16 code units, with no control characters or embedded terminators.";
