@@ -26,8 +26,14 @@ measurements and deterministic paging, lookup and planning regression budgets.
 | F9 graphs/maps | **Used**: three attributed weapon skill DAGs and a nine-realm map with a compact Midgard background, external guide links, text alternatives and stable targets. |
 | F10 exact/nullable/union values | **N/A**: the proven grammar contains bounded integer words and UTF-8 text only. |
 | F11 shared codecs | **N/A**: no Kraken/SQLite payload was detected; opaque bytes are preserved. |
-| F12 SaveDiff F8 traversal | **Used**: the production decoder hook is independently bounded by host sink limits. |
-| F13 non-mutating inspect/browse | **Used**: resource inspections are `Mutates=false`; reference fields are browse-only and preserve history/bytes. |
+| F12 SaveDiff F8 traversal | **Used**: production decoder hook `gow-ragnarok-evidence` is independently bounded by host sink limits; it does not depend on expanded UI pages. |
+| F13 non-mutating inspect/browse | **Used**: resource inspections are `Mutates=false`; reference fields are browse-only and preserve history/bytes. F8 queries expose catalogue-derived labels with filtering/sorting. Float-duration fields are N/A: the time word is integer seconds. |
+
+Shared SDK helpers: **Used** — `BoundSaveDocument` for bindings/atomic edits and
+`SaveToolkit.Sdk.Binary.Crc32Ieee.Compute` for read-only IEEE CRC evidence. The bounded binary
+cursor and `InMemoryCollection<T>` are **N/A** to the current implementation: local readers retain
+format-specific enclosing-range checks and exact diagnostics, and local F8 queries read live counter
+words while binding only page rows. See [SDK helper migration](#sdk-helper-migration-40).
 
 The skill dataset is a presentation catalogue, not a saved-state crosswalk. Graph states, saved hashes,
 XP ownership and eligibility are `Unknown`; source links, compact thumbnails and attribution appear in
@@ -70,8 +76,9 @@ boundaries remain supported. Malformed-layout and boundary-control tests cover t
 
 Catalogued Ragnarök PS5 IDs: **PPSA08329, PPSA08330, PPSA08331, PPSA08332, PPSA08333, PPSA08334,
 PPSA25043, PPSA25044**. Only **PPSA08330** has sample coverage. Other IDs require the same observed
-header/layout; their catalogue identity does not establish save compatibility. No PC/PS4 header is
-accepted. The source catalogue for all eight IDs is linked below.
+header/layout; their catalogue identity does not establish save compatibility. No separate PC/PS4
+header variant is implemented. Probing requires a listed PS5 title ID, an accepted filename and the
+observed PS5 header; it cannot prove the origin of arbitrary bytes. The source catalogue for all eight IDs is linked below.
 
 God of War (2018) is excluded: its public PS4 editor uses a multi-slot `memory.dat` and fixed
 slot-relative offsets. Shared resource IDs do not establish a shared container. No matching native
@@ -234,7 +241,7 @@ $env:SAVETOOLKIT_TEST_TEMP='D:/Temp/saveeditor/test-scratch'
 **Unlicensed-source round: 86 plugin tests passed, 0 failed, 0 skipped; API build: 0 warnings/errors.**
 The script builds the API with warnings as errors, isolates TEMP/TMP on the configured scratch drive,
 and runs the complete plugin suite with TRX output. The count above records the earlier import round;
-see PERFORMANCE.md for the subsequent 218-test baseline. Coverage includes all 156
+see PERFORMANCE.md for the subsequent performance round's 218-test result. Coverage includes all 156
 records and byte-identical serialization, all 76 primary nested grammars and serialize/reopen byte
 identity, nested length/count/identity corruption, F8 global search/filter/numeric sort/bindings,
 attributed pack validation/direct-call fallback, F1 generation comparison, published digest vectors,
@@ -248,11 +255,17 @@ non-hero-container fixture tests that writer/history path without claiming conso
 synthetic wallet-marker collision proves Serialize rejects output that cannot be re-parsed.
 No console test is claimed.
 
-The 2026-10-29 maintainability review passes **240 plugin tests, 0 failed, 0 skipped** in Release.
+The 2026-10-29 maintainability review recorded **240 plugin tests, 0 failed, 0 skipped** in Release.
 Its 22 added characterizations pin complete parsed indexes, grammar evidence, presentation and
 semantic-decoder output, diagnostic precedence, fixture byte ownership and reference-context isolation.
 All original tests remain, including the 156-record byte-identical no-op corpus, legacy/nested framing
 robustness and the unchanged allocation bounds. CRC and digest results remain finite evidence only.
+
+The 2026-10-29 documentation accuracy pass recorded **241 passed, 0 failed, 0 skipped** with private
+samples in Release, an API build with zero warnings/errors, and all 14 documentation checks passing.
+It adds one regression for the eleven-record visual catalogue attribution and rights holders, and
+refreshes the two gameplay view fingerprints affected by corrected attribution. Preferences retain
+their fingerprint. No write behavior, IDs, confidence labels or CRC/digest evidence changed.
 
 The import-round tests verify all 2,647 imported records through the real F2 loader, pinned/direct name and
 catalog agreement, ID byte order, full-corpus resource/group joins and negative gear/quest joins,
@@ -291,8 +304,8 @@ not an invented upstream grant. See pinned revisions, hashes, sidecars and plugi
 | [Codes Prince console editor](https://codesprince.com/2022/12/06/ps4-ps5-save-editor-for-gow-ragnarok/), [PC editor](https://codesprince.com/2024/09/24/pc-editor-for-gow-ragnarok/) | Separate platform/version support; no public parser/integrity algorithm obtained. |
 | [GOWTool](https://github.com/kainotoa/GOWTool), [smpack](https://github.com/iArtorias/smpack) | Asset/WAD leads; no proof that asset hashing or WTOC/LZ4 applies to saves. |
 | [Regional catalogue](https://sharpemu.app/game/PPSA08329/), [PPSA08329](https://prosperopatches.com/PPSA08329), [PPSA08330](https://prosperopatches.com/PPSA08330), [PPSA08331](https://prosperopatches.com/PPSA08331), [PPSA08332](https://prosperopatches.com/PPSA08332), [PPSA08334](https://prosperopatches.com/PPSA08334) | Title identity/IDs; not save compatibility. |
-| [Leviathan Axe](https://godofwar.fandom.com/wiki/Leviathan_Axe), [Blades of Chaos](https://godofwar.fandom.com/wiki/Blades_of_Chaos), [Draupnir Spear](https://godofwar.fandom.com/wiki/Draupnir_Spear), [Skill Labors](https://godofwar.fandom.com/wiki/Skill_Labors_%28Ragnar%C3%B6k%29) | CC-BY-SA skill names, branches, explicitly listed costs/levels and prerequisite facts; transcribed into the separately attributed skill pack with five downscaled showcase thumbnails and unknown saved state. |
-| [PlayStation combat guide](https://www.playstation.com/en-us/games/god-of-war-ragnarok/god-of-war-combat-refresher-course/) and [God of War Wiki gear pages](https://godofwar.fandom.com/wiki/Berserker_Set) | Short weapon/gear descriptions and six compact gear/rune/map catalogue records; no saved ownership or equipped-state join is asserted. |
+| [Leviathan Axe](https://godofwar.fandom.com/wiki/Leviathan_Axe), [Blades of Chaos](https://godofwar.fandom.com/wiki/Blades_of_Chaos), [Draupnir Spear](https://godofwar.fandom.com/wiki/Draupnir_Spear), [Skill Labors](https://godofwar.fandom.com/wiki/Skill_Labors_%28Ragnar%C3%B6k%29) | CC-BY-SA skill names, branches, explicitly listed costs/levels and prerequisite facts in the skill-facts pack; five showcase thumbnails from the Axe/Spear pages in the separate visual catalogue. Saved state remains unknown. |
+| [PlayStation combat guide](https://www.playstation.com/en-us/games/god-of-war-ragnarok/god-of-war-combat-refresher-course/) and [God of War Wiki gear pages](https://godofwar.fandom.com/wiki/Berserker_Set) | Short weapon/gear descriptions and six gear/rune/map references in the eleven-record visual catalogue; the other five records are skill thumbnails. No saved ownership or equipped-state join is asserted. |
 | [MapGenie community maps](https://mapgenie.io/god-of-war-ragnarok/maps/midgard) | Four z9 tiles stitched into a 512x512 WebP Midgard background. Coordinates remain link-only and unasserted. |
 
 ## Sources and attribution
@@ -308,20 +321,22 @@ and is covered by the same attribution.
 
 The additional `gow-ragnarok.community.en` v1.0.0 pack adds **38 records** to the original 31:
 36 PS4 community resource/key-item ID candidates (names deliberately **Unknown**) and two
-raven-related counter identities (PC-to-PS5 role **Inferred**). Thus the three catalogs contain 69
-records; the separate XP fallback remains an original observation with an inferred role. The new
+raven-related counter identities (PC-to-PS5 role **Inferred**). Thus the original resource, community-ID
+and collectible catalogs contain 69 records; the XP raw-ID category fallback is separate, while its
+current friendly name comes from the attributed runtime table. The new
 collectible hashes occur in 40/76 and 56/76 primary PS5 hero wallets respectively. No derived raven
 completion formula or legal maximum is displayed. Missing records remain raw IDs.
 
 | Dataset / role | Pinned source and author | Licence / changes |
 | --- | --- | --- |
 | Original 31 resource names/categories and fallback | [God of War Wiki contributors](https://godofwar.fandom.com/wiki/Resources/GOW_%28Ragnar%C3%B6k%29), retrieved 2026-10-28; existing dataset retained | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); normalized names/categories; IDs cross-checked against cited community resources; no new wiki text imported in round 2. |
+| Chaos Flame and Frozen Flame icons | God of War Wiki image pages; Sony Interactive Entertainment / Santa Monica Studio, retrieved 2026-10-29; [resource icon sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.ps5.en/assets.source.md) | Rights reserved by Sony Interactive Entertainment and Santa Monica Studio; used with attribution per owner decision 2026-10-29. Two downscaled WebP icons in the resource pack; the factual name dataset retains CC BY-SA 3.0. |
 | 36 additional ID candidates | [Apollo patch contributors / bucanero, 273f032b](https://github.com/bucanero/apollo-patches/blob/273f032b4c31c017fed5c1588f209b8faf87ba6c/PS4/CUSA34384.savepatch) | [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html); extracted unique literal search IDs and section categories, omitted writes and preset quantities; no invented item names. |
 | Two raven-related counters | [Alexsander720 / Continue? contributors, 51e19b2a](https://github.com/Alexsander720/continue/blob/51e19b2a292c60f9acdf3c13c561809657104ea2/plugin/py_modules/ddsaves/god_of_war_ragnarok.py) | [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html); factual IDs/roles converted to LE byte keys, added PS5 occurrence evidence; no code/formula ported. |
 | Hero / blacksmith-chest research labels | Continue? revision above and [SaveWizard-Resources contributors, 4c32596e](https://github.com/sterben-Dev10/SaveWizard-Resources/blob/4c32596efde54af7bec390b298265f09c929d94d/SaveWizard-Codes/GOW%20Ragnarok%20%5BSaveWizard%5D.txt) | [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html); factual labels only, both inferred; source displayed in container table description. |
 | Nested framing and generic XP candidate | Toolkit contributors, [issue #19](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/19) | Project GPL-3.0-or-later; original byte observations, no third-party implementation copied. |
-| Weapon skill references and thumbnails | [Skill pack sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.skills.en/skills.source.md) and pinned wiki pages above | CC BY-SA 3.0/share-alike for factual text; five downscaled visual thumbnails use the owner-decision rights-reserved attribution; presentation keys are not save hashes. |
-| Gear, rune, map and skill visual catalogue | [Asset pack sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.assets.en/assets.source.md), PlayStation combat guide, God of War Wiki and MapGenie | Rights reserved by the named holders; used with attribution per owner decision 2026-10-29. Eleven records: six gear/rune/map references and five skill thumbnails; no saved ownership or coordinate join. |
+| Weapon skill references | God of War Wiki contributors; [skill pack sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.skills.en/skills.source.md) and wiki pages above, retrieved 2026-10-28 without historical revision IDs | CC BY-SA 3.0/share-alike for 81 factual skill records; no images in the skill-facts pack. Presentation keys are not save hashes. |
+| Gear, rune, map and skill visual catalogue | Sony Interactive Entertainment / Santa Monica Studio; God of War Wiki contributors; MapGenie; [asset pack sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.assets.en/assets.source.md), PlayStation combat guide and image pages, retrieved 2026-10-29 | Rights reserved by Sony Interactive Entertainment, Santa Monica Studio and MapGenie; used with attribution per owner decision 2026-10-29. Eleven records: six gear/rune/map references and five skill thumbnails; no saved ownership or coordinate join. |
 | 961 runtime identities | [mooofin / community spreadsheet contributors, 7b173021](https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/item%23.zip) | No licence published; reused with attribution per owner decision 2026-10-28. Factual names/categories/notes; numeric u64 converted to literal LE keys; one identical duplicate merged. [Sidecar and hashes](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.runtime.en/tables.source.md). |
 | Four skill-tree group IDs | [mooofin, 7b173021](https://github.com/mooofin/God-of-War-Ragnarok/blob/7b1730217b92d27ab910d6d421efbd503cc109b2/gow.CT) | No licence published; reused with attribution per owner decision 2026-10-28. Extracted factual GetSkillTree arguments; no Lua/assembler port. Group roles inferred; individual saved skill IDs/bits unknown. |
 | 1,682 2018 crosswalk candidates | [ProtoBuffers / xcier / God of War IDs spreadsheet contributors, 9342d5f3](https://github.com/xcier/GoW-2018-PS4-editor/blob/9342d5f3967ef74bac1161581dc4eab8bb41760d/app/resources/database/gow2018_items.json) | No licence published; reused with attribution per owner decision 2026-10-28. IDs/names/categories/internal filenames only; explicit cross-game Unknown labels; safe-edit flags/offsets omitted. [Sidecar and hash](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.2018.en/tables.source.md). |
@@ -359,6 +374,7 @@ gate the enabled bounded writes. Only the owner may approve Stable.
 ## SDK requests
 
 None blocking. F1/F2/F8 support the model and evidence, and F6 supports planned restoration.
+The IEEE CRC helper is available and adopted; no CRC SDK request remains.
 F5/F7 are available but no safe structural or linked multi-file writer is established for this format.
 
 ## SDK helper migration (#40)

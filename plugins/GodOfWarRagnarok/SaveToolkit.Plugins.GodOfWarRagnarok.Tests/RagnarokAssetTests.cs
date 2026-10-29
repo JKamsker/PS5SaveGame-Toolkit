@@ -6,6 +6,31 @@ namespace SaveToolkit.Plugins.GodOfWarRagnarok.Tests;
 public sealed class RagnarokAssetTests
 {
     [Fact]
+    public void VisualCatalogueAttributionDescribesCurrentRecordsAndRightsHolders()
+    {
+        var context = RagnarokTestSupport.PinnedReferences(new GodOfWarRagnarokPlugin());
+        var catalog = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog(RagnarokReferences.AssetCatalogId));
+        var records = catalog.Search(new() { Limit = 32 }).Items;
+
+        Assert.Equal(11, records.Count);
+        Assert.Equal(5, records.Count(record => record.Category == "skill"));
+        Assert.Contains("eleven catalogue records", catalog.Dataset.Attribution.Modifications);
+        Assert.Contains("five skill thumbnails", catalog.Dataset.Attribution.Modifications);
+        foreach (var record in records)
+        {
+            var asset = Assert.IsType<ReferenceDatasetInfo>(context.AssetProvenance(record.AssetId!));
+            foreach (var attribution in new[] { record.Dataset.Attribution, asset.Attribution })
+            {
+                Assert.Contains("Sony Interactive Entertainment", attribution.Author);
+                Assert.Contains("Santa Monica Studio", attribution.Author);
+                Assert.Contains("MapGenie", attribution.Author);
+                Assert.Contains("Sony/Santa Monica/MapGenie", attribution.License);
+                Assert.Contains("owner decision 2026-10-29", attribution.License);
+            }
+        }
+    }
+
+    [Fact]
     public void VisualCatalogueAssetsResolveAndRealmBackgroundIsAttributed()
     {
         var plugin = new GodOfWarRagnarokPlugin();
