@@ -5,17 +5,17 @@ namespace SaveToolkit.Plugins.UnrealGvas.Tests;
 internal static class GvasFixture
 {
     public static byte[] Build(Action<BinaryWriter> properties, int major = 4, int minor = 27, bool suffix = true,
-        string saveClass = "/Script/Test.Save", int customVersions = 1)
+        string saveClass = "/Script/Test.Save", int customVersions = 1, int patch = 2, int packageVersion = 524)
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
         writer.Write("GVAS"u8);
         writer.Write(major >= 5 ? 3 : 2);
-        writer.Write(524);
+        writer.Write(packageVersion);
         if (major >= 5) writer.Write(1009);
         writer.Write((ushort)major);
         writer.Write((ushort)minor);
-        writer.Write((ushort)2);
+        writer.Write((ushort)patch);
         writer.Write(42U);
         String(writer, "++Test");
         writer.Write(3);

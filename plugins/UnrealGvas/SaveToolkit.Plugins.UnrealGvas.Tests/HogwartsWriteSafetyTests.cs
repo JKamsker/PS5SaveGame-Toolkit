@@ -6,6 +6,7 @@ using SaveToolkit.Plugins.UnrealGvas.Gvas;
 using SaveToolkit.Plugins.UnrealGvas.Hogwarts;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
@@ -16,10 +17,12 @@ public sealed class HogwartsWriteSafetyTests
 {
     private const string Inventory = "hogwarts/RawDatabaseImage/InventoryDynamic";
 
-    [Fact]
-    public void SameValueEditPreservesOriginalCompressedFrames()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void SameValueEditPreservesOriginalCompressedFrames(bool synthetic)
     {
-        var sample = Sample();
+        var sample = Input(synthetic);
         using var document = new UnrealGvasPlugin().Open(sample);
         var field = Counts(document)[0];
 
@@ -28,10 +31,12 @@ public sealed class HogwartsWriteSafetyTests
         Assert.Equal(sample.ReadAllBytes(), Output(document));
     }
 
-    [Fact]
-    public void RestoringAllCellsPreservesOriginalBytesAfterRequeryAndRepeatedEdits()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void RestoringAllCellsPreservesOriginalBytesAfterRequeryAndRepeatedEdits(bool synthetic)
     {
-        var sample = Sample();
+        var sample = Input(synthetic);
         using var document = new UnrealGvasPlugin().Open(sample);
         var field = Counts(document)[0];
         var next = FieldValue.Of(field.Value.AsInteger() + 1);
@@ -48,10 +53,12 @@ public sealed class HogwartsWriteSafetyTests
         Assert.Equal(sample.ReadAllBytes(), Output(document));
     }
 
-    [Fact]
-    public void RejectedBatchPreservesOriginalBytesAndAllowsSubsequentEdit()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void RejectedBatchPreservesOriginalBytesAndAllowsSubsequentEdit(bool synthetic)
     {
-        var sample = Sample();
+        var sample = Input(synthetic);
         using var document = new UnrealGvasPlugin().Open(sample);
         var fields = Counts(document);
         var outcome = document.ApplyEdits([
@@ -67,10 +74,12 @@ public sealed class HogwartsWriteSafetyTests
         Assert.True(document.ApplyEdits([new(fields[0].ValueId, FieldValue.Of(fields[0].Value.AsInteger() + 1))]).Succeeded);
     }
 
-    [Fact]
-    public void EditingOneImagePreservesTheOtherImagesOriginalFrames()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void EditingOneImagePreservesTheOtherImagesOriginalFrames(bool synthetic)
     {
-        var sample = Sample();
+        var sample = Input(synthetic);
         using var document = new UnrealGvasPlugin().Open(sample);
         var field = Counts(document)[0];
         Assert.True(document.ApplyEdits([new(field.ValueId, FieldValue.Of(field.Value.AsInteger() + 1))]).Succeeded);
@@ -83,10 +92,12 @@ public sealed class HogwartsWriteSafetyTests
             edited.Original.Slice(after.Offset, after.Length).ToArray());
     }
 
-    [Fact]
-    public void RejectedBatchPreservesAnAlreadyEditedImageExactly()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void RejectedBatchPreservesAnAlreadyEditedImageExactly(bool synthetic)
     {
-        using var document = new UnrealGvasPlugin().Open(Sample());
+        using var document = new UnrealGvasPlugin().Open(Input(synthetic));
         var fields = Counts(document);
         var next = FieldValue.Of(fields[0].Value.AsInteger() + 1);
         Assert.True(document.ApplyEdits([new(fields[0].ValueId, next)]).Succeeded);
@@ -120,10 +131,13 @@ public sealed class HogwartsWriteSafetyTests
         Assert.Equal(bytes, Output(document));
     }
 
-    [Fact]
-    public void SessionUndoRedoRestoresExactBytesAcrossBothImages()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void SessionUndoRedoRestoresExactBytesAcrossBothImages(bool synthetic)
     {
-        var sample = Sample();
+        using var import = synthetic ? HogwartsInventoryFixture.CreateDisk() : null;
+        var sample = import?.File ?? Sample();
         var plugin = new UnrealGvasPlugin();
         var document = plugin.Open(sample);
         using var session = new DocumentSession("hogwarts-write-safety", sample, plugin, document);
@@ -173,6 +187,8 @@ public sealed class HogwartsWriteSafetyTests
         Assert.False(database.HasChanges);
         Assert.Equal(original.Serialize(), database.SerializeForWrite());
     }
+
+    private static ISaveFile Input(bool synthetic) => synthetic ? HogwartsInventoryFixture.Create() : Sample();
 
     private static DiskSaveFile Sample() => SampleSaves.Load("PPSA01603").AllDiskFiles.First(file =>
         file.Directory.Name == "HL0010" && file.FileName == "ue4savegame.ps5.sav");

@@ -10,7 +10,6 @@ internal static class HogwartsInventoryFixture
     public const string Collection = "hogwarts/RawDatabaseImage/InventoryDynamic";
     public const int TotalSlots = 410;
     public const int EmptySlots = 203;
-    private static readonly string[] ImageNames = ["RawDatabaseImage", "RawExclusiveImage"];
 
     public static TestSaveImport CreateDisk() => new(Create().ReadAllBytes());
 
@@ -32,15 +31,7 @@ internal static class HogwartsInventoryFixture
             INSERT INTO EquippedGearDynamic VALUES('Player0','Head','UnknownGear','None');
             """);
         byte[] frames = HogwartsImage.EncodeStored(database.Serialize());
-        byte[] bytes = GvasFixture.Build(writer =>
-        {
-            foreach (string name in ImageNames)
-                GvasFixture.Property(writer, name, "ArrayProperty", GvasFixture.Body(body =>
-                {
-                    body.Write(frames.Length);
-                    body.Write(frames);
-                }), "ByteProperty");
-        }, saveClass: HogwartsImage.SaveClass, customVersions: 72);
+        byte[] bytes = TitleFixture.Hogwarts(frames, frames);
         return MemorySaveSet.SingleFile("save.sav", bytes, "PPSA01603", "HL0000");
     }
 }
