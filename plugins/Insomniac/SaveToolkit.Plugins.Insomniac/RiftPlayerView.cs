@@ -43,15 +43,15 @@ internal sealed class RiftPlayerView
         var bolts = campaign["CareerBolts"].Values[0].AsInteger() - campaign["SpentBolts"].Values[0].AsInteger();
         var playtime = campaign["Playtime"].Values[0].AsDouble();
         result.Add(new StatsNode([
-            new Stat("Bolts (calculated)", bolts.ToString(CultureInfo.InvariantCulture)) { Hint = "Inferred: CareerBolts minus SpentBolts." },
+            new Stat("Bolt counter difference", bolts.ToString(CultureInfo.InvariantCulture)) { Hint = "CareerBolts minus SpentBolts; differs from the stored inventory count." },
             new Stat("Play time (hours)", (playtime / SecondsPerHour).ToString("0.00", CultureInfo.InvariantCulture))
                 { Hint = "Seconds are inferred from the timer scale and snapshot progression." },
         ]));
-        result.Add(bind("player/AvailableBolts", "Available bolts (calculated)",
+        result.Add(bind("player/AvailableBolts", "Career minus spent bolts (diagnostic)",
             new IntegerSpec(-(Int128)ulong.MaxValue, ulong.MaxValue), FieldValue.Of(bolts)) with
         {
             Confidence = Confidence.Inferred,
-            Description = "CareerBolts minus SpentBolts; not independently confirmed against an in-game display.",
+            Description = "CareerBolts minus SpentBolts; this diagnostic differs from the config-anchored inventory count. See Currencies for the read-only wallet candidate.",
         });
 
         foreach (var group in Definitions.GroupBy(d => d.Group))

@@ -48,6 +48,7 @@ public sealed class InsomniacPlugin : IGamePlugin, ISaveDecoderProvider
             "https://ratchetandclank.fandom.com/wiki/Void_Repulser?oldid=395549",
             "https://ratchetandclank.fandom.com/wiki/Warmonger?oldid=402415",
             DdlSections.SchemaSource,
+            RiftCurrencyView.HashSource,
             "https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json.license",
             "https://ratchetandclank.fandom.com/wiki/Burst_Pistol",
             "https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript",

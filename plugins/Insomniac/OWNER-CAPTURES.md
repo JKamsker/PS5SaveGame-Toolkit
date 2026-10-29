@@ -40,6 +40,12 @@ Use F1/SaveDiff for complete byte/decoded changes with generation identities.
    unlocked gold node. Record neighbors/prerequisites. Distinguish Mods, sixteen
    ModGrid masks, thirty-two ModCount slots and SelectedCell; no raw bit is yet a
    proven purchased-node identity.
+   Field discovery (#40) now exposes `currency/raritanium` from the unique
+   `pup_raritanium_item.config` record (LE u32 ItemCount). Compare it directly with
+   HUD balances and both career counters; absent records remain unresolved. Supply
+   build-matched WeaponGridConfig/WeaponModConfig instance data to join
+   GridIndex/TileIndex, costs and effects. Type declarations/path hashes alone
+   cannot supply those values. See [CURRENCY-RESEARCH.md](CURRENCY-RESEARCH.md).
 5. **Omega:** on an existing Challenge Mode slot, buy one Omega weapon separately
    from challenge reset. Record cost, level, XP, tree and capacity. All 1,120
    measured weapon/melee records have Omega false; positive encoding and
@@ -106,13 +112,15 @@ Use F1/SaveDiff for complete byte/decoded changes with generation identities.
 19. **Preferences:** independently validate an unchanged export, one in-game setting
     pair and a reviewed single-field candidate with observed type/width. Gameplay
     acceptance does not establish preferences acceptance.
-20. **F6 calculated-balance target:** on a disposable spare slot, first lower the
-    calculated balance by one. Review CareerBolts, unchanged SpentBolts and derived
-    balance/expanded diagnostic values; apply, undo, redo and export. Load, inspect
+20. **F6 counter-difference target:** on a disposable spare slot, first lower the
+    career-minus-spent diagnostic by one. Review CareerBolts, unchanged SpentBolts,
+    unchanged `currency/bolts` and derived diagnostics; apply, undo, redo and export. Load, inspect
     wallet and a normal purchase, native-save, reload and re-export/diff. Separately
     test zero and a small increase within the shown bounds. Report clamping,
     rejection, ignored effects or history/accounting changes; no wallet calibration
-    or body-integrity claim follows from the toolkit preview.
+    or body-integrity claim follows from the toolkit preview. Corpus inventory
+    counts already differ from career-minus-spent; this action is not an inventory
+    currency writer.
 21. **F9 joins:** pair each known spybot pickup with the exact bit, planet and
     physical location; preserve unresolved/reserved bits. For each upgrade purchase
     record its weapon, exact node, grid row/column, cost, available prerequisites

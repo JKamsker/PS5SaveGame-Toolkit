@@ -30,11 +30,16 @@ data. No decryption, decompression or encryption step is implemented here.
 Measured opening/query allocation bounds and the cold-sort tradeoff are documented
 in [Performance review](PERFORMANCE.md).
 
-- **Player:** career/spent counters, inferred available bolts, play time, challenge
+- **Player:** career/spent counters, their diagnostic difference, play time, challenge
   flags, gold-bolt options and per-location counters. Career/spent bolts and seven
   existing gold-bolt switches are editable. Career weapon XP is aggregate and read-only.
-  The F6 **Set calculated bolt balance** action previews CareerBolts and derived
-  balance/expanded diagnostics while preserving SpentBolts, with one-step undo/redo.
+  The career-minus-spent result is a counter diagnostic: it differs from the newly
+  identified inventory count. The F6 **Set bolt counter difference** action previews
+  CareerBolts and derived diagnostics while preserving SpentBolts and inventory,
+  with one-step undo/redo.
+- **Currencies:** read-only **Inferred** bolts/raritanium ItemCount candidates, joined
+  through public config-path hashes and the existing typed inventory decoder. Missing
+  or ambiguous records stay unresolved. No HUD calibration, game cap or writer is claimed.
 - **Loadout:** four exact quick-select paths using F4 read-only reference fields.
   The attributed F2 catalog supplies twenty English weapon-label candidates,
   including Blackhole Storm for `warprifle`. All twenty paths hash to measured
@@ -116,8 +121,9 @@ See [EVIDENCE.md](EVIDENCE.md) for the measured layouts and F1 comparisons.
 | Display | Confidence and limitation |
 | --- | --- |
 | Named career counters, flags, grid dimensions, DDL names/types | Verified storage identities; this does not establish HUD calibration or write acceptance |
-| Available bolts | Inferred career minus spent; independent in-game comparison still needed |
-| Career raritanium / spending | Separate stored counters; late spending exceeds career total, so no available balance is offered |
+| Career minus spent bolts | Inferred counter diagnostic, **not** a wallet: late autosave 716,220 versus inventory 320,640 |
+| Inventory bolts / raritanium | Inferred config-anchored ItemCount; exact per-sample values checked; read-only, no HUD calibration |
+| Career raritanium / spending | Separate stored counters; late subtraction is negative despite inventory raritanium 109; not a balance equation |
 | Difficulty / CurrentLevel | Stored codes only; CurrentLevel is not player level and is zero throughout this corpus |
 | Weapon names | Twenty attributed localization candidates; all twenty path-to-config-token joins corroborated on PS5; ownership/equipment unproven |
 | Inventory type IDs | Verified against five CC0 schema IDs and name hashes |
@@ -167,8 +173,8 @@ An imported value above that maximum remains inspectable and extends only that
 field's upper bound to its original value. These are observed bounds, not proven
 game caps. Atomic batches validate final CareerBolts >= SpentBolts, with an
 exception only for restoring the exact original imported counter pair so undo
-can recover an accepted input whose calculated balance was already negative. Calculated
-available bolts and expanded raw scalar diagnostics update live and participate
+can recover an accepted input whose calculated balance was already negative. The counter
+difference and expanded raw scalar diagnostics update live and participate
 as derived changes; Core undo/redo restores the original bytes.
 
 The seven gold-bolt switches change only their existing bool atoms. They do not
@@ -183,7 +189,7 @@ legal ranges are incomplete, so writing them would risk inconsistent unknown
 structure. Quick-select strings also stay read-only because their stored metadata
 and relocation/size rules have no proven writer. Numeric preferences have no
 prepared, calibrated write policy. The F6 bolt-target action reuses the existing
-career-counter writer; there is no safe ammo/loadout/upgrade bulk recipe. Structural
+career-counter writer and does not change inventory currency; there is no safe ammo/loadout/upgrade bulk recipe. Structural
 operations require F5 and actual cross-file dependencies F7; neither has a safe
 applicable mutation in this format yet.
 
@@ -198,10 +204,58 @@ the exact protocol remains in [OWNER-CAPTURES.md](OWNER-CAPTURES.md).
 | SpentBolts | Inferred | Same schema and corpus; observed maximum 260,875; edit/reopen/F1/undo tests; final-balance batch validation | Same unknown integrity; game may reject; accounting semantics not console-calibrated | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one purchase capture, isolated spent-counter edit and wallet/downstream validation |
 | Seven existing gold-bolt option booleans | Inferred | Named one-byte DDL bools; RPG research probe; each production switch edit/reopen/F1/undo tested in early/late samples | Bool only; collectible/unlock state untouched; game may reject | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): legal in-game toggle then independent edit for each unlocked option; check effect and re-save/reload |
 | Existing scalar boolean preferences (61 keys) | Inferred | Descriptor/name validation in both supplied primary preference records; each edit/reopen/F1/undo tested | Bool only; numeric/string fields untouched; independent integrity unknown; game may reject | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): unchanged preference export, one-setting capture and separate edit/menu/re-save/reload checks |
-| F6 calculated bolt target | Inferred | Existing CareerBolts writer; previews career and derived balance/expanded diagnostics; all 36 primary records tested for pure preview, apply/reopen, single-atom F1 diff and Core undo/redo | Only career atom changes; spent history preserved; body integrity and HUD accounting unknown; game may reject | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): lower balance by one, inspect preview, apply, purchase/native-save/reload/re-export; test zero on a disposable slot |
+| F6 bolt counter-difference target | Inferred diagnostic, not inventory balance | Existing CareerBolts writer; previews career and derived counter difference/expanded diagnostics; all 36 primary records tested for pure preview, apply/reopen, single-atom F1 diff and Core undo/redo | Only career atom changes; spent history and inventory counts preserved; body integrity and HUD accounting unknown; game may reject | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): compare career counters and inventory/HUD separately through native-save/reload/re-export |
 
 The observed 70 write controls are listed in [ENABLED-WRITES.md](ENABLED-WRITES.md).
 The additional F6 action exposes the same career atom, rather than a new storage writer.
+
+## Field discovery — bolts, raritanium and upgrades (#40)
+
+Research date **2026-10-29**. The [full analysis](CURRENCY-RESEARCH.md) records the
+decode method, representative values, rejected equations and exact dependency chain.
+All **72 gameplay copies** were decoded with the plugin's DAT1/DDL/inventory readers
+and production evidence hook: 36 primary records plus backup twins, both generations
+and both campaigns. Preferences have no currency inventory. Scratch and downloads
+remain on D:; no downloaded code was executed and no sample bytes are committed.
+
+The public Overstrike `hashes.txt` identifies two generic inventory records, independently
+reproduced by `RiftAssetId.Hash`. Each has type `4E5CE3CB`, a 23-byte payload, `0F`
+presence byte, config token at payload +9 and **LE u32 ItemCount at +17**. These are
+record-relative offsets after bounded parsing, never absolute PS5 patch addresses.
+All matches occur in `78cb152e/0` in this corpus; the view requires a unique config
+match across the complete inventory instead of assuming container order or ItemId.
+
+| Field | Result and evidence | Remaining write blockers |
+| --- | --- | --- |
+| Bolts, `currency/bolts` | **Read-only / Inferred**; `configs/pickup/pup_bolt_item.config` → `947dc517d343ad64`; present in all 36 primary inventories; observed 315–320,640 | Actual CurrencyItemConfig.MaxCount, HUD/action calibration, counter dependencies and body-integrity repair unknown. Existing career/spent writers remain separate. |
+| Raritanium, `currency/raritanium` | **Read-only / Inferred**; `configs/pickup/pup_raritanium_item.config` → `95ffa4c1254a6f29`; 34/36 primary inventories, observed 5–109; two absent records remain unresolved | Same cap/integrity gaps, plus bonus/award contributions and upgrade synchronization. Early present records match career-minus-spent; late records do not. |
+| Weapon upgrades | Existing raw masks/counters **read-only / Inferred**; all 1,120 supported primary weapon/melee records checked, all Omega false | Named purchased nodes are a **negative result**: missing PS5 grid/mod instances, node costs, prerequisites, bit orientation, golden-node effects and ownership/cache joins. |
+
+### Negative results and rejected candidates
+
+| Candidate | Why rejected / concrete next evidence |
+| --- | --- |
+| CareerBolts − SpentBolts as wallet | Late autosave yields 716,220 versus bolt ItemCount 320,640; early autosave yields 8,586 versus 2,417. UI/action labels now call it a counter diagnostic. Existing IDs/undo remain compatible. Gain/spend captures must explain both counters and inventory. |
+| CareerRaritanium − CareerRaritaniumSpend | Late autosave is about −52.800354, yet the raritanium item stores 109. No clamping, rounding or adding an arbitrary bonus establishes a balance. |
+| Entitlement/tutorial counters | EntitlementRaritaniumToGive is 20 and both awarded booleans are false in all 36 primary records. They neither vary with the wallet nor repair the late equation. Official PS5 material confirms a 20-raritanium Deluxe grant, but not its save accounting. |
+| LevelRaritanium sum | Lifetime/location collection counters, not a demonstrated unspent balance; the late location sum is 531 while spending is 584 and inventory is 109. |
+| ItemId or small adjacent words | ItemIds vary for the same config; masks, GUIDs and config hashes are identities/framing, not currency. Other small generic counts lack a currency config join. |
+| Sum of Mods/ModGrid/ModCount as spending or named nodes | Late totals are 263 Mods bits, 725 grid bits and 630 ModCount, versus spending 584. Repeated records lack owned/cache semantics; grid/mod declarations and path hashes supply no costs or prerequisite data. |
+| CurrencyItemConfig.MaxCount declaration / PC offsets | The schema declares a configurable maximum; no build-matched PS5 instance value was obtained. A u32 capacity is not a game cap. PC trainer addresses are not PS5 save offsets. |
+
+No new write is enabled: name/config CRCs identify fields/assets and are not body
+checksums; Serialize validates known framing but no body-integrity algorithm is
+established. These limits are understood and displayed on the read-only candidates.
+The next evidence is a controlled same-slot gain/spend pair with HUD balances and
+one named upgrade/price, plus build-matched currency, WeaponGridConfig and
+WeaponModConfig instances. The existing Experimental/preview/undo safeguards are
+necessary for any future writer but do not establish those missing joins or caps.
+
+Tests pin each primary/backup count, raw count bytes, evidence-hook values and
+upgrade aggregates; authored synthetic cases cover exact counts, missing/ambiguous
+records, unsupported masks, foreign titles, rejected writes and byte-identical no-op.
+The conformance fuzz includes a synthetic currency seed and three real seeds
+(two preferences plus the smallest gameplay file), 200 mutations each.
 
 ## Framework feature adoption
 
@@ -212,7 +266,7 @@ The additional F6 action exposes the same career atom, rather than a new storage
 | F3 rich cells | **Used** | Extended in the completion/asset rounds: inventory lazy detail cells and confidence/warnings; F9 diagrams expand from F8 detail cells. Weapon icons, full-set armour previews and a separate upgraded-form reference table use local ImageNode cells with provenance. |
 | F4 reference pickers | **Used** | Extended in the completion round: four loadout paths plus arsenal config paths, armour/world identity candidates and raw inventory type IDs. Unjoined opaque GUID/config bytes are retained rather than falsely treated as catalog keys. |
 | F5 structural undo | **N/A** | No lossless record constructor/remover/string relocation/dependency repair exists. Existing writes preserve size and use scalar undo; speculative structure mutation would violate data preservation. |
-| F6 action planning | **Used** | Added in the completion round: explicit calculated-bolt target, primary/derived previews, warnings, no-op explanation, stale/forged-plan rejection and Core grouped undo. #27 query scopes are inapplicable to a document-wide wallet target; row/query scopes reject explicitly. Ammo/refill/loadout/upgrade actions lack ownership, legal caps and dependency recipes. |
+| F6 action planning | **Used** | Explicit bolt counter-difference target, primary/derived previews, warnings, no-op explanation, stale/forged-plan rejection and Core grouped undo. This does not edit the inventory wallet candidate. #27 query scopes are inapplicable to the document-wide counter target; row/query scopes reject. Ammo/refill/loadout/upgrade actions lack ownership, legal caps and dependency recipes. |
 | F7 document groups | **N/A** | Gameplay and preferences have no identified coupled invariant; each writer affects one existing file. No transaction over unrelated files is invented. |
 | F8 queryable tables | **Used** | Local `RiftCollections` serves arsenal/armour/upgrades/collectibles/objectives/dimensions/globals, upgrade-diagram lists and every populated raw inventory container. Complete-model substring search, exact column filters, numeric/text sorting and ordinal row-key ties precede bounded offset pages (1–200 rows); cursors reject. Raw DDL arrays retain separate 100-entry diagnostic pages. |
 | F9 maps/graphs | **Used** | Added in the completion round and extended in the community-map/asset rounds: read-only stored upgrade-row graphs with field targets; spybot storage map/list plus nine lazy regional community maps with aligned local backgrounds (403 markers), text alternatives and explicit Unknown semantics. Save-to-guide joins, fog transforms and prerequisites require owner captures. |
@@ -287,9 +341,17 @@ dotnet test --project plugins/Insomniac/SaveToolkit.Plugins.Insomniac.Tests --co
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj --configuration Release --warnaserror
 ```
 
-Documentation accuracy check (2026-10-29): **298 passed, 0 failed, 0 skipped** in
+Documentation accuracy check before field discovery (2026-10-29): **298 passed, 0 failed, 0 skipped** in
 Release with the external samples; documentation checks: **14 passed**; API Release
 build with `--warnaserror`: **0 warnings / 0 errors**.
+
+Field-discovery validation (2026-10-29): **344 passed, 0 failed, 0 skipped** in
+Release with samples, including conformance and **800 mutation cases** (one authored
+currency seed and three real seeds, zero failures/quarantines). All 76 gameplay/
+preferences copies retain byte-identical no-op exports. Without samples, the new
+synthetic currency theory passes **2/2**, and synthetic mutation fuzz passes **1/1**
+with **200 cases**, zero skips/failures. API Release build with `--warnaserror`:
+**0 warnings / 0 errors**. See [CURRENCY-RESEARCH.md](CURRENCY-RESEARCH.md).
 
 Maintainability characterizations pin validation precedence,
 complete initial-view/first-page protocols and ordered evidence for early/late gameplay
@@ -354,6 +416,11 @@ The Sources panel lists the F2 datasets resolved by the document.
 | Asset path identity algorithm research | [ALERT crc64.py, bc90ed9b](https://raw.githubusercontent.com/Tkachov/ALERT/bc90ed9b53fbcaa3b7acf94b36f00e77eab0dacb/dat1lib/crc64.py) | GPL research only; independently written bitwise mathematical CRC, no copied lookup table/code. Verified against PS5 inventory tokens; unrelated to integrity |
 | Section strategies / format research | Neptuwunium / [Rivet SaveData, a631c96e](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet/Data/SaveData.cs) and [save CLI](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet.CLI/Utility/RivetSaveCommand.cs) | EUPL-1.2 reference only; no implementation copied or executed. Write-round recheck still does not establish PS5 integrity |
 | Earlier DAT1 and integrity research | [ALERT format wiki](https://github.com/Tkachov/ALERT/wiki/Formats), [RiftRipper](https://github.com/VELD-Dev/riftripper), [NinjaSaves](https://ninjasaves.com/cheats/ratchet-clank-rift-apart-ppsa01474) | Research only; no source/artwork port or proven integrity routine |
+| Currency config paths/tokens, accessed 2026-10-29 | Tkachov / [Overstrike MT/v1.4.1](https://github.com/Tkachov/Overstrike/releases/tag/MT/v1.4.1), [`hashes.zip`](https://github.com/Tkachov/Overstrike/releases/download/MT/v1.4.1/hashes.zip); [pin/modification notice](SaveToolkit.Plugins.Insomniac/Resources/CurrencyFields.source.md) | No licence published; reused with attribution per owner decision 2026-10-28. Two factual entries only; independent PS5 hash/layout corroboration; no upstream code executed/copied. |
+| Currency/upgrade schema declarations, rechecked 2026-10-29 | Neptuwunium / same [CC0 schema a631c96e](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/docs/ddl/rcra_ddl.json): CurrencyItemConfig, WeaponConfig, WeaponGridConfig, GridLayerData, GridTileData, WeaponModConfig, WeaponModData | CC0-1.0 facts; independent dependency-chain notes; no runtime offsets, config instance values, node costs or game cap imported. |
+| Public PS5 editor lead, rechecked 2026-10-29 | [NinjaSaves PPSA01474 listing](https://ninjasaves.com/cheats/ratchet-clank-rift-apart-ppsa01474) | Research only; lists career bolt/spent-raritanium options, no public patch/repair recipe or upgrade-node mapping obtained. |
+| PC trainer/table leads, accessed 2026-10-29 | GreenHouse / [WeMod original trainer thread](https://community.wemod.com/t/ratchet-clank-rift-apart-cheats-and-trainer-for-steam/271860); ModEngine / [Cheat Engine table listing](https://cheatengine.net/viewtopic.php?t=96121) | Research only; PC process-memory editing, no PS5 save offsets/caps inferred. Table listing indexed; direct fetch returned 403. No table/trainer executable or script executed or incorporated. |
+| PS5 currency/upgrade and bonus context, accessed 2026-10-29 | Sony Interactive Entertainment / [official PS5 game page](https://www.playstation.com/en-us/games/ratchet-and-clank-rift-apart/) and [official Challenge Mode guide](https://www.playstation.com/en-ca/editorial/what-to-do-after-youve-finished-ratchet-and-clank-rift-apart/) | Research only; confirms 20 Deluxe raritanium, weapon upgrade purpose and collection bonuses. No gameplay prose/assets copied and no save accounting, cap or integrity specification inferred. |
 | `insomniac.rift.maps.en/markers.json`: 403 marker IDs, labels, categories and pixel coordinates across nine regions | [Guides4Gamers interactive maps](https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/), 2026-10-28 UTC snapshots pinned by map ID/version and raw SHA-256 in [markers.source.md](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.maps.en/markers.source.md) | No licence published; reused with attribution per owner decision 2026-10-28. Selected marker facts only, original uncertainty notes; no HTML descriptions, scripts or save-progress joins. Separate background art now imported below. |
 
 See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) and the reference pack's

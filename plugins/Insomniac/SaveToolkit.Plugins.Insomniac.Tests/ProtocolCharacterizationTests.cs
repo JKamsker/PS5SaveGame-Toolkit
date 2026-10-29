@@ -15,10 +15,11 @@ public sealed class ProtocolCharacterizationTests
 {
     // Fingerprints captured before the maintainability refactor. They pin complete serialized
     // protocol objects and ordered sink events without committing private sample content.
+    // Gameplay views were intentionally repinned for the currency tab and corrected counter labels (#40).
     [Theory]
-    [InlineData(false, 0, "57d53b0d8a69f3a3f2ac66a4032e2af62df6e5f7041bc45ec85abf3dad17ec3c",
+    [InlineData(false, 0, "cca91bd25a285a60007120524b9fae757a312720bc9b715be8ec0648ee377f08",
         "71e8abc6c279f1835e0eedc3f5632b2e1050dd3e0614af75e2e01b1bfa7c2ab2")]
-    [InlineData(false, 1, "dace964fa1f7af3e20c4193ce4d5c9191d5b82d912506eb26c916392d61f6b73",
+    [InlineData(false, 1, "76b8052060cb969075fb73bcce589b338ebce6d4126e8512bfa728a5c4a74802",
         "25025f4f7aa4cf4146d11de5ede2c6292dfbe422d1340e0cf85caa0184b6144e")]
     [InlineData(true, 0, "79499c9bd9f5d7b642ab7626e400b269b878d36fbfee2cd23a7df5af9253af01",
         "c2d7bb354d38d68a99398698c20f4600a9cc6e56975cc3657383e2b6431e497e")]
