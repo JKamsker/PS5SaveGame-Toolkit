@@ -72,15 +72,7 @@ internal sealed class LsmfInventoryGraph
             if (TryOwnerBody(entity, bodyByOwner, out var ownerBody))
                 Visit(row, ownerBody, "", new HashSet<int>(), 0);
 
-        // Keep other explicit containers visible, but do not invent a party owner.
-        var covered = output.Select(entry => (entry.ContainerRow, entry.ItemEntityRow)).ToHashSet();
-        foreach (var slot in slots)
-        {
-            if (!containerEntities.ContainsKey(slot.ContainerRow) || !covered.Add((slot.ContainerRow, slot.EntityRow))) continue;
-            var ambiguous = itemContainers[slot.EntityRow].Length > 1;
-            output.Add(new LsmfInventoryEntry(slot.ContainerRow, containerEntities[slot.ContainerRow], slot.EntityRow,
-                slot.Slot, null, $"container/{slot.ContainerRow}/slot/{slot.Index}", ambiguous));
-        }
+        AppendUnownedEntries(output, slots, containerEntities, itemContainers);
         return output;
 
         void Visit(int containerRow, int ownerBody, string parent, HashSet<int> path, int depth)
@@ -100,20 +92,34 @@ internal sealed class LsmfInventoryGraph
             }
             path.Remove(containerRow);
         }
+    }
 
-        bool TryOwnerBody(int entity, IReadOnlyDictionary<int, int> ownerBodies, out int body)
+    private bool TryOwnerBody(int entity, IReadOnlyDictionary<int, int> ownerBodies, out int body)
+    {
+        var seen = new HashSet<int>();
+        var current = entity;
+        for (var depth = 0; depth <= MaxDepth; depth++)
         {
-            var seen = new HashSet<int>();
-            var current = entity;
-            for (var depth = 0; depth <= MaxDepth; depth++)
-            {
-                if (ownerBodies.TryGetValue(current, out body)) return true;
-                if (!seen.Add(current) || !_ownedByEntity.TryGetValue(current, out var owner) || owner is not { } next)
-                    break;
-                current = next;
-            }
-            body = -1;
-            return false;
+            if (ownerBodies.TryGetValue(current, out body)) return true;
+            if (!seen.Add(current) || !_ownedByEntity.TryGetValue(current, out var owner) || owner is not { } next)
+                break;
+            current = next;
+        }
+        body = -1;
+        return false;
+    }
+
+    private static void AppendUnownedEntries(List<LsmfInventoryEntry> output, IReadOnlyList<LsmfSlot> slots,
+        IReadOnlyDictionary<int, int> containerEntities, IReadOnlyDictionary<int, int[]> itemContainers)
+    {
+        // Keep other explicit containers visible, but do not invent a party owner.
+        var covered = output.Select(entry => (entry.ContainerRow, entry.ItemEntityRow)).ToHashSet();
+        foreach (var slot in slots)
+        {
+            if (!containerEntities.ContainsKey(slot.ContainerRow) || !covered.Add((slot.ContainerRow, slot.EntityRow))) continue;
+            var ambiguous = itemContainers[slot.EntityRow].Length > 1;
+            output.Add(new LsmfInventoryEntry(slot.ContainerRow, containerEntities[slot.ContainerRow], slot.EntityRow,
+                slot.Slot, null, $"container/{slot.ContainerRow}/slot/{slot.Index}", ambiguous));
         }
     }
 
@@ -138,17 +144,17 @@ internal sealed class LsmfInventoryGraph
         var entities = _access.Model.Entities();
         var creatorTemplates = resource.Nodes.Where(node => node.Name == "Creator" && node.Parent >= 0 &&
                 resource.Nodes[node.Parent].Name == "Creators")
-            .Select(node => (Entity: Read(resource, node, "Entity", LarianAttributeType.UUID),
-                Template: Read(resource, node, "TemplateID", LarianAttributeType.UUID) ??
-                    Read(resource, node, "TemplateID", LarianAttributeType.FixedString)))
+            .Select(node => (Entity: ResourceIdentifiers.Read(resource, node, "Entity", LarianAttributeType.UUID),
+                Template: ResourceIdentifiers.Read(resource, node, "TemplateID", LarianAttributeType.UUID) ??
+                    ResourceIdentifiers.Read(resource, node, "TemplateID", LarianAttributeType.FixedString)))
             .Where(pair => pair.Entity is not null && pair.Template is not null)
             .ToDictionary(pair => pair.Entity!, pair => pair.Template!, StringComparer.Ordinal);
         var entityByTemplate = creatorTemplates.GroupBy(pair => pair.Value, StringComparer.Ordinal)
             .Where(group => group.Count() == 1)
             .ToDictionary(group => group.Key, group => group.Single().Key, StringComparer.Ordinal);
         var items = resource.Nodes.Where(node => node.Name == "Item")
-            .Select(node => (Template: Read(resource, node, "CurrentTemplate", LarianAttributeType.UUID),
-                Stats: Read(resource, node, "Stats", LarianAttributeType.FixedString)))
+            .Select(node => (Template: ResourceIdentifiers.Read(resource, node, "CurrentTemplate", LarianAttributeType.UUID),
+                Stats: ResourceIdentifiers.Read(resource, node, "Stats", LarianAttributeType.FixedString)))
             .Where(item => item.Template is not null && item.Stats is not null && entityByTemplate.ContainsKey(item.Template!))
             .ToArray();
         var wantedGuids = items.Select(item => entityByTemplate[item.Template!]).ToHashSet(StringComparer.Ordinal);
@@ -164,9 +170,7 @@ internal sealed class LsmfInventoryGraph
 
     private IReadOnlyList<LsmfGoldCandidate> BuildGold()
     {
-        var goldRows = _itemRowsByStats.Where(pair => pair.Key.Equals("OBJ_GoldCoin", StringComparison.OrdinalIgnoreCase) ||
-                pair.Key.Equals("OBJ_GoldPile", StringComparison.OrdinalIgnoreCase) ||
-                pair.Key.Equals("OBJ_Goldpile", StringComparison.OrdinalIgnoreCase))
+        var goldRows = _itemRowsByStats.Where(pair => IsGoldStats(pair.Key))
             .SelectMany(pair => pair.Value.Select(row => (Stats: pair.Key, Row: row)));
         return goldRows.Select(item =>
         {
@@ -201,12 +205,5 @@ internal sealed class LsmfInventoryGraph
             .Where(attribute => attribute.Name == "Stats")
             .Select(attribute => AttributeDecoder.Read(attribute).ToString())
             .Any(IsGoldStats));
-    }
-
-    private static string? Read(LarianResource resource, ResourceNode node, string name, LarianAttributeType type)
-    {
-        var values = node.Attributes.Select(index => resource.Attributes[index]).Where(attribute => attribute.Name == name).Take(2).ToArray();
-        return values is [var attribute] && attribute.Type == type && attribute.Data.Length <= 512
-            ? AttributeDecoder.Read(attribute).AsString() : null;
     }
 }

@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
@@ -60,4 +61,8 @@ internal static class LiveNewAgeFixture
     }
 
     internal static LsmfLiveSource Source(byte[]? bytes = null) => new(0, 0, bytes ?? Create());
+
+    internal static BaldursGate3Document Open(byte[]? blob = null, string titleId = "PPSA00000") =>
+        Assert.IsType<BaldursGate3Document>(new BaldursGate3Plugin().Open(
+            MemorySaveSet.SingleFile("Globals.lsf", LsmfFixture.Resource(blob ?? Create()), titleId)));
 }

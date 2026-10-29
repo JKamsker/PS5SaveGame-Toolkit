@@ -6,8 +6,6 @@ internal sealed record LsmfPartyJoin(int PartyRow, int PartyEntityRow, int BodyE
     string? TemplateId, int? StateEntityRow, int? StatsRow, int? HealthRow, int? SpellBookRow,
     int? ClassesRow, int? PrimaryInventoryEntityRow, bool IsAmbiguous);
 
-internal sealed record LsmfCreatorBinding(string EntityGuid, string TemplateId);
-
 /// <summary>
 /// Joins the save-local identity namespaces without using row order or proximity.
 /// Party membership comes from MemberComponent, body identity from LSF Creators, and
@@ -37,13 +35,6 @@ internal sealed class LsmfIdentityGraph
 
     internal IReadOnlyList<LsmfPartyJoin> Party { get; }
     internal IReadOnlyList<string> Diagnostics { get; }
-    internal IReadOnlyDictionary<int, IReadOnlySet<string>> Templates => _templates;
-    internal IReadOnlyDictionary<string, string> Creators => _creators;
-
-    internal string EntityLabel(int row) => row >= 0 && row < _entities.Count
-        ? $"Entity {row} {_entities[row].Guid}"
-        : "Unknown entity";
-
     private IReadOnlyList<LsmfPartyJoin> ReadParty()
     {
         var members = _access.Rows("game.party.v0.MemberComponent", PartyMemberBytes);
@@ -188,9 +179,9 @@ internal sealed class LsmfIdentityGraph
         if (resource is null) return new Dictionary<string, string>();
         var pairs = resource.Nodes.Where(node => node.Name == "Creator" && node.Parent >= 0 &&
                 resource.Nodes[node.Parent].Name == "Creators")
-            .Select(node => (Entity: Read(resource, node, "Entity", LarianAttributeType.UUID),
-                Template: Read(resource, node, "TemplateID", LarianAttributeType.UUID) ??
-                    Read(resource, node, "TemplateID", LarianAttributeType.FixedString)))
+            .Select(node => (Entity: ResourceIdentifiers.Read(resource, node, "Entity", LarianAttributeType.UUID),
+                Template: ResourceIdentifiers.Read(resource, node, "TemplateID", LarianAttributeType.UUID) ??
+                    ResourceIdentifiers.Read(resource, node, "TemplateID", LarianAttributeType.FixedString)))
             .Where(pair => pair.Entity is not null && pair.Template is not null)
             .GroupBy(pair => pair.Entity!, StringComparer.Ordinal)
             .Where(group => group.Select(pair => pair.Template).Distinct(StringComparer.Ordinal).Count() == 1)
@@ -205,12 +196,5 @@ internal sealed class LsmfIdentityGraph
         if (Party.Any(member => member.StateEntityRow is null)) diagnostics.Add("At least one party body has no unique TemplateComponent state entity; dependent rows remain unjoined.");
         if (Party.Any(member => member.PrimaryInventoryEntityRow is null)) diagnostics.Add("At least one party body has no resolvable primary inventory pointer.");
         return diagnostics;
-    }
-
-    private static string? Read(LarianResource resource, ResourceNode node, string name, LarianAttributeType type)
-    {
-        var values = node.Attributes.Select(index => resource.Attributes[index]).Where(attribute => attribute.Name == name).Take(2).ToArray();
-        return values is [var attribute] && attribute.Type == type && attribute.Data.Length <= 512
-            ? AttributeDecoder.Read(attribute).AsString() : null;
     }
 }

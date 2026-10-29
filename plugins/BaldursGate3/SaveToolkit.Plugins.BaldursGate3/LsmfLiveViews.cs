@@ -5,7 +5,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.BaldursGate3;
 
-/// <summary>Queryable live storage with explicit row provenance, never an invented party join.</summary>
+/// <summary>Queryable live storage with explicit row provenance and save-local identity joins.</summary>
 internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, LsmfNumber, FieldNode> bind,
     Func<string, string, FieldValue, FieldNode> inspect, Func<LsmfLiveSource, LsmfSlot, FieldNode> bindSlot,
     Bg3References references)
@@ -67,22 +67,7 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
         var columns = collection.Columns.Select(c => c.Key).ToHashSet(StringComparer.Ordinal);
         if (query.Filters.Keys.Any(key => !columns.Contains(key)) || query.SortColumn is { } sort && !columns.Contains(sort))
             throw new ArgumentException("Unknown NewAge filter or sort column.");
-        IEnumerable<QueryRow> items = id == NumbersId
-            ? source.Numbers.Select(n => new QueryRow(source.Prefix + "/" + n.Key, () => $"{n.Family} {n.Row} {n.Label} {source.Provenance(n)}",
-                column => column switch { "family" => n.Family, "row" => Number(n.Row), "value" => Number(source.Get(n)), _ => "" }, () => NumberRow(n)))
-            : id == SlotsId
-                ? source.Slots.Select(s => new QueryRow(source.Prefix + "/" + s.Key, () => $"{s.ContainerRow} {source.EntityLabel(s.EntityRow)}",
-                    column => column switch { "container" => Number(s.ContainerRow), "entity" => Number(s.EntityRow), "slot" => Number(source.Slot(s)), _ => "" }, () => SlotRow(s)))
-                : id == BooksId ? source.Books.Select(b => new QueryRow(source.Prefix + $"/book/{b.Row}", () => $"{b.Row} {string.Join(' ', b.Spells)}",
-                    column => column switch { "row" => Number(b.Row), "count" => Number(b.Spells.Count), _ => "" }, () => BookRow(b)))
-                : id == ClassesId ? source.Classes.Select(c => new QueryRow(source.Prefix + $"/class/{c.Row}/{c.Index}", () => $"{c.Row} {c.Class} {c.Subclass} {references.Catalog(Bg3References.Classes)?.Find(c.Class)?.Name}",
-                    column => column switch { "icon" => references.Catalog(Bg3References.Classes)?.Find(c.Class)?.Name ?? c.Class,
-                        "row" => Number(c.Row), "class" => c.Class, "subclass" => c.Subclass,
-                        "level" => c.Level.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => "" }, () => ClassRow(c)))
-                : id == PartyId && source.Identity is { } identity ? identity.Party.Select(PartyRow)
-                : id == InventoryId && source.Inventory is { } inventory ? inventory.Entries.Select(InventoryRow)
-                : id == GoldId && source.Inventory is { } gold ? gold.Gold.Select(GoldRow)
-                : throw new ArgumentException("Unknown NewAge collection.");
+        var items = Rows(id);
         var text = query.Text?.Trim();
         // Preserve native collection order while only constructing the requested rows.
         // Filtering/sorting still operates over the complete current model below.
@@ -104,6 +89,24 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
         return new QueryableCollectionPage(id, collection.Columns, ordered.Skip(query.Offset).Take(query.Limit).Select(item => item.Build()).ToArray(),
             collection.TotalCount, filtered.Length, query.Offset, query.Limit);
     }
+
+    private IEnumerable<QueryRow> Rows(string id) =>
+         id == NumbersId
+            ? source.Numbers.Select(n => new QueryRow(source.Prefix + "/" + n.Key, () => $"{n.Family} {n.Row} {n.Label} {source.Provenance(n)}",
+                column => column switch { "family" => n.Family, "row" => Number(n.Row), "value" => Number(source.Get(n)), _ => "" }, () => NumberRow(n)))
+            : id == SlotsId
+                ? source.Slots.Select(s => new QueryRow(source.Prefix + "/" + s.Key, () => $"{s.ContainerRow} {source.EntityLabel(s.EntityRow)}",
+                    column => column switch { "container" => Number(s.ContainerRow), "entity" => Number(s.EntityRow), "slot" => Number(source.Slot(s)), _ => "" }, () => SlotRow(s)))
+                : id == BooksId ? source.Books.Select(b => new QueryRow(source.Prefix + $"/book/{b.Row}", () => $"{b.Row} {string.Join(' ', b.Spells)}",
+                    column => column switch { "row" => Number(b.Row), "count" => Number(b.Spells.Count), _ => "" }, () => BookRow(b)))
+                : id == ClassesId ? source.Classes.Select(c => new QueryRow(source.Prefix + $"/class/{c.Row}/{c.Index}", () => $"{c.Row} {c.Class} {c.Subclass} {references.Catalog(Bg3References.Classes)?.Find(c.Class)?.Name}",
+                    column => column switch { "icon" => references.Catalog(Bg3References.Classes)?.Find(c.Class)?.Name ?? c.Class,
+                        "row" => Number(c.Row), "class" => c.Class, "subclass" => c.Subclass,
+                        "level" => c.Level.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => "" }, () => ClassRow(c)))
+                : id == PartyId && source.Identity is { } identity ? identity.Party.Select(PartyRow)
+                : id == InventoryId && source.Inventory is { } inventory ? inventory.Entries.Select(InventoryRow)
+                : id == GoldId && source.Inventory is { } gold ? gold.Gold.Select(GoldRow)
+                : throw new ArgumentException("Unknown NewAge collection.");
 
     private static string Number(long value) => value.ToString(System.Globalization.CultureInfo.InvariantCulture);
     private sealed record QueryRow(string Key, Func<string> Text, Func<string, string> Value, Func<TableRow> Build);

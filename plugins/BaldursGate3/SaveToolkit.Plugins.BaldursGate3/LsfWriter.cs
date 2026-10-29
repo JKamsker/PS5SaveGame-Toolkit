@@ -8,12 +8,7 @@ internal static class LsfWriter
     internal static byte[] Write(byte[] original, IReadOnlyDictionary<int, byte[]> replacements)
     {
         var resource = LsfReader.Read(original);
-        foreach (var (index, data) in replacements)
-        {
-            BinaryData.Require(index >= 0 && index < resource.Attributes.Count, "Unknown LSOF attribute edit.");
-            BinaryData.Require(data.Length <= LsfLayout.MaxAttributeLength, "LSOF attribute exceeds its length field.");
-            AttributeDecoder.Validate(resource.Attributes[index] with { Data = data });
-        }
+        ValidateEdits(resource, replacements);
 
         if (replacements.All(pair => pair.Value.AsSpan().SequenceEqual(resource.Attributes[pair.Key].Data.Span)))
         {
@@ -25,24 +20,11 @@ internal static class LsfWriter
         var oldValues = binary.Data(LsfLayout.ValuesPair);
         var extended = binary.Metadata == 1;
         var recordSize = extended ? LsfLayout.AdjacencyRecordSize : LsfLayout.CompactRecordSize;
-        var ranges = new List<ValueRange>(resource.Attributes.Count);
-        var position = 0;
-        for (var i = 0; i < resource.Attributes.Count; i++)
-        {
-            var row = attributes.AsSpan(i * recordSize, recordSize);
-            if (extended)
-            {
-                position = BinaryData.Size(BinaryData.U32(row, LsfLayout.ExtendedValueOffset));
-            }
-
-            ranges.Add(new ValueRange(i, position, resource.Attributes[i].Data.Length));
-            position += resource.Attributes[i].Data.Length;
-        }
-
+        var ranges = ReadValueRanges(resource, attributes, extended, recordSize);
         var newLength = (long)oldValues.Length + replacements.Sum(pair => (long)pair.Value.Length - resource.Attributes[pair.Key].Data.Length);
         BinaryData.Require(newLength is >= 0 and <= BinaryData.MaxBufferSize, "Edited LSOF value section exceeds 256 MiB.");
         using var values = new MemoryStream((int)newLength);
-        position = 0;
+        var position = 0;
         foreach (var range in ranges.OrderBy(r => r.Offset).ThenBy(r => r.Index))
         {
             BinaryData.Require(range.Offset >= position, "Overlapping LSOF values cannot be edited safely.");
@@ -66,6 +48,41 @@ internal static class LsfWriter
             [binary.Pair(LsfLayout.AttributesPair)] = attributes,
             [binary.Pair(LsfLayout.ValuesPair)] = values.ToArray(),
         });
+        ValidateOutput(result, resource, replacements);
+        return result;
+    }
+
+    private static void ValidateEdits(LarianResource resource, IReadOnlyDictionary<int, byte[]> replacements)
+    {
+        foreach (var (index, data) in replacements)
+        {
+            BinaryData.Require(index >= 0 && index < resource.Attributes.Count, "Unknown LSOF attribute edit.");
+            BinaryData.Require(data.Length <= LsfLayout.MaxAttributeLength, "LSOF attribute exceeds its length field.");
+            AttributeDecoder.Validate(resource.Attributes[index] with { Data = data });
+        }
+    }
+
+    private static List<ValueRange> ReadValueRanges(LarianResource resource, byte[] attributes, bool extended, int recordSize)
+    {
+        var ranges = new List<ValueRange>(resource.Attributes.Count);
+        var position = 0;
+        for (var i = 0; i < resource.Attributes.Count; i++)
+        {
+            var row = attributes.AsSpan(i * recordSize, recordSize);
+            if (extended)
+            {
+                position = BinaryData.Size(BinaryData.U32(row, LsfLayout.ExtendedValueOffset));
+            }
+
+            ranges.Add(new ValueRange(i, position, resource.Attributes[i].Data.Length));
+            position += resource.Attributes[i].Data.Length;
+        }
+
+        return ranges;
+    }
+
+    private static void ValidateOutput(byte[] result, LarianResource resource, IReadOnlyDictionary<int, byte[]> replacements)
+    {
         var reopened = LsfReader.Read(result);
         BinaryData.Require(reopened.Attributes.Count == resource.Attributes.Count, "LSOF writer changed the attribute count.");
         for (var i = 0; i < resource.Attributes.Count; i++)
@@ -73,8 +90,6 @@ internal static class LsfWriter
             var expected = replacements.TryGetValue(i, out var data) ? data.AsSpan() : resource.Attributes[i].Data.Span;
             BinaryData.Require(reopened.Attributes[i].Data.Span.SequenceEqual(expected), "LSOF edit did not survive writer validation.");
         }
-
-        return result;
     }
 
     private sealed record ValueRange(int Index, int Offset, int Length);

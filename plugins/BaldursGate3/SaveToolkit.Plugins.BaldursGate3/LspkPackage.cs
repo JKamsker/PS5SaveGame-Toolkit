@@ -55,6 +55,20 @@ internal sealed class LspkPackage
         var entrySize = version == 18 ? LspkLayout.Entry18Size : LspkLayout.Entry15Size;
         var table = LarianCompression.Decode(list[LspkLayout.FileListPreambleSize..],
             BinaryData.Size((ulong)count * (ulong)entrySize), (byte)LarianCompressionMethod.Lz4);
+        var entries = ReadEntries(table, count, entrySize, version, headerSize, listOffset);
+        var package = new LspkPackage(bytes, version, bytes[LspkLayout.Flags], entries);
+        if (version == 18)
+        {
+            LspkIntegrity.Validate(package, payloads);
+        }
+        else if (payloads is not null)
+            foreach (var entry in entries) payloads.Add(entry.Name, package.Extract(entry));
+
+        return package;
+    }
+
+    private static List<PackageEntry> ReadEntries(byte[] table, int count, int entrySize, uint version, int headerSize, int listOffset)
+    {
         var entries = new List<PackageEntry>(count);
         var names = new HashSet<string>(StringComparer.Ordinal);
         long totalSize = 0;
@@ -80,15 +94,7 @@ internal sealed class LspkPackage
             previousEnd = entry.Offset + entry.StoredSize;
         }
 
-        var package = new LspkPackage(bytes, version, bytes[LspkLayout.Flags], entries);
-        if (version == 18)
-        {
-            LspkIntegrity.Validate(package, payloads);
-        }
-        else if (payloads is not null)
-            foreach (var entry in entries) payloads.Add(entry.Name, package.Extract(entry));
-
-        return package;
+        return entries;
     }
 
     internal byte[] Extract(PackageEntry entry) =>

@@ -2,7 +2,6 @@ using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
@@ -92,8 +91,7 @@ public sealed class LiveNewAgeBoundaryTests
     [Fact]
     public void StandaloneNewAgeWarningDoesNotClaimAnOuterPackageDigest()
     {
-        using var document = Assert.IsType<BaldursGate3Document>(new BaldursGate3Plugin().Open(
-            MemorySaveSet.SingleFile("Globals.lsf", LsmfFixture.Resource(LiveNewAgeFixture.Create()), "PPSA18463")));
+        using var document = LiveNewAgeFixture.Open(titleId: "PPSA18463");
         _ = document.BuildView();
 
         var row = Assert.Single(document.Query("live/0/0/values", new QueryableCollectionQuery { Limit = 1 }).Rows);
@@ -105,7 +103,7 @@ public sealed class LiveNewAgeBoundaryTests
     [Fact]
     public void QuerySortAndExactFiltersUseCurrentValuesAndRemainBounded()
     {
-        using var document = Open();
+        using var document = LiveNewAgeFixture.Open(titleId: "PPSA18463");
         _ = document.BuildView();
         _ = document.ExpandNode("live/0/0");
         var query = new QueryableCollectionQuery { Limit = 2, SortColumn = "value", Descending = true,
@@ -125,7 +123,7 @@ public sealed class LiveNewAgeBoundaryTests
     [Fact]
     public void PlansRejectWrongCollectionsDuplicatesUnknownRowsAndCrossContainerSelectionsAtomically()
     {
-        using var document = Open();
+        using var document = LiveNewAgeFixture.Open(titleId: "PPSA18463");
         _ = document.BuildView();
         var original = Assert.Single(document.Serialize()).Content.ToArray();
         var empty = new Dictionary<string, FieldValue>();
@@ -149,8 +147,8 @@ public sealed class LiveNewAgeBoundaryTests
     [Fact]
     public void ScopedMementosRefreshLiveGettersAndCannotBeAppliedToAnotherDocument()
     {
-        using var document = Open();
-        using var other = Open();
+        using var document = LiveNewAgeFixture.Open(titleId: "PPSA18463");
+        using var other = LiveNewAgeFixture.Open(titleId: "PPSA18463");
         _ = document.BuildView();
         var rows = document.Query("live/0/0/slots", new QueryableCollectionQuery { Limit = 2 }).Rows;
         var key = Assert.IsType<FieldNode>(rows[0].Cells["slot"]);
@@ -202,8 +200,7 @@ public sealed class LiveNewAgeBoundaryTests
         LsmfFixture.U64(bytes, record + 32, ulong.MaxValue);
         var selection = Assert.Single(LsmfClasses.Read(new LsmfAccess(LsmfReader.Read(bytes))));
         Assert.Equal(ulong.MaxValue, selection.Level);
-        using var document = Assert.IsType<BaldursGate3Document>(new BaldursGate3Plugin().Open(
-            MemorySaveSet.SingleFile("Globals.lsf", LsmfFixture.Resource(bytes), "PPSA18463")));
+        using var document = LiveNewAgeFixture.Open(bytes, "PPSA18463");
         var field = Assert.IsType<FieldNode>(Assert.Single(document.Query("live/0/0/classes", new()).Rows).Cells["level"]);
         Assert.Equal((Int128)ulong.MaxValue, field.Value.AsInteger());
         Assert.Equal((Int128)ulong.MaxValue, Assert.IsType<IntegerSpec>(field.Spec).Max);
@@ -215,6 +212,4 @@ public sealed class LiveNewAgeBoundaryTests
         }
     }
 
-    private static BaldursGate3Document Open() => Assert.IsType<BaldursGate3Document>(new BaldursGate3Plugin().Open(
-        MemorySaveSet.SingleFile("Globals.lsf", LsmfFixture.Resource(LiveNewAgeFixture.Create()), "PPSA18463")));
 }
