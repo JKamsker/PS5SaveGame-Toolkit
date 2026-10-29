@@ -13,7 +13,7 @@ $env:SAVETOOLKIT_TEST_TEMP = 'D:/Temp/saveeditor/test-scratch'
 $env:TEMP = 'D:/Temp/saveeditor/test-scratch/review-perf-backend'
 $env:TMP = $env:TEMP
 New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
-dotnet test --project src/SaveToolkit.Api/Performance.Tests -c Release
+dotnet test --project tests/SaveToolkit.Api.Performance.Tests -c Release
 ```
 
 The 17 cases use generated inputs, with no samples or skipped cases. Allocation tests warm the

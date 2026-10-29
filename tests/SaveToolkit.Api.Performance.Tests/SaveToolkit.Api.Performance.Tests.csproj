@@ -6,8 +6,8 @@
   <ItemGroup>
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
-    <ProjectReference Include="../SaveToolkit.Api.csproj" />
+    <ProjectReference Include="../../src/SaveToolkit.Api/SaveToolkit.Api.csproj" />
     <Using Include="Xunit" />
-    <Compile Include="../../../tests/SaveToolkit.Core.Tests/References/PackBuilder.cs" Link="PackBuilder.cs" />
+    <Compile Include="../SaveToolkit.Core.Tests/References/PackBuilder.cs" Link="PackBuilder.cs" />
   </ItemGroup>
 </Project>
