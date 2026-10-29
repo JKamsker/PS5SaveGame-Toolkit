@@ -54,5 +54,3 @@ public sealed class InspectionCompatibilityTests
     private static InspectionRow Row(string key, string name, string value) =>
         new(key, new Dictionary<string, string> { ["name"] = name, ["value"] = value });
 }
-
-

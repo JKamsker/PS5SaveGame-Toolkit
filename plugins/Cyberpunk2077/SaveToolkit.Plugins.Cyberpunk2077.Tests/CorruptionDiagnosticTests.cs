@@ -94,4 +94,3 @@ public sealed class CorruptionDiagnosticTests
         Assert.Empty(BinaryData.Slice(new byte[4], 4, 0).ToArray());
     }
 }
-

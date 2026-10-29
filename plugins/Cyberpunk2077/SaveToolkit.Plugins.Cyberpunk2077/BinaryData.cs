@@ -1,32 +1,37 @@
-using System.Buffers.Binary;
 using System.Text;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Binary;
 
 namespace SaveToolkit.Plugins.Cyberpunk2077;
 
 internal static class BinaryData
 {
+    private const string Context = "CSAV";
     public const int MaxExpandedSize = 64 * 1024 * 1024;
     public const int MaxFileSize = 128 * 1024 * 1024;
 
     public static ReadOnlySpan<byte> Slice(ReadOnlySpan<byte> data, int offset, int count)
     {
-        if (offset < 0 || count < 0 || offset > data.Length - count)
+        try
         {
+            var cursor = new BoundedBinaryCursor(data, Context) { Position = offset };
+            return cursor.Take(count);
+        }
+        catch (SaveFormatException)
+        {
+            // Range policy belongs to the SDK; retain the parser's established corruption diagnostic.
             throw new SaveFormatException($"CSAV range at 0x{offset:X} exceeds its containing data.");
         }
-
-        return data.Slice(offset, count);
     }
 
     public static int Int32(ReadOnlySpan<byte> data, int offset) =>
-        BinaryPrimitives.ReadInt32LittleEndian(Slice(data, offset, sizeof(int)));
+        new BoundedBinaryCursor(Slice(data, offset, sizeof(int)), Context).ReadInt32LE();
 
     public static uint UInt32(ReadOnlySpan<byte> data, int offset) =>
-        BinaryPrimitives.ReadUInt32LittleEndian(Slice(data, offset, sizeof(uint)));
+        new BoundedBinaryCursor(Slice(data, offset, sizeof(uint)), Context).ReadUInt32LE();
 
     public static ulong UInt64(ReadOnlySpan<byte> data, int offset) =>
-        BinaryPrimitives.ReadUInt64LittleEndian(Slice(data, offset, sizeof(ulong)));
+        new BoundedBinaryCursor(Slice(data, offset, sizeof(ulong)), Context).ReadUInt64LE();
 
     public static int PackedInt(ReadOnlySpan<byte> data, ref int position)
     {

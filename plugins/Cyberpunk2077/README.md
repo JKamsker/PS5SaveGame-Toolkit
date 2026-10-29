@@ -87,6 +87,28 @@ TRX/build evidence: `D:/Temp/saveeditor/reviews/review-robust-cyberpunk2077/`.
 Experimental maturity, write warnings, no-op preservation and existing edit/history coverage remain
 unchanged. No confirmed findings deferred; changes stay inside this plugin folder.
 
+## SDK helper migration (#40)
+
+`InspectionCollection` now adapts the shared `InMemoryCollection` engine. Cheap live text
+projections, exact Int128 numeric comparisons with ordinal empty-value fallback, case-insensitive
+text comparisons, cached native row identities and the original query diagnostics remain local.
+The shared engine owns search, filters, stable-key tie breaks, paging and F14 counts. Rows without
+empty-row presentation metadata retain their original visibility and empty markers. The nullable
+sorting fixture now separates its nonempty native keys from empty display values, as real rows do.
+
+`BinaryData` delegates bounds and little-endian primitive reads to `BoundedBinaryCursor`. Its thin
+range adapter preserves the original `SaveFormatException` message and absolute offset instead of
+exposing the SDK's different diagnostic. CSAV packed integers/names, limits, layout, LZ4 chunking
+and writer policy remain local. No format or write-safety policy changed.
+
+Before either migration, the baseline passed **258 tests, zero skipped**. Ten characterization
+cases pin exact exception types/messages over deterministic mutations and truncated ranges,
+plus query validation, numeric/text ties, canonical whitespace and empty projections. Existing
+packed-value and invalid-child-link tests now assert complete diagnostics. After both migrations,
+the plugin suite passes **268 tests, zero skipped**, including all 85 robustness cases and
+byte-identical sample no-op round trips. API build: **zero warnings / zero errors**.
+Production helper code is **38 lines smaller**.
+
 ## Framework feature adoption
 
 Performance review (#40): compact merged fact identities and lazy stable-key paging reduce
