@@ -25,6 +25,14 @@ function Get-ExistingEntry([string]$path) {
     return Get-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue
 }
 
+function Get-GitObjectId([string]$path) {
+    $output = & git -C $script:repoRoot hash-object --no-filters -- $path 2>$null
+    if ($LASTEXITCODE -ne 0 -or !$output) {
+        throw "Git could not hash the hook entry: $path"
+    }
+    return ($output | Out-String).Trim()
+}
+
 $pythonCommand = Get-Command python3 -ErrorAction SilentlyContinue
 if ($null -eq $pythonCommand) { $pythonCommand = Get-Command python -ErrorAction SilentlyContinue }
 if ($null -eq $pythonCommand) { throw 'Python 3 is required to classify repository hook entries.' }
@@ -38,10 +46,11 @@ function Test-RegularFile([object]$entry, [string]$path) {
     return $LASTEXITCODE -eq 0
 }
 
-function Test-ToolkitWrapper([string]$path, [string]$expectedHash) {
+function Test-ToolkitWrapper([string]$path, [string]$expectedHash, [string]$expectedObjectId) {
     $entry = Get-ExistingEntry $path
     if (!(Test-RegularFile $entry $path)) { return $false }
-    return (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ceq $expectedHash
+    if ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -cne $expectedHash) { return $false }
+    return (Get-GitObjectId $path) -ceq $expectedObjectId
 }
 
 function Test-ActivationMode([string]$sourcePath, [string]$targetPath) {
@@ -54,6 +63,14 @@ function Test-ActivationMode([string]$sourcePath, [string]$targetPath) {
 
 $sourceEntry = Get-ExistingEntry $source
 if (!(Test-RegularFile $sourceEntry $source)) { throw "Missing or unsupported checked-in hook: $source" }
+$committedObjectId = (& git -C $repoRoot rev-parse --verify 'HEAD:.githooks/pre-commit' 2>$null | Out-String).Trim()
+if ($LASTEXITCODE -ne 0 -or !$committedObjectId) {
+    throw 'The committed hook blob HEAD:.githooks/pre-commit is unavailable.'
+}
+$workingTreeObjectId = Get-GitObjectId $source
+if ($workingTreeObjectId -cne $committedObjectId) {
+    throw "The working-tree hook differs from the committed wrapper; restore $source before installing."
+}
 
 $targetEntry = Get-ExistingEntry $target
 $backupEntry = Get-ExistingEntry $original
@@ -65,7 +82,10 @@ if (($targetExists -and !$targetRegular) -or ($backupExists -and !$backupRegular
     throw "Unsupported filesystem entry at '$target' or '$original'; inspect it before installing."
 }
 $sourceHash = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash
-$targetIsWrapper = Test-ToolkitWrapper $target $sourceHash
+if (!$targetExists -and $backupExists) {
+    throw "An existing hook backup at '$original' cannot be tied to a verified installation; inspect it before installing."
+}
+$targetIsWrapper = Test-ToolkitWrapper $target $sourceHash $committedObjectId
 if ($targetExists -and !$targetIsWrapper) {
     if ($backupExists) {
         throw "An existing chained hook is already present at '$original'; remove it only after reviewing it."
@@ -100,7 +120,7 @@ try {
         $mode = [IO.File]::GetUnixFileMode($source)
         [IO.File]::SetUnixFileMode($temporary, $mode)
     }
-    if (!(Test-ToolkitWrapper $temporary $sourceHash)) { throw 'The prepared hook does not match the checked-in wrapper.' }
+    if (!(Test-ToolkitWrapper $temporary $sourceHash $committedObjectId)) { throw 'The prepared hook does not match the checked-in wrapper.' }
 
     if ($targetExists -and !$targetIsWrapper) {
         Move-Item -LiteralPath $target -Destination $original

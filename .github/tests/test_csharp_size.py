@@ -367,9 +367,11 @@ class SizeGuardTests(unittest.TestCase):
             (root / ".githooks").mkdir()
             (root / "scripts").mkdir()
             source = root / ".githooks/pre-commit"
-            shutil.copy(ROOT / ".githooks/pre-commit", source)
+            self._copy_committed_hook(source)
             shutil.copy(ROOT / "scripts/install-hooks.ps1", root / "scripts/install-hooks.ps1")
             self._git(root, "init")
+            self._git(root, "add", ".")
+            self._git(root, "commit", "-m", "committed hook")
             hooks = root / ".git/hooks"
             target = hooks / "pre-commit"
             target.write_text("#!/bin/sh\nexit 9\n", encoding="utf-8")
@@ -397,6 +399,69 @@ class SizeGuardTests(unittest.TestCase):
             self.assertNotEqual(0, refused.returncode)
             self.assertIn("existing chained hook", refused.stderr + refused.stdout)
 
+    def test_installer_rejects_dirty_source_even_when_target_matches_dirty_bytes(self):
+        pwsh = shutil.which("pwsh")
+        if not pwsh:
+            self.skipTest("PowerShell 7 is required to exercise the installer")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".githooks").mkdir()
+            (root / "scripts").mkdir()
+            source = root / ".githooks/pre-commit"
+            self._copy_committed_hook(source)
+            shutil.copy(ROOT / "scripts/install-hooks.ps1", root / "scripts/install-hooks.ps1")
+            self._git(root, "init")
+            self._git(root, "add", ".")
+            self._git(root, "commit", "-m", "committed hook")
+            hooks = root / ".git/hooks"
+            target = hooks / "pre-commit"
+            dirty = source.read_bytes() + b"# local uncommitted change\n"
+            source.write_bytes(dirty)
+            target.write_bytes(dirty)
+            target.chmod(0o644)
+            before_mode = stat.S_IMODE(target.stat().st_mode)
+            for arguments in ((), ("-WhatIf",)):
+                with self.subTest(arguments=arguments):
+                    result = self._run_installer_bounded(pwsh, root, *arguments)
+                    self.assertNotEqual(0, result.returncode)
+                    self.assertIn("differs from the committed wrapper", result.stderr + result.stdout)
+                    self.assertEqual(dirty, target.read_bytes())
+                    self.assertEqual(before_mode, stat.S_IMODE(target.stat().st_mode))
+                    self.assertFalse((hooks / "pre-commit.savetoolkit-original").exists())
+                    self.assertEqual([], list(hooks.glob(".pre-commit.savetoolkit-*.tmp")))
+
+    def test_installer_rejects_backup_only_collisions_before_preparation(self):
+        pwsh = shutil.which("pwsh")
+        if not pwsh:
+            self.skipTest("PowerShell 7 is required to exercise the installer")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".githooks").mkdir()
+            (root / "scripts").mkdir()
+            self._copy_committed_hook(root / ".githooks/pre-commit")
+            shutil.copy(ROOT / "scripts/install-hooks.ps1", root / "scripts/install-hooks.ps1")
+            self._git(root, "init")
+            self._git(root, "add", ".")
+            self._git(root, "commit", "-m", "committed hook")
+            hooks = root / ".git/hooks"
+            target = hooks / "pre-commit"
+            backup = hooks / "pre-commit.savetoolkit-original"
+            for mode in (0o755, 0o644):
+                backup_bytes = f"#!/bin/sh\nexit {mode}\n".encode()
+                backup.write_bytes(backup_bytes)
+                backup.chmod(mode)
+                before_mode = stat.S_IMODE(backup.stat().st_mode)
+                for arguments in ((), ("-WhatIf",)):
+                    with self.subTest(mode=oct(mode), arguments=arguments):
+                        result = self._run_installer_bounded(pwsh, root, *arguments)
+                        self.assertNotEqual(0, result.returncode)
+                        self.assertIn("cannot be tied", result.stderr + result.stdout)
+                        self.assertFalse(target.exists())
+                        self.assertEqual(backup_bytes, backup.read_bytes())
+                        self.assertEqual(before_mode, stat.S_IMODE(backup.stat().st_mode))
+                        self.assertEqual([], list(hooks.glob(".pre-commit.savetoolkit-*.tmp")))
+                backup.unlink()
+
     def test_installer_copy_failure_keeps_active_hook_and_does_not_create_backup(self):
         pwsh = shutil.which("pwsh")
         if not pwsh:
@@ -405,9 +470,11 @@ class SizeGuardTests(unittest.TestCase):
             root = Path(directory)
             (root / ".githooks").mkdir()
             (root / "scripts").mkdir()
-            shutil.copy(ROOT / ".githooks/pre-commit", root / ".githooks/pre-commit")
+            self._copy_committed_hook(root / ".githooks/pre-commit")
             shutil.copy(ROOT / "scripts/install-hooks.ps1", root / "scripts/install-hooks.ps1")
             self._git(root, "init")
+            self._git(root, "add", ".")
+            self._git(root, "commit", "-m", "committed hook")
             hooks = root / ".git/hooks"
             target = hooks / "pre-commit"
             original_bytes = b"#!/bin/sh\nexit 23\n"
@@ -427,9 +494,11 @@ class SizeGuardTests(unittest.TestCase):
             (root / ".githooks").mkdir()
             (root / "scripts").mkdir()
             source = root / ".githooks/pre-commit"
-            shutil.copy(ROOT / ".githooks/pre-commit", source)
+            self._copy_committed_hook(source)
             shutil.copy(ROOT / "scripts/install-hooks.ps1", root / "scripts/install-hooks.ps1")
             self._git(root, "init")
+            self._git(root, "add", ".")
+            self._git(root, "commit", "-m", "committed hook")
             hooks = root / ".git/hooks"
             target = hooks / "pre-commit"
             unrelated = (b"#!/bin/sh\n# Optional repository hook installed by scripts/install-hooks.ps1.\n"
@@ -471,9 +540,11 @@ class SizeGuardTests(unittest.TestCase):
             root = Path(directory)
             (root / ".githooks").mkdir()
             (root / "scripts").mkdir()
-            shutil.copy(ROOT / ".githooks/pre-commit", root / ".githooks/pre-commit")
+            self._copy_committed_hook(root / ".githooks/pre-commit")
             shutil.copy(ROOT / "scripts/install-hooks.ps1", root / "scripts/install-hooks.ps1")
             self._git(root, "init")
+            self._git(root, "add", ".")
+            self._git(root, "commit", "-m", "committed hook")
             hooks = root / ".git/hooks"
             target = hooks / "pre-commit"
             backup = hooks / "pre-commit.savetoolkit-original"
@@ -544,9 +615,43 @@ class SizeGuardTests(unittest.TestCase):
             self.assertFalse(arguments_path.exists())
 
     @staticmethod
+    def _copy_committed_hook(destination: Path) -> None:
+        command = ["git", "-C", str(ROOT), "cat-file", "blob", "HEAD:.githooks/pre-commit"]
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if result.returncode != 0 and os.name != "nt":
+            git_file = ROOT / ".git"
+            if git_file.is_file():
+                marker = git_file.read_text(encoding="utf-8").strip()
+                if marker.startswith("gitdir: "):
+                    raw_git_dir = marker.removeprefix("gitdir: ").strip()
+                    if len(raw_git_dir) >= 3 and raw_git_dir[1] == ":":
+                        git_dir = Path("/mnt") / raw_git_dir[0].lower() / raw_git_dir[3:]
+                        result = subprocess.run(
+                            ["git", "cat-file", "blob", "HEAD:.githooks/pre-commit"],
+                            cwd=ROOT,
+                            env={**os.environ, "GIT_DIR": str(git_dir), "GIT_WORK_TREE": str(ROOT)},
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                        )
+        if result.returncode != 0:
+            raise subprocess.CalledProcessError(result.returncode, command,
+                                                output=result.stdout, stderr=result.stderr)
+        destination.write_bytes(result.stdout)
+
+    @staticmethod
     def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
+        environment = None
+        if args and args[0] == "commit":
+            environment = {
+                **os.environ,
+                "GIT_AUTHOR_NAME": "C# size guard tests",
+                "GIT_AUTHOR_EMAIL": "csharp-size-guard-tests@example.invalid",
+                "GIT_COMMITTER_NAME": "C# size guard tests",
+                "GIT_COMMITTER_EMAIL": "csharp-size-guard-tests@example.invalid",
+            }
         return subprocess.run(["git", "-C", str(root), *args], check=True,
-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                              env=environment)
 
     def _run(self, root: Path, *args: str) -> subprocess.CompletedProcess:
         return subprocess.run([sys.executable, str(SCRIPT), "--root", str(root), *args],
