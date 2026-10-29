@@ -234,6 +234,8 @@ by default; there is no item
 insertion, flag editing, accessory editing or bulk grant action. Existing values
 outside the supported editing guardrails remain visible but read-only. IDs 6/7 of the
 character sections are unmapped and read-only, not assumed to be active party members.
+Their scalar meanings, and quantities attached to empty or unrecognised item IDs,
+are labelled **Unknown**. Recognised consumable quantities retain **Inferred** confidence.
 
 **Verified** means the byte-level observations, cipher, integrity coverage and
 round-trip preservation described above. Curated PS5 **meanings remain Inferred**:

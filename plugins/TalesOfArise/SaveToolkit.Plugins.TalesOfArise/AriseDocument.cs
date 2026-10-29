@@ -200,16 +200,19 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             var active = i < MainCharacterCount && Read(offset + LevelOffset) != 0;
             var prefix = $"character/{i}";
             var name = names[i];
+            FieldNode Scalar(string suffix, string label, int relative, uint maximum, bool writable = false, uint minimum = 0) =>
+                Number($"{prefix}/{suffix}", label, offset + relative, maximum, writable, minimum) with
+                { Confidence = i < MainCharacterCount ? Confidence.Inferred : Confidence.Unknown };
             rows.Add(new TableRow(prefix, new Dictionary<string, ViewNode>
             {
                 ["name"] = Field($"{prefix}/name", "Character", new TextSpec(), () => FieldValue.Of(name))
                     with { Description = _references.Character(i)?.AttributionText ?? CharacterAttribution, Confidence = i < MainCharacterCount ? Confidence.Inferred : Confidence.Unknown },
-                ["level"] = Number($"{prefix}/level", "Level", offset + LevelOffset, MaximumLevel, active, active ? 1u : 0u)
+                ["level"] = Scalar("level", "Level", LevelOffset, MaximumLevel, active, active ? 1u : 0u)
                     with { Warning = "Level alone does not recalculate experience or stats. The preserved load-screen preview can show the old level." },
-                ["hp"] = Number($"{prefix}/hp", "Current HP", offset + CurrentHpOffset, MaximumHp, active),
-                ["baseHp"] = Number($"{prefix}/base-hp", "Base HP", offset + BaseHpOffset, uint.MaxValue, false),
-                ["experience"] = Number($"{prefix}/experience", "Experience", offset + ExperienceOffset, uint.MaxValue, false),
-                ["sp"] = Number($"{prefix}/sp", "SP", offset + SkillPointsOffset, MaximumSkillPoints, active),
+                ["hp"] = Scalar("hp", "Current HP", CurrentHpOffset, MaximumHp, active),
+                ["baseHp"] = Scalar("base-hp", "Base HP", BaseHpOffset, uint.MaxValue),
+                ["experience"] = Scalar("experience", "Experience", ExperienceOffset, uint.MaxValue),
+                ["sp"] = Scalar("sp", "SP", SkillPointsOffset, MaximumSkillPoints, active),
             }));
         }
 
@@ -244,7 +247,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             () => FieldValue.Of((long)save.Payload[offset]),
             canWrite ? v => save.Payload[offset] = checked((byte)v.AsUInt32()) : null,
             v => v.AsInteger() < 0 || v.AsInteger() > ConsumableStackLimit ? $"Consumable quantities must be between 0 and {ConsumableStackLimit}." : null)
-            with { Confidence = Confidence.Inferred, Warning = canWrite ? ExperimentalWarning : null };
+            with { Confidence = row.Name is null ? Confidence.Unknown : Confidence.Inferred, Warning = canWrite ? ExperimentalWarning : null };
         var cells = new Dictionary<string, ViewNode>
         {
             ["icon"] = AriseAssets.Icon(reference),
