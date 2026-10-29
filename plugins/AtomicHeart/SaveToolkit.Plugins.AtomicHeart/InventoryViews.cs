@@ -1,3 +1,4 @@
+using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
@@ -37,6 +38,7 @@ internal sealed class InventoryViews(InventoryState state, InventoryBinding bind
             ["container"] = new TextNode(item.Container), ["asset"] = referenceField, ["raw"] = new TextNode(state.Asset(item)),
             ["category"] = new TextNode(InventoryLabels.Category(item, state)),
             ["instance"] = new TextNode(item.InstanceId.ToString()), ["amount"] = amount,
+            [InventoryCollection.QuantityStateColumn] = new TextNode(state.QuantityState(item)),
             ["action"] = InventoryPlanning.Action(), ["restore"] = InventoryPlanning.RestoreAction(),
             ["span"] = new TextNode(RecordViews.Span(item.Element.Tag)),
             ["details"] = new SectionNode("Item details", [
@@ -45,6 +47,7 @@ internal sealed class InventoryViews(InventoryState state, InventoryBinding bind
                 new TextNode(ReferencePresentation.Attributes(reference)),
                 new TextNode(reference?.AttributionText ?? "Original toolkit identifier formatting; source is this save's explicit ItemDataAsset and container tags."),
                 new TextNode($"Raw ID: {rawId}; instance: {item.InstanceId}. {InventoryState.WriteWarning}"),
+                new TextNode($"Opening Amount (this import): {item.Amount.ToString(CultureInfo.InvariantCulture)}. Re-import establishes a new baseline; this comparison does not identify gameplay consumption or editing."),
                 RecordViews.Hex(item.Element.Tag, "Original slot bytes"),
             ]) { Collapsed = true },
         }) { IsEmpty = state.IsEmpty(item) };

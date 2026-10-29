@@ -9,6 +9,7 @@ namespace SaveToolkit.Plugins.AtomicHeart;
 internal sealed class InventoryCollection(InventoryState state, InventoryViews views)
 {
     internal const string Id = "atomic-heart.inventory";
+    internal const string QuantityStateColumn = "quantityState";
     private sealed record Description(string Asset, string Name, string Category);
     private readonly Dictionary<int, Description> descriptions = [];
     private static readonly EmptyRowPresentation EmptyRows = new("asset");
@@ -16,13 +17,17 @@ internal sealed class InventoryCollection(InventoryState state, InventoryViews v
         new("container", "Container", new TextSpec()), new("icon", "Icon"), new("asset", "Item reference", new TextSpec()),
         new("category", "Category", new TextSpec()), new("raw", "Saved object path", new TextSpec()),
         new("instance", "ItemId", IntegerSpec.Int64), new("amount", "Amount", IntegerSpec.Int64),
+        new(QuantityStateColumn, "Quantity state", new TextSpec { ReadOnly = true }),
         new("action", "Bulk edit"), new("restore", "Restore imported"), new("details", "Details"), new("span", "Original decoded span"),
     ];
 
     internal QueryableCollection Info => new(Id, "Inventory slots", Columns, state.Items.Count) { EmptyRows = EmptyRows };
     internal QueryableTableNode View => new(Id, Info.Title, Columns, state.Items.Count) {
         EmptyRows = EmptyRows,
-        Description = "Search all slots by current name, category, raw ID, container, ItemId or Amount. Empty slots are hidden by default; show them to inspect their original values and bytes. Select all matching for an Amount preview.",
+        Description = "Search all slots by current name, category, raw ID, container, ItemId, Amount or quantity state. " +
+            $"Filter Quantity state by {InventoryState.ReducedQuantity} to preview restoring matching quantities. " +
+            "Opening Amounts are in row details; re-import establishes a new baseline. This comparison does not identify gameplay consumption or editing. " +
+            "Empty slots are hidden by default; show them to inspect their original values and bytes.",
     };
 
     internal QueryableCollectionPage Query(QueryableCollectionQuery query)
@@ -58,6 +63,7 @@ internal sealed class InventoryCollection(InventoryState state, InventoryViews v
     private string Text(InventoryItem item, string column) => column switch {
         "asset" => Describe(item).Name,
         "raw" => state.Asset(item), "container" => item.Container, "category" => Describe(item).Category,
+        QuantityStateColumn => state.QuantityState(item),
         _ => throw new ArgumentException($"Unknown inventory column '{column}'.", nameof(column)),
     };
 
@@ -82,6 +88,7 @@ internal sealed class InventoryCollection(InventoryState state, InventoryViews v
             description.Asset.Contains(text, StringComparison.OrdinalIgnoreCase) ||
             item.Container.Contains(text, StringComparison.OrdinalIgnoreCase) ||
             description.Category.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+            state.QuantityState(item).Contains(text, StringComparison.OrdinalIgnoreCase) ||
             MatchesNumber(item, "instance", text, exact: false) || MatchesNumber(item, "amount", text, exact: false);
     }
 
@@ -94,7 +101,7 @@ internal sealed class InventoryCollection(InventoryState state, InventoryViews v
     }
     private static void ValidateColumn(string column)
     {
-        if (column is not ("asset" or "raw" or "container" or "category" or "amount" or "instance"))
+        if (column is not ("asset" or "raw" or "container" or "category" or "amount" or "instance" or QuantityStateColumn))
             throw new ArgumentException($"Unknown inventory column '{column}'.", nameof(column));
     }
 }
