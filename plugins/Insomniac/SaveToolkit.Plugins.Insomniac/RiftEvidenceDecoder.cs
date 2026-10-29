@@ -18,15 +18,15 @@ internal sealed class RiftEvidenceDecoder : ISaveDecoderHook
     public void Decode(ISaveFile file, ISaveDecodeSink sink)
     {
         if (file.Length > sink.MaxFileBytes) throw new InvalidDataException("File exceeds decoder limit.");
+        Dat1Container.ValidateFileLength(file.Length);
         var container = Dat1Container.Parse(file.ReadAllBytes());
-        DdlSections sections;
-        try
+        // Host output limits must not hide corruption in later fields or sections.
+        // Parsing remains bounded by the independent DAT1/DDL/inventory budgets.
+        var sections = new DdlSections(container, sink.MaxDepth);
+        var blocks = InventoryReader.Read(container);
+        if (sections.DepthLimitExceeded)
         {
-            sections = new DdlSections(container, sink.MaxDepth);
-        }
-        catch (DdlDepthLimitException)
-        {
-            sink.MarkTruncated("DDL parsing stopped at the host's depth limit.");
+            sink.MarkTruncated("DDL evidence exceeds the host's depth limit.");
             return;
         }
         if (sections.Roots.TryGetValue(DdlSections.PreferencesTag, out var preferences))
@@ -46,9 +46,9 @@ internal sealed class RiftEvidenceDecoder : ISaveDecoderHook
                 if (!Add(sink, $"campaign/{field.Name}/{index}", field.Kind.ToString(), field.Values[index].ToString()))
                     return;
         }
-        foreach (var field in sections.Roots[RiftPlayerView.GoldBoltTag].Values.Where(f => f.Values.Count == 1))
-            if (!Add(sink, $"gold-options/{field.Name}", field.Kind.ToString(), field.Values[0].ToString())) return;
-        var blocks = InventoryReader.Read(container);
+        if (sections.Roots.TryGetValue(RiftPlayerView.GoldBoltTag, out var gold))
+            foreach (var field in gold.Values.Where(f => f.Values.Count == 1))
+                if (!Add(sink, $"gold-options/{field.Name}", field.Kind.ToString(), field.Values[0].ToString())) return;
         if (blocks.Any(block => block.Occurrence > 0))
             sink.Warn("Repeated inventory tags are aligned by stored occurrence; container reorder is not proven identity.");
         foreach (var block in blocks)

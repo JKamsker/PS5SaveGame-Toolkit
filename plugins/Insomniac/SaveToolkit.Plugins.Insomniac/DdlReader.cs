@@ -29,6 +29,8 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section, in
     private int _textBytes;
     private readonly Dictionary<uint, string> _names = [];
 
+    internal bool DepthLimitExceeded { get; private set; }
+
     internal IReadOnlyDictionary<string, DdlField> Read()
     {
         var root = ReadObject(0);
@@ -39,7 +41,8 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section, in
     private DdlObject ReadObject(int depth)
     {
         if (maxDepth is { } budget && depth > budget && budget < MaxDepth)
-            throw new DdlDepthLimitException();
+            // Continue format validation: a host evidence cap cannot make malformed bytes valid.
+            DepthLimitExceeded = true;
         if (depth > MaxDepth || ++_totalObjects > MaxObjects)
             throw Invalid("Object depth or node budget exceeded.");
         var start = _position;
