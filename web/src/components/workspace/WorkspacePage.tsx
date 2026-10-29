@@ -7,6 +7,7 @@ import { DocumentEditor } from "../document/DocumentEditor";
 import { Toast, type ToastMessage } from "../ui/Toast";
 import { ExportDialog } from "./ExportDialog";
 import { SlotRail } from "./SlotRail";
+import { useEntryFocus } from "../ui/useEntryFocus";
 
 export function WorkspacePage() {
   const { workspaceId = "" } = useParams();
@@ -19,6 +20,7 @@ export function WorkspacePage() {
   const [closing, setClosing] = useState(false);
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const workspace = useQuery({ queryKey: ["workspace", workspaceId], queryFn: () => api.workspace(workspaceId), retry: false });
+  const focusHeading = useEntryFocus(`${workspaceId}:${documentId ?? "picker"}:${workspace.isError}`);
 
   const notify = useCallback((text: string, isError = false) => setToast({ text, isError, at: Date.now() }), []);
 
@@ -62,7 +64,7 @@ export function WorkspacePage() {
   if (workspace.isError) {
     return (
       <div className="empty">
-        <h2>This workspace is gone</h2>
+        <h2 ref={focusHeading} tabIndex={-1}>This workspace is gone</h2>
         <p>{workspace.error.message}</p>
         <p>
           <Link to="/">Import a save dump</Link>
@@ -70,7 +72,7 @@ export function WorkspacePage() {
       </div>
     );
   }
-  if (!workspace.data) return <div className="empty">Loading…</div>;
+  if (!workspace.data) return <div role="status" className="empty">Loading…</div>;
 
   const ws = workspace.data;
   const activeDoc = ws.documents.find((d) => d.id === documentId);
@@ -114,7 +116,7 @@ export function WorkspacePage() {
           />
         ) : (
           <div className="empty">
-            <h2>Pick a save file</h2>
+            <h2 ref={focusHeading} tabIndex={-1}>Pick a save file</h2>
             <p>Choose a slot on the left, then a file. Files a game plugin understands are marked in blue.</p>
           </div>
         )}

@@ -8,6 +8,7 @@ import { ChangesPanel } from "./review/ChangesPanel";
 import { ReviewNavigationProvider } from "./review/navigation";
 import { ViewRenderer } from "./ViewRenderer";
 import { DocumentGroupControls } from "./DocumentGroupControls";
+import { useEntryFocus } from "../ui/useEntryFocus";
 
 interface DocumentEditorProps {
   workspaceId: string;
@@ -26,6 +27,7 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
   // Every successful snapshot replaces the store's value overrides. Its lazy children must use
   // that same generation, including reconnects and returning to a recently edited document.
   const structureVersion = query.dataUpdatedAt;
+  const focusHeading = useEntryFocus(`${workspaceId}:${documentId}:${Boolean(query.data)}`);
 
   /** Refetches the view after a structural change; the new view data creates a fresh value cache. */
   const { refetch } = query;
@@ -94,11 +96,11 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
 
   // A cached snapshot may predate edits made before switching files. Wait for the mount refresh
   // before exposing controls, so its response cannot overwrite a newly submitted edit.
-  if (query.isPending || (!query.isFetchedAfterMount && query.isFetching)) return <div className="empty">Opening…</div>;
+  if (query.isPending || (!query.isFetchedAfterMount && query.isFetching)) return <div role="status" className="empty">Opening…</div>;
   if (!context || !query.data) {
     return (
       <div className="empty">
-        <h2>This file could not be opened</h2>
+        <h2 ref={focusHeading} tabIndex={-1}>This file could not be opened</h2>
         <p>{query.error?.message ?? "Unknown error."}</p>
       </div>
     );
@@ -111,7 +113,7 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
         <article className="editor">
         <header className="editor__head">
           <div>
-            <h1 className="editor__title">{doc.title}</h1>
+            <h1 ref={focusHeading} tabIndex={-1} className="editor__title">{doc.title}</h1>
             <span className="editor__file mono">{doc.filePath}</span>
           </div>
           <HistoryButtons store={context.store} onUndo={() => run(() => api.undo(workspaceId, documentId))} onRedo={() => run(() => api.redo(workspaceId, documentId))} />

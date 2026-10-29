@@ -156,7 +156,7 @@ describe("action preview", () => {
       parameters: [{ type: "field", valueId: "quantity", label: "Target quantity", spec: { kind: "integer", min: "0", max: "99" }, value: "10" }] }} />, false);
     fireEvent.click(screen.getByRole("button", { name: "Refill" }));
     expect(plan).not.toHaveBeenCalled();
-    const input = screen.getByLabelText("Target quantity");
+    const input = screen.getByRole("textbox", { name: "Target quantity" });
     fireEvent.change(input, { target: { value: "15" } });
     fireEvent.blur(input);
     fireEvent.click(screen.getByRole("button", { name: "Preview" }));

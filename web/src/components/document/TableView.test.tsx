@@ -135,6 +135,40 @@ describe("TableView filtering", () => {
 });
 
 describe("TableView selection", () => {
+  it("makes distant virtual rows reachable with named keyboard scrolling", async () => {
+    renderTable(table(Array.from({ length: 200 }, (_, index) => ({ key: `r${index}`,
+      cells: { name: text(`Item ${index}`), value: field(`count${index}`, count, "1") } }))));
+    const region = screen.getByRole("region", { name: "Items rows" });
+    expect(region.tabIndex).toBe(0);
+    region.focus();
+    expect(screen.queryByRole("checkbox", { name: "Select Item 199" })).toBeNull();
+    fireEvent.keyDown(region, { key: "End" });
+    expect(region.scrollTop).toBeGreaterThan(0);
+    // jsdom has no layout engine to emit the native scroll event after scrollTop changes.
+    fireEvent.scroll(region);
+    const last = await screen.findByRole("checkbox", { name: "Select Item 199" });
+    last.focus();
+    fireEvent.click(last);
+    expect((last as HTMLInputElement).checked).toBe(true);
+    const input = screen.getByRole("textbox", { name: "count199 (Item 199)" });
+    input.focus();
+    const offset = region.scrollTop;
+    fireEvent.keyDown(input, { key: "ArrowUp" });
+    expect(region.scrollTop).toBe(offset);
+    region.focus();
+    fireEvent.keyDown(region, { key: "Home" });
+    expect(region.scrollTop).toBe(0);
+    fireEvent.keyDown(region, { key: "PageDown" });
+    expect(region.scrollTop).toBe(region.clientHeight);
+    fireEvent.keyDown(region, { key: "PageUp" });
+    expect(region.scrollTop).toBe(0);
+    fireEvent.keyDown(region, { key: "ArrowDown" });
+    expect(region.scrollTop).toBeGreaterThan(0);
+    fireEvent.keyDown(region, { key: "ArrowUp" });
+    expect(region.scrollTop).toBe(0);
+    expect(document.activeElement).toBe(region);
+  });
+
   it("selects rows by keyboard-accessible checkboxes and shows the count", () => {
     renderTable(table(inventory()));
 

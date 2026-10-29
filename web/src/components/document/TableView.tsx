@@ -9,6 +9,7 @@ import { TableCell } from "./table/TableCell";
 import { TableToolbar } from "./table/TableToolbar";
 import { useTableRows, type FacetSelection } from "./table/useTableRows";
 import { EmptyRowsToggle } from "./table/EmptyRowsToggle";
+import { scrollTableByKey } from "./table/keyboardScroll";
 
 /** Height of one data row; must match `.table__cell` height in view.css. Detail rows are measured. */
 const ROW_HEIGHT = 41;
@@ -106,7 +107,8 @@ export function TableView({ node }: { node: TableNode }) {
           <EmptyRowsToggle presentation={node.emptyRows} includeEmpty={includeEmpty} hiddenCount={hiddenEmptyCount} onChange={setIncludeEmpty} />
         </TableToolbar>
         {node.description && <p className="section__description">{node.description}</p>}
-        <div className="table__scroller" ref={scroller}>
+        <div className="table__scroller" ref={scroller} tabIndex={0} role="region" aria-label={`${node.title ?? "Table"} rows`}
+          onKeyDown={event => scrollTableByKey(event, virtualizer.getTotalSize(), ROW_HEIGHT)}>
           <div className="table__grid" role="table" aria-label={node.title} aria-rowcount={entries.length + 1} style={{ gridTemplateColumns: template }}>
             <HeaderRow columns={node.columns} hasDetails={hasDetails} visible={rows} visibleSelected={visibleSelected} selection={selection} />
             {padTop > 0 && <div aria-hidden style={{ gridColumn: "1 / -1", height: padTop }} />}

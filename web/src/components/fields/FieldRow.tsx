@@ -33,6 +33,7 @@ export function FieldRow({ node }: { node: FieldNode }) {
         valueId={node.valueId}
         labelledBy={labelId}
         describedBy={describedBy}
+        invalid={Boolean(shownError)}
         spec={node.spec}
         value={value}
         disabled={!canEdit}

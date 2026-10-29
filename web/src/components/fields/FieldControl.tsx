@@ -18,6 +18,8 @@ export interface FieldControlProps {
   labelledBy?: string;
   /** IDs of help, warnings and validation feedback belonging to this editor. */
   describedBy?: string;
+  /** Validation state owned by the parent (for example a server rejection). */
+  invalid?: boolean;
   /** Published binding used for field-specific candidate queries (not the DOM id). */
   valueId?: string;
   actionId?: string;
@@ -46,7 +48,7 @@ export function FieldControl(props: FieldControlProps) {
   }
 }
 
-function BoolControl({ id, value, onCommit, labelledBy, describedBy }: FieldControlProps) {
+function BoolControl({ id, value, onCommit, labelledBy, describedBy, invalid }: FieldControlProps) {
   const checked = value === true;
   return (
     <button
@@ -56,17 +58,18 @@ function BoolControl({ id, value, onCommit, labelledBy, describedBy }: FieldCont
       aria-checked={checked}
       aria-labelledby={labelledBy}
       aria-describedby={describedBy}
+      aria-invalid={invalid || undefined}
       className="switch"
       onClick={() => void onCommit(!checked)}
     />
   );
 }
 
-function FlagsControl({ id, spec, value, onCommit, labelledBy, describedBy }: FieldControlProps & { spec: Extract<FieldSpec, { kind: "flags" }> }) {
+function FlagsControl({ id, spec, value, onCommit, labelledBy, describedBy, invalid }: FieldControlProps & { spec: Extract<FieldSpec, { kind: "flags" }> }) {
   const bits = value === null ? 0n : BigInt(String(value));
   const toggle = (bit: number) => void onCommit((bits ^ (1n << BigInt(bit))).toString());
   return (
-    <div className="flags" id={id} role="group" aria-labelledby={labelledBy} aria-describedby={describedBy}>
+    <div className="flags" id={id} role="group" aria-labelledby={labelledBy} aria-describedby={describedBy} aria-invalid={invalid || undefined}>
       {spec.bits.map((b) => (
         <label key={b.bit} title={b.description}>
           <input type="checkbox" checked={(bits & (1n << BigInt(b.bit))) !== 0n} onChange={() => toggle(b.bit)} />
@@ -78,9 +81,10 @@ function FlagsControl({ id, spec, value, onCommit, labelledBy, describedBy }: Fi
 }
 
 /** Integer, float, text and datetime: typed draft, commit on Enter or blur, Escape reverts. */
-function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labelledBy, describedBy }: FieldControlProps) {
+function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labelledBy, describedBy, invalid: parentInvalid }: FieldControlProps) {
   const [draft, setDraft] = useState(() => String(toDraft(spec, value)));
-  const [invalid, setInvalid] = useState(false);
+  const [localInvalid, setInvalid] = useState(false);
+  const invalid = localInvalid || Boolean(parentInvalid);
   useEffect(() => {
     setDraft(String(toDraft(spec, value)));
     setInvalid(false);
@@ -156,11 +160,13 @@ function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labe
       />
       {spec.kind === "integer" && !compact && (
         <span className="stepper">
-          <button type="button" aria-label="Decrease" onClick={() => step(-1n)}>
-            −
+          <button type="button" aria-labelledby={`${id}-decrease-label${labelledBy ? ` ${labelledBy}` : ""}`} onClick={() => step(-1n)}>
+            <span id={`${id}-decrease-label`} className="visually-hidden">Decrease</span>
+            <span aria-hidden="true">−</span>
           </button>
-          <button type="button" aria-label="Increase" onClick={() => step(1n)}>
-            +
+          <button type="button" aria-labelledby={`${id}-increase-label${labelledBy ? ` ${labelledBy}` : ""}`} onClick={() => step(1n)}>
+            <span id={`${id}-increase-label`} className="visually-hidden">Increase</span>
+            <span aria-hidden="true">+</span>
           </button>
         </span>
       )}

@@ -1,4 +1,4 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import type { ExportScope } from "../../api/protocol";
@@ -21,6 +21,8 @@ export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(fun
   const [scope, setScope] = useState<ExportScope>("ChangedDirectories");
   const [mirror, setMirror] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [downloadError, setDownloadError] = useState("");
+  useEffect(() => { if (open) setDownloadError(""); }, [open]);
   const plan = useQuery({
     queryKey: ["export-plan", workspaceId, scope, mirror],
     queryFn: () => api.exportPlan(workspaceId, scope, mirror),
@@ -31,6 +33,7 @@ export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(fun
   });
 
   const download = async () => {
+    setDownloadError("");
     setBusy(true);
     try {
       const { blob, name } = await api.exportZip(workspaceId, scope, mirror);
@@ -43,7 +46,9 @@ export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(fun
       onToast(`Exported ${name}`);
       onClose();
     } catch (error) {
-      onToast(error instanceof ApiError ? error.message : "Export failed.", true);
+      const message = error instanceof ApiError ? error.message : "Export failed.";
+      setDownloadError(message);
+      onToast(message, true);
     } finally {
       setBusy(false);
     }
@@ -73,8 +78,9 @@ export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(fun
           <input type="checkbox" checked={mirror} onChange={(e) => setMirror(e.target.checked)} />
           Also update the console backup copy (sce_bu) when it matched the original
         </label>
-        {plan.isFetching && <p role="status">Checking current export…</p>}
+        <p role="status" aria-atomic="true">{busy ? "Packing edited saves…" : plan.isFetching ? "Checking current export…" : plan.data && !plan.isError ? `Export plan ready: ${plan.data.changedCount} changed files.` : ""}</p>
         {plan.isError && <p role="alert" className="notice notice--Danger">{plan.error.message}</p>}
+        {downloadError && <p role="alert" className="notice notice--Danger">{downloadError}</p>}
         {plan.data && !plan.isFetching && !plan.isError && (
           <div className="notice notice--Info">
             {plan.data.changedCount === 0 ? (

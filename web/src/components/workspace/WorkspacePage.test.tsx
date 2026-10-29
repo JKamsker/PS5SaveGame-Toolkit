@@ -19,6 +19,12 @@ async function setup(documents: DocumentSummary[] = []) {
 }
 
 describe("closing a dump", () => {
+  it("focuses the file-picker heading when entering an empty workspace", async () => {
+    const client = await setup();
+    expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Pick a save file" }));
+    client.clear();
+  });
+
   it("keeps edited sessions when the discard confirmation is cancelled", async () => {
     const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
     const remove = vi.spyOn(api, "deleteWorkspace").mockResolvedValue(undefined);

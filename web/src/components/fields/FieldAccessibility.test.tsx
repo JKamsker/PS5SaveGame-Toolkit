@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type { FieldNode } from "../../api/protocol";
 import { DocumentContext, DocumentStore } from "../../state/documentStore";
@@ -47,6 +47,41 @@ describe.each([false, true])("action parameter names (planned: %s)", supportsPla
 it("names flags groups in ordinary field rows", () => {
   renderFields(<FieldRow node={parameters[2]!} />);
   expect(screen.getByRole("group", { name: "Unlocked areas" })).toBeTruthy();
+});
+
+it.each([
+  { node: parameters[0]!, role: "textbox", name: "Optional name" },
+  { node: parameters[0]!, role: "combobox", name: "Optional name Null or value" },
+  { node: parameters[1]!, role: "switch", name: "Saved setting" },
+  { node: parameters[1]!, role: "combobox", name: "Saved setting Value type" },
+  { node: parameters[2]!, role: "group", name: "Unlocked areas" },
+  { node: { type: "field", valueId: "mode", label: "Mode", value: "a", spec: { kind: "enum", options: [{ value: "a", label: "A" }] } } satisfies FieldNode,
+    role: "combobox", name: "Mode" },
+])("announces server validation state on $role '$name'", ({ node, role, name }) => {
+  const { store } = renderFields(<FieldRow node={node} />);
+  act(() => store.setError(node.valueId, "Rejected by plugin"));
+  expect(screen.getByRole(role, { name, description: /Rejected by plugin/ }).getAttribute("aria-invalid")).toBe("true");
+  act(() => store.setError(node.valueId, undefined));
+  expect(screen.getByRole(role, { name }).getAttribute("aria-invalid")).not.toBe("true");
+});
+
+it("distinguishes integer stepper buttons by field and retains keyboard stepping", () => {
+  const node: FieldNode = { type: "field", valueId: "count", label: "Item count", value: "2",
+    spec: { kind: "integer", min: "0", max: "10" } };
+  const { commit } = renderFields(<><FieldRow node={node} /><FieldRow node={{ ...node, valueId: "level", label: "Level" }} /></>);
+  const decrease = screen.getByRole("button", { name: "Decrease Item count" });
+  const increase = screen.getByRole("button", { name: "Increase Level" });
+  decrease.focus();
+  expect(document.activeElement).toBe(decrease);
+  fireEvent.click(decrease);
+  expect(commit).toHaveBeenCalledWith("count", "1");
+  increase.focus();
+  fireEvent.click(increase);
+  expect(commit).toHaveBeenCalledWith("level", "3");
+  const input = screen.getByRole("textbox", { name: "Item count" });
+  input.focus();
+  fireEvent.keyDown(input, { key: "ArrowUp" });
+  expect(commit).toHaveBeenLastCalledWith("count", "3");
 });
 
 describe("field supporting text", () => {

@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 
 const tokens = readFileSync("src/styles/tokens.css", "utf8");
 const viewStyles = readFileSync("src/styles/view.css", "utf8");
+const uiStyles = readFileSync("src/styles/ui.css", "utf8");
 
 type Palette = Record<string, string>;
 const themes = [...tokens.matchAll(/:root\s*\{([^}]+)\}/g)].map(match =>
@@ -43,4 +44,19 @@ describe.each([["light", light], ["dark", dark]] as const)("%s confidence contra
     const foreground = /\bcolor:\s*var\(--([\w-]+)\)/.exec(block)![1]!;
     expect(contrast(palette[foreground]!, palette[confidence]!)).toBeGreaterThanOrEqual(4.5);
   });
+
+  it("keeps warning badge glyphs, warning text and notice text readable", () => {
+    expect(viewStyles).toMatch(/\.cell-badge--warning\s*\{\s*background:\s*var\(--inferred\)/);
+    expect(viewStyles).toMatch(/\.field__warning\s*\{[^}]*color:\s*var\(--inferred\)/);
+    expect(uiStyles).toMatch(/\.notice--Warning\s*\{\s*background:\s*var\(--modified-soft\)/);
+    expect(contrast(palette.surface!, palette.inferred!)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(palette.ink!, palette["modified-soft"]!)).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
+it("disables transitions and animations for reduced motion, including pseudo-elements", () => {
+  const reducedMotion = /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{([\s\S]*)\}\s*$/.exec(tokens)?.[1];
+  expect(reducedMotion).toMatch(/\*,\s*\*::before,\s*\*::after/);
+  expect(reducedMotion).toMatch(/transition-duration:\s*0ms\s*!important/);
+  expect(reducedMotion).toMatch(/animation-duration:\s*0ms\s*!important/);
 });

@@ -138,7 +138,7 @@ function FieldCell({ node, rowLabel, onOpenDetails }: { node: FieldNode; rowLabe
   let control: ReactNode;
   if (!needsDetailsEditor(node)) {
     control = (
-      <FieldControl id={`${labelId}-control`} valueId={node.valueId} labelledBy={labelId} describedBy={description ? `${labelId}-description` : undefined} spec={node.spec} value={value} disabled={!canEdit} compact onCommit={commit} onLocalError={setLocalError} />
+      <FieldControl id={`${labelId}-control`} valueId={node.valueId} labelledBy={labelId} describedBy={description ? `${labelId}-description` : undefined} invalid={Boolean(shownError)} spec={node.spec} value={value} disabled={!canEdit} compact onCommit={commit} onLocalError={setLocalError} />
     );
   } else {
     const summary = fieldSummary(node.spec, value);

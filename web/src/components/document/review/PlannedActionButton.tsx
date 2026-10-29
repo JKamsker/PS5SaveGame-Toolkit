@@ -1,17 +1,17 @@
-import { useId, useMemo, useRef, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { actionReview, reviewValue, type ActionPreview, type ActionScope } from "../../../api/actionReview";
 import type { ActionNode, FieldValue } from "../../../api/protocol";
 import { useDocument, useDocumentState } from "../../../state/documentStore";
 import { FieldControl } from "../../fields/FieldControl";
 import { useTableSelection } from "../table/selection";
 import { ReviewPager, useReviewPage } from "./paging";
+import { useActionDialog } from "../../ui/useActionDialog";
 import "./review.css";
 
 export function PlannedActionButton({ node, compact, ariaLabel }: { node: ActionNode; compact?: boolean; ariaLabel?: string }) {
   const doc = useDocument();
   const { state } = useDocumentState(doc.store);
   const selection = useTableSelection();
-  const dialog = useRef<HTMLDialogElement>(null);
   const id = useId();
   const parameters = useMemo(() => (node.parameters ?? []).map(parameter => ({
     ...parameter, spec: { ...parameter.spec, readOnly: false },
@@ -19,6 +19,7 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
   const [values, setValues] = useState<Record<string, FieldValue>>(() => Object.fromEntries(parameters.map(p => [p.valueId, p.value])));
   const [preview, setPreview] = useState<ActionPreview | null>(null);
   const [busy, setBusy] = useState(false);
+  const { dialog, heading, trigger, openDialog, closeDialog, onClose, focusHeading, requestFocus } = useActionDialog(busy);
   const [error, setError] = useState("");
   const [parameterErrors, setParameterErrors] = useState<Record<string, string | undefined>>({});
   const [formVersion, setFormVersion] = useState(0);
@@ -40,6 +41,7 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
 
   const plan = async (params = values) => {
     if (busy || invalid) return;
+    focusHeading();
     setBusy(true);
     setError("");
     setPreview(null);
@@ -49,8 +51,10 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
       setPreview(result);
       setPreviewScope(scopeKey);
       if (result.stale) await doc.refresh();
+      requestFocus(result.plan.errors.length ? "error" : "heading");
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Could not preview this action.");
+      requestFocus("error");
     } finally {
       setBusy(false);
     }
@@ -58,19 +62,22 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
 
   const apply = async () => {
     if (!preview?.planId || stale) return;
+    focusHeading();
     setBusy(true);
     setError("");
     try {
       const result = await actionReview.apply(doc.workspaceId, doc.documentId, preview.planId, preview.revision);
       await doc.acceptResult(result);
-      if (result.ok) dialog.current?.close();
+      if (result.ok) closeDialog();
       else {
         setPreview(null);
         setError(result.errors.map(e => e.message).join(" ") || "Apply failed. Preview the action again.");
+        requestFocus("error");
       }
     } catch (failure) {
       setPreview(null);
       setError(failure instanceof Error ? failure.message : "Could not apply this action.");
+      requestFocus("error");
     } finally {
       setBusy(false);
     }
@@ -83,17 +90,17 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
     setFormVersion(previous => previous + 1);
     setError("");
     setPreview(null);
-    dialog.current?.showModal();
+    openDialog();
     if (!parameters.length) void plan(defaults);
   };
 
   return <div className={compact ? "action action--compact" : "action"}>
-    <button type="button" className={`btn${compact ? " btn--small" : ""}${node.tone === "Danger" ? " btn--danger" : ""}`} aria-label={ariaLabel} title={compact ? node.description : undefined} disabled={busy} onClick={open}>{node.label}</button>
+    <button ref={trigger} type="button" className={`btn${compact ? " btn--small" : ""}${node.tone === "Danger" ? " btn--danger" : ""}`} aria-label={ariaLabel} title={compact ? node.description : undefined} disabled={busy} onClick={open}>{node.label}</button>
     {node.description && !compact && <span className="action__description">{node.description}</span>}
-    <dialog ref={dialog} className="dialog review-dialog" aria-labelledby={`${id}-title`}>
+    <dialog ref={dialog} className="dialog review-dialog" aria-labelledby={`${id}-title`} onClose={onClose}>
       <form onSubmit={event => { event.preventDefault(); if (!busy && !invalid) void (preview?.planId && !stale ? apply() : plan()); }}>
         <div className="dialog__body">
-          <h2 id={`${id}-title`} className="dialog__title">Preview: {node.label}</h2>
+          <h2 ref={heading} tabIndex={-1} id={`${id}-title`} className="dialog__title">Preview: {node.label}</h2>
           <p>{scopeLabel}</p>
           {node.confirm && <p className="notice notice--Warning">{node.confirm}</p>}
           {!preview && parameters.map(p => {
@@ -110,6 +117,7 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
                   spec={p.spec}
                   value={value === undefined ? p.value : value}
                   disabled={busy}
+                  invalid={Boolean(parameterErrors[p.valueId])}
                   onLocalError={message => setParameterErrors(previous => ({ ...previous, [p.valueId]: message }))}
                   onCommit={next => {
                     setValues(previous => ({ ...previous, [p.valueId]: next }));
@@ -121,14 +129,13 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
               </div>
             );
           })}
-          {busy && <p role="status">Working…</p>}
-          {error && <p role="alert" className="notice notice--Danger">{error}</p>}
+          <p role="status" aria-atomic="true">{busy ? "Working…" : preview ? `${preview.plan.changes.length} field changes · ${preview.plan.skippedRows.length} skipped rows · one undo step` : ""}</p>
+          {error && <p role="alert" tabIndex={-1} className="notice notice--Danger">{error}</p>}
           {stale && <p role="alert">The document or selection changed. Preview again before applying.</p>}
           {preview && <>
-            <p>{preview.plan.changes.length} field changes · {preview.plan.skippedRows.length} skipped rows · one undo step</p>
-            {preview.plan.errors.map((e, i) => <p role="alert" key={i}>{e.valueId}: {e.message}</p>)}
+            {preview.plan.errors.map((e, i) => <p role="alert" tabIndex={-1} key={i}>{e.valueId}: {e.message}</p>)}
             {preview.plan.warnings.map((warning, i) => <p className="notice notice--Warning" key={i}>{warning}</p>)}
-            <div className="review-scroll"><table className="review-table">
+            <div className="review-scroll" role="region" aria-label="Preview changes" tabIndex={0}><table className="review-table" aria-label="Preview changes">
               <thead><tr><th>Field</th><th>Before</th><th>After</th></tr></thead>
               <tbody>{changesPage.items.map((change, i) => <tr key={i}>
                 <th scope="row">{change.label}{change.derived && <small> (derived)</small>}</th>
@@ -140,8 +147,8 @@ export function PlannedActionButton({ node, compact, ariaLabel }: { node: Action
           </>}
         </div>
         <div className="dialog__footer">
-          <button type="button" className="btn btn--quiet" disabled={busy} onClick={() => dialog.current?.close()}>Cancel</button>
-          {preview && <button type="button" className="btn" disabled={busy} onClick={() => { setPreview(null); setError(""); }}>Change parameters</button>}
+          <button type="button" className="btn btn--quiet" disabled={busy} onClick={closeDialog}>Cancel</button>
+          {preview && <button type="button" className="btn" disabled={busy} onClick={() => { setPreview(null); setError(""); requestFocus("parameters"); }}>Change parameters</button>}
           <button type="submit" className={`btn ${node.tone === "Danger" ? "btn--danger" : "btn--primary"}`} disabled={busy || invalid || Boolean(preview?.planId && !stale && !doc.canEdit)}>
             {preview?.planId && !stale ? "Apply" : "Preview"}
           </button>
