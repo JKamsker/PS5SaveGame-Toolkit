@@ -35,7 +35,8 @@ internal static class VerifyCommand
         }
 
         var decoders = new Lazy<DecoderResolver>(resolver);
-        var cache = new Dictionary<string, LoadedSaveSet>(StringComparer.OrdinalIgnoreCase);
+        // Case-insensitive hosts may import an alias twice; case-sensitive hosts must never share it.
+        var cache = new Dictionary<string, LoadedSaveSet>(StringComparer.Ordinal);
         try
         {
             var results = fixtures.Select(f => SafeVerifyOne(f, manifest, artifacts, decoders, cache)).ToList();

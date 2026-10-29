@@ -12,7 +12,8 @@ internal static class CompareCommand
         var options = BuildOptions(args, resolver);
 
         // The same path on both sides (two generations of one dump) is imported once.
-        var samePath = string.Equals(Path.GetFullPath(args.Positionals[0]), Path.GetFullPath(args.Positionals[1]), StringComparison.OrdinalIgnoreCase);
+        // Reuse only exact paths: case-only differences can identify different files on the host.
+        var samePath = string.Equals(Path.GetFullPath(args.Positionals[0]), Path.GetFullPath(args.Positionals[1]), StringComparison.Ordinal);
         using var before = SaveSetLoader.Load(args.Positionals[0]);
         using var afterOwned = samePath ? null : SaveSetLoader.Load(args.Positionals[1]);
         var after = afterOwned ?? before;
