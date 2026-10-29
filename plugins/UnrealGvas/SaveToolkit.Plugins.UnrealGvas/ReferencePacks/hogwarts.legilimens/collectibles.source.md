@@ -17,7 +17,9 @@
 - Scope: PC-derived location labels. Exact PS5 saved IDs are matched, but state,
   completion, reward, chronology and console behavior are not inferred from that match.
   Guide links are references only; the plugin performs no network I/O.
-- Integrity: the manifest pins SHA-256 of the LF-normalized records file. The
-  pack is v1.0.0, English, scoped to `engine.unreal-gvas` / `PPSA01603`.
+- Integrity: the manifest pins SHA-256 of the LF-normalized records file.
+  The current containing pack is v1.1.0, English, scoped to `engine.unreal-gvas` /
+  `PPSA01603`. Its later gear/icon/schematic datasets have separate provenance in
+  `assets.source.md`; the collectible dataset and its MIT terms are unchanged.
 
 This dataset remains under MIT; no CC BY-SA data was imported in this round.

@@ -103,7 +103,7 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
     }
 
     private IReadOnlyList<ViewNode> Group(string group) =>
-    [new TextNode("Read-only PS5 storage, grouped by table name (Inferred meaning). Both database images remain separate. Unknown IDs and relationships remain raw.") { Tone = Tone.Info },
+    [new TextNode("PS5 storage, grouped by table name (Inferred meaning). Eligible existing cells are editable only when both images validate. Both database images remain separate. Unknown IDs and relationships remain raw.") { Tone = Tone.Info },
         .. _tables.Values.Where(table => table.Group == group).Select(table => (ViewNode)TableNode(table))];
 
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>

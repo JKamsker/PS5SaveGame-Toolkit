@@ -2,8 +2,10 @@
 
 Applies to the supplied PPSA01603 snapshots: UE 4.27.2, package 524,
 72 custom versions, `/Script/PersistentData.PersistentGameData` and the two
-database array signatures. Other schemas retain the raw GVAS inspector. All
-PPSA01603 files, including list/settings metadata, remain read-only.
+database array signatures. Recognized gameplay saves with two valid database
+images in a plain GVAS envelope permit the restricted existing-cell edits below.
+List/settings metadata, unrecognized Hogwarts schemas, compressed envelopes and
+malformed or incomplete database pairs remain read-only.
 
 ## Decode and views
 
@@ -25,8 +27,8 @@ available. No failed overlay makes the original editable.
 Both images have separate Character, Inventory, Progression and Collections F8
 tables. All other tables appear under lazy Database tables sections. Every query
 supports raw text search, exact column filters and deterministic sorting with a
-rowid tie-break. Pages contain at most 200 rows; long rendered cells are shortened
-with a hash while original values stay unchanged. Search uses full raw SQLite
+rowid tie-break. Pages contain at most 200 rows and retain the shared SQLite
+result/value bounds. Search uses full raw SQLite
 values, not friendly catalog captions. Null is distinct from empty text and the
 literal string `NULL`; blobs show size/hash, not an invented interpretation.
 
@@ -34,7 +36,9 @@ Inventory preserves `CharacterID / HolderID / SlotNumber`, item ID, variation,
 count and flags. Gear instances and equipped slots are separate tables; no guessed
 gear join or currency-stack choice is applied. `Knuts` is searchable by exact
 `ItemID`. Miscellaneous character/XP values retain their owner/name/value tuple;
-names, capacities, curve parameters, perks and rewards do not become editable.
+identity names and IDs remain read-only. Only the table/column allowlist below
+enables cells; capacities, curve parameters, perks and rewards are not semantic
+editing features.
 Collection and mission flags retain raw state values. A row is not reported as a
 completed or rewarded objective merely because its name or flag resembles one.
 
@@ -42,16 +46,18 @@ F4 fields use the F2 catalog only when the raw ID **and** catalog table/column
 qualifiers match. Every resolved field has attribution and Inferred confidence;
 unknown IDs retain raw text. Labels identify type, region and guide index, not
 invented item names. Missing catalogs affect only labels. Read-only F4 fields
-resolve names/candidates through the host; the current UI disables their picker
-button along with editing.
+resolve names/candidates through the host's searchable, filterable and sortable
+browse-only picker. Selecting or committing a replacement ID is disabled.
 
 The Spatial tab is intentionally link-first. It projects the 699 pinned catalogue
 records into 25 region markers plus one unjoined fast-travel domain, with original
 schematic coordinates and a text alternative. A companion GraphNode groups the same
 records by region and category; its edges are catalogue grouping only, never saved
-prerequisites or completion dependencies. Marker and graph states remain Unknown,
-external map art is not embedded, and every external link carries its source and
-licensing note. `SpatialViewValidation` is run by `HogwartsSpatialViewTests`.
+prerequisites or completion dependencies. Marker and graph states remain Unknown.
+An original aligned 800x800 schematic from `hogwarts.legilimens` supplies the local
+background when available; external map art is not embedded. Every external link
+carries its source and licensing note. `SpatialViewValidation` is run by
+`HogwartsSpatialViewTests`.
 
 ## Reproducible sample evidence
 
@@ -93,13 +99,23 @@ For HL0010 → HL0011, the complete F1 tree reports 6 added, 2 removed and 24 ch
 values, including table-count values. This is pinned in the regression test, with
 neither truncated input nor guessed causal meaning. The test writes a counts-only
 summary to `%TEMP%/hogwarts-f1-summary.json`; it never exports save bytes or cells.
+Set TEMP/TMP and test scratch on D: as shown in the README validation command.
 
 ## Write investigation and owner checklist
 
-Existing integer, real and text cells in a complete pair are writable. Identity
-columns, blobs, catalog reference cells, metadata files and malformed pairs remain
-read-only. The write path uses the shared codec in this order: SQLite `Serialize()`
-and `PRAGMA integrity_check`, stored Kraken blocks, then a size-adjusted GVAS
+Existing integer, real and text cells are writable only in `MiscDataDynamic`,
+`InventoryDynamic`, `GearItemsDynamic`, `EquippedGearDynamic` and `PlayerStatsDynamic`.
+Column names must contain `Count`, `Quantity`, `Knuts`, `Experience` or `Level`
+(case-insensitive), or equal `XP`, `Value`, `State`, `Status` or `DataValue`.
+An existing text value must have at most 256 UTF-16 units to expose a binding;
+the edit spec then allows up to 1,048,576 units, subject to shared SQLite bounds.
+These fields carry Inferred confidence and a console/integrity warning. Identity
+columns, SQL NULL, blobs, resolved collectible reference cells, all other cells,
+metadata files and malformed pairs remain read-only. Both images must validate,
+and the outer envelope must be plain GVAS.
+
+The write path uses the shared codec in this order: SQLite `PRAGMA integrity_check`
+and `Serialize()`, stored Kraken blocks, then a size-adjusted GVAS
 replacement. The separate test-only `HogwartsWriteProbe` remains useful as a framing
 oracle, but UI writes now use the production `GvasFile.SerializeReplacements` path.
 
