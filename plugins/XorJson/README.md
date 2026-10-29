@@ -427,7 +427,8 @@ dependencies remain Unknown.
   SDK `ExactJsonNumber` validates numeric lexemes; it does not supply the lexical
   tree or byte-preserving writer. BOM/trivia, duplicate keys, exact numbers,
   untouched spans and undo need preservation tests before migration; structural
-  identities and XOR/shift envelopes remain local policy.
+  identities and XOR/shift envelopes remain local policy. The current format and
+  adapter contract are recorded in [XORJSON-SDK06-READINESS.md](XORJSON-SDK06-READINESS.md).
 
 The dispositions above match [docs/SDK_REQUESTS.md](../../docs/SDK_REQUESTS.md):
 SDK-04 (member composition), SDK-22 (F7 transactions) and SDK-23 (overlay
