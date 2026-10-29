@@ -52,8 +52,14 @@ internal sealed record JsonOverlay(string Title, string Evidence, IReadOnlyList<
 
     internal static JsonValueToken? Unique(JsonValueToken parent, string name)
     {
-        var matches = parent.Children.Where(n => n.Label == name).Take(2).ToArray();
-        return matches.Length == 1 ? matches[0] : null;
+        JsonValueToken? match = null;
+        foreach (var child in parent.Children)
+        {
+            if (child.Label != name) continue;
+            if (match is not null) return null;
+            match = child;
+        }
+        return match;
     }
 
     internal static bool HasType(JsonValueToken? node, string type) =>

@@ -174,6 +174,9 @@ internal sealed class JsonTokenTree
                 }
                 Visit(node.Children[i], node);
             }
+            // Count every sibling, including entries beyond the title adapter's bounded prefix.
+            foreach (var child in node.Children)
+                child.UniqueMember = occurrences is null || occurrences[child.Label] == 1;
         }
     }
 

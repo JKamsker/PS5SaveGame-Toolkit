@@ -14,6 +14,7 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
     }
     public string? StructureReview { get; set; }
     public int TreeOrder { get; set; }
+    public bool UniqueMember { get; set; }
     public string? EscapedPathLabel { get; set; }
     public string? FriendlyLabel { get; set; }
     public string Label { get; set; } = label;

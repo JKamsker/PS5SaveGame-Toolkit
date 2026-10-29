@@ -16,7 +16,8 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree, IRefe
     private JsonTokenTree _tree = tree;
     private readonly JsonSearch _search = new(tree);
     private readonly JsonReferenceChoices _references = new(references);
-    private JsonSemanticActions _semantic = new(file, tree);
+    private JsonSemanticActions? _semantic;
+    private JsonSemanticActions Semantic => _semantic ??= new(file, _tree, _references);
 
     public override string Title => file.FileName;
     public IReadOnlyList<QueryableCollection> Collections => [JsonSearch.Metadata(_tree.Nodes.Count),
@@ -30,8 +31,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree, IRefe
 
     public override ViewNode BuildView()
     {
-        var overlay = JsonOverlay.Match(file, _tree);
-        _semantic = new(file, _tree, _references);
+        var overlay = Semantic.Overlay;
         var tabs = new List<Tab>
         {
             new("Overview", [
@@ -50,7 +50,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree, IRefe
         if (overlay is not null)
             tabs.Add(new(overlay.Title, [new TextNode(overlay.Evidence) { Tone = Tone.Warning }, new TextNode(JsonOverlay.Provenance),
                 new TextNode(JsonSemanticActions.Warning) { Tone = Tone.Warning },
-                new SectionNode("Title presets (existing values only)", _semantic.Presets()),
+                new SectionNode("Title presets (existing values only)", Semantic.Presets()),
                 .. overlay.IsProfile ? new ViewNode[] { JsonProfileMap.Build(overlay) } : [],
                 .. JsonOverlayViews.Build(overlay, (label, parent) => LazyRange(label, parent, 0, parent.Children.Count, overlay: true), SemanticControls)]));
         return new TabsNode(tabs);
@@ -85,6 +85,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree, IRefe
         foreach (var edit in edits)
             if (_tree.FindValue(edit.ValueId) is { IsContainer: false } node)
                 _ = ScalarField(node, node.Label);
+        var wasMatched = Semantic.IsMatched;
         var outcome = base.ApplyEdits(edits);
         if (!outcome.Succeeded || outcome.Changes.Count == 0) return outcome;
         try { _ = JsonTreeWriter.Write(_tree); }
@@ -93,13 +94,14 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree, IRefe
             _ = base.ApplyEdits(outcome.Changes.Reverse().Select(c => new ValueEdit(c.ValueId, c.OldValue)).ToArray());
             return EditOutcome.Rejected(edits[0].ValueId, "Edit exceeds JSON limits or failed token round-trip validation.");
         }
-        return outcome with { StructureChanged = _semantic.IsMatched || JsonOverlay.Match(file, _tree) is not null
+        _semantic = null;
+        return outcome with { StructureChanged = wasMatched || Semantic.IsMatched
             || outcome.Changes.Any(c => JsonScalar.TypeOf(c.OldValue) != JsonScalar.TypeOf(c.NewValue)) };
     }
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
         actionId == JsonResetActions.ActionId ? JsonResetActions.Plan(_tree, scope)
-        : actionId.StartsWith(JsonSemanticActions.Prefix, StringComparison.Ordinal) ? new JsonSemanticActions(file, _tree, _references).Plan(_tree, actionId, parameters, scope)
+        : actionId.StartsWith(JsonSemanticActions.Prefix, StringComparison.Ordinal) ? Semantic.Plan(_tree, actionId, parameters, scope)
         : JsonStructureActions.Plan(_tree, actionId, parameters, scope);
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
@@ -119,6 +121,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree, IRefe
             JsonStructureActions.Mutate(_tree, actionId, parameters);
             _ = JsonTreeWriter.Write(_tree);
             _ranges.Clear();
+            _semantic = null;
         });
         return new() { Revert = result.Revert, StructureChanged = true, Warnings = fresh.Warnings };
     }
@@ -134,6 +137,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree, IRefe
         restored.NextId = Math.Max(restored.NextId, _tree.NextId);
         _tree = restored;
         _ranges.Clear();
+        _semantic = null;
     }
 
     private ViewNode NodeView(JsonValueToken node)
@@ -177,7 +181,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree, IRefe
     private ViewNode OverlayNode(JsonValueToken node) => JsonOverlayViews.Create(node,
         (label, parent) => LazyRange(label, parent, 0, parent.Children.Count, overlay: true), SemanticControls);
 
-    private IReadOnlyList<ViewNode> SemanticControls(JsonValueToken node) => _semantic.ForNode(node).Select(view => view is FieldNode field
+    private IReadOnlyList<ViewNode> SemanticControls(JsonValueToken node) => Semantic.ForNode(node).Select(view => view is FieldNode field
         ? Field(field.ValueId, field.Label, field.Spec, () => FieldValue.Of(node.Original.ToString())) with
             { Confidence = field.Confidence, Description = field.Description }
         : view).ToArray();
