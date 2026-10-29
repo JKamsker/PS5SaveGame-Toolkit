@@ -247,13 +247,14 @@ class DocumentationTests(unittest.TestCase):
                         self.assertIn(unquote(url.fragment), heading_anchors(target.read_text(encoding="utf-8")))
 
     def test_documented_commands_resolve_against_code(self):
-        npm_scripts = json.loads(source("web/package.json"))["scripts"]
+        # npm workflow changes and their docs ship together in the current checkout.
+        npm_scripts = json.loads(document("web/package.json"))["scripts"]
         for page in FRAMEWORK_PAGES:
             text = document(page)
             for script in re.findall(r"\./(scripts/[\w-]+\.ps1)", text):
                 with self.subTest(page=page, script=script):
                     self.assertIn(script, source_paths())
-            for match in re.finditer(r"npm run ([\w-]+)([^;\n`]*)", text):
+            for match in re.finditer(r"npm run ([\w:-]+)([^;\n`]*)", text):
                 with self.subTest(page=page, npm_script=match[1]):
                     self.assertTrue(match[1] in npm_scripts or "--if-present" in match[2])
             for project in re.findall(r"dotnet (?:test|run|build) (?:--project )?([^\s`]+)", text):
@@ -413,6 +414,49 @@ class DocumentationTests(unittest.TestCase):
         seeds = source("src/SaveToolkit.Testing/MutationFuzzSyntheticSeeds.cs")
         self.assertEqual(["format.json", "format.json-xor"], re.findall(r'case "([^"]+)":', seeds))
         self.assertEqual(3, seeds.count("yield return MemorySaveSet.SingleFile("))
+
+    def test_web_bundle_budgets_match_docs_and_both_validate_platforms(self):
+        # This gate belongs to the current checkout, even when --code-ref selects older code.
+        budgets = json.loads(document("web/bundle-budgets.json"))
+        scripts = json.loads(document("web/package.json"))["scripts"]
+        self.assertEqual("node scripts/check-bundle-size.mjs", scripts["check:bundle"])
+        self.assertIn("manifest: true", document("web/vite.config.ts"))
+        checker = document("web/scripts/check-bundle-size.mjs")
+        self.assertIn('resolveConfig({}, "build")', checker)
+        self.assertIn("config.build.outDir", checker)
+        self.assertIn("../bundle-budgets.json", checker)
+        measurement = document("web/scripts/bundle-size.mjs")
+        self.assertIn(".vite/manifest.json", measurement)
+        self.assertIn("gzipSync(bytes, { level: 6 })", measurement)
+        workflow = document(".github/workflows/ci.yml").split("\n  validate:", 1)[1]
+        self.assertIn("os: [ubuntu-latest, windows-latest]", workflow)
+        self.assertRegex(workflow, r"npm run build\n\s+exit \$LASTEXITCODE\n"
+                         r"      - name: Web bundle size budgets\n"
+                         r"        working-directory: web\n        run: npm run check:bundle\n")
+        self.assertEqual(1, workflow.count("run: npm run check:bundle"))
+
+        performance = markdown_section(document("docs/PERFORMANCE.md"), "## Web bundle budgets")
+        limits = markdown_section(performance, "### Enforced gzip limits")
+        header, rows = markdown_table(limits)
+        self.assertEqual(["Metric", "Measured gzip bytes", "Budget bytes"], header)
+        expected = {"Initial JS": budgets["initial"]["js"], "Initial CSS": budgets["initial"]["css"],
+                    **budgets["chunks"]}
+        self.assertEqual(len(expected), len(rows))
+        self.assertEqual(expected, {name: int(limit) for name, _, limit in rows})
+        for name, measured, limit in rows:
+            with self.subTest(metric=name):
+                self.assertGreaterEqual(int(limit), int(measured) * 1.09)
+                self.assertLessEqual(int(limit), int(measured) * 1.12)
+        self.assertLess(budgets["initial"]["js"], 300000)
+        self.assertLess(budgets["initial"]["css"], 50000)
+        releasing = document("docs/RELEASING.md")
+        for text in (releasing, performance):
+            for required in ("npm run check:bundle", "src/SaveToolkit.Api/wwwroot", "gzip level 6",
+                             "web/bundle-budgets.json"):
+                self.assertIn(required, text)
+        self.assertIn("PERFORMANCE.md#web-bundle-budgets", releasing)
+        for limit in budgets["initial"].values():
+            self.assertIn(f"{limit:,} gzip bytes", releasing)
 
     def test_synthetic_fuzz_inventory_covers_every_plugin(self):
         expected = {

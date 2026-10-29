@@ -1,0 +1,14 @@
+{
+  "initial": { "js": 130500, "css": 11000 },
+  "chunks": {
+    "index.js": 130500,
+    "index.css": 11000,
+    "WorkspacePage.js": 5700,
+    "DocumentEditor.js": 45900,
+    "DocumentEditor.css": 1660,
+    "GraphView.js": 1930,
+    "MapView.js": 2350,
+    "SpatialShared.js": 1970,
+    "SpatialShared.css": 1010
+  }
+}

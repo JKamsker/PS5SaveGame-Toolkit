@@ -10,6 +10,7 @@ export default defineConfig({
   build: {
     outDir: "../src/SaveToolkit.Api/wwwroot",
     emptyOutDir: true,
+    manifest: true,
   },
   test: {
     environment: "jsdom",
