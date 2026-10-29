@@ -314,7 +314,7 @@ gameplay records, known values, no-op, edits/reopen/undo, exact preservation of 
 other plaintext byte and outer bytes, atomic rejection, corruption, valid-SHA1
 malformed encrypted structures, unsupported modes/schema, and every explorer page.
 Sample tests use `SampleSaves` and skip when the archive is unavailable.
-An explicit missing-archive run passed 9 independent tests and skipped 30 sample tests.
+The original missing-archive run passed 9 independent tests and skipped 30 sample tests.
 The embedded catalog contains attributed names, reference facts and adapted descriptions;
 no sample data or downloaded reference implementation is embedded. New tests cover all
 catalog pages, pinned licence attribution, title-node relations, source duplicates and
@@ -337,6 +337,21 @@ cases covering all sample slots, default/direct/Core queries, matching hidden co
 show/hide paging, sentinel/zero-count distinctions, exact visible-slot writes,
 reopen/undo/redo and F6 all-matching visibility/exclusions. API build: **0 warnings,
 0 errors**. All source changes are inside this plugin.
+
+Test-quality review (#40): generated in-memory fixtures now cover valid and physically reversed
+section chains, envelope integrity, directory bounds, first/middle/last section headers,
+cycles, early termination and unexpected tails without private samples. Malformed fixtures
+use a fixed encryption schedule rather than the validating production writer, and assert
+the expected rejection stage. Existing independent cipher vectors and sample digests remain
+the crypto/schema oracles; generated fixtures do not establish new gameplay semantics.
+F6 characterizations cover empty and mixed selections, malformed requests, quantity boundaries,
+exact effects and byte preservation, reopen and undo. Core redo checks the restored value and
+ciphertext. Sample correctness tests retain digest/round-trip assertions without a wall-clock
+deadline that depends on machine load. Fixtures use memory only; sample imports use the shared
+process-owned scratch cleanup.
+Validation: **157 passed, 0 failed, 0 skipped** with samples; with `SAVETOOLKIT_ARTIFACTS`
+unset, **81 passed, 0 failed, 76 skipped**, exit 0. The 47 added cases are sample-independent
+characterizations of existing behavior. Python parser: **3 passed**; API build: **0 warnings/errors**.
 
 ### Native SaveDiff evidence
 
