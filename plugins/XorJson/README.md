@@ -70,6 +70,9 @@ very large/small exponents never pass through double or decimal. Limits are
 JSON numbers remain verbatim/read-only. Existing nulls use an explicit nullable
 number/string/boolean union. Null, empty text and absent members are distinct.
 Changing a scalar to null does not delete its member.
+An original null retains its explicit nullable/union type selector after a
+catalog string assignment, with attributed labels and catalog eligibility for
+string replacements. Other published scalar types remain selectable.
 
 Unchanged scalar tokens retain their exact bytes; changed tokens alone are
 patched. Every edit batch and serialization reparses/reopens the result and
