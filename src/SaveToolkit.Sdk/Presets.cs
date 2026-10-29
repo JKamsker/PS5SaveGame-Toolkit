@@ -18,7 +18,14 @@ public sealed record PresetCompatibility(
     string? CapabilitySchemaVersion = null);
 
 /// <summary>A semantic instance reference. Stable ids are supplied by a plugin; session ids are forbidden.</summary>
-public sealed record PresetInstanceReference(string Kind, string StableId, string? Label = null);
+public sealed record PresetInstanceReference(
+    string Kind,
+    string StableId,
+    string? Label = null,
+    string? Role = null,
+    string? Path = null,
+    string? Build = null,
+    string? Provenance = null);
 
 /// <summary>One action configuration persisted by a toolkit preset.</summary>
 public sealed record PresetAction(

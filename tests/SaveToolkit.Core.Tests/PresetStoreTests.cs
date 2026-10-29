@@ -82,4 +82,21 @@ public sealed class PresetStoreTests
         File.WriteAllBytes(Path.Combine(root, "presets.json"), new byte[2049]);
         Assert.Throws<InvalidDataException>(() => new PresetStore(new() { StorageRoot = root, MaxPayloadBytes = 2048 }));
     }
+
+    [Fact]
+    public void ReloadStagesDuplicateReplacementAndPreservesLastGoodLibrary()
+    {
+        var root = TestZips.TempDir();
+        var store = new PresetStore(new() { StorageRoot = root });
+        var created = store.Create("safe", new("p", "1", ["T"]),
+            [new PresetAction("set", new Dictionary<string, JsonElement>())]);
+        using var source = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "presets.json")));
+        var duplicate = JsonSerializer.Serialize(new[] { source.RootElement[0], source.RootElement[0] });
+        File.WriteAllText(Path.Combine(root, "presets.json"), duplicate);
+
+        var error = Assert.Throws<InvalidDataException>(() => store.Reload());
+
+        Assert.Contains("duplicate", error.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(created.Id, Assert.Single(store.List()).Id);
+    }
 }

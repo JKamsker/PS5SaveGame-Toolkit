@@ -41,6 +41,7 @@ internal sealed partial class ToolkitExceptionHandler(ILogger<ToolkitExceptionHa
             ExportException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
             ReferencePackException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
             InvalidDataException e => (StatusCodes.Status422UnprocessableEntity, $"Invalid data: {e.Message}"),
+            InvalidOperationException e when e.Message.Contains("configured size limit", StringComparison.Ordinal) => (StatusCodes.Status422UnprocessableEntity, e.Message),
             ArgumentException e => (StatusCodes.Status400BadRequest, e.Message),
             InvalidOperationException e => (StatusCodes.Status409Conflict, e.Message),
             BadHttpRequestException e => (e.StatusCode, e.Message),

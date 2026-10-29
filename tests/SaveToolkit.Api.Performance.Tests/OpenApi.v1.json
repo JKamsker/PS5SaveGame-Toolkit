@@ -538,6 +538,21 @@
         ],
         "type": "object"
       },
+      "DocumentPresetDto": {
+        "properties": {
+          "compatibility": {
+            "$ref": "#/components/schemas/PresetCompatibilitySummaryDto"
+          },
+          "preset": {
+            "$ref": "#/components/schemas/PresetDto"
+          }
+        },
+        "required": [
+          "preset",
+          "compatibility"
+        ],
+        "type": "object"
+      },
       "DocumentSourcesDto": {
         "properties": {
           "datasets": {
@@ -2448,6 +2463,116 @@
         ],
         "type": "object"
       },
+      "PresetCompatibilitySummaryDto": {
+        "properties": {
+          "code": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "compatible": {
+            "type": "boolean"
+          },
+          "currentCapabilitySchemaVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "currentFileRole": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "currentFormatVariant": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "currentGameBuild": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "currentReferencePackIdentity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "currentSchemaFingerprint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "presetKind": {
+            "type": "string"
+          },
+          "readOnly": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "savedCapabilitySchemaVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "savedFileRole": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "savedFormatVariant": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "savedGameBuild": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "savedReferencePackIdentity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "savedSchemaFingerprint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "unsupportedActions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "compatible",
+          "readOnly",
+          "presetKind",
+          "unsupportedActions"
+        ],
+        "type": "object"
+      },
       "PresetDto": {
         "properties": {
           "actions": {
@@ -2491,10 +2616,34 @@
       "PresetInstanceReference": {
         "description": "A semantic instance reference. Stable ids are supplied by a plugin; session ids are forbidden.",
         "properties": {
+          "build": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "kind": {
             "type": "string"
           },
           "label": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "path": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provenance": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "role": {
             "type": [
               "null",
               "string"
@@ -4689,6 +4838,68 @@
           "required": true
         },
         "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "tags": [
+          "SaveToolkit.Api"
+        ]
+      }
+    },
+    "/api/presets/reload": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PresetDto"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -7616,6 +7827,104 @@
         ]
       }
     },
+    "/api/workspaces/{workspaceId}/documents/{documentId}/presets": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "documentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional strong revision ETag precondition. Malformed syntax returns 400; mismatch returns 412.",
+            "in": "header",
+            "name": "If-Match",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentPresetDto"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Precondition Failed"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "tags": [
+          "SaveToolkit.Api"
+        ]
+      }
+    },
     "/api/workspaces/{workspaceId}/documents/{documentId}/presets/capture": {
       "post": {
         "parameters": [
@@ -7684,6 +7993,16 @@
               }
             },
             "description": "Conflict"
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Precondition Failed"
           },
           "422": {
             "content": {
@@ -7778,6 +8097,16 @@
             },
             "description": "Conflict"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Precondition Failed"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -7870,6 +8199,16 @@
               }
             },
             "description": "Conflict"
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Precondition Failed"
           },
           "422": {
             "content": {

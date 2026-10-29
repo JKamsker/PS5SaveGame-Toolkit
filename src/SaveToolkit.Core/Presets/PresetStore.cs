@@ -43,6 +43,18 @@ public sealed class PresetStore
         lock (_gate) return [.. _presets.Values.OrderByDescending(p => p.UpdatedAt).Select(ClonePreset)];
     }
 
+    /// <summary>Reloads the external library atomically. A malformed replacement leaves the last good view intact.</summary>
+    public IReadOnlyList<ToolkitPreset> Reload()
+    {
+        var staged = ReadSnapshot();
+        lock (_gate)
+        {
+            _presets.Clear();
+            foreach (var pair in staged) _presets.Add(pair.Key, pair.Value);
+            return [.. _presets.Values.OrderByDescending(p => p.UpdatedAt).Select(ClonePreset)];
+        }
+    }
+
     public ToolkitPreset? Find(string id)
     {
         lock (_gate) return _presets.TryGetValue(id, out var preset) ? ClonePreset(preset) : null;
@@ -119,6 +131,8 @@ public sealed class PresetStore
         if (preset.Compatibility.GameBuild is { } expected
             && !string.Equals(expected, build, StringComparison.Ordinal))
             return new(false, build is null ? "The current game build is unknown." : "This preset belongs to a different game build.", "buildMismatch");
+        if (capability is null && PresetContractValidation.HasSemanticBoundaries(preset.Compatibility))
+            return new(false, "This preset requires semantic capability metadata that the current document cannot publish.", "capabilityUnknown");
         if (!string.Equals(preset.Compatibility.PresetKind, capability?.PresetKind ?? "toolkit.action-parameters", StringComparison.Ordinal))
             return new(false, "This preset kind is not supported by the current document.", "schemaMismatch");
         if (capability is not null)
@@ -150,38 +164,53 @@ public sealed class PresetStore
     private ToolkitPreset FindRequired(string id) => _presets.TryGetValue(id, out var preset)
         ? preset : throw new KeyNotFoundException("Preset not found.");
 
-    private void Load()
+    private void Load() => Reload();
+
+    private Dictionary<string, ToolkitPreset> ReadSnapshot()
     {
         var path = Path.Combine(_options.StorageRoot, FileName);
-        if (!File.Exists(path)) return;
+        if (!File.Exists(path)) return new(StringComparer.Ordinal);
         try
         {
-            var fileLength = new FileInfo(path).Length;
-            if (fileLength > _options.MaxPayloadBytes)
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read,
+                FileShare.ReadWrite | FileShare.Delete, 64 * 1024, FileOptions.SequentialScan);
+            var readLimit = (int)Math.Min((long)_options.MaxPayloadBytes + 1, int.MaxValue);
+            var bytes = new byte[readLimit];
+            var count = 0;
+            while (count < bytes.Length)
+            {
+                var read = stream.Read(bytes, count, bytes.Length - count);
+                if (read == 0) break;
+                count += read;
+            }
+            if (count > _options.MaxPayloadBytes)
                 throw new InvalidDataException("Preset storage exceeds the configured size limit.");
-            var bytes = File.ReadAllBytes(path);
-            if (bytes.LongLength > _options.MaxPayloadBytes)
-                throw new InvalidDataException("Preset storage exceeds the configured size limit.");
-            var records = JsonSerializer.Deserialize<List<ToolkitPreset>>(bytes, JsonOptions) ?? [];
+            var records = JsonSerializer.Deserialize<List<ToolkitPreset>>(bytes.AsSpan(0, count), JsonOptions) ?? [];
             if (records.Count > _options.MaxPresets) throw new InvalidDataException("Preset storage exceeds the configured limit.");
+            var staged = new Dictionary<string, ToolkitPreset>(StringComparer.Ordinal);
             foreach (var preset in records)
             {
-                if (preset.SchemaVersion != CurrentSchemaVersion || string.IsNullOrWhiteSpace(preset.Id)) continue;
+                if (preset is null || preset.SchemaVersion != CurrentSchemaVersion || string.IsNullOrWhiteSpace(preset.Id))
+                    continue;
                 ValidatePayload(preset.Compatibility, preset.Actions);
-                _presets[preset.Id] = ClonePreset(preset);
+                if (!staged.TryAdd(preset.Id, ClonePreset(preset)))
+                    throw new InvalidDataException($"Preset storage contains duplicate id '{preset.Id}'.");
             }
+            return staged;
         }
+        catch (FileNotFoundException ex) { throw new InvalidDataException("Preset storage disappeared during load.", ex); }
+        catch (DirectoryNotFoundException ex) { throw new InvalidDataException("Preset storage disappeared during load.", ex); }
         catch (JsonException ex)
         {
             throw new InvalidDataException("Preset storage is not valid JSON.", ex);
         }
     }
 
-    private void Persist()
+    private void Persist(IEnumerable<ToolkitPreset>? records = null)
     {
         var path = Path.Combine(_options.StorageRoot, FileName);
         var temp = path + ".tmp";
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(_presets.Values.OrderBy(p => p.Id), JsonOptions);
+        var bytes = JsonSerializer.SerializeToUtf8Bytes((records ?? _presets.Values).OrderBy(p => p.Id), JsonOptions);
         if (bytes.LongLength > _options.MaxPayloadBytes)
             throw new InvalidOperationException("Preset storage exceeds the configured size limit.");
         try
@@ -208,6 +237,10 @@ public sealed class PresetStore
         if (actions.Any(action => action is null || string.IsNullOrWhiteSpace(action.ActionId) || action.Parameters is null || action.Parameters.Count > 128
             || string.IsNullOrWhiteSpace(action.ScopeKind)))
             throw new ArgumentException("Preset actions must have an id and at most 128 parameters.");
+        if (actions.SelectMany(action => action.Instances ?? []).Any(reference => reference is null
+            || string.IsNullOrWhiteSpace(reference.Kind) || string.IsNullOrWhiteSpace(reference.StableId)
+            || reference.StableId.Length > PresetContractValidation.MaxKeyLength))
+            throw new ArgumentException("Preset instance references must use bounded stable identifiers.");
         var bytes = JsonSerializer.SerializeToUtf8Bytes(new { compatibility, actions }, JsonOptions);
         if (bytes.Length > _options.MaxPayloadBytes) throw new ArgumentException("Preset payload is too large.");
     }
