@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { api, ApiError } from "../../api/client";
 import type { ExportPlan } from "../../api/protocol";
@@ -20,6 +20,22 @@ function setup() {
 }
 
 describe("export plan freshness", () => {
+  it("announces packing and download failures inside the modal and allows retry", async () => {
+    vi.spyOn(api, "exportPlan").mockResolvedValue(changed);
+    let fail!: (error: Error) => void;
+    vi.spyOn(api, "exportZip").mockImplementation(() => new Promise((_resolve, reject) => { fail = reject; }));
+    const { client } = setup();
+    const dialog = within(screen.getByRole("dialog", { name: "Export edited saves" }));
+    await dialog.findByText("save.dat");
+    fireEvent.click(dialog.getByRole("button", { name: "Download zip" }));
+    const packingText = dialog.queryByRole("status")?.textContent;
+    await act(async () => { fail(new ApiError("Save failed integrity validation", 422)); });
+    expect(packingText).toBe("Packing edited saves…");
+    expect(dialog.getByRole("alert").textContent).toBe("Save failed integrity validation");
+    expect((dialog.getByRole("button", { name: "Download zip" }) as HTMLButtonElement).disabled).toBe(false);
+    client.clear();
+  });
+
   it("reloads the plan on each opening and disables download until the current plan arrives", async () => {
     let finish!: (value: ExportPlan) => void;
     vi.spyOn(api, "exportPlan").mockResolvedValueOnce(empty)
