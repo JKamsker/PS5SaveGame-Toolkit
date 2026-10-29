@@ -243,6 +243,13 @@ for names; 1,048,576 for scalar strings; 16 million code units each for record
 and property identity paths. Lazy expansions contain at most 100 top-level
 nodes; tables and blobs are paged. Impossible framing/counts, unsupported codec
 variants and malformed inspected structures throw `SaveFormatException`.
+Known fixed-width primitive tags require their exact payload sizes in SlotInfo
+and inspected SlotData sequences; boolean tag values must be 0 or 1. Unknown
+types/native structures remain opaque. The robustness review rechecked the
+[SaveExtension record source](https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/Serialization/Records.cpp)
+and [Epic's property-tag reference](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/FPropertyTag)
+on 2026-10-29. These describe structural leads; the fixed-width rules are also
+verified against the supplied PS5 bytes and authored corruption fixtures.
 
 ## Validation
 

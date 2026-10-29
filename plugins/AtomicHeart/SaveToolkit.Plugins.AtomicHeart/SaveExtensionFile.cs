@@ -75,10 +75,11 @@ internal sealed record SaveExtensionFile(int PackageVersion, string Engine, int 
             if (type == "StructProperty") { structType = reader.String(); reader.Take(16); }
             else if (type is "ArrayProperty" or "SetProperty" or "ByteProperty" or "EnumProperty") _ = reader.String();
             else if (type == "MapProperty") { _ = reader.String(); _ = reader.String(); }
-            if (type == "BoolProperty") _ = reader.Byte();
+            if (type == "BoolProperty" && reader.Byte() > 1) throw new SaveFormatException("Invalid SlotInfo property boolean.");
             var hasGuid = reader.Byte();
             if (hasGuid > 1) throw new SaveFormatException("Invalid SlotInfo property GUID flag.");
             if (hasGuid != 0) reader.Take(16);
+            PrimitivePayload.ValidateSize(type, structType, size);
             var offset = reader.Position;
             reader.Take(size);
             var value = new SaveCursor(bytes, offset, offset + size);
