@@ -11,6 +11,8 @@ internal sealed record Dat1Section(int Index, uint Tag, uint Offset, uint Size)
 internal sealed class Dat1Container
 {
     internal const int HeaderSize = 16;
+    private const int SectionDescriptorSize = 12;
+    private const int AuxiliaryRecordSize = 8;
     private const uint Magic = 0x4441_5431;
     private const uint MaxFileSize = 64 * 1024 * 1024;
     private const int MaxRecords = 4096;
@@ -67,6 +69,18 @@ internal sealed class Dat1Container
 
         var bytes = source.ToArray();
         var span = bytes.AsSpan();
+        var (word, totalSize, sectionCount, auxiliaryCount, descriptorEnd) = ReadHeader(span);
+        var sections = ReadSections(span, sectionCount, descriptorEnd, totalSize);
+        var auxiliaryOffset = HeaderSize + sectionCount * SectionDescriptorSize;
+        var auxiliary = bytes.AsSpan(auxiliaryOffset, auxiliaryCount * AuxiliaryRecordSize).ToArray();
+        ValidateNonOverlapping(sections);
+        var dataStart = sections.Count == 0 ? descriptorEnd : checked((int)sections.Min(s => s.Offset));
+        return new Dat1Container(bytes, word, totalSize, sectionCount, auxiliaryCount, auxiliary, sections, descriptorEnd, dataStart);
+    }
+
+    private static (uint Word, uint TotalSize, ushort SectionCount, ushort AuxiliaryCount, int DescriptorEnd)
+        ReadHeader(ReadOnlySpan<byte> span)
+    {
         var magic = ReadUInt32(span, 0);
         var word = ReadUInt32(span, 4);
         var totalSize = ReadUInt32(span, 8);
@@ -82,9 +96,9 @@ internal sealed class Dat1Container
             throw new SaveFormatException($"Unsupported DAT1 header word 0x{word:X8}; expected 8.");
         }
 
-        if (totalSize != bytes.Length)
+        if (totalSize != span.Length)
         {
-            throw new SaveFormatException($"DAT1 total size ({totalSize}) does not match the file length ({bytes.Length}).");
+            throw new SaveFormatException($"DAT1 total size ({totalSize}) does not match the file length ({span.Length}).");
         }
 
         if (sectionCount > MaxRecords || auxiliaryCount > MaxRecords)
@@ -92,12 +106,16 @@ internal sealed class Dat1Container
             throw new SaveFormatException("DAT1 descriptor count is unreasonably large.");
         }
 
-        var descriptorEnd = checked(HeaderSize + sectionCount * 12 + auxiliaryCount * 8);
-        if (descriptorEnd > bytes.Length)
+        var descriptorEnd = checked(HeaderSize + sectionCount * SectionDescriptorSize + auxiliaryCount * AuxiliaryRecordSize);
+        if (descriptorEnd > span.Length)
         {
             throw new SaveFormatException("DAT1 descriptor table is truncated.");
         }
+        return (word, totalSize, sectionCount, auxiliaryCount, descriptorEnd);
+    }
 
+    private static List<Dat1Section> ReadSections(ReadOnlySpan<byte> span, ushort sectionCount, int descriptorEnd, uint totalSize)
+    {
         var sections = new List<Dat1Section>(sectionCount);
         var position = HeaderSize;
         for (var index = 0; index < sectionCount; index++)
@@ -111,13 +129,10 @@ internal sealed class Dat1Container
             }
 
             sections.Add(new Dat1Section(index, tag, offset, size));
-            position += 12;
+            position += SectionDescriptorSize;
         }
 
-        var auxiliary = bytes.AsSpan(position, auxiliaryCount * 8).ToArray();
-        ValidateNonOverlapping(sections);
-        var dataStart = sections.Count == 0 ? descriptorEnd : checked((int)sections.Min(s => s.Offset));
-        return new Dat1Container(bytes, word, totalSize, sectionCount, auxiliaryCount, auxiliary, sections, descriptorEnd, dataStart);
+        return sections;
     }
 
     internal ReadOnlySpan<byte> SectionBytes(Dat1Section section) => Bytes.AsSpan(checked((int)section.Offset), checked((int)section.Size));

@@ -23,7 +23,7 @@ public sealed class WarningConsistencyTests
         {
             using var document = plugin.Open(file);
             var view = Assert.IsType<TabsNode>(document.BuildView());
-            var writable = Fields(view).Where(field => !field.Spec.ReadOnly).ToArray();
+            var writable = EagerViewFields.Enumerate(view).Where(field => !field.Spec.ReadOnly).ToArray();
             Assert.NotEmpty(writable);
             Assert.All(writable, field =>
             {
@@ -46,12 +46,4 @@ public sealed class WarningConsistencyTests
             }
         }
     }
-
-    private static IEnumerable<FieldNode> Fields(ViewNode node) => node switch
-    {
-        FieldNode field => [field],
-        TabsNode tabs => tabs.Tabs.SelectMany(tab => tab.Children).SelectMany(Fields),
-        SectionNode section => section.Children.SelectMany(Fields),
-        _ => [],
-    };
 }

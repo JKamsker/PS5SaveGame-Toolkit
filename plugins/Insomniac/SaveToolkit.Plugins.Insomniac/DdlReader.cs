@@ -60,42 +60,8 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section, in
         var fields = new Dictionary<string, DdlField>(StringComparer.Ordinal);
         for (var index = 0; index < count; index++)
         {
-            var hash = BinaryPrimitives.ReadUInt32LittleEndian(descriptors[(index * 8)..]);
-            var meta = BinaryPrimitives.ReadUInt32LittleEndian(descriptors[(index * 8 + 4)..]);
-            var nameOffset = BinaryPrimitives.ReadUInt32LittleEndian(descriptors[(count * 8 + index * 4)..]);
-            var name = ReadName(nameOffset);
-            if (name.Hash != hash)
-                throw Invalid("Field name does not match its identifier hash.");
-
-            var kind = (DdlValueKind)(meta >> 24);
-            var length = checked((int)((meta >> 4) & 0xFFFFF));
-            _totalValues = checked(_totalValues + length);
-            if (!Enum.IsDefined(kind) || _totalValues > MaxValues || (meta & 0xF) > 3)
-                throw Invalid("Unsupported field count or array kind.");
-
-            var offset = _position;
-            // Counts have passed the aggregate budget. Cap capacity by physical bytes too,
-            // so a truncated declaration cannot allocate its claimed array before rejection.
-            var remaining = _limit - _position;
-            var values = new List<FieldValue>(kind is DdlValueKind.Null or DdlValueKind.Object
-                ? 0 : Math.Min(length, remaining / MinimumValueSize(kind)));
-            var objects = new List<DdlObject>(kind == DdlValueKind.Object
-                ? Math.Min(length, remaining / HeaderSize) : 0);
-            if (kind == DdlValueKind.Null)
-            {
-                // Empty arrays use type 19, count zero, and one stored null byte on PS5.
-                if (length != 0 || Take(1)[0] != 0) throw Invalid("Invalid empty field.");
-            }
-            else
-            {
-                for (var valueIndex = 0; valueIndex < length; valueIndex++)
-                {
-                    if (kind == DdlValueKind.Object) objects.Add(ReadObject(depth + 1));
-                    else values.Add(ReadValue(kind));
-                }
-            }
-
-            if (!fields.TryAdd(name.Text, new DdlField(name.Text, kind, length, offset, values) { Objects = objects }))
+            var field = ReadField(descriptors, index, count, depth);
+            if (!fields.TryAdd(field.Name, field))
                 throw Invalid("Duplicate field name.");
         }
 
@@ -103,6 +69,45 @@ internal sealed class DdlReader(Dat1Container container, Dat1Section section, in
             throw Invalid("Unexpected bytes after the object fields.");
         _limit = parentLimit;
         return new DdlObject(start, HeaderSize + size, fields);
+    }
+
+    private DdlField ReadField(ReadOnlySpan<byte> descriptors, int index, int count, int depth)
+    {
+        var hash = BinaryPrimitives.ReadUInt32LittleEndian(descriptors[(index * 8)..]);
+        var meta = BinaryPrimitives.ReadUInt32LittleEndian(descriptors[(index * 8 + 4)..]);
+        var nameOffset = BinaryPrimitives.ReadUInt32LittleEndian(descriptors[(count * 8 + index * 4)..]);
+        var name = ReadName(nameOffset);
+        if (name.Hash != hash)
+            throw Invalid("Field name does not match its identifier hash.");
+
+        var kind = (DdlValueKind)(meta >> 24);
+        var length = checked((int)((meta >> 4) & 0xFFFFF));
+        _totalValues = checked(_totalValues + length);
+        if (!Enum.IsDefined(kind) || _totalValues > MaxValues || (meta & 0xF) > 3)
+            throw Invalid("Unsupported field count or array kind.");
+
+        var offset = _position;
+        // Counts have passed the aggregate budget. Cap capacity by physical bytes too,
+        // so a truncated declaration cannot allocate its claimed array before rejection.
+        var remaining = _limit - _position;
+        var values = new List<FieldValue>(kind is DdlValueKind.Null or DdlValueKind.Object
+            ? 0 : Math.Min(length, remaining / MinimumValueSize(kind)));
+        var objects = new List<DdlObject>(kind == DdlValueKind.Object
+            ? Math.Min(length, remaining / HeaderSize) : 0);
+        if (kind == DdlValueKind.Null)
+        {
+            // Empty arrays use type 19, count zero, and one stored null byte on PS5.
+            if (length != 0 || Take(1)[0] != 0) throw Invalid("Invalid empty field.");
+        }
+        else
+        {
+            for (var valueIndex = 0; valueIndex < length; valueIndex++)
+            {
+                if (kind == DdlValueKind.Object) objects.Add(ReadObject(depth + 1));
+                else values.Add(ReadValue(kind));
+            }
+        }
+        return new(name.Text, kind, length, offset, values) { Objects = objects };
     }
 
     private static int MinimumValueSize(DdlValueKind kind) => kind switch

@@ -57,6 +57,32 @@ public sealed class DdlCorruptionTests
         void Write(int offset, uint value) => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), value);
     }
 
+    [Theory]
+    [InlineData(0, "Field name points outside the string table.")]
+    [InlineData(1, "Field name does not match its identifier hash.")]
+    [InlineData(2, "Unsupported field count or array kind.")]
+    public void FieldValidationPreservesNameHashTypeAndPayloadPrecedence(int firstInvalidPart, string expected)
+    {
+        var fixture = new DdlTestFixture(new DdlTestFixture.Field("Flag", DdlValueKind.Bool, [2]));
+        if (firstInvalidPart == 0) fixture.Write(fixture.NamePointerOffset(0), uint.MaxValue);
+        if (firstInvalidPart <= 1) fixture.Write(fixture.DescriptorOffset(0), 0);
+        fixture.Write(fixture.DescriptorOffset(0) + sizeof(uint), 0xFE000010);
+        Assert.Equal($"DDL section 0x2EE91673: {expected}", Assert.Throws<SaveFormatException>(() =>
+            NestedDdlTests.Read(fixture.Bytes)).Message);
+    }
+
+    [Fact]
+    public void DuplicateFieldPayloadIsValidatedBeforeDuplicateNameRejection()
+    {
+        var fixture = new DdlTestFixture(
+            new("Flag", DdlValueKind.Bool, [1]), new("Flag", DdlValueKind.Bool, [2]));
+        Assert.Equal("DDL section 0x2EE91673: Boolean is neither zero nor one.",
+            Assert.Throws<SaveFormatException>(() => NestedDdlTests.Read(fixture.Bytes)).Message);
+        fixture.Bytes[fixture.ValueOffset(1)] = 0;
+        Assert.Equal("DDL section 0x2EE91673: Duplicate field name.",
+            Assert.Throws<SaveFormatException>(() => NestedDdlTests.Read(fixture.Bytes)).Message);
+    }
+
     [Fact]
     public void UnmodifiedSyntheticRootHasExpectedValuesAndRoundTripsExactly()
     {

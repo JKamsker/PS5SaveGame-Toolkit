@@ -31,57 +31,83 @@ internal sealed class RiftEvidenceDecoder : ISaveDecoderHook
         }
         if (sections.Roots.TryGetValue(DdlSections.PreferencesTag, out var preferences))
         {
-            foreach (var field in preferences.Values.Where(f => f.Kind == DdlValueKind.Bool && f.Values.Count == 1))
-                if (!Add(sink, $"preferences/{field.Name}", field.Kind.ToString(), field.Values[0].ToString())) return;
+            AddPreferences(sink, preferences);
             return;
         }
+        if (!AddCampaign(sink, sections)) return;
+        if (!AddInventory(sink, container, blocks)) return;
+        AddSystemSummaries(sink, sections);
+    }
+
+    private static void AddPreferences(ISaveDecodeSink sink, IReadOnlyDictionary<string, DdlField> preferences)
+    {
+        foreach (var field in preferences.Values.Where(f => f.Kind == DdlValueKind.Bool && f.Values.Count == 1))
+            if (!Add(sink, $"preferences/{field.Name}", field.Kind.ToString(), field.Values[0].ToString())) return;
+    }
+
+    private static bool AddCampaign(ISaveDecodeSink sink, DdlSections sections)
+    {
         if (!sections.Roots.TryGetValue(RiftPlayerView.CampaignTag, out var campaign))
             throw new SaveFormatException("Rift Apart evidence requires a campaign or preferences section.");
         foreach (var field in campaign.Values.Where(f => f.Name.StartsWith("Career", StringComparison.Ordinal) ||
                      f.Name.StartsWith("Level", StringComparison.Ordinal) || f.Name.StartsWith("QuickSelect", StringComparison.Ordinal) ||
                      f.Name is "SpentBolts" or "VanityPickupsCollected" or "RYNOPlansCollected" or "RuinTokensCollected" or "ZerpStonesCollected"))
         {
-            if (!Add(sink, $"campaign/{field.Name}/wire-type", "type", field.Kind.ToString())) return;
+            if (!Add(sink, $"campaign/{field.Name}/wire-type", "type", field.Kind.ToString())) return false;
             for (var index = 0; index < field.Values.Count; index++)
                 if (!Add(sink, $"campaign/{field.Name}/{index}", field.Kind.ToString(), field.Values[index].ToString()))
-                    return;
+                    return false;
         }
         if (sections.Roots.TryGetValue(RiftPlayerView.GoldBoltTag, out var gold))
             foreach (var field in gold.Values.Where(f => f.Values.Count == 1))
-                if (!Add(sink, $"gold-options/{field.Name}", field.Kind.ToString(), field.Values[0].ToString())) return;
+                if (!Add(sink, $"gold-options/{field.Name}", field.Kind.ToString(), field.Values[0].ToString())) return false;
+        return true;
+    }
+
+    private static bool AddInventory(ISaveDecodeSink sink, Dat1Container container, IReadOnlyList<InventoryBlock> blocks)
+    {
         if (blocks.Any(block => block.Occurrence > 0))
             sink.Warn("Repeated inventory tags are aligned by stored occurrence; container reorder is not proven identity.");
         foreach (var block in blocks)
         {
             var prefix = $"inventory/{block.Key}";
-            if (!Add(sink, $"{prefix}/record-count", "integer", block.Records.Count.ToString(CultureInfo.InvariantCulture))) return;
+            if (!Add(sink, $"{prefix}/record-count", "integer", block.Records.Count.ToString(CultureInfo.InvariantCulture))) return false;
             foreach (var record in block.Records)
-            {
-                var path = $"{prefix}/{record.Key}";
-                if (record.GuidBytes is null || !record.Key.EndsWith("/0", StringComparison.Ordinal))
-                    sink.MarkTruncated("Inventory identity uses a position or duplicate-GUID occurrence; absence is not proof of removal.");
-                if (!Add(sink, $"{path}/payload-sha256", "hash",
-                        Convert.ToHexStringLower(SHA256.HashData(container.Bytes.AsSpan(record.Offset, record.Size)))))
-                    return;
-                if (record.Count is { } count && !Add(sink, $"{path}/count", "integer", count.ToString(CultureInfo.InvariantCulture))) return;
-                if (record.Xp is { } xp)
-                {
-                    if (!Add(sink, $"{path}/xp", "integer", xp.ToString(CultureInfo.InvariantCulture))) return;
-                    if (!Add(sink, $"{path}/loaded-ammo", "float", record.LoadedAmmo!.Value.ToString("R", CultureInfo.InvariantCulture))) return;
-                }
-                if (record.Upgrades is { } upgrades)
-                {
-                    if (!Add(sink, $"{path}/mods", "mask", upgrades.Mods.ToString("x16", CultureInfo.InvariantCulture))) return;
-                    if (!Add(sink, $"{path}/omega", "boolean", upgrades.Omega.ToString(CultureInfo.InvariantCulture))) return;
-                    for (var index = 0; index < upgrades.Grid.Count; index++)
-                        if (!Add(sink, $"{path}/mod-grid/{index}", "u16", upgrades.Grid[index].ToString(CultureInfo.InvariantCulture))) return;
-                    for (var index = 0; index < upgrades.Counts.Count; index++)
-                        if (!Add(sink, $"{path}/mod-count/{index}", "u8", upgrades.Counts[index].ToString(CultureInfo.InvariantCulture))) return;
-                }
-                if (record.Vanity is { } vanity &&
-                    !Add(sink, $"{path}/color", "u8", vanity.Color.ToString(CultureInfo.InvariantCulture))) return;
-            }
+                if (!AddRecord(sink, container, prefix, record)) return false;
         }
+        return true;
+    }
+
+    private static bool AddRecord(ISaveDecodeSink sink, Dat1Container container, string prefix, InventoryRecord record)
+    {
+        var path = $"{prefix}/{record.Key}";
+        if (record.GuidBytes is null || !record.Key.EndsWith("/0", StringComparison.Ordinal))
+            sink.MarkTruncated("Inventory identity uses a position or duplicate-GUID occurrence; absence is not proof of removal.");
+        if (!Add(sink, $"{path}/payload-sha256", "hash",
+                Convert.ToHexStringLower(SHA256.HashData(container.Bytes.AsSpan(record.Offset, record.Size)))))
+            return false;
+        if (record.Count is { } count && !Add(sink, $"{path}/count", "integer", count.ToString(CultureInfo.InvariantCulture))) return false;
+        if (record.Xp is { } xp)
+        {
+            if (!Add(sink, $"{path}/xp", "integer", xp.ToString(CultureInfo.InvariantCulture))) return false;
+            if (!Add(sink, $"{path}/loaded-ammo", "float", record.LoadedAmmo!.Value.ToString("R", CultureInfo.InvariantCulture))) return false;
+        }
+        if (record.Upgrades is { } upgrades)
+        {
+            if (!Add(sink, $"{path}/mods", "mask", upgrades.Mods.ToString("x16", CultureInfo.InvariantCulture))) return false;
+            if (!Add(sink, $"{path}/omega", "boolean", upgrades.Omega.ToString(CultureInfo.InvariantCulture))) return false;
+            for (var index = 0; index < upgrades.Grid.Count; index++)
+                if (!Add(sink, $"{path}/mod-grid/{index}", "u16", upgrades.Grid[index].ToString(CultureInfo.InvariantCulture))) return false;
+            for (var index = 0; index < upgrades.Counts.Count; index++)
+                if (!Add(sink, $"{path}/mod-count/{index}", "u8", upgrades.Counts[index].ToString(CultureInfo.InvariantCulture))) return false;
+        }
+        if (record.Vanity is { } vanity &&
+            !Add(sink, $"{path}/color", "u8", vanity.Color.ToString(CultureInfo.InvariantCulture))) return false;
+        return true;
+    }
+
+    private static void AddSystemSummaries(ISaveDecodeSink sink, DdlSections sections)
+    {
         foreach (var tag in new[] { DdlSections.DimensionTag, DdlSections.ObjectivesTag, DdlSections.AwardsTag, DdlSections.FogTag })
         {
             if (!sections.Roots.TryGetValue(tag, out var root)) continue;
