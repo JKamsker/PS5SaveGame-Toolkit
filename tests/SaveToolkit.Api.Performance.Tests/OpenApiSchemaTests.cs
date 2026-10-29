@@ -98,6 +98,19 @@ public sealed class OpenApiSchemaTests
     }
 
     [Fact]
+    public async Task Field_reference_schema_declares_direct_target_and_bounded_presentation_only()
+    {
+        var schemas = (await ReadDocument())["components"]!["schemas"]!;
+        var mapping = schemas["ViewNode"]!["discriminator"]!["mapping"]!;
+        Assert.Equal("#/components/schemas/ViewNodeFieldReferenceNode", mapping["fieldReference"]!.GetValue<string>());
+        var properties = schemas["FieldReferenceNode"]!["properties"]!.AsObject();
+        Assert.Equal(["description", "label", "targetValueId"], properties.Select(property => property.Key).Order(StringComparer.Ordinal));
+        Assert.Equal(4096, properties["targetValueId"]!["maxLength"]!.GetValue<int>());
+        Assert.Equal(4096, properties["label"]!["maxLength"]!.GetValue<int>());
+        Assert.Equal(4096, properties["description"]!["maxLength"]!.GetValue<int>());
+    }
+
+    [Fact]
     public void Normalization_ignores_host_property_order_and_line_endings_but_retains_contract_changes()
     {
         var original = JsonNode.Parse("""{"openapi":"3.1.0","description":"line\r\nnext","paths":{"/api/a":{"get":{"responses":{"200":{}}}}},"components":{"schemas":{"Example":{}}},"servers":[{"url":"http://localhost:1"}]}""")!.AsObject();
