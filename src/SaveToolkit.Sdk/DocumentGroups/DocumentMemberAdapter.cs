@@ -62,6 +62,26 @@ public sealed class DocumentMemberAdapter
     /// <summary>Read a group-qualified field through its member-local binding.</summary>
     public FieldValue GetValue(string valueId) => Document.GetValue(Local(valueId));
 
+    /// <summary>
+    /// Resolves explicitly requested member metadata against the current member model and qualifies
+    /// both field and canonical identities. Unknown IDs are omitted by the member contract; paths
+    /// are mapped only when the plugin published a real navigation path.
+    /// </summary>
+    public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+    {
+        ArgumentNullException.ThrowIfNull(valueIds);
+        if (Document is not IFieldMetadataDocument metadata) return [];
+        var localIds = valueIds.Select(id => _policy.TryToLocalId(Role, id))
+            .Where(id => id is not null).Select(id => id!).ToArray();
+        if (localIds.Length == 0) return [];
+        return metadata.ResolveFieldMetadata(Array.AsReadOnly(localIds)).Select(field => field with
+        {
+            ValueId = Prefix(field.ValueId),
+            CanonicalValueId = Prefix(string.IsNullOrEmpty(field.CanonicalValueId) ? field.ValueId : field.CanonicalValueId),
+            Path = field.Path is { } path ? Array.AsReadOnly(_policy.NavigationPath(Role, path).ToArray()) : null,
+        }).ToArray();
+    }
+
     /// <summary>Expand a group-qualified lazy section and map all returned children.</summary>
     public IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {

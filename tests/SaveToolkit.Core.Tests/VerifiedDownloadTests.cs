@@ -78,11 +78,13 @@ public sealed class VerifiedDownloadTests
             // to the captured revision; HTTP callers additionally use the revision filter.
             Assert.True(Edit(session, 7).Ok);
         };
+        var opensBeforeCapture = plugin.OpenCalls;
 
         var output = Assert.IsType<FileOutput>(DocumentDownloader.Capture(workspace, session));
 
         Assert.Equal(CounterPlugin.Create(6), verifiedBytes);
         Assert.Equal(verifiedBytes, output.Content.ToArray());
+        Assert.Equal(opensBeforeCapture + 1, plugin.OpenCalls);
         Assert.Equal(1, plugin.SerializeCalls);
         Assert.Equal(2, session.State.Revision);
         Assert.True(session.State.IsDirty);

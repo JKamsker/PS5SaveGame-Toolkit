@@ -9,8 +9,8 @@ namespace SaveToolkit.Core.Sessions.Groups;
 /// Runs mutations and restores on independent candidates. The owning DocumentSession serializes calls
 /// and supplies F5 history/F6 plans. A failed plugin call never reaches the published group model.
 /// </summary>
-internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocument, IQueryableDocument,
-    IAdditionalOutputOwner
+internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocument, IActionPlanningDocument,
+    IQueryableDocument, IAdditionalOutputOwner
 {
     private const int MaxRememberedQueries = 256;
     private readonly Func<IGroupedSaveDocument> _open;
@@ -48,6 +48,12 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
         _current is IAdditionalOutputOwner owner ? owner.AdditionalOutputPaths : [];
     public ViewNode BuildView() => _current.BuildView();
     public FieldValue GetValue(string valueId) => _current.GetValue(valueId);
+
+    internal bool MetadataEnabled => _current is IFieldMetadataDocument;
+
+    /// <summary>Forward bounded metadata to the currently published candidate.</summary>
+    public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds) =>
+        _current is IFieldMetadataDocument metadata ? metadata.ResolveFieldMetadata(valueIds) : [];
     public AssetContent? GetAsset(string assetId) => _current.GetAsset(assetId);
     public ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count) => _current.ReadBlob(blobId, offset, count);
 

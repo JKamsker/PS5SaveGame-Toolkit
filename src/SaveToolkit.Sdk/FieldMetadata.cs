@@ -20,6 +20,13 @@ public sealed record FieldMetadata(string ValueId, string Label, FieldSpec Spec)
     /// <summary>Derived fields must publish a read-only spec; this does not add write permission.</summary>
     public FieldBindingKind BindingKind { get; init; }
 
+    /// <summary>
+    /// Stable primary identity for this value. Primaries point to themselves; a derived value may
+    /// point at a different primary when the relationship is explicitly published by the plugin.
+    /// Equal values, labels or specs never imply an alias.
+    /// </summary>
+    public string CanonicalValueId { get; init; } = "";
+
     /// <summary>Optional real view navigation path. Null means no known navigation target.</summary>
     public IReadOnlyList<string>? Path { get; init; }
 

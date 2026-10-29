@@ -140,10 +140,49 @@ public sealed class DocumentMemberAdapterTests
         Assert.Throws<KeyNotFoundException>(() => member.Query("b/items", new()));
     }
 
+    [Fact]
+    public void MetadataForwardingQualifiesCanonicalAliasesAndPreservesPresentation()
+    {
+        using var document = new MetadataMemberDocument();
+        var member = new DocumentMemberAdapter("profile", document);
+        var alias = Assert.Single(member.ResolveFieldMetadata(["profile/legacy"]));
+        Assert.Equal("profile/legacy", alias.ValueId);
+        Assert.Equal("profile/current", alias.CanonicalValueId);
+        Assert.Equal(["settings"], alias.Path);
+        Assert.Equal(Confidence.Inferred, alias.Presentation!.Confidence);
+        var router = new DocumentMemberRouter([member]);
+        Assert.Equal("profile/current", Assert.Single(router.ResolveFieldMetadata(["profile/current"])).ValueId);
+    }
+
     private sealed class PlainDocument : BoundSaveDocument
     {
         public override string Title => "Plain";
         public override ViewNode BuildView() => new TextNode("Plain");
         public override IReadOnlyList<FileOutput> Serialize() => [];
+    }
+
+    private sealed class MetadataMemberDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        private int _value = 1;
+
+        public MetadataMemberDocument()
+        {
+            RegisterField(new FieldMetadata("current", "Current", IntegerSpec.Int32)
+            {
+                Path = ["settings"],
+                Presentation = new FieldPresentation { Confidence = Confidence.Verified },
+            }, () => FieldValue.Of(_value), value => _value = value.AsInt32());
+            RegisterField(new FieldMetadata("legacy", "Legacy", IntegerSpec.Int32 with { ReadOnly = true })
+            {
+                BindingKind = FieldBindingKind.Derived,
+                CanonicalValueId = "current",
+                Path = ["settings"],
+                Presentation = new FieldPresentation { Confidence = Confidence.Inferred },
+            }, () => FieldValue.Of(_value));
+        }
+
+        public override string Title => "Metadata member";
+        public override ViewNode BuildView() => new TextNode("metadata");
+        public override IReadOnlyList<FileOutput> Serialize() => [new("member", new byte[] { (byte)_value })];
     }
 }
