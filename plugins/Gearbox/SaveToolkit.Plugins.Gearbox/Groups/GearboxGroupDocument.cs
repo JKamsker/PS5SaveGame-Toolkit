@@ -6,7 +6,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.Gearbox;
 
-internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDocument, IActionPlanningDocument
+internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDocument, IActionPlanningDocument, IFieldMetadataDocument
 {
     private readonly IReferenceContext _references;
     private readonly MemberBytes[] _original;
@@ -48,6 +48,25 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
     public IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _router.Resolve(lazyId).ExpandNode(lazyId);
 
     public FieldValue GetValue(string valueId) => _router.Resolve(valueId).GetValue(valueId);
+
+    public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+    {
+        ArgumentNullException.ThrowIfNull(valueIds);
+        if (valueIds.Count > FieldMetadataLimits.MaxBatchSize)
+            throw new ArgumentOutOfRangeException(nameof(valueIds), valueIds.Count,
+                $"Request at most {FieldMetadataLimits.MaxBatchSize} field IDs per batch.");
+        foreach (var id in valueIds) ArgumentException.ThrowIfNullOrEmpty(id, nameof(valueIds));
+
+        // Unknown IDs follow the document contract and remain unavailable. A recognized identity
+        // must have exactly one owner; the router still validates member results and request order.
+        var owned = valueIds.Where(id =>
+        {
+            var matches = _members.Count(member => member.Owns(id));
+            if (matches > 1) throw new InvalidOperationException("The group identity matches multiple member policies.");
+            return matches == 1;
+        }).ToArray();
+        return owned.Length == 0 ? [] : _router.ResolveFieldMetadata(owned);
+    }
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => _router.Resolve(collectionId).Query(collectionId, query);
 

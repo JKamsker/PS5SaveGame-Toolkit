@@ -8,7 +8,7 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Plugins.Gearbox;
 
 internal sealed class GearboxDocument(string relativePath, string titleId, GearboxContainer container, ProtoMessage root,
-    IReferenceContext references) : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
+    IReferenceContext references) : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument, IFieldMetadataDocument
 {
     private readonly Dictionary<string, Func<FieldValue>> _readers = new(StringComparer.Ordinal);
     private readonly GearboxLazyViews _lazy = new();
@@ -46,6 +46,13 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     internal bool Coordinated { get; init; }
     public override string Title => Profile ? "Gearbox profile" : Root.Text("preferred_character_name");
     public override AssetContent? GetAsset(string assetId) => references.GetAsset(assetId);
+
+    /// <summary>Resolve only requested parsed fields; no view, lazy section or collection page is built.</summary>
+    public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds) =>
+        GearboxMetadata.Resolve(this, valueIds);
+
+    internal IReadOnlyList<FieldMetadata> ResolveRegistered(IReadOnlyList<string> valueIds) =>
+        base.ResolveFieldMetadata(valueIds);
 
     public override ViewNode BuildView()
     {
@@ -88,6 +95,24 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         var record = references.Catalog(ItemCatalogs.Labels)?.Find(path) ?? SerialDatabase.For(Root.Schema.Wonderlands).Find(ItemCatalogs.Labels, path);
         return InspectionReference(id, label, path, ItemCatalogs.Labels,
             record is null ? Confidence.Unknown : Confidence.Verified, record is null ? null : record.Name + ". " + record.AttributionText);
+    }
+
+    internal FieldNode Presence(string id, Func<FieldValue> get)
+    {
+        return Bind(id, "Item presence", new IntegerSpec(0, 2), get,
+            _ => throw new SaveFormatException("Item presence is changed only by its structural action."),
+            _ => "Item presence is changed only by its structural action.");
+    }
+
+    internal FieldNode DerivedInteger(string id, string label, Func<ProtoMessage> parent, string name, long maximum)
+    {
+        var field = Bind(id, label, new IntegerSpec(-1, Math.Max(maximum, parent().Integer(name))),
+            () => FieldValue.Of(parent().Integer(name)), null,
+            value => value.Kind != FieldValueKind.Integer || value.AsInteger() < -1 || value.AsInteger() > maximum
+                ? "Value is outside the supported range." : null);
+        RegisterField(new FieldMetadata(id, field.Label, field.Spec) { BindingKind = FieldBindingKind.Derived, CanonicalValueId = id },
+            () => FieldValue.Of(parent().Integer(name)));
+        return field;
     }
 
     internal FieldNode Integer(string id, string label, Func<ProtoMessage> parent, string name,
@@ -156,12 +181,24 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         Func<FieldValue, string?>? validate = null, string? warning = null)
     {
         _readers[id] = get;
-        return Field(id, label, spec, get, set, validate) with
+        var field = Field(id, label, spec, get, set, validate) with
         {
             Confidence = Confidence.Verified,
             Description = GearboxWriteWarnings.SchemaEvidence,
             Warning = set is null ? warning : GearboxWriteWarnings.ForWrite(warning),
         };
+        RegisterField(new FieldMetadata(id, label, field.Spec)
+        {
+            BindingKind = FieldBindingKind.Primary,
+            CanonicalValueId = id,
+            Presentation = new FieldPresentation
+            {
+                Confidence = field.Confidence,
+                Description = field.Description,
+                Warning = field.Warning,
+            },
+        }, get, set, validate);
+        return field;
     }
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
