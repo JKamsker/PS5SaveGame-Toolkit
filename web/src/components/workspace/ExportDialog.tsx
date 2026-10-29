@@ -79,7 +79,10 @@ export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(fun
           Also update the console backup copy (sce_bu) when it matched the original
         </label>
         <p role="status" aria-atomic="true">{busy ? "Packing edited saves…" : plan.isFetching ? "Checking current export…" : plan.data && !plan.isError ? `Export plan ready: ${plan.data.changedCount} changed files.` : ""}</p>
-        {plan.isError && <p role="alert" className="notice notice--Danger">{plan.error.message}</p>}
+        {plan.isError && <div>
+          <p role="alert" className="notice notice--Danger">{plan.error.message}</p>
+          <button type="button" className="btn btn--small" disabled={plan.isFetching} onClick={() => void plan.refetch()}>Retry export plan</button>
+        </div>}
         {downloadError && <p role="alert" className="notice notice--Danger">{downloadError}</p>}
         {plan.data && !plan.isFetching && !plan.isError && (
           <div className="notice notice--Info">

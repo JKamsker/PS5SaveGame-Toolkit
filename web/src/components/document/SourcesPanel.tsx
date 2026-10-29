@@ -55,7 +55,10 @@ export function SourcesPanel({ workspaceId, documentId, pluginReferences, refres
       {open && (
         <div id={panelId} className="sources__panel">
           {query.isPending && <p className="sources__empty">Loading…</p>}
-          {query.isError && <p className="notice notice--Danger">{query.error.message}</p>}
+          {query.isError && <div>
+            <p role="alert" className="notice notice--Danger">{query.error.message}</p>
+            <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={() => void refetch()}>Retry sources</button>
+          </div>}
           {query.data && <SourcesList datasets={query.data.datasets} pluginReferences={pluginReferences} />}
           <label className="btn btn--small btn--quiet sources__import">
             Import reference pack…

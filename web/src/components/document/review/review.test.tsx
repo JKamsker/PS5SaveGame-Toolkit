@@ -197,6 +197,20 @@ describe("action preview", () => {
 });
 
 describe("semantic changes panel", () => {
+  it("retries a failed changes load while retaining the search", async () => {
+    vi.spyOn(actionReview, "changes").mockRejectedValueOnce(new Error("Change log unavailable")).mockResolvedValue(log);
+    renderDocument(<ChangesPanel />);
+    fireEvent.click(screen.getByText("Changes against original"));
+    await screen.findByRole("alert");
+    const search = screen.getByRole<HTMLInputElement>("searchbox", { name: "Find a changed field" });
+    fireEvent.change(search, { target: { value: "Potion" } });
+    fireEvent.click(screen.getByRole("button", { name: "Retry changes" }));
+    await screen.findByRole("button", { name: "Revert Potion quantity" });
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(search.value).toBe("Potion");
+    expect(actionReview.changes).toHaveBeenCalledTimes(2);
+  });
+
   it("shows loading and request failures without presenting them as an empty change log", async () => {
     let reject!: (failure: Error) => void;
     vi.spyOn(actionReview, "changes").mockImplementationOnce(() => new Promise((_, fail) => { reject = fail; }));

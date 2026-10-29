@@ -44,6 +44,7 @@ export function ChangesPanel() {
       <label>Find a changed field <input className="input" type="search" value={search} onChange={event => setSearch(event.target.value)} /></label>
       {query.isPending && <p role="status">Loading changes…</p>}
       {(error || query.isError) && <p role="alert">{error || query.error?.message}</p>}
+      {query.isError && <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={() => void query.refetch()}>Retry changes</button>}
       {query.data?.warnings.map((warning, i) => <p className="notice notice--Warning" key={i}>{warning}</p>)}
       {query.data && <p aria-live="polite">{changes.length} of {query.data.changes.length} changed fields</p>}
       {query.data && query.data.changes.length === 0 && <p>No semantic changes.</p>}

@@ -21,6 +21,20 @@ function setup() {
 }
 
 describe("export plan freshness", () => {
+  it("retries a failed export plan without changing scope or mirror settings", async () => {
+    vi.spyOn(api, "exportPlan").mockRejectedValueOnce(new ApiError("Plan unavailable", 503)).mockResolvedValue(changed);
+    const { client } = setup();
+    await screen.findByRole("alert");
+    const download = screen.getByRole<HTMLButtonElement>("button", { name: "Download zip" });
+    expect(download.disabled).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Retry export plan" }));
+    await screen.findByText("save.dat");
+    expect(download.disabled).toBe(false);
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(vi.mocked(api.exportPlan).mock.calls).toEqual([["w", "ChangedDirectories", true], ["w", "ChangedDirectories", true]]);
+    client.clear();
+  });
+
   it("announces packing and download failures inside the modal and allows retry", async () => {
     vi.spyOn(api, "exportPlan").mockResolvedValue(changed);
     let fail!: (error: Error) => void;

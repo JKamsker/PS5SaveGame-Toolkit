@@ -107,6 +107,17 @@ describe("SourcesPanel lifecycle", () => {
     expect(vi.mocked(api.sources).mock.calls).toEqual([["w", "d"], ["w", "d"]]);
   });
 
+  it("retries a failed source read directly without closing the disclosure", async () => {
+    vi.spyOn(api, "sources").mockRejectedValueOnce(new ApiError("Sources unavailable", 503))
+      .mockResolvedValue({ datasets: [source({})] });
+    renderPanel();
+    expect(await screen.findByRole("alert")).toHaveProperty("textContent", "Sources unavailable");
+    fireEvent.click(screen.getByRole("button", { name: "Retry sources" }));
+    await screen.findByText("Item names");
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(api.sources).toHaveBeenCalledTimes(2);
+  });
+
   it.each([
     { failure: new ApiError("Invalid pack manifest", 400), message: "Invalid pack manifest" },
     { failure: new Error("Offline"), message: "The pack could not be imported." },
