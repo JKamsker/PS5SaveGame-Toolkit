@@ -34,32 +34,7 @@ internal sealed class ItemStatsInspection
                 .ToLookup(pair => ScriptableReader.UInt64(pair.key, "entityHash", "Uint64"), pair => pair.index);
             foreach (var item in items)
             {
-                var identity = ItemIdentity.FromInventory(item, container, tree);
-                var identities = new List<(string Path, ItemIdentity Identity)> { ("inventory", identity) };
-                try
-                {
-                    var extended = ExtendedItemReader.Read(container.Payload.AsSpan(tree.Nodes[item.NodeId].Offset, tree.Nodes[item.NodeId].Size));
-                    if (extended.Root is { } part) identities.AddRange(ExtendedItemReader.Parts(part).Select(p => (p.Path, p.Part.Identity)));
-                }
-                catch (SaveFormatException ex) { rows.Add(Row(item.NodeId, "parts", "unparsed", "", "", ex.Message)); }
-                foreach (var (path, instance) in identities)
-                {
-                    var hash = InstanceHash(instance);
-                    var matches = itemKeys[hash].ToArray();
-                    if (matches.Length != 1)
-                    {
-                        rows.Add(Row(item.NodeId, "join", "", $"0x{hash:X16}", "", matches.Length == 0 ? "No saved stats entry" : "Ambiguous stats key; not joined", path: path));
-                        continue;
-                    }
-                    var data = values[matches[0]];
-                    rows.Add(Row(item.NodeId, "join", "", $"0x{hash:X16}", "", "Unique saved ItemID stats-key match; final stats are not evaluated.", path: path));
-                    foreach (var buffer in Buffers)
-                    {
-                        if (data.Find(buffer) is null) continue;
-                        try { ReadBuffer(data.Raw(data.Require(buffer, "DataBuffer")), item.NodeId, path, buffer, rows); }
-                        catch (SaveFormatException ex) { rows.Add(Row(item.NodeId, buffer, "unparsed", "", "", ex.Message, path: path)); }
-                    }
-                }
+                AddItemRows(item, container, tree, itemKeys, values, rows);
             }
         }
         catch (SaveFormatException ex) { rows.Clear(); Warning = ex.Message; }
@@ -73,6 +48,37 @@ internal sealed class ItemStatsInspection
     public InspectionTable Table { get; }
     public IReadOnlyList<ViewNode> Build() => [new TextNode(Warning ?? Table.Metadata.Description!)
         { Tone = Warning is null ? Tone.Info : Tone.Warning }, Table.View()];
+
+    private static void AddItemRows(InventoryItem item, CsavContainer container, CsavTree tree,
+        ILookup<ulong, int> itemKeys, IReadOnlyList<PackageClass> values, List<InspectionRow> rows)
+    {
+        var identity = ItemIdentity.FromInventory(item, container, tree);
+        var identities = new List<(string Path, ItemIdentity Identity)> { ("inventory", identity) };
+        try
+        {
+            var extended = ExtendedItemReader.Read(container.Payload.AsSpan(tree.Nodes[item.NodeId].Offset, tree.Nodes[item.NodeId].Size));
+            if (extended.Root is { } part) identities.AddRange(ExtendedItemReader.Parts(part).Select(p => (p.Path, p.Part.Identity)));
+        }
+        catch (SaveFormatException ex) { rows.Add(Row(item.NodeId, "parts", "unparsed", "", "", ex.Message)); }
+        foreach (var (path, instance) in identities)
+        {
+            var hash = InstanceHash(instance);
+            var matches = itemKeys[hash].ToArray();
+            if (matches.Length != 1)
+            {
+                rows.Add(Row(item.NodeId, "join", "", $"0x{hash:X16}", "", matches.Length == 0 ? "No saved stats entry" : "Ambiguous stats key; not joined", path: path));
+                continue;
+            }
+            var data = values[matches[0]];
+            rows.Add(Row(item.NodeId, "join", "", $"0x{hash:X16}", "", "Unique saved ItemID stats-key match; final stats are not evaluated.", path: path));
+            foreach (var buffer in Buffers)
+            {
+                if (data.Find(buffer) is null) continue;
+                try { ReadBuffer(data.Raw(data.Require(buffer, "DataBuffer")), item.NodeId, path, buffer, rows); }
+                catch (SaveFormatException ex) { rows.Add(Row(item.NodeId, buffer, "unparsed", "", "", ex.Message, path: path)); }
+            }
+        }
+    }
 
     internal static ulong InstanceHash(ItemIdentity item)
     {
