@@ -382,6 +382,15 @@ then creates its catalog once; individual images copy their resource bytes only 
 metadata without materializing a losing candidate. User ZIP imports retain their existing complete
 snapshot because their disposable archive source cannot be reopened later.
 
+The full Release mutation-fuzz suites also exercise the first document open and enforce their
+existing allocation budgets. They caught excessive first-use allocation when lazy catalog creation
+repeated startup record validation and copied every attributes dictionary to share its string keys.
+Materialization now reopens the immutable, already validated embedded records directly and shares
+string values and attribute keys during JSON parsing, allowing the parsed attributes dictionaries
+to become the catalog's read-only dictionaries. A bounded stack/rented character buffer and ordinal
+span lookup avoid allocating temporary strings for repeated JSON text. Startup validation remains
+complete, and imported ZIP snapshots retain their prior path; no allocation budget was relaxed.
+
 Record strings share an ordinal pool owned by the store or SDK loaded context. It is collectible
 with that owner and remains empty during embedded validation. This avoids the permanent lifetime of
 `string.Intern`; it also shares identical text across dataset and locale boundaries when such data
@@ -434,31 +443,31 @@ and natural-idle working-set limitations are the same as in the earlier startup 
 
 Captured **2026-10-29**, five fresh workers/API processes per phase, no concurrent builds/tests.
 Values are **median [minimum, maximum]**. The source baseline is `9be32cd8`; the measured change is
-`2575df5f` plus the benchmark instrumentation. Unrelated machine activity and the OS cache remain
+`cf9cf8f3` plus the benchmark instrumentation. Unrelated machine activity and the OS cache remain
 uncontrolled.
 
 | Boundary | Before | After |
 | --- | ---: | ---: |
-| Store construction, ms | 885.741 [845.910, 1113.541] | 598.944 [595.407, 623.670] |
-| Store construction, allocated MiB | 388.699 [388.626, 388.719] | 369.677 [365.927, 369.687] |
-| Idle retained managed MiB | 152.139 [152.099, 152.146] | 3.063 [3.057, 3.063] |
-| All materialized, retained managed MiB | 153.290 [153.249, 153.296] | 92.432 [92.425, 92.432] |
-| Process start to complete `/api/plugins`, ms | 1831.380 [1756.858, 3567.810] | 1783.917 [1211.243, 2320.949] |
-| API natural-idle working set, MiB | 346.750 [342.984, 350.934] | 238.004 [212.516, 245.793] |
-| API natural-idle private bytes, MiB | 263.469 [256.254, 267.746] | 157.113 [139.945, 175.102] |
+| Store construction, ms | 885.741 [845.910, 1113.541] | 892.982 [797.150, 994.548] |
+| Store construction, allocated MiB | 388.699 [388.626, 388.719] | 369.698 [369.671, 369.716] |
+| Idle retained managed MiB | 152.139 [152.099, 152.146] | 2.995 [2.988, 2.998] |
+| All materialized, retained managed MiB | 153.290 [153.249, 153.296] | 92.618 [92.612, 93.137] |
+| Process start to complete `/api/plugins`, ms | 1831.380 [1756.858, 3567.810] | 1904.303 [1207.579, 2347.306] |
+| API natural-idle working set, MiB | 346.750 [342.984, 350.934] | 215.375 [208.918, 236.457] |
+| API natural-idle private bytes, MiB | 263.469 [256.254, 267.746] | 128.000 [121.355, 164.340] |
 
 Unused embedded packs retain **98.0% less managed memory** at this boundary. After every dataset and
-image has been requested, retained memory is still about **39.7% lower**. All **1,060,047** observed
+image has been requested, retained memory is still about **39.6% lower**. All **1,060,047** observed
 record-string occurrences then point to exactly **256,008** string instances, equal to the number
 of ordinally unique values; their character payload falls from **72.31 to 31.22 MiB**. Figures include
 all still-reachable storage. Once every catalog has materialized, lazy factories release the pool
 dictionary; the shared strings remain reachable through records. Startup allocation falls only about
 4.9% because preserving startup validation still requires transient JSON models and image buffers.
-Worker construction is faster in these observations; overlapping API-startup ranges do not establish
+Fresh-worker construction is roughly unchanged; overlapping API-startup ranges do not establish
 a reliable HTTP cold-start speedup.
 
 The tradeoff is extra parsing when a validated embedded dataset is first used. The sum of measured
-store-construction and all catalog/image first-access intervals rises from **891.908 to 1434.338 ms**
+store-construction and all catalog/image first-access intervals rises from **891.908 to 1797.568 ms**
 (medians across workers). That sum excludes discovery, GC, manifest inventory and the later full
 content census; it is not an end-to-end stopwatch. Typical sessions only request their matching
 datasets/images, while an exhaustive cold read now performs validation and materialization separately.
@@ -474,81 +483,88 @@ earlier packs. `witcher3.maps` has only assets, so its first records-search time
 
 | Pack | Before first, ms | After first, ms | After all datasets/assets, ms |
 | --- | ---: | ---: | ---: |
-| `astro.catalogue.en` | 0.876 | 4.986 | 7.159 |
-| `atomic-heart.items.en` | 0.003 | 0.249 | 0.380 |
-| `bg3.starter.en` | 0.001 | 0.042 | 0.539 |
-| `cyberpunk2077.game-assets.en` | 0.001 | 0.484 | 1.345 |
-| `cyberpunk2077.identifiers` | 0.001 | 21.363 | 95.208 |
-| `cyberpunk2077.wiki-labels.en` | 0.001 | 0.090 | 0.092 |
-| `eldenring.community.en` | 0.001 | 34.175 | 47.193 |
-| `eldenring.names.en` | 0.001 | 74.844 | 92.865 |
-| `eldenring.progress.en` | 0.001 | 4.737 | 4.879 |
-| `ff7r.rebirth.en` | 0.002 | 3.354 | 5.148 |
-| `ff7r.remake.en` | 0.001 | 1.183 | 1.694 |
-| `ffxvi.abilities.en` | 0.001 | 0.479 | 0.682 |
-| `ffxvi.feats.en` | 0.001 | 0.045 | 0.091 |
-| `ffxvi.maps.en` | 0.001 | 0.039 | 0.118 |
-| `ffxvi.nex.en` | 0.001 | 0.352 | 0.408 |
-| `ffxvi.published.en` | 0.001 | 4.860 | 48.829 |
-| `ffxvi.wiki.en` | 0.001 | 1.040 | 1.043 |
-| `gearbox.bl3` | 0.001 | 0.167 | 193.108 |
-| `gearbox.ttwl` | 0.001 | 0.279 | 157.185 |
-| `genericjson.cp2077.v136` | 0.001 | 0.026 | 0.043 |
-| `gow-ragnarok.2018.en` | 0.001 | 18.506 | 18.510 |
-| `gow-ragnarok.assets.en` | 0.001 | 0.166 | 0.227 |
-| `gow-ragnarok.community.en` | 0.001 | 0.216 | 0.245 |
-| `gow-ragnarok.gear.en` | 0.001 | 13.202 | 13.208 |
-| `gow-ragnarok.ps5.en` | 0.001 | 0.264 | 0.298 |
-| `gow-ragnarok.runtime.en` | 0.001 | 5.632 | 5.683 |
-| `gow-ragnarok.skills.en` | 0.001 | 0.660 | 0.661 |
-| `hogwarts.legilimens` | 0.001 | 10.018 | 10.225 |
-| `insomniac.rift.en` | 0.001 | 0.325 | 1.258 |
-| `insomniac.rift.maps.en` | 0.001 | 3.584 | 4.272 |
-| `pragmata.evidence.en` | 0.001 | 1.139 | 7.060 |
-| `suckerpunch.tsushima` | 0.001 | 0.271 | 3.623 |
-| `suckerpunch.yotei` | 0.001 | 0.177 | 0.390 |
-| `talesofarise.catalog` | 0.001 | 2.203 | 35.455 |
-| `unrealgvas.ps5` | 0.001 | 0.155 | 0.329 |
-| `unrealgvas.storage` | 0.001 | 0.086 | 0.086 |
-| `witcher3.catalog.en` | 0.001 | 45.293 | 47.437 |
-| `witcher3.gwent.en` | 0.001 | 2.544 | 3.420 |
-| `witcher3.maps` | 0.000 | 0.000 | 0.567 |
-| `xorjson.community.en` | 0.001 | 2.257 | 16.002 |
+| `astro.catalogue.en` | 0.876 | 9.983 | 14.160 |
+| `atomic-heart.items.en` | 0.003 | 0.257 | 0.418 |
+| `bg3.starter.en` | 0.001 | 0.030 | 0.560 |
+| `cyberpunk2077.game-assets.en` | 0.001 | 0.454 | 1.382 |
+| `cyberpunk2077.identifiers` | 0.001 | 18.988 | 90.979 |
+| `cyberpunk2077.wiki-labels.en` | 0.001 | 0.092 | 0.095 |
+| `eldenring.community.en` | 0.001 | 9.242 | 23.928 |
+| `eldenring.names.en` | 0.001 | 63.133 | 126.268 |
+| `eldenring.progress.en` | 0.001 | 4.432 | 4.593 |
+| `ff7r.rebirth.en` | 0.002 | 5.023 | 7.318 |
+| `ff7r.remake.en` | 0.001 | 1.365 | 1.933 |
+| `ffxvi.abilities.en` | 0.001 | 0.486 | 0.740 |
+| `ffxvi.feats.en` | 0.001 | 0.034 | 0.071 |
+| `ffxvi.maps.en` | 0.001 | 0.033 | 0.200 |
+| `ffxvi.nex.en` | 0.001 | 0.351 | 0.409 |
+| `ffxvi.published.en` | 0.001 | 4.679 | 45.145 |
+| `ffxvi.wiki.en` | 0.001 | 1.145 | 1.150 |
+| `gearbox.bl3` | 0.001 | 0.193 | 185.159 |
+| `gearbox.ttwl` | 0.001 | 0.238 | 243.691 |
+| `genericjson.cp2077.v136` | 0.001 | 0.048 | 0.068 |
+| `gow-ragnarok.2018.en` | 0.001 | 12.875 | 12.893 |
+| `gow-ragnarok.assets.en` | 0.001 | 0.092 | 0.190 |
+| `gow-ragnarok.community.en` | 0.001 | 0.212 | 0.234 |
+| `gow-ragnarok.gear.en` | 0.001 | 8.386 | 8.393 |
+| `gow-ragnarok.ps5.en` | 0.001 | 0.153 | 0.239 |
+| `gow-ragnarok.runtime.en` | 0.001 | 4.687 | 4.728 |
+| `gow-ragnarok.skills.en` | 0.001 | 0.511 | 0.512 |
+| `hogwarts.legilimens` | 0.001 | 4.685 | 4.865 |
+| `insomniac.rift.en` | 0.001 | 0.309 | 1.180 |
+| `insomniac.rift.maps.en` | 0.001 | 3.511 | 4.234 |
+| `pragmata.evidence.en` | 0.001 | 1.011 | 7.315 |
+| `suckerpunch.tsushima` | 0.001 | 0.234 | 2.368 |
+| `suckerpunch.yotei` | 0.001 | 0.132 | 0.313 |
+| `talesofarise.catalog` | 0.001 | 2.197 | 34.516 |
+| `unrealgvas.ps5` | 0.001 | 0.162 | 0.332 |
+| `unrealgvas.storage` | 0.001 | 0.080 | 0.080 |
+| `witcher3.catalog.en` | 0.001 | 29.559 | 32.403 |
+| `witcher3.gwent.en` | 0.001 | 1.866 | 3.253 |
+| `witcher3.maps` | 0.000 | 0.000 | 0.848 |
+| `xorjson.community.en` | 0.001 | 1.881 | 10.672 |
 
 The Release retained-memory regression runs one fresh child process, warms discovery/decoder caches,
 and measures three new stores after all catalog startup validation using process-wide full-GC heap
 readings. As with the existing allocation probes, the minimum of three samples must be at most
 **16 MiB**, reducing sensitivity to unrelated runtime allocation.
 The eager baseline failed at **159,251,440 bytes (151.87 MiB)**; the lazy implementation measured
-**2,931,464 / 2,929,264 / 2,929,264 bytes (about 2.79 MiB)** in its test harness. These values use a
+**2,863,488 / 2,861,288 / 2,861,288 bytes (about 2.73 MiB)** in its test harness. These values use a
 different harness boundary from the worker above. Debug reports the same measurements without
 enforcing the memory budget. Concurrent first-access tests separately verify shared catalog/asset
 identity and exactly one resource materialization after startup validation.
+
+The first-catalog allocation regression materializes **5,000 authored records** in a fresh validated
+context per sample. The initial lazy implementation failed its **8 MiB** Release budget at
+**12,301,624 bytes**; the refined materializer passes at **5,756,488 bytes**. The existing three plugin
+mutation-fuzz allocation budgets remain unchanged.
 
 Raw observations and logs remain under `D:/Temp/saveeditor/test-scratch/perf-lazy-reference-packs`:
 `before-references/references.json`, `after-references/references.json`,
 `before-startup/startup.json`, and `after-startup/startup.json`. Saved framework-dependent binaries
 are in `before-bin`/`after-bin`, and the original tracked source snapshot is in `baseline-source`.
 No private saves were read by these benchmark modes or copied into their scratch directories.
+Earlier after-change observations from `2575df5f` are retained under `interim-2575df5f`; the tables
+here use the final `cf9cf8f3` captures at the main paths above.
 
 ### BenchmarkDotNet cross-check
 
 The unchanged `scripts/bench.ps1 -Filter '*CatalogStartupBenchmarks*'` completed **2/2 Quick/ShortRun
 cases in each phase**, using the isolated baseline archive and the current checkout respectively.
-Three measured iterations per case, one launch, three warmups; total BDN times were 42 and 37 seconds
+Three measured iterations per case, one launch, three warmups; total BDN times were 42 and 41 seconds
 (excluding the outer source build). Values below are means and their **99.9% error half-widths**;
 the very wide timing intervals require repeated Full runs before making precise latency claims.
 These warmed repeated-store timings differ from the fresh-worker boundary above.
 
 | Method | Before mean ± error, ms | After mean ± error, ms | Before allocated | After allocated |
 | --- | ---: | ---: | ---: | ---: |
-| `Discover` | 2.697 ± 5.378 | 2.315 ± 1.015 | 171.26 KiB | 170.20 KiB |
-| `LoadEmbeddedPacks` | 695.380 ± 775.679 | 384.279 ± 848.761 | 379.018 MiB | 359.957 MiB |
+| `Discover` | 2.697 ± 5.378 | 1.551 ± 4.230 | 171.26 KiB | 170.19 KiB |
+| `LoadEmbeddedPacks` | 695.380 ± 775.679 | 365.285 ± 500.486 | 379.018 MiB | 359.956 MiB |
 
 `Discover` is an unchanged control path; its small difference is not attributed to reference loading.
 `LoadEmbeddedPacks` includes complete validation but deliberately does not request a catalog/image,
 so it measures the new idle boundary rather than deferred first-use work.
 Reports remain under the task scratch root at
 `before-bdn/bench-17b7657de14240e097179337d5e18df8/summary.md` and
-`after-bdn/bench-5718ce0a6df347cb974551c7943bbd5f/summary.md`, with detailed CSV/HTML/Markdown files
+`after-bdn/bench-addb7a6c9d10479285dadd1271c23d91/summary.md`, with detailed CSV/HTML/Markdown files
 under each run's `artifacts/results`. Build, worker and API logs remain beside the reports.
