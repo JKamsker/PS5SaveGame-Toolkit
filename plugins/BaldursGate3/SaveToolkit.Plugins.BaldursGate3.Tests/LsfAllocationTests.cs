@@ -13,10 +13,16 @@ public sealed class LsfAllocationTests
     {
         var attribute = new ResourceAttribute("Counter", LarianAttributeType.Int, new byte[sizeof(int)]);
         AttributeDecoder.Validate(attribute);
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        for (var index = 0; index < AttributeCount; index++) AttributeDecoder.Validate(attribute);
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
-        Assert.True(allocated < 1024, $"Successful validation allocated {allocated:N0} diagnostic bytes.");
+        // Minimum of three runs, bounded below one byte per call: a per-call message would cost at least
+        // 24 bytes per validation, while tiered-JIT/OSR transitions add a few KB to a single run.
+        var allocated = long.MaxValue;
+        for (var run = 0; run < 3; run++)
+        {
+            var before = GC.GetAllocatedBytesForCurrentThread();
+            for (var index = 0; index < AttributeCount; index++) AttributeDecoder.Validate(attribute);
+            allocated = Math.Min(allocated, GC.GetAllocatedBytesForCurrentThread() - before);
+        }
+        Assert.True(allocated < AttributeCount, $"Successful validation allocated {allocated:N0} diagnostic bytes.");
     }
 
     [Fact]
