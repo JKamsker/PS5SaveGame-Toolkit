@@ -28,7 +28,7 @@ public sealed class ImportedQuantitySessionTests
         var quantities = ImportedQuantityTests.Quantities(document);
         var rawIds = quantities.Select(node => RawFieldNavigation.Find(view, node, session.Expand).ValueId).ToArray();
         Assert.True(session.ApplyEdits(rawIds.Select(id => Edit(id, 1)).ToArray()).Ok);
-        Assert.All(quantities, quantity => Assert.False(document.HasPrimaryBinding(quantity)));
+        Assert.All(quantities, quantity => Assert.True(document.HasPrimaryBinding(quantity)));
         var reduced = document.Serialize().Single().Content.ToArray();
         var excluded = QuantityActions.RowKey(document.Layout.Items[^1]);
         var scope = new ActionScope
@@ -42,7 +42,7 @@ public sealed class ImportedQuantitySessionTests
         Assert.NotNull(preview.PlanId);
         Assert.Equal(count - 1, preview.Scope.RowKeys!.Count);
         Assert.DoesNotContain(excluded, preview.Scope.RowKeys);
-        Assert.Equal((count - 1) * 2, preview.Plan.Changes.Count); // Primary quantities and raw aliases.
+        Assert.Equal(count - 1, preview.Plan.Changes.Count); // One canonical write per quantity.
         Assert.All(quantities, quantity => Assert.True(document.HasPrimaryBinding(quantity)));
         Assert.Equal(reduced, document.Serialize().Single().Content.ToArray()); // Cancel leaves bytes and history untouched.
         Assert.True(session.Undo().Ok);

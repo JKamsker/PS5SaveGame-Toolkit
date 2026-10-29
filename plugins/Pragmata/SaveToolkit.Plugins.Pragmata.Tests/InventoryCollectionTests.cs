@@ -46,7 +46,7 @@ public sealed class InventoryCollectionTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void WholeQueryPublishesUnloadedBindingsAndAppliesUndoesAndRedoesAsOneStep(bool revertRawAlias)
+    public void WholeQueryPublishesUnloadedBindingsAndAppliesUndoesAndRedoesAsOneStep(bool revertViaRawView)
     {
         var original = SyntheticInventory.Create(251);
         using var fixture = new SyntheticSessionFile(original);
@@ -56,7 +56,7 @@ public sealed class InventoryCollectionTests
         using var session = new DocumentSession("large-inventory", file, plugin, document);
         _ = session.BuildView();
         var parameters = new Dictionary<string, JsonElement> { ["quantity"] = JsonSerializer.SerializeToElement("17") };
-        Assert.Null(session.PlanAction(PragmataViews.QuantityAction, parameters, new ActionScope()).PlanId);
+        Assert.NotNull(session.PlanAction(PragmataViews.QuantityAction, parameters, new ActionScope()).PlanId);
         var query = new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["category"] = "unmapped" }, SortColumn = "quantity" };
         var excluded = document.Layout.Items[0];
         var excludedKey = Editing.QuantityActions.RowKey(excluded);
@@ -81,34 +81,32 @@ public sealed class InventoryCollectionTests
             quantity => range.Offset >= quantity.Offset && range.Offset + range.Length <= quantity.Offset + quantity.Size));
         var review = session.GetChanges();
         Assert.True(review.Complete);
-        // SDK-01 discovers primary F8 IDs alongside the pre-existing eager raw IDs.
-        // SDK-02 will supply the canonical alias policy; distinct IDs stay visible today.
+        // SDK-02 reuses the canonical quantity identity across Raw and F8 projections.
         var changedQuantities = document.Layout.Items.Skip(1).Select(item => item.Find(KnownHashes.Quantity)!).ToArray();
-        Assert.Equal(500, review.Changes.Count);
-        Assert.Equal(250, review.Changes.Count(change => change.Target?.CollectionId == InventoryCollections.CollectionId));
+        Assert.Equal(250, review.Changes.Count);
         Assert.All(changedQuantities, quantity =>
         {
             Assert.True(review.Changes.Single(change => change.ValueId == quantity.Path).CanRevert);
-            Assert.True(review.Changes.Single(change => change.ValueId == $"raw/{quantity.Path}").CanRevert);
+            Assert.DoesNotContain(review.Changes, change => change.ValueId == $"raw/{quantity.Path}");
         });
 
         var primaryId = changedQuantities[0].Path;
-        var rawId = $"raw/{primaryId}";
-        var revertId = revertRawAlias ? rawId : primaryId;
-        var otherId = revertRawAlias ? primaryId : rawId;
+        var raw = RawFieldNavigation.Find((TabsNode)session.BuildView(), changedQuantities[0], session.Expand);
+        Assert.Equal(primaryId, raw.ValueId);
+        var revertId = revertViaRawView ? raw.ValueId : primaryId;
         var originalQuantity = review.Changes.Single(change => change.ValueId == revertId).OriginalValue;
         Assert.True(session.RevertChange(revertId, review.Revision).Ok);
         Assert.Equal(originalQuantity, document.Read(changedQuantities[0]));
         var afterRevert = session.GetChanges();
         Assert.True(afterRevert.Complete);
-        Assert.Equal(498, afterRevert.Changes.Count);
-        Assert.DoesNotContain(afterRevert.Changes, change => change.ValueId == primaryId || change.ValueId == rawId);
-        Assert.True(session.RevertChange(otherId, review.Revision).Stale);
-        Assert.False(session.RevertChange(otherId, afterRevert.Revision).Ok);
+        Assert.Equal(249, afterRevert.Changes.Count);
+        Assert.DoesNotContain(afterRevert.Changes, change => change.ValueId == primaryId);
+        Assert.True(session.RevertChange(revertId, review.Revision).Stale);
+        Assert.False(session.RevertChange(revertId, afterRevert.Revision).Ok);
         Assert.Equal(afterRevert.Revision, session.State.Revision);
         Assert.True(session.Undo().Ok); // Exactly one undo restores both presentations of this edit.
         Assert.Equal(modified, session.Serialize().Single().Content.ToArray());
-        Assert.Equal(500, session.GetChanges().Changes.Count);
+        Assert.Equal(250, session.GetChanges().Changes.Count);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.CanUndo);
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());

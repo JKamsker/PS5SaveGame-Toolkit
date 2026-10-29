@@ -9,7 +9,7 @@ namespace SaveToolkit.Plugins.Pragmata.Tests;
 public sealed class RawViewTests
 {
     [Fact]
-    public void RawQuantityAliasUpdatesPrimaryControlAndBothAliasesUndoAtomically()
+    public void RawQuantityProjectionUpdatesCanonicalControlAndUndoesAtomically()
     {
         using var document = EditingTests.Gameplay();
         var original = document.Serialize().Single().Content.ToArray();
@@ -20,7 +20,8 @@ public sealed class RawViewTests
         Assert.Equal(document.GetValue(target.Path), raw.Value);
         var outcome = document.ApplyEdits([new(raw.ValueId, FieldValue.Of(9999L))]);
         Assert.True(outcome.Succeeded);
-        Assert.Equal(2, outcome.Changes.Count);
+        Assert.Equal(target.Path, raw.ValueId);
+        Assert.Single(outcome.Changes);
         Assert.Equal(9999, document.GetValue(target.Path).AsInt32());
         Assert.Equal(9999, document.GetValue(raw.ValueId).AsInt32());
         Assert.False(document.ApplyEdits([new(raw.ValueId, FieldValue.Of(5L)), new(target.Path, FieldValue.Of(6L))]).Succeeded);

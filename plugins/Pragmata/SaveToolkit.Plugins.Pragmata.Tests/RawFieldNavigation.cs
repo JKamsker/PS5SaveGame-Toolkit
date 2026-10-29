@@ -21,6 +21,6 @@ internal static class RawFieldNavigation
                 Assert.InRange(nodes.Count, 1, LazyPages.PageSize);
             }
         }
-        return nodes.OfType<FieldNode>().Single(field => field.ValueId == $"raw/{target.Path}");
+        return nodes.OfType<FieldNode>().Single(field => field.ValueId == target.Path || field.ValueId == $"raw/{target.Path}");
     }
 }

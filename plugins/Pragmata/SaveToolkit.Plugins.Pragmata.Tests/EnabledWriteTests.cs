@@ -58,7 +58,8 @@ public sealed class EnabledWriteTests
             using var reopened = new PragmataDocument(file.RelativePath, modified);
             Assert.All(fields, field => Assert.Equal(Other(field), reopened.Read(Find(reopened.Layout.Roots,
                 field.ValueId["inspect/value/".Length..]))));
-            Assert.True(session.Undo().Ok);
+            var undo = session.Undo();
+            Assert.True(undo.Ok, string.Join("; ", undo.Errors.Select(error => error.Message)));
             Assert.False(session.State.CanUndo);
             Assert.Equal(original, document.Serialize().Single().Content.ToArray());
             Assert.True(session.Redo().Ok);
