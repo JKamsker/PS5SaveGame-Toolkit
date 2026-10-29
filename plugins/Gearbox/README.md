@@ -229,18 +229,18 @@ counts against the intended model; transfer/import regressions assert persisted 
 | Feature | Status | Where / reason |
 | --- | --- | --- |
 | F1 SaveDiff | Used | Gameplay-only production hook, independent test oracle, pinned fixture manifest and actual CLI verification; no identities/sample bytes committed |
-| F2 reference packs | Used; expanded this round | Title-scoped 1.3.0 packs, 425 skill icons, 23 item images/card texts, 134 literal skill effect descriptions; separate publisher attribution and retained community notices |
-| F3 rich cells | Used; expanded this round | Attributed local skill/item images, explicitly whole-item part reference thumbnails, confidence-labelled fields and lazy details; raw/text fallback when unavailable |
-| F4 reference pickers | Added this round | Existing serial-part replacement with category/width eligibility and independent writer checks; browse-only asset/class/mission/skill references and attributed inspection actions |
+| F2 reference packs | Used | Expanded in the asset round (2026-10-29): title-scoped 1.3.0 packs, 425 skill icons, 23 item images/card texts, 134 literal skill effect descriptions; separate publisher attribution and retained community notices |
+| F3 rich cells | Used | Expanded in the asset round (2026-10-29): attributed local skill/item images, explicitly whole-item part reference thumbnails, confidence-labelled fields and lazy details; raw/text fallback when unavailable |
+| F4 reference pickers | Used | Added in the completion round: existing serial-part replacement with category/width eligibility and independent writer checks; browse-only asset/class/mission/skill references and attributed inspection actions |
 | F5 structural history | Used | Import/duplicate/remove and bank moves retain full wire bytes, duplicate identities and counters in snapshots |
 | F6 planning / #27 | Used | Selected/full-filter item levels, import/duplicate/remove and F7 transfers preview changes/skips/warnings; host resolves query scopes |
-| F7 groups | Used; extended this round | Explicit character/profile transactions; graph/map links and query selections are namespaced to their owning member |
-| F8 collections | Used; expanded this round | Backpack/bank/lost loot/balance/world catalogues plus named skills, stored allocations and missions; 200-row query cap and full-set search/filter/sort |
-| F9 graph/map | Added this round | Stored allocation graphs, calculator gate graphs, external-only mission checklist; bounded lazy pages, text alternatives and control links |
-| F10 numbers / nullable / union | Used (integer/float); nullable/union N/A | Int128-backed integer specs retain protobuf integer precision; float32 resource pools use FloatSpec.Single. Protobuf absence is not an explicit null or type union and is preserved, never fabricated |
+| F7 groups | Used | Extended in the completion round: explicit character/profile transactions; graph/map links and query selections are namespaced to their owning member |
+| F8 collections | Used | Expanded in the completion round: backpack/bank/lost loot/balance/world catalogues plus named skills, stored allocations and missions; 200-row query cap and full-set search/filter/sort |
+| F9 graph/map | Used | Added in the completion round: stored allocation graphs, calculator gate graphs, external-only mission checklist; bounded lazy pages, text alternatives and control links |
+| F10 numbers / nullable / union | Used | Int128-backed integer specs retain protobuf integer precision; float32 resource pools use FloatSpec.Single. Nullable/union: N/A because protobuf absence is not an explicit null or type union and is preserved, never fabricated |
 | F11 shared codecs | N/A | GVAS feedback-obfuscated protobuf and item bitstreams use neither Kraken/Oodle nor SQLite; no local implementation of those codecs exists |
-| F12 decoder providers / F8 traversal | Added this round | SDK-only `ISaveDecoderProvider` registers `gearbox-evidence`; fixtures use the production hook, independently cross-checked on every sample generation. Host traversal covers F8 views with its shared budgets |
-| F13 inspection / browse / sort | Added this round | Both catalogue actions set `Mutates = false`; read-only reference fields support attributed browse-only pickers, category filters and name/key sorting. Float duration N/A: stored play time is integral seconds, resource floats are ammunition amounts |
+| F12 decoder providers / F8 traversal | Used | Added in the completion round: SDK-only `ISaveDecoderProvider` registers `gearbox-evidence`; fixtures use the production hook, independently cross-checked on every sample generation. Host traversal covers F8 views with its shared budgets |
+| F13 inspection / browse / sort | Used | Added in the completion round: both catalogue actions set `Mutates = false`; read-only reference fields support attributed browse-only pickers, category filters and name/key sorting. Float duration N/A: stored play time is integral seconds, resource floats are ammunition amounts |
 
 ## Completion gap audit
 
@@ -439,6 +439,14 @@ restoration, packed/unpacked no-op allocations, signed-zero ammo, net-zero edit 
 no-op output/history. Defect cases were confirmed failing before their fixes. Build outputs and
 test scratch were directed to `D:/Temp/saveeditor/test-scratch/review-writes-gearbox`.
 
+Consistency review ([#40](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40)), 2026-10-29:
+**205 Gearbox tests passed, 0 failed, 0 skipped**; API build **0 warnings, 0 errors**. Eight new
+cases pin the overview and legacy name/ammo/currency warnings for both titles and file roles,
+including the existing clamping/category-creation qualifications and unchanged confidence labels.
+All eight failed before the wording fix. README checks verified five-column exclusions, resolved
+relative links and F1–F13 adoption statuses. Test scratch was directed to
+`D:/Temp/saveeditor/test-scratch/review-consistency-gearbox`.
+
 Tests include conformance with meaningful currency/key edits, valid F2 packs and fixture archive hashes,
 every generation/twin, independent
 feedback-window vectors, known values, money/level/key reopen, Wonderlands extra points, framework
@@ -501,12 +509,17 @@ the CLI's `PluginViewDecoder`. No sample bytes, decoded payloads or account iden
 
 ## Licence exclusions
 
-| Source / material | Status | Current approach / remaining limitation |
-| --- | --- | --- |
-| BL3Skills / Wonderlands calculator publisher skill icons and transcribed skill text | Resolved: imported (owner decision 2026-10-29) | 425 skill-icon assignments, all existing skill descriptions and 134 additional literal effect descriptions; publisher-rights notice separate from retained MIT community notices |
-| Lootlemon publisher item imagery and official item-card text | Resolved: imported (owner decision 2026-10-29) | 23 curated thumbnails/flavor lines; local attributed asset datasets, no community guide prose copied |
-| Map Genie BL3 / Wonderlands | No current licence refusal; matching coordinate evidence missing | External guide/checklist retained. No verified mission coordinates or transform for a useful background; no artwork copied or invented alignment |
-| Individual part artwork | Matching data not found in searched sources | Calculator repositories contain skill icons; inspected editor repositories contain UI glyphs, not exact individual-part images. Only matching unique-item serial records reuse clearly labelled whole-item reference thumbnails |
+The terms and import decisions below are recorded in the existing pinned source sidecars.
+Resolved imports stay in this register; missing image/coordinate evidence is separate from a
+licence refusal.
+
+| Source / revision | Licence found | Disposition | Alternative | Unblock |
+| --- | --- | --- | --- | --- |
+| [BL3Skills, 66b0bd0](https://github.com/seigler/bl3skills.com/tree/66b0bd08777452abd05e5d9246c27f2a8096ca13); [skill terms](SaveToolkit.Plugins.Gearbox/ReferencePacks/gearbox.bl3/skills.source.md), [asset sidecar](SaveToolkit.Plugins.Gearbox/ReferencePacks/gearbox.bl3/assets.source.md), retrieved 2026-10-29 | Community calculator: MIT, [notice retained](Notices/Bl3Skills-MIT.txt). Publisher art/text: Rights reserved by Gearbox Software / 2K; used with attribution per owner decision 2026-10-29 | Resolved: imported (owner decision 2026-10-29) | 315 skill-icon assignments, existing skill descriptions and 134 additional literal effect descriptions; separate publisher and community notices | None for the recorded imports; exact saved-subobject joins and omitted DLC trees still need evidence |
+| [Wonderlands calculator, d57e7aa](https://github.com/Lothrik/wonderlands-skill-calc/tree/d57e7aa68af13afb50d4b54aa0ac5d501655c5b8); [skill terms](SaveToolkit.Plugins.Gearbox/ReferencePacks/gearbox.ttwl/skills.source.md), [asset sidecar](SaveToolkit.Plugins.Gearbox/ReferencePacks/gearbox.ttwl/assets.source.md), retrieved 2026-10-29 | Community calculator: MIT, [notice retained](Notices/WonderlandsSkills-MIT.txt). Publisher art/text: Rights reserved by Gearbox Software / 2K; used with attribution per owner decision 2026-10-29 | Resolved: imported (owner decision 2026-10-29) | 110 skill icons and existing plain-text descriptions; separate publisher and community notices | None for the recorded imports; exact saved-subobject joins still need evidence |
+| [Lootlemon](https://www.lootlemon.com), [terms](https://www.lootlemon.com/terms); retrieved 2026-10-29, exact page/image URLs and hashes in [BL3](SaveToolkit.Plugins.Gearbox/ReferencePacks/gearbox.bl3/assets.source.json) / [TTWL](SaveToolkit.Plugins.Gearbox/ReferencePacks/gearbox.ttwl/assets.source.json) sidecars | Publisher imagery and official card text: Rights reserved by Gearbox Software / 2K; used with attribution per owner decision 2026-10-29. Community guide prose is outside the recorded import | Resolved: imported (owner decision 2026-10-29) | 23 curated thumbnails/flavor lines in local attributed asset datasets; no community guide prose copied | None for the recorded publisher imports; other material requires its own provenance/terms record |
+| Map Genie [BL3](https://mapgenie.io/borderlands-3) / [Wonderlands](https://mapgenie.io/tiny-tinas-wonderlands), checked 2026-10-28; missing-coordinate status recorded in the 2026-10-29 asset sidecars above | Reuse terms unverified; no licence determination recorded | No current licence refusal; matching coordinate evidence missing | External guide and bounded mission checklist retained; no art, coordinates or descriptions copied and no invented alignment | Verified mission coordinates and a background transform; record applicable source terms/provenance before any import |
+| Individual part artwork: no specific image source/revision identified; scoped searches summarized in this README and the BL3/TTWL asset sidecars above | No specific material/licence identified; calculator MIT notices do not license publisher artwork | Matching data not found in searched sources; no licence refusal established | Calculator repositories contain skill icons; inspected editor repositories contain UI glyphs, not exact individual-part images. Matching unique-item serial records reuse clearly labelled whole-item reference thumbnails | Exact individual-part imagery with a reliable join, source/revision and applicable rights attribution |
 
 The central `docs/LICENCE_EXCLUSIONS.md` Gearbox publisher-art rows describe the pre-round state;
 their resolved status is reported on #17 for the coordinating agent. This worker edits only this
