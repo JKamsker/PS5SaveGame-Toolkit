@@ -4,14 +4,13 @@ using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
+using static SaveToolkit.Plugins.SuckerPunch.Tests.QuantityPlanningTestData;
 using static SaveToolkit.Plugins.SuckerPunch.Tests.YoteiTestData;
 
 namespace SaveToolkit.Plugins.SuckerPunch.Tests;
 
 public sealed class YoteiPlanningTests
 {
-    private static Dictionary<string, FieldValue> Target(long value) => new() { ["quantity"] = FieldValue.Of(value) };
-
     [Fact]
     public void PureBoundedPlansRespectEachRecordLimitAndEmitCopiesChecksumAndWarnings()
     {

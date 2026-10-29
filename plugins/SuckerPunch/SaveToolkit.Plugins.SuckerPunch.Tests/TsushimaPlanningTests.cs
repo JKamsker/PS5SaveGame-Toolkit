@@ -7,6 +7,7 @@ using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Testing;
+using static SaveToolkit.Plugins.SuckerPunch.Tests.QuantityPlanningTestData;
 using static SaveToolkit.Plugins.SuckerPunch.Tests.SuckerPunchTestData;
 
 namespace SaveToolkit.Plugins.SuckerPunch.Tests;
@@ -14,7 +15,6 @@ namespace SaveToolkit.Plugins.SuckerPunch.Tests;
 public sealed class TsushimaPlanningTests
 {
     private const string ActionId = "inventory/set-goods-quantity";
-    private static Dictionary<string, FieldValue> Target(long value) => new() { ["quantity"] = FieldValue.Of(value) };
 
     [Fact]
     public void EverySamplePlansPurelyAndChangesOnlySupportedCountWordsAndChecksum()

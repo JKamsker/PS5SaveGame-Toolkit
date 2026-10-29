@@ -6,6 +6,13 @@ namespace SaveToolkit.Plugins.SuckerPunch.Tests;
 
 public sealed class ProgressDecoderCharacterizationTests
 {
+    private const int PrefixLength = 1024;
+    private const int CounterTableStart = 128;
+    private const int SecondCounterTableStart = 512;
+    private const int DifficultyLookBehind = 64;
+    private const int TimerRelativeOffset = 231;
+    private const float PlaySeconds = 123.25f;
+
     [Theory]
     [InlineData(47, false)]
     [InlineData(48, true)]
@@ -13,13 +20,13 @@ public sealed class ProgressDecoderCharacterizationTests
     [InlineData(50, false)]
     public void CompleteDifficultySequenceRetainsVersionSpecificTimer(int version, bool hasTimer)
     {
-        var save = new SyntheticSave(false, prefixLength: 1024);
-        AddProgress(save, 128);
+        var save = new SyntheticSave(false, prefixLength: PrefixLength);
+        AddProgress(save, CounterTableStart);
         save.Write(12, (uint)version);
         save.Repair();
         using var document = save.Open();
         Assert.Equal("Medium", document.GetValue("progress/difficulty").AsString());
-        if (hasTimer) Assert.Equal(123.25, document.GetValue("progress/play-seconds").AsDouble());
+        if (hasTimer) Assert.Equal(PlaySeconds, document.GetValue("progress/play-seconds").AsDouble());
         else Assert.Throws<KeyNotFoundException>(() => document.GetValue("progress/play-seconds"));
         Assert.Equal(save.Bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
@@ -30,11 +37,11 @@ public sealed class ProgressDecoderCharacterizationTests
     [InlineData("prefix")]
     public void AmbiguousOrIncompleteProgressRetainsInspectionFallback(string mutation)
     {
-        var save = new SyntheticSave(false, prefixLength: 1024);
-        AddProgress(save, 128);
-        if (mutation == "duplicate") AddProgress(save, 512);
-        else if (mutation == "name") save.Bytes[128 + "\x04\0\0\0Easy".Length + sizeof(float)] ^= 1;
-        else save.Bytes[128 - 64] ^= 1;
+        var save = new SyntheticSave(false, prefixLength: PrefixLength);
+        AddProgress(save, CounterTableStart);
+        if (mutation == "duplicate") AddProgress(save, SecondCounterTableStart);
+        else if (mutation == "name") save.Bytes[CounterTableStart + "\x04\0\0\0Easy".Length + sizeof(float)] ^= 1;
+        else save.Bytes[CounterTableStart - DifficultyLookBehind] ^= 1;
         save.Repair();
         using var document = save.Open();
         Assert.Throws<KeyNotFoundException>(() => document.GetValue("progress/difficulty"));
@@ -48,8 +55,8 @@ public sealed class ProgressDecoderCharacterizationTests
     [InlineData(true)]
     public void NativeDecoderStopsAtEveryDeclinedValueWithoutLaterWarningsOrTraversal(bool yotei)
     {
-        var save = new SyntheticSave(yotei, prefixLength: 1024);
-        if (!yotei) AddProgress(save, 128);
+        var save = new SyntheticSave(yotei, prefixLength: PrefixLength);
+        if (!yotei) AddProgress(save, CounterTableStart);
         save.Repair();
         var hook = Assert.Single(((ISaveDecoderProvider)new SuckerPunchPlugin()).Decoders);
         var complete = new RecordingSink(int.MaxValue);
@@ -64,9 +71,7 @@ public sealed class ProgressDecoderCharacterizationTests
                 .Where(path => path.EndsWith("/quantity", StringComparison.Ordinal)).Select(path => path.Split('/')[1]));
         }
         // Check every emitted value in Tsushima and every Yōtei section transition, including its final registry word.
-        var stops = yotei ? new[] { 0, 3, 4, 149, 150, 182, 183, 2256, 2257, complete.Paths.Count - 1 }
-            : Enumerable.Range(0, complete.Paths.Count);
-        foreach (var accepted in stops)
+        foreach (var accepted in StopPositions(complete.Paths, yotei))
         {
             var sink = new RecordingSink(accepted);
             hook.Decode(save.File(), sink);
@@ -76,11 +81,22 @@ public sealed class ProgressDecoderCharacterizationTests
         }
     }
 
+    private static IEnumerable<int> StopPositions(List<string> paths, bool yotei)
+    {
+        if (!yotei) return Enumerable.Range(0, paths.Count);
+        var statistics = paths.FindIndex(path => path.StartsWith("yotei/statistics/", StringComparison.Ordinal));
+        var gear = paths.FindIndex(path => path.StartsWith("yotei/gear/", StringComparison.Ordinal));
+        var registry = paths.FindIndex(path => path.StartsWith("yotei/registry/", StringComparison.Ordinal));
+        const int lastHeader = 3;
+        return [0, lastHeader, lastHeader + 1, statistics - 1, statistics, gear - 1, gear,
+            registry - 1, registry, paths.Count - 1];
+    }
+
     private static void AddProgress(SyntheticSave save, int start)
     {
         using var stream = new MemoryStream(save.Bytes, writable: true);
         using var writer = new BinaryWriter(stream, Encoding.ASCII);
-        stream.Position = start - 64;
+        stream.Position = start - DifficultyLookBehind;
         WriteName(writer, "Medium");
         WriteName(writer, "Ship");
         stream.Position = start;
@@ -89,7 +105,7 @@ public sealed class ProgressDecoderCharacterizationTests
             WriteName(writer, name);
             writer.Write(1.5f);
         }
-        BinaryPrimitives.WriteSingleLittleEndian(save.Bytes.AsSpan(start + 231), 123.25f);
+        BinaryPrimitives.WriteSingleLittleEndian(save.Bytes.AsSpan(start + TimerRelativeOffset), PlaySeconds);
     }
 
     private static void WriteName(BinaryWriter writer, string name)
