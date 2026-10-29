@@ -5,6 +5,17 @@ namespace SaveToolkit.Core.Tests;
 public sealed class TestScratchTests
 {
     [Fact]
+    public void SyntheticImportFolders_AreOwnedByTheProcessScratchFolder()
+    {
+        var first = TestZips.TempDir();
+        var second = TestZips.TempDir();
+
+        Assert.Equal(Path.GetFullPath(TestScratch.ProcessFolder), Path.GetDirectoryName(Path.GetFullPath(first)));
+        Assert.Equal(Path.GetFullPath(TestScratch.ProcessFolder), Path.GetDirectoryName(Path.GetFullPath(second)));
+        Assert.NotEqual(first, second);
+    }
+
+    [Fact]
     public void SweepStale_RemovesOnlyRunFoldersOfDeadProcesses()
     {
         var root = Path.Combine(Path.GetTempPath(), "SaveToolkit.ScratchTest", Guid.NewGuid().ToString("N"));
