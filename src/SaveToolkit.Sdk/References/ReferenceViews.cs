@@ -9,11 +9,43 @@ public static class ReferenceViews
     /// Resolves local image availability and provenance (registering the image dataset in Sources).
     /// Includes separate record/image attribution. The plugin supplies any identity/evidence caveat in label.
     /// </summary>
-    public static ViewNode Icon(IReferenceContext context, ReferenceRecord? record, string? label = null, ViewNode? fallback = null)
+    public static ViewNode Icon(IReferenceContext context, ReferenceRecord? record, string? label = null, ViewNode? fallback = null) =>
+        Icon(context, record, label, fallback, options: null);
+
+    /// <summary>
+    /// Resolves an icon with explicit compatibility policies. Null options retain the default behavior.
+    /// Label and fallback are explicit to preserve existing calls, including a null third argument.
+    /// Requests image provenance and resolves assets to register Sources. Exact alt text owns all visible notices;
+    /// composed alt text still requires provenance, regardless of availability policy.
+    /// </summary>
+    public static ViewNode Icon(IReferenceContext context, ReferenceRecord? record, string? label,
+        ViewNode? fallback, ReferenceIconOptions? options)
     {
         ArgumentNullException.ThrowIfNull(context);
-        if (record?.AssetId is not { } asset || context.AssetProvenance(asset) is not { } provenance || context.GetAsset(asset) is null)
-            return fallback ?? new TextNode("No reference icon");
-        return new ImageNode(asset, $"{label ?? record.Name}. {record.AttributionText}. Icon: {provenance.Attribution.ToShortText()}");
+        var availability = options?.Availability ?? ReferenceIconAvailability.RequireBytesAndProvenance;
+        if (!Enum.IsDefined(availability))
+            throw new ArgumentOutOfRangeException(nameof(options), availability, "Unknown icon availability policy.");
+        if (record?.AssetId is not { } asset)
+            return MissingIcon(fallback);
+
+        var provenance = context.AssetProvenance(asset);
+        if (provenance is null && availability != ReferenceIconAvailability.AssetIdOnly)
+            return MissingIcon(fallback);
+
+        // Resolving an asset registers its dataset in Sources, even when missing bytes are allowed.
+        var image = context.GetAsset(asset);
+        if (image is null && availability == ReferenceIconAvailability.RequireBytesAndProvenance)
+            return MissingIcon(fallback);
+
+        var alt = options?.ExactAltText;
+        if (alt is null)
+        {
+            if (provenance is null)
+                return MissingIcon(fallback);
+            alt = $"{label ?? record.Name}. {record.AttributionText}. Icon: {provenance.Attribution.ToShortText()}";
+        }
+        return new ImageNode(asset, alt);
     }
+
+    private static ViewNode MissingIcon(ViewNode? fallback) => fallback ?? new TextNode("No reference icon");
 }
