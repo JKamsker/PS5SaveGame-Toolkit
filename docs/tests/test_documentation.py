@@ -287,6 +287,24 @@ class DocumentationTests(unittest.TestCase):
         for page in ("README.md", "docs/RELEASING.md"):
             self.assertIn("PERFORMANCE.md", document(page))
 
+    def test_release_preparation_documents_draft_and_check_contracts(self):
+        guide = markdown_section(document("docs/RELEASING.md"), "### Prepare curated notes and check the candidate")
+        for command in ("./scripts/release-notes.ps1 -Version 0.1.0-rc.3",
+                        "./scripts/release-check.ps1 -Version 0.1.0-rc.3"):
+            self.assertIn(command, guide)
+        generator = source("scripts/release-notes.ps1")
+        previous_notes = source("docs/release-notes/v0.1.0-rc.2.md")
+        for heading in re.findall(r"(?m)^## .+$", previous_notes):
+            with self.subTest(heading=heading):
+                self.assertIn(heading, generator)
+        self.assertIn("## Checksums", generator)
+        for marker in ("DRAFT", "TODO", "TBD", "FIXME", "PLACEHOLDER", "XXX"):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, guide)
+                self.assertIn(marker, source("scripts/lib/Release.Checks.ps1"))
+        for contract in ("main push", "MinVerTagPrefix", "SDK_REQUESTS.md", "No network"):
+            self.assertIn(contract, document("docs/RELEASING.md"))
+
     def test_documented_script_invocations_use_real_parameters(self):
         invocations = 0
         for page in FRAMEWORK_PAGES:

@@ -91,6 +91,8 @@ are additional). All commands below run from the repository root in PowerShell 7
 | `package.ps1` | `-Runtime`, `-OutputDirectory`, `-SkipWebBuild` | Output directory is required. Runtime is an array defaulting to all four supported RIDs; web build is included by default. |
 | `smoke-package.ps1` | `-PackageDirectory`, `-Runtime`, `-ScratchDirectory`, `-ExpectedVersion` | First three are required; exactly one matching archive plus its `.sha256` must exist. Expected version is optional. |
 | `new-plugin.ps1` | `-Name`, `-Id`, `-TitleIds`, `-GameName` | Name/ID are required; title IDs default to empty, game name to Name. See the [scaffold walkthrough](PLUGIN_GUIDE.md#scaffold) for format and name restrictions. |
+| `release-notes.ps1` | `-Version`, `-PreviousTag`, `-Force` | Version is required (SemVer without `v` or build metadata). Previous tag defaults to the nearest reachable `v*` tag on the first-parent history. Writes a draft; existing notes require Force. No network. |
+| `release-check.ps1` | `-Version` | Version is required in the same format. Read-only pre-tag checks require committed notes and a clean main branch; queries exact-HEAD main push CI through gh, or warns when gh is unavailable. |
 
 ## Disk and scratch
 
@@ -371,6 +373,69 @@ named `smoke-<id>.stdout.log` and `smoke-<id>.stderr.log` files in scratch.
 Only maintainers should create tags/releases. Ordinary CI has read-only repository permissions;
 only the release publication job has `contents: write`. No additional release credential is needed
 for this private repository: the workflow uses GitHub's scoped `GITHUB_TOKEN` through `gh`.
+
+### Prepare curated notes and check the candidate
+
+After integrating the release work, generate the next candidate's draft (PowerShell 7 on Windows,
+Linux or macOS; git and full local history/tags are required):
+
+```powershell
+./scripts/release-notes.ps1 -Version 0.1.0-rc.3
+```
+
+To choose the base explicitly and replace an existing draft:
+
+```powershell
+./scripts/release-notes.ps1 -Version 0.1.0-rc.3 -PreviousTag v0.1.0-rc.2 -Force
+```
+
+The offline generator uses `git log --merges --first-parent` from the previous tag to HEAD.
+The default base is `git describe --tags --match 'v*' --abbrev=0 --first-parent HEAD`;
+explicit bases must be local tags ancestral to HEAD. Fetch history/tags separately when needed.
+It prints candidates grouped by conventional-commit type and scope, recognizing both
+`fix(core): ...` and repository merge subjects such as `merge: fix (xorjson): ... (#40)`.
+Unrecognized subjects remain under `other`; `!` and merge-message `BREAKING CHANGE:` markers
+remain visible. Direct commits and nested topic-branch merges are excluded: review direct
+commits separately when preparing highlights. Each candidate links to its merge commit.
+Net changes against the merge's first parent in `src/SaveToolkit.Sdk` or `docs/SDK_REQUESTS.md`
+also flag that candidate **For plugin authors** and list it in that section.
+
+The output is `docs/release-notes/v<Version>.md`, with the rc.2 highlights sections, a checksums
+section and a temporary grouped inventory. It is a **draft**, not a finished changelog.
+Review the candidates, write evidence-backed highlights, update known limitations, and remove
+the temporary inventory and all `DRAFT`, `TODO`, `TBD`, `FIXME`, `PLACEHOLDER`, `XXX` markers
+and HTML comments. Remove unused highlight sections. The checksum section describes verification;
+actual hashes come from the packaged assets, so no hashes are invented before packaging.
+Existing curated files are preserved unless `-Force` explicitly replaces them with a new draft.
+
+Commit the curated notes through the normal integration process. On clean `main` at the
+intended release commit, after its push CI has completed, run:
+
+```powershell
+./scripts/release-check.ps1 -Version 0.1.0-rc.3
+```
+
+The check rejects shallow history, another branch/detached HEAD, staged/unstaged/untracked
+changes, an existing local tag, missing/empty/mistitled notes or placeholder markers, and
+inconsistent `docs/SDK_REQUESTS.md` summary/status/appendix counts (including duplicate IDs).
+Version validation matches the release workflow's SemVer restrictions. Since the application
+has no pinned release-version file, it verifies the API's `MinVerTagPrefix` is `v`, the MinVer
+package reference and central package pin exist, and no explicit application-version override
+is introduced in the API project or root `Directory.Build.props` / `Directory.Build.targets`.
+Do not bump independent npm metadata or plugin versions to match the release tag.
+
+With `gh` installed, the latest `ci.yml` **main push** run for the exact HEAD must be completed
+and successful. Missing, pending or failed runs and gh/query/authentication errors fail the check;
+older successful runs cannot mask a newer failing run. Only an unavailable gh executable skips
+this check, with a warning requiring manual CI verification. The script neither fetches tags nor
+checks remote tag existence: fetch tags before preparing a real release. It does not tag, push,
+dispatch, or publish. Re-run it if HEAD changes. The existing release workflow remains the
+authoritative validation/publication gate, including for manual releases.
+
+The regressions run through `./scripts/self-test.ps1 -ScratchDirectory <path>` in disposable
+scratch git repositories with mocked gh responses; they never alter the checkout or contact CI.
+
+### Tag or dispatch the checked revision
 
 Two entry paths run the same validation and release pipeline:
 
