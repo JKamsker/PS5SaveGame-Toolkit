@@ -27,59 +27,58 @@ internal sealed class JsonTitleDecoder : ISaveDecoderHook
         }
         var tree = JsonTokenTree.Parse(file.ReadAllBytes());
         var overlay = JsonOverlay.Match(file, tree) ?? throw new InvalidDataException("No matched JSON title/role/schema for this decoder.");
-        var stop = false;
         sink.Warn("Only matched title gameplay/settings are decoded; private profile identity and unrelated JSON are excluded. Archive order is not chronology.");
         if (overlay.IsProfile)
         {
             foreach (var node in overlay.Groups)
-                if (!Emit(node, "Profile/" + Segment(node), 1)) return;
+                if (!Emit(node, "Profile/" + Segment(node), 1, sink)) return;
         }
         else if (file.Directory.TitleId == "PPSA04027")
-        {
-            var groups = new Dictionary<string, int>(StringComparer.Ordinal);
-            foreach (var group in overlay.Groups)
-            {
-                var name = JsonOverlay.Unique(group, "group_name")!.Current.ToString();
-                groups.TryGetValue(name, out var occurrence);
-                groups[name] = ++occurrence;
-                var options = new Dictionary<string, int>(StringComparer.Ordinal);
-                foreach (var option in JsonOverlay.Unique(group, "options")!.Children)
-                {
-                    if (!JsonOverlay.HasType(JsonOverlay.Unique(option, "name"), JsonScalar.Text)) continue;
-                    var key = JsonOverlay.Unique(option, "name")!.Current.ToString();
-                    options.TryGetValue(key, out var count);
-                    options[key] = ++count;
-                    var path = $"settings/{Escape(name)}#{occurrence}/{Escape(key)}#{count}";
-                    foreach (var member in option.Children.Where(n => n.Label is "value" or "index" or "default_value" or "default_index"))
-                        if (!Emit(member, path + "/" + Segment(member), 3)) return;
-                }
-            }
-        }
+            DecodeCyberpunk(overlay, sink);
         else
             foreach (var group in overlay.Groups)
-                if (!Emit(group, Segment(group), 0)) return;
+                if (!Emit(group, Segment(group), 0, sink)) return;
+    }
 
-        bool Emit(JsonValueToken node, string path, int depth)
+    private static void DecodeCyberpunk(JsonOverlay overlay, ISaveDecodeSink sink)
+    {
+        var groups = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var group in overlay.Groups)
         {
-            if (stop) return false;
-            if (depth > sink.MaxDepth)
+            var name = JsonOverlay.Unique(group, "group_name")!.Current.ToString();
+            groups.TryGetValue(name, out var occurrence);
+            groups[name] = ++occurrence;
+            var options = new Dictionary<string, int>(StringComparer.Ordinal);
+            foreach (var option in JsonOverlay.Unique(group, "options")!.Children)
             {
-                sink.MarkTruncated("JSON title traversal reached the decoder depth limit.");
-                return true;
+                if (!JsonOverlay.HasType(JsonOverlay.Unique(option, "name"), JsonScalar.Text)) continue;
+                var key = JsonOverlay.Unique(option, "name")!.Current.ToString();
+                options.TryGetValue(key, out var count);
+                options[key] = ++count;
+                var path = $"settings/{Escape(name)}#{occurrence}/{Escape(key)}#{count}";
+                foreach (var member in option.Children.Where(n => n.Label is "value" or "index" or "default_value" or "default_index"))
+                    if (!Emit(member, path + "/" + Segment(member), 3, sink)) return;
             }
-            if (!node.IsContainer)
-            {
-                var kind = node.Spec?.ReadOnly == true ? "number" : JsonScalar.TypeOf(node.Current);
-                var value = node.Current.IsNull ? "null" : node.Current.ToString();
-                stop = !sink.Add(path, kind, value);
-                return !stop;
-            }
-            if (node.Kind == JsonTokenType.StartArray)
-                sink.MarkTruncated("Array evidence uses positional paths; native identity across reordering is unproven.");
-            foreach (var child in node.Children)
-                if (!Emit(child, path + "/" + Segment(child), depth + 1)) return false;
+        }
+    }
+
+    private static bool Emit(JsonValueToken node, string path, int depth, ISaveDecodeSink sink)
+    {
+        if (depth > sink.MaxDepth)
+        {
+            sink.MarkTruncated("JSON title traversal reached the decoder depth limit.");
             return true;
         }
+        if (!node.IsContainer)
+        {
+            var value = node.Current.IsNull ? "null" : node.Current.ToString();
+            return sink.Add(path, node.JsonType, value);
+        }
+        if (node.Kind == JsonTokenType.StartArray)
+            sink.MarkTruncated("Array evidence uses positional paths; native identity across reordering is unproven.");
+        foreach (var child in node.Children)
+            if (!Emit(child, path + "/" + Segment(child), depth + 1, sink)) return false;
+        return true;
     }
 
     private static string Segment(JsonValueToken node) => node.Parent?.Kind == JsonTokenType.StartArray

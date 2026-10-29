@@ -78,19 +78,6 @@ public sealed class JsonRichOverlayTests
     private static ISaveDocument Open(string title, string name, string source) =>
         new GenericJsonPlugin().Open(MemorySaveSet.SingleFile(name, Encoding.UTF8.GetBytes(source), title));
 
-    private static IReadOnlyList<ViewNode> OverlayNodes(ISaveDocument document)
-    {
-        var overlay = Assert.IsType<TabsNode>(document.BuildView()).Tabs[3];
-        var result = new List<ViewNode>();
-        foreach (var node in overlay.Children) Visit(node);
-        return result;
-        void Visit(ViewNode node)
-        {
-            result.Add(node);
-            if (node is not SectionNode section) return;
-            var children = section.LazyId is { } id ? document.ExpandNode(id) : section.Children;
-            Assert.True(children.Count <= 128);
-            foreach (var child in children) Visit(child);
-        }
-    }
+    private static IReadOnlyList<ViewNode> OverlayNodes(ISaveDocument document) =>
+        JsonTestViews.Walk(Assert.IsType<TabsNode>(document.BuildView()).Tabs[3].Children, document.ExpandNode, maxChildren: 128);
 }

@@ -42,6 +42,12 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
     public FieldValue Current { get; set; }
     public string? Warning { get; set; }
     public bool IsContainer => Kind is JsonTokenType.StartObject or JsonTokenType.StartArray;
+    public string JsonType => Kind switch
+    {
+        JsonTokenType.StartObject => "object",
+        JsonTokenType.StartArray => "array",
+        _ => Spec?.ReadOnly == true ? JsonScalar.Number : JsonScalar.TypeOf(Current),
+    };
     public string ValueId => _valueId ??= $"value/{Index}";
 
     public string? Validate(FieldValue value) => Spec?.ReadOnly == true ? "Field is read-only." : JsonScalar.Validate(value);

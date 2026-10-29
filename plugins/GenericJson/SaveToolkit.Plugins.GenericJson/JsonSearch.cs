@@ -74,24 +74,26 @@ internal sealed class JsonSearch(JsonTokenTree imported)
             });
         }
         else if (query.Descending) rows.Reverse();
-        var page = rows.Skip(sort ? offset : 0).Take(limit).Select(node =>
-        {
-            var path = JsonPaths.ForNode(node);
-            return new TableRow(node.ValueId,
-            new Dictionary<string, ViewNode>(StringComparer.Ordinal)
-            {
-                ["path"] = new TextNode(path) { Monospace = true },
-                ["type"] = new TextNode(Type(node)),
-                ["state"] = new TextNode(State(node)),
-                ["original"] = new TextNode(Clip(Original(node))) { Monospace = true },
-                ["within"] = new TextNode(node.ValueId) { Monospace = true },
-                ["value"] = node.IsContainer ? new SectionNode($"{node.Children.Count} entries — open subtree", [navigate(node)])
-                    { Collapsed = true, Description = path }
-                    : new SectionNode(Preview(node), [field(node, path)]),
-                ["reset"] = JsonResetActions.View(),
-            });
-        }).ToArray();
+        var page = rows.Skip(sort ? offset : 0).Take(limit).Select(node => RenderRow(node, field, navigate)).ToArray();
         return new(collectionId, Columns, page, total, filtered, offset, limit);
+    }
+
+    private TableRow RenderRow(JsonValueToken node, Func<JsonValueToken, string, ViewNode> field, Func<JsonValueToken, ViewNode> navigate)
+    {
+        var path = JsonPaths.ForNode(node);
+        return new TableRow(node.ValueId,
+        new Dictionary<string, ViewNode>(StringComparer.Ordinal)
+        {
+            ["path"] = new TextNode(path) { Monospace = true },
+            ["type"] = new TextNode(node.JsonType),
+            ["state"] = new TextNode(State(node)),
+            ["original"] = new TextNode(Clip(Original(node))) { Monospace = true },
+            ["within"] = new TextNode(node.ValueId) { Monospace = true },
+            ["value"] = node.IsContainer ? new SectionNode($"{node.Children.Count} entries — open subtree", [navigate(node)])
+                { Collapsed = true, Description = path }
+                : new SectionNode(Preview(node), [field(node, path)]),
+            ["reset"] = JsonResetActions.View(),
+        });
     }
 
     public static bool ValidScope(JsonTokenTree tree, string id) => id == CollectionId || Array(tree, id) is not null;
@@ -133,7 +135,7 @@ internal sealed class JsonSearch(JsonTokenTree imported)
     private string SortValue(JsonValueToken node, string column) => column switch
     {
         "path" => JsonPaths.ForNode(node),
-        "type" => Type(node),
+        "type" => node.JsonType,
         "state" => State(node),
         "original" => Original(node),
         "within" => node.ValueId,
@@ -145,15 +147,8 @@ internal sealed class JsonSearch(JsonTokenTree imported)
     {
         const int MaxPreviewLength = 64;
         var text = JsonScalar.Literal(node.Current).ReplaceLineEndings(" ");
-        return $"{Type(node)}: {(text.Length > MaxPreviewLength ? text[..MaxPreviewLength] + "…" : text)}";
+        return $"{node.JsonType}: {(text.Length > MaxPreviewLength ? text[..MaxPreviewLength] + "…" : text)}";
     }
-
-    private static string Type(JsonValueToken node) => node.Kind switch
-    {
-        JsonTokenType.StartObject => "object",
-        JsonTokenType.StartArray => "array",
-        _ => node.Spec?.ReadOnly == true ? "number" : JsonScalar.TypeOf(node.Current),
-    };
 
     private string Original(JsonValueToken node) => !node.Imported ? "(absent)" : node.IsContainer
         ? _structures[node.Index] : JsonScalar.Literal(node.Original);

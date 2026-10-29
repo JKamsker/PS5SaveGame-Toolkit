@@ -35,13 +35,7 @@ internal sealed record JsonTemplateSchema(string Type, IReadOnlyDictionary<strin
 
     public void Validate(JsonValueToken value)
     {
-        var type = value.Kind switch
-        {
-            JsonTokenType.StartObject => "object",
-            JsonTokenType.StartArray => "array",
-            _ => value.Spec?.ReadOnly == true ? "number" : JsonScalar.TypeOf(value.Current),
-        };
-        if (type != Type) throw new ArgumentException("Inserted JSON does not match the explicit template schema type.");
+        if (value.JsonType != Type) throw new ArgumentException("Inserted JSON does not match the explicit template schema type.");
         if (Type == "object")
         {
             if (value.Children.Select(n => n.Label).Distinct(StringComparer.Ordinal).Count() != value.Children.Count)

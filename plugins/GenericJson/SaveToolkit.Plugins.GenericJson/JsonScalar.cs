@@ -26,7 +26,6 @@ internal static class JsonScalar
         JsonTokenType.Null => FieldValue.Null,
         JsonTokenType.String => FieldValue.Union(Text, FieldValue.Of(reader.GetString()!)),
         JsonTokenType.True or JsonTokenType.False => FieldValue.Union(Boolean, FieldValue.Of(reader.GetBoolean())),
-        JsonTokenType.Number => FieldValue.Union(Number, FieldValue.ExactNumber(Encoding.UTF8.GetString(reader.ValueSpan))),
         _ => throw new InvalidOperationException("Expected a JSON scalar."),
     };
 

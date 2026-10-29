@@ -52,24 +52,7 @@ internal static class JsonCyberpunkWrites
         }
         else if (choices is not null) return null;
         else if (type is "int" or "float" && JsonOverlay.HasType(value, JsonScalar.Number))
-        {
-            var min = JsonOverlay.Unique(option, "min_value");
-            var max = JsonOverlay.Unique(option, "max_value");
-            if (!JsonOverlay.HasType(min, JsonScalar.Number) || !JsonOverlay.HasType(max, JsonScalar.Number)) return null;
-            decimal? step = null;
-            decimal origin = 0;
-            if (JsonOverlay.Unique(option, "step_value") is { } increment)
-            {
-                if (!JsonSemanticValues.TryDecimal(increment.Current.ToString(), out var s) || s <= 0
-                    || !JsonSemanticValues.TryDecimal(min!.Current.ToString(), out origin)) return null;
-                // PS5 float steps are often rounded float32 metadata (e.g. 0.0099999997).
-                // Exact modulo would reject the file's own defaults. Keep those steps advisory.
-                if (type == "int") step = s;
-            }
-            target = JsonSemanticValues.Exact(value, new ExactNumberSpec { Min = min!.Current.ToString(), Max = max!.Current.ToString() }, type == "int", step, origin)
-                with { Evidence = "Based on file-recorded min/max/step metadata for version 136. Integer steps allow recorded endpoints; "
-                    + "float steps are advisory because recorded steps are approximate. PS5 acceptance and defaults are unverified." };
-        }
+            target = CreateNumericSetting(option, value, type);
         else if (index is not null)
         {
             if (!JsonOverlay.HasType(index, JsonScalar.Number) || !int.TryParse(index.Original.ToString(), NumberStyles.None, CultureInfo.InvariantCulture, out _)) return null;
@@ -77,6 +60,26 @@ internal static class JsonCyberpunkWrites
                 + "Index domain is limited to 0..imported index; no named choice or compatibility is inferred." };
         }
         return target;
+    }
+
+    private static JsonSemanticTarget? CreateNumericSetting(JsonValueToken option, JsonValueToken value, string type)
+    {
+        var min = JsonOverlay.Unique(option, "min_value");
+        var max = JsonOverlay.Unique(option, "max_value");
+        if (!JsonOverlay.HasType(min, JsonScalar.Number) || !JsonOverlay.HasType(max, JsonScalar.Number)) return null;
+        decimal? step = null;
+        decimal origin = 0;
+        if (JsonOverlay.Unique(option, "step_value") is { } increment)
+        {
+            if (!JsonSemanticValues.TryDecimal(increment.Current.ToString(), out var s) || s <= 0
+                || !JsonSemanticValues.TryDecimal(min!.Current.ToString(), out origin)) return null;
+            // PS5 float steps are often rounded float32 metadata (e.g. 0.0099999997).
+            // Exact modulo would reject the file's own defaults. Keep those steps advisory.
+            if (type == "int") step = s;
+        }
+        return JsonSemanticValues.Exact(value, new ExactNumberSpec { Min = min!.Current.ToString(), Max = max!.Current.ToString() }, type == "int", step, origin)
+            with { Evidence = "Based on file-recorded min/max/step metadata for version 136. Integer steps allow recorded endpoints; "
+                + "float steps are advisory because recorded steps are approximate. PS5 acceptance and defaults are unverified." };
     }
 
     private static IReadOnlyDictionary<string, FieldValue>? Defaults(JsonValueToken option, JsonSemanticTarget target)

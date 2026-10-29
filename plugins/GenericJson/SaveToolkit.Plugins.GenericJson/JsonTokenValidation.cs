@@ -20,69 +20,7 @@ internal static class JsonTokenValidation
         try
         {
             _ = StrictUtf8.GetCharCount(bytes);
-            var bom = bytes.AsSpan().StartsWith("\uFEFF"u8) ? 3 : 0;
-            var reader = new Utf8JsonReader(bytes.AsSpan(bom), new JsonReaderOptions { MaxDepth = JsonTokenTree.MaxDepth });
-            Span<char> scratch = stackalloc char[256];
-            Span<int> childCounts = stackalloc int[JsonTokenTree.MaxDepth + 1];
-            childCounts.Clear();
-            var count = 0;
-            JsonValueToken? parent = null;
-            while (reader.Read())
-            {
-                tokenOffset = reader.TokenStartIndex + bom;
-                // The reader checks JSON syntax; decoding escapes also checks paired Unicode surrogates.
-                if (reader.TokenType is JsonTokenType.String or JsonTokenType.PropertyName && reader.ValueIsEscaped)
-                {
-                    if (reader.ValueSpan.Length > scratch.Length)
-                    {
-                        var replacement = ArrayPool<char>.Shared.Rent(reader.ValueSpan.Length);
-                        if (rented is not null) ArrayPool<char>.Shared.Return(rented);
-                        rented = replacement;
-                        scratch = rented;
-                    }
-                    _ = reader.CopyString(scratch);
-                }
-                if (reader.TokenType == JsonTokenType.PropertyName)
-                {
-                    if (expected is not null && (count >= expected.Nodes.Count || !reader.ValueTextEquals(expected.Nodes[count].Label)))
-                        Mismatch();
-                    continue;
-                }
-                if (reader.TokenType is JsonTokenType.EndArray or JsonTokenType.EndObject)
-                {
-                    if (expected is not null)
-                    {
-                        if (parent is null || childCounts[reader.CurrentDepth + 1] != parent.Children.Count) Mismatch();
-                        parent = parent!.Parent;
-                    }
-                    continue;
-                }
-                if (++count > JsonTokenTree.MaxNodes)
-                    throw new SaveFormatException("JSON exceeds the 250,000 value safety limit.");
-                if (expected is null) continue;
-                if (count > expected.Nodes.Count) Mismatch();
-                var node = expected.Nodes[count - 1];
-                if (!ReferenceEquals(node.Parent, parent)) Mismatch();
-                if (parent?.Kind == JsonTokenType.StartArray)
-                {
-                    var position = childCounts[reader.CurrentDepth];
-                    scratch[0] = '[';
-                    _ = position.TryFormat(scratch[1..], out var digits);
-                    scratch[digits + 1] = ']';
-                    if (!node.Label.AsSpan().SequenceEqual(scratch[..(digits + 2)])) Mismatch();
-                }
-                else if (parent is null && node.Label != "$") Mismatch();
-                childCounts[reader.CurrentDepth]++;
-                if (node.IsContainer)
-                {
-                    if (reader.TokenType != node.Kind) Mismatch();
-                    parent = node;
-                    childCounts[reader.CurrentDepth + 1] = 0;
-                }
-                else if (!ScalarEquals(node.Current, ref reader)) Mismatch();
-            }
-            if (count == 0) throw new SaveFormatException("JSON must contain one value.");
-            if (expected is not null && count != expected.Nodes.Count) Mismatch();
+            ValidateTokens(bytes, expected, ref tokenOffset, ref rented);
         }
         catch (DecoderFallbackException ex)
         {
@@ -100,6 +38,79 @@ internal static class JsonTokenValidation
         {
             if (rented is not null) ArrayPool<char>.Shared.Return(rented);
         }
+    }
+
+    private static void ValidateTokens(byte[] bytes, JsonTokenTree? expected, ref long tokenOffset, ref char[]? rented)
+    {
+        var bom = bytes.AsSpan().StartsWith("\uFEFF"u8) ? 3 : 0;
+        var reader = new Utf8JsonReader(bytes.AsSpan(bom), new JsonReaderOptions { MaxDepth = JsonTokenTree.MaxDepth });
+        Span<char> scratch = stackalloc char[256];
+        Span<int> childCounts = stackalloc int[JsonTokenTree.MaxDepth + 1];
+        childCounts.Clear();
+        var count = 0;
+        JsonValueToken? parent = null;
+        while (reader.Read())
+        {
+            tokenOffset = reader.TokenStartIndex + bom;
+            // The reader checks JSON syntax; decoding escapes also checks paired Unicode surrogates.
+            if (reader.TokenType is JsonTokenType.String or JsonTokenType.PropertyName && reader.ValueIsEscaped)
+            {
+                if (reader.ValueSpan.Length > scratch.Length)
+                {
+                    var replacement = ArrayPool<char>.Shared.Rent(reader.ValueSpan.Length);
+                    if (rented is not null) ArrayPool<char>.Shared.Return(rented);
+                    rented = replacement;
+                    scratch = rented;
+                }
+                _ = reader.CopyString(scratch);
+            }
+            if (reader.TokenType == JsonTokenType.PropertyName)
+            {
+                if (expected is not null && (count >= expected.Nodes.Count || !reader.ValueTextEquals(expected.Nodes[count].Label)))
+                    Mismatch();
+                continue;
+            }
+            if (reader.TokenType is JsonTokenType.EndArray or JsonTokenType.EndObject)
+            {
+                if (expected is not null)
+                {
+                    if (parent is null || childCounts[reader.CurrentDepth + 1] != parent.Children.Count) Mismatch();
+                    parent = parent!.Parent;
+                }
+                continue;
+            }
+            if (++count > JsonTokenTree.MaxNodes)
+                throw new SaveFormatException("JSON exceeds the 250,000 value safety limit.");
+            if (expected is null) continue;
+            CompareNode(expected, count, ref reader, ref parent, childCounts, scratch);
+        }
+        if (count == 0) throw new SaveFormatException("JSON must contain one value.");
+        if (expected is not null && count != expected.Nodes.Count) Mismatch();
+    }
+
+    private static void CompareNode(JsonTokenTree expected, int count, ref Utf8JsonReader reader,
+        ref JsonValueToken? parent, scoped Span<int> childCounts, scoped Span<char> scratch)
+    {
+        if (count > expected.Nodes.Count) Mismatch();
+        var node = expected.Nodes[count - 1];
+        if (!ReferenceEquals(node.Parent, parent)) Mismatch();
+        if (parent?.Kind == JsonTokenType.StartArray)
+        {
+            var position = childCounts[reader.CurrentDepth];
+            scratch[0] = '[';
+            _ = position.TryFormat(scratch[1..], out var digits);
+            scratch[digits + 1] = ']';
+            if (!node.Label.AsSpan().SequenceEqual(scratch[..(digits + 2)])) Mismatch();
+        }
+        else if (parent is null && node.Label != "$") Mismatch();
+        childCounts[reader.CurrentDepth]++;
+        if (node.IsContainer)
+        {
+            if (reader.TokenType != node.Kind) Mismatch();
+            parent = node;
+            childCounts[reader.CurrentDepth + 1] = 0;
+        }
+        else if (!ScalarEquals(node.Current, ref reader)) Mismatch();
     }
 
     private static bool ScalarEquals(FieldValue value, ref Utf8JsonReader reader)

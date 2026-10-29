@@ -197,22 +197,7 @@ public sealed class JsonOverlayGuardTests
         overlay is null ? GenericTabs : [.. GenericTabs, overlay],
         Assert.IsType<TabsNode>(document.BuildView()).Tabs.Select(t => t.Title));
 
-    private static IReadOnlyList<ActionNode> OverlayActions(ISaveDocument document, string title)
-    {
-        var nodes = Assert.IsType<TabsNode>(document.BuildView()).Tabs.Single(t => t.Title == title).Children;
-        var actions = new List<ActionNode>();
-        foreach (var node in nodes) Visit(node);
-        return actions;
-
-        void Visit(ViewNode node)
-        {
-            if (node is ActionNode action) actions.Add(action);
-            if (node is SectionNode section)
-            {
-                var children = section.LazyId is { } id ? document.ExpandNode(id) : section.Children;
-                Assert.InRange(children.Count, 0, MaxOverlayEntries);
-                foreach (var child in children) Visit(child);
-            }
-        }
-    }
+    private static IReadOnlyList<ActionNode> OverlayActions(ISaveDocument document, string title) =>
+        JsonTestViews.Walk(Assert.IsType<TabsNode>(document.BuildView()).Tabs.Single(tab => tab.Title == title).Children,
+            document.ExpandNode, maxChildren: MaxOverlayEntries).OfType<ActionNode>().ToArray();
 }
