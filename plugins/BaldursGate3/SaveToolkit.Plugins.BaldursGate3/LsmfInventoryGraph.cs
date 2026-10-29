@@ -138,17 +138,17 @@ internal sealed class LsmfInventoryGraph
         var entities = _access.Model.Entities();
         var creatorTemplates = resource.Nodes.Where(node => node.Name == "Creator" && node.Parent >= 0 &&
                 resource.Nodes[node.Parent].Name == "Creators")
-            .Select(node => (Entity: Read(resource, node, "Entity", LarianAttributeType.UUID),
-                Template: Read(resource, node, "TemplateID", LarianAttributeType.UUID) ??
-                    Read(resource, node, "TemplateID", LarianAttributeType.FixedString)))
+            .Select(node => (Entity: ResourceIdentifiers.Read(resource, node, "Entity", LarianAttributeType.UUID),
+                Template: ResourceIdentifiers.Read(resource, node, "TemplateID", LarianAttributeType.UUID) ??
+                    ResourceIdentifiers.Read(resource, node, "TemplateID", LarianAttributeType.FixedString)))
             .Where(pair => pair.Entity is not null && pair.Template is not null)
             .ToDictionary(pair => pair.Entity!, pair => pair.Template!, StringComparer.Ordinal);
         var entityByTemplate = creatorTemplates.GroupBy(pair => pair.Value, StringComparer.Ordinal)
             .Where(group => group.Count() == 1)
             .ToDictionary(group => group.Key, group => group.Single().Key, StringComparer.Ordinal);
         var items = resource.Nodes.Where(node => node.Name == "Item")
-            .Select(node => (Template: Read(resource, node, "CurrentTemplate", LarianAttributeType.UUID),
-                Stats: Read(resource, node, "Stats", LarianAttributeType.FixedString)))
+            .Select(node => (Template: ResourceIdentifiers.Read(resource, node, "CurrentTemplate", LarianAttributeType.UUID),
+                Stats: ResourceIdentifiers.Read(resource, node, "Stats", LarianAttributeType.FixedString)))
             .Where(item => item.Template is not null && item.Stats is not null && entityByTemplate.ContainsKey(item.Template!))
             .ToArray();
         var wantedGuids = items.Select(item => entityByTemplate[item.Template!]).ToHashSet(StringComparer.Ordinal);
@@ -164,9 +164,7 @@ internal sealed class LsmfInventoryGraph
 
     private IReadOnlyList<LsmfGoldCandidate> BuildGold()
     {
-        var goldRows = _itemRowsByStats.Where(pair => pair.Key.Equals("OBJ_GoldCoin", StringComparison.OrdinalIgnoreCase) ||
-                pair.Key.Equals("OBJ_GoldPile", StringComparison.OrdinalIgnoreCase) ||
-                pair.Key.Equals("OBJ_Goldpile", StringComparison.OrdinalIgnoreCase))
+        var goldRows = _itemRowsByStats.Where(pair => IsGoldStats(pair.Key))
             .SelectMany(pair => pair.Value.Select(row => (Stats: pair.Key, Row: row)));
         return goldRows.Select(item =>
         {
@@ -203,10 +201,5 @@ internal sealed class LsmfInventoryGraph
             .Any(IsGoldStats));
     }
 
-    private static string? Read(LarianResource resource, ResourceNode node, string name, LarianAttributeType type)
-    {
-        var values = node.Attributes.Select(index => resource.Attributes[index]).Where(attribute => attribute.Name == name).Take(2).ToArray();
-        return values is [var attribute] && attribute.Type == type && attribute.Data.Length <= 512
-            ? AttributeDecoder.Read(attribute).AsString() : null;
-    }
+
 }
