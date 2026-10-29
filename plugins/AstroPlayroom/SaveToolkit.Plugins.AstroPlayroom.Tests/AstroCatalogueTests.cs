@@ -126,6 +126,7 @@ public sealed class AstroCatalogueTests
         var specialBot = AstroTestData.Find(newer, "PreInstall/Common/ArmadilloUnlockPhase");
         Assert.True(specialBot.Spec.ReadOnly);
         Assert.Equal(FieldValue.Of(3L), specialBot.Value);
-        Assert.Equal("collectibles/collect-all", Assert.Single(AstroCatalogueTestData.Catalogue(newer).Children.OfType<ActionNode>()).ActionId);
+        Assert.Single(AstroCatalogueTestData.Catalogue(newer).Children.OfType<ActionNode>(), action => action.ActionId == "collectibles/collect-all");
+        Assert.Single(AstroCatalogueTestData.Catalogue(newer).Children.OfType<ActionNode>(), action => action.ActionId == "collectibles/restore-imported");
     }
 }
