@@ -21,19 +21,20 @@ public sealed class ImageCellTests
         var record = Record() with { Source = source ? "https://example.org/item" : null };
         var image = Assert.IsType<ImageNode>(GearboxImages.Cell(context, record, part));
         var label = part ? PartLabel : record.Name;
-        var sourceText = !part && record.Source is { } url ? url + "; " : string.Empty;
         Assert.Equal(record.AssetId, image.AssetId);
-        Assert.Equal(label + ". " + sourceText + Images.Attribution.ToShortText(), image.Alt);
+        Assert.Equal($"{label}. {record.AttributionText}. Icon: {Images.Attribution.ToShortText()}", image.Alt);
         Assert.Equal([image.AssetId], context.ProvenanceRequests);
+        Assert.Equal([image.AssetId], context.AssetRequests);
     }
 
     [Theory]
     [InlineData("record")]
     [InlineData("asset")]
     [InlineData("provenance")]
+    [InlineData("bytes")]
     public void MissingReference_UsesExactFallback(string missing)
     {
-        var context = new Context { MissingProvenance = missing == "provenance" };
+        var context = new Context { MissingProvenance = missing == "provenance", MissingImage = missing == "bytes" };
         var record = missing == "record" ? null : Record() with { AssetId = missing == "asset" ? null : "pack:item.png" };
         Assert.Equal(new TextNode("Image unavailable"), GearboxImages.Cell(context, record));
     }
@@ -48,9 +49,15 @@ public sealed class ImageCellTests
     {
         public IReadOnlyList<ReferencePackInfo> Packs => [];
         public bool MissingProvenance { get; init; }
+        public bool MissingImage { get; init; }
         public List<string> ProvenanceRequests { get; } = [];
+        public List<string> AssetRequests { get; } = [];
         public IReferenceCatalog? Catalog(string catalogId, string? gameBuild = null) => null;
-        public AssetContent? GetAsset(string assetId) => new("image/png", new byte[] { 1 });
+        public AssetContent? GetAsset(string assetId)
+        {
+            AssetRequests.Add(assetId);
+            return MissingImage ? null : new("image/png", new byte[] { 1 });
+        }
         public ReferenceDatasetInfo? AssetProvenance(string assetId)
         {
             ProvenanceRequests.Add(assetId);
