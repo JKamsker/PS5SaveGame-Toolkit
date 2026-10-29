@@ -2,8 +2,10 @@ using System.Buffers.Binary;
 using System.Globalization;
 using System.Text.Json;
 using SaveToolkit.Core.Sessions;
+using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok.Tests;
 
@@ -11,6 +13,7 @@ namespace SaveToolkit.Plugins.GodOfWarRagnarok.Tests;
 internal sealed class RagnarokRestoreFixture : IDisposable
 {
     private const int ResourceRowsOffsetInWallet = 20;
+    private const string ImportedPath = "PPSA08330/sdimg_generated/GOWRSAVE0";
     public const int WalletCount = 3;
     public const uint ImportedQuantity = 1234;
     public const string CollectionId = "resources";
@@ -24,7 +27,7 @@ internal sealed class RagnarokRestoreFixture : IDisposable
 
     public RagnarokRestoreFixture()
     {
-        var file = RagnarokTestSupport.GameplayFile(Original);
+        var file = ImportFile(Original);
         var plugin = new GodOfWarRagnarokPlugin();
         Document = (RagnarokDocument)plugin.Open(file);
         Session = new("restore-selection", file, plugin, Document);
@@ -48,6 +51,14 @@ internal sealed class RagnarokRestoreFixture : IDisposable
     }
 
     public static ISaveFile File() => RagnarokTestSupport.GameplayFile(Bytes());
+
+    public static DiskSaveFile ImportFile(byte[] bytes)
+    {
+        var storage = Path.Combine(TestScratch.ProcessFolder, nameof(RagnarokRestoreFixture), Guid.NewGuid().ToString("N"));
+        var set = SaveSetImporter.Import([new ImportSource(ImportedPath, () => new MemoryStream(bytes))],
+            storage, limits: null, cancellationToken: TestContext.Current.CancellationToken);
+        return Assert.Single(set.AllDiskFiles);
+    }
 
     public static string RowKey(int wallet)
     {

@@ -14,7 +14,7 @@ public sealed class RagnarokRestoreQueryTests
     public void WholeQueryRestoresUnloadedMatchesRetainingFiltersSortExclusionsAndGroupedHistory()
     {
         var original = RagnarokPerformanceFixture.Bytes();
-        var file = RagnarokTestSupport.GameplayFile(original);
+        var file = ImportFile(original);
         var plugin = new GodOfWarRagnarokPlugin();
         using var document = (RagnarokDocument)plugin.Open(file);
         // Stage only bindings, without loading their table pages. Row 8 will be excluded;
