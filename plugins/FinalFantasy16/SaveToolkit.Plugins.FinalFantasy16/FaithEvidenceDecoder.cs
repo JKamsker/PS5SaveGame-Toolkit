@@ -51,14 +51,17 @@ internal sealed class FaithEvidenceDecoder : ISaveDecoderHook
             throw new SaveFormatException("This is not a recognised Final Fantasy XVI save file.");
         }
 
+        // Output limits must not hide damaged framing or recognized allocator bounds.
+        var bytes = file.ReadAllBytes();
+        var container = FaithContainer.Parse(bytes);
+        var inventory = FaithInventory.Parse(bytes, container);
+
         if (sink.MaxDepth < MinimumPathDepth)
         {
             sink.MarkTruncated("FFXVI evidence paths require a decode depth of at least 2.");
             return;
         }
 
-        var bytes = file.ReadAllBytes();
-        var container = FaithContainer.Parse(bytes);
         var schema = FaithSchema.ForTitle(file.Directory.TitleId);
         var player = FaithSchema.Unique(container, FaithSchema.PlayerType, schema.SupportsPlayer);
         if (player is not null)
@@ -78,7 +81,6 @@ internal sealed class FaithEvidenceDecoder : ISaveDecoderHook
             return;
         }
 
-        var inventory = FaithInventory.Parse(bytes, container);
         foreach (var item in inventory.Items)
         {
             var path = $"inventory/{item.Slot}";
