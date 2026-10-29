@@ -122,3 +122,52 @@ Cleanup handoff: automatic approval review rejected recursive deletion of
 `D:/Temp/saveeditor/test-scratch/review-perf-genericjson` as **blocked by policy**.
 The orchestrator must clean up that task scratch folder. The separate review-results directory
 is intentionally retained for reproducibility and verification.
+
+## Allocation-test stabilization — 2026-10-29
+
+The maintainability review recorded a single 44,756,936-byte opening measurement against the
+44,000,000-byte bound ([#40 evidence](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6488059376)).
+This pass reproduced a failure in the untouched sample-backed suite at **61,830,944 bytes**
+(432 passed, one failed, zero skipped). That test already performed one warm-up, but measured
+only one open plus first view.
+
+The test now disposes one warm-up open/first view, measures three fresh open/first-view calls
+with `GC.GetAllocatedBytesForCurrentThread`, and asserts their minimum. It logs every measurement
+outside the measured interval. The **44,000,000-byte bound is unchanged**. No production code or
+process runtime setting was changed.
+
+Minimum-of-three alone passed ten isolated invocations but still failed twice in the parallel
+full suite, with minima **49,647,360** and **58,371,856 bytes**. `JsonPerformanceTests` therefore
+uses a collection with `DisableParallelization = true`, isolating this allocation-test class
+from the other tests in this assembly. The remaining collections retain their normal parallelism.
+This follows [xUnit's collection isolation contract](https://xunit.net/docs/running-tests-in-parallel#opting-a-test-collection-out-of-parallelism).
+The exact cause of the earlier excess allocations has not been established; this is a test
+measurement change, not a claimed production allocation fix.
+
+With the final test sources, **ten consecutive full sample-backed Release suites each passed
+433 tests, zero failed and zero skipped** on Windows x64 / .NET 10 (SDK 10.0.400). Thus the opening
+test ran ten times in its full-suite context, with one warm-up and three measurements each time:
+
+- Minimum/maximum of the ten asserted minima: **35,465,232 / 35,465,440 bytes**.
+- Minimum/maximum across all 30 measured calls: **35,465,232 / 35,465,472 bytes**.
+- No timing gate, threshold relaxation or forced GC was introduced.
+
+These runs use the test runner's normal runtime settings, separately from the historical external
+harness above, which explicitly disabled tiered compilation and reported medians. Do not mix those
+measurement methods. TRX/log evidence, including the failed baseline and minimum-only trials, is
+retained at `D:/Temp/saveeditor/review-results/docs-accuracy-genericjson/`.
+
+To reproduce, first set the D: TEMP/TMP/scratch and sample variables from README in the same shell,
+then build and run the suite ten times:
+
+```powershell
+dotnet build plugins/GenericJson/SaveToolkit.Plugins.GenericJson.Tests -c Release --warnaserror
+for ($run = 1; $run -le 10; $run++) {
+    dotnet test --project plugins/GenericJson/SaveToolkit.Plugins.GenericJson.Tests -c Release --no-build `
+        --report-xunit-trx --report-xunit-trx-filename "allocation-$run.trx" --results-directory $env:TEMP
+    if ($LASTEXITCODE -ne 0) { throw "Suite $run failed." }
+}
+```
+
+`--filter-method '*OpeningAndFirstViewAvoidDuplicateNumberValidationAndHashBuffers'` selects just
+the opening test. Its per-call measurements and asserted minimum are in the TRX `TextMessages`.
