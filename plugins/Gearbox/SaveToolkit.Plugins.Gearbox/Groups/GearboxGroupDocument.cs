@@ -10,7 +10,8 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
 {
     private readonly IReferenceContext _references;
     private readonly MemberBytes[] _original;
-    private GearboxGroupMember[] _members;
+    private DocumentMemberAdapter[] _members;
+    private DocumentMemberRouter _router;
 
     public GearboxGroupDocument(DocumentGroupInput input, IReferenceContext references)
     {
@@ -18,6 +19,7 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
         _original = input.Members.OrderBy(m => m.Role, StringComparer.Ordinal).Select(m => new MemberBytes(
             m.Role, m.File.RelativePath, m.File.Directory.TitleId, m.File.ReadAllBytes().ToArray())).ToArray();
         _members = OpenMembers(_original);
+        _router = new(_members);
         try
         {
             // Keep the exact models that passed validation rather than reopening both members.
@@ -33,7 +35,7 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
 
     public string Title => "Gearbox character + profile";
     public bool CanEdit => true;
-    public IReadOnlyList<QueryableCollection> Collections => _members.SelectMany(m => m.Document.Collections.Select(m.Collection)).ToArray();
+    public IReadOnlyList<QueryableCollection> Collections => _members.SelectMany(m => m.Collections).ToArray();
 
     public ViewNode BuildView() => new SectionNode(Title,
     [
@@ -43,23 +45,11 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
             [m.Node(m.Document.BuildView())])),
     ]);
 
-    public IReadOnlyList<ViewNode> ExpandNode(string lazyId)
-    {
-        var member = Member(lazyId);
-        return member.Document.ExpandNode(member.Local(lazyId)).Select((n, i) => member.Node(n, member.Local(lazyId) + "/" + i)).ToArray();
-    }
+    public IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _router.Resolve(lazyId).ExpandNode(lazyId);
 
-    public FieldValue GetValue(string valueId)
-    {
-        var member = Member(valueId);
-        return member.Document.GetValue(member.Local(valueId));
-    }
+    public FieldValue GetValue(string valueId) => _router.Resolve(valueId).GetValue(valueId);
 
-    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)
-    {
-        var member = Member(collectionId);
-        return member.Page(member.Document.Query(member.Local(collectionId), query));
-    }
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => _router.Resolve(collectionId).Query(collectionId, query);
 
     public EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
@@ -67,16 +57,15 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
         var changes = new List<ValueChange>();
         try
         {
-            foreach (var memberEdits in edits.GroupBy(e => Member(e.ValueId)))
+            foreach (DocumentMemberEdits batch in _router.PartitionEdits(edits))
             {
-                var member = memberEdits.Key;
-                var outcome = member.Document.ApplyEdits(memberEdits.Select(e => new ValueEdit(member.Local(e.ValueId), e.Value)).ToArray());
+                var outcome = batch.Member.ApplyEdits(batch.Edits);
                 if (!outcome.Succeeded)
                 {
                     _ = RestoreMemento(before);
-                    return new() { Errors = outcome.Errors.Select(e => e with { ValueId = member.Prefix(e.ValueId) }).ToArray() };
+                    return new() { Errors = outcome.Errors };
                 }
-                changes.AddRange(outcome.Changes.Select(c => c with { ValueId = member.Prefix(c.ValueId) }));
+                changes.AddRange(outcome.Changes);
             }
             _ = Serialize();
             return new() { Changes = changes, Revert = changes.Count > 0 ? before : null, StructureChanged = changes.Count > 0, Warnings = [SerialWrites.Warning] };
@@ -88,22 +77,16 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
         }
     }
 
-    public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
-    {
-        var member = Member(actionId);
-        return member.Document.InvokeAction(member.Local(actionId), parameters);
-    }
+    public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
+        _router.Resolve(actionId).InvokeAction(actionId, parameters);
 
-    internal GearboxDocument Character => _members.Single(m => m.Role == GearboxGroups.CharacterRole).Document;
-    internal GearboxDocument Profile => _members.Single(m => m.Role == GearboxGroups.ProfileRole).Document;
+    internal GearboxDocument Character => (GearboxDocument)_members.Single(m => m.Role == GearboxGroups.CharacterRole).Document;
+    internal GearboxDocument Profile => (GearboxDocument)_members.Single(m => m.Role == GearboxGroups.ProfileRole).Document;
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
     {
         if (actionId.StartsWith("transfer/", StringComparison.Ordinal)) return new GearboxTransferActions(this).Plan(actionId, scope);
-        var member = Member(actionId);
-        var plan = member.Document.PlanAction(member.Local(actionId), parameters, LocalScope(member, scope));
-        return plan with { Changes = plan.Changes.Select(c => c with { ValueId = member.Prefix(c.ValueId) }).ToArray(),
-            SkippedRows = plan.SkippedRows.Select(s => s with { RowKey = member.Prefix(s.RowKey) }).ToArray() };
+        return _router.Resolve(actionId).PlanAction(actionId, parameters, scope);
     }
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
@@ -118,13 +101,7 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
             if (actionId.StartsWith("transfer/", StringComparison.Ordinal)) new GearboxTransferActions(this).Apply(actionId, scope);
             else
             {
-                var member = Member(actionId);
-                var localPlan = fresh with
-                {
-                    Changes = fresh.Changes.Select(c => c with { ValueId = member.Local(c.ValueId) }).ToArray(),
-                    SkippedRows = fresh.SkippedRows.Select(s => s with { RowKey = member.Local(s.RowKey) }).ToArray(),
-                };
-                var outcome = member.Document.ApplyActionPlan(member.Local(actionId), parameters, LocalScope(member, scope), localPlan);
+                var outcome = _router.Resolve(actionId).ApplyActionPlan(actionId, parameters, scope, fresh);
                 if (!outcome.Succeeded) { _ = RestoreMemento(before); return outcome; }
             }
             _ = Serialize();
@@ -134,32 +111,11 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
         catch { _ = RestoreMemento(before); throw; }
     }
 
-    private static ActionScope LocalScope(GearboxGroupMember member, ActionScope scope) => new(scope.RowKeys?.Select(key =>
-    {
-        var local = member.Local(key);
-        var separator = local.IndexOf('/');
-        if (separator < 0) throw new SaveFormatException("The selection is not an existing item row in this member.");
-        if (local[..separator] == "ammo")
-        {
-            if (scope.QueryScope is { } ammoQuery && member.Local(ammoQuery.CollectionId) != "ammo")
-                throw new SaveFormatException("The resolved ammo selection belongs to another collection.");
-            return local[(separator + 1)..];
-        }
-        var entry = member.Document.Inventory.Find(local[(separator + 1)..]);
-        if (local[..separator] != entry.List) throw new SaveFormatException("The item row belongs to another collection.");
-        if (scope.QueryScope is { } query && member.Local(query.CollectionId) != entry.List)
-            throw new SaveFormatException("The resolved item selection belongs to another collection.");
-        return entry.Id;
-    }).ToArray()) { QueryScope = scope.QueryScope is { } query ? query with { CollectionId = member.Local(query.CollectionId) } : null };
     public IReadOnlyList<FileOutput> Serialize() => _members.SelectMany(m => m.Document.Serialize()).ToArray();
     public AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
-    public ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count)
-    {
-        var member = Member(blobId);
-        return member.Document.ReadBlob(member.Local(blobId), offset, count);
-    }
+    public ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count) => _router.Resolve(blobId).ReadBlob(blobId, offset, count);
 
-    public DocumentMemento CaptureMemento() => new GroupSnapshot(_original, _members.ToDictionary(m => m.Role, m => m.Document.CaptureState(), StringComparer.Ordinal));
+    public DocumentMemento CaptureMemento() => new GroupSnapshot(_original, _members.ToDictionary(m => m.Role, m => ((GearboxDocument)m.Document).CaptureState(), StringComparer.Ordinal));
 
     public DocumentMemento RestoreMemento(DocumentMemento memento)
     {
@@ -170,16 +126,15 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
         foreach (var member in restored) _ = member.Document.RestoreMemento(snapshot.States[member.Role]);
         foreach (var member in _members) member.Document.Dispose();
         _members = restored;
+        _router = new(_members);
         return inverse;
     }
 
-    private GearboxGroupMember Member(string id) => _members.SingleOrDefault(m => id.StartsWith(m.Role + "/", StringComparison.Ordinal))
-        ?? throw new KeyNotFoundException("Unknown Gearbox group member.");
-
-    private GearboxGroupMember[] OpenMembers(MemberBytes[] members) => members.Select(m =>
+    private DocumentMemberAdapter[] OpenMembers(MemberBytes[] members) => members.Select(m =>
     {
         var container = GearboxContainer.Parse(m.Bytes.ToArray(), m.Title, m.Role == GearboxGroups.ProfileRole);
-        return new GearboxGroupMember(m.Role, new GearboxDocument(m.Path, m.Title, container, container.Decode(), _references) { Coordinated = true });
+        return new DocumentMemberAdapter(m.Role, new GearboxDocument(m.Path, m.Title, container, container.Decode(), _references) { Coordinated = true },
+            GearboxGroupIdentity.Policy);
     }).ToArray();
 
     public void Dispose()
