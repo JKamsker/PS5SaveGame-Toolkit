@@ -115,25 +115,13 @@ internal sealed class AriseInventoryActions(AriseDocument document)
         };
     }
 
-    public EditOutcome Apply(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
-    {
-        var fresh = Plan(actionId, parameters, scope);
-        if (fresh.Errors.Count > 0)
-        {
-            return new EditOutcome { Errors = fresh.Errors, Warnings = fresh.Warnings };
-        }
-
-        if (plan.Errors.Count > 0 || !fresh.Changes.SequenceEqual(plan.Changes)
-            || !fresh.SkippedRows.SequenceEqual(plan.SkippedRows) || !fresh.Warnings.SequenceEqual(plan.Warnings))
-        {
-            return EditOutcome.Rejected(actionId, "The quantity preview changed; preview the action again.") with { Warnings = fresh.Warnings };
-        }
-
-        document.EnsureInventoryBindings();
-        var result = document.ApplyEdits(fresh.Changes.Where(change => !change.Derived)
-            .Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray());
-        return result with { Warnings = [.. fresh.Warnings, .. result.Warnings] };
-    }
+    public EditOutcome Apply(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
+        ActionPlans.ApplyScalar(plan, () => Plan(actionId, parameters, scope),
+            new FieldError(actionId, "The quantity preview changed; preview the action again."),
+            _ => document.EnsureInventoryBindings(),
+            fresh => fresh.Changes.Where(change => !change.Derived)
+                .Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray(),
+            document.ApplyEdits, ActionPlanWarningPolicy.Merge);
 
     public static string RowKey(AriseInventoryRow row) => $"inventory/{row.Index}/quantity";
 }
