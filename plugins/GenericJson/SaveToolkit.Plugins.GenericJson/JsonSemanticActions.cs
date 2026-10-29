@@ -76,57 +76,14 @@ internal sealed class JsonSemanticActions
     {
         try
         {
-            if (_title is null) throw new ArgumentException("No supported title/role/schema matches this action.");
-            if (scope.QueryScope is { } query && (!JsonSearch.ValidScope(tree, query.CollectionId) || scope.RowKeys is null))
-                throw new ArgumentException("Use a resolved JSON tree selection.");
-            var selected = scope.RowKeys?.ToHashSet(StringComparer.Ordinal);
-            if (_truncated && selected is null) throw new ArgumentException("Title adapter coverage exceeds 5,000 fields; use an explicit bounded selection.");
-            if (selected is not null && (selected.Count != scope.RowKeys!.Count || selected.Count > JsonResetActions.MaxChanges || selected.Any(id => tree.FindValue(id) is null)))
-                throw new ArgumentException("Selection includes missing nodes or exceeds the action bound.");
+            var selected = ValidateScope(tree, scope);
             var changes = new Dictionary<string, FieldValue>(StringComparer.Ordinal);
             var skipped = new List<SkippedActionRow>();
-            var eligible = _targets.Where(t => selected is null || selected.Contains(t.Node.ValueId)).ToArray();
             if (actionId is DefaultsId or FlagsId or CountersId or WrapperId)
-            {
-                if (actionId == DefaultsId && _title != "PPSA04027" || actionId == WrapperId && _title != "PPSA07696"
-                    || actionId is FlagsId or CountersId && _title != "PPSA02343") throw new ArgumentException("Preset does not match this title.");
-                foreach (var target in eligible)
-                {
-                    IReadOnlyDictionary<string, FieldValue>? values = actionId switch
-                    {
-                        DefaultsId => target.Defaults,
-                        WrapperId => new Dictionary<string, FieldValue> { [target.Node.ValueId] = target.Node.Original },
-                        FlagsId when target.IsFlag => target.Changes(new Dictionary<string, FieldValue> { ["value"] = Boolean(parameters, "enabled") }),
-                        CountersId when target.IsCounter => target.Changes(new Dictionary<string, FieldValue> { ["value"] = FieldValue.Of(0L) }),
-                        _ => null,
-                    };
-                    if (values is null) skipped.Add(new(target.Node.ValueId, "Not eligible for this preset or no valid recorded default; left unchanged."));
-                    else foreach (var pair in values) changes.Add(pair.Key, pair.Value);
-                }
-                if (selected is not null)
-                    foreach (var id in selected.Except(eligible.Select(t => t.Node.ValueId))) skipped.Add(new(id, "Not an eligible title gameplay/settings field; unchanged."));
-                else foreach (var id in _unsupported) skipped.Add(new(id, "Unsupported or ambiguous adapter metadata; unchanged. Generic JSON access remains available."));
-            }
+                PlanPreset(actionId, parameters, selected, changes, skipped);
             else if (actionId == ProgressId)
-            {
-                if (_title != "PPSA02343" || selected is not null) throw new ArgumentException("Progress tuple requires It Takes Two document scope.");
-                foreach (var key in ProgressKeys)
-                {
-                    var target = _targets.SingleOrDefault(t => t.Node.Label == key) ?? throw new ArgumentException("Progress tuple requires all three existing, unambiguous fields.");
-                    if (!parameters.TryGetValue(key, out var value) || target.Validate(value) is { }) throw new ArgumentException("Invalid bounded chapter/checkpoint string.");
-                    foreach (var pair in target.Changes(new Dictionary<string, FieldValue> { ["value"] = value })) changes.Add(pair.Key, pair.Value);
-                }
-            }
-            else
-            {
-                var parts = actionId.Split('/');
-                if (parts.Length != 3 || !int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var id)) throw new ArgumentException("Unknown semantic action.");
-                var target = _byId.GetValueOrDefault(id) ?? throw new ArgumentException("Field no longer has a supported semantic adapter.");
-                if (selected is not null) throw new ArgumentException("A single-field adapter requires document scope.");
-                var values = parts[2] == "set" ? target.Changes(parameters) : parts[2] == "default" && target.Defaults is { } defaults
-                    ? defaults : throw new ArgumentException("No supported recorded default/action.");
-                foreach (var pair in values) changes.Add(pair.Key, pair.Value);
-            }
+                PlanProgress(parameters, selected, changes);
+            else PlanField(actionId, parameters, selected, changes);
             var planned = changes.Where(p => tree.FindValue(p.Key)!.Current != p.Value).Select(p =>
             {
                 var node = tree.FindValue(p.Key)!;
@@ -135,17 +92,7 @@ internal sealed class JsonSemanticActions
             }).ToArray();
             if (planned.Length + skipped.Count > JsonResetActions.MaxChanges)
                 throw new ArgumentException("Preview exceeds 5,000 changed/skipped fields; narrow the selection.");
-            if (planned.Length > 0)
-            {
-                var trial = tree.Clone();
-                foreach (var change in planned)
-                {
-                    var node = trial.FindValue(change.ValueId)!;
-                    if (node.Validate(change.NewValue) is { } error) throw new ArgumentException(error);
-                    node.Current = change.NewValue;
-                }
-                _ = JsonTreeWriter.Write(trial);
-            }
+            ValidateOutput(tree, planned);
             return new() { Changes = planned, SkippedRows = skipped, Warnings = [Warning,
                 "Only existing values are edited. Missing keys, story dependencies and companions are not synthesized. Numeric limits may be conservative observed bounds, not game caps.",
                 _title switch
@@ -157,6 +104,77 @@ internal sealed class JsonSemanticActions
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or OverflowException or SaveFormatException)
         { return new() { Errors = [new(actionId, ex.Message)], Warnings = [Warning] }; }
+    }
+
+    private HashSet<string>? ValidateScope(JsonTokenTree tree, ActionScope scope)
+    {
+        if (_title is null) throw new ArgumentException("No supported title/role/schema matches this action.");
+        if (scope.QueryScope is { } query && (!JsonSearch.ValidScope(tree, query.CollectionId) || scope.RowKeys is null))
+            throw new ArgumentException("Use a resolved JSON tree selection.");
+        var selected = scope.RowKeys?.ToHashSet(StringComparer.Ordinal);
+        if (_truncated && selected is null) throw new ArgumentException("Title adapter coverage exceeds 5,000 fields; use an explicit bounded selection.");
+        if (selected is not null && (selected.Count != scope.RowKeys!.Count || selected.Count > JsonResetActions.MaxChanges || selected.Any(id => tree.FindValue(id) is null)))
+            throw new ArgumentException("Selection includes missing nodes or exceeds the action bound.");
+        return selected;
+    }
+
+    private void PlanPreset(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, HashSet<string>? selected,
+        Dictionary<string, FieldValue> changes, List<SkippedActionRow> skipped)
+    {
+        if (actionId == DefaultsId && _title != "PPSA04027" || actionId == WrapperId && _title != "PPSA07696"
+            || actionId is FlagsId or CountersId && _title != "PPSA02343") throw new ArgumentException("Preset does not match this title.");
+        var eligible = _targets.Where(t => selected is null || selected.Contains(t.Node.ValueId)).ToArray();
+        foreach (var target in eligible)
+        {
+            IReadOnlyDictionary<string, FieldValue>? values = actionId switch
+            {
+                DefaultsId => target.Defaults,
+                WrapperId => new Dictionary<string, FieldValue> { [target.Node.ValueId] = target.Node.Original },
+                FlagsId when target.IsFlag => target.Changes(new Dictionary<string, FieldValue> { ["value"] = Boolean(parameters, "enabled") }),
+                CountersId when target.IsCounter => target.Changes(new Dictionary<string, FieldValue> { ["value"] = FieldValue.Of(0L) }),
+                _ => null,
+            };
+            if (values is null) skipped.Add(new(target.Node.ValueId, "Not eligible for this preset or no valid recorded default; left unchanged."));
+            else foreach (var pair in values) changes.Add(pair.Key, pair.Value);
+        }
+        if (selected is not null)
+            foreach (var id in selected.Except(eligible.Select(t => t.Node.ValueId))) skipped.Add(new(id, "Not an eligible title gameplay/settings field; unchanged."));
+        else foreach (var id in _unsupported) skipped.Add(new(id, "Unsupported or ambiguous adapter metadata; unchanged. Generic JSON access remains available."));
+    }
+
+    private void PlanProgress(IReadOnlyDictionary<string, FieldValue> parameters, HashSet<string>? selected, Dictionary<string, FieldValue> changes)
+    {
+        if (_title != "PPSA02343" || selected is not null) throw new ArgumentException("Progress tuple requires It Takes Two document scope.");
+        foreach (var key in ProgressKeys)
+        {
+            var target = _targets.SingleOrDefault(t => t.Node.Label == key) ?? throw new ArgumentException("Progress tuple requires all three existing, unambiguous fields.");
+            if (!parameters.TryGetValue(key, out var value) || target.Validate(value) is { }) throw new ArgumentException("Invalid bounded chapter/checkpoint string.");
+            foreach (var pair in target.Changes(new Dictionary<string, FieldValue> { ["value"] = value })) changes.Add(pair.Key, pair.Value);
+        }
+    }
+
+    private void PlanField(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, HashSet<string>? selected, Dictionary<string, FieldValue> changes)
+    {
+        var parts = actionId.Split('/');
+        if (parts.Length != 3 || !int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var id)) throw new ArgumentException("Unknown semantic action.");
+        var target = _byId.GetValueOrDefault(id) ?? throw new ArgumentException("Field no longer has a supported semantic adapter.");
+        if (selected is not null) throw new ArgumentException("A single-field adapter requires document scope.");
+        var values = parts[2] == "set" ? target.Changes(parameters) : parts[2] == "default" && target.Defaults is { } defaults
+            ? defaults : throw new ArgumentException("No supported recorded default/action.");
+        foreach (var pair in values) changes.Add(pair.Key, pair.Value);
+    }
+
+    private static void ValidateOutput(JsonTokenTree tree, PlannedChange[] planned)
+    {
+        if (planned.Length == 0) return;
+        var trial = tree.Clone();
+        foreach (var change in planned)
+        {
+            var node = trial.FindValue(change.ValueId)!;
+            if (node.Validate(change.NewValue) is { } error) throw new ArgumentException(error);
+            node.Current = change.NewValue;
+        }
+        _ = JsonTreeWriter.Write(trial);
     }
 
     private static readonly string[] ProgressKeys = ["FurthestUnlockedChapter", "LastSaveChapter", "LastSaveProgressPoint"];
