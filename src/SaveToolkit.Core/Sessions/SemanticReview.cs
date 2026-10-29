@@ -19,6 +19,7 @@ internal sealed class SemanticReview
     private readonly HashSet<string> _reported = new(StringComparer.Ordinal);
     private bool _structureChanged;
     private bool _unreviewedReportedChanges;
+    private readonly HashSet<string> _targeted = new(StringComparer.Ordinal);
     private readonly SemanticSnapshotCapture _capture;
     private readonly long _maxBytes;
 
@@ -26,7 +27,13 @@ internal sealed class SemanticReview
     public Action CancellationRollback()
     {
         var original = _original;
-        return () => _original = original;
+        var targeted = _targeted.ToArray();
+        return () =>
+        {
+            _original = original;
+            _targeted.Clear();
+            _targeted.UnionWith(targeted);
+        };
     }
 
     public SemanticReview(DocumentSessionOptions limits)
@@ -89,6 +96,64 @@ internal sealed class SemanticReview
         }
     }
 
+    /// <summary>
+    /// Captures explicitly affected IDs from a fresh original document without walking its view.
+    /// Missing descriptors, resolver contradictions and the shared original-byte budget make the
+    /// review incomplete; they never become an invented unchanged value.
+    /// </summary>
+    public void CaptureTargetedOriginals(Func<ISaveDocument> openOriginal, IEnumerable<string> valueIds,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(openOriginal);
+        ArgumentNullException.ThrowIfNull(valueIds);
+        var ids = valueIds.Where(id => !string.IsNullOrEmpty(id)).Distinct(StringComparer.Ordinal).ToArray();
+        if (ids.Length == 0)
+        {
+            EnsureOriginal(openOriginal, cancellationToken);
+            return;
+        }
+
+        if (_original is null)
+        {
+            try
+            {
+                using var original = openOriginal();
+                var snapshot = _capture.Capture(original, static _ => { }, static _ => { }, cancellationToken);
+                if (original is IFieldMetadataDocument)
+                {
+                    CaptureTargeted(original, snapshot, ids, cancellationToken);
+                    foreach (var id in ids) _targeted.Add(id);
+                }
+                _original = snapshot;
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                _original = new SemanticSnapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal), complete: false, bytes: 0)
+                { QueryWarnings = [$"Targeted metadata capture failed: {ex.Message}"] };
+            }
+
+            return;
+        }
+
+        var existing = _original;
+
+        try
+        {
+            using var original = openOriginal();
+            if (original is not IFieldMetadataDocument)
+                return;
+            foreach (var id in ids) _targeted.Add(id);
+            CaptureTargeted(original, existing, ids, cancellationToken);
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            existing.Complete = false;
+            existing.QueryWarnings = [.. existing.QueryWarnings, $"Targeted metadata capture failed: {ex.Message}"];
+        }
+    }
+
     public SemanticChangeLog Query(Func<ISaveDocument> openOriginal, ISaveDocument document,
         Action<FieldNode> index, Action<string> expandedLazy, long revision, CancellationToken cancellationToken)
     {
@@ -113,6 +178,7 @@ internal sealed class SemanticReview
     {
         var original = _original ?? throw new InvalidOperationException("Capture the original before querying changes.");
         var current = _capture.Capture(document, index, expandedLazy, cancellationToken);
+        CaptureTargeted(document, current, _targeted, cancellationToken);
         foreach (var id in _reported.Where(id => !current.Fields.ContainsKey(id)))
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -149,6 +215,52 @@ internal sealed class SemanticReview
 
         value = default;
         return false;
+    }
+
+    private void CaptureTargeted(ISaveDocument document, SemanticSnapshot snapshot, IEnumerable<string> valueIds,
+        CancellationToken cancellationToken)
+    {
+        var ids = valueIds.Where(id => !snapshot.Fields.ContainsKey(id)).Distinct(StringComparer.Ordinal).ToArray();
+        if (ids.Length == 0) return;
+        if (document is not IFieldMetadataDocument metadata) { snapshot.Complete = false; return; }
+        foreach (var batch in ids.Chunk(FieldMetadataLimits.MaxBatchSize))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            try
+            {
+                var requested = batch.ToHashSet(StringComparer.Ordinal);
+                var descriptors = metadata.ResolveFieldMetadata(Array.AsReadOnly(batch));
+                var seen = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var field in descriptors)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    if (!requested.Contains(field.ValueId) || !seen.Add(field.ValueId) || string.IsNullOrEmpty(field.Label)
+                        || field.Spec is null || !Enum.IsDefined(field.BindingKind))
+                        throw new InvalidOperationException("Invalid targeted field metadata.");
+                    if (snapshot.Fields.ContainsKey(field.ValueId)) continue;
+                    var semantic = new SemanticField(field.ValueId, field.Label,
+                        field.Path?.ToArray() ?? [], Value: document.GetValue(field.ValueId),
+                        ReadOnly: field.Spec.ReadOnly);
+                    var cost = SemanticSnapshot.Estimate(semantic);
+                    if (cost > _maxBytes - snapshot.Bytes)
+                    {
+                        snapshot.Complete = false;
+                        continue;
+                    }
+
+                    snapshot.Bytes += cost;
+                    snapshot.Fields.Add(field.ValueId, semantic);
+                }
+
+                if (seen.Count != requested.Count) snapshot.Complete = false;
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                snapshot.Complete = false;
+                snapshot.QueryWarnings = [.. snapshot.QueryWarnings, $"Targeted metadata coverage is incomplete: {ex.Message}"];
+            }
+        }
     }
 
 

@@ -16,7 +16,16 @@ internal sealed class FieldMetadataRegistry
         if (!Enum.IsDefined(metadata.BindingKind) || (!metadata.Spec.ReadOnly && set is null)
             || (metadata.BindingKind == FieldBindingKind.Derived && (!metadata.Spec.ReadOnly || set is not null)))
             throw new ArgumentException("Metadata requires a writable primary or a read-only binding; derived fields cannot have setters.", nameof(metadata));
-        return metadata with { Path = metadata.Path is { } path ? Array.AsReadOnly(path.ToArray()) : null };
+        if (metadata.Presentation?.Confidence is { } confidence && !Enum.IsDefined(confidence))
+            throw new ArgumentException("Field presentation has an unknown confidence.", nameof(metadata));
+        var canonical = string.IsNullOrEmpty(metadata.CanonicalValueId) ? metadata.ValueId : metadata.CanonicalValueId;
+        if (metadata.BindingKind == FieldBindingKind.Primary && canonical != metadata.ValueId)
+            throw new ArgumentException("Primary metadata must use its own value ID as the canonical ID.", nameof(metadata));
+        return metadata with
+        {
+            CanonicalValueId = canonical,
+            Path = metadata.Path is { } path ? Array.AsReadOnly(path.ToArray()) : null,
+        };
     }
 
     public void Register(FieldMetadata metadata) => _fields[metadata.ValueId] = metadata;
@@ -31,15 +40,42 @@ internal sealed class FieldMetadataRegistry
         foreach (var id in valueIds) ArgumentException.ThrowIfNullOrEmpty(id, nameof(valueIds));
 
         var fields = valueIds.Distinct(StringComparer.Ordinal).Where(_fields.ContainsKey).Select(id => _fields[id]).ToArray();
+        var visiting = new HashSet<string>(StringComparer.Ordinal);
         foreach (var field in fields)
         {
-            var (bindingSpec, hasSetter) = lookup(field.ValueId);
-            var effectiveSpec = hasSetter ? bindingSpec : bindingSpec with { ReadOnly = true };
-            if (!FieldSpecMetadata.Agree(effectiveSpec, field.Spec)
-                || (field.BindingKind == FieldBindingKind.Derived && hasSetter))
-                throw new InvalidOperationException($"Published metadata no longer agrees with binding '{field.ValueId}'.");
+            Validate(field);
         }
         return Array.AsReadOnly(fields);
+
+        void Validate(FieldMetadata field)
+        {
+            if (!visiting.Add(field.ValueId))
+                throw new InvalidOperationException($"Canonical field alias cycle includes '{field.ValueId}'.");
+            try
+            {
+                var (bindingSpec, hasSetter) = lookup(field.ValueId);
+                var effectiveSpec = hasSetter ? bindingSpec : bindingSpec with { ReadOnly = true };
+                if (!FieldSpecMetadata.Agree(effectiveSpec, field.Spec)
+                    || (field.BindingKind == FieldBindingKind.Derived && hasSetter))
+                    throw new InvalidOperationException($"Published metadata no longer agrees with binding '{field.ValueId}'.");
+
+                if (field.CanonicalValueId == field.ValueId)
+                {
+                    if (field.BindingKind == FieldBindingKind.Primary && !hasSetter)
+                        throw new InvalidOperationException($"Canonical field '{field.ValueId}' must be writable.");
+                    return;
+                }
+
+                if (field.BindingKind != FieldBindingKind.Derived || !field.Spec.ReadOnly)
+                    throw new InvalidOperationException($"Only read-only derived fields may alias '{field.CanonicalValueId}'.");
+                if (!_fields.TryGetValue(field.CanonicalValueId, out var canonical))
+                    throw new InvalidOperationException($"Canonical field '{field.CanonicalValueId}' is not published.");
+                if (!FieldSpecMetadata.Agree(field.Spec, canonical.Spec with { ReadOnly = true }))
+                    throw new InvalidOperationException($"Alias '{field.ValueId}' disagrees with canonical field '{field.CanonicalValueId}'.");
+                Validate(canonical);
+            }
+            finally { visiting.Remove(field.ValueId); }
+        }
     }
 
     public void Clear() => _fields.Clear();

@@ -157,7 +157,7 @@ internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields,
     public Dictionary<string, SemanticField> Fields { get; } = fields;
     public bool Complete { get; set; } = complete;
     public long Bytes { get; set; } = bytes;
-    public IReadOnlyList<string> QueryWarnings { get; init; } = [];
+    public IReadOnlyList<string> QueryWarnings { get; set; } = [];
     internal static long Estimate(SemanticField field) => FieldOverheadBytes
         + 2L * (field.ValueId.Length + field.Label.Length + field.Value.ToString().Length + field.Path.Sum(p => p.Length)
             + (field.Target is { } target ? target.CollectionId.Length + target.RowKey.Length + (target.Query.Cursor?.Length ?? 0) : 0));

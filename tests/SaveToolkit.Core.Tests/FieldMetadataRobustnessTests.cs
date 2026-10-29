@@ -157,9 +157,11 @@ public sealed class FieldMetadataRobustnessTests
         {
             RegisterField(new FieldMetadata("primary", "Primary", PrimarySpec), () => FieldValue.Of(Value),
                 value => { Value = value.AsInt32(); SetterCalls++; });
-            RegisterField(new FieldMetadata("alias/first", "First alias", DerivedSpec) { BindingKind = FieldBindingKind.Derived },
+            RegisterField(new FieldMetadata("alias/first", "First alias", DerivedSpec)
+                { BindingKind = FieldBindingKind.Derived, CanonicalValueId = "primary" },
                 () => ReadAlias("alias/first", cycle ? "alias/second" : unknownTarget ? "missing" : "primary"));
-            RegisterField(new FieldMetadata("alias/second", "Second alias", DerivedSpec) { BindingKind = FieldBindingKind.Derived },
+            RegisterField(new FieldMetadata("alias/second", "Second alias", DerivedSpec)
+                { BindingKind = FieldBindingKind.Derived, CanonicalValueId = "primary" },
                 () => ReadAlias("alias/second", "alias/first"));
         }
 

@@ -4,6 +4,8 @@ using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Core.Tests.Fakes;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Core.Tests;
 
@@ -94,5 +96,60 @@ public sealed class SemanticReviewTests : IDisposable
         var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         Assert.Equal(JsonSerializer.SerializeToUtf8Bytes(expected, options),
             JsonSerializer.SerializeToUtf8Bytes(session.GetChanges(), options));
+    }
+
+    [Fact]
+    public void TargetedMetadataCapturesUnloadedOriginalWithCanonicalLabelAndPath()
+    {
+        var zip = TestZips.Build(("PPSA99999/sdimg_SAVE/save.dat", new byte[] { 1 }));
+        using var workspace = _store.Create("targeted review", [new ImportSource("dump.zip", () => new MemoryStream(zip))]);
+        using var current = new TargetedMetadataDocument(1);
+        using var session = new DocumentSession("targeted", workspace.Set.AllDiskFiles.Single(),
+            new CounterPlugin(), current, openOriginal: () => new TargetedMetadataDocument(1));
+        _ = session.BuildView();
+
+        Assert.True(session.ApplyEdits([new IncomingEdit("hidden", JsonSerializer.SerializeToElement(2))]).Ok);
+        var change = Assert.Single(session.GetChanges().Changes);
+        Assert.Equal("Canonical quantity", change.Label);
+        Assert.Equal(["section:canonical"], change.Path);
+        Assert.True(change.CanRevert);
+        Assert.Equal("1", change.OriginalValue.ToString());
+        Assert.Equal("2", change.CurrentValue.ToString());
+    }
+
+    [Fact]
+    public void TargetedMetadataBudgetMarksReviewIncompleteWithoutInventingAChange()
+    {
+        var zip = TestZips.Build(("PPSA99999/sdimg_SAVE/save.dat", new byte[] { 1 }));
+        using var workspace = _store.Create("targeted budget", [new ImportSource("dump.zip", () => new MemoryStream(zip))]);
+        using var current = new TargetedMetadataDocument(1);
+        using var session = new DocumentSession("targeted-budget", workspace.Set.AllDiskFiles.Single(),
+            new CounterPlugin(), current, new DocumentSessionOptions { MaxOriginalBytes = 256 },
+            () => new TargetedMetadataDocument(1));
+        _ = session.BuildView();
+
+        Assert.True(session.ApplyEdits([new IncomingEdit("hidden", JsonSerializer.SerializeToElement(2))]).Ok);
+        var log = session.GetChanges();
+        Assert.False(log.Complete);
+        Assert.Empty(log.Changes);
+    }
+
+    private sealed class TargetedMetadataDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        private int _value;
+
+        public TargetedMetadataDocument(int value = 1)
+        {
+            _value = value;
+            RegisterField(new FieldMetadata("hidden", "Canonical quantity", IntegerSpec.Int32)
+            {
+                Path = ["section:canonical"],
+                Presentation = new FieldPresentation { Confidence = Confidence.Inferred, Warning = "Review before exporting." },
+            }, () => FieldValue.Of(_value), field => _value = field.AsInt32());
+        }
+
+        public override string Title => "Targeted metadata";
+        public override ViewNode BuildView() => new TextNode("No rendered fields");
+        public override IReadOnlyList<FileOutput> Serialize() => [new("save.dat", new byte[] { (byte)_value })];
     }
 }
