@@ -1,7 +1,9 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Core.Tests;
 
@@ -51,10 +53,15 @@ public sealed class ApiTests(IsolatedApiFactory factory) : IClassFixture<Isolate
     }
 
     [Theory]
-    [InlineData(-1)]
-    [InlineData(long.MinValue)]
-    public async Task ReadBlob_NegativeOffset_Returns400WithErrorEnvelope(long offset)
+    [InlineData("en-US", -1L)]
+    [InlineData("en-US", long.MinValue)]
+    [InlineData("sv-SE", -1L)]
+    [InlineData("sv-SE", long.MinValue)]
+    [InlineData("fa-IR", -1L)]
+    [InlineData("fa-IR", long.MinValue)]
+    public async Task ReadBlob_NegativeOffset_Returns400WithErrorEnvelope(string cultureName, long offset)
     {
+        using var culture = new TestCulture(CultureInfo.GetCultureInfo(cultureName));
         var ct = TestContext.Current.CancellationToken;
         var workspace = await UploadAsync();
         var workspaceId = workspace.GetProperty("id").GetString();
@@ -64,7 +71,7 @@ public sealed class ApiTests(IsolatedApiFactory factory) : IClassFixture<Isolate
         var documentId = document.GetProperty("id").GetString();
 
         using var response = await _client.GetAsync(new Uri(
-            $"/api/workspaces/{workspaceId}/documents/{documentId}/blobs?id=content&offset={offset}&count=1", UriKind.Relative), ct);
+            $"/api/workspaces/{workspaceId}/documents/{documentId}/blobs?id=content&offset={offset.ToString(CultureInfo.InvariantCulture)}&count=1", UriKind.Relative), ct);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
