@@ -71,13 +71,19 @@ internal sealed record CsavTree(IReadOnlyList<CsavNode> Nodes, IReadOnlyList<int
 
             if (node.ChildId >= 0)
             {
+                var childLimit = node.NextId < 0 ? limit : node.NextId;
+                if (node.ChildId >= childLimit)
+                {
+                    throw new SaveFormatException($"CSAV node {index} child link crosses its sibling or parent boundary.");
+                }
+
                 const int maxDepth = 128;
                 if (parents.Count >= maxDepth)
                 {
                     throw new SaveFormatException("CSAV tree nesting exceeds the supported limit.");
                 }
 
-                parents.Push((node, node.NextId < 0 ? limit : node.NextId));
+                parents.Push((node, childLimit));
             }
         }
 
