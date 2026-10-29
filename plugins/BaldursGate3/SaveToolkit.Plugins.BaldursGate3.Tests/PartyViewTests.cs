@@ -8,6 +8,40 @@ namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
 public sealed class PartyViewTests
 {
+    [Fact]
+    public void LeaderAndSummaryCallbacksKeepEntryOrderAndTheFirstMatchingSummary()
+    {
+        var leader = new ResourceAttribute("LeaderName", LarianAttributeType.String, "leader\0"u8.ToArray());
+        var metadata = new LarianResource("synthetic", [], [leader, leader], []);
+        var summary = Encoding.UTF8.GetBytes("{\"Active Party\":{\"Characters\":[{\"Origin\":\"Raw\",\"Level\":2}]}}");
+        var callbacks = new List<string>();
+        var nodes = PartyView.Build(
+            [new("meta.lsf", [], metadata), new("META.lsf", [], metadata), new("meta.lsf", [], metadata),
+                new("saveinfo.JSON", summary, null), new("SaveInfo.json", "null"u8.ToArray(), null)], BindAttribute, BindSummary);
+        Assert.Equal(["resource/0/attribute/0", "resource/2/attribute/0", "party/0/origin-label", "party/0/Origin", "party/0/Level"], callbacks);
+        Assert.Collection(nodes,
+            node => Assert.Equal(Tone.Warning, Assert.IsType<TextNode>(node).Tone),
+            node => Assert.Equal("resource/0/attribute/0", Assert.IsType<FieldNode>(node).ValueId),
+            node => Assert.Equal("resource/2/attribute/0", Assert.IsType<FieldNode>(node).ValueId),
+            node => Assert.IsType<StatsNode>(node),
+            node =>
+            {
+                var row = Assert.Single(Assert.IsType<TableNode>(node).Rows);
+                Assert.Equal("Raw", Assert.IsType<FieldNode>(row.Cells["origin"]).Value.AsString());
+                Assert.Equal(2, Assert.IsType<FieldNode>(row.Cells["level"]).Value.AsInt32());
+                Assert.Equal("Unavailable", Assert.IsType<TextNode>(row.Cells["currentXp"]).Text);
+                Assert.Equal("Unavailable", Assert.IsType<TextNode>(row.Cells["totalXp"]).Text);
+            },
+            node => Assert.IsType<TextNode>(node));
+
+        FieldNode BindAttribute(string id, string label, ResourceAttribute attribute) => BindSummary(id, label, AttributeDecoder.Read(attribute));
+        FieldNode BindSummary(string id, string label, FieldValue value)
+        {
+            callbacks.Add(id);
+            return new FieldNode(id, label, new TextSpec(), value);
+        }
+    }
+
     [Theory]
     [InlineData("not JSON")]
     [InlineData("null")]

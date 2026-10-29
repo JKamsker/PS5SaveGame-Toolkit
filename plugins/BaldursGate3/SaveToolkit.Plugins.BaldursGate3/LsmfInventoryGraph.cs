@@ -72,15 +72,7 @@ internal sealed class LsmfInventoryGraph
             if (TryOwnerBody(entity, bodyByOwner, out var ownerBody))
                 Visit(row, ownerBody, "", new HashSet<int>(), 0);
 
-        // Keep other explicit containers visible, but do not invent a party owner.
-        var covered = output.Select(entry => (entry.ContainerRow, entry.ItemEntityRow)).ToHashSet();
-        foreach (var slot in slots)
-        {
-            if (!containerEntities.ContainsKey(slot.ContainerRow) || !covered.Add((slot.ContainerRow, slot.EntityRow))) continue;
-            var ambiguous = itemContainers[slot.EntityRow].Length > 1;
-            output.Add(new LsmfInventoryEntry(slot.ContainerRow, containerEntities[slot.ContainerRow], slot.EntityRow,
-                slot.Slot, null, $"container/{slot.ContainerRow}/slot/{slot.Index}", ambiguous));
-        }
+        AppendUnownedEntries(output, slots, containerEntities, itemContainers);
         return output;
 
         void Visit(int containerRow, int ownerBody, string parent, HashSet<int> path, int depth)
@@ -100,20 +92,34 @@ internal sealed class LsmfInventoryGraph
             }
             path.Remove(containerRow);
         }
+    }
 
-        bool TryOwnerBody(int entity, IReadOnlyDictionary<int, int> ownerBodies, out int body)
+    private bool TryOwnerBody(int entity, IReadOnlyDictionary<int, int> ownerBodies, out int body)
+    {
+        var seen = new HashSet<int>();
+        var current = entity;
+        for (var depth = 0; depth <= MaxDepth; depth++)
         {
-            var seen = new HashSet<int>();
-            var current = entity;
-            for (var depth = 0; depth <= MaxDepth; depth++)
-            {
-                if (ownerBodies.TryGetValue(current, out body)) return true;
-                if (!seen.Add(current) || !_ownedByEntity.TryGetValue(current, out var owner) || owner is not { } next)
-                    break;
-                current = next;
-            }
-            body = -1;
-            return false;
+            if (ownerBodies.TryGetValue(current, out body)) return true;
+            if (!seen.Add(current) || !_ownedByEntity.TryGetValue(current, out var owner) || owner is not { } next)
+                break;
+            current = next;
+        }
+        body = -1;
+        return false;
+    }
+
+    private static void AppendUnownedEntries(List<LsmfInventoryEntry> output, IReadOnlyList<LsmfSlot> slots,
+        IReadOnlyDictionary<int, int> containerEntities, IReadOnlyDictionary<int, int[]> itemContainers)
+    {
+        // Keep other explicit containers visible, but do not invent a party owner.
+        var covered = output.Select(entry => (entry.ContainerRow, entry.ItemEntityRow)).ToHashSet();
+        foreach (var slot in slots)
+        {
+            if (!containerEntities.ContainsKey(slot.ContainerRow) || !covered.Add((slot.ContainerRow, slot.EntityRow))) continue;
+            var ambiguous = itemContainers[slot.EntityRow].Length > 1;
+            output.Add(new LsmfInventoryEntry(slot.ContainerRow, containerEntities[slot.ContainerRow], slot.EntityRow,
+                slot.Slot, null, $"container/{slot.ContainerRow}/slot/{slot.Index}", ambiguous));
         }
     }
 
@@ -200,6 +206,4 @@ internal sealed class LsmfInventoryGraph
             .Select(attribute => AttributeDecoder.Read(attribute).ToString())
             .Any(IsGoldStats));
     }
-
-
 }

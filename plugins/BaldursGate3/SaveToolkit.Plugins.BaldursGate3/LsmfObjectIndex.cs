@@ -23,6 +23,4 @@ internal sealed class LsmfObjectIndex
     }
 
     internal string? Find(string guid) => _labels.GetValueOrDefault(guid);
-
-
 }

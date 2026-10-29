@@ -197,6 +197,4 @@ internal sealed class LsmfIdentityGraph
         if (Party.Any(member => member.PrimaryInventoryEntityRow is null)) diagnostics.Add("At least one party body has no resolvable primary inventory pointer.");
         return diagnostics;
     }
-
-
 }

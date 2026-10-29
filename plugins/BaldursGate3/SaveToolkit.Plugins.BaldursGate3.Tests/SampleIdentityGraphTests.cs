@@ -3,6 +3,23 @@ namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 public sealed class SampleIdentityGraphTests
 {
     [Fact]
+    public void UnownedInventoryRetainsTheNativeSlotOrderAfterOwnedTraversal()
+    {
+        var source = SampleLiveNewAgeTests.Source(SampleLiveNewAgeTests.Save().ReadAllBytes());
+        var entries = Assert.IsType<LsmfInventoryGraph>(source.Inventory).Entries;
+        var unowned = entries.Where(entry => entry.OwnerBodyEntityRow is null).ToArray();
+        Assert.Equal(636, unowned.Length);
+        Assert.All(entries.Take(2), entry => Assert.NotNull(entry.OwnerBodyEntityRow));
+        var unownedKeys = unowned.Select(entry => (entry.ContainerRow, entry.ItemEntityRow)).ToHashSet();
+        var containerEntities = source.Access.Rows("game.inventory.v1.ContainerComponent", 32)
+            .ToDictionary(row => row.Row, row => row.EntityRow);
+        var expected = source.Slots.Where(slot => unownedKeys.Contains((slot.ContainerRow, slot.EntityRow)))
+            .Select(slot => new LsmfInventoryEntry(slot.ContainerRow, containerEntities[slot.ContainerRow]!.Value,
+                slot.EntityRow, slot.Slot, null, $"container/{slot.ContainerRow}/slot/{slot.Index}", false));
+        Assert.Equal(expected, unowned);
+    }
+
+    [Fact]
     public void NewAgeJoinsUseMeasuredIdentityBridgesAcrossTheSample()
     {
         var source = SampleLiveNewAgeTests.Source(SampleLiveNewAgeTests.Save().ReadAllBytes());

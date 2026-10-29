@@ -13,6 +13,43 @@ public sealed class LivePagingTests
     private const int StatsRowBytes = 36;
 
     [Fact]
+    public void OpeningTheSameBlobKeepsIndependentEditsAndOriginalExports()
+    {
+        var blob = LiveNewAgeFixture.Create();
+        var originalBlob = blob.ToArray();
+        var originalResource = LsmfFixture.Resource(blob);
+        using var first = Open(blob);
+        using var second = Open(blob);
+        var field = Assert.IsType<FieldNode>(Assert.Single(first.Query("live/0/0/values", new() { Limit = 1 }).Rows).Cells["value"]);
+        Assert.True(first.ApplyEdits([new(field.ValueId, FieldValue.Of(2L))]).Succeeded);
+        Assert.Equal(5, Assert.IsType<FieldNode>(Assert.Single(second.Query("live/0/0/values", new() { Limit = 1 }).Rows).Cells["value"]).Value.AsInt32());
+        Assert.Equal(originalResource, Assert.Single(second.Serialize()).Content.ToArray());
+        Assert.Equal("PPSA00000/sdimg_TEST/Globals.lsf", Assert.Single(second.Serialize()).RelativePath);
+        Assert.NotEqual(originalResource, Assert.Single(first.Serialize()).Content.ToArray());
+        Assert.Equal(originalBlob, blob);
+    }
+
+    [Fact]
+    public void NumericSortKeepsOrdinalTiesAndFiltersBeforeApplyingTheOffset()
+    {
+        using var document = Open(LiveNewAgeFixture.Create());
+        const string collection = "live/0/0/values";
+        var page = document.Query(collection, new QueryableCollectionQuery
+        {
+            Filters = new Dictionary<string, string> { ["family"] = "sTaTs" },
+            SortColumn = "value", Descending = true, Offset = 3, Limit = 4,
+        });
+        Assert.Equal(18, page.TotalCount);
+        Assert.Equal(12, page.FilteredCount);
+        Assert.Equal(["Stats/0/Intelligence", "Stats/0/Strength", "Stats/0/Wisdom", "Stats/1/Charisma"],
+            page.Rows.Select(row => row.Key[("live/0/0/".Length)..]));
+        Assert.All(page.Rows, row => Assert.Equal(10, Assert.IsType<FieldNode>(row.Cells["value"]).Value.AsInt32()));
+        var sorted = document.Query(collection, new QueryableCollectionQuery { SortColumn = "value", Limit = 6 });
+        Assert.Equal([1, 1, 4, 5, 8, 8], sorted.Rows.Select(row => Assert.IsType<FieldNode>(row.Cells["value"]).Value.AsInt32()));
+        Assert.Equal(["live/0/0/Health/0/temporary", "live/0/0/Health/1/temporary"], sorted.Rows.Take(2).Select(row => row.Key));
+    }
+
+    [Fact]
     public void DefaultPagesAllocateForTheRequestedRowsEvenAtTheEndOfALargeCollection()
     {
         var stats = new byte[StatsRows * StatsRowBytes];

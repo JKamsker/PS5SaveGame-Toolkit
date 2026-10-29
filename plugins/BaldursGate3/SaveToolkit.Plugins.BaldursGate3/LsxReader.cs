@@ -58,7 +58,6 @@ internal static class LsxReader
         }
 
         budget.Reserve(0, elementCount, attributeCount);
-
     }
 
     private static LarianResource Project(XElement root)

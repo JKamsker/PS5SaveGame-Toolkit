@@ -147,7 +147,6 @@ internal static class LsfTables
             BinaryData.Require(nodeIndex >= 0 && nodeIndex < nodes.Count && keyedNodes.Add(nodeIndex), "Invalid or duplicate LSOF key node reference.");
             nodes[nodeIndex].KeyAttribute = Name(names, BinaryData.U32(keys, i * LsfLayout.KeyRecordSize + LsfLayout.KeyName));
         }
-
     }
 
     private static string Name(Dictionary<uint, string> names, uint reference) => names.TryGetValue(reference, out var name) ? name :
