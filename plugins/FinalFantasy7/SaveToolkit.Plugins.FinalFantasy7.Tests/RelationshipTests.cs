@@ -16,7 +16,7 @@ public sealed class RelationshipTests
         var file = SampleSaves.Load("PPSA08664").AllDiskFiles.First(f => f.FileName == "ff7rebirth000");
         using var document = new FinalFantasy7Plugin().Open(file);
         var view = Assert.IsType<TabsNode>(document.BuildView());
-        var characters = Assert.IsType<TableNode>(view.Tabs.Single(t => t.Title == "Characters").Children.Single());
+        var characters = Assert.IsType<TableNode>(view.Tabs.Single(t => t.Title == "Characters").Children.OfType<TableNode>().Single());
         Assert.Equal("Cloud Strife", Assert.IsType<TextNode>(characters.Rows[0].Cells["name"]).Text);
         Assert.Equal(41, Assert.IsType<FieldNode>(characters.Rows[0].Cells["level"]).Value.AsInt32());
         Assert.Equal(148409, Assert.IsType<FieldNode>(characters.Rows[0].Cells["experience"]).Value.AsInt32());

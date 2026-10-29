@@ -9,6 +9,7 @@ internal sealed class CharacterView
 {
     private const uint MaximumExperience = 9_999_999;
     private readonly ReferenceData _references;
+    private readonly byte[] _bytes;
     private readonly Func<ScalarField, FieldNode> _bind;
     private readonly List<Dictionary<string, ScalarField>> _fields = [];
 
@@ -16,6 +17,7 @@ internal sealed class CharacterView
         Func<ScalarField, FieldNode> bind, ProgressionEdits progression)
     {
         _references = references;
+        _bytes = bytes;
         _bind = bind;
         if (bytes.Length == Ff7Schema.CommonFileLength) return;
         var curves = ProgressionEdits.CharacterCurves(schema);
@@ -42,6 +44,14 @@ internal sealed class CharacterView
             if (!schema.IsRemake) fields["weapon"] = weapons.Field(index);
             _fields.Add(fields);
         }
+    }
+
+    public ScalarField Definition(int character, string suffix) => _fields[character][suffix];
+
+    public uint Value(int character, string suffix)
+    {
+        var field = Definition(character, suffix);
+        return field.Byte ? _bytes[field.Offset] : U32(_bytes, field.Offset);
     }
 
     public TableNode Build()

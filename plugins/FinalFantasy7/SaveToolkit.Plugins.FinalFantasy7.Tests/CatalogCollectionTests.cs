@@ -33,7 +33,7 @@ public sealed class CatalogCollectionTests
         var context = new OverrideContext();
         using var document = new FinalFantasy7Plugin().Open(file, context);
         var tabs = Assert.IsType<TabsNode>(document.BuildView());
-        var characters = Assert.IsType<TableNode>(Assert.Single(tabs.Tabs.Single(tab => tab.Title == "Characters").Children));
+        var characters = Assert.IsType<TableNode>(Assert.Single(tabs.Tabs.Single(tab => tab.Title == "Characters").Children.OfType<TableNode>()));
         Assert.Equal("Imported Cloud", ((TextNode)characters.Rows[0].Cells["name"]).Text);
         Assert.Contains("Fixture contributors", ((TextNode)characters.Rows[0].Cells["source"]).Text, StringComparison.Ordinal);
         var page = Assert.IsAssignableFrom<IQueryableDocument>(document).Query("owned-weapon", new() { Text = "Imported Sword" });

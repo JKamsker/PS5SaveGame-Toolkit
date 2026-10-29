@@ -46,9 +46,9 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
         _recordCollection = RecordCollection.Create(records);
         _references = new(references ?? IReferenceContext.Empty, schema);
         _gameplay = new(bytes, schema, _references, _progression);
-        _planning = new(schema, _gameplay, _references);
         _explorer = new(bytes, records, Bind);
         _characters = new(bytes, schema, _references, Bind, _progression);
+        _planning = new(schema, _gameplay, _references, _characters);
         _ownedRelations = !common && !schema.IsRemake ? new(bytes, _references, Bind) : null;
         if (!common)
         {
@@ -101,7 +101,7 @@ internal sealed class FinalFantasy7Document : BoundSaveDocument, IQueryableDocum
                 ? [new TextNode("Common-file settings have no substantiated gameplay mapping. Use the record explorer.")]
                 : _gameplay.Summary(Bind)),
         ]),
-        new Tab("Characters", _common ? [] : [_characters.Build()]),
+        new Tab("Characters", _common ? [] : [.. _planning.CharacterViews(), _characters.Build()]),
         new Tab("Catalog", _collections?.CatalogViews() ?? []),
         new Tab("Inventory", _collections is null ? [] : [_planning.InventoryView(), _collections.View("inventory")]),
         new Tab("Materia", _collections is null ? [] : [.. _planning.MateriaViews(), _collections.View("materia")]),
