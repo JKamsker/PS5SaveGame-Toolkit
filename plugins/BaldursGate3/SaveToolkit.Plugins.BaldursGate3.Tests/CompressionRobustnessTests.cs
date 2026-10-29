@@ -69,4 +69,32 @@ public sealed class CompressionRobustnessTests
         Assert.Empty(LarianCompression.Decode(Convert.FromHexString("789C030000000001"), 0, 1));
         Assert.Throws<SaveFormatException>(() => LarianCompression.Decode([], 0, 1));
     }
+
+    [Theory]
+    [InlineData((byte)1, false)]
+    [InlineData((byte)2, false)]
+    [InlineData((byte)2, true)]
+    [InlineData((byte)3, false)]
+    public void ZeroOutputDoesNotMakeAMissingCompressedMemberValid(byte codec, bool framed) =>
+        Assert.Throws<SaveFormatException>(() => LarianCompression.Decode([], 0, codec, framed));
+
+    [Fact]
+    public void CorruptZstdFrameContentSizeDoesNotAllocateTheDeclaredManagedOutput()
+    {
+        // Single-segment frame, four-byte content size, one last empty raw block.
+        // The forged content size also controls the decoder window allocation.
+        var source = Convert.FromHexString("28B52FFDA000000001010000");
+        var allocated = GC.GetAllocatedBytesForCurrentThread();
+        var error = Record.Exception(() => LarianCompression.Decode(source, 64, 3));
+        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
+        Assert.IsType<SaveFormatException>(error);
+        Assert.True(allocated < MaximumRejectionAllocation, $"Corrupt frame content size allocated {allocated:N0} managed bytes.");
+    }
+
+    [Theory]
+    [InlineData((byte)2, false, "00")]
+    [InlineData((byte)2, true, "04224D1860408200000000")]
+    [InlineData((byte)3, false, "28B52FFD2000010000")]
+    public void ProperlyEncodedEmptyMembersRemainSupported(byte codec, bool framed, string hex) =>
+        Assert.Empty(LarianCompression.Decode(Convert.FromHexString(hex), 0, codec, framed));
 }

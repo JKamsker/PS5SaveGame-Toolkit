@@ -44,9 +44,12 @@ internal static class LarianCompression
             return source.ToArray();
         }
 
+        BinaryData.Require(!source.IsEmpty, "BG3 compressed member is empty or truncated.");
+
         if (method == LarianCompressionMethod.Lz4 && !framed)
         {
             Lz4BlockValidation.Validate(source, expectedSize);
+            if (expectedSize == 0) return []; // K4os requires a nonempty destination, even for the valid zero-literal token.
             var output = new byte[expectedSize];
             var length = LZ4Codec.Decode(source, output);
             BinaryData.Require(length == expectedSize, "Invalid LZ4 block or decompressed size mismatch.");
