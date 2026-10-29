@@ -143,8 +143,11 @@ catalog remains available; Core currently blocks all actions when `CanEdit=false
 ## Read-only regulation directory
 
 Lazy inspection decodes the sampled public game-format AES-256-CBC/IV framing, validates the exact
-DCX/DFLT header and declared sizes, and caps zlib output at **64 MiB**. The sample decompresses
-1,859,344 bytes to **37,745,424** bytes. Other codecs/headers are refused with a warning; raw inspection
+DCX/DFLT header and declared sizes, and caps zlib output at **64 MiB**. Inflation must finish the
+zlib member, including its final DEFLATE block and Adler-32 checksum, within the declared compressed
+payload. Exhausting that payload is a truncation error even when all declared output was produced.
+The sample decompresses 1,859,344 bytes to **37,745,424** bytes. Other codecs/headers are refused with
+a warning; raw inspection
 and save export remain available. Encrypted bytes are never rewritten.
 
 The reader validates the sampled BND4 format's byte order, directory/name/payload bounds and overlaps,
@@ -162,6 +165,22 @@ The 186-table directory now uses F8 search/filter/sort/paging (`regulation/table
 row-count/size sorts. Its collection is published only after lazy inspection has decoded metadata;
 initial views never decompress regulation. Metadata is cached once per document, without retaining
 the 37 MiB decoded allocation. Unsupported regulation still produces a warning and an empty query.
+
+### Malformed-input rejection contract
+
+`Open` rejects truncated allocations, bad magic/sentinel, out-of-range menu/profile boundaries,
+invalid active flags and inconsistent character/profile mirrors with a contextual `SaveFormatException`.
+GaItem maps have a version-selected fixed count (5,118 through v81, otherwise 5,120); each variable
+record read is bounded to its character slot. Supported v150 semantics reject inventory/acquisition
+counts above their fixed capacities and projectile/region counts whose ranges or required following
+data exceed the slot. The F1 evidence hook validates every supported active slot before emitting any
+values, including when the sink has no remaining output budget.
+
+Regulation decode/directory failures use `SaveFormatException`; lazy inspection converts these to
+the documented warning and preserves the exact encrypted allocation for export. Inactive-slot residue,
+unknown-category identities, declared/observed inventory-count mismatches and uninterpreted tails retain
+their existing lossless behavior. The PS allocation has no known per-slot/profile MD5 to validate;
+the modeled checks above do not establish unknown game integrity rules or console compatibility.
 
 ## Read-only progress maps and character graph (F9)
 
@@ -388,6 +407,14 @@ Repeated handle/selection scans now use lookups/sets; empty edit batches avoid a
 Sample-dependent cases skip when samples are absent. Current results are recorded in the issue #14
 final implementation comment; no binary sample or extracted regulation is included.
 
+The correctness review for #40 adds test-first regressions for incomplete zlib members and evidence
+validation before output, plus GaItem stride/count boundaries, exact/overflowing fixed capacities,
+variable-count byte limits, menu/profile end boundaries, every prefix of small DCX/BND fixtures,
+AES framing, independent Adler-32 controls, malformed BND/PARAM offsets and in-memory sample mutations.
+Sample truncations cover every slot and allocation boundary; corrupted sample regulation retains its
+warning and byte-identical opaque export. No extracted sample bytes are included in these tests.
+Validation on 2026-10-29: **337 passed, 0 failed, 0 skipped**; API Release build: **0 warnings, 0 errors**.
+
 ## Sources and attribution
 
 Initial sources inspected **2026-10-28**; community-data round **2026-10-29**.
@@ -398,6 +425,7 @@ Downloaded code was read as untrusted text, never executed.
 | PS prefix/profile, bounded GaItem/inventory/equipment reader | [ClayAmore/ER-Save-Editor, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save) | Dual MIT/Apache-2.0; MIT option retained in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). Adapted only read algorithms, bounded ranges and ID-space facts; sample v150 only for deeper reads. |
 | F14 vacancy/default research | [ClayAmore serialized inventory/defaults, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/common/save_slot.rs), [inventory reader, same revision](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/vm/inventory/mod.rs) | MIT, rechecked 2026-10-29. Existing twelve-zero-byte vacancy rule checked against sample bytes; original F14 presentation/query integration, no new code port. Unknown-category fallback is not used as proof of vacancy. |
 | AES/DCX/BND/PARAM directory format | [ClayAmore util, same revision](https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/util) | MIT option, same notice. Narrow managed read-only port, sample-verified flag corrections, bounded decompression, no unsafe field/schema port. Public format key is not a user credential. |
+| Zlib completion research | [.NET 10 DeflateStream](https://github.com/dotnet/runtime/blob/v10.0.0/src/libraries/System.IO.Compression/src/System/IO/Compression/DeflateZLib/DeflateStream.cs), [RFC 1950](https://www.rfc-editor.org/rfc/rfc1950) | Inspected 2026-10-29. MIT runtime source and zlib format specification used as behavioral references only; original bounded input stream, no code copied. Independent stored-block/checksum vectors and truncated-prefix tests. |
 | Weapon names/IDs: 2,974 rows | [ClayAmore / ER-Save-Editor, weapon_name.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/weapon_name.rs) | MIT; all literal pairs, category-qualified IDs, names verbatim, raw labels for empty names; no upgrade legality inferred. [Sidecar](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.names.en/weapon-names.source.md). |
 | Goods names/IDs: 1,808 rows | [ClayAmore / ER-Save-Editor, item_name.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/item_name.rs) | MIT; all literal pairs, goods prefix, names verbatim, out-of-category sentinel retained separately; no caps/descriptions. [Sidecar](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.names.en/item-names.source.md). |
 | Armor names/IDs: 653 rows | [ClayAmore / ER-Save-Editor, armor_name.rs, 014107f0](https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/db/armor_name.rs) | MIT; all literal pairs, armor prefix and unchanged names. [Sidecar](SaveToolkit.Plugins.EldenRing/ReferencePacks/eldenring.names.en/armor-names.source.md). |

@@ -43,7 +43,7 @@ internal static class RegulationDecoder
             throw new SaveFormatException("Regulation DCX sizes exceed their bounded allocation.");
         try
         {
-            using var input = new MemoryStream(dcx.Slice(DcxHeaderSize, (int)compressedSize).ToArray(), false);
+            using var input = new RegulationInputStream(dcx.Slice(DcxHeaderSize, (int)compressedSize).ToArray());
             using var zlib = new ZLibStream(input, CompressionMode.Decompress);
             var output = new byte[(int)decodedSize];
             zlib.ReadExactly(output);
