@@ -55,6 +55,10 @@ upgrade prerequisites, skill ownership or quest completion are invented.
 
 Existing populated slots expose bounded Amount edits and the F6 action
 `Set existing quantities (preview)`, with parameter `Target quantity (Amount)`.
+`Restore imported quantities (preview)` uses each slot's immutable opening Amount
+instead of a manual target. It restores only reduced eligible quantities; equal
+or higher amounts stay unchanged. Re-importing edited bytes establishes a new
+baseline, so this cannot recover a balance lost before import.
 Preview lists direct changes, skipped rows and warnings; selected rows
 and whole-document scopes are supported. F8 select-all-matching scopes resolve
 unloaded rows on the server and honor explicit exclusions and empty-slot visibility (#27, #38). An empty
@@ -79,7 +83,7 @@ Original download and full-set export are already supported by the host.
 
 ## Enabled writes and their evidence
 
-Owner decision, 2026-10-28: **Enable writes. Keep warnings.** These three write
+Owner decision, 2026-10-28: **Enable writes. Keep warnings.** These four write
 paths are enabled now, with `Inferred` confidence and `Experimental` maturity.
 They are not blocked on captures tracked in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
 
@@ -88,6 +92,7 @@ They are not blocked on captures tracked in [#31](https://github.com/JKamsker/PS
 | Existing populated slot `Amount` | Inferred | Explicit signed IntProperty/Int64Property tags. Values must be 0 through the original maximum in that container, bounded by storage width. Zero changes only the scalar; it does not remove a slot. | SHA-1 and byte counts repaired; output decoded/reparsed. Unknown inner integrity/duplicates and stored-block acceptance mean **the game may reject the edited save**. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small material/ammo/resource edit, observe/use/spend, save/restart/reload and diff. Observed bounds are not proven game caps. |
 | Existing populated `ItemDataAsset` replacement | Inferred | Exact catalog join plus unambiguous full path already observed in this save, same catalog category; both records must be eligible for replacement (the three screenshot-based resource/consumable joins are reference-only). ItemId, Amount, grid position, native instance data and unknown bytes are retained. | FString encoding and affected property/struct-array/object/array lengths repaired; SHA-1 repaired; output decoded/reparsed. **The game may reject the save**, or dependent equipment/module/ownership state may not match. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one known weapon/ammo reference, inspect equipment/modules/capacity, use/equip, save/restart/reload. Category matching does not prove compatibility. |
 | F6 `inventory/set-amount` | Inferred | Same existing Amount bindings; selected, document or server-resolved F8 query preview. Empty/unsupported slots, over-limit targets and unchanged values are listed as skipped. | Same repairs and rejection warning as individual amounts. Plans/outcomes retain warnings; stale/tampered plans fail; one undo/redo covers the batch. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): selected, filtered with exclusions and full eligible batches, compare intended and unrelated values after use/resave/reload. |
+| F6 `inventory/restore-imported-amounts` (#40 shortlist #6) | Inferred | Reuses the set-amount plan path and bindings, signed storage width, original container maxima and duplicate-container/collection guards. Each eligible slot targets its immutable opening Amount only when currently lower. Equal/higher and empty/unsupported rows are skipped; no asset replacement or slot population. Selected, document and server-resolved F8 query scopes honor exclusions. | Same Kraken framing/length/SHA-1 repairs and exact decoded-byte validation. Shared `ActionPlans.ApplyScalar` revalidates the preview and applies one atomic undo/redo group. Stored-block growth, inner integrity and console acceptance remain unverified. SQLite is not part of this format. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): stage material/ammo/healing-item reductions, restore through selected/query previews, then use/resave/reload; check stored-block acceptance and output capacity. Controlled use/native-refill captures are still needed. |
 
 Writable fields, outcomes and action previews share the warning opening:
 **Not validated on console. The game may reject or overwrite the edited save.**
@@ -104,7 +109,7 @@ field writes remain unsupported because allocation, opaque instance state,
 dependent references and event rewards cannot be safely reconstructed. Warning
 text cannot prevent losing those unknown structures. This single-file document
 does not declare unrelated partners; identical backup mirroring remains the host's
-normal export behavior. Evidence is a validation request, not a gate on the three
+normal export behavior. Evidence is a validation request, not a gate on the four
 enabled paths.
 
 ## Framework feature adoption
@@ -116,7 +121,7 @@ enabled paths.
 | F3 rich cells | Used | Added in the 2026-10-29 asset round: inventory details, descriptions/provenance/hex; existing action cells and field confidence badges. Inventory/query rows and reference tables show attributed F2 icons; missing images retain text fallbacks. |
 | F4 reference pickers | Used | Expanded in the 2026-10-29 asset round: existing inventory asset replacements plus browse-only `ReferenceSpec` fields for read-only catalog-matched asset IDs in the record explorer and catalogue inspection action. Unknown IDs remain raw and never become invented choices. |
 | F5 structural undo | N/A | No safe add/remove/move/split writer exists: opaque instance allocation, grid/indices, equipment and ownership references cannot be reconstructed from this snapshot. Scalar edits use normal undo. |
-| F6 planned actions | Used | Query scopes added in the 2026-10-29 implementation round: `inventory/set-amount` previews selected, document and #27 F8 whole-query scopes with skipped rows, exclusions, warnings and grouped undo. Its only parameter is `Target quantity (Amount)` (key `amount`), so no item parameter needs a `ReferenceSpec`. Skill/loadout/spend/refund presets have no safe underlying writer. |
+| F6 planned actions | Used | `inventory/set-amount` and `inventory/restore-imported-amounts` preview selected, document and #27 F8 whole-query scopes with skipped rows, exclusions, warnings and grouped undo. Set-amount takes `Target quantity (Amount)` (key `amount`); restore takes no parameters and targets each immutable opening Amount only when lower. No item parameter needs a `ReferenceSpec`. Skill/loadout/spend/refund presets have no safe underlying writer. |
 | F7 document groups | N/A | One self-contained gameplay file is rewritten. No coupled partner with a proved transaction contract exists; identical console backups are mirrored by the host. |
 | F8 queryable tables | Used | All 4,063 records and all inventory slots; whole-model search/filter/sort, numeric Amount/ItemId ordering, stable IDs and bounded 200-row pages. Inventory details/hex live in the single F8 table; original raw record inspection remains available. |
 | F9 maps/graphs | Used | Added in the 2026-10-29 implementation round: paged skill/weapon evidence graphs and external-only saved-level map, compact stable IDs, text alternatives, confidence and tested navigation. Prerequisites/coordinates/discovery remain unknown. |
@@ -129,8 +134,9 @@ enabled paths.
 Shared SDK helper adoption: `SaveExtensionBinary` wraps `BoundedBinaryCursor`
 and `FStringCodec.ByteLength` / `Decode`, retaining format limits and legacy
 diagnostics. `BoundSaveDocument` owns scalar bindings and atomic edits. The
-collection queries and action-plan comparison remain plugin-local; they do not
-use `InMemoryCollection<T>` or `ActionPlans`. FString writing remains local to
+collection queries remain plugin-local rather than using `InMemoryCollection<T>`.
+`ActionPlans.ApplyScalar` owns preview content revalidation and scalar application
+for both inventory actions. FString writing remains local to
 `InventoryPatcher`; the shared string codec is used for reading.
 
 ## F14 table audit (2026-10-29)
@@ -282,11 +288,22 @@ dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj --configuration Release 
 python docs/tests/test_documentation.py
 ```
 
-Documentation accuracy validation (2026-10-29, implementation `72cd997`):
+Historical documentation accuracy validation (2026-10-29, implementation `72cd997`):
 **214 passed, 0 failed, 0 skipped**, using the private samples in Release;
 API Release build with `--warnaserror`: **0 warnings, 0 errors**.
 Documentation checks: **14 passed**. Earlier round results below and in
 [EVIDENCE.md](EVIDENCE.md) are historical, rather than current suite counts.
+
+Edit-coverage validation (2026-10-29, #40 shortlist #6): **233 passed, 0 failed,
+0 skipped**, with private samples and all test scratch on D:. API Release build
+with `--warnaserror`: **0 warnings, 0 errors**. Eighteen added cases cover per-slot
+immutable baselines, preserved equal/higher values and asset replacements,
+signed 32/64-bit boundaries, duplicate/empty/unsupported exclusions, invalid
+scopes, pure/cancelled and stale/tampered previews, re-import, selected/document
+and filtered query batches, never-loaded query rows, grouped undo/redo, exact
+decoded payload spans, stored-block framing/SHA-1 and byte-identical no-op/full
+restoration. The original parser and repack implementations are unchanged.
+No shortlist item was deferred; owner console validation remains necessary.
 
 The sample-backed suite covers the complete lazy view, conformance, pack validity,
 known layout/spans, every synthetic inner/outer truncation, valid-hash malformed
@@ -430,6 +447,10 @@ not embedded. No permission decision is pending for the shipped catalog.
   Also test an F8 filtered whole-query batch with an excluded row; verify the
   excluded row and unloaded matching rows after resave/reload. For the location
   index, identify the active region separately from saved-but-unvisited levels.
+- [ ] Stage reductions, then preview/cancel/apply Restore imported quantities for
+  selected slots and a filtered query with exclusions. Confirm each opening Amount,
+  preserved higher quantities and unrelated asset edits, then use/resave/reload.
+  Re-import establishes a new baseline; this does not recover pre-import balances.
 - [ ] Record title/build/region/DLC/slot, visible before/after values, growth,
   normalization, rejection and persistence on
   [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31) and

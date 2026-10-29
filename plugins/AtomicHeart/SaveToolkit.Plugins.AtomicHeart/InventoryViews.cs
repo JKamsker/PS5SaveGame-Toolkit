@@ -23,6 +23,7 @@ internal sealed class InventoryViews(InventoryState state, InventoryBinding bind
             $"Names and art: {state.Catalog.Dataset.Attribution.ToShortText()}. Exact object-name joins are inferred on PS5; recipes are reference information, not validated caps."),
         state.Catalog is null ? new TextNode("No pinned item catalogue is available for read-only inspection.") : CatalogueInspection.Action(state.Catalog),
         InventoryPlanning.Action(),
+        InventoryPlanning.RestoreAction(),
         new InventoryCollection(state, this).View,
     ];
 
@@ -36,7 +37,8 @@ internal sealed class InventoryViews(InventoryState state, InventoryBinding bind
             ["container"] = new TextNode(item.Container), ["asset"] = referenceField, ["raw"] = new TextNode(state.Asset(item)),
             ["category"] = new TextNode(InventoryLabels.Category(item, state)),
             ["instance"] = new TextNode(item.InstanceId.ToString()), ["amount"] = amount,
-            ["action"] = InventoryPlanning.Action(), ["span"] = new TextNode(RecordViews.Span(item.Element.Tag)),
+            ["action"] = InventoryPlanning.Action(), ["restore"] = InventoryPlanning.RestoreAction(),
+            ["span"] = new TextNode(RecordViews.Span(item.Element.Tag)),
             ["details"] = new SectionNode("Item details", [
                 new TextNode(reference?.Name ?? InventoryLabels.Name(rawId)),
                 new TextNode(reference?.Description ?? "Formatted asset identifier, not a confirmed localized game label. Category is inferred from the serialized container; raw ID is retained."),

@@ -126,13 +126,11 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
         InventoryPlanning.Plan(state, actionId, parameters, scope);
 
-    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
-    {
-        var fresh = PlanAction(actionId, parameters, scope);
-        if (fresh.Errors.Count != 0) return new EditOutcome { Errors = fresh.Errors };
-        if (!InventoryPlanning.Equivalent(fresh, plan)) return EditOutcome.Rejected(actionId, "Preview no longer matches this document.");
-        return ApplyEdits(fresh.Changes.Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray()) with { Warnings = fresh.Warnings };
-    }
+    public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
+        ActionPlans.ApplyScalar(plan, () => PlanAction(actionId, parameters, scope),
+            new FieldError(actionId, "Preview no longer matches this document."),
+            _ => { }, fresh => fresh.Changes.Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray(),
+            ApplyEdits, ActionPlanWarningPolicy.UsePlan);
 
     public override AssetContent? GetAsset(string assetId) => references.GetAsset(assetId);
 
