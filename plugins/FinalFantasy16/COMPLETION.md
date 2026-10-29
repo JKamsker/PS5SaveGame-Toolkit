@@ -31,7 +31,7 @@ this selection, and no new write semantics or console acceptance is claimed.
 | R5 inventory UI | Done within plugin scope: F3 icons/details/confidence/actions, F8 complete-model queries, unknown-safe F4 identities and catalogue icons. |
 | R6 reference choices | Done: F4 on catalogue-backed IDs, preserved original unknowns, native/category bounds. |
 | R7 reference context | Done: injected F2 and immutable embedded fallback; no runtime file/network I/O. |
-| R8 evidence tools | Done: corpus/schema/range metadata, F1 fixture, deterministic converters, format/sample tests and the native F12 `ffxvi` decoder hook. |
+| R8 evidence tools | Done: corpus/schema/range metadata, F1 fixture, deterministic converters, format/sample tests and the native F12 `ffxvi-evidence` decoder hook. |
 | R9 compatibility | Measured triples and retail/demo/empty/system/legacy/extended coverage retained. Owner-blocked: additional region/build/mode/DLC captures before expanding schemas. |
 | R10 allocation | Owner-blocked: create/remove/reacquire/slot reuse/capacity/dependency pairs. No safe structural writer exists yet. |
 | R11 candidate validation | Done for raw edits: atomic validation, identity swaps/duplicate rejection and rollback. Owner-blocked: gameplay dependencies require semantic data. |
@@ -61,7 +61,7 @@ never console evidence. New labels, costs and diagrams are reference data only.
 
 Won't do: manufacture ID/rank/quest associations or map transforms; assume
 companion-file coupling; add unrelated platform wrappers.
-F12/F13 are consumed from merged framework support: the native `ffxvi` decoder hook
+F12/F13 are consumed from merged framework support: the native `ffxvi-evidence` decoder hook
 feeds bounded SaveDiff traversal, and the catalogue lookup is a read-only F13 inspect
 action with browse-only read-only ID pickers.
 
