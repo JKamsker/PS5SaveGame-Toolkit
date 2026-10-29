@@ -260,7 +260,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             ["flags"] = new TextNode($"0x{save.Payload[offset + ItemFlagsOffset]:X2}"),
             ["inspect"] = reference is null
                 ? new TextNode("—")
-                : AriseReferences.InspectionAction(AriseReferences.ItemsCatalogId, reference),
+                : AriseReferences.InspectionAction(_references.Items!, reference),
         };
         return new TableRow(valueId, cells) { IsEmpty = row.IsEmpty };
     }

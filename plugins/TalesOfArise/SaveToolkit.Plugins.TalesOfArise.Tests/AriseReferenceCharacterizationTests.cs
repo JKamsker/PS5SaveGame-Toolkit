@@ -18,7 +18,7 @@ public sealed class AriseReferenceCharacterizationTests
         var context = Context();
         var catalog = context.Catalog(ItemsId)!;
         var record = catalog.Find("1")!;
-        var action = AriseReferences.InspectionAction(ItemsId, record);
+        var action = AriseReferences.InspectionAction(catalog, record);
         AssertPicker(action, record, fixedRecord: true);
 
         var section = Assert.IsType<SectionNode>(new AriseReferences(context).CatalogSection(ItemsId));
