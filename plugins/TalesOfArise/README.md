@@ -71,7 +71,7 @@ only returns its own file, without silently changing the console backup twin.
 | --- | --- | --- |
 | F1 SaveDiff | Used | `AriseDiff` aligns decrypted sections by schema ID and relative offsets; twin and slot tests prove the alignment. The shared `PluginViewDecoder` can traverse the plugin without plugin I/O; private sample bytes stay outside git. |
 | F2 reference packs | Used | The embedded `talesofarise.catalog` v3 pack is opened through `IReferenceContext`; dataset and per-record attribution appear in catalog descriptions and the Sources panel. SDK-05 `ReferenceViews.Icon` uses `AssetIdOnly` and exact icon-role/publisher alt text with the em-dash fallback, preserving inventory/catalog nodes while resolving image Sources through the pinned context. Without a matching pinned pack, catalog sections show an unavailable message, catalog queries are empty, local inferred labels and raw IDs remain available, and the map omits its background. |
-| F3 rich table cells | Used | Catalog and inventory rows expose read-only inspect actions, detail/provenance text and confidence badges. Local F2 icons appear in catalog and inventory image cells, with shared category symbols labelled explicitly. |
+| F3 rich table cells | Used | Catalog and inventory rows expose read-only inspect actions, detail/provenance text and confidence badges. Local F2 icons appear in catalog and inventory image cells, with shared category symbols labelled explicitly. SDK-41 binds the sibling Set quantities control to the exact `inventory` collection selection, including unloaded rows and query exclusions. |
 | F4 reference pickers | Used | Inventory ID fields and all catalog identity columns use read-only `ReferenceSpec` browse-only pickers, preserve unknown numeric IDs and allow custom fallback. Standalone inspection parameters select an existing reference without changing saved IDs. |
 | F5 structural edits | N/A | No safe add/remove/reorder writer exists: allocation, inverse records and acquisition invariants are unproven, so fixed-slot scalar writes remain the only structural-safe scope. |
 | F6 planned actions | Used | `inventory/set-quantity` and `inventory/restore-imported` preview changes and skip unsupported rows. Restoration raises only quantities below their immutable opening values, with imported/current quantities both in 0–15. Shared `ActionPlans.ApplyScalar` replans and compares the preview, binds only changed scalar fields and merges application/plan warnings with `ActionPlanWarningPolicy.Merge`. Document, explicit and Core-resolved F8 query scopes are tested; each batch records one undo group. |
@@ -167,6 +167,15 @@ changes nothing. The separate control below the table retains whole-document
 behaviour without a selection. Both controls use the same preview and one-step
 undo/redo path, following the [F6 scope contract](../../docs/PLUGIN_GUIDE.md#planned-actions-and-semantic-review).
 This fixes the [wave-1 coverage review finding](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489144967).
+
+**Set existing consumable quantities** is bound to the inventory table through
+SDK-41 `SelectionTableId = "inventory"`. Expand that table to enable the control.
+It previews the table's selected fixed-slot keys, or all matching query rows across
+unloaded pages minus exclusions. With no explicit or query-wide selection, the
+SDK uses document scope. An explicit empty selection, a query without matches and
+a fully excluded query change nothing and add no undo entry. Quantities still use
+the same inferred 0–15 bounds and existing recognised-record eligibility; action,
+parameter and field IDs, revision checks and grouped undo are unchanged.
 
 Equipment replacement, item insertion/removal, structural changes, HP/CP restore,
 growth/XP edits, skill/title/arte writes and progression/completion mutations remain
@@ -424,6 +433,24 @@ serializes unchanged in `SyntheticFuzzSeedsOpenAndPreserveBytes`. The nightly ru
 reject cleanly; the fixture is parser coverage, not console acceptance evidence.
 
 ## Validation
+
+SDK-41 inventory-selection adoption, **2026-10-29**: authored synthetic regressions
+in `AriseQuantitySelectionTests` for the published declaration, exact parameter and
+quantity-field identities, selected/unloaded rows, document fallback, query scopes,
+exclusions, empty/no-match/unchanged cases, all 934 slots across server pages, stale
+previews, unrelated-byte preservation and one-step undo/redo. The opt-in
+`AriseQuantitySelectionConformanceTests` case supplies meaningful selected/unselected
+ownership, including the exact read-only packed-word aliases, and distinguishes
+Passed, Failed and NotEvaluated. Its explicit traversal budgets cover the full
+fixed-schema explorer and evidence views. Historical sample fingerprints normalize
+only the asserted SDK-41 binding/description change; their original hashes remain.
+**These new tests have not yet been executed.** No builds, test hosts, sample
+extraction or browser servers were started for this implementation. The existing
+quantity-boundary and eligibility tests remain applicable. Run the targeted classes
+and the complete plugin suite through the serial integration-validation workflow.
+Browser validation must still inspect the real bound control before/after expansion,
+its explicit/query request scope, exclusions, document fallback and apply/undo;
+backend/advisory tests do not establish browser wiring or console acceptance.
 
 CP discovery (#40), **2026-10-29**: Release suite **392 passed, 0 failed,
 0 skipped** with samples, including nine new CP cases, conformance, all six
@@ -694,7 +721,8 @@ establishes that a named source has GPL-2.0-only or no-redistribution terms.
 
 Resolved and adopted: F12 native decoder hooks, F13 read-only inspection and
 browse/category/sort contracts, shared `ActionPlans.ApplyScalar` and
-`ReferenceInspection`, and SDK-05 `ReferenceViews.Icon` with `ReferenceIconOptions`.
+`ReferenceInspection`, SDK-05 `ReferenceViews.Icon` with `ReferenceIconOptions`,
+and SDK-41 selection-table binding for Set quantities (validation pending above).
 Quantity application uses `ActionPlanWarningPolicy.Merge`;
 eligibility, scope validation, unopened bindings and preview-only derived aliases
 remain plugin policy. Fixed row actions encode their record key so
