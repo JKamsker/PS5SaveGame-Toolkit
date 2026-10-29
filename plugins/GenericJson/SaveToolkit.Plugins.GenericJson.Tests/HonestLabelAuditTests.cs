@@ -49,6 +49,16 @@ public sealed class HonestLabelAuditTests
     }
 
     [Fact]
+    public void OrdinaryActionDescription_IsReportedAsUnrecognizedMetadataRatherThanMissingWarningText()
+    {
+        var action = new ActionNode("write", "Write") { Description = "Experimental; not validated on console." };
+        var finding = Assert.Single(HonestLabelAudit.Inspect(action, PluginMaturity.Experimental, true));
+        Assert.Equal(HonestLabelRule.WriteWarning, finding.Rule);
+        Assert.Contains("metadata recognized", finding.Message);
+        Assert.Contains("review ordinary descriptions", finding.Message);
+    }
+
+    [Fact]
     public void WarningTone_RequiresText_AndStableMaturityRemainsAdvisory()
     {
         var action = new ActionNode("write", "Write") { Tone = Tone.Warning, Description = " " };

@@ -1485,6 +1485,9 @@ by default. Override `EnforceHonestLabelAdvisories` to enforce them and `HonestL
 record specific evidence-backed exceptions (for example, human-approved `Stable` maturity or an
 existing document-level warning). A nonempty description is not proof: separately reconcile names,
 catalog provenance, read-only gates and imported-restore semantics with the plugin README.
+For actions, the mechanical warning check recognizes nonempty confirmations or warning/danger-toned
+descriptions. Ordinary descriptions can already contain valid warnings; read-only documents can
+retain controls disabled by the host. Review these advisories before treating them as defects.
 
 Core's `DetectionMatrixTests` pins its cross-plugin detection matrix in
 [`DetectionMatrix.txt`](../tests/SaveToolkit.Core.Tests/Detection/DetectionMatrix.txt).

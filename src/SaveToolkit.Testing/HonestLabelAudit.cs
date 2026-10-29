@@ -56,9 +56,9 @@ public static class HonestLabelAudit
             if (maturity != PluginMaturity.Experimental)
                 findings.Add(new(HonestLabelRule.WriteMaturity, id, "Write is not marked Experimental; Stable requires human in-game evidence."));
             if (!canEdit)
-                findings.Add(new(HonestLabelRule.ReadOnlyDocument, id, "Writable save control is published by a read-only document."));
+                findings.Add(new(HonestLabelRule.ReadOnlyDocument, id, "Mutating control metadata is published by a read-only document; verify it stays disabled by the host."));
             if (!warned)
-                findings.Add(new(HonestLabelRule.WriteWarning, id, "Write control has no local warning/confirmation text; check any document-level notice."));
+                findings.Add(new(HonestLabelRule.WriteWarning, id, "No dedicated warning metadata recognized; review ordinary descriptions and document-level notices."));
         }
     }
 }
