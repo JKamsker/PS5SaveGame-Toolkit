@@ -404,6 +404,19 @@ dependencies remain Unknown.
   byte transforms, including failed plans and byte-identical snapshot restoration.
   Whole-group transactions, snapshots, verification, inspection and disposal remain
   plugin-owned. Restore keeps the same member documents, so the router stays valid.
+  The [post-rc.2 review](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6490457978)
+  found that malformed same-member selection keys were skipped. Plans now reject the
+  entire selection for unknown, retired or noncanonical token IDs; SDK member ownership
+  rejects foreign roles without adding another identity parser. Errors name the full
+  group key, and rejected previews publish no token or changes. Valid incompatible rows
+  still skip normally. Duplicate policy is unchanged: direct plugin plans deduplicate
+  ordinally, while Core rejects duplicates before dispatch with its distinct-key error;
+  SDK-04 preserves opaque IDs and performs no normalization. Both transforms have
+  regression coverage for mixed selections, both key orders, duplicate handling,
+  apply revalidation and exact export/undo bytes. The historical protocol fingerprint
+  explicitly projects only the formerly skipped unknown-key response into its old shape;
+  that response is separately asserted rejected. All other protocol/view/export fields
+  retain their pre-migration hashes.
 - **Open: SDK-06 — shared lossless JSON tree/scalar patch substrate.**
   `JsonTokenTree`, `JsonValueToken` and `JsonTokenWriter` remain plugin-local.
   SDK `ExactJsonNumber` validates numeric lexemes; it does not supply the lexical

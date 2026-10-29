@@ -64,32 +64,38 @@ mirror, reward or dependency handling. No legal maximum is inferred from storage
 
 ## Per-plugin inventory
 
-The summary is mechanically reconciled to the demand tables below. “Gaps” = R + N.
+The summary is reconciled to the demand tables below, including the
+[2026-10-29 field-discovery updates](#field-discovery-status). “Gaps” = R + N.
 The separately ranked workflow additions do not inflate these field-demand counts.
+The original analysis counted **57 E / 38 R / 40 N** across 135 demand groups.
+Discovery moves BG07, GW04 and the CP part of TA07 from N to R; PR05 now records
+names on the existing PR01 writer (E), without expanding its eligibility.
 
 | Plugin | E | R | N | Gaps |
 | --- | ---: | ---: | ---: | ---: |
 | AstroPlayroom | 3 | 0 | 2 | 2 |
 | AtomicHeart | 2 | 2 | 3 | 5 |
-| BaldursGate3 | 3 | 3 | 4 | 7 |
+| BaldursGate3 | 3 | 4 | 3 | 7 |
 | Cyberpunk2077 | 5 | 3 | 1 | 4 |
 | EldenRing | 2 | 4 | 1 | 5 |
 | FinalFantasy16 | 4 | 0 | 4 | 4 |
 | FinalFantasy7 | 4 | 4 | 1 | 5 |
 | Gearbox | 5 | 2 | 1 | 3 |
 | GenericJson | 6 | 0 | 3 | 3 |
-| GodOfWarRagnarok | 2 | 1 | 4 | 5 |
+| GodOfWarRagnarok | 2 | 2 | 3 | 5 |
 | Insomniac | 2 | 6 | 0 | 6 |
-| Pragmata | 3 | 1 | 4 | 5 |
+| Pragmata | 4 | 1 | 3 | 4 |
 | SuckerPunch | 3 | 2 | 3 | 5 |
-| TalesOfArise | 3 | 3 | 2 | 5 |
+| TalesOfArise | 3 | 4 | 1 | 5 |
 | UnrealGvas | 3 | 3 | 3 | 6 |
 | Witcher3 | 3 | 4 | 1 | 5 |
 | XorJson | 4 | 0 | 3 | 3 |
 
-Across **135 demand groups**: **57 enabled**, **38 read-only with evidence** and
-**40 not located**, giving **78 gaps**. These counts include candidate representations
-and grouped player goals as defined above; they are not 78 implementation-ready tasks.
+Across **135 demand groups** after field discovery: **58 enabled**, **41 read-only
+with evidence** and **36 not located**, giving **77 gaps**. These counts include
+candidate representations and grouped player goals as defined above; they are not
+77 implementation-ready tasks. The extra E group is Pragmata's newly named subset
+of existing quantity writes, not a new writer.
 
 ### AstroPlayroom — ASTRO's PLAYROOM
 
@@ -146,9 +152,9 @@ evidence of a packed-save writer.
 | BG04 | Live class / level changes | R — class UUIDs and level candidates decoded; reference views remain U. Summary level is BG01. | Research; H / L / H. C single class/level-up with skills, spells and rewards; B multiclass states; T. |
 | BG05 | Learned / prepared spells | R — decoded spell-book storage; learned rows empty, prepared entries depend on variable strings/source/owner. | Research; H / L / H. B populated learned and prepared records; C learn/prepare/unprepare and rest; T. |
 | BG06 | Item creation / equipment / transfer | R — template, container and item-reference candidates located; unique instance/owner bridge and allocator/cleanup incomplete. | Research; H / L / H. C pickup/equip/move/remove with authoritative owner; B repeated templates and nonempty inventories; T. |
-| BG07 | Player gold balance | N — four gold-template occurrences are not an authoritative owned stack; duplicate Creator mappings prevent the bridge. | Research; H / L / H. C exact gain/spend/trade and visible owner; B positive live gold contributions; T. |
+| BG07 | Player gold balance | R — I gold storage: four Creator GUID categories join repeated entity occurrences to current slots/stack members; three explicit imported contribution sums are 4, 2, 2, fourth amount U. No proven party owner or player balance. | Research; H / L / H. C exact gain/spend/trade and visible owner; B positive party-owned contributions, weight/cache propagation and spend/trade dependencies; T. |
 | BG08 | Live XP and level-up rewards | N — metadata XP is not live XP; authoritative live progression/reward transaction not established. | Research; H / L / H. C XP gain below/through threshold; B independent party members; T. |
-| BG09 | Base ability respec / character appearance | N — effective cache is BG03; base-score layout, invalidation and appearance mutation are not established. | Research; H / L / H. C respec/base-versus-boost and appearance changes separately; B representative character records; T. |
+| BG09 | Base ability respec / character appearance | N — two point-buy-shaped creation arrays are located, but one raw owner contradicts the numerical effective-score match. No authoritative character/base-score join; effective cache remains BG03. Appearance mutation is unestablished. | Research; H / L / H. C respec/base-versus-boost and appearance changes separately; B character identity, bonuses, modifiers/invalidation and complete respec transaction; T. |
 | BG10 | Approval / quests / story choices | N — opaque Osiris and unproven subsystem joins supply no safe named transaction. | Research; H / L / H. C one approval/choice/stage event and reward effects; B corresponding story states; T. |
 
 Integrity: supported LSPK v18 digest (MD5+1) repaired and verified; edited LSF/JSON
@@ -189,8 +195,8 @@ appearance and world flags [S08]. Only JP has sample coverage here; supported fo
 | ER01 | Held runes / history / character name | E — I. Mirrored names/history; held <= history; linked rune preview already exists. | — |
 | ER02 | Rowa Fruit / Smithing Stone [1] quantities | E — I. Positive ordinary direct-goods rows; observed ceilings 12/3 and refill action. Nonempty storage only synthetically covered. | — |
 | ER03 | Other existing inventory quantities | R — inventory row quantities located, but outside the two-ID allowlist or protected by ambiguity/key-item rules. | Conditional expansion; H / M / M. B ordinary positive stacks per ID in held/storage; C consumption, zero behavior and caps; T. No blanket catalog enablement. |
-| ER04 | Attributes / respec / HP, FP, stamina | R — separate current/effective/base vital words and archetype byte located. Modifier-aware transaction missing; 504/504/476 HP cannot be collapsed. | Research; H / L / H. C single stat/respec, equipment/boost and damage/heal pairs; B multiple classes/levels; T. |
-| ER05 | Equipment / upgrades / affinity / Ashes of War | R — four equipment representations and quick/pouch joins located; profile copies, modifiers and upgrade history unmodeled. | Research; H / L / H. C equip/upgrade/swap-back; B empty/unarmed slots and matched PARAM evidence; T. |
+| ER04 | Attributes / respec / HP, FP, stamina | R — I eight attributes and both rune-level mirrors in JP v150/90: level 12 = attribute sum 91 − 79, one snapshot plus identical backup. Separate current/effective/base vitals remain; HP 504/504/476 cannot be collapsed. Larval Tear ID 8185 is catalog/regulation-backed but absent from held/storage rows; respec unproven. | Research; H / L / H. C single stat/respec, Tear acquisition/consumption/unlock, equipment/boost and damage/heal pairs; B modifier-aware vitals/load, class minima, multiple classes/levels and verified internal-hash repair; T. |
+| ER05 | Equipment / upgrades / affinity / Ashes of War | R — I 34 candidates, 17 agreeing assigned handle/physical-index/ID/catalog joins with exact sample PARAM rows. Menu encodings at profile +0x17E/+0x1D6 are located; upstream profile gaps differ and encoded menu IDs are not instance handles. No equip writer. | Research; H / L / H. C equip/upgrade/swap-back; B complete profile/effect/load transaction, empty/unarmed/slot eligibility, upgrade/AoW history and verified internal-hash writer; T. |
 | ER06 | Graces / bosses / quest / NG+ flags | R — bounded event/acquisition candidate ranges and source lookups; U gameplay authority, no dependency writer. | Research; H / L / H. C one named grace/boss/quest event plus no-action controls; B correct event mapping/build; T. |
 | ER07 | Full appearance / gender preset | N — no qualified complete appearance setter; the located archetype byte alone is not an appearance model. | Research; M / L / H. B appearance records; C cosmetic change only; T. |
 
@@ -299,10 +305,10 @@ claims do not provide a public PS5 integrity algorithm. Only PPSA08330 has sampl
 
 | ID | Wanted edit | State, confidence and current evidence | Gap feasibility; value / effort / risk; evidence needed |
 | --- | --- | --- | --- |
-| GW01 | Existing Hacksilver / resources / XP and raw wallet counters | E — I quantity/container roles, U unmapped meanings. Each counter bounded by its own imported value; restore preview already exists. No above-import grant. | — |
+| GW01 | Existing Hacksilver / resources / XP and raw wallet counters | E — I quantity/container roles, U unmapped meanings. Each counter bounded by its own imported value; restore preview already exists. Candidate XP roles do not establish spendable or lifetime totals; absent rows are not zero and duplicate wallets are not summed. No above-import grant. | — |
 | GW02 | Stored play time | E — I seconds. Fixed metadata u32 and reparse. | — |
-| GW03 | Individual skill unlocks | R — grouped flags located; four tree group names corroborated, individual skill/bit IDs U. | Research; H / L / H. C one buy/upgrade/refund and XP cost; B positive matched groups and independent integrity evidence; T. |
-| GW04 | Gear / runic / enchantment equips and upgrades | N — wallet IDs and read-only guide art do not join directory/flag IDs to owned gear state. | Research; H / L / H. C acquire/equip/upgrade separately; B instance/slot/dependency mapping; T. |
+| GW03 | Individual skill unlocks | R — 132 stable saved IDs in five groups; four tree-group roles corroborated. Individual skill identities, unlock-bit semantics and cost/prerequisite crosswalk remain U; PC live masks are not saved-state joins. | Research; H / L / H. C one named buy/upgrade/refund with character XP before/after; B positive matched groups, costs/prerequisites and independent integrity evidence; T. |
+| GW04 | Gear / runic / enchantment equips and upgrades | R — I gear-instance framing and definition/catalog-level joins: 7,443 records in all 76 primaries, 141 definition joins, 118 specific names and 57 numeric catalog levels. Levels label definition variants, not a decoded upgrade word or legal maximum. Core weapon numeric levels and equip/slot semantics remain U. | Research; H / L / H. C armor/weapon/runic upgrade, amulet repair and equip/unequip separately; B complete weapon-level/slot joins, mode bounds, costs, derived stat/cache dependencies and integrity repair; T. |
 | GW05 | Difficulty | N — imported PS4 offset fails PS5 enum checks in 8/76 records; no named difficulty field. | Research; M / M / H. C menu difficulty changes on matched PS5 builds; B actual field location; T. |
 | GW06 | Quest / raven completion with rewards | N — a raw raven counter in GW01 is not pickup or reward state. | Research; H / L / H. C individual pickup, threshold and reward claim; B corresponding flags; T. |
 | GW07 | Named preferences / accessibility | N — validated 696-byte blob only; individual option locations/domains unconfirmed. | Research; M / M / H. C one option and native reset; B mappings and integrity; T. |
@@ -321,12 +327,12 @@ this plugin does not claim Spider-Man support.
 
 | ID | Wanted edit | State, confidence and current evidence | Gap feasibility; value / effort / risk; evidence needed |
 | --- | --- | --- | --- |
-| IN01 | Bolts / calculated balance | E — I. Career/Spent counters and existing balance-target preview; final-pair invariant. | — |
+| IN01 | Bolts / career-counter diagnostic | E — I existing Career/Spent counter writes and target preview, with final-pair invariant; these do not edit the inventory wallet. Bolt ItemCount is separately read-only / I, config-anchored in all 36 primaries. Career minus spent is disproven as a wallet formula. | Existing counter writes only. Inventory writes need actual currency cap, C HUD gain/spend and B integrity/dependency writer; T. |
 | IN02 | Existing gold-bolt options / boolean preferences | E — I. Seven switches and 61 observed preference booleans; no collectible grants. | — |
-| IN03 | Raritanium balance | R — career/spent counters located, but spending exceeds career in later samples; available balance undefined. | Research; H / M / H. C gain/spend with HUD and alternate contributors; B both counters; T. |
+| IN03 | Raritanium balance | R — I config-anchored inventory ItemCount in 34/36 primaries; two missing records remain unresolved, not zero. Career subtraction is disproven as a general balance formula. | Research; H / M / H. C gain/spend with HUD; B actual CurrencyItemConfig.MaxCount, bonus/award accounting and integrity/dependency repair; T. |
 | IN04 | Weapon XP / ammo / Omega upgrades | R — per-record candidates located, I schema; ownership, caps and level conversion unproven; no positive Omega sample. | Research; H / L / H. B positive Omega/owned instances; C acquire/XP/ammo/refill separately; T. |
 | IN05 | Armor collection / cosmetic appearance | R — collection bits and vanity config/ID/color slots located; I candidate joins, incomplete equip/bonus semantics. | Research; H / L / H. C collect versus equip/color separately; B slot/character joins and color domains; T. |
-| IN06 | Raritanium upgrade nodes / build presets | R — Mods/ModGrid/ModCount/SelectedCell masks located, U node costs/prerequisites. | Research; H / L / H. C one purchase/refund with displayed cost; B node identity and effect mappings; T. |
+| IN06 | Raritanium upgrade nodes / build presets | R — I raw Mods/ModGrid/ModCount/SelectedCell masks/counters remain read-only; named nodes are a negative result. Aggregates do not map purchases/prices; all sampled Omega candidates are false. | Research; H / L / H. C one named purchase/refund with HUD price; B build-matched GridConfig/ModConfig instances, GridIndex/TileIndex-to-mask mapping, costs/prerequisites, golden-node effects and owned/cache synchronization; T. |
 | IN07 | Spybots / gold bolts / world and mission completion | R — checklists, award counters and mission states located; candidate identity/state links incomplete. | Research; H / L / H. C named pickup/objective/reward; B exact location and linked state; T. Guide map pins are not save-bit joins. |
 | IN08 | Quick-select loadout | R — four exact weapon paths located; strings/metadata lack a relocation writer. | Research; M / M / H. C swap and swap-back; B encoding/length rules plus ownership/equip joins; T. |
 
@@ -346,7 +352,7 @@ REE Save Editor provides format research, not a complete friendly editor [S24].
 | PR02 | Existing IDs / gadget / loadout / progress / quest / world primitives | E — U family/gameplay meanings; named raw fields I identifiers. Fixed-size only, no dependency repairs. | — |
 | PR03 | Header / synchronized clocks | E — I named fields, U others. Derived clock changes reported and undoable. | — |
 | PR04 | Localized save description / other text | R — system Title/SubTitle/Detail and typed strings located; string/struct resizing read-only. | Research; L / L / H. B alignment/capacity model; C one native text change if supported; T. |
-| PR05 | Named Lunafilament / Pure Lunum balances | N — all 90 inventory IDs lack player-facing names; MainSlot is not money. Quantity access PR01 is not a named currency claim. | Research; H / M / H. C isolated gain/spend with UI and exact IDs; B build-matched localization/ID joins; T. |
+| PR05 | Named Lunafilament / Upgrade Components / Pure Lunum quantities | E — I labels for Lunafilament `0x84c2f1f3`, Upgrade Components `0x0b30ca95` and Pure Lunum `0x7d9b1f63`, from a pinned MIT PC crosswalk and all 11 PS5 gameplay inventories. Existing PR01 quantity writes only; eligibility unchanged. The other 87 names, including Cabin Coins, remain U. | No new writer or named-resource preset. C isolated build-matched gain/spend with UI and exact IDs; B legal caps and remaining name/ID joins; T. |
 | PR06 | Named weapon / firmware upgrades and respec | N — hash/schema/enum names do not identify purchase costs, stored upgrade IDs and effects. | Research; H / L / H. C print/upgrade/assign/refund separately; B saved-ID/name and prerequisite joins; T. |
 | PR07 | Add / remove inventory or loadout records | N — no rebuilding/allocation writer; fixed-size preservation is insufficient. | Research; H / L / H. B complete typed grammar/alignment; C first pickup, removal and reuse; T. |
 | PR08 | Coherent mission / checkpoint / collectible unlocks | N — raw states exist under PR02, but mission conditions and guide atlas lack authoritative state/reward/location joins. | Research; M / L / H. C mission/reward/checkpoint separately; B build-matched mission and hash joins; T. |
@@ -394,7 +400,7 @@ The Gald table author and skill-panel guide establish currency and SP/skill goal
 | TA04 | XP / base HP / coherent growth | R — source-guided body +0x10 / +0x50 words located, I. Growth, effective HP and preview dependencies lack a writer. | Research; H / M / H. C XP below/through threshold and stat changes; B curves and active/guest identities; T. |
 | TA05 | Stored play time | R — body seconds/ticks, duplicate tick counter and outer seconds located. Meaning I, mirrors not reconciled. | Research; L / M / M. C timed save/reload pairs to establish authority/rounding; B all copies; T. |
 | TA06 | Existing item identity / broader quantities | R — all 934 quantity/flag/ID records located; only 13 IDs eligible. Catalog names are not complete numeric joins. | Conditional expansion; H / M / H. C acquisition/use/zero/caps per ordinary ID; B positive mapped materials and flags; T. No accessory/key-item blanket grant. |
-| TA07 | CP / equipment / arte and skill/title purchases | N — authoritative state/identity/dependency joins absent; reference panels and raw sections are not located purchase fields. | Research; H / L / H. C spend/refund/equip/arte events; B complete ID/budget/effect mapping; T. |
+| TA07 | CP / equipment / arte and skill/title purchases | R — I read-only current/max CP at PartyProfile +0x0C/+0x0E (uint16), 155/155 in three slots plus identical twins. No CP writer. Equipment and arte/skill/title state/identity/dependency joins remain N. | Research; H / L / H. C labelled CP spend/refill, level-up and separate flower/bonus captures to establish authority/growth; separate purchase/refund/equip/arte events; B complete ID/budget/effect mapping; T. |
 | TA08 | Recipes / fish / owls / quest or artifact completion | N — guide records and raw sections lack found/learned/rewarded state joins. | Research; M / L / H. C each event and reward separately; B exact flags/counters; T. |
 
 Integrity: known AES/XOR format re-encrypted, ciphertext SHA-1 recomputed, output
@@ -415,7 +421,7 @@ only; a generic type writer does not confer title semantics.
 | --- | --- | --- | --- |
 | UG01 | Hogwarts existing currency / XP / level / quantities | E — I only for eligible existing cells in five allowlisted tables and matching column/value types. Knuts rows searchable; no automatic owner or two-image mirror choice. | — |
 | UG02 | Hogwarts name / appearance / gear identity replacement | R — identity, item/variation and equipped-slot columns located read-only; no safe replacement/appearance join. Other eligible gear scalar cells remain UG01. | Research; H / L / H. C rename/equip/appearance events; B row ownership, keys and related rows; T. |
-| UG03 | Hogwarts talents / collectibles / map / quests | R — PerkDynamic, CollectionDynamic, MissionDynamic and map tables located; read-only, authority/rewards U. A generic MiscData value is not a talent transaction. | Research; H / L / H. C spend talent, collect, discover and claim rewards separately; B duplicate-row identities and image roles; T. |
+| UG03 | Hogwarts talents / collectibles / map / quests | R — I read-only points at MiscDataDynamic(Player0, PerkPoints).DataValue (text), talents at PerkDynamic(PerkID, Level), collection/page/map/FGC state; 15 saves / 30 images pinned. Conflicting collection tuples and divergent images block authority. MissionDynamic remains located with authority/rewards U. Generic PerkPoints/PageCollected DataValue writes are disabled. | Research; H / L / H. C earn/spend/refund points, identified page pickup, discovery, challenge completion and reward claim separately; B actor/effect, quest/reward/achievement joins, effective bounds, duplicate-row identities and image roles; T. No talent/collection grant. |
 | UG04 | Jedi existing tagged gameplay scalars / settings | E — I gameplay meanings; V generic storage. Raw scalar writer; Crc32, compressed actor data and paired length excluded. | — |
 | UG05 | Jedi named XP / skills / HP / Force / stim gameplay controls | N — no authoritative named target/dependency model documented; decoded actor tags/string observations are inspection only. | Research; H / L / H. C XP/spend/damage/stim/rest separately; B complete actor schema and checksum coverage; T. |
 | UG06 | Jedi costume / lightsaber / exploration grants | N — observed strings do not establish ownership/unlock fields. | Research; M / L / H. C one cosmetic or discovery; B exact records and actor writer; T. |
@@ -526,13 +532,25 @@ quota is used to force low-evidence proposals into the shortlist.
 
 ### High-value work deliberately not shortlisted
 
-BG3 live gold/base-score/spell edits, Elden Ring equipment/respec, Rift Apart
-raritanium/upgrades, Hogwarts talent/collection grants, and Ragnarök gear/skills have
-high player value. Their blockers are concrete missing joins or dependency writers,
-not a lack of warning text or permission. Obtain the B/C evidence listed in their
-rows, then reassess. Do not rank a PC offset port as ready work. Similarly, Tales CP,
-Pragmata named currency IDs and Yōtei technique/health/world state require actual
-field discovery. Generic JSON structure editing is not evidence of those semantics.
+The field-discovery follow-up locates BG3 gold storage (I), but not an owned party
+balance; creation-score arrays have a contradictory owner join, and spell allocation/
+source dependencies remain unresolved. Elden Ring attributes, rune-level mirrors and
+17/34 equipment joins are read-only I; Larval Tear ID 8185 is catalog/regulation-backed
+but absent from samples. Modifier-aware vitals/load, class minima, complete equipment/
+respec transactions and internal-hash repair still block writes. Rift Apart bolt and
+raritanium ItemCounts are read-only I; career subtraction is not the wallet. Caps,
+HUD accounting, named upgrade grid/mod joins and integrity/dependency repair are missing.
+Hogwarts points, talents and Field Guide state are read-only I; conflicting tuples,
+divergent images and missing actor/effect/quest/reward joins block grants. Ragnarök
+has I gear definition/catalog-level joins; core weapon levels, equipped/enchantment
+slots, skill identities, XP transaction semantics and dependency/integrity writers
+remain missing. Tales CP is located read-only I; writes need controlled spend/refill,
+growth/bonus and authority evidence. Pragmata now has I Lunafilament, Upgrade Components
+and Pure Lunum labels over existing guarded quantities; 87 names including Cabin Coins,
+legal caps and controlled gain/spend remain unresolved, with no new write eligibility.
+Yōtei technique/health/world state still needs field discovery. These high-value gaps
+remain research rather than promised writers. Obtain the B/C evidence in their rows,
+then reassess; a PC offset or generic JSON structure does not establish game semantics.
 
 F5/F6/F7/F8 are already available. [SDK_REQUESTS.md](SDK_REQUESTS.md) identifies
 remaining metadata/review/preset conveniences, but none can establish the missing
@@ -545,8 +563,9 @@ existing guards without waiting for new framework contracts.
 
 **Status checked 2026-10-29 against local `main` at `2162f90`.** All 15 ranked
 additions are implemented and merged. The ranked analysis, its review date and its
-original E/R/N counts above remain a historical snapshot; this status note does not
-reclassify those counts. Fourteen additions are workflows over existing fields;
+original E/R/N counts retained above remain a historical snapshot; the separate
+field-discovery follow-up updates the inventory rows and current summary. Fourteen
+additions are workflows over existing fields;
 rank 15 enables the stored-time setter. All writes remain **Experimental** and need
 [#31 owner validation](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
 Confidence is **Inferred**, except the README's Verified Gearbox ammo-pool schema
@@ -601,6 +620,33 @@ merge is not a claim that review or console validation is complete.
 | 13 | AstroPlayroom | `collectibles/restore-imported` | [61b478a](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/61b478a) (implementation [98054d0](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/98054d0)) | [270 passed](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489114970); generations/twins, duplicate occurrences, queries and ZIP reopen | No defect reported by wave 2. | Independent pickup/reversal; museum, puzzles, rewards, forward play and native save/reload; unknown integrity. |
 | 14 | Pragmata | `inventory/restore-imported-quantities` | [12410e7](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/12410e7) (implementation [bf74ec6](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/bf74ec6)) | [299 passed](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489200930); 11 exact restorations, IDs, aliases, queries and history | [Follow-up review](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489521049): no defects. | Identify/use restored stacks, equipped/unlock/dependency effects, native load/resave/re-export and RSA acceptance. |
 | 15 | FinalFantasy7 | `game/playtime` (field) | [81fd457](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/81fd457) (implementation [ec30f75](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/ec30f75)) | [424 passed](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6488935263); immutable opening bound and exact first-u32 byte scope | No defect reported by wave 1. | Displayed time and timed no-action pairs per variant; native resave/normalization; other counters remain outside this setter. |
+
+### Field discovery status
+
+**Checked 2026-10-29 against local `main` at
+[9697da5](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/9697da5).**
+These seven outcomes follow the original analysis; the merge commits and plugin
+source/README were checked against `main`. Handoffs describe local work before its
+merge, so their original “not merged” wording is historical. Measurements below
+are reported plugin evidence, not new private-sample or console runs in this docs pass.
+All newly exposed fields are **read-only**. Pragmata is a label-only exception:
+its three names describe quantities already covered by PR01, with unchanged write
+eligibility. No new writer or grant action is established by this research.
+
+| Plugin | Field / outcome | Confidence | Merge commit | Blocker for writes | Owner capture needed (#31) |
+| --- | --- | --- | --- | --- | --- |
+| [TalesOfArise](../plugins/TalesOfArise/README.md#party-cp-field-discovery-40-2026-10-29) | Party current/max CP, read-only (`party/current-cp`, `party/max-cp`); uint16 +0x0C/+0x0E, 155/155 in three slots and identical twins. [Handoff](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489330493). | Inferred | [051f634](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/051f634) (implementation [d10cfb6](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/d10cfb6)) | Equal values do not establish current/max authority, restoration or growth/bonus dependencies. Existing SHA-1 repair does not prove CP semantics. Equipment/arte/skill/title joins remain absent. | Labelled control re-save, CP spend, rest/refill, level-up and separate flower/bonus events with menu values/party; native save/reload/re-export. |
+| [Pragmata](../plugins/Pragmata/README.md#currency-id-field-discovery-40) | Lunafilament, Upgrade Components, Pure Lunum labels; pinned PC ID crosswalk consistent across all 11 gameplay inventories. Existing quantity eligibility unchanged. [Handoff](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489812630). | Inferred labels; 87 other names, including Cabin Coins, Unknown | [415d226](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/415d226) (implementation [ee40a7f](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/ee40a7f)) | Existing PR01 writes only; no new resource preset or wider eligibility. Legal caps, controlled PS5 semantics and remaining numeric/name joins are unproven. | Isolated gain/spend with UI/build evidence per resource; Stamp Club spend for Cabin Coins, no-action control, native load/resave/re-export. |
+| [Insomniac / Rift Apart](../plugins/Insomniac/README.md#field-discovery--bolts-raritanium-and-upgrades-40) | Inventory bolts (36/36 primaries) and raritanium (34/36), read-only ItemCounts; two absent raritanium records unresolved. Career-minus-spent is not the wallet. Named upgrade nodes remain a negative result. [Handoff](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489968842). | Inferred counts/raw upgrade storage; named nodes Unknown | [1875c08](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/1875c08) (implementation [707cc06](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/707cc06)) | Currency caps, HUD/bonus accounting, body integrity and dependency repair missing; named nodes lack PS5 grid/mod instances, tile/mask/cost/prerequisite/effect and owned/cache joins. Existing career-counter writes remain separate. | Same-slot currency gain/spend with HUD and counters, one named upgrade purchase/refund with price; build-matched currency/grid/mod config evidence; native reload/re-export. |
+| [UnrealGvas / Hogwarts](../plugins/UnrealGvas/README.md#hogwarts-talent--field-guide-discovery-40-2026-10-29) | PerkPoints, PerkDynamic talents and collection/page/map/Field Guide challenge state, read-only; 15 saves / 30 images. PerkPoints/PageCollected generic DataValue writes disabled. [Handoff](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6490028298). | Inferred storage; authority/rewards Unknown | [0b654d4](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/0b654d4) (implementation [4f335f5](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/4f335f5), fixture fix [3b4d2b1](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/3b4d2b1)) | Conflicting collection tuples/divergent images, effective bounds and actor/effect/lock/loot/quest/challenge/reward joins remain unproven; potentially missing dependency rows block grants. | Earn/spend/refund a talent point, one identified page pickup, challenge completion and separate reward claim, no-action control; native reload/re-export with image roles retained. |
+| [BaldursGate3](../plugins/BaldursGate3/FIELD_DISCOVERY.md) | Four gold Creator categories, three read-only imported contribution sums (4, 2, 2); fourth amount Unknown, no party balance. Two creation-score arrays found; raw owner contradicts effective-score match. [Handoff](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6490151904). | Inferred gold storage; party balance/base-score authority Unknown | [d60236c](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/d60236c) (implementation [e6cd96a](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/e6cd96a), evidence [d386b6d](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/d386b6d)) | Party ownership, item-instance bridge, carried weight/cache and spend/trade dependencies unresolved. Contradictory character/base-score join blocks named scores and respec; bonuses/modifier invalidation unproven. One independent state plus identical backup. | Exact gold gain/spend/trade with visible character/container owner; separate base-versus-boost/respec captures and control; native reload/re-export. |
+| [EldenRing](../plugins/EldenRing/README.md#field-discovery-equipment-attributes-and-respec-40) | Eight attributes and both rune-level mirrors read-only; 17/34 assigned equipment joins with exact PARAM rows and menu encodings. Larval Tear ID 8185 confirmed in catalog/regulation, absent from held/storage samples; respec unproven. [Handoff](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6490211925). | Inferred attributes/level/equipment; respec state Unknown | [acf8b87](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/acf8b87) (implementation [a631858](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/a631858), evidence [9ea86f2](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/9ea86f2)) | Modifier-aware vitals/load, class minima, empty/unarmed/slot rules, complete profile/equipment/upgrade/AoW transaction and verified internal-hash repair missing. No positive Tear stack, consumption/unlock transition or respec counter; one JP snapshot plus identical backup. | Single-stat/level change, equip/upgrade/swap-back, boost and damage/heal pairs; positive Tear acquisition/consumption and respec/unlock, other classes/levels, control and native reload/re-export. |
+| [GodOfWarRagnarok](../plugins/GodOfWarRagnarok/README.md#gear--skills--xp-field-discovery-40) | Read-only gear/armor definition/catalog-level joins: 141 definitions / 57 numeric catalog levels across 76 primaries. Catalog levels describe variants, not an upgrade scalar or cap. Core weapon levels, enchantment slots, named skills and XP transaction semantics unresolved. [Handoff](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6490298083). | Inferred gear/catalog levels and candidate XP roles; core weapon numeric levels, slot/skill and spendable/lifetime XP semantics Unknown | [e1c7ae5](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/e1c7ae5) (implementation [8566517](https://github.com/JKamsker/PS5SaveGame-Toolkit/commit/8566517)) | Complete weapon numeric crosswalk, equipped/unlocked-slot joins, named skill/cost/prerequisite mapping, character XP accounting, mode bounds, derived stat/cache and integrity repair missing. Existing import-bounded counters remain separate. | Isolated armor/weapon/runic upgrade, amulet repair, equip/unequip and one named skill purchase/upgrade/refund with character XP before/after; controls, native reload/re-export. |
+
+Every capture follows [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31):
+record build/region/DLC/slot, visible before/after values and one event at a time,
+with a no-action control. Reassess write feasibility only after the listed joins
+and repair rules are established; byte-preserving tests alone do not prove acceptance.
 
 ### Deferred: Yōtei imported-quantity restoration
 
