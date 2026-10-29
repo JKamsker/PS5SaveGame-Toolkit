@@ -55,13 +55,16 @@ public sealed class CatalogueInspectionTests
         Assert.Empty(session.Serialize());
     }
 
-    [Fact]
-    public void HogwartsBrowseOnlyCatalogueFiltersAndSortsAcrossPagesOnReadOnlyDocument()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void HogwartsBrowseOnlyCatalogueFiltersAndSortsAcrossPagesOnReadOnlyDocument(bool synthetic)
     {
         var plugin = new UnrealGvasPlugin();
         var references = new ReferencePackStore([plugin]).Pin(plugin, "PPSA01603");
         // A missing database pair keeps inspection available while all writes remain disabled.
-        var slot = SampleSaves.Load("PPSA01603").AllDiskFiles.First(file => file.Directory.Name == "HL0010");
+        using var imported = synthetic ? HogwartsInventoryFixture.CreateDisk() : null;
+        var slot = imported?.File ?? SampleSaves.Load("PPSA01603").AllDiskFiles.First(file => file.Directory.Name == "HL0010");
         var bytes = slot.ReadAllBytes();
         var gvas = GvasFile.Parse(bytes);
         bytes[gvas.Properties.Single(node => node.Name == "RawDatabaseImage").Offset + sizeof(int)] ^= 1;
@@ -76,35 +79,8 @@ public sealed class CatalogueInspectionTests
         string category = catalogue.Categories.OrderByDescending(category => catalogue.Search(new() { Category = category }).Total).First();
         foreach (var sort in Enum.GetValues<ReferenceSortKey>())
         foreach (bool descending in new[] { false, true })
-        {
-            var query = new ReferenceQuery { Category = category.ToUpperInvariant(), SortBy = sort, Descending = descending, Limit = 7 };
-            var expected = new List<ReferenceRecord>();
-            for (int offset = 0; ; offset += ReferenceQuery.MaxLimit)
-            {
-                var page = catalogue.Search(query with { Offset = offset, Limit = ReferenceQuery.MaxLimit });
-                expected.AddRange(page.Items);
-                if (expected.Count >= page.Total) break;
-            }
-            IOrderedEnumerable<ReferenceRecord> ordered = sort switch
-            {
-                ReferenceSortKey.Key => descending ? expected.OrderByDescending(record => record.Key, StringComparer.OrdinalIgnoreCase) : expected.OrderBy(record => record.Key, StringComparer.OrdinalIgnoreCase),
-                ReferenceSortKey.Name => descending ? expected.OrderByDescending(record => record.Name, StringComparer.OrdinalIgnoreCase) : expected.OrderBy(record => record.Name, StringComparer.OrdinalIgnoreCase),
-                _ => descending ? expected.OrderByDescending(record => record.Category, StringComparer.OrdinalIgnoreCase) : expected.OrderBy(record => record.Category, StringComparer.OrdinalIgnoreCase),
-            };
-            Assert.Equal(ordered.ThenBy(record => record.Key, StringComparer.Ordinal).Select(record => record.Key), expected.Select(record => record.Key));
-            var found = new List<string>();
-            for (int offset = 0; offset < expected.Count; offset += query.Limit)
-            {
-                var page = session.SearchReferences(field.ValueId, query with { Offset = offset });
-                Assert.Equal(expected.Count, page.Total);
-                Assert.Equal(Enum.GetValues<ReferenceSortKey>(), page.SortKeys);
-                Assert.All(page.Items, candidate => Assert.Equal(category, candidate.Category));
-                found.AddRange(page.Items.Select(candidate => candidate.RawId));
-            }
-            Assert.Equal(expected.Select(record => record.Key), found);
-            var searched = session.SearchReferences(field.ValueId, query with { Text = expected[0].Key });
-            Assert.Contains(searched.Items, candidate => candidate.RawId == expected[0].Key);
-        }
+            AssertCatalogueQuery(session, field.ValueId, catalogue, category,
+                new ReferenceQuery { Category = category.ToUpperInvariant(), SortBy = sort, Descending = descending, Limit = 7 });
         var before = session.State;
         var action = Walk(session.BuildView()).OfType<ActionNode>().Single(node => node.ActionId.EndsWith(catalogue.Id, StringComparison.Ordinal));
         var result = session.InvokeAction(action.ActionId, new Dictionary<string, JsonElement>());
@@ -147,6 +123,37 @@ public sealed class CatalogueInspectionTests
         var nodes = Walk(document.BuildView()).ToArray();
         Assert.DoesNotContain(nodes.OfType<ActionNode>(), node => !node.Mutates);
         Assert.DoesNotContain(nodes.OfType<FieldNode>(), node => node.Spec is ReferenceSpec);
+    }
+
+    private static void AssertCatalogueQuery(DocumentSession session, string valueId, IReferenceCatalog catalogue,
+        string category, ReferenceQuery query)
+    {
+        var expected = new List<ReferenceRecord>();
+        for (int offset = 0; ; offset += ReferenceQuery.MaxLimit)
+        {
+            var page = catalogue.Search(query with { Offset = offset, Limit = ReferenceQuery.MaxLimit });
+            expected.AddRange(page.Items);
+            if (expected.Count >= page.Total) break;
+        }
+        IOrderedEnumerable<ReferenceRecord> ordered = query.SortBy switch
+        {
+            ReferenceSortKey.Key => query.Descending ? expected.OrderByDescending(record => record.Key, StringComparer.OrdinalIgnoreCase) : expected.OrderBy(record => record.Key, StringComparer.OrdinalIgnoreCase),
+            ReferenceSortKey.Name => query.Descending ? expected.OrderByDescending(record => record.Name, StringComparer.OrdinalIgnoreCase) : expected.OrderBy(record => record.Name, StringComparer.OrdinalIgnoreCase),
+            _ => query.Descending ? expected.OrderByDescending(record => record.Category, StringComparer.OrdinalIgnoreCase) : expected.OrderBy(record => record.Category, StringComparer.OrdinalIgnoreCase),
+        };
+        Assert.Equal(ordered.ThenBy(record => record.Key, StringComparer.Ordinal).Select(record => record.Key), expected.Select(record => record.Key));
+        var found = new List<string>();
+        for (int offset = 0; offset < expected.Count; offset += query.Limit)
+        {
+            var page = session.SearchReferences(valueId, query with { Offset = offset });
+            Assert.Equal(expected.Count, page.Total);
+            Assert.Equal(Enum.GetValues<ReferenceSortKey>(), page.SortKeys);
+            Assert.All(page.Items, candidate => Assert.Equal(category, candidate.Category));
+            found.AddRange(page.Items.Select(candidate => candidate.RawId));
+        }
+        Assert.Equal(expected.Select(record => record.Key), found);
+        var searched = session.SearchReferences(valueId, query with { Text = expected[0].Key });
+        Assert.Contains(searched.Items, candidate => candidate.RawId == expected[0].Key);
     }
 
     private static IEnumerable<ViewNode> Walk(ViewNode node)
