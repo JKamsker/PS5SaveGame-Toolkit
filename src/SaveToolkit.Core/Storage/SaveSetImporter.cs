@@ -28,6 +28,7 @@ public static partial class SaveSetImporter
     private const string UnknownTitle = "UNKNOWN";
     // SFO is optional display metadata. Oversized files remain exportable without parsing them in memory.
     private const int MaxMetadataBytes = 1024 * 1024;
+    private const int MinimumZipBytes = 22; // Smallest valid ZIP: an empty end-of-central-directory record.
     // ZIP APPNOTE appendix D: unflagged names use CP437; ZipArchive still honors flagged UTF-8 names.
     private static readonly Encoding LegacyZipEncoding = CodePagesEncodingProvider.Instance.GetEncoding(437)!;
 
@@ -59,6 +60,9 @@ public static partial class SaveSetImporter
         try
         {
             using var stream = source.Open();
+            // ASP.NET's bounded upload stream throws on negative seeks, unlike MemoryStream.
+            if (stream.CanSeek && stream.Length - stream.Position < MinimumZipBytes)
+                throw new InvalidDataException("The ZIP file is empty or truncated (missing end-of-central-directory record).");
             using var zip = new ZipArchive(stream, ZipArchiveMode.Read, leaveOpen: false, entryNameEncoding: LegacyZipEncoding);
             foreach (var entry in zip.Entries)
             {

@@ -227,7 +227,12 @@ internal static class WorkspaceEndpoints
             return Results.BadRequest(new ErrorDto("Expected multipart/form-data with one or more files."));
         }
 
-        var form = await request.ReadFormAsync(ct);
+        IFormCollection form;
+        try { form = await request.ReadFormAsync(ct); }
+        catch (IOException)
+        {
+            return Results.BadRequest(new ErrorDto("Could not read the upload. It may be incomplete; select the files and try again."));
+        }
         if (form.Files.Count == 0)
         {
             return Results.BadRequest(new ErrorDto("No files uploaded."));
