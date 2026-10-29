@@ -1,12 +1,16 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { api, ApiError } from "../../api/client";
 import type { EditResult, FieldNode, SaveDocument } from "../../api/protocol";
 import { DocumentEditor } from "./DocumentEditor";
 
 const clients: QueryClient[] = [];
-afterEach(() => { cleanup(); clients.splice(0).forEach(client => client.clear()); vi.restoreAllMocks(); });
+afterEach(() => {
+  cleanup(); clients.splice(0).forEach(client => client.clear()); vi.restoreAllMocks();
+  Reflect.deleteProperty(HTMLDialogElement.prototype, "showModal");
+  Reflect.deleteProperty(HTMLDialogElement.prototype, "close");
+});
 
 const state = { canUndo: true, canRedo: false, isDirty: true, revision: 1 };
 const field = (): FieldNode => ({ type: "field", label: "Quantity", valueId: "quantity", value: "2",
@@ -110,4 +114,46 @@ it("retains a lazy draft if the nodes fail after a document generation refresh",
   expect(screen.getByRole("textbox", { name: /Quantity/ })).toBe(input);
   expect(input.closest("[inert]")).toBeNull();
   expect(input.value).toBe("9");
+});
+
+it.each(["request", "validation", "stale"])("announces %s action failures in the modal, preserving parameters for retry", async kind => {
+  Object.defineProperty(HTMLDialogElement.prototype, "showModal", { configurable: true,
+    value: function (this: HTMLDialogElement) { this.open = true; } });
+  Object.defineProperty(HTMLDialogElement.prototype, "close", { configurable: true,
+    value: function (this: HTMLDialogElement) { this.open = false; this.dispatchEvent(new Event("close")); } });
+  const doc = snapshot(false);
+  doc.view = { type: "action", actionId: "upgrade", label: "Upgrade", parameters: [field()] };
+  vi.spyOn(api, "document").mockResolvedValue(doc);
+  const action = vi.spyOn(api, "action");
+  if (kind === "request") action.mockRejectedValueOnce(new ApiError("Action unavailable; try again", 503));
+  else action.mockResolvedValueOnce(rejected(kind === "stale" ? { stale: true } : { errors: [{ valueId: "", message: "No eligible items" }] }));
+  action.mockResolvedValue({ ...rejected(), ok: true });
+  mount();
+  fireEvent.click(await screen.findByRole("button", { name: "Upgrade" }));
+  const dialog = within(screen.getByRole("dialog", { name: "Upgrade" }));
+  const input = dialog.getByRole<HTMLInputElement>("textbox", { name: "Quantity" });
+  fireEvent.change(input, { target: { value: "9" } });
+  fireEvent.keyDown(input, { key: "Enter" });
+  fireEvent.click(dialog.getByRole("button", { name: "Upgrade" }));
+  const alert = await dialog.findByRole("alert");
+  expect(alert.textContent).toBe(kind === "request" ? "Action unavailable; try again" : kind === "validation" ? "No eligible items" : "The document changed. Review the parameters and try again.");
+  expect(document.activeElement).toBe(alert);
+  expect(dialog.getByRole<HTMLInputElement>("textbox", { name: "Quantity" }).value).toBe("9");
+  expect(action).toHaveBeenCalledOnce();
+  fireEvent.click(dialog.getByRole("button", { name: "Upgrade" }));
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  expect(action.mock.calls.map(call => call[3])).toEqual([{ quantity: "9" }, { quantity: "9" }]);
+});
+
+it("shows the global edit error instead of an unrelated first field error", async () => {
+  vi.spyOn(api, "document").mockResolvedValue(snapshot(false));
+  vi.spyOn(api, "edit").mockResolvedValue(rejected({ errors: [
+    { valueId: "quantity", message: "Quantity rejected" }, { valueId: "", message: "Save is read-only" },
+  ] }));
+  const { toast } = mount();
+  const input = await screen.findByRole("textbox", { name: /Quantity/ });
+  fireEvent.change(input, { target: { value: "9" } });
+  fireEvent.keyDown(input, { key: "Enter" });
+  await waitFor(() => expect(toast).toHaveBeenCalledWith("Save is read-only", true));
+  expect(screen.getByRole("alert").textContent).toBe("Quantity rejected");
 });
