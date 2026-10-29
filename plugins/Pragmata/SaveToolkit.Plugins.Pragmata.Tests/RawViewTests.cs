@@ -15,16 +15,7 @@ public sealed class RawViewTests
         var original = document.Serialize().Single().Content.ToArray();
         var target = EditingTests.Quantity(document);
         var view = (TabsNode)document.BuildView();
-        IReadOnlyList<ViewNode> nodes = view.Tabs.Single(t => t.Title == "Raw").Children;
-        var ancestors = new Stack<SaveNode>();
-        for (var node = target.Parent; node is not null; node = node.Parent) ancestors.Push(node);
-        foreach (var ancestor in ancestors)
-        {
-            var section = nodes.OfType<SectionNode>().Single(s => s.LazyId!.StartsWith($"tree/{ancestor.Path}/", StringComparison.Ordinal));
-            nodes = document.ExpandNode(section.LazyId!);
-            Assert.True(nodes.Count <= LazyPages.PageSize);
-        }
-        var raw = nodes.OfType<FieldNode>().Single(f => f.ValueId == $"raw/{target.Path}");
+        var raw = RawFieldNavigation.Find(view, target, document.ExpandNode);
         Assert.Equal(Confidence.Inferred, raw.Confidence);
         Assert.Equal(document.GetValue(target.Path), raw.Value);
         var outcome = document.ApplyEdits([new(raw.ValueId, FieldValue.Of(9999L))]);

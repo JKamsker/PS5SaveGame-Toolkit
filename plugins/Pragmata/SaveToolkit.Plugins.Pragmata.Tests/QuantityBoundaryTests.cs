@@ -32,7 +32,7 @@ public sealed class QuantityBoundaryTests
         using var session = new DocumentSession("quantity-boundaries", fixture.File, new PragmataPlugin(), document);
         _ = session.BuildView();
         var quantities = document.Layout.Items.Select(item => item.Find(KnownHashes.Quantity)!).ToArray();
-        var raw = ExpandRaw(session, quantities[1]);
+        var raw = RawFieldNavigation.Find((TabsNode)session.BuildView(), quantities[1], session.Expand);
         var scope = new ActionScope(document.Layout.Items.Take(3).Select(item => $"inventory/record-at-{item.Offset:x}").ToArray());
         var parameters = Parameters(target);
         var preview = session.PlanAction(PragmataViews.QuantityAction, parameters, scope);
@@ -67,14 +67,7 @@ public sealed class QuantityBoundaryTests
         using var reopened = new PragmataDocument(fixture.File.RelativePath, modified);
         Assert.Equal(new[] { target, target, target, sources[3] }, reopened.Layout.Items.Select(item =>
             reopened.Read(item.Find(KnownHashes.Quantity)!).AsInt32()));
-        Assert.True(session.Undo().Ok);
-        Assert.False(session.State.IsDirty);
-        Assert.False(session.State.CanUndo);
-        Assert.Equal(negativeSource, document.GetValue(raw.ValueId).AsInt32());
-        Assert.Empty(session.Serialize());
-        Assert.Equal(original, document.Serialize().Single().Content.ToArray());
-        Assert.True(session.Redo().Ok);
-        Assert.Equal(modified, session.Serialize().Single().Content.ToArray());
+        AssertUndoRedo(session, document, raw.ValueId, negativeSource, original, modified);
     }
 
     [Theory]
@@ -133,14 +126,16 @@ public sealed class QuantityBoundaryTests
     private static Dictionary<string, JsonElement> Parameters(int target) => new()
         { ["quantity"] = JsonSerializer.SerializeToElement(target.ToString(CultureInfo.InvariantCulture)) };
 
-    private static FieldNode ExpandRaw(DocumentSession session, SaveNode target)
+    private static void AssertUndoRedo(DocumentSession session, PragmataDocument document, string rawId,
+        int originalQuantity, byte[] original, byte[] modified)
     {
-        IReadOnlyList<ViewNode> nodes = ((TabsNode)session.BuildView()).Tabs.Single(tab => tab.Title == "Raw").Children;
-        var ancestors = new Stack<SaveNode>();
-        for (var node = target.Parent; node is not null; node = node.Parent) ancestors.Push(node);
-        foreach (var ancestor in ancestors)
-            nodes = session.Expand(nodes.OfType<SectionNode>().Single(section =>
-                section.LazyId!.StartsWith($"tree/{ancestor.Path}/", StringComparison.Ordinal)).LazyId!);
-        return nodes.OfType<FieldNode>().Single(field => field.ValueId == $"raw/{target.Path}");
+        Assert.True(session.Undo().Ok);
+        Assert.False(session.State.IsDirty);
+        Assert.False(session.State.CanUndo);
+        Assert.Equal(originalQuantity, document.GetValue(rawId).AsInt32());
+        Assert.Empty(session.Serialize());
+        Assert.Equal(original, document.Serialize().Single().Content.ToArray());
+        Assert.True(session.Redo().Ok);
+        Assert.Equal(modified, session.Serialize().Single().Content.ToArray());
     }
 }

@@ -125,15 +125,7 @@ public sealed class ReferenceViewTests
         _ = session.BuildView();
         var target = document.Layout.Items[0].Find(KnownHashes.ItemId)!;
         var reference = document.References.ItemField(target);
-        IReadOnlyList<ViewNode> nodes = ((TabsNode)session.BuildView()).Tabs.Single(t => t.Title == "Raw").Children;
-        var ancestors = new Stack<SaveNode>();
-        for (var ancestor = target.Parent; ancestor is not null; ancestor = ancestor.Parent) ancestors.Push(ancestor);
-        foreach (var ancestor in ancestors)
-        {
-            var section = nodes.OfType<SectionNode>().Single(s => s.LazyId!.StartsWith($"tree/{ancestor.Path}/", StringComparison.Ordinal));
-            nodes = session.Expand(section.LazyId!);
-        }
-        var raw = nodes.OfType<FieldNode>().Single(f => f.ValueId == $"raw/{target.Path}");
+        var raw = RawFieldNavigation.Find((TabsNode)session.BuildView(), target, session.Expand);
         var result = session.ApplyEdits([new(raw.ValueId, JsonSerializer.SerializeToElement("1"))]);
         Assert.True(result.Ok);
         Assert.Equal("1", document.GetValue(reference.ValueId).AsString());
