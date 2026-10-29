@@ -22,6 +22,10 @@ $root = Split-Path -Parent $PSScriptRoot
 $scratchPath = if ($env:SAVETOOLKIT_TEST_TEMP) { $env:SAVETOOLKIT_TEST_TEMP } else { Join-Path ([IO.Path]::GetTempPath()) 'SaveToolkit.Tests' }
 $scratchRoot = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($scratchPath)
 $savedTemp, $savedTmp, $savedTmpDir = $env:TEMP, $env:TMP, $env:TMPDIR
+$savedPipeDir = $env:TESTINGPLATFORM_PIPE_DIRECTORY
+# MTP's coverage/monitor IPC uses Unix domain sockets, limited to 103 bytes. The per-project
+# scratch path is longer, so keep the sockets in the short system temp folder on Unix.
+if (!$IsWindows -and !$savedPipeDir) { $env:TESTINGPLATFORM_PIPE_DIRECTORY = '/tmp' }
 
 function Remove-TestScratch([string]$Path) {
     if (!(Test-Path -LiteralPath $Path)) { return }
@@ -79,6 +83,7 @@ try {
 }
 finally {
     $env:TEMP, $env:TMP, $env:TMPDIR = $savedTemp, $savedTmp, $savedTmpDir
+    $env:TESTINGPLATFORM_PIPE_DIRECTORY = $savedPipeDir
     Remove-TestScratch $buildTemp
     Pop-Location
 }
