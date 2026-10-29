@@ -1,6 +1,6 @@
 # Ratchet & Clank: Rift Apart (`insomniac`)
 
-Version **0.7.0**, **Experimental**, for decrypted **PPSA01474** saves. Phase 1 of
+Version **0.8.0**, **Experimental**, for decrypted **PPSA01474** saves. Phase 1 of
 [#20](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/20) is implemented;
 Round 2 delivers Phase 2's read-only weapons, armour, upgrades, collectibles and
 world views. Controlled ownership/equipment, upgrade-node and precise pickup joins
@@ -23,15 +23,17 @@ See [COMPLETION-AUDIT.md](COMPLETION-AUDIT.md) for every requirement and accepta
   including Blackhole Storm for `warprifle`. All twenty paths hash to measured
   inventory tokens; localization aliases remain inferred. Unknown paths stay raw.
 - **Weapons:** F8 search/filter/sort over weapon/melee records, with candidate names,
-  config tokens, container identity, per-record XP/ammo and Omega state. No record
+  config tokens, reference icons, container identity, per-record XP/ammo and Omega state. No record
   presence, shortcut or container position is equated with ownership/equipment.
 - **Armour:** F8 collection checklist with 57 attributed piece candidates, independent
-  stored collection bits and menu-viewed flags. Unknown/reserved bits stay visible.
+  stored collection bits and menu-viewed flags. Full-set previews accompany 51
+  candidates; they do not depict the individual slot. Unknown/reserved bits stay visible.
   A separate appearance table shows vanity config/ID/color/preview slots. Catalog
   bonus categories describe collection; no effective percentages or equip joins.
 - **Upgrades:** F8 Mods masks, sixteen ModGrid row masks, thirty-two ModCount slots
   and SelectedCell per supported weapon record. Values remain inferred schema
-  state, not named purchased nodes, prices, prerequisites or legal caps.
+  state, not named purchased nodes, prices, prerequisites or legal caps. A separate
+  reference table shows 20 upgraded forms and 19 previews; it does not report saved level.
   A separate F8 diagram list lazily opens an F9 graph of the sixteen stored masks.
   Every graph node links to its exact scalar text alternative; all states are Unknown
   and there are no fabricated prerequisite edges or costs.
@@ -45,7 +47,8 @@ See [COMPLETION-AUDIT.md](COMPLETION-AUDIT.md) for every requirement and accepta
   is explicit in each description. A separate **Community guide maps** section lazily
   opens nine regional F9 maps with 403 attributed Guides4Gamers markers, categories
   and pixel coordinates. These reference maps have no save-bit joins: every pickup
-  status is Unknown. Publisher backgrounds, icons, screenshots and prose are excluded.
+  status is Unknown. Nine local backgrounds share the guide-pixel extent with all
+  markers; no PS5 world/fog transform is implied.
 - **Inventory:** 27 sequentially bounded TVNI containers per measured gameplay save,
   lazy F8 record tables, five F4 schema type joins, GUID/config byte-token candidates,
   candidate counts and candidate per-weapon XP/checkpoint-ammo/loaded-ammo state.
@@ -69,7 +72,9 @@ See [COMPLETION-AUDIT.md](COMPLETION-AUDIT.md) for every requirement and accepta
 
 The plugin depends only on the SDK and performs no filesystem/network I/O. It reads
 pinned `IReferenceContext` catalogs and works without packs by showing raw IDs.
-Only embedded text data is distributed: no game icons, textures or map art.
+The 0.8.0 asset round adds **55 icons/previews, nine map backgrounds and 91 authored
+menu-description synopses**: **1,240,234 new embedded image bytes** total.
+See [ASSETS.md](ASSETS.md) for scope, provenance, measurements and validation.
 
 ## Format and confidence
 
@@ -164,18 +169,18 @@ The additional F6 action exposes the same career atom, rather than a new storage
 | Feature | Adoption | Where / concrete applicability |
 | --- | --- | --- |
 | F1 SaveDiff | **Used** | RiftEvidenceDecoder and differential/write/planning tests retain DDL identities, widths, generations and identical backup collapse; no private save bytes committed. |
-| F2 reference packs | **Used** | Six embedded catalogs across two packs, immutable Open context, source sidecars, per-record UI provenance and Sources-panel attribution; no plugin I/O. |
-| F3 rich cells | **Used; extended this round** | Inventory lazy detail cells and confidence/warnings; F9 diagrams expand from F8 detail cells. No image cells because no safely licensed game art is supplied. |
+| F2 reference packs | **Used** | Seven embedded catalogs across two packs, immutable Open context, source sidecars, per-record UI provenance and Sources-panel attribution; no plugin I/O. |
+| F3 rich cells | **Used; extended this round** | Inventory lazy detail cells and confidence/warnings; F9 diagrams expand from F8 detail cells. Weapon icons, full-set armour previews and a separate upgraded-form reference table use local ImageNode cells with provenance. |
 | F4 reference pickers | **Used; extended this round** | Four loadout paths plus arsenal config paths, armour/world identity candidates and raw inventory type IDs. Unjoined opaque GUID/config bytes are retained rather than falsely treated as catalog keys. |
 | F5 structural undo | **N/A** | No lossless record constructor/remover/string relocation/dependency repair exists. Existing writes preserve size and use scalar undo; speculative structure mutation would violate data preservation. |
 | F6 action planning | **Added this round** | Explicit calculated-bolt target, primary/derived previews, warnings, no-op explanation, stale/forged-plan rejection and Core grouped undo. #27 query scopes are inapplicable to a document-wide wallet target; row/query scopes reject explicitly. Ammo/refill/loadout/upgrade actions lack ownership, legal caps and dependency recipes. |
 | F7 document groups | **N/A** | Gameplay and preferences have no identified coupled invariant; each writer affects one existing file. No transaction over unrelated files is invented. |
 | F8 queryable tables | **Used; extended this round** | Arsenal/armour/upgrades/collectibles/objectives/dimensions/globals plus upgrade-diagram lists and every populated raw inventory container; bounded pages, search/filter/sort and lazy cell bindings. Raw DDL arrays retain bounded diagnostic pages. |
-| F9 maps/graphs | **Added this round** | Read-only stored upgrade-row graphs with field targets; spybot storage map/list plus nine lazy regional community maps (403 markers), text alternatives and explicit Unknown semantics. Save-to-guide joins, fog transforms and prerequisites require owner captures. |
+| F9 maps/graphs | **Added this round** | Read-only stored upgrade-row graphs with field targets; spybot storage map/list plus nine lazy regional community maps with aligned local backgrounds (403 markers), text alternatives and explicit Unknown semantics. Save-to-guide joins, fog transforms and prerequisites require owner captures. |
 | F10 exact/nullable numbers | **Used** | Width-specific integer specs and exact UInt64/128-bit transport preserve IDs/masks above 2^53 (including UInt64.MaxValue vectors). DDL floats retain their actual binary precision. DDL type-19 is an empty array, not a nullable scalar or union; no artificial nullable/union control. |
 | F11 shared codecs | **N/A** | These measured DAT1/DDL/TVNI files are uncompressed, with no Kraken or SQLite payload; no local codec implementation exists to replace. |
 | F12 SaveDiff F8 traversal/hooks | **Added** | Production `ISaveDecoderProvider` exposes SDK-only `insomniac-evidence`; existing F1 tests use a thin `HookSaveDecoder` adapter. Host sink/file/depth bounds stop decoding; the ordinary `insomniac` view decoder also benefits from bounded F8 traversal. |
-| F13 browse/inspect/filter/duration | **Used** | Existing read-only F4 IDs open browse-only pickers; all six F2 catalogs use framework category filtering and declared Key/Name/Category sorting. Playtime publishes a float duration hint with inferred seconds and unchanged float32 precision. Inspection actions are N/A: current inspection is already represented by views; the only action changes bolts and remains mutating. |
+| F13 browse/inspect/filter/duration | **Used** | Existing read-only F4 IDs open browse-only pickers; all seven F2 catalogs use framework category filtering and declared Key/Name/Category sorting. Playtime publishes a float duration hint with inferred seconds and unchanged float32 precision. Inspection actions are N/A: current inspection is already represented by views; the only action changes bolts and remains mutating. |
 
 Historical research tested 41,652 CRC/FNV/Murmur section-digest candidates across
 36 primary gameplay records without finding a nondegenerate outside-range match.
@@ -267,7 +272,7 @@ adapter is confined to the test project; production retains its SDK-only depende
 
 ## Sources and attribution
 
-Retrieved/rechecked 2026-10-28. Every embedded dataset has an adjacent source notice,
+Retrieved/rechecked 2026-10-28 and 2026-10-29. Every embedded dataset has an adjacent source notice,
 manifest attribution, `Info.References` entries and field/section provenance in the UI.
 The Sources panel lists the F2 datasets resolved by the document.
 
@@ -277,18 +282,26 @@ The Sources panel lists the F2 datasets resolved by the document.
 | `item-types.json`: five serialized type IDs/names | Same pinned Rivet schema | CC0-1.0; selected type IDs, original uncertainty notes; measured framing independently verified on PS5 |
 | `Resources/PlayerFields.json` | Same pinned Rivet schema; toolkit contributors' labels/groups | CC0 schema facts, original labels; sidecar documents selection and PS5 validation |
 | `ENABLED-WRITES.md`: observed writable storage identities | Independent corpus verification by toolkit contributors; same pinned Rivet CC0 schema for identity research | CC0-1.0 factual names, no user preference values or upstream code; retrieval/modification note alongside the list |
-| `weapons.json`: twenty English name/description candidates | Ratchet & Clank Wiki contributors, [menu transcript revision 403465](https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465) | CC BY-SA 3.0 derived data; short paraphrases and inferred localization aliases; all twenty paths match PS5 tokens; no prices, limits or art |
+| `weapons.json`: twenty English name/description candidates | Ratchet & Clank Wiki contributors, [menu transcript revision 403465](https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465) | CC BY-SA 3.0 derived data; short paraphrases and inferred localization aliases; all twenty paths match PS5 tokens; no prices or gameplay limits; local reference icons have separate rights-reserved provenance |
 | `armor.json`: 57 piece/slot/set candidates and bonus categories | [Armour revision 402364](https://ratchetandclank.fandom.com/wiki/Rift_Apart_armor?oldid=402364), Ratchet & Clank Wiki contributors, plus pinned Rivet CC0 schema | Entire derived dataset CC BY-SA 3.0; selected names and bonus paraphrases with inferred ordinal/set aliases; no bonus percentages or availability claims |
 | `world.json`: twenty location/spybot labels | Neptuwunium / pinned Rivet schema above | CC0-1.0; selected enum labels and ordinal keys, original confidence notes; no pickup coordinates |
 | Asset path identity algorithm research | [ALERT crc64.py, bc90ed9b](https://raw.githubusercontent.com/Tkachov/ALERT/bc90ed9b53fbcaa3b7acf94b36f00e77eab0dacb/dat1lib/crc64.py) | GPL research only; independently written bitwise mathematical CRC, no copied lookup table/code. Verified against PS5 inventory tokens; unrelated to integrity |
 | Section strategies / format research | Neptuwunium / [Rivet SaveData, a631c96e](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet/Data/SaveData.cs) and [save CLI](https://github.com/neptuwunium/rivet/blob/a631c96ed6455f9873a646825d37883f99defa6e/Rivet.CLI/Utility/RivetSaveCommand.cs) | EUPL-1.2 reference only; no implementation copied or executed. Write-round recheck still does not establish PS5 integrity |
 | Earlier DAT1 and integrity research | [ALERT format wiki](https://github.com/Tkachov/ALERT/wiki/Formats), [RiftRipper](https://github.com/VELD-Dev/riftripper), [NinjaSaves](https://ninjasaves.com/cheats/ratchet-clank-rift-apart-ppsa01474) | Research only; no source/artwork port or proven integrity routine |
-| `insomniac.rift.maps.en/markers.json`: 403 marker IDs, labels, categories and pixel coordinates across nine regions | [Guides4Gamers interactive maps](https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/), 2026-10-28 UTC snapshots pinned by map ID/version and raw SHA-256 in [markers.source.md](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.maps.en/markers.source.md) | No licence published; reused with attribution per owner decision 2026-10-28. Selected facts only, original uncertainty notes; no HTML descriptions, publisher art, scripts or save-progress joins. |
+| `insomniac.rift.maps.en/markers.json`: 403 marker IDs, labels, categories and pixel coordinates across nine regions | [Guides4Gamers interactive maps](https://guides4gamers.com/ratchet-and-clank-rift-apart/maps/), 2026-10-28 UTC snapshots pinned by map ID/version and raw SHA-256 in [markers.source.md](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.maps.en/markers.source.md) | No licence published; reused with attribution per owner decision 2026-10-28. Selected marker facts only, original uncertainty notes; no HTML descriptions, scripts or save-progress joins. Separate background art now imported below. |
 
 See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) and the reference pack's
 [data.source.md](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.en/data.source.md).
 CC BY-SA data keeps its attribution and share-alike terms; those terms do not relicense
 the plugin code. No EUPL/GPL implementation is incorporated.
+
+Additional asset-round attribution:
+
+| Content | Source / authors | Terms and modifications |
+| --- | --- | --- |
+| 55 local weapon/upgraded-form/set previews | Insomniac Games / Sony Interactive Entertainment; Ratchet & Clank Wiki contributors; [per-file source/revision/URL/hash pins](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.en/images.provenance.json) | Rights reserved by SIE/Insomniac; used with attribution per owner decision 2026-10-29. Full-extent thumbnails, WebP, ≤64 pixels. [Sidecar](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.en/images.source.md). |
+| Nine regional backgrounds | Guides4Gamers; Insomniac Games / Sony Interactive Entertainment; [tile versions/URLs/hashes](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.maps.en/backgrounds.provenance.json) | Rights reserved by Guides4Gamers/SIE; used with attribution per owner decision 2026-10-29. Stitched, downscaled without cropping, WebP, ≤2048 pixels. [Alignment](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.maps.en/backgrounds.source.md). |
+| 91 menu-description synopses: 20 weapon, 51 armour piece, 20 upgraded form | Ratchet & Clank Wiki contributors; toolkit contributors; [menu revision 403465](https://ratchetandclank.fandom.com/wiki/Rift_Apart_menu_transcript?oldid=403465) | CC BY-SA 3.0; authored paraphrases, with inferred joins and uncertainty retained. |
 
 ## Licence exclusions
 
@@ -298,7 +311,7 @@ completion notes found one source previously refused solely for licence status.
 | Source (revision) | Licence found | Disposition / reason | Alternative | What would unblock it |
 | --- | --- | --- | --- | --- |
 | Guides4Gamers community coordinates/markers, nine 2026-10-28 UTC map ID/version + SHA-256 snapshots ([pins](SaveToolkit.Plugins.Insomniac/ReferencePacks/insomniac.rift.maps.en/markers.source.md)) | No licence published; footer: "All rights reserved." | **Resolved: imported** 403 factual markers under owner decision 2026-10-28 | Attributed F2 pack and F9 regional maps, all pickup states Unknown | Resolved by owner decision; no claim of an upstream licence grant |
-| Publisher-derived map tiles, icons and screenshots in the same source | Copyright retained by respective owners; no reusable game-asset licence established | Excluded: proprietary game artwork, outside the community-data decision | Coordinate-only diagrams and click-through source links | Explicit publisher permission or replacement with original art |
+| Publisher-derived map tiles and wiki images | Rights reserved by Guides4Gamers/SIE and SIE/Insomniac respectively; used with attribution per owner decision 2026-10-29 | **Resolved: imported** nine backgrounds and 55 images with source pins and full attribution | Coordinate/text fallbacks remain if assets are absent | Resolved by owner decision; no upstream licence grant claimed |
 
 ## Open work and exact owner capture checklist
 
@@ -333,7 +346,8 @@ churn control. Export decrypted before/after dumps, HUD screenshots and an actio
    Record load success, intended effect, subsequent re-save/reimport and downstream
    play. Preferences require their own acceptance pair. Only the owner sets Stable.
 
-Never commit saves, extracted game assets, account metadata or research patch outputs.
+Never commit saves, unreviewed asset dumps, account metadata or research patch outputs.
+Only the attributed, processed reference assets documented in ASSETS.md belong in this plugin.
 
 ## SDK requests
 

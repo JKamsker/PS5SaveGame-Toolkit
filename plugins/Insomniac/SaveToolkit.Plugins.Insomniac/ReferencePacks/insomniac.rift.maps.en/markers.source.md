@@ -32,7 +32,7 @@ The slug is stored in every record; these pages are also in Info.References.
 | Ardolis | 130 / 1 | 5120 x 4096 | 30 | `daa74bfddc017ec2339de598099fd45bdd3bcebcb661dace23078d3272f2cb47` |
 | Viceron | 131 / 1 | 3072 x 6144 | 31 | `c716ee06f924b33009282f8a9b69881a92c8e65cd7286e8c6878525ed88dc642` |
 
-## Extraction and exclusions
+## Marker extraction (2026-10-28 baseline)
 
 Parse the JSON as data without executing downloaded scripts. Select `pois` map
 keys and their `name`, `x`, `y`; join the numeric `icon` to `legend.data.id` for a
@@ -40,15 +40,17 @@ category name only. Retain `map.id`, `map.path`, `map.version`, `map.width` and
 `map.height`. Sort by map ID, then numeric marker ID; key records as
 `<map-id>/<marker-id>`. Preserve repeated labels with distinct native identities.
 Add original uncertainty descriptions; do not copy upstream HTML descriptions.
-No icons, image URLs, tiles, screenshots, path geometry, quests, game dialogue,
-art or source implementations are included. No assets dataset is distributed.
+That marker-only snapshot excluded icons, image URLs, tiles, screenshots, path
+geometry, quests, game dialogue and source implementations. The 2026-10-29 asset
+round adds separately attributed backgrounds; see backgrounds.source.md.
 
 The source renderer was read, not executed: `loadMapData` loads the dimensions
 and POIs above; rendering adds a screen offset to native X/Y multiplied by scale.
 Thus the F9 coordinate space uses top-left-origin map pixels with X right and Y
 down, explicit identity transform, and original source width/height. This is
 community guide space, **not** a calibrated PS5 save/fog/world transform. Map
-backgrounds remain absent. No upstream map renderer implementation was copied.
+backgrounds now use the same native extent (see backgrounds.source.md). No
+upstream map renderer implementation was copied.
 
 ## Verification and confidence
 

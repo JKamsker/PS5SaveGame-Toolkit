@@ -27,7 +27,7 @@ public sealed class ReadOnlyViewTests
         foreach (var record in weapons.Search(new()).Items)
         {
             Assert.Equal("CC-BY-SA-3.0", record.Dataset.Attribution.License);
-            Assert.Null(record.AssetId);
+            Assert.NotNull(context.GetAsset(record.AssetId!));
             Assert.Null(record.Limit);
             Assert.Contains("inferred", record.Description, StringComparison.OrdinalIgnoreCase);
             Assert.Contains(record.Source!, plugin.Info.References);
@@ -35,12 +35,12 @@ public sealed class ReadOnlyViewTests
         foreach (var record in context.Catalog("rift-armor")!.Search(new() { Limit = 200 }).Items)
         {
             Assert.Equal("CC-BY-SA-3.0", record.Dataset.Attribution.License);
-            Assert.EndsWith("?oldid=402364", record.Source);
+            Assert.EndsWith(record.AssetId is null ? "?oldid=402364" : "?oldid=403465", record.Source);
             Assert.Contains(record.Source!, plugin.Info.References);
             Assert.False(string.IsNullOrWhiteSpace(record.Attributes["saveId"]));
             Assert.True(record.Attributes["slot"] is "Head" or "Torso" or "Legs");
             Assert.Null(record.Limit);
-            Assert.Null(record.AssetId);
+            if (record.AssetId is { } assetId) Assert.NotNull(context.GetAsset(assetId));
         }
         Assert.All(context.Catalog("rift-world")!.Search(new()).Items,
             record => Assert.Equal("CC0-1.0", record.Dataset.Attribution.License));

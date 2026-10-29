@@ -15,13 +15,15 @@ internal sealed class RiftArsenalView
     private readonly QueryableTableNode _weapons;
     private readonly QueryableTableNode _upgrades;
     private readonly QueryableTableNode _graphs;
+    private readonly QueryableTableNode? _referenceUpgrades;
     private const string Boundary = "Serialized record presence is not ownership. Repeated containers can contain cached, shared or equipment state. No character assignment, level conversion, capacity or upgrade dependency is assumed.";
 
-    internal RiftArsenalView(IReadOnlyList<InventoryBlock> blocks, IReferenceCatalog? names,
+    internal RiftArsenalView(IReadOnlyList<InventoryBlock> blocks, IReferenceCatalog? names, IReferenceCatalog? upgrades,
         RiftCollections collections, Func<string, string, FieldSpec, FieldValue, FieldNode> bind,
         Dictionary<string, Func<IReadOnlyList<ViewNode>>> lazy)
     {
         _bind = bind;
+        _referenceUpgrades = RiftCatalogPresentation.Upgrades(upgrades, collections);
         if (names is not null)
             for (var offset = 0; offset < names.Count; offset += QueryableCollectionLimits.MaxPageSize)
                 foreach (var record in names.Search(new() { Offset = offset, Limit = QueryableCollectionLimits.MaxPageSize }).Items)
@@ -29,10 +31,11 @@ internal sealed class RiftArsenalView
         var records = blocks.SelectMany(block => block.Records.Where(r => r.Type is WeaponType or MeleeType)
             .Select(record => (Block: block, Record: record))).ToArray();
         _weapons = collections.Add("arsenal/weapons", "Weapon records",
-            [new("name", "Weapon"), new("container", "Container"), new("kind", "Kind"),
+            [new("icon", "Reference icon"), new("name", "Weapon"), new("container", "Container"), new("kind", "Kind"),
              new("config", "Config token"), new("xp", "XP candidate", IntegerSpec.UInt32),
              new("ammo", "Loaded ammo candidate", FloatSpec.Single), new("omega", "Omega candidate")],
-            records.Select(pair => WeaponRow(pair.Block, pair.Record)), Boundary + " " + DdlSections.Attribution);
+            records.Select(pair => WeaponRow(pair.Block, pair.Record)), Boundary + " " +
+                RiftCatalogPresentation.ArtAttribution + " " + DdlSections.Attribution);
         _upgrades = collections.Add("arsenal/upgrades", "Weapon upgrade state",
             [new("name", "Weapon"), new("container", "Container"), new("kind", "Schema slot"),
              new("index", "Index", IntegerSpec.UInt16), new("value", "Stored value", IntegerSpec.UInt64)],
@@ -58,6 +61,7 @@ internal sealed class RiftArsenalView
         new TextNode("Read-only upgrade state. Search by weapon or container, then compare row masks/counters with the in-game grid. A mask bit is not presented as a proven purchase or prerequisite.") { Tone = Tone.Warning },
         _upgrades,
         _graphs,
+        .. _referenceUpgrades is { } reference ? new ViewNode[] { reference } : [],
     ];
 
     private RiftRow WeaponRow(InventoryBlock block, InventoryRecord record)
@@ -65,6 +69,7 @@ internal sealed class RiftArsenalView
         var id = $"arsenal/{block.Key}/{record.Key}";
         return new(id, new Dictionary<string, RiftCell>
         {
+            ["icon"] = RiftCatalogPresentation.Image(record.ConfigBytes is { } config ? _names.GetValueOrDefault(config) : null),
             ["name"] = Name(id, record),
             ["container"] = RiftCell.TextOnly(block.Key),
             ["kind"] = RiftCell.TextOnly(record.Type == MeleeType ? "Melee schema" : "Weapon schema"),

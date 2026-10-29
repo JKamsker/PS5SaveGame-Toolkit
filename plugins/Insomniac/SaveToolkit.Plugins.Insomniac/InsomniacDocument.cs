@@ -28,11 +28,13 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument,
     private readonly IReadOnlyList<ViewNode> _progress;
     private readonly IReadOnlyList<ViewNode> _collectibles;
     private readonly IReferenceCatalog? _guideMarkers;
+    private readonly IReferenceContext _references;
     private readonly Dictionary<string, Func<IReadOnlyList<ViewNode>>> _lazy = new(StringComparer.Ordinal);
 
     internal InsomniacDocument(string path, Dat1Container container, string fileName, IReferenceContext references, bool supportedTitle)
     {
         _path = path;
+        _references = references;
         _fileName = fileName;
         _container = container;
         _sections = new DdlSections(container);
@@ -48,7 +50,8 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument,
         _inventory = new InventoryView(blocks,
             references.Catalog("rift-item-types"), BindReadOnly, _lazy, _collections);
         _inventory.RegisterCollections();
-        _arsenal = new RiftArsenalView(blocks, references.Catalog("rift-weapons"), _collections, BindReadOnly, _lazy);
+        _arsenal = new RiftArsenalView(blocks, references.Catalog("rift-weapons"),
+            references.Catalog("rift-weapon-upgrades"), _collections, BindReadOnly, _lazy);
         _armour = new RiftArmourView(_sections, blocks, references.Catalog("rift-armor"), _collections, BindReadOnly);
         _progress = new RiftProgressView(_sections, _collections, BindReadOnly).Build();
         _collectibles = new RiftCollectibleView(_sections, references.Catalog("rift-world"), _collections, BindReadOnly).Build();
@@ -79,7 +82,7 @@ internal sealed class InsomniacDocument : BoundSaveDocument, IQueryableDocument,
             tabs.Add(new Tab("Weapons", _arsenal.Weapons()));
             tabs.Add(new Tab("Armour", _armour.Build()));
             tabs.Add(new Tab("Upgrades", _arsenal.Upgrades()));
-            var guideMaps = RiftGuideMaps.Build(_guideMarkers, _lazy);
+            var guideMaps = RiftGuideMaps.Build(_guideMarkers, _references, _lazy);
             tabs.Add(new Tab("Collectibles", guideMaps is null ? _collectibles : [.. _collectibles, guideMaps]));
             tabs.Add(new Tab("Inventory", _inventory.Build()));
             tabs.Add(new Tab("World", [.. _progress, .. _world.Build()]));

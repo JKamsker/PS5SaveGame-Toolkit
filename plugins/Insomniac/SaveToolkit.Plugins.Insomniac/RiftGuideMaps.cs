@@ -8,10 +8,11 @@ internal static class RiftGuideMaps
 {
     internal const string CatalogId = "rift-guide-markers";
     internal const string SectionTitle = "Community guide maps";
+    private const string BackgroundPackId = "insomniac.rift.maps.en";
     private const string UnjoinedWarning = "Community guide coordinates only. Pickup status and guide-to-save identity " +
-        "are unknown; these markers do not reflect your collection progress. No publisher artwork is embedded.";
+        "are unknown; these markers do not reflect your collection progress.";
 
-    internal static SectionNode? Build(IReferenceCatalog? catalog,
+    internal static SectionNode? Build(IReferenceCatalog? catalog, IReferenceContext references,
         IDictionary<string, Func<IReadOnlyList<ViewNode>>> lazy)
     {
         if (catalog is null) return null;
@@ -23,7 +24,7 @@ internal static class RiftGuideMaps
                 !int.TryParse(first.Attributes.GetValueOrDefault("mapId"), CultureInfo.InvariantCulture, out var mapId)) continue;
             var id = $"guide-map/{mapId}";
             if (lazy.ContainsKey(id)) continue;
-            lazy[id] = () => [Map(catalog, region, first, width, height)];
+            lazy[id] = () => [Map(catalog, region, first, width, height, references)];
             regions.Add(new SectionNode(region, [])
             {
                 LazyId = id,
@@ -33,7 +34,8 @@ internal static class RiftGuideMaps
         return new SectionNode(SectionTitle, regions) { Description = UnjoinedWarning };
     }
 
-    private static MapNode Map(IReferenceCatalog catalog, string region, ReferenceRecord first, double width, double height)
+    private static MapNode Map(IReferenceCatalog catalog, string region, ReferenceRecord first, double width, double height,
+        IReferenceContext references)
     {
         var markers = new List<MapMarker>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -66,10 +68,24 @@ internal static class RiftGuideMaps
             CoordinateSpace = "Guides4Gamers map pixels; origin top-left, X rightwards, Y downwards. " +
                 "No transform from save/fog/world coordinates has been established.",
             Transform = new(),
+            Background = Background(first, region, references),
             CoordinateAttribution = first.Dataset.Attribution,
             CoordinateEmbeddingPermitted = true,
             ExternalSource = new(RiftCollectibleMap.GuideUrl, "Open regional guide index", first.AttributionText),
         };
+    }
+
+    private static MapBackground? Background(ReferenceRecord first, string region, IReferenceContext references)
+    {
+        // A user catalogue may reuse the map ID with a different coordinate extent or revision.
+        // Only the pinned embedded marker snapshot is aligned with these embedded backgrounds.
+        if (first.Dataset.PackId != BackgroundPackId) return null;
+        var assetId = $"{BackgroundPackId}:maps/{first.Attributes["mapId"]}.webp";
+        var provenance = references.AssetProvenance(assetId);
+        return provenance is not null && references.GetAsset(assetId) is not null
+            ? new(assetId, region + " guide map; full extent, top-left origin, uniformly downscaled without cropping.",
+                provenance.Attribution, EmbeddingPermitted: true)
+            : null;
     }
 
     private static bool TryGeometry(ReferenceRecord record, out double x, out double y, out double width, out double height)

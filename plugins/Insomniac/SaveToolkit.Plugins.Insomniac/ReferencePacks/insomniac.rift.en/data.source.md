@@ -1,4 +1,4 @@
-# Rift Apart reference data, version 2.0.0
+# Rift Apart reference data, version 3.0.0
 
 Retrieved 2026-10-28. Sources are pinned where revisions are available.
 
@@ -21,7 +21,7 @@ PS5 Save Game Toolkit contributors, is distributed under
 Retain attribution, source links, modification notice and share-alike terms.
 Selected twenty names and short paraphrases. All twenty config paths hash to observed
 PS5 inventory tokens. This proves the path/token join, not the localization alias,
-ownership, level or availability. No game prose, prices, limits, icons or artwork.
+ownership, level or availability. No prices or gameplay limits. Asset-round additions below supersede the earlier media exclusion.
 
 `armor.json`: Ratchet & Clank Wiki contributors,
 [Rift Apart armor, revision 402364](https://ratchetandclank.fandom.com/wiki/Rift_Apart_armor?oldid=402364),
@@ -41,3 +41,16 @@ terms with both derived wiki datasets; these terms do not relicense plugin code.
 Scope: PPSA01474, English labels, unknown game build. The pack supplies no ownership,
 entitlement, difficulty, level, ammo-cap or wallet rules. Unknown paths
 and hashes remain visible, and Open(file) works without any reference context.
+
+## Asset round — 2026-10-29
+
+Added 20 base-weapon and 51 armour-piece authored menu-description synopses, plus
+`weapon-upgrades.json` with 20 upgraded-form reference names/synopses. Menu source
+remains revision 403465, armour bonus facts remain revision 402364. The entire
+derived records datasets remain CC BY-SA 3.0, including toolkit annotations.
+The 51 changed armour records now link to the menu source containing their piece
+text; existing set/bonus facts still derive from armour revision 402364 above.
+Added `assetId` for 20 weapons, 51 armour candidates and 19 upgraded forms.
+Artwork has separate rights-reserved provenance in [images.source.md](images.source.md)
+and `images.provenance.json`; record share-alike terms do not relicense artwork.
+No pricing, costs, numerical caps, ownership or grid-node joins were added.
