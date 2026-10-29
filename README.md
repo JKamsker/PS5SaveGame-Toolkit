@@ -103,6 +103,10 @@ the same shell and check each project's summary for zero skipped. Keep saves out
 never commit decrypted dumps or extracted data. See [samples and SaveDiff](docs/SAMPLES.md) for the
 capture protocol, decoder discovery and fixture verification.
 
+Documentation checks use Python 3.10+ with no extra packages:
+`python -B docs/tests/test_documentation.py`. They check local links/anchors, commands and selected
+source-backed claims against `HEAD`; add `--code-ref main` to audit against local `main`.
+
 ## Architecture
 
 - **SDK** (`src/SaveToolkit.Sdk`): the plugin contract. Plugins describe *what* data is — types,

@@ -6,6 +6,7 @@ No samples, network, third-party dependencies or generated files are needed.
 
 import argparse
 from functools import lru_cache
+import json
 from pathlib import Path
 import re
 import subprocess
@@ -46,6 +47,17 @@ def plugins():
             yield match[1], plugin_id, maturity
 
 
+def heading_anchors(text):
+    anchors = set()
+    counts = {}
+    for title in re.findall(r"^#{1,6}\s+(.+?)\s*#*\s*$", text, re.MULTILINE):
+        slug = re.sub(r"[^\w\- ]", "", title.lower()).replace(" ", "-")
+        count = counts.get(slug, 0)
+        counts[slug] = count + 1
+        anchors.add(f"{slug}-{count}" if count else slug)
+    return anchors
+
+
 class DocumentationTests(unittest.TestCase):
     def test_support_tables_match_registered_plugins(self):
         for page in ("README.md", "docs/PLUGINS.md"):
@@ -73,12 +85,33 @@ class DocumentationTests(unittest.TestCase):
             for match in re.finditer(r"(?<!!)\[[^\]\n]+\]\(([^\s)]+)(?:\s+\"[^\"]*\")?\)",
                                      page.read_text(encoding="utf-8")):
                 url = urlsplit(match[1].strip("<>"))
-                if url.scheme or not url.path:
+                if url.scheme:
                     continue
-                target = (page.parent / unquote(url.path)).resolve()
+                target = (page.parent / unquote(url.path)).resolve() if url.path else page
                 with self.subTest(page=page.relative_to(ROOT), target=match[1]):
                     self.assertTrue(target.is_relative_to(ROOT), "Local links must stay in the repository")
                     self.assertTrue(target.exists(), "Local link target is missing")
+                    if url.fragment and target.suffix == ".md" and target != EXCLUDED:
+                        self.assertIn(unquote(url.fragment), heading_anchors(target.read_text(encoding="utf-8")))
+
+    def test_documented_commands_resolve_against_code(self):
+        npm_scripts = json.loads(source("web/package.json"))["scripts"]
+        pages = ("README.md", "AGENTS.md", "docs/PLUGIN_GUIDE.md", "docs/SAMPLES.md", "docs/RELEASING.md")
+        for page in pages:
+            text = document(page)
+            for script in re.findall(r"\./(scripts/[\w-]+\.ps1)", text):
+                with self.subTest(page=page, script=script):
+                    self.assertIn(script, source_paths())
+            for match in re.finditer(r"npm run ([\w-]+)([^;\n`]*)", text):
+                with self.subTest(page=page, npm_script=match[1]):
+                    self.assertTrue(match[1] in npm_scripts or "--if-present" in match[2])
+            for project in re.findall(r"dotnet (?:test|run|build) (?:--project )?([^\s`]+)", text):
+                with self.subTest(page=page, project=project):
+                    if "<" in project or project.startswith("$") or project.startswith("plugins/ExampleGame/"):
+                        continue  # Variables/templates and the intentionally new scaffold project.
+                    self.assertTrue(project in source_paths() or any(
+                        path.startswith(project + "/") and path.endswith(".csproj") for path in source_paths()),
+                        "Documented project does not exist")
 
     def test_documented_reference_and_action_routes_exist(self):
         guide = document("docs/PLUGIN_GUIDE.md")
@@ -87,7 +120,6 @@ class DocumentationTests(unittest.TestCase):
             for method, route in re.findall(r'\.Map(Get|Post)\("(/[^"]+)"', code):
                 with self.subTest(method=method, route=route):
                     self.assertIn(route, guide)
-
 
     def test_current_policy_has_no_superseded_publisher_refusal(self):
         policy = document("docs/PLUGIN_GUIDE.md").split("## Hard rules", 1)[1].split(
@@ -103,8 +135,6 @@ class DocumentationTests(unittest.TestCase):
                 self.assertIsNone(refusal, f"Superseded publisher refusal in {page}")
                 self.assertNotRegex(text, r"(?is)does not permit\s+publisher")
 
-
-
     def test_scaffold_examples_create_an_unused_plugin(self):
         for page in ("AGENTS.md", "docs/PLUGIN_GUIDE.md"):
             text = document(page)
@@ -114,7 +144,6 @@ class DocumentationTests(unittest.TestCase):
                     self.assertFalse(any(path.startswith(f"plugins/{name}/") for path in source_paths()),
                                      "The scaffolder rejects an existing plugin folder")
                     self.assertIn(f"plugins/{name}/SaveToolkit.Plugins.{name}.Tests", text)
-
 
     def test_conformance_coverage_documents_source_limits(self):
         code = source("src/SaveToolkit.Testing/PluginConformanceTests.cs")
@@ -126,8 +155,6 @@ class DocumentationTests(unittest.TestCase):
         self.assertRegex(text, rf"`QueryPageBudget`[^\n]*\*\*{value}\*\*")
         self.assertNotIn("opening every claimed sample", text)
 
-
-
     def test_plans_distinguish_the_original_baseline(self):
         for name, _, _ in plugins():
             with self.subTest(plugin=name):
@@ -136,7 +163,6 @@ class DocumentationTests(unittest.TestCase):
                 self.assertIn("Historical planning snapshot", introduction)
                 self.assertIn("../PLUGINS.md", introduction)
                 self.assertNotIn("## Current state (evidence)", text)
-
 
     def test_reconnaissance_and_smoke_counts_are_historical(self):
         for path in sorted((ROOT / "docs/formats").glob("*.md")):
@@ -172,7 +198,6 @@ class DocumentationTests(unittest.TestCase):
         exporter = source("src/SaveToolkit.Core/Export/WorkspaceExporter.cs")
         self.assertIn("if (options.MirrorBackups)", exporter)
         self.assertIn("protectedPaths", exporter)
-
 
 
 if __name__ == "__main__":
