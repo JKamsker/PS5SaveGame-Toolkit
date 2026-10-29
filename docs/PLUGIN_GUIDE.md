@@ -845,7 +845,7 @@ selection and no query-wide selection, it uses **document scope**. A fully exclu
 an empty query selection, never document scope. A visible, accessible hint names the table and the
 document-scope fallback. Unmounted tables (including inactive tabs), unknown IDs and ambiguous
 mounted IDs disable the bound control until one table is available. Selection is local to that
-mounted table and resets when it unmounts or the document view generation changes.
+mounted table and resets when it unmounts. Bindings are republished for each document view generation.
 
 Core indexes these declarations without throwing for unknown or ambiguous IDs.
 `ViewIndex.SelectionDiagnostics` explains unresolved bindings; ordinary conformance prints advisory
