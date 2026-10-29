@@ -39,7 +39,11 @@ in [Performance review](PERFORMANCE.md).
   with one-step undo/redo.
 - **Currencies:** read-only **Inferred** bolts/raritanium ItemCount candidates, joined
   through public config-path hashes and the existing typed inventory decoder. Missing
-  or ambiguous records stay unresolved. No HUD calibration, game cap or writer is claimed.
+  or ambiguous records stay unresolved, with separate explanations for no supported match,
+  conflicting matches and a matching record without a decoded count. Details retain the
+  config token and up to five container/record identities. Undecoded generic payloads are
+  counted separately without assigning them a currency identity. No HUD calibration,
+  game cap or writer is claimed.
 - **Loadout:** four exact quick-select paths using F4 read-only reference fields.
   The attributed F2 catalog supplies twenty English weapon-label candidates,
   including Blackhole Storm for `warprifle`. All twenty paths hash to measured
@@ -254,6 +258,11 @@ necessary for any future writer but do not establish those missing joins or caps
 Tests pin each primary/backup count, raw count bytes, evidence-hook values and
 upgrade aggregates; authored synthetic cases cover exact counts, missing/ambiguous
 records, unsupported masks, foreign titles, rejected writes and byte-identical no-op.
+Resolution regressions additionally cover unknown config tokens, known tokens under the
+wrong type, conflicts across containers, bounded duplicate/opaque details and retained
+inventory paging. A defensive model-only case covers a decoded config without a count
+(the current wire decoder emits both together). Sample-dependent cases keep existing
+bolt-counter edits usable when inventory currency resolution fails.
 The conformance fuzz includes a synthetic currency seed and three real seeds
 (two preferences plus the smallest gameplay file), 200 mutations each.
 

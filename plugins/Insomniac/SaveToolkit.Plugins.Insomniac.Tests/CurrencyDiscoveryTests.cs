@@ -44,12 +44,22 @@ public sealed class CurrencyDiscoveryTests
     public void MissingOrAmbiguousRaritaniumIsUnresolvedRatherThanZero(bool duplicate)
     {
         var bytes = duplicate
-            ? Fixture((RiftCurrencyView.RaritaniumConfig, 7u), (RiftCurrencyView.RaritaniumConfig, 8u))
+            ? Fixture((RiftCurrencyView.BoltConfig, 7u), (RiftCurrencyView.RaritaniumConfig, 7u), (RiftCurrencyView.RaritaniumConfig, 8u))
             : Fixture((RiftCurrencyView.BoltConfig, 7u));
         using var document = new InsomniacPlugin().Open(MemorySaveSet.SingleFile("test.save", bytes, "PPSA01474"));
         var fields = CurrencyFields(document);
         Assert.DoesNotContain(RiftCurrencyView.RaritaniumId, fields.Keys);
+        Assert.Equal(7u, fields[RiftCurrencyView.BoltId].Value.AsUInt32());
+        var resolution = CurrencyResolutionTests.Resolution(document, "Raritanium");
+        var reason = Assert.IsType<TextNode>(resolution.Children[0]).Text;
+        Assert.Contains(duplicate ? "2 supported generic-item records" : "no supported generic-item record", reason);
+        Assert.Contains(duplicate ? "counts are not summed" : "absent or zero", reason);
+        Assert.Contains(RiftCurrencyView.RaritaniumConfig, resolution.Description);
+        Assert.Contains("Inferred", resolution.Description);
+        Assert.Contains("Tkachov", resolution.Description);
+        Assert.Contains("HUD", Assert.IsType<TextNode>(resolution.Children[^1]).Text);
         Assert.Throws<KeyNotFoundException>(() => document.GetValue(RiftCurrencyView.RaritaniumId));
+        Assert.False(document.ApplyEdits([new(RiftCurrencyView.RaritaniumId, FieldValue.Of(0u))]).Succeeded);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 
@@ -62,6 +72,13 @@ public sealed class CurrencyDiscoveryTests
         bytes[56] = 0x07;
         using var unsupported = new InsomniacPlugin().Open(MemorySaveSet.SingleFile("test.save", bytes, "PPSA01474"));
         Assert.Empty(CurrencyFields(unsupported));
+        var resolution = CurrencyResolutionTests.Resolution(unsupported, "Bolts");
+        var reason = Assert.IsType<TextNode>(resolution.Children[0]).Text;
+        Assert.Contains("no supported generic-item record", reason);
+        Assert.Contains("Generic-item records with an undecoded payload layout: 1", reason);
+        Assert.Contains("Their currency identity is unknown", reason);
+        Assert.Contains("record opaque-0/0", Assert.Single(resolution.Children.OfType<TextNode>(), node => node.Monospace).Text);
+        Assert.False(unsupported.ApplyEdits([new(RiftCurrencyView.BoltId, FieldValue.Of(0u))]).Succeeded);
         Assert.Equal(bytes, Assert.Single(unsupported.Serialize()).Content.ToArray());
     }
 
