@@ -31,7 +31,7 @@ public sealed record ExportedFile(string RelativePath, long Length, string Reaso
 
 public sealed record ExportPlan(IReadOnlyList<ExportedFile> Files, IReadOnlyDictionary<string, ReadOnlyMemory<byte>> Overrides, IReadOnlyList<ISaveFile> Included);
 
-public sealed class ExportException(string message) : Exception(message);
+public sealed class ExportException(string message, Exception? innerException = null) : Exception(message, innerException);
 
 /// <summary>
 /// Collects serialised output from dirty documents, verifies each by re-opening it with its plugin,
@@ -131,7 +131,7 @@ public static class WorkspaceExporter
                 }
                 catch (Exception ex) when (ex is not OutOfMemoryException)
                 {
-                    throw new ExportException($"Group verification failed: {ex.Message}");
+                    throw new ExportException($"Group verification failed: {ex.Message}", ex);
                 }
                 continue;
             }
@@ -143,7 +143,7 @@ public static class WorkspaceExporter
             }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
-                throw new ExportException($"Verification failed: {session.Plugin.Info.Name} could not re-open its own output for '{session.File.RelativePath}': {ex.Message}");
+                throw new ExportException($"Verification failed: {session.Plugin.Info.Name} could not re-open its own output for '{session.File.RelativePath}': {ex.Message}", ex);
             }
         }
     }
