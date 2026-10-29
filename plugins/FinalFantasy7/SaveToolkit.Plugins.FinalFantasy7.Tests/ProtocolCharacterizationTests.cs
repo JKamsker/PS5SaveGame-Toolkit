@@ -19,7 +19,14 @@ public sealed class ProtocolCharacterizationTests
     [InlineData("PPSA01911", "0A7977BA23DD85F0F4C2509B799AF921AB29A67F022520D4B829306C143DA471")]
     [InlineData("PPSA08664", "0B150DC74247F5773EBEEE763DE6474F90166372AF7853A799B57476D2C503A7")]
     [InlineData("PPSA18936", "54363FA26FFDE98D9E4E16594784B0D686C9E36AA3447D39A3AC1474E231151F")]
-    public void RootCollectionsLazyRoutesAndCompletePlansKeepTheirProtocol(string title, string expected)
+    // Direct-open hashes captured with the private decoder before SDK-03 adoption.
+    [InlineData("PPSA01911", "0A7977BA23DD85F0F4C2509B799AF921AB29A67F022520D4B829306C143DA471", false)]
+    [InlineData("PPSA08664", "481E934B10F6A5BFB0B5530C8131CE983E333E016BFEAFDD33721871659534AE", false,
+        "0B150DC74247F5773EBEEE763DE6474F90166372AF7853A799B57476D2C503A7")]
+    [InlineData("PPSA18936", "34E3FF37C788AF309CAC3EF923847C97AE032A0B6AC489113DC48734B6FFD87A", false,
+        "54363FA26FFDE98D9E4E16594784B0D686C9E36AA3447D39A3AC1474E231151F")]
+    public void RootCollectionsLazyRoutesAndCompletePlansKeepTheirProtocol(string title, string expected,
+        bool hosted = true, string? resolvedImagesExpected = null)
     {
         var previousCulture = CultureInfo.CurrentCulture;
         CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
@@ -27,11 +34,16 @@ public sealed class ProtocolCharacterizationTests
         {
             var fixture = SyntheticGameplay.Create(title);
             var schema = Ff7Schema.ForTitle(title)!;
+            // On builds with forward-slash resource names the old direct fallback already exposed maps.
+            if (!hosted && resolvedImagesExpected is not null && typeof(FinalFantasy7Plugin).Assembly
+                .GetManifestResourceNames().Contains("refpacks/ff7r.rebirth.en/maps/map-grasslands.webp", StringComparer.Ordinal))
+                expected = resolvedImagesExpected;
             SeedMateria(fixture.Bytes, schema);
             // Use the host's pinned packs so optional asset resolution is consistent across platforms.
             var plugin = new FinalFantasy7Plugin();
             var references = new ReferencePackStore([plugin]).Pin(plugin, title);
-            using var document = plugin.Open(MemorySaveSet.SingleFile(schema.Prefix + "000", fixture.Bytes, title), references);
+            var file = MemorySaveSet.SingleFile(schema.Prefix + "000", fixture.Bytes, title);
+            using var document = hosted ? plugin.Open(file, references) : plugin.Open(file);
             var transcript = new StringBuilder();
             transcript.AppendLine(JsonSerializer.Serialize(document.BuildView()));
             CaptureCollections((IQueryableDocument)document, transcript);
