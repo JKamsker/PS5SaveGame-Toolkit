@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using SaveToolkit.Sdk.Saves;
 
@@ -27,6 +28,8 @@ public static partial class SaveSetImporter
     private const string UnknownTitle = "UNKNOWN";
     // SFO is optional display metadata. Oversized files remain exportable without parsing them in memory.
     private const int MaxMetadataBytes = 1024 * 1024;
+    // ZIP APPNOTE appendix D: unflagged names use CP437; ZipArchive still honors flagged UTF-8 names.
+    private static readonly Encoding LegacyZipEncoding = CodePagesEncodingProvider.Instance.GetEncoding(437)!;
 
     public static DiskSaveSet Import(IEnumerable<ImportSource> sources, string storageRoot, ImportLimits? limits = null)
     {
@@ -56,7 +59,7 @@ public static partial class SaveSetImporter
         try
         {
             using var stream = source.Open();
-            using var zip = new ZipArchive(stream, ZipArchiveMode.Read);
+            using var zip = new ZipArchive(stream, ZipArchiveMode.Read, leaveOpen: false, entryNameEncoding: LegacyZipEncoding);
             foreach (var entry in zip.Entries)
             {
                 if (entry.FullName.EndsWith('/') || entry.FullName.EndsWith('\\')) continue;
