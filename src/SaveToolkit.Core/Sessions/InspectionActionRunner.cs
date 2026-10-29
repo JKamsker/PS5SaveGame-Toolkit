@@ -30,7 +30,7 @@ internal static class InspectionActionRunner
 
         var index = new ViewIndex();
         index.Add(inspection.BuildView());
-        Expand(inspection, index, expanded);
+        _ = LazyViewExpansion.Expand(inspection, index, expanded);
         var values = index.Specs.Keys.ToDictionary(id => id, inspection.GetValue, StringComparer.Ordinal);
         if (!MatchesSnapshot(snapshot, inspection))
         {
@@ -72,18 +72,4 @@ internal static class InspectionActionRunner
         }
     }
 
-    private static void Expand(ISaveDocument document, ViewIndex index, IEnumerable<string> expanded)
-    {
-        var pending = expanded.ToHashSet(StringComparer.Ordinal);
-        while (pending.Count > 0)
-        {
-            var ready = pending.Where(index.KnowsLazy).ToArray();
-            if (ready.Length == 0) break;
-            foreach (var id in ready)
-            {
-                index.AddAll(document.ExpandNode(id));
-                pending.Remove(id);
-            }
-        }
-    }
 }

@@ -239,27 +239,14 @@ public sealed partial class DocumentSession
     /// </summary>
     private HashSet<string> ReExpand(ViewIndex index, HashSet<string> lazyIds)
     {
-        var pending = new HashSet<string>(lazyIds, StringComparer.Ordinal);
-        var expanded = new HashSet<string>(StringComparer.Ordinal);
-        var progress = true;
-        while (progress && pending.Count > 0)
-        {
-            progress = false;
-            foreach (var lazyId in pending.Where(index.KnowsLazy).ToList())
-            {
-                index.AddAll(Document.ExpandNode(lazyId));
-                expanded.Add(lazyId);
-                pending.Remove(lazyId);
-                progress = true;
-            }
-        }
+        var result = LazyViewExpansion.Expand(Document, index, lazyIds);
+        var expanded = result.Expanded;
 
-        if (expanded.Count + pending.Count <= MaxRetiredIds)
+        if (expanded.Count + result.Missing.Count <= MaxRetiredIds)
         {
-            expanded.UnionWith(pending);
+            expanded.UnionWith(result.Missing);
         }
 
         return expanded;
     }
-
 }
