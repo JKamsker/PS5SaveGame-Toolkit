@@ -11,7 +11,7 @@ const SEARCH_DELAY_MS = 180;
 export function ReferencePicker({ valueId, actionId, value, current, browseOnly = false, onCommit, onClose }: FieldControlProps & {
   spec: ReferenceSpec; valueId: string; current?: ReferenceCandidate; browseOnly?: boolean; onClose: () => void;
 }) {
-  const { workspaceId, documentId, store, refresh } = useDocument();
+  const { workspaceId, documentId, store, structureVersion, refresh } = useDocument();
   const revision = store.state.revision;
   const id = useId();
   const dialog = useRef<HTMLDialogElement>(null);
@@ -29,7 +29,11 @@ export function ReferencePicker({ valueId, actionId, value, current, browseOnly 
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [needsRefresh, setNeedsRefresh] = useState(false);
+  const [reload, setReload] = useState(0);
   const lookupSequence = useRef(0);
+  const lookupPending = useRef(false);
   const mounted = useRef(true);
   const items = page?.items ?? [];
   const preview = rawCandidate ?? items[active] ?? current;
@@ -44,26 +48,45 @@ export function ReferencePicker({ valueId, actionId, value, current, browseOnly 
 
   useEffect(() => {
     let valid = true;
+    // A raw lookup is bound to the same revision as the candidate search.
+    lookupSequence.current++;
+    if (lookupPending.current) { lookupPending.current = false; setBusy(false); }
     setLoading(true);
     setPage(undefined);
     setActive(-1);
     setRawCandidate(undefined);
     setError(undefined);
+    setLoadFailed(false);
     const timer = setTimeout(() => {
       void api.referenceCandidates(workspaceId, documentId, { valueId, actionId, revision, q, category, sortBy: sortBy || undefined, descending, offset, limit: PAGE_SIZE })
-        .then((result) => { if (valid) { setSortKeys(result.sortKeys ?? []); setPage(result); setLoading(false); } })
+        .then((result) => { if (valid) { setSortKeys(result.sortKeys ?? []); setPage(result); setLoading(false); setNeedsRefresh(false); } })
         .catch((failure: unknown) => {
           if (!valid) return;
           setLoading(false);
           setError(failure instanceof Error ? failure.message : "Could not load candidates.");
-          if (isStaleError(failure)) { onClose(); void refresh(); }
+          setLoadFailed(true);
+          if (isStaleError(failure)) setNeedsRefresh(true);
         });
     }, SEARCH_DELAY_MS);
     return () => { valid = false; clearTimeout(timer); };
-  }, [workspaceId, documentId, valueId, actionId, revision, q, category, sortBy, descending, offset, refresh]);
+  }, [workspaceId, documentId, valueId, actionId, revision, structureVersion, q, category, sortBy, descending, offset, reload]);
+
+  const refreshChoices = async () => {
+    setBusy(true);
+    try {
+      await refresh();
+      setReload(previous => previous + 1);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Could not refresh choices. Try again.");
+    } finally {
+      if (mounted.current) setBusy(false);
+    }
+  };
 
   const choose = async () => {
-    if (browseOnly || !preview?.eligibility.selectable || busy) return;
+    if (browseOnly || !preview?.eligibility.selectable || busy || loading || needsRefresh) return;
+    // Retain the intended ID even if stale recovery replaces the candidate page.
+    setRawId(preview.rawId);
     setBusy(true);
     setError(undefined);
     try {
@@ -78,18 +101,19 @@ export function ReferencePicker({ valueId, actionId, value, current, browseOnly 
 
   const previewRaw = async () => {
     const sequence = ++lookupSequence.current;
+    lookupPending.current = true;
     setBusy(true);
     setError(undefined);
     try {
       const result = await api.referenceCandidate(workspaceId, documentId, { ...candidateQuery, rawId });
       if (mounted.current && sequence === lookupSequence.current) { setActive(-1); setRawCandidate(result); }
     } catch (failure) {
-      if (mounted.current) {
+      if (mounted.current && sequence === lookupSequence.current) {
         setError(failure instanceof Error ? failure.message : "Could not look up the raw ID.");
-        if (isStaleError(failure)) { onClose(); void refresh(); }
+        if (isStaleError(failure)) setNeedsRefresh(true);
       }
     } finally {
-      if (mounted.current && sequence === lookupSequence.current) setBusy(false);
+      if (mounted.current && sequence === lookupSequence.current) { lookupPending.current = false; setBusy(false); }
     }
   };
 
@@ -148,7 +172,7 @@ export function ReferencePicker({ valueId, actionId, value, current, browseOnly 
                 {candidate.eligibility.reasons.map((reason, n) => <small key={n}>{reason}</small>)}</span>
             </div>)}
           </div>
-          <p role="status">{loading ? "Loading candidates…" : `${page?.total ?? 0} matches${items.length ? ` · ${offset + 1}–${offset + items.length}` : ""}`}</p>
+          <p role="status">{loading ? "Loading candidates…" : loadFailed ? "Candidates unavailable" : `${page?.total ?? 0} matches${items.length ? ` · ${offset + 1}–${offset + items.length}` : ""}`}</p>
           <div className="reference-paging">
             <button type="button" className="btn btn--small" disabled={busy || loading || offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}>Previous</button>
             <button type="button" className="btn btn--small" disabled={busy || loading || offset + PAGE_SIZE >= (page?.total ?? 0)} onClick={() => setOffset(offset + PAGE_SIZE)}>Next</button>
@@ -161,10 +185,12 @@ export function ReferencePicker({ valueId, actionId, value, current, browseOnly 
         <button type="button" className="btn btn--small" disabled={busy} onClick={() => void previewRaw()}>Preview raw ID</button>
       </div>
       {error && <p role="alert" className="field__error">{error}</p>}
+      {needsRefresh ? <button type="button" className="btn btn--small" disabled={busy || loading} onClick={() => void refreshChoices()}>Refresh choices</button>
+        : loadFailed && <button type="button" className="btn btn--small" disabled={busy || loading} onClick={() => setReload(previous => previous + 1)}>Retry candidates</button>}
     </div>
     <div className="dialog__footer">
       <button type="button" className="btn btn--quiet" disabled={busy} onClick={onClose}>{browseOnly ? "Close" : "Cancel"}</button>
-      {!browseOnly && <button type="button" className="btn btn--primary" disabled={busy || !preview?.eligibility.selectable} onClick={() => void choose()}>Use selected item</button>}
+      {!browseOnly && <button type="button" className="btn btn--primary" disabled={busy || loading || needsRefresh || !preview?.eligibility.selectable} onClick={() => void choose()}>Use selected item</button>}
     </div>
   </dialog>;
 }

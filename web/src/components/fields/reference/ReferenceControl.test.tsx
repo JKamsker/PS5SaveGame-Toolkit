@@ -57,6 +57,20 @@ async function openPicker() {
 }
 
 describe("reference field picker", () => {
+  it("keeps an open picker's raw draft across document refreshes", async () => {
+    vi.useFakeTimers();
+    const context = renderField();
+    await openPicker();
+    fireEvent.change(screen.getByLabelText("Raw ID"), { target: { value: "7777" } });
+    await act(async () => { context.store.apply({ ok: true, errors: [], changes: [
+      { valueId: "item/id", oldValue: "9999", newValue: "8888" },
+    ], warnings: [], structureChanged: false, state: { ...context.store.state, revision: 1 } }); });
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    expect(screen.getByLabelText("Raw ID")).toHaveProperty("value", "7777");
+    await flushCandidateSearch();
+    expect(api.referenceCandidates).toHaveBeenLastCalledWith("w1", "d1", expect.objectContaining({ revision: 1 }));
+  });
+
   it("preserves an unknown raw id and supports keyboard selection with full attribution", async () => {
     vi.useFakeTimers();
     const context = renderField();
@@ -164,13 +178,52 @@ describe("reference field picker", () => {
     expect(screen.queryByRole("option", { name: /Potion/ })).toBeNull();
   });
 
-  it("refreshes and closes a stale picker without submitting anything", async () => {
+  it("offers explicit refresh for a stale picker without closing it or submitting anything", async () => {
+    vi.useFakeTimers();
     vi.mocked(api.referenceCandidates).mockRejectedValue(new ApiError("View is stale", 409, { code: "stale" }));
     const context = renderField();
     fireEvent.click(screen.getByRole("button", { name: /^Item/ }));
-    await waitFor(() => expect(context.refresh).toHaveBeenCalled());
+    await flushCandidateSearch();
+    expect(screen.getByRole("alert").textContent).toBe("View is stale");
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Refresh choices" })); });
+    expect(context.refresh).toHaveBeenCalledOnce();
     expect(context.commit).not.toHaveBeenCalled();
-    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.getByRole("dialog")).toBeTruthy();
+  });
+
+  it("bounds automatic stale label recovery across repeated metadata failures", async () => {
+    vi.mocked(api.referenceCandidate).mockRejectedValue(new ApiError("View is stale", 409, { code: "stale" }));
+    const context = renderField();
+    await act(async () => {});
+    expect(context.refresh).toHaveBeenCalledOnce();
+    await act(async () => { context.store.apply({ ok: true, errors: [], warnings: [], structureChanged: false,
+      changes: [{ valueId: "item/id", oldValue: "9999", newValue: "8888" }], state: { ...context.store.state, revision: 1 } }); });
+    expect(api.referenceCandidate).toHaveBeenCalledTimes(2);
+    expect(context.refresh).toHaveBeenCalledOnce();
+  });
+
+  it.each(["success", "failure"])("ignores obsolete raw lookup %s after the document revision changes", async outcome => {
+    vi.useFakeTimers();
+    let finish!: (candidate: ReferenceCandidate) => void;
+    let fail!: (error: Error) => void;
+    vi.mocked(api.referenceCandidate).mockImplementation(async (_w, _d, query) => query.rawId === "7777"
+      ? new Promise<ReferenceCandidate>((resolve, reject) => { finish = resolve; fail = reject; }) : unknown(query.rawId));
+    const context = renderField();
+    await openPicker();
+    fireEvent.change(screen.getByLabelText("Raw ID"), { target: { value: "7777" } });
+    fireEvent.click(screen.getByRole("button", { name: "Preview raw ID" }));
+    await act(async () => { context.store.apply({ ok: true, errors: [], warnings: [], structureChanged: false,
+      changes: [{ valueId: "item/id", oldValue: "9999", newValue: "8888" }], state: { ...context.store.state, revision: 1 } }); });
+    await flushCandidateSearch();
+    await act(async () => {
+      if (outcome === "success") finish({ ...potion, rawId: "7777", label: "Obsolete lookup" });
+      else fail(new ApiError("Obsolete lookup failure", 409, { code: "stale" }));
+    });
+    expect(screen.queryByRole("heading", { name: "Obsolete lookup" })).toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByLabelText("Raw ID")).toHaveProperty("value", "7777");
+    expect(screen.getByLabelText("Raw ID")).toHaveProperty("disabled", false);
+    expect(context.commit).not.toHaveBeenCalled();
   });
 
   it("cancel and Escape preserve the value and restore focus", async () => {

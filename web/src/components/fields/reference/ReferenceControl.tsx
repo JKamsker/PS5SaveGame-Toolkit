@@ -15,15 +15,20 @@ export function ReferenceControl(props: FieldControlProps & { spec: ReferenceSpe
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
   const wasOpen = useRef(false);
+  const recoveryAttempted = useRef(false);
   const revision = store.state.revision;
 
   useEffect(() => {
     let active = true;
     setCurrent(undefined);
-    setOpen(false);
     if (valueId) void api.referenceCandidate(workspaceId, documentId, { valueId, actionId, rawId, revision })
-      .then((candidate) => { if (active) setCurrent(candidate); })
-      .catch((error: unknown) => { if (active && isStaleError(error)) void refresh(); });
+      .then((candidate) => { if (active) { setCurrent(candidate); recoveryAttempted.current = false; } })
+      .catch((error: unknown) => {
+        if (active && isStaleError(error) && !recoveryAttempted.current) {
+          recoveryAttempted.current = true;
+          void refresh().catch(() => {});
+        }
+      });
     return () => { active = false; };
   }, [workspaceId, documentId, valueId, actionId, rawId, revision, structureVersion, refresh]);
 
