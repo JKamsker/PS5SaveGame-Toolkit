@@ -54,6 +54,9 @@ public sealed class PresentationTests
             var parameter = Assert.Single(control.Parameters!);
             Assert.Equal("quantity", parameter.ValueId);
             Assert.Equal("Target quantity", parameter.Label);
+            Assert.Equal(Confidence.Inferred, parameter.Confidence);
+            Assert.Equal(PragmataDocument.EditWarning, parameter.Warning);
+            Assert.Contains("storage range", parameter.Description!, StringComparison.Ordinal);
             Assert.Contains("Legal limits and game effects remain unverified.", control.Description!, StringComparison.Ordinal);
             Assert.Contains("Does not add items or set unlock flags.", control.Description!, StringComparison.Ordinal);
         }
@@ -85,7 +88,8 @@ public sealed class PresentationTests
             Assert.Equal(Tone.Warning, notice.Tone);
             var nodes = tab.Children.SelectMany(Flatten).ToArray();
             Assert.Single(nodes.OfType<TextNode>(), n => n.Text == PragmataDocument.EditWarning);
-            Assert.All(nodes.OfType<FieldNode>(), field => Assert.NotEqual(PragmataDocument.EditWarning, field.Warning));
+            Assert.All(nodes.OfType<FieldNode>().Where(field => !field.Spec.ReadOnly),
+                field => Assert.Equal(PragmataDocument.EditWarning, field.Warning));
         }
 
         var stats = view.Tabs.Single(t => t.Title == "Overview").Children.OfType<StatsNode>().Single();
@@ -109,7 +113,7 @@ public sealed class PresentationTests
         Assert.StartsWith($"{difficulty.Path} · u32 @0x{difficulty.Offset:x} · {HashNames.Provenance(difficulty.Hash)}", field.Description!, StringComparison.Ordinal);
         Assert.Contains(PragmataDocument.EditWarning, field.Description!, StringComparison.Ordinal);
         Assert.Equal(Confidence.Inferred, field.Confidence);
-        Assert.Null(field.Warning);
+        Assert.Equal(PragmataDocument.EditWarning, field.Warning);
         Assert.Equal(Confidence.Inferred, document.Field(document.Layout.Header.Find(KnownHashes.Playtime)!).Confidence);
 
         var view = Assert.IsType<TabsNode>(document.BuildView());
@@ -118,7 +122,32 @@ public sealed class PresentationTests
         var raw = document.ExpandNode(rawHeader.LazyId!).OfType<FieldNode>().Single(f => f.ValueId == $"raw/{difficulty.Path}");
         Assert.Equal(field.Description, raw.Description);
         Assert.Equal(field.Confidence, raw.Confidence);
-        Assert.Null(raw.Warning);
+        Assert.Equal(PragmataDocument.EditWarning, raw.Warning);
+    }
+
+    [Fact]
+    public void EditablePrimitiveAndReferenceProjectionsPublishWarningsWithoutChangingStorage()
+    {
+        var original = SyntheticInventory.Create(1);
+        using var document = new PragmataDocument("data000.bin", original);
+        var item = document.Layout.Items[0];
+        var unknown = item.Children.Single(node => node.Hash == SyntheticInventory.FloatHash);
+        var fields = new[]
+        {
+            document.Field(item.Find(KnownHashes.Quantity)!),
+            document.Field(unknown, raw: true),
+            document.References.Primitive(unknown),
+            document.References.ItemField(item.Find(KnownHashes.ItemId)!),
+        };
+        Assert.All(fields, field =>
+        {
+            Assert.False(field.Spec.ReadOnly);
+            Assert.Equal(PragmataDocument.EditWarning, field.Warning);
+            Assert.Contains(PragmataDocument.EditWarning, field.Description!, StringComparison.Ordinal);
+        });
+        Assert.Equal(Confidence.Inferred, fields[0].Confidence);
+        Assert.All(fields.Skip(1), field => Assert.Equal(Confidence.Unknown, field.Confidence));
+        Assert.Equal(original, document.Serialize().Single().Content.ToArray());
     }
 
     [Fact]
