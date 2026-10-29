@@ -41,7 +41,7 @@ internal sealed class EldenRingDocument : BoundSaveDocument, IQueryableDocument,
             bytes.AsSpan(EldenRingLayout.RegulationOffset, EldenRingLayout.RegulationSize)));
         _community = new(references, fingerprint, bytes, characters);
         _catalog = new(references.Catalog(ReferenceBrowser.CatalogId, fingerprint), _community.Items);
-        _inventory = new(characters, _catalog, asset => references.AssetProvenance(asset)?.Attribution.ToShortText(), _writes.Current);
+        _inventory = new(characters, _catalog, asset => references.AssetProvenance(asset)?.Attribution.ToShortText(), _writes.Current, _writes.Eligibility);
         _writePlans = new(bytes, save, characters, _writes, _catalog);
         _semantic = new(bytes, characters, _catalog, references.Catalog(ProgressReferences.ClassCatalogId, fingerprint));
         _progress = new(bytes, characters, references.Catalog(ProgressReferences.CatalogId, fingerprint), references: references);
