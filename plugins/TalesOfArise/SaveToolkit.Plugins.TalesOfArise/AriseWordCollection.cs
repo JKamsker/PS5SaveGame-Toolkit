@@ -38,18 +38,7 @@ internal sealed class AriseWordCollection(AriseSave save, AriseSection section)
         var sortColumn = query.SortColumn ?? "offset";
         var offset = Math.Max(0, query.Offset);
         var limit = Math.Clamp(query.Limit, 1, MaximumPageSize);
-        var unfiltered = string.IsNullOrWhiteSpace(query.Text) && query.Filters.Count == 0;
-        List<int>? matching = null;
-        if (!unfiltered)
-        {
-            matching = [];
-            var filters = query.Filters.ToArray();
-            for (var relative = 0; relative < section.Size; relative += WordSize)
-            {
-                if (Matches(relative, query.Text, filters)) matching.Add(relative);
-            }
-        }
-
+        var matching = MatchingOffsets(query);
         var count = matching?.Count ?? section.Size / WordSize;
         IEnumerable<int> pageOffsets;
         if (sortColumn == "offset")
@@ -79,6 +68,21 @@ internal sealed class AriseWordCollection(AriseSave save, AriseSection section)
                     with { Confidence = Confidence.Unknown, Description = Metadata.Description, Warning = null },
             })).ToArray();
         return new QueryableCollectionPage(Id, Columns, rows, Metadata.TotalCount, count, offset, limit);
+    }
+
+    private List<int>? MatchingOffsets(QueryableCollectionQuery query)
+    {
+        // A null list means every word matches, avoiding a collection-sized offset buffer.
+        if (string.IsNullOrWhiteSpace(query.Text) && query.Filters.Count == 0) return null;
+
+        var matching = new List<int>();
+        var filters = query.Filters.ToArray();
+        for (var relative = 0; relative < section.Size; relative += WordSize)
+        {
+            if (Matches(relative, query.Text, filters)) matching.Add(relative);
+        }
+
+        return matching;
     }
 
     private bool Matches(int relative, string? text, KeyValuePair<string, string>[] filters)
