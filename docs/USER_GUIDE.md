@@ -315,8 +315,8 @@ selection, and that FF7 level undo could lose the opening XP. All four fixes are
 still review every target in the preview before applying. The
 [wave-2 review](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489356906)
 found a low-severity grouped Gearbox level/mark defect with malformed manually
-submitted row keys; normal UI selections are unaffected. Its fix is in progress, and the
-Pragmata review was outside both waves.
+submitted row keys; normal UI selections were unaffected. That fix is merged too, and a
+follow-up review of Pragmata found no defects.
 
 | Game / format | Title IDs | Plugin | Maturity | Writes enabled / important limits |
 | --- | --- | --- | --- | --- |
