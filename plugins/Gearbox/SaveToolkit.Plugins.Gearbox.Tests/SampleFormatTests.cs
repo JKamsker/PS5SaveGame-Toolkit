@@ -176,6 +176,6 @@ public sealed class SampleFormatTests
 
     private IEnumerable<DiskSaveFile> Files(string title) => SampleSaves.Load(title).AllDiskFiles.Where(f => _plugin.Probe(f).IsMatch);
     private DiskSaveFile Character(string title, int generation) => Files(title).Single(f => !f.Directory.IsBackup && f.Directory.Generation == generation && f.FileName == "1");
-    private static ISaveFile Overlay(ISaveFile file, ReadOnlyMemory<byte> bytes) => ((ISaveSet)new OverlaySaveSet(file.Directory.SaveSet,
+    internal static ISaveFile Overlay(ISaveFile file, ReadOnlyMemory<byte> bytes) => ((ISaveSet)new OverlaySaveSet(file.Directory.SaveSet,
         new Dictionary<string, ReadOnlyMemory<byte>> { [file.RelativePath] = bytes })).FindFile(file.RelativePath)!;
 }
