@@ -6,7 +6,7 @@ namespace SaveToolkit.Plugins.AtomicHeart.Tests;
 
 internal static class SlotFixture
 {
-    internal static byte[] Create(bool includeMetadata = true, int chunks = 1, byte[]? plain = null)
+    internal static byte[] Create(bool includeMetadata = true, int chunks = 1, byte[]? plain = null, byte[]? metadataPayload = null)
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
@@ -25,7 +25,8 @@ internal static class SlotFixture
             }
             String(metadata, "None"); metadata.Write(0);
         }
-        writer.Write((int)info.Length); writer.Write(info.ToArray());
+        var infoBytes = metadataPayload ?? info.ToArray();
+        writer.Write(infoBytes.Length); writer.Write(infoBytes);
         String(writer, "/Script/SaveExtension.SlotData"); String(writer, "Oodle");
         plain ??= PlainFixture.Create();
         var compressed = OodleCodec.EncodeStored(plain);

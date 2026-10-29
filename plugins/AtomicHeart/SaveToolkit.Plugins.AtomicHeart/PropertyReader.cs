@@ -45,6 +45,7 @@ internal sealed class PropertyReader(byte[] bytes)
         var hasGuid = reader.Byte();
         if (hasGuid > 1) throw new SaveFormatException("Invalid property GUID flag.");
         if (hasGuid != 0) reader.Take(GuidBytes);
+        PrimitivePayload.ValidateSize(type, detail, size);
         var payload = new ByteSpan(reader.Position, size);
         reader.Take(size);
         var value = ReadValue(type, payload, boolean);

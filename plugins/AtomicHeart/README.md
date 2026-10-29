@@ -243,6 +243,17 @@ for names; 1,048,576 for scalar strings; 16 million code units each for record
 and property identity paths. Lazy expansions contain at most 100 top-level
 nodes; tables and blobs are paged. Impossible framing/counts, unsupported codec
 variants and malformed inspected structures throw `SaveFormatException`.
+Known fixed-width primitive tags require their exact payload sizes in SlotInfo
+and inspected SlotData sequences; boolean tag values must be 0 or 1. Unknown
+types/native structures remain opaque. The robustness review rechecked the
+[SaveExtension record source](https://github.com/PipeRift/SaveExtension/blob/c40f37a078ce8b9b2b3a811e47729e6ca2d11d48/Source/SaveExtension/Private/Serialization/Records.cpp)
+and [Epic's property-tag reference](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/FPropertyTag)
+on 2026-10-29. These describe structural leads; the fixed-width rules are also
+verified against the supplied PS5 bytes and authored corruption fixtures.
+Inventory `Amount` and `ItemId` must fit the supported signed 64-bit range;
+oversized unsigned values reject with a field-specific `SaveFormatException`.
+Representable unsigned values remain inspectable; unsigned Amount tags do not
+become write targets.
 
 ## Validation
 
@@ -280,6 +291,29 @@ the largest (and only unique) sample
 measured a first changed export at about 136 ms / 29.1 MB allocated and ten repeated
 validated exports at about 0.6 ms / 0.50 MB allocated per export; this includes
 returned-buffer copies and test overhead and is not a cross-machine benchmark.
+
+### Malformed-input review (2026-10-29, #40)
+
+The two medium findings are fixed: malformed fixed-width payload sizes/metadata
+boolean values now reject, and overflowing inventory integers report the field
+name through `SaveFormatException`. Regression tests first reproduced 16 silently
+accepted primitive corruptions and four `OverflowException` cases.
+
+The review adds 43 cases (42 sample-free): exact-width/unknown-data controls,
+unsigned inventory boundaries, actor/component and checksum-valid outer
+truncations, collection counts, depth 16/17, nested element truncations with all
+enclosing lengths repaired, and in-memory mutations of real nested scalar tags.
+It retains the earlier FString and aggregate-prefix truncation tests. Native
+payloads and unknown tails remain opaque; accepting them is not a claim that
+their uninspected grammar is valid. No additional parser defect is claimed for
+the characterization tests, and no findings are deferred.
+
+Release validation: **157 passed / 0 failed / 0 skipped** with private samples
+(baseline 114). With samples unavailable: **125 passed / 0 failed / 32 skipped**;
+all new synthetic cases execute. The API Release build with `--warnaserror`
+reports **0 warnings / 0 errors**. Existing byte-identical no-op, write/reopen,
+history and conformance tests pass. Experimental maturity and warnings remain.
+All review changes are confined to this plugin; no sample bytes were committed.
 
 ## Sources and attribution
 
