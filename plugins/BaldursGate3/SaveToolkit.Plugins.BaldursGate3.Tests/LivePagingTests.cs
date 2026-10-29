@@ -2,7 +2,6 @@ using System.Text.Json;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
-using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
@@ -18,8 +17,8 @@ public sealed class LivePagingTests
         var blob = LiveNewAgeFixture.Create();
         var originalBlob = blob.ToArray();
         var originalResource = LsmfFixture.Resource(blob);
-        using var first = Open(blob);
-        using var second = Open(blob);
+        using var first = LiveNewAgeFixture.Open(blob);
+        using var second = LiveNewAgeFixture.Open(blob);
         var field = Assert.IsType<FieldNode>(Assert.Single(first.Query("live/0/0/values", new() { Limit = 1 }).Rows).Cells["value"]);
         Assert.True(first.ApplyEdits([new(field.ValueId, FieldValue.Of(2L))]).Succeeded);
         Assert.Equal(5, Assert.IsType<FieldNode>(Assert.Single(second.Query("live/0/0/values", new() { Limit = 1 }).Rows).Cells["value"]).Value.AsInt32());
@@ -32,7 +31,7 @@ public sealed class LivePagingTests
     [Fact]
     public void NumericSortKeepsOrdinalTiesAndFiltersBeforeApplyingTheOffset()
     {
-        using var document = Open(LiveNewAgeFixture.Create());
+        using var document = LiveNewAgeFixture.Open(LiveNewAgeFixture.Create());
         const string collection = "live/0/0/values";
         var page = document.Query(collection, new QueryableCollectionQuery
         {
@@ -56,7 +55,7 @@ public sealed class LivePagingTests
         for (var row = 0; row < StatsRows; row++)
             for (var ability = 0; ability < AbilitiesPerRow; ability++)
                 LsmfFixture.U32(stats, row * StatsRowBytes + 8 + ability * sizeof(int), 10);
-        using var document = Open(LsmfFixture.Create(("game.stats.v3.StatsComponent", StatsRowBytes, StatsRows, stats)));
+        using var document = LiveNewAgeFixture.Open(LsmfFixture.Create(("game.stats.v3.StatsComponent", StatsRowBytes, StatsRows, stats)));
         var query = new QueryableCollectionQuery { Offset = StatsRows * AbilitiesPerRow - 10, Limit = 10 };
         _ = document.Query("live/0/0/values", query);
         var allocated = GC.GetAllocatedBytesForCurrentThread();
@@ -72,7 +71,7 @@ public sealed class LivePagingTests
     [Fact]
     public void DefaultAndWhitespacePagesPreserveOrderCountsAndContentsForEveryCollection()
     {
-        using var document = Open(LiveNewAgeFixture.Create());
+        using var document = LiveNewAgeFixture.Open(LiveNewAgeFixture.Create());
         foreach (var collection in document.Collections.Where(c => c.Id.StartsWith("live/", StringComparison.Ordinal)))
         {
             var complete = document.Query(collection.Id, new QueryableCollectionQuery { Limit = 200 });
@@ -92,7 +91,7 @@ public sealed class LivePagingTests
     [Fact]
     public void DefaultSearchFilterAndSortPagesAllReadCurrentEditedValues()
     {
-        using var document = Open(LiveNewAgeFixture.Create());
+        using var document = LiveNewAgeFixture.Open(LiveNewAgeFixture.Create());
         const string collection = "live/0/0/values";
         var first = document.Query(collection, new QueryableCollectionQuery { Limit = 1 });
         var field = Assert.IsType<FieldNode>(Assert.Single(first.Rows).Cells["value"]);
@@ -112,6 +111,4 @@ public sealed class LivePagingTests
         }
     }
 
-    private static BaldursGate3Document Open(byte[] blob) => Assert.IsType<BaldursGate3Document>(
-        new BaldursGate3Plugin().Open(MemorySaveSet.SingleFile("Globals.lsf", LsmfFixture.Resource(blob))));
 }
