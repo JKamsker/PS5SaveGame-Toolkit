@@ -52,8 +52,9 @@ maximum or PS5 write compatibility. Public PC labels joined by exact asset name
 are **Inferred** on PS5. Unmapped references are **Unknown**. No numeric limits,
 upgrade prerequisites, skill ownership or quest completion are invented.
 
-Existing populated slots expose bounded Amount edits and an F6 target-Amount
-action. Preview lists direct changes, skipped rows and warnings; selected rows
+Existing populated slots expose bounded Amount edits and the F6 action
+`Set existing quantities (preview)`, with parameter `Target quantity (Amount)`.
+Preview lists direct changes, skipped rows and warnings; selected rows
 and whole-document scopes are supported. F8 select-all-matching scopes resolve
 unloaded rows on the server and honor explicit exclusions and empty-slot visibility (#27, #38). An empty
 selection or a query with no matches changes nothing.
@@ -87,9 +88,12 @@ They are not blocked on captures tracked in [#31](https://github.com/JKamsker/PS
 | Existing populated `ItemDataAsset` replacement | Inferred | Exact catalog join plus unambiguous full path already observed in this save, same catalog category. ItemId, Amount, grid position, native instance data and unknown bytes are retained. | FString encoding and affected property/struct-array/object/array lengths repaired; SHA-1 repaired; output decoded/reparsed. **The game may reject the save**, or dependent equipment/module/ownership state may not match. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one known weapon/ammo reference, inspect equipment/modules/capacity, use/equip, save/restart/reload. Category matching does not prove compatibility. |
 | F6 `inventory/set-amount` | Inferred | Same existing Amount bindings; selected, document or server-resolved F8 query preview. Empty/unsupported slots, over-limit targets and unchanged values are listed as skipped. | Same repairs and rejection warning as individual amounts. Plans/outcomes retain warnings; stale/tampered plans fail; one undo/redo covers the batch. | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): selected, filtered with exclusions and full eligible batches, compare intended and unrelated values after use/resave/reload. |
 
-Every newly writable description, outcome and action preview says **not validated
-on console** and **the game may reject the edited save**. Stored output can grow
-substantially; file/allocation limits are not console slot-capacity guarantees.
+Writable fields, outcomes and action previews share the warning opening:
+**Not validated on console. The game may reject or overwrite the edited save.**
+The warning retains unverified stored Kraken block acceptance, inner integrity,
+gameplay effects, ownership and safe limits, plus disposable-copy validation (#31).
+Stored output can grow substantially; file/allocation limits are not console
+slot-capacity guarantees.
 No independent inner checksum is known. No guessed ownership/equipment repairs
 are applied.
 
@@ -107,19 +111,19 @@ enabled paths.
 | Feature | Status | Adoption or concrete limit |
 | --- | --- | --- |
 | F1 SaveDiff | Used | `PluginViewDecoder` and the production `atomic-heart.saveextension-v1` F12 hook expose stable scalar tag identities; real twin/generation evidence and authored relocated-property fixtures remain in the evidence tests. |
-| F2 reference packs | Used; expanded this round | Host-loaded, hashed 48-entry item catalogue plus 8 screenshot resource/module and 9 Shok guide entries. Original GPL notices retained; game art/text and guide additions use the 2026-10-29 owner policy. Twenty-three cached icons; reference tables expand lazily. |
-| F3 rich cells | Added this round | Inventory details, descriptions/provenance/hex; existing action cells and field confidence badges. Inventory/query rows and reference tables now show attributed F2 icons; missing images retain text fallbacks. |
-| F4 reference pickers | Used; expanded this round | Existing inventory asset replacements plus browse-only `ReferenceSpec` fields for read-only catalog-matched asset IDs in the record explorer and catalogue inspection action. Unknown IDs remain raw and never become invented choices. |
+| F2 reference packs | Used | Expanded in the 2026-10-29 asset round: host-loaded, hashed 48-entry item catalogue plus 8 screenshot resource/module and 9 Shok guide entries. Original GPL notices retained; game art/text and guide additions use the 2026-10-29 owner policy. Twenty-three cached icons; reference tables expand lazily. |
+| F3 rich cells | Used | Added in the 2026-10-29 asset round: inventory details, descriptions/provenance/hex; existing action cells and field confidence badges. Inventory/query rows and reference tables show attributed F2 icons; missing images retain text fallbacks. |
+| F4 reference pickers | Used | Expanded in the 2026-10-29 asset round: existing inventory asset replacements plus browse-only `ReferenceSpec` fields for read-only catalog-matched asset IDs in the record explorer and catalogue inspection action. Unknown IDs remain raw and never become invented choices. |
 | F5 structural undo | N/A | No safe add/remove/move/split writer exists: opaque instance allocation, grid/indices, equipment and ownership references cannot be reconstructed from this snapshot. Scalar edits use normal undo. |
-| F6 planned actions | Used; query scopes added this round | `inventory/set-amount` previews selected, document and #27 F8 whole-query scopes with skipped rows, exclusions, warnings and grouped undo. Its only parameter is numeric target Amount, so no item parameter needs a `ReferenceSpec`. Skill/loadout/spend/refund presets have no safe underlying writer. |
+| F6 planned actions | Used | Query scopes added in the 2026-10-29 implementation round: `inventory/set-amount` previews selected, document and #27 F8 whole-query scopes with skipped rows, exclusions, warnings and grouped undo. Its only parameter is `Target quantity (Amount)` (key `amount`), so no item parameter needs a `ReferenceSpec`. Skill/loadout/spend/refund presets have no safe underlying writer. |
 | F7 document groups | N/A | One self-contained gameplay file is rewritten. No coupled partner with a proved transaction contract exists; identical console backups are mirrored by the host. |
 | F8 queryable tables | Used | All 4,063 records and all inventory slots; whole-model search/filter/sort, numeric Amount/ItemId ordering, stable IDs and bounded 200-row pages. Inventory details/hex live in the single F8 table; original raw record inspection remains available. |
-| F9 maps/graphs | Added this round | Paged skill/weapon evidence graphs and external-only saved-level map, compact stable IDs, text alternatives, confidence and tested navigation. Prerequisites/coordinates/discovery remain unknown. |
+| F9 maps/graphs | Used | Added in the 2026-10-29 implementation round: paged skill/weapon evidence graphs and external-only saved-level map, compact stable IDs, text alternatives, confidence and tested navigation. Prerequisites/coordinates/discovery remain unknown. |
 | F10 exact/nullable/union values | N/A | The decoded UE tags use fixed-width signed/unsigned integers and IEEE floating-point scalars; no JSON numeric lexemes, nullable scalar storage or tagged union is rewritten. Existing Int128 SDK values preserve all integer bits. |
-| F11 shared codecs | Used; optimized this round | `SaveToolkit.Codecs` Kraken decode/stored encode; retained compressed frames, exact output allocation, validated serialization cache and byte-identical no-op. No local codec. |
+| F11 shared codecs | Used | Optimized in the 2026-10-29 implementation round: `SaveToolkit.Codecs` Kraken decode/stored encode; retained compressed frames, exact output allocation, validated serialization cache and byte-identical no-op. No local codec. |
 | F12 SaveDiff F8 traversal/hooks | Used | Registered `atomic-heart.saveextension-v1`, a bounded SDK-only decoder for stable scalar tag paths; shared `PluginViewDecoder` now traverses the inventory F8 collection. |
 | F13 inspect/browse/filter/duration | Used | Catalogue item inspection is `Mutates = false`; read-only asset references use browse-only pickers, and the pinned 48-entry item catalogue supports category filtering and declared category/key/name sorting. Duration hints are N/A because no timer field is published. |
-| F14 inventory empties | Added this round | One F8 inventory table replaces the F8/eager-page duplicate. Confirmed `None`/zero slots with ItemId `0` or `-1` are marked empty; shared metadata hides them by default. Complete-model matching precedes visibility, sorting and paging; hidden counts and F6 scopes retain every stable slot identity. |
+| F14 inventory empties | Used | Added in the 2026-10-29 F14 round: one F8 inventory table replaces the F8/eager-page duplicate. Confirmed `None`/zero slots with ItemId `0` or `-1` are marked empty; shared metadata hides them by default. Complete-model matching precedes visibility, sorting and paging; hidden counts and F6 scopes retain every stable slot identity. |
 
 ## F14 table audit (2026-10-29)
 

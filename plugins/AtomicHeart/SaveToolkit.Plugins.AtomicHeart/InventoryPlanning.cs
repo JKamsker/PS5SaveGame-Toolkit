@@ -8,10 +8,10 @@ internal static class InventoryPlanning
 {
     internal const string ActionId = "inventory/set-amount";
 
-    internal static ActionNode Action() => new(ActionId, "Set existing amounts (preview)") {
+    internal static ActionNode Action() => new(ActionId, "Set existing quantities (preview)") {
         SupportsPlanning = true, Tone = Tone.Warning,
         Description = "Set selected existing populated slots, or all eligible slots outside the table. Rows exceeding their observed container maximum are skipped. No slots are created or removed. " + InventoryState.WriteWarning,
-        Parameters = [new FieldNode("amount", "Target Amount", new IntegerSpec(0, long.MaxValue), FieldValue.Of(1))],
+        Parameters = [new FieldNode("amount", "Target quantity (Amount)", new IntegerSpec(0, long.MaxValue), FieldValue.Of(1))],
     };
 
     internal static ActionPlan Plan(InventoryState state, string actionId,
@@ -22,7 +22,7 @@ internal static class InventoryPlanning
             return Error(actionId, "Choose inventory rows or a server-resolved inventory query scope.");
         if (parameters.Count != 1 || !parameters.TryGetValue("amount", out var amount) ||
             amount.Kind != FieldValueKind.Integer || amount.AsInteger() < 0 || amount.AsInteger() > long.MaxValue)
-            return Error("amount", "Target Amount must be a nonnegative signed 64-bit integer.");
+            return Error("amount", "Target quantity must be a nonnegative signed 64-bit integer.");
         IEnumerable<InventoryItem> items = state.Items;
         if (scope.RowKeys is { } keys)
         {

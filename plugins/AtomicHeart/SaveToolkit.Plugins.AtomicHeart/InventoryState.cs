@@ -15,7 +15,7 @@ internal sealed class InventoryState
     private const long EmptyAmount = 0;
     private const long DefaultEmptyItemId = 0;
     private const long SentinelEmptyItemId = -1;
-    internal const string WriteWarning = "Not validated on console. Stored Kraken blocks and unknown inner integrity mean the game may reject the edited save. Gameplay effects, ownership and safe limits are unverified; validate on a disposable copy (issue #31).";
+    internal const string WriteWarning = "Not validated on console. The game may reject or overwrite the edited save. Stored Kraken block acceptance and inner integrity remain unverified. Gameplay effects, ownership and safe limits are unverified; validate on a disposable copy (issue #31).";
     private readonly Dictionary<int, FieldValue> values = [];
     private readonly Dictionary<string, string> savedAssets = new(StringComparer.Ordinal);
     private readonly HashSet<string> ambiguousAssets = new(StringComparer.Ordinal);
