@@ -182,4 +182,37 @@ public sealed class DocumentMemberRobustnessTests
         Assert.Empty(result.Changes);
         GroupAdapterPluginFixture.EqualBytes(before, group);
     }
+
+    [Theory]
+    [InlineData("duplicate")]
+    [InlineData("foreign")]
+    public void MetadataRouterRejectsMalformedMemberResponsesBeforePublishing(string mode)
+    {
+        using var document = new MalformedMetadataDocument(mode);
+        var member = new DocumentMemberAdapter("a", document);
+        var router = new DocumentMemberRouter([member]);
+
+        Assert.Throws<InvalidOperationException>(() => router.ResolveFieldMetadata(["a/value"]));
+    }
+
+    private sealed class MalformedMetadataDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        public MalformedMetadataDocument(string mode)
+        {
+            RegisterField(new FieldMetadata("value", "Value", IntegerSpec.Int32),
+                () => FieldValue.Of(1), _ => { });
+            Mode = mode;
+        }
+
+        private string Mode { get; }
+        public override string Title => "Malformed metadata";
+        public override ViewNode BuildView() => new TextNode("metadata");
+        public override IReadOnlyList<FileOutput> Serialize() => [];
+
+        public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> ids)
+        {
+            var field = base.ResolveFieldMetadata(ids).Single();
+            return Mode == "duplicate" ? [field, field] : [field with { ValueId = "other" }];
+        }
+    }
 }
