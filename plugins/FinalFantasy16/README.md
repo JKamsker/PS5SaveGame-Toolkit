@@ -395,7 +395,7 @@ Sample tests explicitly skip when archives are absent; validation requires 0 ski
 No sample bytes, extracted saves or downloaded third-party code are committed.
 
 F12/F13 follow-up validation (2026-10-28): **108 passed, 0 failed, 0 skipped** with
-the external artifacts directory exported; the native `ffxvi` hook reproduces the
+the external artifacts directory exported; the native `ffxvi-evidence` hook reproduces the
 F1 fixture and the session inspection test verifies unchanged revision/history.
 
 Write-enable validation (2026-10-28): **92 passed, 0 failed, 0 skipped**, including

@@ -10,7 +10,7 @@ namespace SaveToolkit.Plugins.FinalFantasy16;
 internal sealed class FaithEvidenceDecoder : ISaveDecoderHook
 {
     private const int MinimumPathDepth = 2;
-    public string Id => "ffxvi";
+    public string Id => "ffxvi-evidence";
 
     public bool CanDecode(ISaveFile file)
     {

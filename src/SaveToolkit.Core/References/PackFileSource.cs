@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.IO.Compression;
 using System.Reflection;
 
@@ -15,20 +16,44 @@ internal interface IPackFileSource
 
 internal static class PackFileReader
 {
+    private const int ChunkSize = 81920;
+
     /// <summary>Copies at most <paramref name="maxBytes"/>; does not trust declared lengths.</summary>
     public static byte[] ReadBounded(Stream stream, long maxBytes, string what)
     {
-        using var buffer = new MemoryStream();
-        var chunk = new byte[81920];
-        int read;
-        while ((read = stream.Read(chunk, 0, chunk.Length)) > 0)
+        // Seekable streams (embedded resources) report their real length: read it exactly, with no
+        // per-file scratch chunk. Packs with many small icons otherwise pay ~80 KB per file.
+        if (stream.CanSeek)
         {
-            if (buffer.Length + read > maxBytes)
+            var remaining = stream.Length - stream.Position;
+            if (remaining > maxBytes)
             {
                 throw new ReferencePackException($"{what} is larger than the limit of {maxBytes:N0} bytes.");
             }
 
-            buffer.Write(chunk, 0, read);
+            var exact = new byte[remaining];
+            stream.ReadExactly(exact);
+            return exact;
+        }
+
+        using var buffer = new MemoryStream();
+        var chunk = ArrayPool<byte>.Shared.Rent(ChunkSize);
+        try
+        {
+            int read;
+            while ((read = stream.Read(chunk, 0, ChunkSize)) > 0)
+            {
+                if (buffer.Length + read > maxBytes)
+                {
+                    throw new ReferencePackException($"{what} is larger than the limit of {maxBytes:N0} bytes.");
+                }
+
+                buffer.Write(chunk, 0, read);
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(chunk);
         }
 
         return buffer.ToArray();
