@@ -206,7 +206,9 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         var catalogId = CharacterViews.CatalogFor(node);
         if (catalogId is not null && _references.Catalog(catalogId) is not null && node.Scalar.Kind == FieldValueKind.Text)
         {
-            spec = new ReferenceSpec(catalogId) { AllowCustom = false, ReadOnly = !CanEdit };
+            // A tagged union must retain its explicit type selector and tagged value contract.
+            if (node.Current.Kind == FieldValueKind.Text)
+                spec = new ReferenceSpec(catalogId) { AllowCustom = false, ReadOnly = !CanEdit };
             record = _references.Catalog(catalogId)?.Find(node.Scalar.AsString());
         }
         var field = Field(node.ValueId, node.Label, spec, () => _model.Find(node.Index).Current,

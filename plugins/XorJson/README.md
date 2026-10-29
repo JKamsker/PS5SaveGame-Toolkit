@@ -70,6 +70,9 @@ very large/small exponents never pass through double or decimal. Limits are
 JSON numbers remain verbatim/read-only. Existing nulls use an explicit nullable
 number/string/boolean union. Null, empty text and absent members are distinct.
 Changing a scalar to null does not delete its member.
+An original null retains its explicit nullable/union type selector after a
+catalog string assignment, with attributed labels and catalog eligibility for
+string replacements. Other published scalar types remain selectable.
 
 Unchanged scalar tokens retain their exact bytes; changed tokens alone are
 patched. Every edit batch and serialization reparses/reopens the result and
@@ -167,9 +170,13 @@ a real PS5 inventory ID is safe. Character item replacement, quantities, power,
 rarity, effects, equip and creation remain Experimental and carry the owner
 warning. New F6 attribute, stack, item-ID and rarity plans only alter existing
 tokens, skip merchant/special rows and report unverified PC bounds/dependencies.
+Bulk stack actions also preserve every exact numeric spelling of the existing
+non-stackable `-1` sentinel, including fractional and exponent notation.
 The generic **Set selected scalar values** action uses F6
 `IActionPlanningDocument` preview/apply, including skipped incompatible rows and
 one atomic undo step; it does not synthesize game-aware presets.
+Numeric literals beyond the exact-number editing limits are rejected by this
+action; their read-only text fallback is never written as a JSON string.
 Catalog-valued edits and their undo/redo request a view rebuild so labels,
 provenance and picker specs follow the current ID.
 
@@ -324,7 +331,11 @@ dependencies remain Unknown.
   settings stay independently editable. Group models must prefix all member
   identities by role, capture complete immutable multi-member state restorable
   into a fresh instance, and serialize every selected member exactly once.
-  Backups must be explicit members. The group emits warnings because controlled
+  Every proposal includes the selected file; the alternative limit counts only
+  its eligible partners. Backups must be explicit members. Group integration tests
+  cover mixed scalar/structural history, a rejected later member, stable duplicate
+  row identities and exact ZIP outputs through repeated undo/redo for both transforms.
+  The group emits warnings because controlled
   paired-file evidence is still absent; no plugin-local transaction coordinator
   bypasses Core.
 - No new SDK gap blocks these views or writes. Game-specific dependency validation,

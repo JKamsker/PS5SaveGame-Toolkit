@@ -15,8 +15,8 @@ internal static class XorJsonGroups
         var role = Role(plugin, anchor);
         if (role is null) return [];
         var files = anchor.Directory.SaveSet.AllFiles.Where(file => SameGeneration(anchor, file)).ToArray();
-        var characters = files.Where(file => Role(plugin, file) == CharacterRole).ToArray();
-        var globals = files.Where(file => Role(plugin, file) == GlobalRole).ToArray();
+        var characters = role == CharacterRole ? [anchor] : files.Where(file => Role(plugin, file) == CharacterRole).ToArray();
+        var globals = role == GlobalRole ? [anchor] : files.Where(file => Role(plugin, file) == GlobalRole).ToArray();
         if (characters.Length == 0 || globals.Length == 0 || (long)characters.Length * globals.Length > MaximumAlternatives)
         {
             var member = role == CharacterRole ? new DocumentGroupMember(CharacterRole, anchor.RelativePath) :

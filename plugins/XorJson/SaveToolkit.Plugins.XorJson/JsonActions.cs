@@ -27,11 +27,13 @@ internal static class JsonActions
     public static string? Validate(JsonValueToken node, FieldValue value, IReferenceContext references)
     {
         if (node.Validate(value) is { } error) return error;
-        var catalog = CharacterViews.CatalogFor(node);
-        if (catalog is null || value == node.Original || value == node.Current) return null;
+        if (value == node.Original || value == node.Current) return null;
         var inner = value.Kind == FieldValueKind.Union ? value.AsUnion().Value : value;
+        if (inner.Kind != FieldValueKind.Text) return null;
+        var catalog = CharacterViews.CatalogFor(node) ?? CharacterViews.CatalogFor(node, inner);
+        if (catalog is null) return null;
         return references.Catalog(catalog) is { } records &&
-            (inner.Kind != FieldValueKind.Text || records.Find(inner.AsString()) is null)
+            records.Find(inner.AsString()) is null
             ? "Choose an identifier from the attributed catalog. Existing unknown original IDs are preserved." : null;
     }
 }
