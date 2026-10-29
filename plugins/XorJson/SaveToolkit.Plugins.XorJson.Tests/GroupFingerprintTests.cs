@@ -11,9 +11,11 @@ namespace SaveToolkit.Plugins.XorJson.Tests;
 public sealed class GroupFingerprintTests
 {
     // Captured from the private member wrapper before adopting SDK-04. Never regenerate to accept a migration change.
+    // #40 intentionally refreshes only view hashes for raw structural warning descriptions;
+    // protocol/export fingerprints and exact undo-byte checks retain their original baselines.
     [Theory]
-    [InlineData(false, "B714D1C9E4898EF770C2E51D1D924C0D7A02C5A6854C4FB6A034DA6D16854CA0", "8D8C7AEA9FD9F685AE04FAC28625C9EDEF9E69174D77E18BAE8596A0C846599E")]
-    [InlineData(true, "75D1838D5794CA1F2AA5FA4F42BE39B4CB55FB441C7E38EE795EDFC0A022DC2A", "BD9ABAEC42D9E986964E8D804BE8CC0EED16E8A88CAF3D59ACE60FD868975FD8")]
+    [InlineData(false, "896B32CA32015C9B790812729E73F057F56ECD9E0A7159512685B11A4799672B", "8D8C7AEA9FD9F685AE04FAC28625C9EDEF9E69174D77E18BAE8596A0C846599E")]
+    [InlineData(true, "599FE94FC49C9ADDADEC82C280E9CFABC89D6E98D8FCB42989F46A6A90BB8CBC", "BD9ABAEC42D9E986964E8D804BE8CC0EED16E8A88CAF3D59ACE60FD868975FD8")]
     public void ViewsAndProtocolMatchPreMigrationFingerprints(bool xor, string expectedView, string expectedProtocol)
     {
         using var fixture = new GroupIdentityFixture(xor);
