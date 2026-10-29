@@ -6,6 +6,7 @@ import type { QueryablePage } from "../../../api/protocol";
 import { DocumentContext, DocumentStore, type DocumentContextValue } from "../../../state/documentStore";
 import { ServerTableView } from "./ServerTableView";
 import { deferred } from "../../../test/deferred";
+import { field } from "./tableTestUtils";
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
@@ -26,6 +27,28 @@ function setup(refresh = vi.fn(async () => {})) {
 }
 
 describe("server table request lifecycle", () => {
+  it("recomputes column confidence for each page and preserves cell screen-reader labels", async () => {
+    const unknown = field("a", { kind: "text", readOnly: true }, "Potion", { confidence: "Unknown" });
+    const verified = field("b", { kind: "text", readOnly: true }, "Ether", { confidence: "Verified" });
+    vi.spyOn(api, "queryCollection").mockResolvedValueOnce({ ...page, rows: [
+      { key: "a", cells: { name: unknown } }, { key: "b", cells: { name: { ...unknown, valueId: "b", value: "Ether" } } },
+    ] }).mockResolvedValueOnce({ ...page, offset: 50, rows: [
+      { key: "a", cells: { name: unknown } }, { key: "b", cells: { name: verified } },
+    ] });
+    const { client } = setup();
+    await screen.findByRole("checkbox", { name: "Select Potion" });
+    const heading = screen.getByRole("columnheader", { name: /^Name/ });
+    expect(within(heading).getByRole("img", { name: "Confidence: meaning unknown" })).toBeTruthy();
+    expect(screen.getAllByRole("img", { name: /^Confidence:/ })).toHaveLength(1);
+    expect(screen.getAllByText("Confidence: meaning unknown", { selector: ".visually-hidden" })).toHaveLength(2);
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    await screen.findByRole("img", { name: "Confidence: verified" });
+    expect(within(screen.getByRole("columnheader", { name: "Name" })).queryByRole("img")).toBeNull();
+    expect(screen.getAllByRole("img", { name: /^Confidence:/ })).toHaveLength(2);
+    expect(screen.getByRole("img", { name: "Confidence: verified" }).closest('[role="cell"]')).not.toBeNull();
+    client.clear();
+  });
+
   it("distinguishes loading rows from a completed empty result", async () => {
     const pending = deferred<QueryablePage>();
     vi.spyOn(api, "queryCollection").mockReturnValue(pending.promise);
