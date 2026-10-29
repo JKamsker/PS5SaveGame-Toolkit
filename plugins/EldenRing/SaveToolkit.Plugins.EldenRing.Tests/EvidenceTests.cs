@@ -47,6 +47,31 @@ public sealed class EvidenceTests
     }
 
     [Fact]
+    public void EquipmentEvidenceAllowsOnlyApprovedNumericBytesAtBothEndpoints()
+    {
+        var before = new SemanticFixture();
+        var after = new SemanticFixture();
+        var slot = EldenRingParser.Parse(after.Save.Bytes).Slots[0];
+        var range = SemanticReader.Read(after.Save.Bytes, slot).Ranges.Single(range => range.Name == "EquipData");
+        after.Save.Write32(range.Offset, 1);
+        after.Save.Write32(slot.ProfileOffset + 0x17E, 1);
+        after.Save.Bytes[after.Player + 0x110] = 1; // Synthetic excluded value, never a real credential.
+        var beforeFile = before.Save.File();
+        var afterFile = after.Save.File();
+        var report = SaveSetDiffer.Compare(beforeFile.Directory.SaveSet, afterFile.Directory.SaveSet, new()
+        {
+            Churn = new ChurnFilter([.. EvidencePrivacy.Masks(beforeFile), .. EvidencePrivacy.Masks(afterFile)]),
+            Bytes = new ByteDiffOptions { ContextBytes = 0, MaxPreviewBytes = 1 },
+            Decoder = new HookSaveDecoder(new EldenRingEvidenceDecoder()),
+        });
+        var file = Assert.Single(report.Files);
+        Assert.Equal(FileDiffStatus.Changed, file.Status);
+        Assert.Equal(1, file.Bytes!.IgnoredBytes);
+        Assert.Equal(new long[] { range.Offset, slot.ProfileOffset + 0x17E }, file.Bytes.Ranges.Select(change => change.Offset));
+        Assert.Equal(2, file.Semantic!.Total);
+    }
+
+    [Fact]
     public void NonAllowlistedBytes_AreMaskedAndNeverAppearInDiffPreviews()
     {
         var before = new SemanticFixture();
