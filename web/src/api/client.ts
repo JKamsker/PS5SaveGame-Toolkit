@@ -22,6 +22,7 @@ import type {
   CollectionQuery,
   QueryablePage,
   ToolkitPreset,
+  DocumentPreset,
   PresetPreview,
 } from "./protocol";
 import { ApiError, cancelledMessage, fetchApi, networkMessage, readJson, responseError, timeoutMessage, TRANSFER_TIMEOUT_MS } from "./http";
@@ -63,6 +64,8 @@ export const api = {
 
   titles: () => request<TitleInfo[]>("/titles"),
   presets: () => request<ToolkitPreset[]>("/presets"),
+  reloadPresets: () => request<ToolkitPreset[]>("/presets/reload", { method: "POST" }),
+  documentPresets: (wsId: string, docId: string) => request<DocumentPreset[]>(`${documentPath(wsId, docId)}/presets`),
   createPreset: (name: string, compatibility: ToolkitPreset["compatibility"], actions: ToolkitPreset["actions"]) =>
     request<ToolkitPreset>("/presets", postJson({ name, compatibility, actions })),
   capturePreset: (wsId: string, docId: string, name: string, action: { actionId: string; parameters: Record<string, unknown>; scopeKind?: string; selectedRowKeys?: string[]; allMatches?: boolean }) =>

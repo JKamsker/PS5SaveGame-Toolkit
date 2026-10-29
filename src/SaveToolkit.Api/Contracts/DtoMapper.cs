@@ -1,4 +1,5 @@
 using SaveToolkit.Core.Plugins;
+using SaveToolkit.Core.Presets;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
@@ -57,6 +58,36 @@ internal static class DtoMapper
 
     public static PresetDto ToDto(this ToolkitPreset preset) => new(
         preset.SchemaVersion, preset.Id, preset.Name, preset.Compatibility, preset.Actions, preset.CreatedAt, preset.UpdatedAt);
+
+    public static DocumentPresetDto ToDocumentDto(this ToolkitPreset preset, DocumentSession document)
+    {
+        var check = PresetStore.CheckCompatibility(preset, document);
+        var capability = document.PresetCapability;
+        var unsupported = capability is null
+            ? []
+            : preset.Actions.Where(action => capability.Actions.All(item => item.ActionId != action.ActionId
+                || !item.SupportedScopes.Contains(action.ScopeKind, StringComparer.Ordinal)
+                || !item.SupportsApply)).Select(action => action.ActionId).Distinct(StringComparer.Ordinal).ToArray();
+        return new DocumentPresetDto(preset.ToDto(), new(
+            check.Compatible,
+            check.Code,
+            check.Message,
+            !document.CanEdit,
+            preset.Compatibility.PresetKind,
+            preset.Compatibility.GameBuild,
+            capability?.GameBuild,
+            preset.Compatibility.FormatVariant,
+            capability?.FormatVariant,
+            preset.Compatibility.ReferencePackIdentity,
+            capability?.ReferencePackIdentity,
+            preset.Compatibility.SchemaFingerprint,
+            capability?.SchemaFingerprint,
+            preset.Compatibility.FileRole,
+            capability?.FileRole,
+            preset.Compatibility.CapabilitySchemaVersion,
+            capability?.SchemaVersion,
+            unsupported));
+    }
 
     private static DirectoryDto ToDto(Workspace ws, DiskSaveDirectory dir, Dictionary<string, string> openByFile)
     {
