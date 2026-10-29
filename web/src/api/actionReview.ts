@@ -1,4 +1,5 @@
 import { request } from "./client";
+import { documentPath, postJson } from "./requests";
 import type { CollectionQuery, EditResult, FieldError, FieldValue } from "./protocol";
 
 /** SDK query names differ from the collection endpoint's query-string names. */
@@ -6,7 +7,7 @@ export interface QueryableCollectionQuery extends Omit<CollectionQuery, "q" | "s
   text?: string;
   sortColumn?: string;
 }
-export interface SemanticCollectionTarget {
+interface SemanticCollectionTarget {
   collectionId: string;
   rowKey: string;
   query: QueryableCollectionQuery;
@@ -15,14 +16,14 @@ export function collectionReviewQuery({ text, sortColumn, ...query }: QueryableC
   return { ...query, q: text, sort: sortColumn };
 }
 
-export interface ActionQueryScope {
+interface ActionQueryScope {
   collectionId: string;
   query: { text?: string; filters?: Record<string, string>; sortColumn?: string; descending?: boolean; includeEmpty?: boolean };
   revision: number;
   excludedRowKeys: readonly string[];
 }
 export interface ActionScope { rowKeys?: readonly string[] | null; queryScope?: ActionQueryScope }
-export interface PlannedChange {
+interface PlannedChange {
   valueId: string; label: string; oldValue: FieldValue; newValue: FieldValue;
   derived: boolean; oldExists: boolean; newExists: boolean;
 }
@@ -37,17 +38,14 @@ export interface SemanticChange {
 }
 export interface SemanticChangeLog { changes: SemanticChange[]; complete: boolean; warnings: string[]; revision: number }
 
-const base = (workspace: string, document: string) => `/workspaces/${encodeURIComponent(workspace)}/documents/${encodeURIComponent(document)}`;
-const post = (body: unknown): RequestInit => ({ method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-
 export const actionReview = {
   plan: (workspace: string, document: string, actionId: string, parameters: Record<string, FieldValue>, scope: ActionScope, revision?: number) =>
-    request<ActionPreview>(`${base(workspace, document)}/actions/plan`, post({ actionId, parameters, scope, revision })),
+    request<ActionPreview>(`${documentPath(workspace, document)}/actions/plan`, postJson({ actionId, parameters, scope, revision })),
   apply: (workspace: string, document: string, planId: string, revision: number) =>
-    request<EditResult>(`${base(workspace, document)}/actions/apply`, post({ planId, revision })),
-  changes: (workspace: string, document: string) => request<SemanticChangeLog>(`${base(workspace, document)}/changes`),
+    request<EditResult>(`${documentPath(workspace, document)}/actions/apply`, postJson({ planId, revision })),
+  changes: (workspace: string, document: string) => request<SemanticChangeLog>(`${documentPath(workspace, document)}/changes`),
   revert: (workspace: string, document: string, valueId: string, revision: number) =>
-    request<EditResult>(`${base(workspace, document)}/changes/revert`, post({ valueId, revision })),
+    request<EditResult>(`${documentPath(workspace, document)}/changes/revert`, postJson({ valueId, revision })),
 };
 
 export function reviewValue(value: FieldValue, exists = true): string {

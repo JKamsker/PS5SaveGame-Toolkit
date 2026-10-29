@@ -23,6 +23,7 @@ import type {
   QueryablePage,
 } from "./protocol";
 import { ApiError, cancelledMessage, fetchApi, networkMessage, readJson, responseError, timeoutMessage, TRANSFER_TIMEOUT_MS } from "./http";
+import { documentPath, postJson, workspacePath } from "./requests";
 
 export { ApiError } from "./http";
 
@@ -51,20 +52,11 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
 }
 
-const json = (body: unknown): RequestInit => ({
-  method: "POST",
-  headers: { "content-type": "application/json" },
-  body: JSON.stringify(body),
-});
-
-const ws = (id: string) => `/workspaces/${encodeURIComponent(id)}`;
-const doc = (wsId: string, docId: string) => `${ws(wsId)}/documents/${encodeURIComponent(docId)}`;
-
 export const api = {
   plugins: () => request<Plugin[]>("/plugins"),
   workspaces: () => request<WorkspaceSummary[]>("/workspaces"),
-  workspace: (id: string) => request<Workspace>(ws(id)),
-  deleteWorkspace: (id: string) => request<void>(ws(id), { method: "DELETE" }),
+  workspace: (id: string) => request<Workspace>(workspacePath(id)),
+  deleteWorkspace: (id: string) => request<void>(workspacePath(id), { method: "DELETE" }),
 
   titles: () => request<TitleInfo[]>("/titles"),
 
@@ -91,14 +83,14 @@ export const api = {
       xhr.send(form);
     }),
 
-  iconUrl: (wsId: string, dirId: string) => `/api${ws(wsId)}/directories/${encodeURIComponent(dirId)}/icon`,
+  iconUrl: (wsId: string, dirId: string) => `/api${workspacePath(wsId)}/directories/${encodeURIComponent(dirId)}/icon`,
 
   open: (wsId: string, fileId: string, pluginId?: string) =>
-    request<SaveDocument>(`${ws(wsId)}/files/${encodeURIComponent(fileId)}/open`, json({ pluginId: pluginId ?? null })),
-  document: (wsId: string, docId: string) => request<SaveDocument>(doc(wsId, docId)),
-  closeDocument: (wsId: string, docId: string) => request<void>(doc(wsId, docId), { method: "DELETE" }),
+    request<SaveDocument>(`${workspacePath(wsId)}/files/${encodeURIComponent(fileId)}/open`, postJson({ pluginId: pluginId ?? null })),
+  document: (wsId: string, docId: string) => request<SaveDocument>(documentPath(wsId, docId)),
+  closeDocument: (wsId: string, docId: string) => request<void>(documentPath(wsId, docId), { method: "DELETE" }),
   expand: (wsId: string, docId: string, lazyId: string, signal?: AbortSignal) =>
-    request<ViewNode[]>(`${doc(wsId, docId)}/nodes?id=${encodeURIComponent(lazyId)}`, { signal }),
+    request<ViewNode[]>(`${documentPath(wsId, docId)}/nodes?id=${encodeURIComponent(lazyId)}`, { signal }),
   queryCollection: (wsId: string, docId: string, collectionId: string, query: CollectionQuery = {}, revision?: number) => {
     const params = new URLSearchParams({ collectionId });
     if (query.q) params.set("q", query.q);
@@ -111,26 +103,26 @@ export const api = {
     if (query.limit !== undefined) params.set("limit", String(query.limit));
     if (query.cursor) params.set("cursor", query.cursor);
     if (revision !== undefined) params.set("revision", String(revision));
-    return request<QueryablePage>(`${doc(wsId, docId)}/collections?${params.toString()}`);
+    return request<QueryablePage>(`${documentPath(wsId, docId)}/collections?${params.toString()}`);
   },
   /** `revision` is the view revision the caller is bound to; the server rejects stale ones (`stale: true`). */
   edit: (wsId: string, docId: string, edits: { valueId: string; value: FieldValue }[], revision?: number) =>
-    request<EditResult>(`${doc(wsId, docId)}/edits`, json({ edits, revision })),
+    request<EditResult>(`${documentPath(wsId, docId)}/edits`, postJson({ edits, revision })),
   action: (wsId: string, docId: string, actionId: string, parameters: Record<string, FieldValue>, revision?: number) =>
-    request<EditResult>(`${doc(wsId, docId)}/actions`, json({ actionId, parameters, revision })),
-  undo: (wsId: string, docId: string) => request<EditResult>(`${doc(wsId, docId)}/undo`, { method: "POST" }),
-  redo: (wsId: string, docId: string) => request<EditResult>(`${doc(wsId, docId)}/redo`, { method: "POST" }),
-  assetUrl: (wsId: string, docId: string, assetId: string) => `/api${doc(wsId, docId)}/assets?id=${encodeURIComponent(assetId)}`,
+    request<EditResult>(`${documentPath(wsId, docId)}/actions`, postJson({ actionId, parameters, revision })),
+  undo: (wsId: string, docId: string) => request<EditResult>(`${documentPath(wsId, docId)}/undo`, { method: "POST" }),
+  redo: (wsId: string, docId: string) => request<EditResult>(`${documentPath(wsId, docId)}/redo`, { method: "POST" }),
+  assetUrl: (wsId: string, docId: string, assetId: string) => `/api${documentPath(wsId, docId)}/assets?id=${encodeURIComponent(assetId)}`,
   blob: async (wsId: string, docId: string, blobId: string, offset: number, count: number) => {
-    return fetchApi(`${doc(wsId, docId)}/blobs?id=${encodeURIComponent(blobId)}&offset=${offset}&count=${count}`, undefined, async response => {
+    return fetchApi(`${documentPath(wsId, docId)}/blobs?id=${encodeURIComponent(blobId)}&offset=${offset}&count=${count}`, undefined, async response => {
       if (!response.ok) throw responseError(response.status, await readJson(response));
       return new Uint8Array(await response.arrayBuffer());
     });
   },
-  downloadUrl: (wsId: string, docId: string) => `/api${doc(wsId, docId)}/download`,
+  downloadUrl: (wsId: string, docId: string) => `/api${documentPath(wsId, docId)}/download`,
 
   /** Reference datasets pinned to the document, with attribution (Sources panel). */
-  sources: (wsId: string, docId: string) => request<DocumentSources>(`${doc(wsId, docId)}/sources`),
+  sources: (wsId: string, docId: string) => request<DocumentSources>(`${documentPath(wsId, docId)}/sources`),
   /** Paged catalog search; F4's picker builds on this. */
   searchReferences: (
     wsId: string,
@@ -140,19 +132,19 @@ export const api = {
   ) => {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(query)) if (value !== undefined && value !== "") params.set(key, String(value));
-    return request<ReferencePage>(`${doc(wsId, docId)}/references/${encodeURIComponent(catalogId)}?${params.toString()}`);
+    return request<ReferencePage>(`${documentPath(wsId, docId)}/references/${encodeURIComponent(catalogId)}?${params.toString()}`);
   },
   /** One catalog record with its pack metadata and full dataset provenance. */
   referenceRecord: (wsId: string, docId: string, catalogId: string, key: string, signal?: AbortSignal) =>
-    request<ReferenceRecordDetail>(`${doc(wsId, docId)}/references/${encodeURIComponent(catalogId)}/record?${referenceParams({ key })}`, { signal }),
+    request<ReferenceRecordDetail>(`${documentPath(wsId, docId)}/references/${encodeURIComponent(catalogId)}/record?${referenceParams({ key })}`, { signal }),
   referenceAssetUrl: (wsId: string, docId: string, assetId: string) =>
-    `/api${doc(wsId, docId)}/reference-assets?id=${encodeURIComponent(assetId)}`,
+    `/api${documentPath(wsId, docId)}/reference-assets?id=${encodeURIComponent(assetId)}`,
   referenceCandidates: (wsId: string, docId: string, query: { valueId: string; actionId?: string; q?: string; category?: string; sortBy?: ReferenceSortKey; descending?: boolean; offset?: number; limit?: number; revision?: number }) =>
-    request<ReferenceCandidatePage>(`${doc(wsId, docId)}/reference-fields/candidates?${referenceParams(query)}`),
+    request<ReferenceCandidatePage>(`${documentPath(wsId, docId)}/reference-fields/candidates?${referenceParams(query)}`),
   referenceCandidate: (wsId: string, docId: string, query: { valueId: string; rawId: string; actionId?: string; revision?: number }) =>
-    request<ReferenceCandidate>(`${doc(wsId, docId)}/reference-fields/record?${referenceParams(query)}`),
+    request<ReferenceCandidate>(`${documentPath(wsId, docId)}/reference-fields/record?${referenceParams(query)}`),
   referenceRecords: (wsId: string, docId: string, pairs: ReferenceRecordPair[], revision?: number, signal?: AbortSignal) =>
-    request<ReferenceRecordsResponse>(`${doc(wsId, docId)}/reference-fields/records`, { ...json({ pairs, revision }), signal }),
+    request<ReferenceRecordsResponse>(`${documentPath(wsId, docId)}/reference-fields/records`, { ...postJson({ pairs, revision }), signal }),
   referencePacks: () => request<ReferencePacks>("/reference-packs"),
   importReferencePack: (file: File) => {
     const form = new FormData();
@@ -162,9 +154,9 @@ export const api = {
   deleteReferencePack: (packId: string) => request<void>(`/reference-packs/${encodeURIComponent(packId)}`, { method: "DELETE" }),
 
   exportPlan: (wsId: string, scope: ExportScope, mirrorBackups: boolean) =>
-    request<ExportPlan>(`${ws(wsId)}/export/plan`, json({ scope, mirrorBackups })),
+    request<ExportPlan>(`${workspacePath(wsId)}/export/plan`, postJson({ scope, mirrorBackups })),
   exportZip: async (wsId: string, scope: ExportScope, mirrorBackups: boolean) => {
-    return fetchApi(`${ws(wsId)}/export`, json({ scope, mirrorBackups }), async response => {
+    return fetchApi(`${workspacePath(wsId)}/export`, postJson({ scope, mirrorBackups }), async response => {
       if (!response.ok) throw responseError(response.status, await readJson(response));
       const disposition = response.headers.get("content-disposition") ?? "";
       const name = /filename="?([^";]+)"?/.exec(disposition)?.[1] ?? "savebench-export.zip";

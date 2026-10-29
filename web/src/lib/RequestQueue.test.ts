@@ -1,12 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { RequestQueue } from "./RequestQueue";
-
-function deferred<T>() {
-  let resolve!: (value: T) => void;
-  let reject!: (error: Error) => void;
-  const promise = new Promise<T>((accept, fail) => { resolve = accept; reject = fail; });
-  return { promise, resolve, reject };
-}
+import { deferred } from "../test/deferred";
 
 describe("request queue", () => {
   it("starts waiters in order and releases slots after success, asynchronous failure, and synchronous failure", async () => {
