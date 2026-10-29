@@ -112,7 +112,7 @@ public sealed class RagnarokWriteTests(ITestOutputHelper output)
     [Fact]
     public void SerializeReparsesOutputAndRejectsAnUnintendedMarkerCollision()
     {
-        var bytes = RagnarokFormatTests.SyntheticGameplay();
+        var bytes = RagnarokTestSupport.LegacyGameplay();
         // The legacy fixture has one bounded row. Give it a quantity ceiling that allows the
         // low wallet-marker word, with the matching high word in the preserved metadata.
         const int quantityOffset = 0x51C;

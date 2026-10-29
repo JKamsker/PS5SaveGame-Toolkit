@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
 
@@ -23,7 +22,7 @@ public sealed class RagnarokPresentationCharacterizationTests
         {
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
             var plugin = new GodOfWarRagnarokPlugin();
-            var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA08330");
+            var context = RagnarokTestSupport.PinnedReferences(plugin);
             var bytes = Bytes(kind);
             var name = kind == "preferences" ? "userpreferences" : "GOWRSAVE0";
             using var document = (RagnarokDocument)plugin.Open(MemorySaveSet.SingleFile(name, bytes, "PPSA08330"), context);
@@ -71,7 +70,7 @@ public sealed class RagnarokPresentationCharacterizationTests
 
     private static byte[] Bytes(string kind)
     {
-        if (kind == "legacy") return RagnarokFormatTests.SyntheticGameplay();
+        if (kind == "legacy") return RagnarokTestSupport.LegacyGameplay();
         if (kind == "nested") return new RagnarokNestedFixture().Create();
         var bytes = new byte[696];
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(8), 31);

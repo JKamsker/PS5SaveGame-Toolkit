@@ -58,7 +58,7 @@ public sealed class RagnarokReferencePerformanceTests
     private static CountingContext Context(string suffix = "")
     {
         var plugin = new GodOfWarRagnarokPlugin();
-        return new(new ReferencePackStore([plugin]).Pin(plugin, "PPSA08330"), suffix);
+        return new(RagnarokTestSupport.PinnedReferences(plugin), suffix);
     }
 
     private sealed class CountingContext(IReferenceContext inner, string suffix) : IReferenceContext

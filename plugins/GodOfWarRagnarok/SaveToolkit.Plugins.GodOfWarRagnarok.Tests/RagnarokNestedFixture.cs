@@ -22,7 +22,7 @@ internal sealed class RagnarokNestedFixture(int walletCount = 3, int groupCount 
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(RagnarokFormatTests.SyntheticGameplay().AsSpan(0, FirstWalletOffset));
+        writer.Write(RagnarokTestSupport.LegacyGameplay().AsSpan(0, FirstWalletOffset));
         for (var wallet = 0; wallet < walletCount; wallet++)
         {
             writer.Write(wallet == 0 ? RagnarokFormat.HeroWalletId : (ulong)wallet);

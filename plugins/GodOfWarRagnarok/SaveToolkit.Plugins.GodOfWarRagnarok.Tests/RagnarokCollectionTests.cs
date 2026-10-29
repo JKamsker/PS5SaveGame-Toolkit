@@ -1,4 +1,3 @@
-using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
@@ -12,9 +11,9 @@ public sealed class RagnarokCollectionTests
     {
         var file = SampleSaves.Load("PPSA08330").AllDiskFiles.First(file => file.FileName == "GOWRSAVE0");
         var plugin = new GodOfWarRagnarokPlugin();
-        using var document = plugin.Open(file, new ReferencePackStore([plugin]).Pin(plugin, "PPSA08330"));
+        using var document = plugin.Open(file, RagnarokTestSupport.PinnedReferences(plugin));
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
-        var root = RagnarokFormatTests.Flatten(document.BuildView()).OfType<QueryableTableNode>().ToArray();
+        var root = RagnarokTestSupport.EagerNodes(document.BuildView()).OfType<QueryableTableNode>().ToArray();
         Assert.Equal(7, root.Length);
         Assert.Equal(798, Assert.Single(queryable.Collections, c => c.Id == "directory").TotalCount);
 

@@ -14,7 +14,7 @@ public sealed class RagnarokParserCharacterizationTests
     [InlineData(true, "DA342C760A81B6F0BCA50030C2F4454C62F88CDE57D5A30565F52BE6CC4647DC")]
     public void CompleteIndexAndGrammarEvidenceRemainUnchanged(bool nested, string expected)
     {
-        var bytes = nested ? new RagnarokNestedFixture().Create() : RagnarokFormatTests.SyntheticGameplay();
+        var bytes = nested ? new RagnarokNestedFixture().Create() : RagnarokTestSupport.LegacyGameplay();
         var index = RagnarokRecordIndex.Parse(bytes, false);
         var json = JsonSerializer.Serialize(index);
         var actual = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(json)));
