@@ -58,10 +58,7 @@ internal static class WorkspaceEndpoints
                 return Results.UnprocessableEntity(new ErrorDto("Nothing has been changed yet."));
             }
 
-            var buffer = new MemoryStream();
-            WorkspaceExporter.WriteZip(plan, buffer);
-            buffer.Position = 0;
-            return Results.File(buffer, "application/zip", $"{SafeName(w.Value.Name)}-edited.zip");
+            return WorkspaceExportResponse.Create(plan, $"{SafeName(w.Value.Name)}-edited.zip");
         });
     }
 
