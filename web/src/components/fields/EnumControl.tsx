@@ -32,9 +32,10 @@ export function EnumControl({ id, spec, value, onCommit, compact, labelledBy, de
       {selected?.description && <span className="field__hint">{selected.description}</span>}
     </div>;
   }
-  const normalizedQuery = query.trim().toLocaleLowerCase();
+  // Options include protocol IDs: search must use the same casing on every browser locale.
+  const normalizedQuery = query.trim().toLowerCase();
   const options = spec.options.filter((o) => o.value === current ||
-    `${o.label} ${o.value} ${o.description ?? ""}`.toLocaleLowerCase().includes(normalizedQuery));
+    `${o.label} ${o.value} ${o.description ?? ""}`.toLowerCase().includes(normalizedQuery));
   return <div className="enum-control">
     {spec.options.length >= searchThreshold && <input type="search" className={className} aria-label="Search options"
       aria-describedby={labelledBy} value={query} onChange={(e) => setQuery(e.target.value)} />}

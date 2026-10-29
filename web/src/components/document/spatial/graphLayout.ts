@@ -32,7 +32,7 @@ export function graphLayout(graph: GraphNode) {
   const ordered = [...graph.items].sort((a, b) => {
     if (!a.branch) return b.branch ? 1 : 0;
     if (!b.branch) return -1;
-    return a.branch.localeCompare(b.branch);
+    return a.branch < b.branch ? -1 : a.branch > b.branch ? 1 : 0;
   });
   for (const item of ordered) {
     const layer = layers.get(item.id)!;

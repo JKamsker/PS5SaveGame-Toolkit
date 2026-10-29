@@ -42,14 +42,8 @@ export function parseDraft(spec: FieldSpec, draft: string | boolean): Parsed {
       if (n < min || n > max) return fail(`Must be between ${min} and ${max}.`);
       return { ok: true, value: n.toString() };
     }
-    case "float": {
-      const t = String(draft).trim();
-      const n = Number(t);
-      if (t === "" || !Number.isFinite(n)) return fail("Enter a number.");
-      if (spec.min !== undefined && n < spec.min) return fail(`Must be at least ${spec.min}.`);
-      if (spec.max !== undefined && n > spec.max) return fail(`Must be at most ${spec.max}.`);
-      return { ok: true, value: spec.singlePrecision ? Math.fround(n) : n };
-    }
+    case "float":
+      return parseFloatDraft(spec, String(draft));
     case "text": {
       const t = String(draft);
       if (spec.maxLength !== undefined && t.length > spec.maxLength) return fail(`At most ${spec.maxLength} characters.`);
@@ -68,6 +62,19 @@ export function parseDraft(spec: FieldSpec, draft: string | boolean): Parsed {
     case "reference":
       return { ok: true, value: String(draft) }; // Membership/eligibility are checked against the pinned server catalog.
   }
+}
+
+function parseFloatDraft(spec: FloatSpec, draft: string): Parsed {
+  const text = draft.trim();
+  // Decimal keyboards use the browser locale. Dot decimals stay valid for raw save values;
+  // grouping and mixed separators are rejected instead of guessing a different magnitude.
+  const decimal = new Intl.NumberFormat().formatToParts(1.1).find(part => part.type === "decimal")?.value ?? ".";
+  const normalized = text.includes(".") ? text : text.replace(decimal, ".");
+  const number = Number(normalized);
+  if (text === "" || !Number.isFinite(number)) return fail("Enter a number without thousands separators.");
+  if (spec.min !== undefined && number < spec.min) return fail(`Must be at least ${spec.min}.`);
+  if (spec.max !== undefined && number > spec.max) return fail(`Must be at most ${spec.max}.`);
+  return { ok: true, value: spec.singlePrecision ? Math.fround(number) : number };
 }
 
 /** The editable text shown for a value. */
