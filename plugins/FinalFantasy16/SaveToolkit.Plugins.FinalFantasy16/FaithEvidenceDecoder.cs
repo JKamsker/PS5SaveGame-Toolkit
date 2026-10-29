@@ -36,6 +36,11 @@ internal sealed class FaithEvidenceDecoder : ISaveDecoderHook
 
     public void Decode(ISaveFile file, ISaveDecodeSink sink)
     {
+        if (file.Length > FaithContainer.MaximumFileSize)
+        {
+            throw new SaveFormatException("Faith save exceeds the supported 64 MiB limit.");
+        }
+
         if (file.Length > sink.MaxFileBytes)
         {
             throw new InvalidDataException("FFXVI save exceeds the evidence decoder input bound.");
