@@ -1,8 +1,11 @@
 # Final Fantasy XVI performance review (#40)
 
-The harness compares the original plugin at
-`6e9f1d6285788c8b71749a36b31edf53a93c53a3` with the current plugin. It compiles
-both against the same current SDK/Testing projects. The baseline plugin source
+Historical performance review, 2026-10-29. The recorded comparison used the original
+plugin at `6e9f1d6285788c8b71749a36b31edf53a93c53a3` and the optimized plugin
+through `16bd53e`. The harness compares that baseline with the checked-out plugin,
+compiling both against the checked-out SDK/Testing projects. A rerun after framework
+or plugin changes is a new measurement, not a reproduction of the exact totals below.
+The baseline plugin source
 and resources come from `git archive`; only the scratch project reference is
 adapted. Production source remains in the C: checkout.
 
@@ -85,9 +88,9 @@ allocations. Shared CRC implementation changes are outside this review.
 
 ## Regression evidence
 
-The baseline complete suite had 196 passing cases. The final suite has 245,
-including 49 new performance/characterization cases. With private samples it
-has zero failures/skips; with artifacts unset it has 197 passes and 48 expected
+The baseline complete suite had 196 passing cases. The performance-round suite had
+245, including 49 new performance/characterization cases. With private samples it
+had zero failures/skips; with artifacts unset it had 197 passes and 48 expected
 missing-sample skips. API Release build with `--warnaserror`: zero warnings/errors.
 
 Test-first reproductions:
@@ -115,14 +118,17 @@ allowance for BCL/tiering/hash-table variation. An initial symmetric 4 KiB
 comparison incorrectly rejected a larger fixture allocating 7,640 bytes less;
 the corrected bound still rejects the original exact 4 MiB copy increase.
 
-## Remaining framework opportunities
+## Framework follow-up status (2026-10-29)
 
-`BoundSaveDocument.Field` still allocates a view node to register a primary
-binding; a non-rendering registration API would remove those temporary nodes.
+The SDK now provides `BoundSaveDocument.RegisterField` for storage registration
+without reading the value or constructing a view node, and `Field(valueId, label)`
+for later rendering. The plugin still uses the full `Field` overload for its
+primary bindings; adoption is a plugin optimization opportunity, not a missing API.
 `ReferenceContext.Catalog` repeats pack selection/usage tracking, mitigated here
-by pinning each adapter lookup once. Core's 81,920-byte per-resource read buffer
-contributes to shared cold pack loading. These are described on #40 and left
-outside this plugin scope. CRC/framing revalidation in `Serialize` is intentional
+by pinning each adapter lookup once. Core has also resolved the per-resource
+scratch-allocation request: seekable embedded resources use exact-size output
+arrays, while non-seekable streams rent a shared 81,920-byte buffer. The historical
+cold-load measurements above predate that change. CRC/framing revalidation in `Serialize` is intentional
 integrity work, not an accidental repeated-parse defect.
 
 Cleanup: automatic approval review rejected recursive deletion of
