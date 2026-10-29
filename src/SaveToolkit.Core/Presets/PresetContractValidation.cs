@@ -17,6 +17,9 @@ public static class PresetContractValidation
     public const int MaxResolutionCandidates = 128;
     public const int MaxResolutionBytes = 256 * 1024;
     public const int MaxMetadataLength = 512;
+    public const int MaxCapabilityActions = 32;
+    public const int MaxScopeKinds = 4;
+    public const int MaxCapabilityBytes = 256 * 1024;
 
     public static bool HasSemanticBoundaries(PresetCompatibility compatibility) =>
         compatibility.GameBuild is not null || compatibility.FormatVariant is not null
@@ -27,6 +30,7 @@ public static class PresetContractValidation
     public static string? ValidateCapture(PresetCapability? capability, PresetCaptureRequest? request, ReferenceFieldService? references = null)
     {
         if (request is null) return "The capture request is malformed.";
+        if (request.Parameters is null) return "Preset parameters are missing.";
         if (!PresetScopeKinds.AllEligible.Equals(request.ScopeKind, StringComparison.Ordinal)
             && !PresetScopeKinds.AllCopies.Equals(request.ScopeKind, StringComparison.Ordinal)
             && !PresetScopeKinds.Document.Equals(request.ScopeKind, StringComparison.Ordinal)
@@ -42,6 +46,8 @@ public static class PresetContractValidation
             if (keys.Count > MaxSelectedRows || keys.Any(key => string.IsNullOrWhiteSpace(key) || key.Length > MaxKeyLength)
                 || keys.Distinct(StringComparer.Ordinal).Count() != keys.Count)
                 return "Selected row keys must be bounded, nonempty and distinct.";
+            if (!string.Equals(request.ScopeKind, PresetScopeKinds.Selected, StringComparison.Ordinal) && keys.Count > 0)
+                return "Selection keys are only valid for selected capture.";
         }
         if (request.AllMatches && request.ScopeKind is not (PresetScopeKinds.AllEligible or PresetScopeKinds.AllCopies))
             return "allMatches is only valid for allEligible or allCopies capture.";
@@ -90,23 +96,7 @@ public static class PresetContractValidation
         return null;
     }
 
-    public static string? ValidateCapability(PresetCapability? capability)
-    {
-        if (capability is null) return "The document has no published preset capability.";
-        if (string.IsNullOrWhiteSpace(capability.SchemaVersion) || capability.Actions is null
-            || capability.MaxActions is < 1 or > 32) return "The preset capability metadata is malformed.";
-        if (capability.Actions.Any(action => action is null || string.IsNullOrWhiteSpace(action.ActionId)
-            || action.ParameterIds is null || action.ParameterIds.Count > MaxMapEntries
-            || action.ParameterIds.Distinct(StringComparer.Ordinal).Count() != action.ParameterIds.Count
-            || action.SupportedScopes is null || action.SupportedScopes.Count == 0
-            || action.SupportedScopes.Any(scope => !IsScope(scope))
-            || action.ParameterSpecs is not null && (action.ParameterSpecs.Count != action.ParameterIds.Count
-                || action.ParameterSpecs.Any(spec => spec is null))
-            || action.ParameterIds.Count > 0 && action.ParameterSpecs is null)) return "The preset capability metadata is malformed.";
-        if (capability.Actions.Select(action => action.ActionId).Distinct(StringComparer.Ordinal).Count() != capability.Actions.Count)
-            return "The preset capability contains duplicate action identifiers.";
-        return null;
-    }
+    public static string? ValidateCapability(PresetCapability? capability) => PresetCapabilityValidation.Validate(capability);
 
     public static string? ValidateResolution(PresetResolution? resolution, out byte[]? serialized)
     {
@@ -123,7 +113,8 @@ public static class PresetContractValidation
                 return "Preset resolution exceeds the bounded candidate limit.";
             if (candidates.Any(candidate => ValidateReference(candidate) is not null))
                 return "Preset resolution contains invalid candidate metadata.";
-            if (candidates.Select(candidate => $"{candidate.Kind}\0{candidate.StableId}").Distinct(StringComparer.Ordinal).Count() != candidates.Count)
+            if (candidates.Select(candidate => $"{candidate.Kind}\0{candidate.StableId}").Distinct(StringComparer.Ordinal).Count() != candidates.Count
+                || candidates.Select(candidate => candidate.StableId).Distinct(StringComparer.Ordinal).Count() != candidates.Count)
                 return "Preset resolution contains duplicate candidates.";
             if (item.Message is { Length: > MaxMetadataLength }) return "Preset resolution messages exceed the bounded limit.";
         }
@@ -162,12 +153,10 @@ public static class PresetContractValidation
             if (item.Status is PresetInstanceResolutionStatus.Missing or PresetInstanceResolutionStatus.Unsupported
                 && candidates.Count != 0)
                 return "Missing and unsupported targets cannot include candidates.";
-            if (item.Status == PresetInstanceResolutionStatus.Ambiguous && candidates.Count == 0)
-                return "Ambiguous targets must include selectable candidates.";
-            if (item.Status == PresetInstanceResolutionStatus.Resolved && candidates.Count > 1)
-                return "Resolved targets may include at most one candidate.";
-            if (item.Status == PresetInstanceResolutionStatus.Resolved && candidates.Count > 0 && (choices is null || choices.Count == 0))
-                return "Resolved targets cannot include an unchosen candidate.";
+            if (item.Status == PresetInstanceResolutionStatus.Ambiguous && candidates.Count < 2)
+                return "Ambiguous targets must include at least two selectable candidates.";
+            if (item.Status == PresetInstanceResolutionStatus.Resolved && candidates.Count != 1)
+                return "Resolved targets must include exactly one current candidate.";
         }
         if (results.Count != expected.Length) return "Preset resolution omitted a requested target.";
 
@@ -256,6 +245,6 @@ public static class PresetContractValidation
     private static string? Key(PresetInstanceReference? reference) =>
         ValidateReference(reference) is null ? $"{reference!.Kind}\0{reference.StableId}" : null;
 
-    private static bool IsScope(string scope) => scope is PresetScopeKinds.Document or PresetScopeKinds.AllEligible
+    public static bool IsSupportedScope(string? scope) => scope is PresetScopeKinds.Document or PresetScopeKinds.AllEligible
         or PresetScopeKinds.AllCopies or PresetScopeKinds.Selected;
 }

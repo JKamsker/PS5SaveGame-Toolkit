@@ -82,6 +82,11 @@ public sealed record PresetActionCapability(
 }
 
 /// <summary>Optional plugin capability for semantic preset capture, instance resolution and atomic apply.</summary>
+/// <remarks>
+/// <paramref name="MaxActions"/> bounds the number of actions in one persisted preset. It does not
+/// limit the published descriptor list: a plugin may advertise several selectable actions while a
+/// host still applies one bounded action atomically.
+/// </remarks>
 public sealed record PresetCapability(
     string SchemaVersion,
     string? GameBuild,

@@ -117,7 +117,19 @@ public sealed record PresetCompatibilitySummaryDto(
     string? CurrentFileRole,
     string? SavedCapabilitySchemaVersion,
     string? CurrentCapabilitySchemaVersion,
-    IReadOnlyList<string> UnsupportedActions);
+    IReadOnlyList<string> UnsupportedActions)
+{
+    /// <summary>Title identifiers captured with the preset, shown by the server-authoritative UI.</summary>
+    public IReadOnlyList<string> SavedTitleIds { get; init; } = [];
+    /// <summary>Title identifier of the currently opened document.</summary>
+    public string? CurrentTitleId { get; init; }
+    /// <summary>Current capability kind, or the explicit generic fallback kind.</summary>
+    public string CurrentPresetKind { get; init; } = "toolkit.action-parameters";
+    /// <summary>Whether the current document can perform the reviewed apply.</summary>
+    public bool CanApply { get; init; }
+    /// <summary>Stable server readiness state used for filtering and accessible status text.</summary>
+    public string Readiness { get; init; } = "unknown";
+}
 
 public sealed record DocumentPresetDto(PresetDto Preset, PresetCompatibilitySummaryDto Compatibility);
 

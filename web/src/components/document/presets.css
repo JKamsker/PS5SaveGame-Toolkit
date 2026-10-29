@@ -2,12 +2,15 @@
 .presets-list { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
 .presets-list__item { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3); border: 1px solid var(--rule); border-radius: var(--radius-control); background: var(--surface-sunk); }
 .presets-list__item > div:first-child { min-width: 0; }
+.presets-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: var(--space-2); }
+.presets-filters label { display: grid; gap: var(--space-1); font-size: var(--text-sm); }
 .presets-meta { display: block; margin-top: var(--space-1); color: var(--ink-faint); font-size: var(--text-xs); }
 .presets-create, .presets-preview { display: grid; gap: var(--space-2); padding: var(--space-3); border: 1px solid var(--rule); border-radius: var(--radius-control); }
 .presets-create h3, .presets-preview h3 { margin: 0; font-size: var(--text-sm); }
 .presets-create label { display: grid; gap: var(--space-1); font-size: var(--text-sm); }
 .presets-json { min-height: 96px; resize: vertical; font-family: var(--font-mono); }
-.presets-preview ul { max-height: 240px; overflow: auto; margin: 0; padding-left: var(--space-5); }
+.presets-preview__scroll { max-height: 240px; overflow: auto; margin: 0; padding: var(--space-1); border: 1px solid var(--rule); border-radius: var(--radius-control); }
+.presets-preview__scroll ul { margin: 0; padding-left: var(--space-5); }
 .presets-resolution { display: grid; gap: var(--space-2); }
 .presets-resolution fieldset { display: grid; gap: var(--space-1); margin: 0; padding: var(--space-2); border: 1px solid var(--rule); border-radius: var(--radius-control); }
 .presets-resolution label { min-height: 32px; display: flex; align-items: center; gap: var(--space-2); }

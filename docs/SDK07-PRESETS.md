@@ -93,15 +93,29 @@ stacked layout.
 
 Resolution is an exact host contract: each requested semantic reference must occur exactly once in
 the adapter result, with no injected or dropped targets. Missing and unsupported results have no
-candidates; ambiguous results must list candidates; a resolved result cannot carry an unchosen
-candidate. Choice keys and candidate ids are checked against the same revision-bound ambiguous
-result before a second resolution, and the chosen result must contain the selected candidate.
+candidates; an ambiguous result has at least two current candidates; a normal resolved result has
+exactly one current candidate and needs no choice. Choice keys and candidate ids are checked against
+the same revision-bound ambiguous result before a second resolution, and the chosen result must
+re-resolve to one `Resolved` candidate containing the selected identity.
 Candidate ids and choices are transient preview data and are never written to a preset. A malformed
 or incomplete result receives a typed preview error and cannot create an apply token.
 
 Preset JSON routes use finite pre-binding envelope budgets so chunked and declared oversized bodies
 receive a typed 413 before JSON materialization: create 512 KiB, capture 256 KiB, preview 256 KiB,
-and apply 64 KiB. Workspace/pack upload limits remain independent. Generic compatibility rows
+apply 64 KiB, and host-library rename 16 KiB. The route middleware reads lengthless HTTP/2 bodies
+through the same max-plus-one bounded stream. Workspace/pack upload limits and transfer package
+handlers remain independent. Generic compatibility rows
 consult the current indexed planning and mutating action policy, so unknown, inspection-only, or
 non-plannable actions are visibly unsupported before Preview is enabled. Host rename remains
 available when the opened document is read-only because it changes only the external preset library.
+
+`PresetCapability.MaxActions` limits the number of actions stored in one preset and applied as one
+undo unit; it does not hide published descriptors. The host bounds the descriptor list separately
+and validates every action id, label, scope, parameter id, typed specification, and metadata string.
+Durable records accept only the four `PresetScopeKinds` values. Capture requests normalize selection
+keys away for non-`Selected` scopes before invoking a plugin adapter.
+
+The panel presents the server-owned current title, preset kind, readiness and apply state. Saved
+presets can be filtered by name/action, title, build, plugin, compatibility and update age; the
+bounded list reports its matching count and first-page limit. Preview changes and skipped rows are
+inside a labelled, keyboard-scrollable region so narrow screens do not hide the review surface.
