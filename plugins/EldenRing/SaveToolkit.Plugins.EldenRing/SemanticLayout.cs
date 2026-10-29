@@ -12,7 +12,6 @@ internal static class SemanticLayout
     public const int StorageCommonCapacity = 0x780;
     public const int StorageKeyCapacity = 0x80;
     public const int InventoryRowSize = 12;
-    public const int InventoryOverhead = 16;
     public const int MagicSize = 0x74;
     public const int QuickItemsSize = 0x8C;
     public const int EquippedGesturesSize = 0x18;
@@ -41,6 +40,4 @@ internal static class SemanticLayout
     public const uint TalismanId = 0x20000000;
     public const uint GoodsId = 0x40000000;
     public const uint AshId = 0x80000000;
-
-    public static int InventorySize(int common, int key) => InventoryOverhead + (common + key) * InventoryRowSize;
 }

@@ -20,8 +20,6 @@ internal static class EldenRingLayout
     public const int ItemCount = 0x1400;
     public const int LegacyItemCount = ItemCount - 2;
     public const uint LastLegacyVersion = 81;
-    public const int ItemHeaderSize = 8;
-    public const int WeaponExtraSize = 13;
     public const int ArmorExtraSize = 8;
     public const uint ItemTypeMask = 0xF0000000;
     public const uint ArmorType = 0x10000000;

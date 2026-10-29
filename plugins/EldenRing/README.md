@@ -366,11 +366,14 @@ the new source candidate lookups are read-only.
 
 ## Validation
 
-Completion round, verified on 2026-10-28: **214 plugin tests passed / 0 failed / 0 skipped** with private
+Historical completion round, verified on 2026-10-28: **214 plugin tests passed / 0 failed / 0 skipped** with private
 samples; **282 Core tests passed / 0 failed / 0 skipped**. API build succeeded with zero warnings/errors.
-The full-catalog sample initial-view test passes the plan's **under two seconds** target, including
-both embedded packs and document open. Missing-sample behavior is checked separately and never
-substitutes for sample-backed validation.
+The initial-view tests now assert lazy catalog/regulation/character/raw shells, bounded curated
+expansion, complete catalog counts and byte-identical no-op output. Timing is diagnostic only;
+the former **under two seconds** gate was removed in the #40 test-quality review to avoid host/JIT
+contention failures. Missing-sample behavior is checked separately and never substitutes for
+sample-backed validation. Dated counts below describe their individual rounds; current lens-review
+results are recorded on [#40](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40).
 
 Run with `SAVETOOLKIT_ARTIFACTS` pointing to the private artifacts folder:
 
@@ -404,8 +407,8 @@ undo, and F6 select-all-matching visibility/exclusions. The sample asserts all 5
 records and its 3,007/2,048 vacant counts. Validation on 2026-10-29: **254 passed, 0 failed, 0 skipped**;
 API build: **0 warnings, 0 errors**.
 Repeated handle/selection scans now use lookups/sets; empty edit batches avoid a full-save copy/reparse.
-Sample-dependent cases skip when samples are absent. Current results are recorded in the issue #14
-final implementation comment; no binary sample or extracted regulation is included.
+Sample-dependent cases skip when samples are absent. Implementation-round results are recorded on
+issue #14 and subsequent review results on #40; no binary sample or extracted regulation is included.
 
 The correctness review for #40 adds test-first regressions for incomplete zlib members and evidence
 validation before output, plus GaItem stride/count boundaries, exact/overflowing fixed capacities,
