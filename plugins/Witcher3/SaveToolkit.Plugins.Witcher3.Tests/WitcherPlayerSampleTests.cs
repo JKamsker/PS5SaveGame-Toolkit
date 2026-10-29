@@ -17,7 +17,7 @@ public sealed class WitcherPlayerSampleTests
             ["Manual.8559a.7e73c800.31c94f5.sav"] = (260, 30, 4),
         };
         var set = SampleSaves.Load("PPSA04018");
-        var saves = set.AllDiskFiles.Where(f => f.FileName.EndsWith(".sav", StringComparison.Ordinal)).ToArray();
+        var saves = EnabledWriteFixture.SelectSaves(set.AllDiskFiles);
         Assert.Equal(8, saves.Length);
         foreach (var file in saves)
         {
@@ -47,7 +47,7 @@ public sealed class WitcherPlayerSampleTests
     [Fact]
     public void EverySampleEditsAllPlayerFieldsAndKeepsUnmodifiedVariablesBitIdentical()
     {
-        foreach (var file in SampleSaves.Load("PPSA04018").AllDiskFiles.Where(f => f.FileName.EndsWith(".sav", StringComparison.Ordinal)))
+        foreach (var file in EnabledWriteFixture.Files())
         {
             var before = WitcherContainer.Parse(file.ReadAllBytes());
             var oldDirectory = Sav3Directory.Parse(before);
@@ -98,7 +98,7 @@ public sealed class WitcherPlayerSampleTests
     [Fact]
     public void QuantityOnlyEditChangesExactlyItsTwoBodyBytesAndAllChunkLengthsAreCorrect()
     {
-        foreach (var file in SampleSaves.Load("PPSA04018").AllDiskFiles.Where(f => f.FileName.EndsWith(".sav", StringComparison.Ordinal)))
+        foreach (var file in EnabledWriteFixture.Files())
         {
             var before = WitcherContainer.Parse(file.ReadAllBytes());
             var player = ReadPlayer(before);

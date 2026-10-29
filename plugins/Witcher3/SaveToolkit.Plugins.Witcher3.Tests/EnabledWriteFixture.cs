@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Testing;
@@ -10,8 +11,15 @@ namespace SaveToolkit.Plugins.Witcher3.Tests;
 
 internal static class EnabledWriteFixture
 {
-    public static IReadOnlyList<SaveToolkit.Core.Storage.DiskSaveFile> Files() => SampleSaves.Load("PPSA04018").AllDiskFiles
-        .Where(f => f.FileName.EndsWith(".sav", StringComparison.Ordinal)).ToArray();
+    public static IReadOnlyList<SaveToolkit.Core.Storage.DiskSaveFile> Files() => SelectSaves(SampleSaves.Load("PPSA04018").AllDiskFiles);
+
+    public static T[] SelectSaves<T>(IEnumerable<T> files) where T : ISaveFile
+    {
+        var saves = files.Where(f => f.FileName.EndsWith(".sav", StringComparison.Ordinal)).ToArray();
+        // Load skips missing archives. An available archive without gameplay saves is a broken fixture.
+        Assert.NotEmpty(saves);
+        return saves;
+    }
 
     public static (WitcherContainer Container, Sav3Directory Directory, Sav3Tree Tree, PlayerData Player, ObservedFeatures Features) Read(byte[] bytes)
     {

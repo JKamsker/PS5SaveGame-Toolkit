@@ -14,7 +14,7 @@ public sealed class WitcherRichSampleTests
     public void EverySampleHasExactAbilityCountsGwentCollectionAndMetadata()
     {
         int[] expectedCounts = [102, 16, 4, 13, 6, 14];
-        foreach (var file in SampleSaves.Load("PPSA04018").AllDiskFiles.Where(f => f.FileName.EndsWith(".sav", StringComparison.Ordinal)))
+        foreach (var file in EnabledWriteFixture.Files())
         {
             var bytes = file.ReadAllBytes();
             var container = WitcherContainer.Parse(bytes);
@@ -88,7 +88,7 @@ public sealed class WitcherRichSampleTests
             "q001_letter_from_yenn", "Monstrous eye", "Monstrous claw", "Venom extract", "Ghoul blood"];
         var mapped = starterIds.Select(id => context.Catalog("items")!.Find(id)!);
         var observed = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var file in SampleSaves.Load("PPSA04018").AllDiskFiles.Where(f => f.FileName.EndsWith(".sav", StringComparison.Ordinal)))
+        foreach (var file in EnabledWriteFixture.Files())
         {
             using var document = plugin.Open(file, context);
             _ = document.BuildView();

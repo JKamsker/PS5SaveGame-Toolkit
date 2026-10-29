@@ -83,6 +83,5 @@ public sealed class WitcherSampleCorruptionTests
         Assert.False(string.IsNullOrWhiteSpace(error.Message));
     }
 
-    private static SaveToolkit.Sdk.Saves.ISaveFile[] Samples() => SampleSaves.Load("PPSA04018").AllDiskFiles
-        .Where(f => f.FileName.EndsWith(".sav", StringComparison.Ordinal)).Cast<SaveToolkit.Sdk.Saves.ISaveFile>().ToArray();
+    private static SaveToolkit.Sdk.Saves.ISaveFile[] Samples() => EnabledWriteFixture.Files().ToArray();
 }
