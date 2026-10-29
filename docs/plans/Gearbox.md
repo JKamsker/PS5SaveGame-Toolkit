@@ -1,10 +1,15 @@
 # Gearbox — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 Gearbox already preserves and edits decrypted PS5 Borderlands 3 (PPSA01463) and Tiny Tina's Wonderlands (PPSA01493) GVAS/protobuf files, but inventory is mostly indices and byte counts. The best next investment is a named inventory and equipment browser, followed by conservative edits to existing item serials, named SDUs, character builds, Guardian/Myth progression and carefully scoped mission repair. This research independently validated item checksums and basic serial decoding for all 93 BL3 and 68 Wonderlands primary-file serial occurrences; the existing databases already name 83 and 51 respectively. The three largest blockers are incomplete/versioned reference data and artwork rights, missing controlled PS5 saves and in-game validation of dependent edits, and BL4's unestablished PS5 inner codec/file roles. Structural undo and coordinated character/profile ownership are additional framework prerequisites for a trustworthy item-management experience; they do not block the initial read-only browser. BL4 must remain a separate, gated feasibility track rather than delaying useful BL3/Wonderlands work.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - Inspected 2026-10-28 at repository HEAD `885b2f8eec6ecbb9353794c3623b50ec45343e41`; read the required project/format documentation and [issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1). Research only: no repository changes, builds, package installation, test execution, commits or posts. Existing scratch downloads were reused; only new research files were downloaded. Downloaded implementations were read, never executed.
 - `plugins/Gearbox/SaveToolkit.Plugins.Gearbox/GearboxPlugin.cs`: Experimental, two explicit title IDs, positive numeric character filenames or `profile`, and `GVAS` required. PPSA01494 is deliberately excluded. `GearboxContainer.cs` checks version 2, engine 4.20.3, OAK/DAFFODIL branch and role-specific class; limits input to 32 MiB.

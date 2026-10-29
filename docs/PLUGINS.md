@@ -1,34 +1,43 @@
 # Plugin status
 
-State on 2026-10-28. **Experimental** = edits pass the conformance suite (byte-identical no-op,
-edit → serialise → re-open, integrity recomputed) but nobody has loaded an edited save on a console yet.
-**ReadOnly** = the data is shown, writing is disabled until integrity is understood. Each plugin's
-README documents formats, evidence, confidence levels and sources.
+Checked against local `main` on 2026-10-29. The table records `PluginInfo` registrations;
+a registered title is not evidence of sample coverage for every build or region.
+The [support table](../README.md#supported-games-and-formats) describes current read/write
+capabilities. Each plugin README gives its schema gates, confidence, bounds and remaining gaps.
 
-| Plugin | Titles | Maturity | What you can edit | Main open questions |
-| --- | --- | --- | --- | --- |
-| [Pragmata](../plugins/Pragmata/README.md) `pragmata` | PPSA02530 | Experimental | Header fields, inventory quantities (incl. bulk action), game clock, any fixed-size primitive in the raw tree | Item names, legal limits, difficulty ids |
-| [Unreal GVAS](../plugins/UnrealGvas/README.md) `engine.unreal-gvas` | Hogwarts Legacy, Jedi: Fallen Order, Sackboy (any plain GVAS) | Experimental | Primitive properties incl. strings with size fix-ups | Hogwarts SQLite (Oodle), Jedi gameplay CRC, Sackboy checksum |
-| [Gearbox](../plugins/Gearbox/README.md) `gearbox` | Borderlands 3, Tiny Tina's Wonderlands | Experimental | Name, level/XP, currencies, keys, ammo, SDUs | Item serials, missions |
-| [Baldur's Gate 3](../plugins/BaldursGate3/README.md) `bg3` | PPSA18463 | Experimental | LSF primitive attributes in the save package (digest recomputed) | Gold/stats semantics, LSMF |
-| [Cyberpunk 2077](../plugins/Cyberpunk2077/README.md) `cyberpunk2077` | PPSA04027 | Experimental | Money, attributes, unspent attribute/perk/relic points, item stacks | Level/XP thresholds, facts |
-| [The Witcher 3](../plugins/Witcher3/README.md) `witcher3` | PPSA04018 | Experimental | Level, XP, ability points, Crowns, inventory quantities | Level-up side effects |
-| [Elden Ring](../plugins/EldenRing/README.md) `eldenring` | PPSA03169 (+ other regions) | Experimental | Held runes (bounded) | Attributes/level dependencies, inventory |
-| [FF VII Remake / Rebirth](../plugins/FinalFantasy7/README.md) `ff7r` | PPSA01911, PPSA08664, PPSA18936 | Experimental (demo read-only) | Gil, item quantities, materia AP | Deeper record semantics |
-| [Final Fantasy XVI](../plugins/FinalFantasy16/README.md) `ffxvi` | PPSA10665, PPSA13803 | Experimental | Existing inventory stacks (CRC32 repaired) | Stack caps, level/XP |
-| [Ghost](../plugins/SuckerPunch/README.md) `suckerpunch` | Tsushima PPSA02225, Yōtei PPSA26344 | Experimental (Yōtei read-only) | Tsushima resources and ammo (anchored, checksum repaired) | Yōtei header/checksum |
-| [Tales of Arise](../plugins/TalesOfArise/README.md) `tales-of-arise` | PPSA02745 | Experimental | Gald, level, HP, SP, consumables (AES/XOR + SHA1 redone) | CP, grade, equipment |
-| [ASTRO's PLAYROOM](../plugins/AstroPlayroom/README.md) `astro-playroom` | PPSA01325 | Experimental | Coins, play count, collectibles, progress values | Bot flags (newer versions) |
-| [Generic JSON](../plugins/GenericJson/README.md) `format.json` | any JSON (Cyberpunk settings, emulator options, PPSA02343) | Experimental | Any primitive, formatting preserved | — |
-| [Obfuscated JSON](../plugins/XorJson/README.md) `format.json-xor` | Minecraft Dungeons II settings (PPSA16064) | Experimental | Any primitive, re-encoded | — |
-| [God of War Ragnarök](../plugins/GodOfWarRagnarok/README.md) `gow-ragnarok` | PPSA08330 (+ regions) | ReadOnly | — | Nested grammar, checksums |
-| [Ratchet & Clank: Rift Apart](../plugins/Insomniac/README.md) `insomniac` | PPSA01474 | ReadOnly | — (bolts, XP, raritanium shown) | Integrity coverage |
-| [Atomic Heart](../plugins/AtomicHeart/README.md) `atomic-heart` | PPSA10695 | ReadOnly | — | Oodle-compressed records |
-| Raw file inspector `builtin.raw` | everything else | ReadOnly | — | — |
+All 17 game/format plugins declare **Experimental** maturity. This does not promise that every
+document is writable, every integrity mechanism is understood, or any edit has been accepted on
+a console. The raw fallback is **ReadOnly**. Follow the [owner validation guide](OWNER_CHECKLIST.md)
+before trusting an edit; only a human may promote validated support to Stable.
 
-Not covered yet (raw inspector only): Borderlands 4 (blocked on crypto), Star Ocean: The Divine Force
-(blocked), Immortals Fenyx Rising, Far Cry 6, DOOM Eternal, Overwatch 2 settings, Kena: Bridge of Spirits (PPSA01802),
-YouTube app (excluded for privacy). See [docs/formats/](formats/README.md) for what is known about each.
+| Plugin | Registered titles / format | Maturity |
+| --- | --- | --- |
+| [ASTRO's PLAYROOM](../plugins/AstroPlayroom/README.md) `astro-playroom` | PPSA01325 | Experimental |
+| [Atomic Heart](../plugins/AtomicHeart/README.md) `atomic-heart` | PPSA10695 | Experimental |
+| [Baldur's Gate 3](../plugins/BaldursGate3/README.md) `bg3` | PPSA18463 | Experimental |
+| [Cyberpunk 2077](../plugins/Cyberpunk2077/README.md) `cyberpunk2077` | PPSA04027 | Experimental |
+| [Elden Ring](../plugins/EldenRing/README.md) `eldenring` | PPSA03169, PPSA04608, PPSA04609, PPSA04610 | Experimental |
+| [Final Fantasy XVI](../plugins/FinalFantasy16/README.md) `ffxvi` | PPSA10665, PPSA13803 | Experimental |
+| [FF VII Remake / Rebirth](../plugins/FinalFantasy7/README.md) `ff7r` | PPSA01911, PPSA08664, PPSA18936 | Experimental |
+| [Gearbox](../plugins/Gearbox/README.md) `gearbox` | PPSA01463, PPSA01493 | Experimental |
+| [Generic JSON](../plugins/GenericJson/README.md) `format.json` | Content-based JSON fallback; no registered title IDs | Experimental |
+| [God of War Ragnarök](../plugins/GodOfWarRagnarok/README.md) `gow-ragnarok` | PPSA08329, PPSA08330, PPSA08331, PPSA08332, PPSA08333, PPSA08334, PPSA25043, PPSA25044 | Experimental |
+| [Ratchet & Clank: Rift Apart](../plugins/Insomniac/README.md) `insomniac` | PPSA01474 | Experimental |
+| [Pragmata](../plugins/Pragmata/README.md) `pragmata` | PPSA02530 | Experimental |
+| [Ghost](../plugins/SuckerPunch/README.md) `suckerpunch` | PPSA02225, PPSA26344 | Experimental |
+| [Tales of Arise](../plugins/TalesOfArise/README.md) `tales-of-arise` | PPSA02745 | Experimental |
+| [Unreal GVAS](../plugins/UnrealGvas/README.md) `engine.unreal-gvas` | PPSA01288, PPSA01603, PPSA02199; other compatible GVAS by content | Experimental |
+| [The Witcher 3](../plugins/Witcher3/README.md) `witcher3` | PPSA04018 | Experimental |
+| [Obfuscated JSON / Dungeons II](../plugins/XorJson/README.md) `format.json-xor` | PPSA16064; supported transformed JSON by content | Experimental |
+| Raw file inspector `builtin.raw` | Other files, including unsupported variants | ReadOnly |
 
-Before trusting an Experimental plugin: back up the original dump, edit a spare slot, keep values within
-plausible game ranges, restore with your save manager and load it on the console.
+Read-only gates remain within Experimental plugins: Yōtei has no gameplay writer; wrapped Hogwarts
+envelopes and incomplete/invalid database-image pairs are read-only; other unsupported schemas and
+file roles have their own gates. FF7 Rebirth demo gameplay has bounded writes; it is not globally
+read-only. Unknown checksums, RSA coverage and gameplay dependencies remain explicitly warned.
+
+No dedicated game plugin is registered for Borderlands 4, Star Ocean: The Divine Force,
+Immortals Fenyx Rising, Far Cry 6, DOOM Eternal, Overwatch 2 or Kena: Bridge of Spirits.
+A compatible generic format can still match a file; otherwise it opens in the raw inspector.
+YouTube payloads were excluded from reconnaissance because they may contain account data.
+See [historical format reconnaissance](formats/README.md) for the original measurements.

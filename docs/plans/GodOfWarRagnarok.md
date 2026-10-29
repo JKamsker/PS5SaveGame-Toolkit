@@ -1,10 +1,15 @@
 # GodOfWarRagnarok — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 The plugin is a careful, bounded ReadOnly explorer for PPSA08330: it validates the observed header, metadata text, directory arrays, hero-wallet span, resource occurrences and preferences while preserving every byte. A massively better editor would expose a named, searchable inventory and gear model, per-character XP/resources, progression and collectible views, map/quest status, safe bulk actions and eventually validated writes. The three blockers are the missing nested serialization grammar, unknown integrity/authentication coverage, and lack of controlled before/after saves plus console validation. PC and PS4 tools provide strong leads for IDs and roles, but their revisions and containers do not prove PS5 compatibility.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - [plugins/GodOfWarRagnarok/README.md](../../plugins/GodOfWarRagnarok/README.md) documents eight catalogued regional IDs, with samples only for PPSA08330; GOWRSAVE0–65 and userpreferences are recognised.
 - GodOfWarRagnarokPlugin.cs probes title ID + filename + observed header and opens one file; CanEdit is false and maturity is ReadOnly.

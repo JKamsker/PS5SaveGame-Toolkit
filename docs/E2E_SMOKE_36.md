@@ -1,5 +1,9 @@
 # End-to-end smoke pass (#36)
 
+> **Historical run report.** Counts, timings and unresolved findings below describe the original #36
+> runs and follow-up, not today's test inventory. Issue #36 is now closed; see **Subsequent resolution**
+> at the end. Later lens reviews are tracked in [#40](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40).
+
 Run on 2026-10-28/29 on `framework/e2e-smoke`. Tracking and reproductions:
 [issue #36](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/36).
 
@@ -164,3 +168,16 @@ optional client-side `AbortSignal`. This safeguard bounds automatic lazy travers
 the plugin rule to bound individual eager views/responses still applies. Optional
 Core eager-node warnings were not added. B/F and the separate Insomniac plugin
 fix remain outside this framework follow-up; the issue remains open.
+
+## Subsequent resolution — 2026-10-29
+
+Issue [#36](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/36) was closed after its final
+verification on `main` at `91caacb`. The owner recorded A/E resolved by F12 follow-ups, B by the
+BG3 scan change (`49332d4`), C by FF16's `Mutates = false`, D by collapsed Insomniac Systems
+(`37bc9d4`) plus the web lazy-expansion guard (`610b26c`), and F by the UnrealGvas header probe
+(`81e4530`). The earlier failures, counts and “issue remains open” statements above are retained
+as evidence of those earlier runs. They are not current failures or current suite totals.
+
+Further review findings and validation results belong to
+[#40](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40). Re-run the relevant suites for the
+revision under review; historical browser walks and passing counts do not establish present coverage.

@@ -1,10 +1,15 @@
 # Insomniac — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 The `insomniac` 0.2.0 plugin is a useful read-only Rift Apart campaign inspector, with validated DAT1 framing and named root DDL fields, but no weapon inventory, armor management or location-resolved completion view. A much better editor would show named weapons and their upgrade trees, cosmetic armor separately from earned bonuses, collectible checklists by planet, and carefully validated resource controls. There is immediate value available without writing: quick-select weapon paths and nine additional gameplay DDL roots are present in the PS5 corpus and can support richer read-only views. The top three blockers are **unestablished save-integrity/write acceptance**, **undecoded inventory and dependent gameplay state**, and **missing PS5-validated joins from save identities to versioned game data and collectible locations**. Framework work is primarily about presenting and supplying reference data safely; existing scalar specs, lazy sections, multi-file output and undo already support much of the first implementation.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - Inspected 2026-10-28, repository HEAD `885b2f8eec6ecbb9353794c3623b50ec45343e41`; read the live plugin sources, tests, project guidance and [issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1). This was research only: no repository changes, builds, tests, package installation or downloaded-code execution.
 - `plugins/Insomniac/SaveToolkit.Plugins.Insomniac/InsomniacPlugin.cs`: only PPSA01474 is claimed; maturity is `ReadOnly`. Generic DAT1 probing is not evidence of support for other Insomniac games or regions.

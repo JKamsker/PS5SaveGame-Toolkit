@@ -1,10 +1,15 @@
 # SuckerPunch — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 The `suckerpunch` 0.2.0 plugin already has a preservation-focused, Experimental Tsushima resource/ammo editor; Yōtei is an opaque read-only inspector with useful research tests. A substantially better editor would provide named resources, a character/progression sheet, owned equipment and charm loadouts, technique prerequisites, and a region-based collectible tracker, with icons and descriptions when their provenance permits. The three main blockers are **controlled PS5 saves and console validation**, **proven save-ID/ownership/progression mappings plus usable reference-data rights**, and **Yōtei's unresolved integrity coverage and authoritative gameplay records**. Existing SDK tables, enums, actions, assets and multi-file outputs can deliver substantial early improvements; rich pickers, maps, user-supplied data packs and structural undo need targeted framework work. Reads should ship before new writes, existing records before creation, and each title/build/mode should retain its own evidence and capability gates.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - Research date: **2026-10-28**; repository HEAD `885b2f8eec6ecbb9353794c3623b50ec45343e41`, with the shared working-tree files read as they existed during this session. Read `AGENTS.md`, `docs/PLUGIN_GUIDE.md`, `docs/PLUGINS.md`, `docs/SAMPLES.md`, `docs/formats/README.md`, the complete plugin source/tests, SDK contracts and relevant Core/UI paths. `docs/formats/PPSA02225.md` and `PPSA26344.md` **do not exist**; no title reports were invented. [Issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1) was read through `gh issue view 1` as the planning quality bar.
 - `plugins/SuckerPunch/SaveToolkit.Plugins.SuckerPunch/SuckerPunchPlugin.cs`: claims only PPSA02225/PPSA26344, `dis.dat`/`memory.dat`, and exact lengths 555,008/616,448. Do not silently extend these claims to other regions, PC files or changed PS5 builds.

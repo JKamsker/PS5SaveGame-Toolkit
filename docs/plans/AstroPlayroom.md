@@ -1,10 +1,15 @@
 # AstroPlayroom — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 The `astro-playroom` plugin already edits the observed PS5 allocation without normalizing its unusual XML-like text, and exposes coins, progress flags and unnamed collectibles. A substantially better editor would provide a named PlayStation museum catalogue, a world-by-world missing-collectible checklist, meaningful progress controls and version-aware special-bot support. The first blocker is the lack of controlled saves tying individual collectible IDs to locations and linked progression changes. The second is the absence of newer-schema samples containing special-bot and additional-artifact fields. The third is the lack of console reload evidence establishing accepted values, dependency rules and persistent effects. Most initial improvements fit the existing SDK; rich collection layouts and reviewable bulk operations need focused framework/UI work.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - Inspected 2026-10-28 at repository HEAD `885b2f8eec6ecbb9353794c3623b50ec45343e41`, plus the live working-tree files. Read `AGENTS.md`, `docs/PLUGIN_GUIDE.md`, `docs/PLUGINS.md`, `docs/SAMPLES.md`, `docs/formats/README.md` and `docs/formats/PPSA01325.md`. The rigor and acceptance gates follow [issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1), retrieved with `gh issue view 1`; no issue was posted or changed.
 - `plugins/AstroPlayroom/SaveToolkit.Plugins.AstroPlayroom/AstroPlayroomPlugin.cs`: Experimental, PPSA01325 only, exact 1 MiB `memory.dat`, zero preamble plus CRLF/`PreInstall` signature. It is not an engine-wide ASTRO detector.

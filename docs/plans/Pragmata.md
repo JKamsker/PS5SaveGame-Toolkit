@@ -1,9 +1,14 @@
 # Pragmata — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 Pragmata is an Experimental, fixed-size editor for PPSA02530: it decrypts DSSS/Mandarin, parses the hash-addressed RE Engine stream, edits primitive fields and existing inventory quantities, repairs CityHash/Murmur3, and exposes a bounded raw tree. “Massively better” means a named, confidence-labelled editor for inventory/resources, loadouts, character progression, objectives and collectibles, with safe bulk actions, presets, icons and useful diffs. The three blockers are (1) no canonical item/quest/field dictionary tied to the IDs in these PS5 saves, (2) no evidence or serializer for structural changes and legal ranges, and (3) no controlled before/after samples or console load test. The plan therefore reads and maps first, adds writes only after differential evidence, and keeps unknown data lossless.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 - plugins/Pragmata/SaveToolkit.Plugins.Pragmata/Crypto/DsssContainer.cs and Crypto/Mandarin*.cs implement DSSS v2, flags 0x10, PS5 key 526253637, AES-128-OFB, embedded key/IV validation, per-block CityHash64 and outer Murmur3 repair. Rebuild is size-preserving and retains unknown metadata, padding and the RSA trailer.
 - Format/TypedReader.cs, Format/SaveNode.cs and Format/SaveLayout.cs parse the typed, hash-addressed stream with the verified origin-16 alignment. Layout locates the gameplay header, app.InventoryManager.SaveData (3a83076c), _InventoryItems (3185b7a5) and app.GameClock.GameSaveData (7d74c37a) by hashes rather than array position.
 - PragmataDocument.cs exposes every fixed-size primitive it has shown, applies batches atomically, reports aliases/derived clock values for undo, and re-opens serialized output. It cannot resize arrays or edit strings/opaque structs.

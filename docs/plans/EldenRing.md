@@ -1,10 +1,15 @@
 # EldenRing — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 The plugin already understands the sampled decrypted PS5 `memory.dat` allocation, validates character/profile mirrors, and permits a tightly bounded four-byte held-rune edit; it is Experimental, with no console reload evidence. A substantial upgrade should deliver a named character sheet, searchable inventory and storage, an equipment/loadout view, and evidence-backed progress checklists before expanding into item creation and world-state changes. Independent scratch probes during this planning round reproduced the existing character mapping, located plausible inventory/storage/event structures, and successfully decoded the embedded regulation payload into a BND4-signature parameter archive. The top three blockers are **independent differential PS5 saves and human reload validation**, **version-matched semantic/dependency evidence for inventory, stats and flags**, and **an approved licensing/distribution route for names, descriptions, icons and community data**. Basic read-only expansion and selected fixed-size edits can use today's SDK; imported reference packs, rich inventory controls and reversible structural editing require specific framework/UI work below.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - Research/inspection date: **2026-10-28**. Read `AGENTS.md`, `docs/PLUGIN_GUIDE.md`, `docs/PLUGINS.md`, `docs/SAMPLES.md`, `docs/formats/README.md`, `docs/formats/PPSA03169.md`, plugin source/tests and the relevant SDK/Core/UI code. [Issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1) was read through `gh issue view 1`; its distinction between parser evidence and actual game acceptance is the standard applied here. This round made no repository changes and ran no repository builds/tests; historical pass counts below are README claims, not new test results.
 - `plugins/EldenRing/SaveToolkit.Plugins.EldenRing/EldenRingPlugin.cs`: `eldenring` v0.1.0; retail JP PPSA03169, Asia PPSA04608, EU PPSA04609 and US PPSA04610 are registered. Probe checks the title, `sce_sdmemory/memory.dat` role, size, magic and sentinel. Only JP has sample coverage; the other regions are inferred, and Network Test titles are excluded.

@@ -1,10 +1,15 @@
 # Cyberpunk2077 — improvement plan
 
+> **Historical planning snapshot — 2026-10-28.** The baseline, proposed work, test counts and
+> policy restrictions below describe that research round, not current implementation or permissions.
+> See [current plugin status](../PLUGINS.md), the linked plugin README,
+> [delivered framework features](ROADMAP.md) and [current policy](../PLUGIN_GUIDE.md#hard-rules).
+
 ## Summary
 
 The plugin already provides guarded PS5 2.21 editing of money, five attributes with mirrored stats, unspent attribute/perk/relic points and selected existing stacks. A substantially better editor should connect inventory instances to localized TweakDB records, show equipment/cyberware and the post-2.0 perk tree, and explain vehicles, travel points and quest progress. The top three blockers are one distinct early-game PS5 sample, missing versioned/licensed reference data, and unknown gameplay dependencies without console validation. Extend the existing preservation-oriented writer rather than replace it with whole-save serialization. Deliver named read-only views and safer existing-value actions before structural item creation or story changes.
 
-## Current state (evidence)
+## Baseline state (historical evidence)
 
 - Research date: 2026-10-28. Read `AGENTS.md`, `docs/PLUGIN_GUIDE.md`, `docs/PLUGINS.md`, `docs/SAMPLES.md`, `docs/formats/README.md`, `docs/formats/PPSA04027.md` and [issue #1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/1) through `gh issue view 1`. No repository changes, builds/tests or execution of downloaded programs were performed. Existing scratch downloads and samples were reused.
 - All plugin source references below are under `plugins/Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077/`; tests are under `plugins/Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077.Tests/`.

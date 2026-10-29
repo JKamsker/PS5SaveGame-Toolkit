@@ -18,9 +18,14 @@ browser (React)  ──JSON──▶  Api  ──▶  Core: DocumentSession ─�
 ## Scaffold
 
 ```powershell
-./scripts/new-plugin.ps1 -Name Pragmata -Id pragmata -TitleIds PPSA02530 -GameName "Pragmata"
-dotnet test --project plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Tests
+./scripts/new-plugin.ps1 -Name ExampleGame -Id example-game -TitleIds PPSA00000 -GameName "Example Game"
+dotnet test --project plugins/ExampleGame/SaveToolkit.Plugins.ExampleGame.Tests
 ```
+
+Replace the example name, ID and placeholder title with your new plugin's values. The name must
+not already exist under `plugins/`; the scaffolder refuses to overwrite an existing plugin.
+It creates a ReadOnly skeleton whose probe/open implementation and sample-backed tests still
+need to be written before the conformance suite can pass.
 
 This creates `plugins/<Name>/SaveToolkit.Plugins.<Name>/` (picked up by the app automatically)
 and `plugins/<Name>/SaveToolkit.Plugins.<Name>.Tests/` with the conformance suite wired to the samples.
@@ -120,8 +125,9 @@ parsed host and attribution, opens a new tab, and sets `rel="noopener noreferrer
 applies to source/licence links in map attribution. Invalid links are rejected by Core; the web
 renderer additionally renders them as non-clickable text if given a malformed payload.
 
-**Follow rule 9 for imports**, including the owner decision on unlicensed community facts. Publisher
-art remains excluded without permission. For an original or permitted schematic/background, resolve
+**Follow rule 9 for imports**, including the 2026-10-28/29 owner decisions on community facts,
+rights-reserved guides and publisher assets. Record the source, rights holder and revision/date;
+NC/no-redistribution restrictions remain refusal reasons. For a background allowed by that policy, resolve
 a local F2 asset with `references.GetAsset(id)` and `references.AssetProvenance(id)`. If unavailable,
 omit `Background`. Otherwise use
 `new MapBackground("pack.id:maps/region.png", alt, provenance.Attribution, EmbeddingPermitted: true)`.
@@ -129,7 +135,7 @@ This is served through the existing local F2 reference-asset endpoint, with full
 to the diagram and in Sources. Remote URLs and ordinary plugin asset IDs are not backgrounds.
 `EmbeddingPermitted` defaults to false and is an explicit assertion by the plugin author; the
 framework cannot decide reuse policy from a licence name. Set it only after recording the applicable
-terms or owner-policy basis; the owner decision on community facts does not permit publisher artwork.
+terms or owner-policy basis from rule 9, including its required rights-holder attribution for publisher artwork.
 
 Embedding **any coordinates**, including save-derived positions and original schematics, similarly
 requires `CoordinateAttribution` (`ReferenceAttribution`) and `CoordinateEmbeddingPermitted = true`.
@@ -953,17 +959,31 @@ as a fixture manifest's `decoder`. `--decoder` and `--semantic` are mutually exc
 
 ## Tests
 
-The conformance suite (`SaveToolkit.Testing.PluginConformanceTests<T>`) checks, against the real samples:
-plugin info shape, probing robustness against garbage, opening every claimed sample, view validity and
+The conformance suite (`SaveToolkit.Testing.PluginConformanceTests<T>`) checks plugin info shape and
+probing robustness against garbage, then uses selected real samples for opening, view validity and
 JSON-serialisability (incl. lazy sections), `GetValue` consistency, value/spec consistency,
 byte-identical no-op serialisation and edit → serialise → re-open round trips.
 Override `ChooseEdits` to exercise a meaningful field (e.g. an item quantity).
 
+Default coverage is bounded and can be overridden by each test class:
+
+- `MaxFilesPerTitle`: **6** distinct-content, probed files per title, ordered by generation and
+  primary before backup within each generation.
+- `LazyExpansionBudget`: **150** lazy sections per walk.
+- `QueryPageBudget`: **12** F8 pages across collections per walk.
+
+This is not an exhaustive corpus or view traversal. Add explicit all-file/variant tests when making
+broader coverage claims. The default edit chooser handles writable integer/bool/float fields;
+tests for references, exact numbers, structures and grouped writes need deliberate cases.
+
 Add your own tests for: crypto/hash test vectors, known values read from specific sample files
 (e.g. "slot 0 play time is 25.698 h"), multi-file edits, and rejection of corrupted input.
 
-Samples live in `artifacts/<TITLE>_saves_dec.zip` (not committed). `SampleSaves.Load("PPSA02530")`
-imports one; tests skip when it is missing. See `docs/SAMPLES.md`.
+Keep samples outside the checkout and set `SAVETOOLKIT_ARTIFACTS` to their directory.
+`SampleSaves.Load("PPSA02530")` imports one matching `<TITLE>_saves_dec*.zip`; if several match,
+`FindArchive` orders by full path length and selects the first, not every archive or the newest.
+An ancestor `artifacts/` directory is a fallback; never copy private samples into git. Tests skip
+when no matching archive is found. See [SAMPLES.md](SAMPLES.md).
 For a complete sample-backed run in PowerShell, set the sample location in the same shell:
 
 ```powershell

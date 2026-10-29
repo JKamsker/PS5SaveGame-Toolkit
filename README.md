@@ -4,8 +4,10 @@
 
 A local, web-based editor for **decrypted** PS5 save games. Drop a save dump (zip or folder),
 the toolkit detects the game, and a game plugin describes the data as an abstract view that the
-browser renders: stats, typed fields, tables, actions. Edits are validated, undoable, verified by
-re-opening the output, and exported in the same folder layout (including the console backup copy).
+browser renders: stats, typed fields, tables, actions. Edits are validated and can be undone within
+the [history limits](docs/PLUGIN_GUIDE.md#structural-edits-add--remove--reorder). Export verifies output
+by re-opening it and preserves the folder layout, with optional backup mirroring where the twin held
+the same original bytes and ownership permits it. Explicit document groups manage their own backups.
 
 The toolkit does not decrypt or re-sign PS5 save containers; use your save manager for that.
 **Edits are not console-validated. All game plugins are Experimental; the game may reject,
@@ -21,7 +23,7 @@ on a disposable spare slot. The owner validation work is tracked in
 - **F3 — Rich tables:** live search, filters, row selection, images, confidence and expandable details.
 - **F4 — Reference pickers:** searchable raw-ID choices with eligibility checks and source details.
 - **F5 — Structural undo:** reversible add/remove/reorder operations where a plugin implements them.
-- **F6 — Review before apply:** bulk-action previews, skipped rows, one-step undo and a Changes panel.
+- **F6 — Review before apply:** bulk-action previews, skipped rows, one-step undo within history limits and a Changes panel.
 - **F7 — Related files:** explicit document groups with coordinated edits, history and export.
 - **F8 — Large collections:** bounded server-side search/filter/sort and selection across unloaded pages.
 - **F9 — Maps and graphs:** read-only diagrams with text lists and external map links.
@@ -43,7 +45,7 @@ not imply support for every game build or region.
 | --- | --- | --- | --- |
 | [AstroPlayroom](plugins/AstroPlayroom/README.md) — ASTRO's PLAYROOM | Experimental | Coins, saved collectibles, progress/world flags, candidate aliases, maps and raw tree | Existing coins/play count and supported booleans; reviewed collectible/world and gatcha-budget presets |
 | [AtomicHeart](plugins/AtomicHeart/README.md) — Atomic Heart | Experimental | SaveExtension records, populated inventory, asset references and level/skill evidence | Existing Amounts, constrained same-category asset replacements and reviewed Amount batches |
-| [BaldursGate3](plugins/BaldursGate3/README.md) — Baldur's Gate 3 | Experimental; completion round in progress | Package/resources, metadata, all-owner inventory candidates, live NewAge storage, classes/spell occurrences | Supported v18/LSF primitives and summary tokens; bounded NewAge quantities, HP/ability-cache candidates, two-key container reorder and imported-quantity restore. Source rows are not authoritative party identities |
+| [BaldursGate3](plugins/BaldursGate3/README.md) — Baldur's Gate 3 | Experimental | Package/resources, metadata, all-owner inventory candidates, live NewAge storage, classes/spell occurrences | Supported v18/LSF primitives and summary tokens; bounded NewAge quantities, HP/ability-cache candidates, two-key container reorder and imported-quantity restore. Source rows are not authoritative party identities |
 | [Cyberpunk2077](plugins/Cyberpunk2077/README.md) — Cyberpunk 2077 | Experimental | Player/inventory, equipment/cyberware, perks, facts, garage/travel and journal diagnostics | Money, attributes/point balances, supported stacks, raw Level/Cred/XP/thresholds and existing facts; reviewed stack targets/refills |
 | [EldenRing](plugins/EldenRing/README.md) — Elden Ring | Experimental | Character, inventory/storage, equipment, regulation and raw progress candidates | Held runes, mirrored names/history, two allowlisted positive stack types and reviewed rune/refill actions |
 | [FinalFantasy16](plugins/FinalFantasy16/README.md) — FF XVI retail/demo | Experimental | Inventories/banks, equipment, raw ability arrays, player/party context and reference graphs | Supported existing IDs/stacks, gear, raw ranks/flags, player/party context and time; reviewed main-stack targets |
@@ -55,7 +57,7 @@ not imply support for every game build or region.
 | [Pragmata](plugins/Pragmata/README.md) — Pragmata | Experimental | Inventory, gadgets/loadout, progress/quests/world, mission references and raw tree | Existing IDs/quantities, header/clocks and supported primitives in five family tabs; reviewed quantities. RSA trailer remains unverified |
 | [SuckerPunch](plugins/SuckerPunch/README.md) — Ghost of Tsushima / Ghost of Yōtei | Experimental | Tsushima resources/ammo, equipment/technique/world candidates; Yōtei diagnostics | Tsushima existing resources/ammo, supported v48/v49 timer and reviewed quantities. Yōtei remains read-only |
 | [TalesOfArise](plugins/TalesOfArise/README.md) — Tales of Arise EU base game | Experimental | Sections, characters, inventory/equipment, skill/arte and progress evidence | Gald, existing active-character level/HP/SP, recognized consumable quantities and reviewed quantity batches |
-| [UnrealGvas](plugins/UnrealGvas/README.md) — GVAS; Hogwarts Legacy, Jedi: Fallen Order, Sackboy | Experimental | Nested properties/actors, schema references and Hogwarts database rows | Supported existing GVAS scalars, including warned Jedi/Sackboy fields; bounded Hogwarts nonidentity integer/real/text cells. Known checksum fields stay read-only |
+| [UnrealGvas](plugins/UnrealGvas/README.md) — GVAS; Hogwarts Legacy, Jedi: Fallen Order, Sackboy | Experimental | Nested properties/actors, schema references and Hogwarts database rows | Supported existing GVAS scalars, including warned Jedi/Sackboy fields; bounded Hogwarts nonidentity integer/real/text cells in unwrapped, fully decoded image pairs. Known checksum fields and Jedi actor-stream lengths stay read-only |
 | [Witcher3](plugins/Witcher3/README.md) — The Witcher 3 Complete Edition | Experimental | Player/inventory, skills/mutations, Gwent, facts/journal and map-tag evidence | Level/XP/free points/Crowns, quantities/durability, existing non-core ranks/Gwent copies; reviewed repair and food/water refill |
 | [XorJson](plugins/XorJson/README.md) — obfuscated JSON / Minecraft Dungeons II offline schema | Experimental | Exact settings/character tree, inventory, attributes, quests/world and reference graph | Scalar/structural JSON, reviewed existing-value batches and F7 character/global group edits; unsupported character versions/online modes stay read-only |
 
@@ -72,11 +74,11 @@ checksums, platform prerequisites, version tags and rollback.
 
 ### Run from source
 
-Install the .NET 10 SDK selected by [global.json](global.json), Node.js and npm.
+Install the .NET 10 SDK selected by [global.json](global.json), Node.js 24 and npm.
 From the repository root:
 
 ```powershell
-cd web; npm install; npm run build; cd ..     # builds the UI into src/SaveToolkit.Api/wwwroot
+cd web; npm ci; npm run build; cd ..          # builds the UI into src/SaveToolkit.Api/wwwroot
 dotnet run --project src/SaveToolkit.Api      # http://127.0.0.1:5180
 ```
 
@@ -101,6 +103,10 @@ the same shell and check each project's summary for zero skipped. Keep saves out
 never commit decrypted dumps or extracted data. See [samples and SaveDiff](docs/SAMPLES.md) for the
 capture protocol, decoder discovery and fixture verification.
 
+Documentation checks use Python 3.10+ with no extra packages:
+`python -B docs/tests/test_documentation.py`. They check local links/anchors, commands and selected
+source-backed claims against `HEAD`; add `--code-ref main` to audit against local `main`.
+
 ## Architecture
 
 - **SDK** (`src/SaveToolkit.Sdk`): the plugin contract. Plugins describe *what* data is — types,
@@ -122,5 +128,7 @@ Licensed under **GPL-3.0-or-later**; see [LICENSE](LICENSE) and [THIRD-PARTY-NOT
 Upstream components retain their own compatible licences and attribution.
 The [licence exclusions register](docs/LICENCE_EXCLUSIONS.md) tracks remaining refusals and imports in
 progress. Per the owner decision of 2026-10-28, unlicensed community facts/data are reused with full
-attribution; unlicensed code is reimplemented with source credit. GPL-2.0-only code, NC/no-redistribution
-terms and proprietary publisher assets remain refusal reasons.
+attribution; unlicensed code is reimplemented with source credit. The 2026-10-29 owner decision also
+permits rights-reserved guide material and publisher assets with source, rights-holder and revision/date
+attribution. GPL-2.0-only code and NC/no-redistribution terms remain refusal reasons. See
+[plugin guide rule 9](docs/PLUGIN_GUIDE.md#hard-rules) for the exact policy and required notices.
