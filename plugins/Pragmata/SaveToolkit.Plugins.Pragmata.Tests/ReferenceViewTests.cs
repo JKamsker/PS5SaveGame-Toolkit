@@ -26,6 +26,7 @@ public sealed class ReferenceViewTests
         Assert.Empty(store.LoadErrors);
         var pack = Assert.Single(store.Packs);
         Assert.Equal("pragmata.evidence.en", pack.Id);
+        Assert.Equal("1.4.0", pack.Info.Version);
         var context = store.Pin(plugin, "PPSA02530");
         Assert.Equal(408, context.Catalog("pragmata-identifiers")!.Count);
         Assert.Equal(27, context.Catalog("pragmata-sections")!.Count);
