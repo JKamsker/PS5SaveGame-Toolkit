@@ -37,11 +37,13 @@ public sealed class AttributeSearchSessionTests
         _ = session.BuildView();
         var prefix = grouped ? "character/" : "";
         var collection = prefix + AttributeSearchData.CollectionId;
-        var first = session.QueryCollection(collection, new() { Text = "ECHO shards", Limit = 1 });
+        var first = session.QueryCollection(collection, new() { Text = "ECHO shards", Limit = 1 },
+            expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(3, first.FilteredCount);
         var firstRow = Assert.Single(first.Rows);
         var firstValue = Assert.IsType<FieldNode>(firstRow.Cells["value"]);
-        var excluded = Assert.Single(session.QueryCollection(collection, new() { Text = "Echo shards", Offset = 1, Limit = 1 }).Rows);
+        var excluded = Assert.Single(session.QueryCollection(collection, new() { Text = "Echo shards", Offset = 1, Limit = 1 },
+            expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Rows);
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);
         AssertBytes(workspace, original, grouped ? global : null);
@@ -77,7 +79,8 @@ public sealed class AttributeSearchSessionTests
         attributes[AttributeSearchData.UnmatchedRows + 2] = ("SpringStone", 9);
         var expected = AttributeSearchData.Hero(attributes);
         AssertBytes(workspace, expected, grouped ? global : null);
-        var changed = session.QueryCollection(collection, new() { Text = "Echo shards" });
+        var changed = session.QueryCollection(collection, new() { Text = "Echo shards" },
+            expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(["9", "2", "9"], changed.Rows.Select(row => Assert.IsType<FieldNode>(row.Cells["value"]).Value.AsExactNumber()));
         Assert.Equal(firstRow.Key, changed.Rows[0].Key);
         Assert.Equal(excluded.Key, changed.Rows[1].Key);
@@ -85,7 +88,8 @@ public sealed class AttributeSearchSessionTests
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo); // The entire query action is one history step.
         AssertBytes(workspace, original, grouped ? global : null);
-        var restored = session.QueryCollection(collection, new() { Text = "Echo shards" });
+        var restored = session.QueryCollection(collection, new() { Text = "Echo shards" },
+            expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(changed.Rows.Select(row => row.Key), restored.Rows.Select(row => row.Key));
         Assert.True(session.Redo().Ok);
         AssertBytes(workspace, expected, grouped ? global : null);
