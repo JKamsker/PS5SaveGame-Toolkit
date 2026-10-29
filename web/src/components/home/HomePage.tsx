@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router";
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { api } from "../../api/client";
@@ -51,6 +51,11 @@ export function HomePage() {
 
 function ImportDropZone({ controller }: { controller: ReturnType<typeof useHomeImport> }) {
   const { dragging, setDragging, onDrop, importTask, chooseFolder, zipInput, status, failedUpload, upload } = controller;
+  const retryImport = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    // Native browsers blur the disabled import opener. Respect any intentional focus change.
+    if (status?.isError && document.activeElement === document.body) retryImport.current?.focus();
+  }, [status]);
   return (
     <div
       className={`drop${dragging ? " drop--active" : ""}`}
@@ -72,7 +77,7 @@ function ImportDropZone({ controller }: { controller: ReturnType<typeof useHomeI
         </button>
       </div>
       {status && <p className={status.isError ? "notice notice--Danger" : "drop__status"} role={status.isError ? "alert" : "status"}>{status.text}</p>}
-      {status?.isError && failedUpload.length > 0 && <button type="button" className="btn btn--small" onClick={() => void upload(failedUpload)}>Retry import</button>}
+      {status?.isError && failedUpload.length > 0 && <button ref={retryImport} type="button" className="btn btn--small" onClick={() => void upload(failedUpload)}>Retry import</button>}
       <ImportInputs controller={controller} />
     </div>
   );

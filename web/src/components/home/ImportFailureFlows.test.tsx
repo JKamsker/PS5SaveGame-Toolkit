@@ -102,3 +102,16 @@ it.each(["error", "abort", "timeout"] as const)("ignores upload %s after navigat
   expect(screen.getByRole("heading", { name: "Away" })).toBeTruthy();
   expect(screen.queryByRole("alert")).toBeNull();
 });
+
+it.each([false, true])("restores lost import focus while respecting an intentional focus change (%s)", async movedFocus => {
+  const { choose, uploads } = mount();
+  const opener = screen.getByRole("button", { name: "Open zip" });
+  opener.focus();
+  await act(async () => { choose(); });
+  // Native Chromium blurs a control when it becomes disabled; jsdom needs this step.
+  const leave = screen.getByRole("link", { name: "Leave" });
+  leave.focus();
+  if (!movedFocus) leave.blur();
+  await act(async () => { uploads[0]!.onerror!(); });
+  expect(document.activeElement).toBe(movedFocus ? leave : screen.getByRole("button", { name: "Retry import" }));
+});
