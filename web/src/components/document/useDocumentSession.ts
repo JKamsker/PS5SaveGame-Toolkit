@@ -1,11 +1,12 @@
 /* eslint-disable react-hooks/refs, react-hooks/immutability -- Preserve the identity-scoped request controller and render-time store snapshot used by the editor. */
-import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { api, ApiError, isStaleError } from "../../api/client";
 import type { EditResult, FieldValue, SaveDocument, Workspace } from "../../api/protocol";
-import { DocumentStore, type DocumentContextValue, type DocumentMutationOptions, type FieldCommitOutcome, type FieldDiagnosticReceipt } from "../../state/documentStore";
+import { DocumentStore, type DocumentContextValue, type DocumentMutationOptions, type DocumentMutationResult, type FieldCommitOutcome, type FieldDiagnosticReceipt } from "../../state/documentStore";
 import { sameValue } from "../../lib/values";
 import { WorkspaceActivityContext } from "../../state/workspaceActivity";
+import { readDocumentSnapshot, useSnapshotErrorOwner } from "./documentSnapshot";
 
 type DocumentQuery = UseQueryResult<SaveDocument, Error>;
 type Notify = (message: string, isError?: boolean) => void;
@@ -39,11 +40,21 @@ type SessionLifetime = ReturnType<typeof useDocumentLifetime>;
 function useDocumentResult(workspaceId: string, documentId: string, query: DocumentQuery, session: SessionLifetime, onToast: Notify) {
   const queryClient = useQueryClient();
   const { lifetime, currentStore, enqueue } = session;
+  const [readFailure, setReadFailure] = useState<{ owner: typeof lifetime; message: string } | null>(null);
   /** Refetches the view after a structural change; the new view data creates a fresh value cache. */
   const { refetch } = query;
-  const refresh = useCallback(async () => {
-    await enqueue(async () => { if (lifetime.active) await refetch(); });
-  }, [refetch, enqueue, lifetime]);
+  const readSnapshot = useCallback(async () => {
+    const error = await readDocumentSnapshot(queryClient, refetch, workspaceId, documentId);
+    if (lifetime.active) setReadFailure(error ? { owner: lifetime, message: error } : null);
+    return error;
+  }, [queryClient, refetch, workspaceId, documentId, lifetime]);
+  const refresh = useCallback(async (options?: { throwOnError?: boolean }) => {
+    await enqueue(async () => {
+      if (!lifetime.active) return;
+      const error = await readSnapshot();
+      if (error && options?.throwOnError) throw new Error(error);
+    });
+  }, [readSnapshot, enqueue, lifetime]);
 
   const handleResult = useCallback(
     async (result: EditResult, options?: DocumentMutationOptions) => {
@@ -51,12 +62,12 @@ function useDocumentResult(workspaceId: string, documentId: string, query: Docum
       if (result.stale) {
         // Nothing changed on the server; the ids we sent belong to a replaced view.
         lifetime.generation++;
-        await refetch();
+        const snapshotError = await readSnapshot();
         if (lifetime.active && options?.failureFeedback !== "dialog") onToast("The document changed. Please try again with the current view.", true);
-        return;
+        return { snapshotError };
       }
       const diagnostics = currentStore.current.applyWithDiagnostics(result);
-      if (result.structureChanged) { lifetime.generation++; await refetch(); }
+      if (result.structureChanged) { lifetime.generation++; await readSnapshot(); }
       if (!lifetime.active) return;
       if (result.message) onToast(result.message);
       for (const w of result.warnings) onToast(w);
@@ -66,22 +77,22 @@ function useDocumentResult(workspaceId: string, documentId: string, query: Docum
       }));
       void queryClient.invalidateQueries({ queryKey: ["workspace", workspaceId] });
       void queryClient.invalidateQueries({ queryKey: ["export-plan", workspaceId] });
-      return diagnostics;
+      return { diagnostics };
     },
-    [lifetime, currentStore, refetch, queryClient, workspaceId, documentId, onToast],
+    [lifetime, currentStore, readSnapshot, queryClient, workspaceId, documentId, onToast],
   );
 
-  return { refresh, handleResult };
+  return { refresh, handleResult, readSnapshot, snapshotError: readFailure?.owner === lifetime ? readFailure.message : undefined };
 }
 
 function useDocumentMutation(workspaceId: string, documentId: string, query: DocumentQuery, store: DocumentStore | null,
-  session: SessionLifetime, handleResult: ReturnType<typeof useDocumentResult>["handleResult"], onToast: Notify) {
+  session: SessionLifetime, handleResult: ReturnType<typeof useDocumentResult>["handleResult"],
+  readSnapshot: ReturnType<typeof useDocumentResult>["readSnapshot"], onToast: Notify) {
   const queryClient = useQueryClient();
-  const { refetch } = query;
   const activity = useContext(WorkspaceActivityContext);
   const { lifetime, currentStore, enqueue } = session;
   const run = useCallback(
-    (call: () => Promise<EditResult>, onApplied?: (diagnostics: ReadonlyMap<string, FieldDiagnosticReceipt> | undefined) => void, options?: DocumentMutationOptions): Promise<EditResult> => {
+    (call: () => Promise<EditResult>, onApplied?: (diagnostics: ReadonlyMap<string, FieldDiagnosticReceipt> | undefined) => void, options?: DocumentMutationOptions): Promise<DocumentMutationResult> => {
       const generation = lifetime.generation;
       const rejected = (message: string): EditResult => ({ ok: false, errors: [{ valueId: "", message }], changes: [], warnings: [],
         structureChanged: false, state: currentStore.current?.state ?? query.data!.state });
@@ -98,12 +109,12 @@ function useDocumentMutation(workspaceId: string, documentId: string, query: Doc
           // Also retire snapshots that began while this write was in flight.
           await queryClient.cancelQueries({ queryKey: ["document", workspaceId, documentId] });
           if (!lifetime.active) return rejected("The document is no longer open.");
-          const diagnostics = await handleResult(result, options);
+          const accepted = await handleResult(result, options);
           // Pass this result's installations, never errors left over from another queued write.
-          onApplied?.(diagnostics);
+          onApplied?.(accepted?.diagnostics);
           const globalError = result.errors.find(error => error.valueId === "");
           if (lifetime.active && !result.ok && !result.stale && globalError && options?.failureFeedback !== "dialog") onToast(globalError.message, true);
-          return result;
+          return accepted?.snapshotError ? { ...result, snapshotError: accepted.snapshotError } : result;
         } catch (error) {
           // A failed/ambiguous write must not release already queued intents against an uncertain state.
           lifetime.generation++;
@@ -111,15 +122,15 @@ function useDocumentMutation(workspaceId: string, documentId: string, query: Doc
           const stale = isStaleError(error);
           // Already inside the mutation queue: public refresh would enqueue behind this request.
           // Replace the revision/view before the dialog offers its first Preview again.
-          if (lifetime.active && stale) await refetch();
+          const snapshotError = lifetime.active && stale ? await readSnapshot() : undefined;
           if (lifetime.active && options?.failureFeedback !== "dialog") onToast(message, true);
           // Action dialogs need this diagnostic inside the modal, where background toasts are inert.
-          return { ...rejected(message), stale };
+          return { ...rejected(message), stale, snapshotError };
         }
       });
       return activity?.track(request) ?? request;
     },
-    [handleResult, onToast, queryClient, refetch, workspaceId, documentId, store, query.data, enqueue, lifetime, currentStore, activity],
+    [handleResult, onToast, queryClient, readSnapshot, workspaceId, documentId, store, query.data, enqueue, lifetime, currentStore, activity],
   );
 
   return run;
@@ -127,8 +138,11 @@ function useDocumentMutation(workspaceId: string, documentId: string, query: Doc
 
 function useDocumentContext(workspaceId: string, documentId: string, query: DocumentQuery, store: DocumentStore | null,
   pendingEdits: SessionLifetime["pendingEdits"], refresh: DocumentContextValue["refresh"],
-  handleResult: ReturnType<typeof useDocumentResult>["handleResult"], run: ReturnType<typeof useDocumentMutation>) {
+  handleResult: ReturnType<typeof useDocumentResult>["handleResult"], run: ReturnType<typeof useDocumentMutation>, readError: string | undefined,
+  snapshotOwner: ReturnType<typeof useSnapshotErrorOwner>) {
   const structureVersion = query.dataUpdatedAt;
+  const snapshotError = readError ?? (query.isError ? query.error.message : undefined);
+  const { claim, inDialog } = snapshotOwner;
   const context = useMemo<DocumentContextValue | null>(() => {
     if (!query.data || !store) return null;
     const pendingCommit = (valueId: string, value: FieldValue): PendingFieldCommit => {
@@ -150,6 +164,9 @@ function useDocumentContext(workspaceId: string, documentId: string, query: Docu
       canEdit: query.data.canEdit,
       store,
       structureVersion,
+      snapshotError,
+      claimSnapshotErrors: claim,
+      snapshotErrorInDialog: inDialog,
       refresh,
       acceptResult: async result => { await handleResult(result); },
       mutate: (call, options) => run(call, undefined, options),
@@ -158,7 +175,7 @@ function useDocumentContext(workspaceId: string, documentId: string, query: Docu
       runAction: async (actionId: string, parameters: Record<string, FieldValue>) =>
         run(() => api.action(workspaceId, documentId, actionId, parameters, store.state.revision)),
     };
-  }, [query.data, store, workspaceId, documentId, structureVersion, refresh, run, handleResult, pendingEdits]);
+  }, [query.data, store, workspaceId, documentId, structureVersion, snapshotError, claim, inDialog, refresh, run, handleResult, pendingEdits]);
 
   return context;
 }
@@ -168,9 +185,10 @@ export function useDocumentSession(workspaceId: string, documentId: string, onTo
   const query = useQuery({ queryKey: ["document", workspaceId, documentId], queryFn: () => api.document(workspaceId, documentId), refetchOnMount: "always" });
   const store = useMemo(() => (query.data ? new DocumentStore(query.data.state) : null), [query.data]);
   const session = useDocumentLifetime(workspaceId, documentId, store);
-  const { refresh, handleResult } = useDocumentResult(workspaceId, documentId, query, session, onToast);
-  const run = useDocumentMutation(workspaceId, documentId, query, store, session, handleResult, onToast);
-  const context = useDocumentContext(workspaceId, documentId, query, store, session.pendingEdits, refresh, handleResult, run);
+  const snapshotOwner = useSnapshotErrorOwner(session.lifetime);
+  const { refresh, handleResult, readSnapshot, snapshotError } = useDocumentResult(workspaceId, documentId, query, session, onToast);
+  const run = useDocumentMutation(workspaceId, documentId, query, store, session, handleResult, readSnapshot, onToast);
+  const context = useDocumentContext(workspaceId, documentId, query, store, session.pendingEdits, refresh, handleResult, run, snapshotError, snapshotOwner);
   // Each successful snapshot replaces the value cache; lazy children share that generation.
   return { query, context, refresh, structureVersion: query.dataUpdatedAt };
 }

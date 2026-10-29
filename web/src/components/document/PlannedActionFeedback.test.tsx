@@ -1,5 +1,5 @@
 import { defaultScheduler, notifyManager, QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { actionReview, type ActionPreview } from "../../api/actionReview";
 import { api, ApiError } from "../../api/client";
@@ -127,4 +127,129 @@ it("preserves non-dialog action failure toasts", async () => {
   const toast = await mount();
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Direct action" })); });
   expect(toast).toHaveBeenCalledExactlyOnceWith("Metadata changed", true);
+});
+
+async function failedStaleRead(kind: string) {
+  let serverRevision = 1;
+  const plan = vi.spyOn(actionReview, "plan").mockImplementation(async (_w, _d, _a, _params, _scope, revision) => {
+    expect(revision).toBe(serverRevision);
+    return preview(serverRevision);
+  });
+  const apply = vi.spyOn(actionReview, "apply").mockImplementation(async () => {
+    serverRevision = 2;
+    if (kind === "exception") throw new ApiError("Metadata changed", 409, { code: "stale" });
+    return { ...stale, state: { ...state, revision: serverRevision } };
+  });
+  const toast = await mount();
+  vi.mocked(api.document).mockRejectedValue(new ApiError("Snapshot service unavailable", 503));
+  const trigger = screen.getByRole("button", { name: "Rename" });
+  fireEvent.click(trigger);
+  const dialog = within(screen.getByRole("dialog"));
+  fireEvent.change(dialog.getByRole("textbox", { name: "Caption" }), { target: { value: "🎮" } });
+  fireEvent.blur(dialog.getByRole("textbox", { name: "Caption" }));
+  fireEvent.click(dialog.getByRole("button", { name: "Preview" }));
+  fireEvent.click(await dialog.findByRole("button", { name: "Apply" }));
+  await dialog.findByRole("button", { name: "Retry document refresh" });
+  return { toast, plan, apply, trigger, dialog };
+}
+
+it.each(["envelope", "exception"])("requires a successful read after repeated stale refresh failures (%s)", async kind => {
+  const { toast, plan, apply, dialog } = await failedStaleRead(kind);
+  await waitFor(() => expect(document.activeElement).toBe(dialog.getByRole("alert")));
+  expect(dialog.getByRole("alert").textContent).toContain("Snapshot service unavailable");
+  expect(dialog.queryByRole("button", { name: "Preview again" })).toBeNull();
+  expect(dialog.getAllByRole("alert")).toHaveLength(1);
+  expect(screen.getAllByRole("alert")).toHaveLength(1);
+  expect(dialog.getByRole("textbox", { name: "Caption" })).toHaveProperty("value", "🎮");
+  fireEvent.click(dialog.getByRole("button", { name: "Retry document refresh" }));
+  await waitFor(() => expect(api.document).toHaveBeenCalledTimes(3));
+  await waitFor(() => expect(document.activeElement).toBe(dialog.getByRole("alert")));
+  expect(plan).toHaveBeenCalledTimes(1);
+  const refreshed = deferred<SaveDocument>();
+  vi.mocked(api.document).mockReturnValueOnce(refreshed.promise);
+  fireEvent.click(dialog.getByRole("button", { name: "Retry document refresh" }));
+  await waitFor(() => expect(api.document).toHaveBeenCalledTimes(4));
+  expect(plan).toHaveBeenCalledTimes(1);
+  expect(dialog.queryByRole("button", { name: "Preview again" })).toBeNull();
+  await act(async () => { refreshed.resolve(snapshot(2, true)); await refreshed.promise; });
+  const retryPlan = await dialog.findByRole("button", { name: "Preview again" });
+  expect(screen.queryByText(/Could not refresh the document/)).toBeNull();
+  expect(screen.getByRole("switch", { name: "Flag" }).getAttribute("aria-checked")).toBe("true");
+  expect(dialog.getByRole("textbox", { name: "Caption" })).toHaveProperty("value", "🎮");
+  fireEvent.click(retryPlan);
+  await dialog.findByRole("button", { name: "Apply" });
+  expect(plan.mock.calls.map(call => call[5])).toEqual([1, 2]);
+  expect(apply).toHaveBeenCalledOnce();
+  expect(toast).not.toHaveBeenCalled();
+  expect(screen.getByRole("button", { name: "Undo" })).toHaveProperty("disabled", true);
+});
+
+it("keeps background read recovery reachable after cancelling the failed dialog", async () => {
+  const { toast, plan, apply, trigger, dialog } = await failedStaleRead("envelope");
+  fireEvent.click(dialog.getByRole("button", { name: "Cancel" }));
+  await waitFor(() => expect(document.activeElement).toBe(trigger));
+  expect(screen.getByRole("alert").textContent).toContain("Snapshot service unavailable");
+  expect(screen.getByRole("button", { name: "Refresh document" })).toHaveProperty("disabled", false);
+  // Reopening before any successful read must not expose cached revision 1 as a fresh preview.
+  fireEvent.click(trigger);
+  expect(dialog.getByRole("button", { name: "Retry document refresh" })).toHaveProperty("disabled", false);
+  expect(screen.getAllByRole("alert")).toHaveLength(1);
+  expect(plan).toHaveBeenCalledOnce();
+  fireEvent.click(dialog.getByRole("button", { name: "Cancel" }));
+  vi.mocked(api.document).mockResolvedValue(snapshot(2, true));
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Refresh document" })); });
+  expect(screen.queryByText(/Could not refresh the document/)).toBeNull();
+  expect(screen.getByRole("switch", { name: "Flag" }).getAttribute("aria-checked")).toBe("true");
+  expect(apply).toHaveBeenCalledOnce();
+  expect(toast).not.toHaveBeenCalled();
+});
+
+it.each(["close", "unmount"])("retires a pending dialog read retry after %s", async retirement => {
+  const { toast, plan, apply, dialog, trigger } = await failedStaleRead("exception");
+  const refreshed = deferred<SaveDocument>();
+  vi.mocked(api.document).mockReturnValueOnce(refreshed.promise);
+  fireEvent.click(dialog.getByRole("button", { name: "Retry document refresh" }));
+  await waitFor(() => expect(api.document).toHaveBeenCalledTimes(3));
+  if (retirement === "unmount") cleanup();
+  else {
+    act(() => { screen.getByRole<HTMLDialogElement>("dialog").close(); });
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
+  }
+  await act(async () => { refreshed.resolve(snapshot(2, true)); await refreshed.promise; });
+  expect(screen.queryByRole("dialog")).toBeNull();
+  expect(plan).toHaveBeenCalledOnce();
+  expect(apply).toHaveBeenCalledOnce();
+  expect(toast).not.toHaveBeenCalled();
+  if (retirement === "close") expect(document.activeElement).toBe(trigger);
+});
+
+it("does not mistake cancelled cached success for a newly installed snapshot", async () => {
+  const plan = vi.spyOn(actionReview, "plan").mockImplementation(async (_w, _d, _a, _params, _scope, revision) => preview(revision!));
+  vi.spyOn(actionReview, "apply").mockResolvedValue(stale);
+  const toast = await mount();
+  const cancelledRead = deferred<SaveDocument>();
+  vi.mocked(api.document).mockReturnValueOnce(cancelledRead.promise);
+  fireEvent.click(screen.getByRole("button", { name: "Rename" }));
+  const dialog = within(screen.getByRole("dialog"));
+  fireEvent.change(dialog.getByRole("textbox", { name: "Caption" }), { target: { value: "🎮" } });
+  fireEvent.blur(dialog.getByRole("textbox", { name: "Caption" }));
+  fireEvent.click(dialog.getByRole("button", { name: "Preview" }));
+  fireEvent.click(await dialog.findByRole("button", { name: "Apply" }));
+  await waitFor(() => expect(api.document).toHaveBeenCalledTimes(2));
+  await act(async () => { await clients.at(-1)!.cancelQueries({ queryKey: ["document", "w", "d"] }); });
+  await dialog.findByRole("button", { name: "Retry document refresh" });
+  expect(dialog.queryByRole("button", { name: "Preview again" })).toBeNull();
+  expect(plan).toHaveBeenCalledOnce();
+  fireEvent.click(dialog.getByRole("button", { name: "Cancel" }));
+  fireEvent.click(screen.getByRole("button", { name: "Rename" }));
+  expect(dialog.getByRole("button", { name: "Retry document refresh" })).toHaveProperty("disabled", false);
+  expect(plan).toHaveBeenCalledOnce();
+  vi.mocked(api.document).mockResolvedValue(snapshot(2, true));
+  fireEvent.click(dialog.getByRole("button", { name: "Retry document refresh" }));
+  const retry = await dialog.findByRole("button", { name: "Preview" });
+  await act(async () => { cancelledRead.resolve(snapshot()); await cancelledRead.promise; });
+  fireEvent.click(retry);
+  await dialog.findByRole("button", { name: "Apply" });
+  expect(plan.mock.calls.map(call => call[5])).toEqual([1, 2]);
+  expect(toast).not.toHaveBeenCalled();
 });

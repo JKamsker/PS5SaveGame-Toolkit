@@ -12,7 +12,9 @@ async function captionFixture(page: Page, maxUtf8Bytes: number | null = 4, canEd
     description: "Synthetic UTF-8 caption", spec: { kind: "text", maxUtf8Bytes } };
   let serverRevision: number | undefined;
   let serverCaption = "🎮";
+  let snapshotUnavailable = false;
   await page.route(/\/api\/workspaces\/[^/]+\/documents\/[^/?]+$/, async route => {
+    if (snapshotUnavailable) return route.fulfill({ status: 503, json: { error: "Snapshot service unavailable" } });
     const response = await route.fetch();
     const document = await response.json() as SaveDocument;
     document.canEdit = canEdit;
@@ -35,7 +37,48 @@ async function captionFixture(page: Page, maxUtf8Bytes: number | null = 4, canEd
   return {
     get revision() { return serverRevision!; },
     advanceRevision() { serverRevision!++; serverCaption = "new"; },
+    setSnapshotUnavailable(value: boolean) { snapshotUnavailable = value; },
   };
+}
+
+for (const failure of ["envelope", "exception"]) {
+  test(`stale ${failure} retains the draft until an in-dialog snapshot retry succeeds`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width: 375, height: 900 });
+    const fixture = await captionFixture(page);
+    const initialRevision = fixture.revision;
+    const flow = await installStaleFlow(page, failure, fixture);
+    const trigger = page.getByRole("button", { name: "Preview caption", exact: true });
+    await trigger.click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByRole("textbox", { name: "Caption" }).fill("🎮");
+    await dialog.getByRole("button", { name: "Preview", exact: true }).click();
+    fixture.setSnapshotUnavailable(true);
+    await dialog.getByRole("button", { name: "Apply", exact: true }).click();
+    await expect(dialog.getByRole("alert")).toContainText("Snapshot service unavailable");
+    await expect(dialog.getByRole("alert")).toBeFocused();
+    await expect(dialog.getByRole("button", { name: "Preview again" })).toHaveCount(0);
+    await expect(dialog.getByRole("textbox", { name: "Caption" })).toHaveValue("🎮");
+    // The dialog owns announcements; background read recovery remains available after close.
+    await expect(page.getByRole("alert")).toHaveCount(1);
+    await expect(page.locator(".toast")).toHaveCount(0);
+    await expectNoPageOverflow(page);
+    await page.screenshot({ path: testInfo.outputPath("snapshot-failed-375.png"), fullPage: true });
+    await dialog.getByRole("button", { name: "Retry document refresh" }).click();
+    await expect(dialog.getByRole("alert")).toBeFocused();
+    expect(flow.revisions).toEqual([initialRevision]);
+    fixture.setSnapshotUnavailable(false);
+    await dialog.getByRole("button", { name: "Retry document refresh" }).click();
+    await expect(dialog.getByRole("button", { name: "Preview again" })).toBeEnabled();
+    await expect(dialog.getByRole("textbox", { name: "Caption" })).toHaveValue("🎮");
+    await dialog.getByRole("button", { name: "Preview again" }).click();
+    await expect(dialog.getByRole("button", { name: "Apply", exact: true })).toBeEnabled();
+    expect(flow.revisions).toEqual([initialRevision, initialRevision + 1]);
+    expect(flow.applies).toBe(1);
+    await page.keyboard.press("Escape");
+    await expect(trigger).toBeFocused();
+    await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Refresh document", exact: true })).toHaveCount(0);
+  });
 }
 
 async function expectNoPageOverflow(page: Page) {

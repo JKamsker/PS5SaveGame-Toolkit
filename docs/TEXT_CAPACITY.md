@@ -58,6 +58,13 @@ before keeping the dialog and parameter values, focusing the reason, and offerin
 ordinary error message without being labeled stale. Recovery does not reuse the
 rejected token or create local history. The focused dialog alert owns apply failures, avoiding a duplicate
 background error toast; ordinary field edits retain their existing toast feedback.
+If the snapshot read fails, the dialog retains the draft and offers **Retry document
+refresh**. Preview remains blocked until a successful snapshot is installed; repeated
+read failures stay recoverable inside the dialog. A cancelled read that only restores
+cached data does not count as a fresh snapshot. Closing the dialog keeps the existing
+background document refresh control available. Retrying a read never applies an action
+or creates history. The dialog owns read-error announcements while open; closing it
+returns that responsibility to the background document error.
 Read-only documents can preview but cannot apply.
 
 The initial delivery changes no plugin. Consumer adoption must publish a proven
