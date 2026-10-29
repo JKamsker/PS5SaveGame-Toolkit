@@ -38,6 +38,11 @@ public sealed class FaithEvidenceTests
                 Assert.Equal(record.Category, fallback.Category);
                 Assert.Equal(record.Source, fallback.Source);
                 Assert.Equal(record.Description, fallback.Description);
+                Assert.Equal(record.Limit, fallback.Limit);
+                Assert.Equal(record.AssetId, fallback.AssetId);
+                Assert.Equal(record.Dataset.PackId, fallback.Dataset.PackId);
+                Assert.Equal(record.Dataset.Id, fallback.Dataset.Id);
+                Assert.Equal(record.Dataset.Attribution, fallback.Dataset.Attribution);
                 Assert.Equal(record.AttributionText, fallback.AttributionText);
                 Assert.Equal(record.Attributes.OrderBy(pair => pair.Key), fallback.Attributes.OrderBy(pair => pair.Key));
             }
