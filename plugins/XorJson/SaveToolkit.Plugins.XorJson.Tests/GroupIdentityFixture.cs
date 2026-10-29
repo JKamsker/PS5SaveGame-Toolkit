@@ -20,7 +20,9 @@ internal sealed class GroupIdentityFixture : IDisposable
              "CharacterSaveV1":{"MetaData":{"IsOnline":false,"Level":1,"CurrentLocation":"SW.Region.Camp"},
              "Inventory":{"Entries":[{"ItemData":{"TypeTag":"SW.Item.Sword"},"StackCount":2}]},
              "quest":{"Quests":[{"QuestName":"CA00","State":"Completed"}]},"a~/b":7,"items":[ARRAY]}}
-            """.Replace("ARRAY", string.Join(',', Enumerable.Range(0, 130)), StringComparison.Ordinal);
+            """.Replace("ARRAY", string.Join(',', Enumerable.Range(0, 130)), StringComparison.Ordinal)
+            // Raw-string newlines follow the checkout (CRLF on Windows autocrlf); pin LF so fingerprints are portable.
+            .ReplaceLineEndings("\n");
         var settings = """{"blobs":[],"volume":50,"future":-0.00E+02,"items":[ARRAY]}"""
             .Replace("ARRAY", string.Join(',', Enumerable.Range(0, 130)), StringComparison.Ordinal);
         var set = new MemorySaveSet()

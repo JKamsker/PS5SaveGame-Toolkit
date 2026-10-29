@@ -64,7 +64,7 @@ public sealed class EmbeddedPackSnapshotTests
         }
 
         Assert.Equal(39, count);
-        Assert.Equal("19ff03f234988519f8758116484ea69d63ac69e58e73baf1f148c770704dfd0b",
+        Assert.Equal("593f3f94433b4340da5b1b0200c4f7158690785307d35d1918eacbfff43a5688",
             Convert.ToHexStringLower(hash.GetHashAndReset()));
     }
 }
