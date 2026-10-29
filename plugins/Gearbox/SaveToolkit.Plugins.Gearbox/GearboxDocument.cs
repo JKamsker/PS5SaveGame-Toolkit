@@ -72,11 +72,13 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _lazy.Expand(lazyId);
 
     internal FieldNode InspectionField(string id, string label, string value, Confidence confidence, string? source) =>
-        Bind(id, label, new TextSpec { ReadOnly = true, Multiline = true }, () => FieldValue.Of(value), null)
+        Bind(id, label, new TextSpec { ReadOnly = true, Multiline = true }, () => FieldValue.Of(value), null,
+            confidence: confidence, description: source)
             with { Confidence = confidence, Description = source };
 
     internal FieldNode InspectionReference(string id, string label, string value, string catalog, Confidence confidence, string? source) =>
-        Bind(id, label, new ReferenceSpec(catalog) { ReadOnly = true }, () => FieldValue.Of(value), null)
+        Bind(id, label, new ReferenceSpec(catalog) { ReadOnly = true }, () => FieldValue.Of(value), null,
+            confidence: confidence, description: source)
             with { Confidence = confidence, Description = source };
 
     internal FieldNode ItemNumber(string id, string label, int minimum, int maximum, Func<int> get, Action<int> set) =>
@@ -178,13 +180,14 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     }
 
     private FieldNode Bind(string id, string label, FieldSpec spec, Func<FieldValue> get, Action<FieldValue>? set,
-        Func<FieldValue, string?>? validate = null, string? warning = null)
+        Func<FieldValue, string?>? validate = null, string? warning = null,
+        Confidence confidence = Confidence.Verified, string? description = null)
     {
         _readers[id] = get;
         var field = Field(id, label, spec, get, set, validate) with
         {
-            Confidence = Confidence.Verified,
-            Description = GearboxWriteWarnings.SchemaEvidence,
+            Confidence = confidence,
+            Description = description ?? GearboxWriteWarnings.SchemaEvidence,
             Warning = set is null ? warning : GearboxWriteWarnings.ForWrite(warning),
         };
         RegisterField(new FieldMetadata(id, label, field.Spec)
