@@ -11,7 +11,11 @@ export function ServerTableReadError({ table }: Pick<ServerTablePartProps, "tabl
   return (
     <div className="read-error">
       <p role="alert" className="notice notice--Danger">{stale ? "This table is out of date. Refresh the document to load current rows." : result.error.message}</p>
-      <button type="button" className="btn btn--small" onClick={() => {
+      <button type="button" className="btn btn--small" onClick={event => {
+        // Retrying removes this error control; keep keyboard focus at the persistent table title.
+        if (document.activeElement === event.currentTarget) {
+          event.currentTarget.closest(".table")?.querySelector<HTMLElement>(".table__title")?.focus();
+        }
         if (stale) void refresh().catch(() => {});
         else void result.refetch();
       }}>{stale ? "Refresh document" : "Retry rows"}</button>
