@@ -311,13 +311,12 @@ records all 15 merged additions, evidence and remaining owner checks as of 2026-
 amounts lost before import, and re-importing an edited export establishes a new baseline.
 The [wave-1 review](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489144967)
 found that FF7 recovery/level, Tales restore and Tsushima restore controls ignored table
-selection, and that FF7 level undo could lose the opening XP. The FF7 and Tsushima fixes
-are merged; the Tales restore still previews document scope, so review every target
-before applying. The
+selection, and that FF7 level undo could lose the opening XP. All four fixes are merged;
+still review every target in the preview before applying. The
 [wave-2 review](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6489356906)
 found a low-severity grouped Gearbox level/mark defect with malformed manually
-submitted row keys; normal UI selections are unaffected. The Tales and Gearbox fixes are
-in progress, and the Pragmata review was outside both waves.
+submitted row keys; normal UI selections are unaffected. Its fix is in progress, and the
+Pragmata review was outside both waves.
 
 | Game / format | Title IDs | Plugin | Maturity | Writes enabled / important limits |
 | --- | --- | --- | --- | --- |
