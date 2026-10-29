@@ -13,10 +13,15 @@ public sealed class YoteiCorruptionTests
     [InlineData(uint.MaxValue)]
     public void InvalidDeclaredEndsRejectClearlyBeforeReadingTables(uint end)
     {
-        var bytes = Slot("suckerpunchUser4").ReadAllBytes();
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(8), end);
-        var error = Assert.Throws<SaveFormatException>(() => new SuckerPunchPlugin().Open(WithBytes(bytes)));
-        Assert.Contains("content end", error.Message);
+        var files = Files.Where(file => Word(file.ReadAllBytes(), 0) != 0).ToArray();
+        Assert.NotEmpty(files);
+        foreach (var file in files)
+        {
+            var bytes = file.ReadAllBytes();
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(8), end);
+            var error = Assert.Throws<SaveFormatException>(() => new SuckerPunchPlugin().Open(WithBytes(bytes)));
+            Assert.Contains("content end", error.Message);
+        }
     }
 
     [Theory]
@@ -28,10 +33,18 @@ public sealed class YoteiCorruptionTests
     [InlineData("gear-count", "Yōtei gear registry is missing or ambiguous.")]
     [InlineData("gear-name-length", "Invalid Yōtei record name length.")]
     [InlineData("statistics-count", "Yōtei statistics table is missing or ambiguous.")]
+    [InlineData("statistics-name-length", "Invalid Yōtei record name length.")]
+    [InlineData("secondary-name-length", "Invalid Yōtei record name length.")]
     [InlineData("truncated-content", "Yōtei inventory table is missing.")]
     public void MalformedKnownStructuresRejectAfterAnIndependentlyRepairedChecksum(string mutation, string expected)
     {
-        var bytes = Slot("suckerpunchUser4").ReadAllBytes();
+        var files = Files.Where(file => Word(file.ReadAllBytes(), 0) != 0).ToArray();
+        Assert.NotEmpty(files);
+        foreach (var file in files) AssertMalformedStructures(file.ReadAllBytes(), mutation, expected);
+    }
+
+    private static void AssertMalformedStructures(byte[] bytes, string mutation, string expected)
+    {
         ReadOnlySpan<byte> inventoryAnchor = "\x30\0\0\0\x0b\0\0\0ArrowNormal"u8;
         var first = bytes.AsSpan().IndexOf(inventoryAnchor);
         var second = first + inventoryAnchor.Length + bytes.AsSpan(first + inventoryAnchor.Length).IndexOf(inventoryAnchor);
@@ -54,12 +67,35 @@ public sealed class YoteiCorruptionTests
                 var gearRow = ReadTable(bytes, gear, 1037, 2)[1];
                 BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(gearRow.Data - gearRow.Name.Length - sizeof(uint)), 0); break;
             case "statistics-count": bytes[stats] = 34; break;
+            case "statistics-name-length":
+                var statsRow = ReadTable(bytes, stats, 33, sizeof(uint))[1];
+                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(statsRow.Data - statsRow.Name.Length - sizeof(uint)), uint.MaxValue); break;
+            case "secondary-name-length":
+                var secondaryRow = ReadTable(bytes, second, 48, 16)[1];
+                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(secondaryRow.Data - secondaryRow.Name.Length - sizeof(uint)), uint.MaxValue); break;
             case "truncated-content": BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(8), (uint)(first + 8)); break;
             default: throw new ArgumentOutOfRangeException(nameof(mutation));
         }
         Repair(bytes);
         var error = Assert.Throws<SaveFormatException>(() => new SuckerPunchPlugin().Open(WithBytes(bytes)));
         Assert.Equal(expected, error.Message);
+    }
+
+    [Fact]
+    public void EveryCurrentSampleRejectsPhysicalTruncationAndNonemptyZeroMagicPayloads()
+    {
+        Assert.NotEmpty(Files);
+        foreach (var file in Files)
+        {
+            var bytes = file.ReadAllBytes();
+            foreach (var end in new[] { 0, 15, (int)Word(bytes, 8), bytes.Length - 1 }.Distinct())
+                Assert.Throws<SaveFormatException>(() => new SuckerPunchPlugin().Open(WithBytes(bytes[..end])));
+            // Magic zero is permitted only for the complete all-zero placeholder.
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes, 0);
+            bytes[^1] = 1;
+            Assert.Equal("Unrecognised Sucker Punch save magic.",
+                Assert.Throws<SaveFormatException>(() => new SuckerPunchPlugin().Open(WithBytes(bytes))).Message);
+        }
     }
 
     [Fact]

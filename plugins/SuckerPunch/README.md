@@ -106,6 +106,30 @@ Still disabled for structural safety:
   including unknown data, console metadata and padding. Only the selected document's file is returned;
   sibling saves, backup slots and `param.sfo` are preserved.
 
+## Malformed-input handling
+
+Unsupported physical sizes or magic, out-of-file declared content ends, and malformed recognized
+named tables reject with a contextual `SaveFormatException`. Table counts are fixed by the recognized
+layout; name lengths must be 1–64 bytes and identifiers must be unique ASCII letters, digits or
+underscores. Traversal stays inside the declared content, including complete record trailers. No
+allocation or loop count comes from an unchecked file length/count field.
+
+Tsushima checksum mismatches reject. A valid Tsushima container without its recognized inventory
+anchor remains inspection-only. Yōtei requires its recognized tables; its inferred checksum candidate
+may mismatch, in which case every quantity and action remains inspection-only and no-op output
+preserves the mismatch. A zero-magic Yōtei file is accepted only when the entire full-size file is zero.
+Opaque sections and bytes after the declared end remain preserved; their meaning is unconfirmed.
+
+The malformed-input review extends the existing synthetic and sample-backed corruption tests:
+all five named-table counts, every Yōtei table family's non-anchor names, oversized declarations
+with a 4 MiB parser-allocation budget, every byte boundary in the final record's length/name/trailer,
+and physical prefixes at header/name/data boundaries through both Open and the native decoder.
+Checksum tests cover the first/last content byte, excluded tail, header terms and full-file declared
+end. Existing sample mutations now cover every claimed Tsushima file and all eleven current nonempty
+Yōtei files; physical truncation and invalid zero-magic checks also cover both Yōtei placeholders.
+All mutations are made in memory; no sample bytes are embedded in tests. The review found no
+additional production correctness defect requiring a parser change.
+
 ## Framework feature adoption
 
 | Feature | Status | Concrete adoption or reason |
