@@ -1,17 +1,13 @@
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Text.Json;
 using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
-using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Core.Tests.References;
 
-public sealed class EmbeddedPackSnapshotTests
+public sealed class EmbeddedPackSnapshotTests(ITestOutputHelper output)
 {
-    internal const int ExpectedPackCount = 40;
-
     internal static IReadOnlyList<IGamePlugin> Plugins() => [.. PluginCatalog.Discover().Plugins
         .Where(p => p.GetType().Assembly.GetName().Name!.StartsWith("SaveToolkit.Plugins.", StringComparison.Ordinal))];
 
@@ -28,45 +24,39 @@ public sealed class EmbeddedPackSnapshotTests
     }
 
     [Fact]
-    public void CoreCatalogsAndAssets_MatchPreExtractionSnapshot()
+    public void CoreCatalogsAndAssets_MatchPerPackSnapshots()
+    {
+        using var stream = typeof(EmbeddedPackSnapshotTests).Assembly.GetManifestResourceStream(PackSnapshotBaseline.ResourceName)!;
+        using var reader = new StreamReader(stream);
+        var baseline = PackSnapshotBaseline.Read(reader);
+        var errors = PackSnapshotBaseline.Differences(baseline, CurrentHashes());
+        Assert.True(errors.Count == 0, string.Join(Environment.NewLine, errors));
+    }
+
+    [Fact(Explicit = true)]
+    public void PrintCurrentPackHashes()
+    {
+        // Opt-in output only: never rewrite the reviewed baseline, even when it differs.
+        foreach (var (id, hash) in CurrentHashes()) output.WriteLine($"{id} {hash}");
+    }
+
+    private static SortedDictionary<string, string> CurrentHashes()
     {
         var plugins = Plugins();
         Assert.NotEmpty(plugins);
         var store = new ReferencePackStore(plugins);
         Assert.Empty(store.LoadErrors);
-        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        var count = 0;
-        foreach (var assembly in plugins.Select(p => p.GetType().Assembly).Distinct().OrderBy(a => a.GetName().Name, StringComparer.Ordinal))
+        var hashes = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach (var assembly in plugins.Select(p => p.GetType().Assembly).Distinct())
         foreach (var (_, manifest) in Manifests(assembly))
         {
-            var pack = store.Find(manifest.GetProperty("id").GetString()!)!;
-            hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(pack.Info));
-            var context = new ReferenceContext([pack], ["en"]);
-            foreach (var dataset in manifest.GetProperty("datasets").EnumerateArray())
-            {
-                if (dataset.GetProperty("kind").GetString() == "records")
-                {
-                    var catalog = pack.Catalog(dataset.GetProperty("id").GetString()!)!;
-                    foreach (var record in ReferenceCatalogReader.ReadBounded(catalog, new(), catalog.Count))
-                        hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(record));
-                }
-                else
-                {
-                    foreach (var file in dataset.GetProperty("files").EnumerateArray())
-                    {
-                        var id = pack.Id + ":" + file.GetProperty("path").GetString();
-                        var asset = context.GetAsset(id)!;
-                        hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(asset.ContentType));
-                        hash.AppendData(asset.Content.Span);
-                        hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(context.AssetProvenance(id)));
-                    }
-                }
-            }
-            count++;
+            var id = manifest.GetProperty("id").GetString()!;
+            var pack = store.Find(id);
+            Assert.True(pack is not null, $"Pack '{id}' was not loaded by Core.");
+            Assert.True(hashes.TryAdd(id, PackSnapshotBaseline.Hash(pack, manifest)), $"Duplicate embedded pack id '{id}'.");
         }
 
-        Assert.Equal(ExpectedPackCount, count);
-        Assert.Equal("00afa30fbfa25dc7360dc6c24fa98b7ea5e1f964186a49a94c1fc8ce38e25088",
-            Convert.ToHexStringLower(hash.GetHashAndReset()));
+        Assert.NotEmpty(hashes);
+        return hashes;
     }
 }
