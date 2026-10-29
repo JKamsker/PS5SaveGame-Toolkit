@@ -10,12 +10,23 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
 {
     public const string ActionId = "inventory/set-goods-quantity";
     public const string InventoryActionId = "inventory/set-quantity";
+    public const string RestoreAmmoActionId = "inventory/restore-imported-ammo";
     public const string QuantityParameter = "quantity";
     private const uint OldestObservedVersion = 47;
     private const uint LatestObservedVersion = 49;
     public const string CapacityWarning = TsushimaWriteWarnings.Console + " Experimental. " +
         "The game may clamp quantities to its capacity limits. Game carrying capacities and console persistence are unverified. " +
         "This sets a target quantity, not a capacity refill. Hide retains its raw name because its friendly mapping is unproven.";
+    public const string RestoreAmmoWarning = TsushimaWriteWarnings.Console + " Experimental. Verified byte structure; console effect unverified. " +
+        "Restore only reduced eligible ammo to this workspace's immutable opening counts, not a game maximum or a historical balance. " +
+        "Counts already at or above opening stay unchanged. Re-importing establishes a new baseline. " +
+        "The game may clamp quantities to its capacity limits. Game carrying capacities and console persistence are unverified; no capacity is granted.";
+
+    // Capture values and eligibility once, before any edits. Never derive the baseline from mutable bytes on preview or view rebuild.
+    private readonly IReadOnlyDictionary<string, uint> _openingAmmo = inventory?.Records
+        .Where(record => record.IsAmmo && record.CanEdit(bytes))
+        .ToDictionary(record => record.Name, record => BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(record.QuantityOffset)),
+            StringComparer.Ordinal) ?? [];
 
     public static ActionNode View => new(ActionId, "Set existing goods quantity")
     {
@@ -33,9 +44,16 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
             "Locked, oversized, unmapped and inconsistent records are skipped. " + CapacityWarning,
     };
 
+    public static ActionNode RestoreAmmoView => new(RestoreAmmoActionId, "Restore imported ammo counts")
+    {
+        SupportsPlanning = true,
+        Description = "Preview each eligible ammo row's own opening count. Both count copies and the repaired checksum are shown. " +
+            "Locked, oversized, inconsistent and non-ammo records are skipped. " + RestoreAmmoWarning,
+    };
+
     public ActionPlan Plan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
     {
-        if (actionId is not (ActionId or InventoryActionId))
+        if (actionId is not (ActionId or InventoryActionId or RestoreAmmoActionId))
         {
             throw new KeyNotFoundException($"Unknown action '{actionId}'.");
         }
@@ -50,7 +68,15 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
             return Reject("Quantity planning is limited to observed Tsushima container versions 47–49.");
         }
 
-        if (parameters.Count != 1 || !parameters.TryGetValue(QuantityParameter, out var target) ||
+        var target = default(FieldValue);
+        if (actionId == RestoreAmmoActionId)
+        {
+            if (parameters.Count != 0)
+            {
+                return Reject("Restoring imported ammo counts accepts no parameters.");
+            }
+        }
+        else if (parameters.Count != 1 || !parameters.TryGetValue(QuantityParameter, out target) ||
             target.Kind != FieldValueKind.Integer || target.AsInteger() < 0 || target.AsInteger() > InventoryRecord.MaximumQuantity)
         {
             return Reject("Supply exactly one integer target quantity between 0 and 32767.");
@@ -67,21 +93,23 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
             return Reject("Selection contains an unknown inventory row.");
         }
 
-        return PlanQuantities(inventory.Records, target, selected, actionId == ActionId);
+        return PlanQuantities(inventory.Records, target, selected, actionId);
     }
 
-    private ActionPlan PlanQuantities(IReadOnlyList<InventoryRecord> records, FieldValue target, HashSet<string>? selected, bool goodsOnly)
+    private ActionPlan PlanQuantities(IReadOnlyList<InventoryRecord> records, FieldValue requestedTarget, HashSet<string>? selected, string actionId)
     {
         var changes = new List<PlannedChange>();
         var mirrors = new List<PlannedChange>();
         var skipped = new List<SkippedActionRow>();
-        var warnings = new List<string> { CapacityWarning };
+        var restoreAmmo = actionId == RestoreAmmoActionId;
+        var warnings = new List<string> { restoreAmmo ? RestoreAmmoWarning : CapacityWarning };
         var checksum = Word(8);
-        foreach (var record in records.Where(record => selected?.Contains(record.Name) ?? IsSupported(record, goodsOnly)))
+        foreach (var record in records.Where(record => selected?.Contains(record.Name) ?? IsSupported(record, actionId)))
         {
-            if (!IsSupported(record, goodsOnly))
+            if (!IsSupported(record, actionId))
             {
-                skipped.Add(new(record.Name, goodsOnly ? "Excluded: this action supports only Supplies, Flowers and raw Hide." :
+                skipped.Add(new(record.Name, actionId == ActionId ? "Excluded: this action supports only Supplies, Flowers and raw Hide." :
+                    restoreAmmo ? "Excluded: this action supports only existing ammo records." :
                     "Excluded: this record is not a supported resource or ammo kind."));
                 continue;
             }
@@ -93,9 +121,20 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
                 continue;
             }
 
-            if (current == target.AsUInt32())
+            var target = requestedTarget;
+            if (restoreAmmo)
             {
-                skipped.Add(new(record.Name, "Already at the requested quantity."));
+                if (!_openingAmmo.TryGetValue(record.Name, out var opening))
+                {
+                    skipped.Add(new(record.Name, "Imported ammo was locked, oversized or inconsistent; inspection only."));
+                    continue;
+                }
+                target = FieldValue.Of((ulong)opening);
+            }
+
+            if (restoreAmmo ? current >= target.AsUInt32() : current == target.AsUInt32())
+            {
+                skipped.Add(new(record.Name, restoreAmmo ? "Already at or above the imported opening count." : "Already at the requested quantity."));
                 continue;
             }
 
@@ -125,8 +164,12 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
         }
     }
 
-    private static bool IsSupported(InventoryRecord record, bool goodsOnly) => goodsOnly
-        ? record.Name is "Supplies" or "Flowers" or "Hide" : record.IsResource || record.IsAmmo;
+    private static bool IsSupported(InventoryRecord record, string actionId) => actionId switch
+    {
+        ActionId => record.Name is "Supplies" or "Flowers" or "Hide",
+        RestoreAmmoActionId => record.IsAmmo,
+        _ => record.IsResource || record.IsAmmo,
+    };
     private static ActionPlan Reject(string message) => new() { Errors = [new(QuantityParameter, message)] };
     private uint Word(int offset) => BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(offset));
 }
