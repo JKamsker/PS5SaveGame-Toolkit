@@ -1,6 +1,8 @@
 # XorJson performance review (#40)
 
-Reviewed on `review/perf-xorjson`, against baseline `df70261`. All source and test
+Historical review recorded in `36b3b1e` on 2026-10-29, on `review/perf-xorjson`
+against baseline `df70261`. Measurements below describe that review snapshot;
+they have not been rerun for subsequent correctness/test changes. All source and test
 changes are inside `plugins/XorJson/`. No format, numeric-literal, no-op round-trip,
 write-warning or maturity contract changed.
 
@@ -71,8 +73,10 @@ Group validation reduces allocations, but its timing difference is inconclusive.
 
 ## Regression evidence and preservation
 
-The original scope suite had 205 tests. The final suite has **223 passed, zero
-failed, zero skipped**, in both Release and Debug. API build: zero warnings/errors.
+At that review snapshot, the original scope suite had 205 tests and the changed
+suite had **223 passed, zero failed, zero skipped**, in both Release and Debug.
+Its API build had zero warnings/errors. These are historical results, not current
+suite counts; use the README commands to validate the current checkout.
 
 - Both 1 MiB encoded-object opening allocation tests failed at about 5.25 MB
   before the prefix fix; both now fit the 4.33 MB budget. Candidate object/BOM
