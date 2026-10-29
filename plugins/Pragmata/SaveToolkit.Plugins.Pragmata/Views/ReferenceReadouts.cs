@@ -63,6 +63,9 @@ internal sealed class ReferenceReadouts
     public FieldValue? GetValue(string id) => _readOnly.TryGetValue(id, out var value) ? value :
         _bindings.TryGetValue(id, out var binding) ? Value(binding, _document.Read(binding.Node)) : null;
     public AssetContent? GetAsset(string id) => _context.GetAsset(id);
+    public string AssetSource(string id) => _context.AssetProvenance(id)?.Attribution.ToShortText() ?? "Image source unavailable.";
+    public IReferenceCatalog? Illustrations => _context.Catalog(IllustratedReferences.CatalogId);
+    public MapNode WithAtlas(MapNode map) => new CommunityAtlas(_context).Attach(map);
     public IReferenceCatalog? Missions => _missions;
 
     public FieldNode Browse(string catalog, ReferenceRecord record)

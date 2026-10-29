@@ -15,7 +15,7 @@ public sealed class SpatialReferenceTests
 {
     private static readonly string[] MissionPath = ["tab:Quests", "section:Mission reference catalogue"];
     [Fact]
-    public void EverySampleHasAttributedUnknownMissionGraphAndLinkOnlyCheckpointMap()
+    public void EverySampleHasUnknownMissionGraphAndAtlasWithoutInventedSaveLocations()
     {
         var plugin = new PragmataPlugin();
         var context = new ReferencePackStore([plugin]).Pin(plugin, "PPSA02530");
@@ -49,12 +49,13 @@ public sealed class SpatialReferenceTests
             var map = Assert.Single(nodes.OfType<MapNode>());
             SpatialViewValidation.Validate(map);
             Assert.NotEmpty(map.Markers);
-            Assert.Null(map.Background);
-            Assert.Null(map.CoordinateAttribution);
-            Assert.False(map.CoordinateEmbeddingPermitted);
+            Assert.Equal(CommunityAtlas.BackgroundId, map.Background!.AssetId);
+            Assert.True(map.Background.EmbeddingPermitted);
+            Assert.NotNull(map.CoordinateAttribution);
+            Assert.True(map.CoordinateEmbeddingPermitted);
             Assert.Equal(CheckpointMap.ExternalMapUrl, map.ExternalSource!.Url);
             var controls = nodes.OfType<SectionNode>().SelectMany(section => section.Children).OfType<FieldNode>().ToDictionary(field => field.ValueId);
-            Assert.All(map.Markers, marker =>
+            Assert.All(map.Markers.Where(marker => marker.Id.StartsWith("checkpoint/", StringComparison.Ordinal)), marker =>
             {
                 Assert.Equal(MapMarkerStatus.Unknown, marker.Status);
                 Assert.Equal(Confidence.Unknown, marker.Confidence);
@@ -63,6 +64,19 @@ public sealed class SpatialReferenceTests
                 Assert.Equal(new[] { "tab:World", $"section:{mapSection.LazyId}", "section:Checkpoint values" }, marker.Target.Path);
                 Assert.Contains("Unknown", marker.Description!, StringComparison.Ordinal);
                 Assert.Contains(HashNames.Source, marker.Description!, StringComparison.Ordinal);
+            });
+            var locations = map.Markers.Where(marker => marker.Id.StartsWith("community/", StringComparison.Ordinal)).ToArray();
+            Assert.Equal(26, locations.Length);
+            Assert.All(locations, marker =>
+            {
+                Assert.Equal(MapMarkerStatus.Unknown, marker.Status);
+                Assert.Equal(Confidence.Inferred, marker.Confidence);
+                Assert.Null(marker.Target);
+                Assert.NotNull(marker.X); Assert.NotNull(marker.Y);
+                Assert.InRange(marker.X.Value * map.Transform.ScaleX, map.Bounds.MinX, map.Bounds.MaxX);
+                Assert.InRange(marker.Y.Value * map.Transform.ScaleY, map.Bounds.MinY, map.Bounds.MaxY);
+                Assert.Contains("Unknown", marker.Description!, StringComparison.Ordinal);
+                Assert.Contains("Itemaps", marker.Description!, StringComparison.Ordinal);
             });
             Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
         }

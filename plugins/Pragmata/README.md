@@ -12,6 +12,11 @@ test has been performed; only a human should promote this plugin to Stable.
   marker, and an F6 preview/apply quantity action for selected or all existing rows. F2 reference packs
   supply attributed names/descriptions/icons through writable F4 reference fields
   and F3 detail cells. The embedded item catalog labels all 90 IDs unmapped.
+- A lazy illustrated reference library contains 29 compact images: 14 items and
+  15 common weapons. Nine short official-description excerpts are transcribed by
+  the wiki; six descriptions are explicitly labelled wiki summaries. Its stable
+  `wiki-file:` keys are source identities, never inventory IDs. F4 browsing is
+  read-only; no save-ID/name/icon association or ownership is guessed.
 - Bounded Gadgets, Loadout, Progress, Quests and World existing-value editors, grouped by
   hash-confirmed section classes. F8 queries search/filter/sort evidence arrays
   before paging; the largest sampled world list has 6,988–6,989 records. Stored
@@ -26,8 +31,11 @@ test has been performed; only a human should promote this plugin to Stable.
   category hashes, difficulty values, display order and unresolved message/chapter
   GUIDs. F13 inspection reports metadata without changing save values or history.
 - F9 checkpoint map/list: raw hashes link to existing values. Coordinates, locations
-  and discovered/completed states stay Unknown. The community map is an attributed
-  external link; no artwork or coordinates are imported.
+  and discovered/completed states stay Unknown. A local Cradle atlas displays 26
+  attributed community escape-hatch locations, while stored checkpoint hashes
+  stay unpositioned in the same text list. Community locations are not joined to
+  those hashes or used to infer saved unlock/completion state. Missing packs keep
+  the external link and raw checkpoint list.
 - Inventories above 200 rows use F8 search, exact column filters, numeric quantity
   sorting and stable physical row keys. F6 all-matching selection includes unloaded
   pages and exclusions through Core's resolver; querying publishes bindings before
@@ -397,17 +405,24 @@ project rule prohibiting repository tooling inside plugin folders.
 
 ## Framework feature adoption
 
+Asset-round validation: **139 passed, 0 failed, 0 skipped**; API build **0 warnings,
+0 errors**. The 29 icons and one atlas total **99,634 binary bytes** (**144,969 bytes**
+including all new embedded catalogues/source metadata). Largest-sample first load:
+**319.498 ms / 69,022,208 allocated bytes before → 353.9891 ms / 72,091,488 bytes after**.
+The library and map load lazily from shared F2 assets. Details and remaining
+mission-text/save-ID gaps: [asset-round evidence](evidence/assets.md).
+
 | Feature | Status | Where / concrete limitation |
 | --- | --- | --- |
 | F1 SaveDiff | Used | Production `pragmata-canonical-v1` SDK hook, shared diff engine and versioned evidence manifest; all-sample synthetic quantity/write isolation. |
-| F2 reference packs | Added this round | Existing 408 identifier/27 section/90 placeholder/six mission-link records plus 43 attributed PC mission references in pack 1.2.0; pinned sources/assets. |
-| F3 rich cells | Used | Inventory reference/quantity confidence, item details with image/provenance when supplied, selection action cells; F8 detail cells. |
-| F4 pickers | Added this round | Writable inventory item IDs; browse-only mission/item-evidence references. Other ID fields have no ID-matched catalogue and remain exact raw values. |
+| F2 reference packs | Used | Pack 1.4.0 retains existing evidence and adds 29 illustrated references, 26 community hatch locations, 29 WebP icons and one atlas background; hashes, provenance and missing-pack fallbacks. |
+| F3 rich cells | Used | Existing inventory/evidence cells plus lazy image/name/category/source rows for the illustrated library; icons are 64×64 with attribution. |
+| F4 pickers | Used | Writable inventory item IDs; browse-only mission/item-evidence and illustrated references. Wiki file keys are never eligible inventory IDs. |
 | F5 structural undo | N/A | Only fixed-size primitive patching exists; no preserve-first resizing writer. Unknown padding/count metadata prevents safe add/remove/reorder. |
 | F6 planned actions / #27 | Added this round | Existing quantity preview/apply; F8 whole-query selection, exclusions, stale-plan checks and one undo unit above 200 rows. No legal-max/loadout/progression preset has proven dependency rules. |
 | F7 document groups | N/A | No proven coupled-file operation or partner identity. Claiming independent slot/system files would invent dependencies and lock unrelated saves. |
 | F8 queryable tables | Added this round | All evidence arrays already queryable; inventory switches above 200 rows, with search/filter/numeric quantity sort. |
-| F9 graphs/maps | Added this round | Unknown-state item-to-mission opening-condition DAG and bounded checkpoint map/list with field targets and external map link. No invented skill edges or locations. |
+| F9 graphs/maps | Used | Existing mission DAG and checkpoint field targets; local 2048×585 Cradle background and 26 community hatches in the original image-pixel frame. Raw save hashes remain unpositioned and all saved states Unknown. |
 | F10 exact/nullable/union | Used / N/A variants | UInt64/Int64 use exact Int128 wire strings; this binary schema has no numeric lexemes, null primitive or discriminated-union storage to expose. |
 | F11 shared codecs | N/A | Supported DSSS flags 0x10 contain uncompressed Mandarin AES-OFB, neither Kraken nor SQLite. Unsupported flags reject. |
 | F12 decoder/traversal | Added | SDK-only `ISaveDecoderProvider`/`ISaveDecoderHook` registers `pragmata-canonical-v1` with the stock CLI. `--decoder pragmata` uses shared bounded F8 traversal, tested across 251 inventory rows and row/page/byte caps. Research executable removed. |
@@ -459,7 +474,9 @@ after LF normalization. See the [unblock evidence and remaining owner checks](ev
 | Item ID placeholders / sample observation statistics | [Issue #21](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21), Save Toolkit contributors, [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) for original descriptions / computed facts | 2026-10-28; no gameplay name mapping; GUIDs fingerprinted; no sample payloads. |
 | `pragmata-item-evidence`: six inventory/mission opening-condition links | [Pinned mission JSON](https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/data/json/natives/stm/singletonuserdata/missionuserdata.user.3.json), Egg Targaryen / dzxrly; [MIT](https://github.com/dzxrly/PRAGMATA-MaximumTimeLimit/blob/cfa68e987bf126daa3ce62d589ac2b7ef05abf2b/LICENSE) | 2026-10-28; exact numeric `OpenConditionItemID`/mission-ID pairs cross-indexed with observed PS5 item IDs. Inferred role; names/limits Unknown. Full notice embedded beside the dataset. |
 | `pragmata-missions`: 43 mission references / graph | Same pinned mission JSON and MIT source above, Egg Targaryen / dzxrly | 2026-10-28; ID/category/difficulty/order/condition/message metadata only. Original raw-ID labels; six item-to-18-mission edges are PC references, not verified PS5 unlock rules. Full notice/attribution in pack, UI, Sources and Info.References. |
-| External community map | [itemaps Pragmata map](https://itemaps.com/maps/pragmata), itemaps contributors; licence unverified | 2026-10-28; link only because no exact checkpoint-hash/marker mapping or reproducible pinned dataset is available. Proprietary imagery is excluded. Checkpoint hashes/Unknown statuses are original save observations. |
+| Illustrated item/equipment text (29 references; 15 descriptions) | [Pragmata Wiki items](https://pragmata.fandom.com/wiki/Item?oldid=1830), [weapon index](https://pragmata.fandom.com/wiki/Template:Navbox/Weapons?oldid=3084), Pragmata Wiki contributors, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); Capcom owns the nine short quoted game-description excerpts, used with attribution per owner decision 2026-10-29 | 2026-10-29; nine short official excerpts, six adapted wiki summaries, 14 descriptions unavailable. Exact article revisions in `visual-reference.source.json`; adaptations retain CC BY-SA. No PS5 ID associations. |
+| Item/equipment images (29) | Capcom; Pragmata Wiki uploaders, [item index](https://pragmata.fandom.com/wiki/Item?oldid=1830) and linked file histories in the source ledger. Rights reserved by Capcom; used with attribution per owner decision 2026-10-29 | 2026-10-29; 13 UI icons and 16 transparent renders alpha-cropped/resized to 64×64, encoded WebP quality 85 outside the repo. Original pixel fingerprints, file timestamps, crops, capture hashes and URLs are pinned in the ledger; final byte hashes in `pack.json`. |
+| Cradle background / 26 escape-hatch coordinates | [Itemaps map](https://itemaps.com/maps/pragmata), [data snapshot](https://itemaps.com/media/maps/pragmata/markers.json?v=20261024-icons), Itemaps / Kevin Henrique; Capcom game art. Rights reserved by Capcom and Itemaps; used with attribution per owner decision 2026-10-29 | 2026-10-29; source art 7168×2048 → 2048×585 WebP, 45,564 bytes. SHA-pinned source bytes; `displayX = X × 2048/7168`, `displayY = Y × 585/2048`, top-left origin. No checkpoint-hash association, discovered state or completion claim. |
 | CityHash64 algorithm adaptation | [Google CityHash](https://github.com/google/cityhash), Google, MIT | Existing port; full notice in THIRD_PARTY_NOTICES.txt. |
 | AES-OFB vectors | [NIST SP 800-38A](https://csrc.nist.gov/pubs/sp/800/38/a/final), NIST, US government publication | Existing F.4.1 test vectors. |
 | DSSS / Mandarin / typed-stream observations | [Supplied verified research](../../docs/research/pragmata/README.txt), owner-supplied format evidence | Existing independently implemented crypto/format; no upstream editor code embedded. |
@@ -472,7 +489,8 @@ Research history and remaining leads:
   as owner capture leads; no runtime table, code or localized text is copied.
 - [Pragmata Wiki item category](https://pragmata.fandom.com/wiki/Category%3AItems)
   and [Lunafilament](https://pragmata.fandom.com/wiki/Lunafilament), community CC BY-SA
-  text, retrieved 2026-10-28: no save-ID linkage found; no article text or media embedded.
+  text: the 2026-10-29 asset round imports the attributed subset above. No save-ID
+  linkage was found, so the library remains browse-only.
 
 - [Verified format](../../docs/research/pragmata/FORMAT.txt),
   [research README](../../docs/research/pragmata/README.txt), `pragmata_save.py`,
@@ -493,8 +511,9 @@ Research history and remaining leads:
   [strings_pragmata.txt](https://github.com/kvasszn/ree-save-editor/blob/main/assets/pragmata/strings_pragmata.txt),
   [enumspragmata.json](https://github.com/kvasszn/ree-save-editor/blob/main/assets/pragmata/enumspragmata.json):
   now imported as pinned factual subsets in the three attributed datasets above.
-  The large string dump is filtered to technical identifiers; proprietary localized
-  text is excluded. These are no longer refused for lack of a licence.
+  The large string dump is filtered to technical identifiers; it does not provide
+  a build-matched localized message-GUID table. These are no longer refused for
+  lack of a licence.
 - [Google CityHash](https://github.com/google/cityhash/blob/master/src/city.cc):
   CityHash64 algorithm, adapted under MIT; see [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt).
 - [NIST SP 800-38A](https://csrc.nist.gov/pubs/sp/800/38/a/final), Appendix F.4.1:
@@ -509,9 +528,12 @@ Research history and remaining leads:
 | Source (pinned revision where available) | Licence found | Reason / status | Alternative | What would unblock it |
 | --- | --- | --- | --- | --- |
 | REE [strings](https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/strings_pragmata.txt), [RSZ](https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/rszpragmata.json), [enums](https://github.com/kvasszn/ree-save-editor/blob/4125e497f1ae84cc746bb4a99da612c48bea161e/assets/pragmata/enumspragmata.json), revision `4125e497f1ae84cc746bb4a99da612c48bea161e` | None found | **Resolved: imported (owner decision 2026-10-28)**: five names, 459 declarations, 230 enum values. Existing crypto/typed-stream code was already independently implemented, not copied. | Attributed factual subsets with exact hashes, raw-value fallback and Inferred semantics | Resolved; no further permission gate |
-| Proprietary localized text in the same REE string dump; Capcom art/icons/screenshots, including map imagery where applicable | No redistribution grant for game assets found | Still excluded: proprietary game assets/text, beyond factual technical identifiers | Original raw-ID labels; attributed user-pack route; external map link | Explicit redistribution permission for the particular asset/text, or original/permissively licensed replacement |
+| Capcom item/equipment art, game-description excerpts and map imagery | Rights reserved by Capcom (map composition: Capcom and Itemaps); used with attribution per owner decision 2026-10-29 | **Resolved: imported (owner decision 2026-10-29)**: 29 icons/renders, nine short official excerpts and one map background. REE localized-message mapping remains unavailable, rather than licence-refused. | Separate illustrated reference catalogue; raw save IDs and unresolved mission labels retained | No further permission gate; exact PS5 item-ID crosswalk and GUID-to-message localization data remain evidence gaps |
 
-No NC/no-redistribution dataset or GPL-2.0-only code is imported. Wiki/runtime
-leads remain research-only for missing exact save-ID linkage, not for lacking a
-licence. The community map likewise needs a stable dataset and a confirmed hash
-crosswalk before coordinate/marker facts can be associated with saved checkpoints.
+No NC/no-redistribution dataset or GPL-2.0-only code is imported. Wiki images and
+the SHA-pinned community atlas are imported with full attribution. Associating
+their names/icons/locations with saved inventory or checkpoint IDs still needs
+an exact crosswalk. The 43 mission references retain Unknown localized text;
+their PC source supplies message GUIDs, not the strings those GUIDs select.
+The central licence register is outside this task's permitted plugin folder;
+its historical Pragmata rows should be synchronized by the coordinating agent.
