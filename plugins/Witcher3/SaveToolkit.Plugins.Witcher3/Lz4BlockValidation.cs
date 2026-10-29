@@ -8,6 +8,8 @@ internal static class Lz4BlockValidation
     private const int MinimumMatchLength = 4;
     private const int MinimumLastLiterals = 5;
     private const int MinimumMatchStartDistance = 12;
+    private const int LiteralLengthShift = 4;
+    private const int MatchLengthMask = 0x0F;
 
     public static void Validate(ReadOnlySpan<byte> data, int expandedSize)
     {
@@ -17,7 +19,7 @@ internal static class Lz4BlockValidation
         while (position < data.Length)
         {
             var token = data[position++];
-            var literals = ReadLength(data, ref position, token >> 4, expandedSize - written);
+            var literals = ReadLength(data, ref position, token >> LiteralLengthShift, expandedSize - written);
             if (literals > data.Length - position) { throw InvalidBlock(); }
             position += literals;
             written += literals;
@@ -35,7 +37,7 @@ internal static class Lz4BlockValidation
                 throw InvalidBlock();
             }
 
-            var match = ReadLength(data, ref position, token & 0x0F, expandedSize - written - MinimumMatchLength);
+            var match = ReadLength(data, ref position, token & MatchLengthMask, expandedSize - written - MinimumMatchLength);
             written += MinimumMatchLength + match;
             hasMatch = true;
         }

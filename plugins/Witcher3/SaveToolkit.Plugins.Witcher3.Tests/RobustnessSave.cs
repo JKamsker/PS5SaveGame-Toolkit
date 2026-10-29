@@ -62,15 +62,15 @@ internal static class RobustnessSave
         return data;
     }
 
-    public static byte[] StoredChunk(byte[] stored, int expanded)
+    public static byte[] StoredChunk(byte[] stored, int expanded, int headerSize = 28)
     {
-        var bytes = new byte[28 + stored.Length];
+        var bytes = new byte[headerSize + stored.Length];
         "SNFHFZLC"u8.CopyTo(bytes);
         WriteInt(bytes, 8, 1);
-        WriteInt(bytes, 12, 28);
+        WriteInt(bytes, 12, headerSize);
         WriteInt(bytes, 16, stored.Length);
         WriteInt(bytes, 20, expanded);
-        stored.CopyTo(bytes, 28);
+        stored.CopyTo(bytes, headerSize);
         return bytes;
     }
 

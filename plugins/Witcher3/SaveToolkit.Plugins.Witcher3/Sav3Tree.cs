@@ -187,7 +187,7 @@ internal sealed class Sav3Tree
         }
 
         _ = BinaryData.Slice(raw, 0, opaque ? 0 : valueStart);
-        if (tag is "SS" or "BLCK" or "PORP" or "AVAL" && BinaryData.Int32(raw, valueStart - sizeof(int)) != size - valueStart)
+        if ((tag is "SS" or "BLCK" or "PORP" or "AVAL") && BinaryData.Int32(raw, valueStart - sizeof(int)) != size - valueStart)
         {
             throw new SaveFormatException($"SAV3 {tag} token length disagrees with its indexed or embedded span.");
         }
