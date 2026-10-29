@@ -25,7 +25,17 @@ internal sealed class LspkPackage
     internal IReadOnlyList<PackageEntry> Entries { get; }
     internal string HeaderDigest => Convert.ToHexString(_bytes.AsSpan(LspkLayout.Digest, LspkLayout.DigestSize));
 
-    internal static LspkPackage Read(byte[] bytes)
+    internal static LspkPackage Read(byte[] bytes) => ReadCore(bytes, null);
+
+    // Transfer the validation buffers to callers that need every payload. The package
+    // does not retain them, and ordinary Extract calls still return independent arrays.
+    internal static LspkPackage Read(byte[] bytes, out Dictionary<string, byte[]> payloads)
+    {
+        payloads = new Dictionary<string, byte[]>(StringComparer.Ordinal);
+        return ReadCore(bytes, payloads);
+    }
+
+    private static LspkPackage ReadCore(byte[] bytes, Dictionary<string, byte[]>? payloads)
     {
         BinaryData.Require(bytes.Length >= LspkLayout.Header15Size && bytes.AsSpan().StartsWith("LSPK"u8), "Not an LSPK package.");
         var version = BinaryData.U32(bytes, LspkLayout.Version);
@@ -73,8 +83,10 @@ internal sealed class LspkPackage
         var package = new LspkPackage(bytes, version, bytes[LspkLayout.Flags], entries);
         if (version == 18)
         {
-            LspkIntegrity.Validate(package);
+            LspkIntegrity.Validate(package, payloads);
         }
+        else if (payloads is not null)
+            foreach (var entry in entries) payloads.Add(entry.Name, package.Extract(entry));
 
         return package;
     }

@@ -63,10 +63,10 @@ internal sealed class BaldursGate3Document : BoundSaveDocument, IQueryableDocume
         var entries = new List<DocumentEntry>();
         if (bytes.AsSpan().StartsWith("LSPK"u8))
         {
-            package = LspkPackage.Read(bytes);
+            package = LspkPackage.Read(bytes, out var payloads);
             foreach (var entry in package.Entries)
             {
-                var content = package.Extract(entry);
+                var content = payloads[entry.Name];
                 entries.Add(new DocumentEntry(entry.Name, content, Bg3Serialization.ReadResource(entry.Name, content, budget)));
             }
         }

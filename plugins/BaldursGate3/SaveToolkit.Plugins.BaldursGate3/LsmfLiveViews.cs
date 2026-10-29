@@ -68,14 +68,14 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
         if (query.Filters.Keys.Any(key => !columns.Contains(key)) || query.SortColumn is { } sort && !columns.Contains(sort))
             throw new ArgumentException("Unknown NewAge filter or sort column.");
         IEnumerable<QueryRow> items = id == NumbersId
-            ? source.Numbers.Select(n => new QueryRow(source.Prefix + "/" + n.Key, $"{n.Family} {n.Row} {n.Label} {source.Provenance(n)}",
+            ? source.Numbers.Select(n => new QueryRow(source.Prefix + "/" + n.Key, () => $"{n.Family} {n.Row} {n.Label} {source.Provenance(n)}",
                 column => column switch { "family" => n.Family, "row" => Number(n.Row), "value" => Number(source.Get(n)), _ => "" }, () => NumberRow(n)))
             : id == SlotsId
-                ? source.Slots.Select(s => new QueryRow(source.Prefix + "/" + s.Key, $"{s.ContainerRow} {source.EntityLabel(s.EntityRow)}",
+                ? source.Slots.Select(s => new QueryRow(source.Prefix + "/" + s.Key, () => $"{s.ContainerRow} {source.EntityLabel(s.EntityRow)}",
                     column => column switch { "container" => Number(s.ContainerRow), "entity" => Number(s.EntityRow), "slot" => Number(source.Slot(s)), _ => "" }, () => SlotRow(s)))
-                : id == BooksId ? source.Books.Select(b => new QueryRow(source.Prefix + $"/book/{b.Row}", $"{b.Row} {string.Join(' ', b.Spells)}",
+                : id == BooksId ? source.Books.Select(b => new QueryRow(source.Prefix + $"/book/{b.Row}", () => $"{b.Row} {string.Join(' ', b.Spells)}",
                     column => column switch { "row" => Number(b.Row), "count" => Number(b.Spells.Count), _ => "" }, () => BookRow(b)))
-                : id == ClassesId ? source.Classes.Select(c => new QueryRow(source.Prefix + $"/class/{c.Row}/{c.Index}", $"{c.Row} {c.Class} {c.Subclass} {references.Catalog(Bg3References.Classes)?.Find(c.Class)?.Name}",
+                : id == ClassesId ? source.Classes.Select(c => new QueryRow(source.Prefix + $"/class/{c.Row}/{c.Index}", () => $"{c.Row} {c.Class} {c.Subclass} {references.Catalog(Bg3References.Classes)?.Find(c.Class)?.Name}",
                     column => column switch { "icon" => references.Catalog(Bg3References.Classes)?.Find(c.Class)?.Name ?? c.Class,
                         "row" => Number(c.Row), "class" => c.Class, "subclass" => c.Subclass,
                         "level" => c.Level.ToString(System.Globalization.CultureInfo.InvariantCulture), _ => "" }, () => ClassRow(c)))
@@ -83,7 +83,14 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
                 : id == InventoryId && source.Inventory is { } inventory ? inventory.Entries.Select(InventoryRow)
                 : id == GoldId && source.Inventory is { } gold ? gold.Gold.Select(GoldRow)
                 : throw new ArgumentException("Unknown NewAge collection.");
-        var filtered = items.Where(item => (string.IsNullOrWhiteSpace(query.Text) || item.Text.Contains(query.Text.Trim(), StringComparison.OrdinalIgnoreCase)) &&
+        var text = query.Text?.Trim();
+        // Preserve native collection order while only constructing the requested rows.
+        // Filtering/sorting still operates over the complete current model below.
+        if (string.IsNullOrEmpty(text) && query.Filters.Count == 0 && query.SortColumn is null)
+            return new QueryableCollectionPage(id, collection.Columns,
+                items.Skip(query.Offset).Take(query.Limit).Select(item => item.Build()).ToArray(),
+                collection.TotalCount, collection.TotalCount, query.Offset, query.Limit);
+        var filtered = items.Where(item => (string.IsNullOrEmpty(text) || item.Text().Contains(text, StringComparison.OrdinalIgnoreCase)) &&
             query.Filters.All(filter => string.Equals(item.Value(filter.Key), filter.Value, StringComparison.OrdinalIgnoreCase))).ToArray();
         IEnumerable<QueryRow> ordered = filtered;
         if (query.SortColumn is { } column)
@@ -99,7 +106,7 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
     }
 
     private static string Number(long value) => value.ToString(System.Globalization.CultureInfo.InvariantCulture);
-    private sealed record QueryRow(string Key, string Text, Func<string, string> Value, Func<TableRow> Build);
+    private sealed record QueryRow(string Key, Func<string> Text, Func<string, string> Value, Func<TableRow> Build);
 
     internal IReadOnlyList<ViewNode> Expand(string id)
     {
@@ -182,7 +189,7 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
     }
 
     private QueryRow PartyRow(LsmfPartyJoin join) => new(source.Prefix + $"/party/{join.PartyRow}",
-        $"{join.PartyRow} {join.TemplateId} {join.BodyEntityRow} {join.StateEntityRow}",
+        () => $"{join.PartyRow} {join.TemplateId} {join.BodyEntityRow} {join.StateEntityRow}",
         column => column switch
         {
             "party" => Number(join.PartyRow), "body" => Number(join.BodyEntityRow),
@@ -205,7 +212,7 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
         }));
 
     private QueryRow InventoryRow(LsmfInventoryEntry entry) => new(source.Prefix + "/" + entry.Path,
-        $"{entry.ContainerRow} {entry.ItemEntityRow} {entry.Slot} {entry.Path}",
+        () => $"{entry.ContainerRow} {entry.ItemEntityRow} {entry.Slot} {entry.Path}",
         column => column switch
         {
             "container" => Number(entry.ContainerRow), "item" => Number(entry.ItemEntityRow), "slot" => Number(entry.Slot),
@@ -218,7 +225,7 @@ internal sealed class LsmfLiveViews(LsmfLiveSource source, Func<LsmfLiveSource, 
         }));
 
     private QueryRow GoldRow(LsmfGoldCandidate gold) => new(source.Prefix + $"/gold/{gold.ItemEntityRow}/{gold.Stats}",
-        $"{gold.Stats} {gold.ItemEntityRow}", column => column switch
+        () => $"{gold.Stats} {gold.ItemEntityRow}", column => column switch
         {
             "item" => Number(gold.ItemEntityRow), "stats" => gold.Stats,
             "container" => gold.ContainerRow is { } container ? Number(container) : "unknown",

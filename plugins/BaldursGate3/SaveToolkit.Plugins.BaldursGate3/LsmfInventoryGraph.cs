@@ -73,9 +73,10 @@ internal sealed class LsmfInventoryGraph
                 Visit(row, ownerBody, "", new HashSet<int>(), 0);
 
         // Keep other explicit containers visible, but do not invent a party owner.
-        foreach (var slot in slots.Where(slot => output.All(entry => entry.ContainerRow != slot.ContainerRow || entry.ItemEntityRow != slot.EntityRow)))
+        var covered = output.Select(entry => (entry.ContainerRow, entry.ItemEntityRow)).ToHashSet();
+        foreach (var slot in slots)
         {
-            if (!containerEntities.ContainsKey(slot.ContainerRow)) continue;
+            if (!containerEntities.ContainsKey(slot.ContainerRow) || !covered.Add((slot.ContainerRow, slot.EntityRow))) continue;
             var ambiguous = itemContainers[slot.EntityRow].Length > 1;
             output.Add(new LsmfInventoryEntry(slot.ContainerRow, containerEntities[slot.ContainerRow], slot.EntityRow,
                 slot.Slot, null, $"container/{slot.ContainerRow}/slot/{slot.Index}", ambiguous));

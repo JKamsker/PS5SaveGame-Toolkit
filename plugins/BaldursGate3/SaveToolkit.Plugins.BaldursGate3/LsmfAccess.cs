@@ -8,6 +8,7 @@ internal sealed class LsmfAccess
     internal const ulong Empty = ulong.MaxValue;
     internal LsmfModel Model { get; }
     private readonly Lazy<IReadOnlyDictionary<int, int[]>> _owners;
+    private readonly Dictionary<int, Dictionary<int, int[]>> _rowsByEntity = [];
 
     internal LsmfAccess(LsmfModel model)
     {
@@ -17,8 +18,9 @@ internal sealed class LsmfAccess
 
     internal LsmfComponent? Column(string name, int width)
     {
-        var column = Model.Components.SingleOrDefault(c => c.Name == name);
-        BinaryData.Require(column is null || column.ElementBytes == width, $"Unsupported {name} record width.");
+        var column = Model.Component(name);
+        if (column is not null && column.ElementBytes != width)
+            throw new SaveFormatException($"Unsupported {name} record width.");
         return column;
     }
 
@@ -117,8 +119,21 @@ internal sealed class LsmfAccess
         return matches.Length == 1 ? matches[0] : null;
     }
 
-    internal int[] RowsForEntity(string name, int width, int entityRow) => Rows(name, width)
-        .Where(candidate => candidate.EntityRow == entityRow).Select(candidate => candidate.Row).Distinct().ToArray();
+    internal int[] RowsForEntity(string name, int width, int entityRow)
+    {
+        var component = Column(name, width); // Validate width even when its index already exists.
+        if (component is null) return [];
+        if (!_rowsByEntity.TryGetValue(component.Index, out var byEntity))
+        {
+            byEntity = Owners().TryGetValue(component.Index, out var owners)
+                ? owners.Select((entity, row) => (Entity: entity, Row: row)).GroupBy(item => item.Entity)
+                    .ToDictionary(group => group.Key, group => group.Select(item => item.Row).ToArray())
+                : [];
+            _rowsByEntity.Add(component.Index, byEntity);
+        }
+        // Preserve the caller-owned array contract without reconstructing all component rows.
+        return byEntity.TryGetValue(entityRow, out var rows) ? rows.ToArray() : [];
+    }
 
     internal static string Guid(ReadOnlyMemory<byte> bytes) => AttributeDecoder.Read(
         new ResourceAttribute("GUID", LarianAttributeType.UUID, bytes)).AsString();

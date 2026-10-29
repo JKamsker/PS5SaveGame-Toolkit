@@ -71,7 +71,8 @@ internal static class LsfTables
             var typeAndLength = BinaryData.U32(row, LsfLayout.AttributeTypeAndLength);
             var length = (int)(typeAndLength >> LsfLayout.AttributeTypeBits);
             var typeId = typeAndLength & LsfLayout.AttributeTypeMask;
-            BinaryData.Require(typeId <= (uint)LarianAttributeType.TranslatedFSString, $"Unsupported LSOF attribute type {typeId}.");
+            if (typeId > (uint)LarianAttributeType.TranslatedFSString)
+                throw new SaveFormatException($"Unsupported LSOF attribute type {typeId}.");
             if (adjacency)
             {
                 nextAttributes[i] = BinaryData.I32(row, LsfLayout.AttributeLink);
