@@ -23,10 +23,13 @@
 }
 
 body { font-size: 1rem; line-height: 1.65; }
-article { max-width: 80ch; margin-inline: auto; }
+/* Let the flex child shrink around wide code and tables on small screens. */
+article { width: 100%; min-width: 0; max-width: 80ch; margin-inline: auto; }
 article h1 { font-weight: 750; letter-spacing: -0.035em; line-height: 1.15; }
 article h2 { margin-top: 2.25rem; letter-spacing: -0.02em; }
 article p, article li { overflow-wrap: break-word; }
+/* Generated inherited-member links can be one long token in an inline block. */
+article .typelist .xref { overflow-wrap: anywhere; }
 article pre { border: 1px solid var(--docs-border); border-radius: 0.6rem; }
 article a:not(.docs-button):not(.docs-path):not(.docs-secondary) { text-underline-offset: 0.2em; }
 a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible {
@@ -49,7 +52,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .docs-path:hover { border-color: var(--docs-accent); color: var(--docs-muted); }
 .docs-skip { position: fixed; left: 1rem; top: -6rem; z-index: 2000; padding: 0.65rem 1rem; background: var(--bs-body-bg); color: var(--docs-accent); border: 2px solid var(--docs-accent); border-radius: 0.3rem; }
 .docs-skip:focus { top: 0.5rem; }
-body:has(#http-reference) article { width: 100%; max-width: 100%; min-width: 0; }
+body:has(#http-reference) article { max-width: 100%; }
 #http-reference { min-height: 500px; margin-top: 2rem; }
 /* Use the site-wide theme control, and keep Redoc typography local. */
 #http-reference [data-testid="color-mode-switcher"] { display: none; }
