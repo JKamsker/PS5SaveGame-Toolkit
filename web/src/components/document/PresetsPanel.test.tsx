@@ -1,10 +1,13 @@
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, expect, it, vi } from "vitest";
 import { api } from "../../api/client";
 import type { SaveDocument, ViewNode } from "../../api/protocol";
 import { PresetsPanel } from "./PresetsPanel";
 import { ViewRenderer } from "./ViewRenderer";
 import { renderSpatial } from "./spatial/spatialTestUtils";
+import { DocumentContext } from "../../state/documentStore";
+import { ReviewNavigationProvider } from "./review/navigation";
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
@@ -59,6 +62,28 @@ it("filters capture actions to published scopes and starts on the first scope", 
   expect(screen.queryByRole("option", { name: "Unpublished" })).toBeNull();
 });
 
+it("resets capture state when a live action descriptor changes without remounting", async () => {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([]);
+  const capture = vi.spyOn(api, "capturePreset").mockResolvedValue({
+    schemaVersion: "1", id: "p", name: "Current", compatibility: { pluginId: "test", pluginVersion: "1", titleIds: ["PPSA00001"] },
+    actions: [{ actionId: "next", parameters: { fresh: 3 }, scopeKind: "allEligible" }], createdAt: "", updatedAt: "",
+  });
+  const oldAction = { ...action, actionId: "old", label: "Old", parameters: [{ type: "field" as const, valueId: "stale", label: "Stale", spec: { kind: "integer" as const, min: "0", max: "9" }, value: 1 }] };
+  const nextAction = { ...action, actionId: "next", label: "Next", parameters: [{ type: "field" as const, valueId: "fresh", label: "Fresh", spec: { kind: "integer" as const, min: "0", max: "9" }, value: 2 }] };
+  const initial = { ...document, view: { ...view, children: [oldAction, view.children[1]!] }, presetCapability: { schemaVersion: "1", maxActions: 1, actions: [{ actionId: "old", label: "Old", parameterIds: ["stale"], parameterSpecs: [{ kind: "integer" as const, min: "0", max: "9" }], scopeKinds: ["document"] }] } };
+  const updated = { ...document, view: { ...view, children: [nextAction, view.children[1]!] }, presetCapability: { schemaVersion: "1", maxActions: 1, actions: [{ actionId: "next", label: "Next", parameterIds: ["fresh"], parameterSpecs: [{ kind: "integer" as const, min: "0", max: "9" }], scopeKinds: ["allEligible"] }] } };
+  const rendered = renderSpatial(<PresetsPanel document={initial} onToast={vi.fn()} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  await screen.findByRole("button", { name: "Save preset" });
+  fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Current" } });
+  rendered.rerender(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><DocumentContext.Provider value={rendered.context}><ReviewNavigationProvider><PresetsPanel document={updated} onToast={vi.fn()} /></ReviewNavigationProvider></DocumentContext.Provider></QueryClientProvider>);
+  await waitFor(() => expect((screen.getByLabelText("Action") as HTMLSelectElement).value).toBe("next"));
+  expect(screen.queryByLabelText("Stale")).toBeNull();
+  expect((screen.getByLabelText("Scope") as HTMLSelectElement).value).toBe("allEligible");
+  fireEvent.click(screen.getByRole("button", { name: "Save preset" }));
+  await waitFor(() => expect(capture).toHaveBeenCalledWith("w1", "d1", "Current", expect.objectContaining({ actionId: "next", parameters: { fresh: 2 }, scopeKind: "allEligible" })));
+});
+
 it("shows server-owned saved and current compatibility boundaries", async () => {
   vi.spyOn(api, "documentPresets").mockResolvedValue([{
     preset: { schemaVersion: "1", id: "p", name: "Boundaries", compatibility: { pluginId: "test", pluginVersion: "1.0", titleIds: ["PPSA00001"] },
@@ -91,4 +116,33 @@ it("keeps host rename available when the document is read-only", async () => {
   fireEvent.change(screen.getByLabelText("Preset name"), { target: { value: "Renamed" } });
   fireEvent.click(screen.getByRole("button", { name: "Save name" }));
   await waitFor(() => expect(rename).toHaveBeenCalledWith("p", "Renamed"));
+});
+
+it("retires a preview and refreshes the document when apply returns an accepted stale result", async () => {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([{
+    preset: { schemaVersion: "1", id: "p", name: "Saved", compatibility: { pluginId: "test", pluginVersion: "1", titleIds: ["PPSA00001"] },
+      actions: [{ actionId: "capture", parameters: {}, scopeKind: "document" }], createdAt: "", updatedAt: "" },
+    compatibility: { compatible: true, readOnly: false, canPreview: true, canApply: true, presetKind: "toolkit.action-parameters", savedPluginVersion: "1", currentPluginVersion: "1", unsupportedActions: [] },
+  }]);
+  vi.spyOn(api, "presetPreview").mockResolvedValue({ preset: {} as never, preview: { planId: "plan", revision: 0, scope: {}, plan: { changes: [], skippedRows: [], warnings: [], errors: [] } } });
+  vi.spyOn(api, "presetApply").mockResolvedValue({ ok: false, stale: true, errors: [], changes: [], warnings: [], structureChanged: false, state: { canUndo: false, canRedo: false, isDirty: false, revision: 1 } });
+  const toast = vi.fn();
+  const rendered = renderSpatial(<PresetsPanel document={document} onToast={toast} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  fireEvent.click(await screen.findByRole("button", { name: "Preview" }));
+  await screen.findByRole("heading", { name: "Preset preview" });
+  fireEvent.click(screen.getByRole("button", { name: "Apply preset" }));
+  await waitFor(() => expect(screen.getByRole("heading", { name: "Preset preview is stale" })).not.toBeNull());
+  expect(screen.getByRole("button", { name: "Apply preset" }).hasAttribute("disabled")).toBe(true);
+  expect(rendered.context.refresh).toHaveBeenCalledTimes(1);
+  expect(toast).toHaveBeenCalledWith(expect.stringMatching(/stale/i), true);
+});
+
+it("renders storage failures as one actionable alert", async () => {
+  vi.spyOn(api, "documentPresets").mockRejectedValue(new Error("The external preset library could not be read."));
+  renderSpatial(<PresetsPanel document={document} onToast={vi.fn()} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  const alert = await screen.findByRole("alert");
+  expect(alert.textContent).toMatch(/external preset library could not be read/i);
+  expect(screen.getAllByRole("alert")).toHaveLength(1);
 });
