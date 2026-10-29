@@ -65,6 +65,50 @@ allocated bytes **136,135,608 → 140,845,168**. Timing is noisy; no speedup cla
 | F11 shared codecs | N/A | CSAV uses raw LZ4, already handled by managed K4os with exact-length checks and original-chunk preservation. Shared F11 provides Kraken/SQLite, neither occurs in this format; no local Kraken/SQLite implementation exists to replace. |
 | F12 decoder hooks / F8 diff traversal | Added | Production SDK-only `CyberpunkEvidenceDecoder` registered by `ISaveDecoderProvider` as `cyberpunk2077-evidence`; tests use shared `HookSaveDecoder`. The shared view decoder also traverses F8 collections. |
 | F13 non-mutating inspection / browse-only picker | Added | All seven catalogue inspection actions publish `Mutates = false`, including on read-only schemas. Existing read-only `ReferenceSpec` fields use shared browse-only search/category/sort/details. |
+| F14 empty slots / one table per list | Added this round | One inventory table (eager through 100 rows, F8 above), one F8 attachment table per item, and F8 equipment slots with explicit vacancy flags, matching hidden counts and default hiding. Original node/slot/part keys, raw bytes, edit/undo and whole-query visibility remain intact. |
+
+## F14 table and empty-slot audit (2026-10-29)
+
+Inventory no longer offers linked eager pages: up to 100 entries appear in one lazy-loaded table;
+larger collections use the existing complete-model F8 search/filter/sort provider. Attachment/part
+trees likewise use one F8 table per item instead of linked 128-row tables. Their existing
+`item-parts/<node>/<path>` row keys remain unchanged; collection metadata is registered when the
+tree is expanded. Unknown/zero attachment IDs remain visible because no vacant-part rule is proven.
+
+The owner-1 equipment table now marks only an actual stored slot with no item identity as empty.
+The existing reader recognizes an omitted `itemID` or a zero `gameItemID.id` in that stored slot;
+omitted slot arrays retain their diagnostic row (`Index == -1`) and are **not** vacant slots.
+Shown vacant rows say **Empty slot**. Occupied slots with unknown IDs or unresolved inventory
+joins remain visible. Both collection metadata and its F8 shell publish the same default-hiding
+settings. Text/column filters run before counting vacancies; visibility runs before sorting and
+paging. `TotalCount` retains all rows, `FilteredCount` counts matching visible rows, and
+`HiddenEmptyCount` counts matching vacancies excluded only by visibility. Explicit `IncludeEmpty`
+also governs F6 whole-query selection, including exclusions; stack actions still reject equipment
+scopes because equipment inspection is read-only.
+
+All remaining tables were audited: saved/merged facts, cyberware inventory/catalog, development,
+item modifiers, garage/travel and journal already use one F8 table per collection. Their absent
+catalog entries, zero values and diagnostic records are meaningful, not vacant slots. Inventory
+itself is a counted item list rather than a fixed slot array; unknown IDs and zero quantities do
+not establish vacancy. The single compression-chunk table contains actual physical chunks and
+has no empty rows. Raw node-tree and spatial pages are bounded explorers, not split inventory tables.
+No inventory or attachment next-page sections, or “Slots N–M” groups, remain.
+
+Research rechecked the pinned WolvenKit
+[gameSEquipSlot](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/gameSEquipSlot.cs)
+and [gameItemID](https://github.com/WolvenKit/WolvenKit/blob/65ea74b014e11bb41659c65401e43d5ebe4d8d75/WolvenKit.RED4/Types/Classes/gameItemID.cs)
+schemas (WolvenKit contributors, GPL-3.0; read as format research, no implementation copied).
+Sample tests independently compare every equipment row/identity with the decoded package and
+preserve byte-identical no-op output; no inference about unlocked slots or available capacity is added.
+
+Regression coverage includes matching hidden counts, omitted/default/explicit visibility,
+filter-before-paging, stable keys, unresolved occupied equipment, zero/unknown inventory IDs,
+F6 exclusions, the 100/101-row inventory boundary, a 141-part query across all pages, sample part
+publication, and visible quantity edits changing only the original four payload bytes with exact undo.
+
+Validation: **167 passed / 0 failed / 0 skipped** with the external private samples; API build:
+**0 warnings / 0 errors**. All plugin C# files remain below 300 lines. No files outside this plugin
+were changed, and no sample data was copied into the repository.
 
 ## F12/F13 follow-up
 

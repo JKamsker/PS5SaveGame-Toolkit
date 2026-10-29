@@ -20,6 +20,8 @@ internal sealed record EquipmentSlot(string Area, int Index, bool Active, ItemId
 {
     public string Key => $"equipment/{Area}/{Index}";
     public bool Cyberware => Area.EndsWith("CW", StringComparison.Ordinal);
+    // Index -1 is an omitted slot array, not a vacant stored slot.
+    public bool IsEmpty => Index >= 0 && Item is null;
 }
 
 internal sealed class EquipmentData

@@ -8,7 +8,7 @@ namespace SaveToolkit.Plugins.Cyberpunk2077;
 internal sealed class InventoryInspection
 {
     public const string CollectionId = "inventory";
-    public const int EagerLimit = 128;
+    public const int EagerLimit = 100;
     private readonly IReadOnlyList<InventoryItem> _items;
     private readonly CsavContainer _container;
     private readonly CsavTree _tree;
@@ -65,17 +65,18 @@ internal sealed class InventoryInspection
 
     public QueryableCollection Metadata => _collection.Metadata;
     public QueryableCollectionPage Query(QueryableCollectionQuery query) => _collection.Query(query);
-    public IReadOnlyList<ViewNode> Parts(int nodeId, int start) => _details.Parts(_items.Single(i => i.NodeId == nodeId), start);
+    public IReadOnlyList<QueryableCollection> PartCollections => _details.PartCollections;
+    public QueryableCollectionPage QueryParts(string collectionId, QueryableCollectionQuery query) => _details.QueryParts(collectionId, query);
+    public IReadOnlyList<ViewNode> Parts(int nodeId) => _details.Parts(_items.Single(i => i.NodeId == nodeId));
 
     public IReadOnlyList<ViewNode> Build() => _items.Count == 0
         ? [new TextNode("Inventory schema is unsupported or empty; inspect the raw inventory node. No item replacements are enabled.")]
         : [new TextNode(Metadata.Description!), .. _actions(), _items.Count > EagerLimit ? _collection.View()
             : SectionNode.Lazy("Inventory items", "inventory/0/0", _items.Count.ToString(CultureInfo.InvariantCulture))];
 
-    public IReadOnlyList<ViewNode> Page(int start) => [new TableNode(
+    public IReadOnlyList<ViewNode> Expand() => [new TableNode(
         Metadata.Columns.Select(column => new TableColumn(column.Key, column.Label)).ToArray(),
-        _items.Skip(start).Take(EagerLimit).Select(Row).ToArray()) { Description = Metadata.Description },
-        .. (start + EagerLimit < _items.Count ? new ViewNode[] { SectionNode.Lazy("Next inventory page", $"inventory/0/{start + EagerLimit}") } : [])];
+        _items.Select(Row).ToArray()) { Description = Metadata.Description }];
 
     private string Name(InventoryItem item) => _references.ItemDisplayName(item.TweakId) ?? _baseline.Find(item.TweakId)?.Name ?? $"0x{item.TweakId:X16}";
     private string EquipmentState(InventoryItem item) => _equipment?.State(item.NodeId) ?? "Unknown: equipment schema unavailable";

@@ -12,12 +12,13 @@ internal sealed class InspectionCollection<T>(
     Func<T, string> key,
     IReadOnlyDictionary<string, Func<T, string>> values,
     Func<T, TableRow> row,
-    Func<T, string>? extraSearch = null)
+    Func<T, string>? extraSearch = null,
+    Func<T, bool>? isEmpty = null)
 {
     public QueryableCollection Metadata { get; } = metadata;
 
     public QueryableTableNode View() => new(Metadata.Id, Metadata.Title, Metadata.Columns, Metadata.TotalCount)
-        { Description = Metadata.Description };
+        { Description = Metadata.Description, EmptyRows = Metadata.EmptyRows };
 
     public QueryableCollectionPage Query(QueryableCollectionQuery query)
     {
@@ -58,6 +59,14 @@ internal sealed class InspectionCollection<T>(
         matches = matches.Where(item => query.Filters.All(filter =>
             string.Equals(values[filter.Key](item), filter.Value, StringComparison.OrdinalIgnoreCase)));
         var filtered = matches.ToArray();
+        var includeEmpty = query.IncludeEmpty ?? Metadata.EmptyRows?.HideByDefault != true;
+        var hiddenEmptyCount = 0;
+        if (!includeEmpty && Metadata.EmptyRows is not null && isEmpty is not null)
+        {
+            hiddenEmptyCount = filtered.Count(isEmpty);
+            filtered = filtered.Where(item => !isEmpty(item)).ToArray();
+        }
+
         IOrderedEnumerable<T> ordered;
         if (sort is not null)
         {
@@ -74,7 +83,7 @@ internal sealed class InspectionCollection<T>(
         var offset = Math.Max(0, query.Offset);
         var limit = Math.Clamp(query.Limit, 1, QueryableCollectionLimits.MaxPageSize);
         return new QueryableCollectionPage(Metadata.Id, Metadata.Columns, ordered.Skip(offset).Take(limit).Select(row).ToArray(),
-            items.Count, filtered.Length, offset, limit);
+            items.Count, filtered.Length, offset, limit) { HiddenEmptyCount = hiddenEmptyCount };
     }
 
     private sealed class NumericComparer : IComparer<string>

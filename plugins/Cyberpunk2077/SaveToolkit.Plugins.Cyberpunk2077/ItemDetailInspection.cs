@@ -1,13 +1,18 @@
 using System.Globalization;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.Cyberpunk2077;
 
 internal sealed class ItemDetailInspection(CsavContainer container, CsavTree tree, CyberpunkReferences references)
 {
-    private const int PageSize = 128;
     private readonly Dictionary<int, (ExtendedItem? Item, string? Warning)> _cache = [];
+    private readonly Dictionary<string, ItemPartInspection> _parts = new(StringComparer.Ordinal);
+
+    public IReadOnlyList<QueryableCollection> PartCollections => _parts.Values.Select(parts => parts.Metadata).ToArray();
+    public QueryableCollectionPage QueryParts(string collectionId, QueryableCollectionQuery query) =>
+        _parts.TryGetValue(collectionId, out var parts) ? parts.Query(query) : throw new KeyNotFoundException($"Unknown part collection '{collectionId}'.");
     private (ExtendedItem? Item, string? Warning) Read(InventoryItem item)
     {
         if (_cache.TryGetValue(item.NodeId, out var cached)) return cached;
@@ -45,30 +50,15 @@ internal sealed class ItemDetailInspection(CsavContainer container, CsavTree tre
         return result;
     }
 
-    public IReadOnlyList<ViewNode> Parts(InventoryItem item, int start)
+    public IReadOnlyList<ViewNode> Parts(InventoryItem item)
     {
-        var root = Read(item).Item?.Root ?? throw new KeyNotFoundException("No decoded item part tree.");
-        var parts = ExtendedItemReader.Parts(root).ToArray();
-        if (start < 0 || start > parts.Length) throw new KeyNotFoundException("Part page exceeds the decoded tree.");
-        var rows = parts.Skip(start).Take(PageSize).Select(pair =>
+        var id = ItemPartInspection.IdFor(item.NodeId);
+        if (!_parts.TryGetValue(id, out var parts))
         {
-            var part = pair.Part;
-            var name = references.ItemDisplayName(part.Identity.TweakId) ?? $"0x{part.Identity.TweakId:X16}";
-            var attribution = references.ItemAttribution(part.Identity.TweakId);
-            if (attribution.Length == 0) attribution = "Unknown part record; raw identity is preserved exactly.";
-            return new TableRow($"item-parts/{item.NodeId}/{pair.Path}", new Dictionary<string, ViewNode>
-            {
-                ["path"] = new TextNode(pair.Path), ["item"] = new SectionNode(name, [new TextNode(attribution)])
-                    { Description = attribution },
-                ["identity"] = new TextNode(part.Identity.ToString()), ["appearance"] = new TextNode(part.Appearance),
-                ["slot"] = new TextNode($"0x{part.AttachmentSlot:X16}"),
-                ["extra"] = new TextNode($"Opaque uint32 0x{part.Unknown:X8}; loot 0x{part.Additional.LootPool:X16}; " +
-                    $"additional 0x{part.Additional.Unknown:X8}; raw level {part.Additional.RequiredLevel.ToString("R", CultureInfo.InvariantCulture)}"),
-            });
-        }).ToArray();
-        return [new TableNode([new("path", "Part path"), new("item", "Record identifier"), new("identity", "Identity"),
-            new("appearance", "Appearance string"), new("slot", "Attachment slot ID"), new("extra", "Raw extra data")], rows)
-            { Description = ExtendedItemReader.Source + " Inferred attachment-tree schema; parts are not independent inventory instances." },
-            .. (start + PageSize < parts.Length ? new ViewNode[] { SectionNode.Lazy("Next part page", $"item-parts/{item.NodeId}/{start + PageSize}") } : [])];
+            var root = Read(item).Item?.Root ?? throw new KeyNotFoundException("No decoded item part tree.");
+            parts = new ItemPartInspection(item.NodeId, root, references);
+            _parts.Add(id, parts);
+        }
+        return [parts.View()];
     }
 }

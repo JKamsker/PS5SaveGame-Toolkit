@@ -16,7 +16,8 @@ internal sealed class EquipmentInspection
         var rows = data?.Slots.Select(slot =>
         {
             var record = slot.Item is { } item ? references.Item(item.TweakId) : null;
-            var name = slot.Item is null ? "Empty" : references.ItemDisplayName(slot.Item.TweakId) ?? $"0x{slot.Item.TweakId:X16}";
+            var name = slot.IsEmpty ? "Empty slot" : slot.Item is null ? "No stored slot array"
+                : references.ItemDisplayName(slot.Item.TweakId) ?? $"0x{slot.Item.TweakId:X16}";
             return new InspectionRow(slot.Key, new Dictionary<string, string>
             {
                 ["icon"] = "",
@@ -27,7 +28,7 @@ internal sealed class EquipmentInspection
                 ["active"] = slot.Active ? "Stored active index" : "",
                 ["rules"] = $"Slot ID 0x{slot.SlotId:X16}; prerequisite handle {(slot.HasPrerequisite ? "present (not evaluated)" : "omitted")}. " +
                     "Compatibility, capacity cost/limit, unlock eligibility and bonuses are unknown.",
-            }, ScriptableReader.Source + (record is null ? "" : "\n" + references.ItemAttribution(slot.Item!.TweakId)));
+            }, ScriptableReader.Source + (record is null ? "" : "\n" + references.ItemAttribution(slot.Item!.TweakId)), IsEmpty: slot.IsEmpty);
         }).ToArray() ?? [];
         Table = new InspectionTable(CollectionId, "Equipment and cyberware (read-only)", [new("icon", "Icon"), new("area", "Stored area"),
             new("slot", "Slot index", IntegerSpec.Int32), new("kind", "Area kind"), new("item", "Item"), new("identity", "Full gameplay identity"),
@@ -44,7 +45,7 @@ internal sealed class EquipmentInspection
                     "item" => references.ItemPresentation(id),
                     _ => null,
                 };
-            });
+            }, emptyRows: new EmptyRowPresentation("item"));
     }
     public string? Warning { get; }
     public InspectionTable Table { get; }

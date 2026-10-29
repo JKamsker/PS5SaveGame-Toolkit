@@ -131,11 +131,11 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument,
                 return TreePage(id, start);
             }
 
-            if (parts[0] == "inventory" && id == 0 && start <= _items.Count)
+            if (parts[0] == "inventory" && id == 0 && start == 0 && _items.Count <= InventoryInspection.EagerLimit)
             {
-                return _inventory.Page(start);
+                return _inventory.Expand();
             }
-            if (parts[0] == "item-parts" && _items.Any(item => item.NodeId == id)) return _inventory.Parts(id, start);
+            if (parts[0] == "item-parts" && start == 0 && _items.Any(item => item.NodeId == id)) return _inventory.Parts(id);
         }
 
         throw new KeyNotFoundException($"Unknown lazy node '{lazyId}'.");
@@ -153,12 +153,14 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument,
         return [new FileOutput(_path, bytes)];
     }
 
-    public IReadOnlyList<QueryableCollection> Collections => [_inventory.Metadata, _facts.Metadata, .. _inspectionTables.Values.Select(table => table.Metadata)];
+    public IReadOnlyList<QueryableCollection> Collections => [_inventory.Metadata, _facts.Metadata,
+        .. _inspectionTables.Values.Select(table => table.Metadata), .. _inventory.PartCollections];
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => collectionId switch
     {
         InventoryInspection.CollectionId => _inventory.Query(query),
         FactInspection.CollectionId => _facts.Query(query),
+        _ when collectionId.StartsWith(ItemPartInspection.CollectionPrefix, StringComparison.Ordinal) => _inventory.QueryParts(collectionId, query),
         _ => _inspectionTables.TryGetValue(collectionId, out var table) ? table.Query(query)
             : throw new KeyNotFoundException($"Unknown collection '{collectionId}'."),
     };

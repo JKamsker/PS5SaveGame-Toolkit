@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Text.Json;
 using SaveToolkit.Core.Sessions;
@@ -69,6 +70,11 @@ public sealed class InspectionSampleTests(ITestOutputHelper output)
         Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement("789"))]).Ok);
         var edited = session.QueryCollection("inventory", new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["quantity"] = "789" } });
         Assert.Equal(row.Key, Assert.Single(edited.Rows).Key);
+        var container = CsavContainer.Parse(file.ReadAllBytes());
+        var item = InventoryReader.Read(container, CsavTree.Parse(container)).Single(item => item.NodeId.ToString() == row.Key);
+        var expected = container.Payload.ToArray();
+        BinaryPrimitives.WriteUInt32LittleEndian(expected.AsSpan(item.QuantityOffset!.Value), 789);
+        Assert.Equal(expected, CsavContainer.Parse(Assert.Single(document.Serialize()).Content.ToArray()).Payload);
         Assert.True(session.Undo().Ok);
         Assert.Empty(session.QueryCollection("inventory", new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["quantity"] = "789" } }).Rows);
         Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
