@@ -35,18 +35,7 @@ public static partial class SaveSetImporter
         {
             if (source.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
             {
-                using var stream = source.Open();
-                using var zip = new ZipArchive(stream, ZipArchiveMode.Read);
-                foreach (var entry in zip.Entries)
-                {
-                    if (entry.FullName.EndsWith('/'))
-                    {
-                        continue;
-                    }
-
-                    using var entryStream = entry.Open();
-                    builder.Add(entry.FullName, entryStream);
-                }
+                ImportArchive(source, builder);
             }
             else
             {
@@ -56,6 +45,32 @@ public static partial class SaveSetImporter
         }
 
         return builder.Build();
+    }
+
+    private static void ImportArchive(ImportSource source, Builder builder)
+    {
+        try
+        {
+            using var stream = source.Open();
+            using var zip = new ZipArchive(stream, ZipArchiveMode.Read);
+            foreach (var entry in zip.Entries)
+            {
+                if (entry.FullName.EndsWith('/')) continue;
+                try
+                {
+                    using var entryStream = entry.Open();
+                    builder.Add(entry.FullName, entryStream, entry.Length, entry.Crc32);
+                }
+                catch (InvalidDataException ex)
+                {
+                    throw new InvalidDataException($"Entry '{entry.FullName}': {ex.Message}", ex);
+                }
+            }
+        }
+        catch (InvalidDataException ex)
+        {
+            throw new InvalidDataException($"Could not import archive '{source.Name}': {ex.Message}", ex);
+        }
     }
 
     internal sealed record ParsedPath(string? TitleId, string RawDirectory, string PathInDirectory);
@@ -99,7 +114,7 @@ public static partial class SaveSetImporter
         private readonly List<PendingFile> _files = [];
         private long _totalBytes;
 
-        public void Add(string archivePath, Stream content)
+        public void Add(string archivePath, Stream content, long? expectedLength = null, uint? expectedCrc32 = null)
         {
             var parsed = ParsePath(archivePath);
             if (parsed is null)
@@ -118,13 +133,14 @@ public static partial class SaveSetImporter
 
             var index = _files.Count;
             var blobPath = Path.Combine(storageRoot, $"{index:D6}.blob");
-            var (length, sha) = CopyToBlob(content, blobPath);
+            var (length, sha) = CopyToBlob(content, blobPath, expectedLength, expectedCrc32);
             _files.Add(new PendingFile(parsed, generation, blobPath, length, sha));
         }
 
-        private (long Length, string Sha256) CopyToBlob(Stream content, string blobPath)
+        private (long Length, string Sha256) CopyToBlob(Stream content, string blobPath, long? expectedLength, uint? expectedCrc32)
         {
             using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+            var checksum = expectedCrc32.HasValue ? new ZipEntryChecksum() : null;
             using var output = new FileStream(blobPath, FileMode.CreateNew, FileAccess.Write);
             var buffer = new byte[81920];
             long length = 0;
@@ -133,6 +149,10 @@ public static partial class SaveSetImporter
             {
                 length += read;
                 _totalBytes += read;
+                if (expectedLength is { } expected && length > expected)
+                {
+                    throw new InvalidDataException($"Decompressed data exceeds the declared length of {expected} bytes.");
+                }
                 if (_totalBytes > limits.MaxTotalBytes)
                 {
                     throw new ImportException($"Upload exceeds {limits.MaxTotalBytes / (1024 * 1024)} MiB.");
@@ -140,6 +160,16 @@ public static partial class SaveSetImporter
 
                 output.Write(buffer, 0, read);
                 hash.AppendData(buffer, 0, read);
+                checksum?.Append(buffer.AsSpan(0, read));
+            }
+
+            if (expectedLength is { } declared && length != declared)
+            {
+                throw new InvalidDataException($"Truncated entry: expected {declared} bytes but read {length}.");
+            }
+            if (expectedCrc32 is { } crc32 && checksum!.Value != crc32)
+            {
+                throw new InvalidDataException("Entry CRC-32 does not match the imported data; the archive may be corrupt or truncated.");
             }
 
             return (length, Convert.ToHexStringLower(hash.GetHashAndReset()));
