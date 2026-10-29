@@ -116,6 +116,12 @@ read-only until envelope recompression is verified. Database inspection is still
 available and serialization preserves the exact imported wrapper.
 Jedi's `UncompressedActorRecordsSize` also remains read-only: changing this paired
 length without rebuilding the preserved compressed actor stream invalidates it.
+Hogwarts tracks cell changes against each independent imported image. Changed
+images are rebuilt from their baseline in deterministic table/row/column order;
+untouched images retain their exact compressed payloads. Reverting every cell,
+including rollback of a rejected batch, restores the original file bytes. This
+avoids relying on inverse SQL to restore SQLite page layout and change counters
+([SQLite atomic commit documentation](https://www.sqlite.org/atomiccommit.html)).
 
 ## Sample coverage and file roles
 

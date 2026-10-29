@@ -9,15 +9,18 @@ public sealed class HogwartsDatabase : IDisposable
 {
     private const int MaxTables = 256;
     private const int MaxColumns = 64;
-    private readonly SqliteImage _database;
+    private SqliteImage _database;
+    private readonly HogwartsCellEdits _edits;
     public IReadOnlyList<HogwartsTable> Tables { get; }
     public string Name { get; }
     public int ImageBytes { get; }
+    public bool HasChanges => _edits.HasChanges;
 
     public HogwartsDatabase(string name, ReadOnlySpan<byte> bytes)
     {
         Name = name;
         ImageBytes = bytes.Length;
+        _edits = new(bytes);
         _database = SqliteImage.Open(bytes, new SqliteLimits { MaxDatabaseBytes = HogwartsImage.MaxDecodedBytes });
         try
         {
@@ -104,9 +107,10 @@ public sealed class HogwartsDatabase : IDisposable
         if (rowId < 1 || !table.Columns.Contains(column, StringComparer.Ordinal) || table.IdentityColumns.Contains(column, StringComparer.Ordinal))
             throw new ArgumentException("Only existing non-identity Hogwarts columns can be edited.");
         if (value is not (long or double or string)) throw new ArgumentException("Only SQLite integer, real and text cells can be edited.");
-        string sql = $"UPDATE {HogwartsTable.Quote(table.Name)} SET {HogwartsTable.Quote(column)} = $value WHERE _rowid_ = $rowid";
-        if (_database.Execute(sql, new Dictionary<string, object?> { ["$value"] = value, ["$rowid"] = rowId }) != 1)
-            throw new SaveFormatException("The selected Hogwarts row no longer exists.");
+        var candidate = _edits.Apply(_database, table, rowId, column, value);
+        if (ReferenceEquals(candidate, _database)) return;
+        _database.Dispose();
+        _database = candidate;
     }
 
     /// <summary>Research only: SQLite enforces integrity_check before returning a no-op image.</summary>

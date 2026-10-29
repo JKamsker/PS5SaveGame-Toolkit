@@ -26,7 +26,6 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
     private readonly IReferenceCatalog? _catalog;
     private readonly HogwartsSpatialViews _spatial;
     private readonly CatalogueInspection _catalogues;
-    private bool _dirty;
 
     public HogwartsDocument(string path, GvasEnvelope envelope, IReferenceContext references)
     {
@@ -178,7 +177,6 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
             if (EqualityComparer<T>.Default.Equals(current, candidate)) return;
             database.SetCell(table, rowId, column, candidate!);
             current = candidate;
-            _dirty = true;
         }) with
         {
             Confidence = Confidence.Inferred,
@@ -203,21 +201,19 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
         { Description = metadata.Description, EmptyRows = metadata.EmptyRows };
     }
 
-    public override IReadOnlyList<FileOutput> Serialize() => !_dirty
+    public override IReadOnlyList<FileOutput> Serialize() => !_databases.Any(database => database.HasChanges)
         ? _raw.Serialize()
         : [new FileOutput(_path, BuildEditedOutput())];
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
         if (!CanEdit) return EditOutcome.Rejected("document", ReadOnlyMessage);
-        bool wasDirty = _dirty;
         var outcome = base.ApplyEdits(edits);
         if (!outcome.Succeeded || edits.Count == 0) return outcome;
         try { _ = BuildEditedOutput(); }
-        catch (Exception error) when (error is SaveFormatException or InvalidDataException or ArgumentException or OverflowException)
+        catch (Exception error) when (error is SaveFormatException or InvalidDataException or SqliteException or ArgumentException or OverflowException)
         {
             foreach (var change in outcome.Changes.Reverse()) base.ApplyEdits([new ValueEdit(change.ValueId, change.OldValue)]);
-            _dirty = wasDirty;
             return EditOutcome.Rejected(edits[^1].ValueId, error.Message);
         }
         // Count edits can change vacancy. Rebuild slot markers and invalidate old page selections.
@@ -228,8 +224,9 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
 
     private byte[] BuildEditedOutput()
     {
+        if (!_databases.Any(database => database.HasChanges)) return _envelope.Serialize();
         var replacements = new Dictionary<GvasNode, ReadOnlyMemory<byte>>();
-        foreach (var database in _databases)
+        foreach (var database in _databases.Where(database => database.HasChanges))
         {
             byte[] image = database.SerializeForWrite();
             byte[] frames = HogwartsImage.EncodeStored(image);
