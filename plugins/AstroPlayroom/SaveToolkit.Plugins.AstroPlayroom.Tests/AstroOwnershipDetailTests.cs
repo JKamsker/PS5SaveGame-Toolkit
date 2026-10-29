@@ -145,11 +145,12 @@ public sealed class AstroOwnershipDetailTests
         Assert.Equal("Owned", Assert.IsType<TextNode>(DetailRow(session, document, paged, count).Cells["status"]).Text);
         Assert.StartsWith($"1/{count} owned", AstroCatalogueTestData.Group(document, "Artifacts").Badge, StringComparison.Ordinal);
         var missing = session.QueryCollection(CollectionId, new()
-        { Filters = new Dictionary<string, string> { ["status"] = "Missing" }, Limit = 1 }, session.State.Revision);
+        { Filters = new Dictionary<string, string> { ["status"] = "Missing" }, Limit = 1 }, session.State.Revision,
+            TestContext.Current.CancellationToken);
         Assert.Equal(count - 1, missing.FilteredCount);
         var lastRecord = text.LastIndexOf("<IsGot>false</IsGot>", StringComparison.Ordinal);
         var expected = text[..lastRecord] + "<IsGot>true</IsGot>" + text[(lastRecord + "<IsGot>false</IsGot>".Length)..];
-        Assert.Equal(AstroTestData.Bytes(expected), Assert.Single(session.Serialize()).Content.ToArray());
+        Assert.Equal(AstroTestData.Bytes(expected), Assert.Single(session.Serialize(TestContext.Current.CancellationToken)).Content.ToArray());
         AssertRejectedEditIsAtomic(session, document, field);
         AssertReviewAndHistory(session, document, field, file.ReadAllBytes(), AstroTestData.Bytes(expected));
     }
