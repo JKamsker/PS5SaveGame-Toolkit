@@ -11,6 +11,7 @@ internal sealed class ReferenceCatalogView(Bg3References references)
     internal IReadOnlyList<QueryableCollection> Collections => references.Catalogs.Select(c =>
         new QueryableCollection(c.Id, c.Dataset.Title ?? c.Id,
         [
+            new QueryableColumn("icon", "Icon"),
             new QueryableColumn("id", "Raw id", new ReferenceSpec(c.Id) { AllowCustom = true }) { Width = ColumnWidth.Wide },
             new QueryableColumn("name", "Name") { Width = ColumnWidth.Wide },
             new QueryableColumn("category", "Category"),
@@ -28,15 +29,10 @@ internal sealed class ReferenceCatalogView(Bg3References references)
 
         return
         [
-            new TextNode("Pinned, attributed labels are available as bounded, searchable catalogs. Descriptions are original annotations; no icons, game assets or legacy wiki prose are embedded. Raw IDs and unresolved build/module joins remain visible.") { Tone = Tone.Info },
-            .. references.Catalogs.Select(c => (ViewNode)new QueryableTableNode(c.Id, c.Dataset.Title ?? c.Id,
-                [
-                    new QueryableColumn("id", "Raw id", new ReferenceSpec(c.Id) { AllowCustom = true }) { Width = ColumnWidth.Wide },
-                    new QueryableColumn("name", "Name") { Width = ColumnWidth.Wide },
-                    new QueryableColumn("category", "Category"),
-                ], c.Count)
+            new TextNode("Pinned, attributed catalogs include local Larian game icons and short game-tooltip/flavour-text excerpts via bg3.wiki. Sources retain separate game-asset and CC BY-SA label attribution. Raw IDs and unresolved build/module joins remain visible.") { Tone = Tone.Info },
+            .. Collections.Select(c => (ViewNode)new QueryableTableNode(c.Id, c.Title, c.Columns, c.TotalCount)
                 {
-                    Description = $"{c.Dataset.Attribution.ToShortText()}. Search and filter are bounded by the SDK query limits."
+                    Description = c.Description,
                 }),
         ];
     }
@@ -53,7 +49,7 @@ internal sealed class ReferenceCatalogView(Bg3References references)
             {
                 null => null,
                 "id" => ReferenceSortKey.Key,
-                "name" => ReferenceSortKey.Name,
+                "name" or "icon" => ReferenceSortKey.Name, // An icon sorts by its associated name.
                 "category" => ReferenceSortKey.Category,
                 _ => throw new ArgumentException($"Unknown BG3 catalog sort column '{query.SortColumn}'.", nameof(query)),
             },
@@ -73,8 +69,10 @@ internal sealed class ReferenceCatalogView(Bg3References references)
             };
             return new TableRow(key, new Dictionary<string, ViewNode>
             {
+                ["icon"] = references.Icon(record),
                 ["id"] = id,
-                ["name"] = new TextNode(record.Name),
+                ["name"] = new SectionNode(record.Name,
+                    [new TextNode(record.Description ?? "No description available."), new TextNode(record.AttributionText)]),
                 ["category"] = new TextNode(record.Category ?? "Uncategorised"),
             });
         }).ToArray();

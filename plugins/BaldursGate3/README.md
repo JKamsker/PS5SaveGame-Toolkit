@@ -1,6 +1,6 @@
 # Baldur's Gate 3 (`bg3`)
 
-Title: **PPSA18463**. Maturity: **Experimental**, version 0.6.0.
+Title: **PPSA18463**. Maturity: **Experimental**, version 0.7.0.
 
 Opens decrypted BG3 save packages and profile resources, lists package entries with
 stored/expanded sizes and compression, and exposes every resource node and attribute
@@ -39,6 +39,56 @@ owner label, while other world/trader/container rows remain explicitly unowned. 
 template occurrences remain world/trader candidates:
 the LSF item node has no unique item-instance bridge, so no player total or gold
 distribution writer is exposed.
+
+## Game assets (0.7.0)
+
+The embedded pack `bg3.starter.en` 1.2.0 adds **51 distinct icons on 60 catalog records**:
+21 spells, 5 passive/action features, 13 items/supplies and 12 base-class badges.
+There are **39 distinct official game-tooltip/flavour-text excerpts on 48 records**;
+long descriptions are explicitly marked excerpts. Existing CC BY-SA label attribution
+is retained separately from Larian game-asset rights. Corrected source-verified UIDs
+include `Target_Bless`, `FeyAncestry`, `Tiefling_HellishResistance`,
+`AttackOfOpportunity` and `HumanMilitia`; the Shield entry is specifically the
+`Shout_Shield_Wizard` variant. No generic spell/passive writer is enabled.
+
+Catalog pickers and F8 tables resolve local icons. Saved-item tables use the exact
+four template GUIDs; live spell details and read-only class UUID fields resolve
+only exact catalog keys. Unknown IDs/missing packs keep raw text. Images do not
+prove ownership, learned/prepared state or current class authority. Race icons are
+not applicable because no race field is decoded/displayed. No map backgrounds are
+added: the plugin has no validated discovery/coordinate model.
+
+**New embedded binary assets: 161,455 bytes**, all at most 64×64, below the 4 MB budget.
+Processing and visual inspection occurred in a temporary directory. Full per-file
+source revisions, original hashes and modification notes are in
+[assets.source.md](SaveToolkit.Plugins.BaldursGate3/ReferencePacks/bg3.starter.en/assets.source.md).
+The framework validates/caches packs once and shares image content across pinned
+documents; the plugin performs no runtime loading, decoding or network access.
+
+An isolated Debug stopwatch run on the largest sample (`AutoSave_0.lsv`, 8,073,350
+bytes), excluding sample import and including first pack load, open, root view,
+first ten rows of every collection and catalog icon resolution, measured:
+
+| Measurement | Before | After |
+| --- | ---: | ---: |
+| Pack load | 46.6137 ms | 66.3150 ms |
+| First load and view | 669.7487 ms | 810.6028 ms |
+| Managed allocated bytes | 238,784,728 | 242,339,240 |
+
+These are single-process observations including JIT, not a latency guarantee.
+A second final-code process measured 71.4132 ms for the pack, 1,207.3090 ms for
+first load/view and 244,796,760 allocated bytes, showing first-use timing variance.
+`AssetLoadMeasurementTests` repeats the operation and optionally writes the result
+when `BG3_ASSET_BENCHMARK_OUTPUT` names a scratch output file.
+
+Validation: **214 passed, 0 failed, 0 skipped** with
+`SAVETOOLKIT_ARTIFACTS=C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts`.
+API build: **0 warnings, 0 errors**. Coverage includes all embedded hashes/types,
+asset-ID resolution, deduplication, shared cached content, attributed rich catalog
+cells, exact sample class/spell resolution, Unknown graph state, missing-pack/raw-ID
+fallbacks, icon-column sorting and byte-identical sample export. Offline image QA
+verified every image decodes at at most 64×64; all C# sources remain under 300 lines
+(largest: 261). All repository edits are inside this plugin folder.
 
 ## Supported scope and preservation
 
@@ -197,7 +247,7 @@ tuple values, approval totals, quest completion or romance state.
 The framework loads the embedded `bg3.starter.en` pack and injects it through
 `Open(file, references)`. `Open(file)` without a context retains raw fallbacks.
 The native build is unknown, so build-specific catalogs are refused. Only
-build-agnostic labels are accepted; no rules/limits/icons are supplied and no
+build-agnostic references are accepted; no gameplay rules/limits are supplied and no
 pack data enters serialized saves. There is no plugin file or network I/O.
 
 ## Binary layout
@@ -392,14 +442,14 @@ No message-only inspection action or proven float duration exists to opt in.
 | Feature | Status | Where / concrete limit |
 | --- | --- | --- |
 | F1 SaveDiff | Used | Pinned baseline `fixtures.json`, original whole/component fingerprints, intended-byte diffs and F12 live-value semantic checks. No fake event/control or churn mask. |
-| F2 reference packs | Used | Embedded attributed catalogs, per-dataset/record notices and Sources panel. |
-| F3 rich cells | Added this round | Live value evidence details, slot action cells, confidence/warning badges. No unlicensed icons. |
-| F4 ReferenceSpec | Used / expanded | Catalog raw IDs, saved CurrentTemplate, origin IDs and saved spell IDs; F13 browse-only where replacement needs an unimplemented dependency writer. |
+| F2 reference packs | Used / expanded | Embedded catalogs and 51 compact game icons, pinned per-file source revisions, mixed-rights attribution and Sources panel; host cache shares assets across documents. |
+| F3 rich cells | Used / expanded | Catalog and saved-item image cells, game descriptions with sources, class badges and spell-detail icons; raw fields and confidence/warnings remain available. |
+| F4 ReferenceSpec | Used / expanded | Catalog raw IDs, saved CurrentTemplate, origin IDs, saved spell IDs and class UUIDs; F13 browse-only where replacement needs an unimplemented dependency writer. |
 | F5 structural undo | Added this round | Two-existing-container-key reorder with scoped inverse memento, stable row IDs, exact bytes on undo. Allocation/removal/transfers remain unsupported. |
 | F6 preview/apply | Added this round | Quantity restoration and structural reorder, skipped rows/warnings, query scopes/exclusions and one-step undo. |
 | F7 document groups | N/A | Gameplay/summary resources are already members of one atomically rewritten LSPK. Backup twins are identical archival copies, not a demonstrated coupled gameplay invariant. |
 | F8 collections | Used / expanded | Catalogs, saved items, live values, slots, classes and spell books; bounded text/filter/sort pages. |
-| F9 graph/map | Added this round | Saved spell presence graphs, text alternatives and field targets, Unknown states, no guessed prerequisite edges. Map N/A: no proven saved discovery/coordinate transform or licensed coordinate dataset. |
+| F9 graph/map | Added this round | Saved spell presence graphs, text alternatives and field targets, Unknown states, no guessed prerequisite edges. Map N/A: no proven saved discovery/coordinate transform. |
 | F10 exact values | Used | IntegerSpec/Int128 transports exact stored u32/i32/u64 values (including class levels). Nullable/union/exact-JSON specs N/A: supported mutable fields have fixed binary types or existing bounded integer JSON tokens. |
 | F11 shared codecs | N/A | No Kraken or SQLite payload exists in this supported Larian path. LZ4/zstd/zlib use the existing attributed managed codecs. |
 | F12 | Added this round | Generic `bg3` decoder traverses live F8 rows with host budgets; one-row-page changed-quantity and truncation tests. No private decoder needs a separate hook. |
@@ -411,12 +461,14 @@ No message-only inspection action or proven float duration exists to opt in.
 | --- | --- | --- | --- |
 | Summary level cap (12) | [bg3.wiki contributors, Experience](https://bg3.wiki/wiki/Experience) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | One factual base-game cap; no prose, progression table or new pack copied. Unknown modded levels use the observed maximum. Source is also adjacent to the constant, in Info.References and field descriptions. |
 | Summary/quantity write research | [Hawk-on FIELD_MAPPING.md, pinned revision](https://github.com/Hawk-on/bg3-save-editor/blob/6a62466c77ad4939fc5e6fdcbc2e4188efdfcd15/FIELD_MAPPING.md); [Norbyte PackageWriter.cs](https://github.com/Norbyte/lslib/blob/6f5f6987d10d8485876b8368431c948e4dea4f83/LSLib/LS/PackageWriter.cs) | MIT, revisited 2026-10-28 | Confirms metadata/runtime distinction and existing outer hash algorithm. No new upstream implementation copied or executed; live gold heuristics rejected. |
-| `bg3_templates` (4 records) | [bg3.wiki contributors](https://bg3.wiki/): [Gold](https://bg3.wiki/w/index.php?title=Gold&oldid=419021), [Potion of Healing](https://bg3.wiki/w/index.php?title=Potion_of_Healing&oldid=421944), [Longsword](https://bg3.wiki/wiki/Longsword), [Shortbow](https://bg3.wiki/w/index.php?title=Shortbow&oldid=423168) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual labels/technical GUIDs, original uncertainty annotations; no wiki prose, limits or icons. Exact GUID candidates only. |
+| `bg3_templates` (4 records) | [bg3.wiki contributors](https://bg3.wiki/): [Gold](https://bg3.wiki/w/index.php?title=Gold&oldid=419021), [Potion of Healing](https://bg3.wiki/w/index.php?title=Potion_of_Healing&oldid=421944), [Longsword](https://bg3.wiki/wiki/Longsword), [Shortbow](https://bg3.wiki/w/index.php?title=Shortbow&oldid=423168) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual labels/technical GUIDs, original uncertainty annotations plus game icons and flavour-text excerpts; no gameplay limits. Exact GUID candidates only. Game material has separate rights below. |
 | `bg3_origins` (3 records) | [bg3.wiki contributors](https://bg3.wiki/): [Lae'zel](https://bg3.wiki/w/index.php?title=Lae%27zel&oldid=409907), [Shadowheart](https://bg3.wiki/w/index.php?title=Shadowheart&oldid=438521), [Dark Urge](https://bg3.wiki/w/index.php?title=The_Dark_Urge_%28Origin%29&oldid=434137) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual labels mapped to SaveInfo Origin keys; original uncertainty annotations. Not live identity/name mappings. |
-| `bg3_items` (6 records) | Pinned [Supply Pack](https://bg3.wiki/w/index.php?title=Supply_Pack&oldid=423731), [Camp Supply Sack](https://bg3.wiki/w/index.php?title=Camp_Supply_Sack&oldid=416884), [Potion of Healing](https://bg3.wiki/w/index.php?title=Potion_of_Healing&oldid=421944), Gold, Longsword and Shortbow revisions | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual item labels plus UUID/UID candidates; no descriptive prose, images or limits. |
-| `bg3_equipment` (6 records) | [Equipment](https://bg3.wiki/w/index.php?title=Equipment&oldid=405329), pinned weapon/container and companion pages | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Equipment/category candidates; sets are not item identities. |
-| `bg3_spells` (5 records) and `bg3_passives` (5 records) | Pinned [Spells](https://bg3.wiki/w/index.php?title=Spells&oldid=433193), [Cantrips](https://bg3.wiki/w/index.php?title=Cantrips&oldid=420539), [Guidance](https://bg3.wiki/w/index.php?title=Guidance&oldid=413520), [Fire Bolt](https://bg3.wiki/w/index.php?title=Fire_Bolt&oldid=373237), [Passive feature](https://bg3.wiki/w/index.php?title=Passive_feature&oldid=421706) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | UID/display-key candidates only; spellbook/source and passive joins remain unknown. |
-| `bg3_companions` (7 records) and `bg3_camp_supplies` (8 records) | Pinned [Companions](https://bg3.wiki/w/index.php?title=Companions&oldid=439368), origin pages and [Camp Supplies](https://bg3.wiki/w/index.php?title=Camp_Supplies&oldid=409610) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Character UUID/UID and supply-value candidates; no party ownership, approval or inventory totals. |
+| `bg3_items` (6 records) | Pinned [Supply Pack](https://bg3.wiki/w/index.php?title=Supply_Pack&oldid=423731), [Camp Supply Sack](https://bg3.wiki/w/index.php?title=Camp_Supply_Sack&oldid=416884), [Potion of Healing](https://bg3.wiki/w/index.php?title=Potion_of_Healing&oldid=421944), Gold, Longsword and Shortbow revisions | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Factual item labels plus UUID/UID candidates, compact icons and short game flavour-text excerpts; no gameplay limits. Game material has separate rights below. |
+| `bg3_equipment` (6 records) | [Equipment](https://bg3.wiki/w/index.php?title=Equipment&oldid=405329), pinned weapon/container and companion pages | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Equipment/category candidates plus weapon/container icons and game flavour-text excerpts; sets are not item identities and do not receive item icons. |
+| `bg3_spells` (21 records) and `bg3_passives` (5 records) | Pinned [Spells](https://bg3.wiki/w/index.php?title=Spells&oldid=433193), [Cantrips](https://bg3.wiki/w/index.php?title=Cantrips&oldid=420539), [Guidance](https://bg3.wiki/w/index.php?title=Guidance&oldid=413520), [Fire Bolt](https://bg3.wiki/w/index.php?title=Fire_Bolt&oldid=373237), [Passive feature](https://bg3.wiki/w/index.php?title=Passive_feature&oldid=421706) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Spell/feature page UID candidates with icons and short game-tooltip excerpts; original label adaptation remains CC BY-SA 4.0. Game material has separate rights below. Source/preparation and passive-state semantics remain unknown. |
+| `bg3_companions` (7 records) and `bg3_camp_supplies` (8 records) | Pinned [Companions](https://bg3.wiki/w/index.php?title=Companions&oldid=439368), origin pages and [Camp Supplies](https://bg3.wiki/w/index.php?title=Camp_Supplies&oldid=409610) | Adaptation [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), 2026-10-28 | Character UUID/UID and supply-value candidates; supplies now carry icons and game flavour-text excerpts (separate game rights below). No party ownership, approval or inventory totals. |
+| `bg3_game_icons` (51 unique assets) and game descriptions (39 distinct excerpts on 48 records) | Larian Studios game assets via [bg3.wiki](https://bg3.wiki/); every page and file revision in [assets.source.md](SaveToolkit.Plugins.BaldursGate3/ReferencePacks/bg3.starter.en/assets.source.md) | Rights reserved by Larian Studios; used with attribution per owner decision 2026-10-29. Retrieved 2026-10-29; [asset licensing](https://bg3.wiki/wiki/Help:Licenses), [Larian policy](https://larian.com/fan-content-policy) | Verified image headers, resized to at most 64×64, WebP or smaller PNG-8, deduplicated images; tooltip/flavour-text excerpts at most 25 words per source page, normalised markup/spacing and retained uncertainty annotations. No legacy wiki editorial prose imported. |
+| `bg3_classes` (12 base-class UUIDs) | [DanFinchUK gamedata.json, pinned 9578ff7c](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/data/gamedata.json), class icon files via bg3.wiki | No licence published; reused with attribution per owner decision 2026-10-28. Icons use the separate Larian asset notice above; retrieved 2026-10-29. | Selected GUID/name facts, linked local badges, original uncertainty notes; no implementation copied/executed, no party identity or class-authority inference. |
 | Independent LSMF directory/EntityId and PS5 live-storage reader/writer | [DanFinchUK format documentation, pinned revision](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/FORMAT.md), independently measured PS5 bytes | No licence published; reused with attribution per owner decision 2026-10-28 | Behaviour was reimplemented independently; no repository code, executable or save fragment was copied or run. PS5 directory, Creator/template, party, stacks, containers, Health/Stats/classes/spells were measured against bytes. See [LSMF.md](LSMF.md) and [NEWAGE.md](NEWAGE.md). |
 | Existing LSPK/LSF/LSX and UUID format ports | [Norbyte/LSLib](https://github.com/Norbyte/lslib/tree/6f5f6987d10d8485876b8368431c948e4dea4f83) | MIT; [licence notice](THIRD-PARTY-NOTICES.md) | Managed preservation-first implementations; format files listed below. |
 | Managed LZ4 codec | [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4), Milosz Krajewski | MIT; [notice](THIRD-PARTY-NOTICES.md) | Dependency, not copied source. |
@@ -430,10 +482,10 @@ reimplemented and attributed in the table above.
 
 | Source and revision | Licence found (exact) | Why it was refused | What we did instead | What would unblock it |
 | --- | --- | --- | --- | --- |
-| [bg3.wiki copyright policy and legacy contributions](https://bg3.wiki/wiki/bg3wiki:Copyrights), retrieved 2026-10-28 | CC BY-NC-SA (legacy expressive contributions) | Non-commercial terms do not permit this GPL repository's redistribution scope; expressive prose, icons and artwork were not imported. | Used only separately attributed CC BY-SA factual labels and handwritten technical mappings; kept legacy content out of the pack. | A source-specific CC BY/CC BY-SA or other compatible relicensing grant covering the exact material. |
-| Larian Studios Baldur's Gate 3 art, icons and extracted game text, current game build | Proprietary game assets; no redistribution licence | Proprietary assets are excluded by the owner policy. | No game assets are embedded; UI uses raw IDs, text and source links only. | Written redistribution permission from the rights holder for the exact assets and use. |
+| [bg3.wiki copyright policy and legacy contributions](https://bg3.wiki/wiki/bg3wiki:Copyrights), retrieved 2026-10-28 | CC BY-NC-SA (legacy expressive contributions) | Non-commercial terms remain a refusal for legacy wiki editorial prose; this is separate from directly attributed Larian game assets. | Used attributed CC BY-SA label facts and technical mappings plus separately attributed Larian icons/game-text excerpts; kept legacy wiki editorial content out of the pack. | A source-specific CC BY/CC BY-SA or other compatible relicensing grant covering the exact material. |
+| Larian Studios Baldur's Gate 3 art, icons and extracted game text, exact source/file revisions in assets.source.md | Rights reserved by Larian Studios; used with attribution per owner decision 2026-10-29 | **Resolved: imported (owner decision 2026-10-29).** | 51 compact icons and 39 distinct game-description excerpts embedded with attribution. | No remaining publisher-asset policy blocker for this import. |
 
-The starter data adaptation remains **CC BY-SA 4.0**, separately from code. Retain
+The starter factual-label adaptation remains **CC BY-SA 4.0**, separately from code and Larian game assets. Retain
 its attribution, source links, modification notice and share-alike terms in
 redistributed/adapted packs. See the embedded
 [data.source.md](SaveToolkit.Plugins.BaldursGate3/ReferencePacks/bg3.starter.en/data.source.md)
@@ -442,9 +494,9 @@ cell, and the framework Sources panel shows the resolved datasets.
 
 The [wiki copyright policy](https://bg3.wiki/wiki/bg3wiki:Copyrights) distinguishes
 legacy CC BY-NC-SA content from dual-licensed contributions. This factual-label
-subset copies no legacy expressive text or artwork; the refusal and unblock condition
-are recorded in [Licence exclusions](#licence-exclusions). Full descriptions and
-assets still need a rights manifest; a current footer alone does not resolve their terms.
+subset copies no legacy wiki editorial text. Larian game-text excerpts and icons now have
+separate provenance under the 2026-10-29 owner decision in assets.source.md and pack.json.
+The remaining NC exclusion does not apply to these separately sourced publisher assets.
 
 Primary reference: [Norbyte/LSLib](https://github.com/Norbyte/lslib), MIT, inspected at
 revision `6f5f6987d10d8485876b8368431c948e4dea4f83`. Adapted format algorithms and type

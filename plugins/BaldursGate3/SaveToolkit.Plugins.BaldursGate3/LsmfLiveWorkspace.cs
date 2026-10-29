@@ -12,13 +12,16 @@ internal sealed class LsmfLiveWorkspace
     private readonly Func<LsmfLiveSource, LsmfNumber, FieldNode> _bind;
     private readonly Func<string, string, FieldValue, FieldNode> _inspect;
     private readonly Func<LsmfLiveSource, LsmfSlot, FieldNode> _bindSlot;
+    private readonly Bg3References _references;
 
     internal LsmfLiveWorkspace(IReadOnlyList<DocumentEntry> entries, Func<LsmfLiveSource, LsmfNumber, FieldNode> bind,
-        Func<string, string, FieldValue, FieldNode> inspect, Func<LsmfLiveSource, LsmfSlot, FieldNode> bindSlot)
+        Func<string, string, FieldValue, FieldNode> inspect, Func<LsmfLiveSource, LsmfSlot, FieldNode> bindSlot,
+        Bg3References references)
     {
         _bind = bind;
         _inspect = inspect;
         _bindSlot = bindSlot;
+        _references = references;
         for (var entry = 0; entry < entries.Count; entry++)
         {
             if (entries[entry].Resource is not { } resource) continue;
@@ -74,7 +77,7 @@ internal sealed class LsmfLiveWorkspace
     private LsmfLiveViews View(LsmfLiveSource source)
     {
         if (!_views.TryGetValue(source.Prefix, out var view))
-            _views.Add(source.Prefix, view = new LsmfLiveViews(source, _bind, _inspect, _bindSlot));
+            _views.Add(source.Prefix, view = new LsmfLiveViews(source, _bind, _inspect, _bindSlot, _references));
         return view;
     }
 

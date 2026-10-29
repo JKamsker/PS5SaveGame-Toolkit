@@ -12,7 +12,7 @@ namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 public sealed class ReferenceViewTests
 {
     [Fact]
-    public void StarterPackHasAttributedExactKeysAndNoGameplayLimitsOrAssets()
+    public void StarterPackHasAttributedExactKeysAndIconsWithoutInventingGameplayLimits()
     {
         var (plugin, store, context) = References();
         Assert.Empty(store.LoadErrors);
@@ -25,11 +25,13 @@ public sealed class ReferenceViewTests
         Assert.Equal(3, context.Catalog(Bg3References.Origins)!.Count);
         foreach (var record in templates.Search(new ReferenceQuery()).Items)
         {
-            Assert.Equal("CC-BY-SA-4.0", record.Dataset.Attribution.License);
+            Assert.Contains("Rights reserved by Larian Studios", record.Dataset.Attribution.License, StringComparison.Ordinal);
+            Assert.Contains("CC BY-SA 4.0", record.Dataset.Attribution.Modifications, StringComparison.Ordinal);
             Assert.NotNull(record.Source);
             Assert.Contains("bg3.wiki", record.AttributionText, StringComparison.Ordinal);
             Assert.Null(record.Limit);
-            Assert.Null(record.AssetId);
+            Assert.NotNull(record.AssetId);
+            Assert.NotNull(context.GetAsset(record.AssetId));
             Assert.Contains(record.Source!.Split("/w/")[0], string.Join(' ', plugin.Info.References), StringComparison.Ordinal);
         }
 
@@ -47,10 +49,11 @@ public sealed class ReferenceViewTests
             var catalog = context.Catalog(id);
             Assert.NotNull(catalog);
             Assert.True(catalog.Count > 0);
-            Assert.Equal("CC-BY-SA-4.0", catalog.Dataset.Attribution.License);
+            Assert.Contains(id == Bg3References.Companions ? "CC-BY-SA-4.0" : "Rights reserved by Larian Studios",
+                catalog.Dataset.Attribution.License, StringComparison.Ordinal);
             Assert.Contains("oldid=", catalog.Search(new ReferenceQuery { Limit = 1 }).Items[0].Source!, StringComparison.Ordinal);
             Assert.All(catalog.Search(new ReferenceQuery { Limit = ReferenceQuery.MaxLimit }).Items,
-                record => Assert.Contains("candidate label only", record.Description!, StringComparison.Ordinal));
+                record => Assert.Contains("candidate label only", record.Description!, StringComparison.OrdinalIgnoreCase));
         }
     }
 
@@ -113,15 +116,20 @@ public sealed class ReferenceViewTests
             var name = Assert.IsType<FieldNode>(row.Cells["name"]);
             Assert.Equal("Potion of Healing", name.Value.AsString());
             Assert.Contains("Potion_of_Healing", name.Description, StringComparison.Ordinal);
-            Assert.Contains("CC-BY-SA-4.0", name.Description, StringComparison.Ordinal);
+            Assert.Contains("Rights reserved by Larian Studios", name.Description, StringComparison.Ordinal);
+            var icon = Assert.IsType<ImageNode>(row.Cells["icon"]);
+            Assert.Contains("bg3.wiki", icon.Alt, StringComparison.Ordinal);
+            Assert.NotNull(context.GetAsset(icon.AssetId));
             Assert.Equal(Confidence.Inferred, name.Confidence);
             Assert.Equal("Unknown / unknown", Assert.IsType<TextNode>(row.Cells["ownership"]).Text);
         }
 
         Assert.Equal(Confidence.Unknown, Assert.IsType<FieldNode>(rows[2].Cells["name"]).Confidence);
         Assert.Throws<KeyNotFoundException>(() => inspection.Expand("saved-items/0/4"));
+        Assert.IsType<TextNode>(rows[2].Cells["icon"]);
         Assert.Throws<KeyNotFoundException>(() => inspection.Expand("saved-items/-1/1"));
         var raw = Assert.Single(Items(IReferenceContext.Empty).Expand("saved-items/0/1").OfType<TableNode>()).Rows[0];
+        Assert.IsType<TextNode>(raw.Cells["icon"]);
         Assert.Equal("d47006e9-8a51-453d-b200-9e0d42e9bbab", Assert.IsType<FieldNode>(raw.Cells["name"]).Value.AsString());
     }
 

@@ -13,8 +13,9 @@ internal sealed class Bg3References(IReferenceContext context)
     internal const string Passives = "bg3_passives";
     internal const string Companions = "bg3_companions";
     internal const string CampSupplies = "bg3_camp_supplies";
+    internal const string Classes = "bg3_classes";
     internal static IReadOnlyList<string> CatalogIds { get; } =
-        [Templates, Items, Equipment, Spells, Passives, Origins, Companions, CampSupplies];
+        [Templates, Items, Equipment, Spells, Passives, Origins, Companions, CampSupplies, Classes];
     // The native build is not supplied. Never choose build-specific data by guessing a version.
     private readonly IReferenceCatalog? _templates = BuildAgnostic(context.Catalog(Templates));
     private readonly IReferenceCatalog? _origins = BuildAgnostic(context.Catalog(Origins));
@@ -30,6 +31,11 @@ internal sealed class Bg3References(IReferenceContext context)
         CatalogIds.Where(id => _catalogs.ContainsKey(id)).Select(id => _catalogs[id]).ToArray();
 
     internal IReferenceCatalog? Catalog(string id) => _catalogs.GetValueOrDefault(id);
+
+    internal ViewNode Icon(ReferenceRecord? record) =>
+        record?.AssetId is { } asset && context.AssetProvenance(asset) is { } provenance
+            ? new ImageNode(asset, $"{record.Name}. {record.AttributionText}. Icon: {provenance.Attribution.ToShortText()}")
+            : new TextNode("No reference icon");
 
     internal static FieldNode Describe(FieldNode field, ReferenceRecord? record, string rawId) => field with
     {
