@@ -1,0 +1,2 @@
+Synthetic companion file for the public e2e fixture.
+Preserve these bytes, including whitespace:   [ untouched ]

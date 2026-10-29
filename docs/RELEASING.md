@@ -50,6 +50,36 @@ Keep the checkout outside a sample tree when reproducing CI: SampleSaves can als
 hide such a directory. Workflow syntax is checked with [actionlint](https://github.com/rhysd/actionlint)
 on Linux; run `actionlint` locally after workflow edits too.
 
+### Built app browser smoke tests
+
+The Ubuntu-only `e2e` CI job runs alongside validation with a 12-minute limit. Chromium imports
+the committed synthetic fixtures through the bundled UI, edits a Generic JSON field, reviews its
+change and visible confidence/console warning, then verifies every exported payload byte. A second
+test undoes the edit and verifies the original bytes. No private samples or `SAVETOOLKIT_ARTIFACTS`
+are needed. Failures upload the Playwright HTML report with traces and screenshots.
+
+Build the Release API and UI before running locally (Node.js 24):
+
+```powershell
+$env:SAVETOOLKIT_E2E_SCRATCH = 'D:/Temp/saveeditor/test-scratch/e2e-smoke'
+New-Item -ItemType Directory -Force $env:SAVETOOLKIT_E2E_SCRATCH | Out-Null
+$env:TEMP = $env:TMP = $env:TMPDIR = $env:SAVETOOLKIT_E2E_SCRATCH
+$env:PLAYWRIGHT_BROWSERS_PATH = "$env:SAVETOOLKIT_E2E_SCRATCH/browsers"
+$env:npm_config_cache = "$env:SAVETOOLKIT_E2E_SCRATCH/npm-cache"
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj --configuration Release
+Push-Location web
+npm ci --no-audit --no-fund
+npm run build
+npx playwright install chromium
+npm run e2e
+Pop-Location
+```
+
+Playwright's `webServer` starts the real API with `--no-build` on a free loopback port and uses
+temporary workspace/reference-pack directories, removed after the run. Test output and the HTML
+report remain under scratch. `SAVETOOLKIT_E2E_SCRATCH` overrides the platform default (the D: path
+above on Windows, a directory under the system temp folder elsewhere).
+
 ## Build and check bundles locally
 
 ```powershell

@@ -1,0 +1,6 @@
+{
+  "coins" : 12345,
+	"player": "Synthetic \\ fixture \u0061 — no private save data",
+  "untouched" : { "exponent": 1.2300e+02, "flag": true, "nothing": null },
+  "items": [ 1,  2, 3 ]
+}
