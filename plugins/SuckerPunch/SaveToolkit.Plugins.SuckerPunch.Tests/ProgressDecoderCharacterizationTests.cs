@@ -28,7 +28,7 @@ public sealed class ProgressDecoderCharacterizationTests
         Assert.Equal("Medium", document.GetValue("progress/difficulty").AsString());
         if (hasTimer) Assert.Equal(PlaySeconds, document.GetValue("progress/play-seconds").AsDouble());
         else Assert.Throws<KeyNotFoundException>(() => document.GetValue("progress/play-seconds"));
-        Assert.Equal(save.Bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(save.Bytes, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Theory]
@@ -47,7 +47,7 @@ public sealed class ProgressDecoderCharacterizationTests
         Assert.Throws<KeyNotFoundException>(() => document.GetValue("progress/difficulty"));
         Assert.Throws<KeyNotFoundException>(() => document.GetValue("progress/play-seconds"));
         Assert.True(document.CanEdit);
-        Assert.Equal(save.Bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(save.Bytes, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Theory]

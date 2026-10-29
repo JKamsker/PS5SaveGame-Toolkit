@@ -26,7 +26,7 @@ public sealed class TsushimaTimerPreservationTests
         Assert.True(result.Succeeded);
         Assert.Equal(0, document.GetValue(TimerId).AsDouble());
         Assert.DoesNotContain(result.Changes, change => change.OldValue != change.NewValue);
-        Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(original, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Theory]
@@ -43,20 +43,20 @@ public sealed class TsushimaTimerPreservationTests
         session.BuildView();
 
         Assert.True(session.ApplyEdits([Incoming(123.25)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
-        var changed = Assert.Single(document.Serialize()).Content.ToArray();
+        var changed = SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
         Assert.NotEqual(original, changed);
         Assert.True(session.ApplyEdits([Incoming(0)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Empty(session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes);
-        Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(original, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         Assert.True(session.Undo().Ok);
-        Assert.Equal(changed, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(changed, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.IsDirty);
-        Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(original, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(changed, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(changed, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(original, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     private static IncomingEdit Incoming(double seconds) => new(TimerId, JsonSerializer.SerializeToElement(seconds));

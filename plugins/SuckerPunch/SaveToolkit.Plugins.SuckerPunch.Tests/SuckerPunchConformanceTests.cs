@@ -29,6 +29,30 @@ public sealed class SuckerPunchConformanceTests : PluginConformanceTests<SuckerP
                     _ = queryable.Query(collection.Id, new() { Limit = 1, IncludeEmpty = true });
         }
     }
+    [Fact]
+    public void CaptionSyntheticNoOpConformsForCompleteOwnedSet()
+        => AssertNoOpOutputs(CaptionTestData.File(CaptionTestData.Sfo()));
+
+    private void AssertNoOpOutputs(ISaveFile file)
+    {
+        using var document = Open(file);
+        var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var output in document.Serialize())
+        {
+            Assert.True(paths.Add(output.RelativePath), "Duplicate owned output.");
+            var original = ((ISaveSet)file.Directory.SaveSet).FindAnyFile(output.RelativePath);
+            Assert.NotNull(original);
+            Assert.Equal(original.ReadAllBytes(), output.Content.ToArray());
+        }
+        Assert.Contains(file.RelativePath, paths);
+        if (document is IAdditionalOutputOwner owner)
+        {
+            Assert.Equal(1 + owner.AdditionalOutputPaths.Count, paths.Count);
+            foreach (var declaration in owner.AdditionalOutputPaths)
+                Assert.Contains(file.Directory.FindAnyFile(declaration)!.RelativePath, paths);
+        }
+    }
+
     protected override int MaxFilesPerTitle => 32;
 
     protected override IReadOnlyList<ValueEdit> ChooseEdits(ISaveDocument document, IReadOnlyList<FieldNode> fields)

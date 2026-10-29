@@ -124,5 +124,5 @@ public sealed class TsushimaAmmoRestoreSampleTests
         Assert.Equal(file.ReadAllBytes(), Bytes(document));
     }
 
-    private static byte[] Bytes(ISaveDocument document) => Assert.Single(document.Serialize()).Content.ToArray();
+    private static byte[] Bytes(ISaveDocument document) => SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
 }

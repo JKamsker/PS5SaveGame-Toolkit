@@ -10,9 +10,9 @@ public sealed class SuckerPunchPlugin : IGamePlugin, ISaveDecoderProvider
 {
     public IReadOnlyList<ISaveDecoderHook> Decoders => [new SuckerPunchSaveDecoder()];
 
-    public PluginInfo Info { get; } = new("suckerpunch", "Ghost of Tsushima / Ghost of Yōtei", "0.9.0")
+    public PluginInfo Info { get; } = new("suckerpunch", "Ghost of Tsushima / Ghost of Yōtei", "0.10.0")
     {
-        Description = "Experimental Tsushima quantity/play-time and Yōtei existing-quantity editing, with evidence-qualified reference views.",
+        Description = "Experimental Tsushima manual caption/quantity/play-time and Yōtei existing-quantity editing, with evidence-qualified reference views.",
         Games =
         [
             new GameTitle("PPSA02225", "Ghost of Tsushima"),
@@ -34,6 +34,9 @@ public sealed class SuckerPunchPlugin : IGamePlugin, ISaveDecoderProvider
             "https://ghostfranchise.fandom.com/wiki/Shinto_Shrines?oldid=29432",
             "https://ghostfranchise.fandom.com/wiki/Arrows?oldid=31796",
             "https://www.powerpyx.com/ghost-of-tsushima-wiki-strategy-guide/",
+            "https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/SDK10-SFO-SUBSTRATE.md",
+            "https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/SYSTEM_OUTPUT_OWNERSHIP.md",
+            "https://github.com/RPCS3/rpcs3/blob/master/rpcs3/Loader/PSF.cpp",
             .. TsushimaAssetSources.Urls,
             .. YoteiViews.SourceUrls,
         ],

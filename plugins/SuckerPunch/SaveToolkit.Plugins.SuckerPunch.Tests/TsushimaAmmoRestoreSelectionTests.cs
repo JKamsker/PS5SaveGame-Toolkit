@@ -132,5 +132,5 @@ public sealed class TsushimaAmmoRestoreSelectionTests
     private static void ReduceBoth(ISaveDocument document) =>
         Assert.True(document.ApplyEdits([new(ArrowId, FieldValue.Of(0L)), new(FireId, FieldValue.Of(0L))]).Succeeded);
 
-    private static byte[] Bytes(ISaveDocument document) => Assert.Single(document.Serialize()).Content.ToArray();
+    private static byte[] Bytes(ISaveDocument document) => SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
 }

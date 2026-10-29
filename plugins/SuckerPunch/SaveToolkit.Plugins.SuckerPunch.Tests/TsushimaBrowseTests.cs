@@ -65,6 +65,6 @@ public sealed class TsushimaBrowseTests
         Assert.False(session.ApplyEdits([new IncomingEdit(field.ValueId, JsonSerializer.SerializeToElement(candidate.RawId))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         Assert.Equal(field.Value, document.GetValue(field.ValueId));
         Assert.Equal(state, session.State);
-        Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(file.ReadAllBytes(), SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 }

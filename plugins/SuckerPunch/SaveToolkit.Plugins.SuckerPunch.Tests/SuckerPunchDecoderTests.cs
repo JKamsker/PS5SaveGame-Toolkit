@@ -118,7 +118,7 @@ public sealed class SuckerPunchDecoderTests
         using var document = Open(file);
         Assert.True(document.ApplyEdits([new(ArrowId, FieldValue.Of(17L)),
             new("progress/play-seconds", FieldValue.Of(123.25))]).Succeeded);
-        var bytes = Assert.Single(document.Serialize()).Content.ToArray();
+        var bytes = SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
         var after = decoder.Decode(WithBytes(bytes), new DecodeLimits());
         var changed = before.Values.Zip(after.Values).Where(pair => pair.First.Value != pair.Second.Value)
             .Select(pair => pair.First.Path).Order(StringComparer.Ordinal).ToArray();

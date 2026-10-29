@@ -30,7 +30,7 @@ public sealed class TsushimaPlayTimeTests
             if (Word(original, 12) == 47)
             {
                 Assert.False(document.ApplyEdits([new(TimerId, FieldValue.Of(60.0))]).Succeeded);
-                Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+                Assert.Equal(original, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
                 continue;
             }
 
@@ -55,7 +55,7 @@ public sealed class TsushimaPlayTimeTests
             var offset = TimerOffset(original);
             BinaryPrimitives.WriteSingleLittleEndian(expected.AsSpan(offset), target);
             RepairChecksum(expected);
-            var output = Assert.Single(document.Serialize());
+            var output = SuckerPunchTestData.PrimaryOutput(document);
             Assert.Equal(file.RelativePath, output.RelativePath);
             var edited = output.Content.ToArray();
             Assert.Equal(expected, edited);
@@ -63,7 +63,7 @@ public sealed class TsushimaPlayTimeTests
             using var reopened = Open(WithBytes(edited));
             Assert.Equal(target, reopened.GetValue(TimerId).AsDouble());
             Assert.True(document.ApplyEdits([new(TimerId, before)]).Succeeded);
-            Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+            Assert.Equal(original, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
             editedCount++;
         }
 
@@ -84,7 +84,7 @@ public sealed class TsushimaPlayTimeTests
         var outcome = document.ApplyEdits([Edit(SuppliesId, 86), new(TimerId, FieldValue.Of(value))]);
         Assert.False(outcome.Succeeded);
         Assert.Empty(outcome.Changes);
-        Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(file.ReadAllBytes(), SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Fact]
@@ -96,13 +96,13 @@ public sealed class TsushimaPlayTimeTests
         foreach (var value in invalid)
         {
             Assert.False(document.ApplyEdits([new(TimerId, value)]).Succeeded);
-            Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+            Assert.Equal(file.ReadAllBytes(), SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         }
 
         foreach (var value in new[] { 0.0, ObservedMaximum })
         {
             Assert.True(document.ApplyEdits([new(TimerId, FieldValue.Of(value))]).Succeeded);
-            using var reopened = Open(WithBytes(Assert.Single(document.Serialize()).Content.ToArray()));
+            using var reopened = Open(WithBytes(SuckerPunchTestData.PrimaryOutput(document).Content.ToArray()));
             Assert.Equal(value, reopened.GetValue(TimerId).AsDouble());
         }
     }
@@ -118,15 +118,15 @@ public sealed class TsushimaPlayTimeTests
         var original = file.ReadAllBytes();
         Assert.True(session.ApplyEdits([new IncomingEdit(TimerId, JsonSerializer.SerializeToElement(123.25)),
             new IncomingEdit(SuppliesId, JsonSerializer.SerializeToElement("86"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
-        var edited = Assert.Single(document.Serialize()).Content.ToArray();
+        var edited = SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.CanUndo);
         Assert.Empty(session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes);
-        Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(original, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(edited, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(edited, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         Assert.True(session.Undo().Ok);
-        Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(original, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Fact]
@@ -141,7 +141,7 @@ public sealed class TsushimaPlayTimeTests
         Assert.Equal(originalSeconds, Assert.IsType<FloatSpec>(Timer(document).Spec).Max);
         Assert.True(document.ApplyEdits([new(TimerId, FieldValue.Of(0.0))]).Succeeded);
         Assert.True(document.ApplyEdits([new(TimerId, FieldValue.Of(originalSeconds))]).Succeeded);
-        Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(bytes, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Fact]
@@ -152,7 +152,7 @@ public sealed class TsushimaPlayTimeTests
         RepairChecksum(bytes);
         using var document = Open(WithBytes(bytes));
         Assert.False(document.ApplyEdits([new(TimerId, FieldValue.Of(60.0))]).Succeeded);
-        Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(bytes, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     private static FieldNode Timer(ISaveDocument document) => Assert.IsType<TabsNode>(document.BuildView()).Tabs[0].Children

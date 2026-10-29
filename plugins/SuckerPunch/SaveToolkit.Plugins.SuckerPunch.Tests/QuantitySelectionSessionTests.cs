@@ -85,5 +85,5 @@ public sealed class QuantitySelectionSessionTests
             : WriteAssertions.CountOffset(staged, name);
     }
 
-    private static byte[] Bytes(ISaveDocument document) => Assert.Single(document.Serialize()).Content.ToArray();
+    private static byte[] Bytes(ISaveDocument document) => SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
 }
