@@ -5,6 +5,7 @@ import type { ReferenceCandidate, ReferenceCandidatePage, ReferenceDatasetInfo }
 import { DocumentContext, DocumentStore, type DocumentContextValue } from "../../../state/documentStore";
 import { field, renderTable, stubViewport, table } from "../../document/table/tableTestUtils";
 import { FieldRow } from "../FieldRow";
+import { installDialogStub } from "../../../test/dialog";
 
 const dataset: ReferenceDatasetInfo = {
   packId: "test", id: "items", kind: "Records", itemCount: 2,
@@ -22,6 +23,7 @@ const sword: ReferenceCandidate = {
 const unknown = (rawId: string, selectable = false): ReferenceCandidate => ({ rawId, eligibility: { available: true, eligible: selectable, selectable, reasons: ["Id absent from catalog"] } });
 const page = (items = [potion, sword]): ReferenceCandidatePage => ({ catalogId: "items", items, total: items.length, offset: 0, limit: 30, categories: ["consumable", "weapon"], sortKeys: ["Key", "Name", "Category"], revision: 0 });
 const node = field("item/id", { kind: "reference", catalogId: "items" }, "9999", { label: "Item" });
+let restoreDialog: () => void;
 
 function renderField(options: { readOnly?: boolean; canEdit?: boolean; custom?: boolean } = {}) {
   const commit = vi.fn(async () => true);
@@ -36,13 +38,13 @@ function renderField(options: { readOnly?: boolean; canEdit?: boolean; custom?: 
 }
 
 beforeEach(() => {
-  Object.defineProperty(HTMLDialogElement.prototype, "showModal", { configurable: true, value: function (this: HTMLDialogElement) { this.setAttribute("open", ""); } });
+  restoreDialog = installDialogStub({ methods: ["showModal"] });
   vi.spyOn(api, "referenceCandidates").mockResolvedValue(page());
   vi.spyOn(api, "referenceCandidate").mockImplementation(async (_w, _d, query) => query.rawId === "1001" ? potion : unknown(query.rawId));
   vi.spyOn(api, "referenceRecords").mockImplementation(async (_w, _d, pairs, revision) => ({ revision: revision ?? 0,
     results: pairs.map(pair => ({ ...pair, status: 200, candidate: pair.recordKey === "1001" ? potion : unknown(pair.recordKey) })) }));
 });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.useRealTimers(); Reflect.deleteProperty(HTMLDialogElement.prototype, "showModal"); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.useRealTimers(); restoreDialog(); });
 
 // Exercise the picker's 180 ms debounce without spending wall time on each query.
 async function flushCandidateSearch(milliseconds = 180) {
@@ -58,7 +60,7 @@ async function openPicker() {
   return await screen.findByRole("option", { name: /Potion/ });
 }
 
-describe("reference field picker", () => {
+describe("reference picker drafts and focus", () => {
   it("keeps an open picker's raw draft across document refreshes", async () => {
     vi.useFakeTimers();
     const context = renderField();
@@ -93,6 +95,9 @@ describe("reference field picker", () => {
     expect(document.activeElement).toBe(screen.getByRole("button", { name: /^Item/ }));
   });
 
+});
+
+describe("reference picker eligibility and queries", () => {
   it("previews disabled choices and explains eligibility without committing", async () => {
     const context = renderField();
     await openPicker();
@@ -125,6 +130,9 @@ describe("reference field picker", () => {
     expect(api.referenceCandidates).toHaveBeenCalledTimes(5);
   });
 
+});
+
+describe("reference picker raw IDs and rejected writes", () => {
   it("previews custom exact ids without changing them, and only commits after confirmation", async () => {
     vi.mocked(api.referenceCandidate).mockImplementation(async (_w, _d, query) => unknown(query.rawId, true));
     const context = renderField({ custom: true });
@@ -162,6 +170,9 @@ describe("reference field picker", () => {
     await waitFor(() => expect(context.commit).toHaveBeenCalledWith("item/id", "1001"));
   });
 
+});
+
+describe("reference picker search and stale recovery", () => {
   it("ignores late results from an older search", async () => {
     vi.useFakeTimers();
     let resolveOld!: (result: ReferenceCandidatePage) => void;
@@ -206,6 +217,9 @@ describe("reference field picker", () => {
     expect(context.refresh).toHaveBeenCalledOnce();
   });
 
+});
+
+describe("reference picker raw request lifetime and cancellation", () => {
   it.each(["success", "failure"])("ignores obsolete raw lookup %s after the document revision changes", async outcome => {
     vi.useFakeTimers();
     let finish!: (candidate: ReferenceCandidate) => void;
@@ -239,6 +253,9 @@ describe("reference field picker", () => {
     expect(document.activeElement).toBe(screen.getByRole("button", { name: /^Item/ }));
   });
 
+});
+
+describe("reference picker browsing and sorting", () => {
   it.each([{ readOnly: true }, { canEdit: false }])("browses read-only details and attribution without a commit path (%j)", async (options) => {
     const context = renderField(options);
     await openPicker();
@@ -279,6 +296,9 @@ describe("reference field picker", () => {
     expect(screen.getByRole("option", { name: /Potion/ })).toBeTruthy();
   });
 
+});
+
+describe("reference picker table cells", () => {
   it("offers browse-only mode inside a read-only table", async () => {
     const restore = stubViewport();
     try {

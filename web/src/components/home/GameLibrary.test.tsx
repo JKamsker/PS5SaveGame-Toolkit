@@ -54,3 +54,16 @@ it("names and announces game import progress, then reports failures", async () =
   expect(screen.getByRole("alert").textContent).toBe("The import failed.");
   client.clear();
 });
+
+it("imports a game again after its remembered workspace disappears", async () => {
+  const { update, client } = setup();
+  update({ status: "ready", games: [game] });
+  vi.spyOn(libraryStore.library, "importedWorkspace").mockReturnValue("gone");
+  vi.spyOn(api, "workspace").mockRejectedValue(new Error("Gone"));
+  const upload = vi.spyOn(api, "upload").mockResolvedValue({ id: "fresh", name: "Dump", titles: [], documents: [], createdAt: "2026-10-29" });
+  const remember = vi.spyOn(libraryStore.library, "rememberImport").mockImplementation(() => {});
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: /Fixture game/ })); });
+  expect(upload).toHaveBeenCalledWith(game.sources, "Fixture game", expect.any(Function));
+  expect(remember).toHaveBeenCalledExactlyOnceWith("fixture", "fresh");
+  client.clear();
+});

@@ -1,164 +1,17 @@
-import { useId, useMemo, useState } from "react";
-import { actionReview, reviewValue, type ActionPreview, type ActionScope } from "../../../api/actionReview";
-import type { ActionNode, FieldValue } from "../../../api/protocol";
-import { useDocument, useDocumentState } from "../../../state/documentStore";
-import { FieldControl } from "../../fields/FieldControl";
-import { useActionSelection } from "../table/selectionBindings";
-import { ReviewPager, useReviewPage } from "./paging";
-import { useActionDialog } from "../../ui/useActionDialog";
-import { useAsyncTask } from "../../ui/useAsyncTask";
+import type { ActionNode } from "../../../api/protocol";
+import { PlannedActionDialog } from "./PlannedActionDialog";
+import { usePlannedAction } from "./usePlannedAction";
 import "./review.css";
 
 export function PlannedActionButton({ node, compact, ariaLabel }: { node: ActionNode; compact?: boolean; ariaLabel?: string }) {
-  const doc = useDocument();
-  const { state } = useDocumentState(doc.store);
-  const binding = useActionSelection(node.selectionTableId);
-  const selection = binding.selection;
-  const documentScope = node.selectionTableId != null && selection?.count === 0 && !selection.queryScope;
-  const id = useId();
-  const parameters = useMemo(() => (node.parameters ?? []).map(parameter => ({
-    ...parameter, spec: { ...parameter.spec, readOnly: false },
-  })), [node.parameters]);
-  const [values, setValues] = useState<Record<string, FieldValue>>(() => Object.fromEntries(parameters.map(p => [p.valueId, p.value])));
-  const [preview, setPreview] = useState<ActionPreview | null>(null);
-  const { busy, run: submit } = useAsyncTask(node.actionId);
-  const { dialog, heading, trigger, openDialog, closeDialog, onClose, focusHeading, requestFocus } = useActionDialog(busy);
-  const [error, setError] = useState("");
-  const [parameterErrors, setParameterErrors] = useState<Record<string, string | undefined>>({});
-  const [formVersion, setFormVersion] = useState(0);
-  const invalid = Object.values(parameterErrors).some(Boolean);
-  const queryScope = selection?.queryScope;
-  const scope: ActionScope = queryScope ? { queryScope: {
-    collectionId: queryScope.collectionId,
-    query: { text: queryScope.query.q, filters: queryScope.query.filters, sortColumn: queryScope.query.sort, descending: queryScope.query.descending, includeEmpty: queryScope.query.includeEmpty },
-    revision: queryScope.revision,
-    excludedRowKeys: queryScope.excludedRowKeys,
-  } } : selection && !documentScope ? { rowKeys: [...selection.selectedKeys] } : {};
-  const scopeKey = JSON.stringify(scope);
-  const [previewScope, setPreviewScope] = useState("");
-  const changesPage = useReviewPage(preview?.plan.changes ?? []);
-  const skippedPage = useReviewPage(preview?.plan.skippedRows ?? []);
-  const selectedCount = preview?.scope.rowKeys?.length ?? (documentScope ? undefined : selection?.count);
-  const scopeLabel = selectedCount === undefined ? "Whole document" : `${selectedCount} selected ${selectedCount === 1 ? "row" : "rows"}`;
-  const stale = Boolean(preview && (preview.revision !== state.revision || previewScope !== scopeKey));
-
-  const plan = (params = values) => submit(async isCurrent => {
-    if (invalid || binding.unavailable) return;
-    focusHeading();
-    setError("");
-    setPreview(null);
-    setParameterErrors({});
-    try {
-      const result = await actionReview.plan(doc.workspaceId, doc.documentId, node.actionId, params, scope, doc.store.state.revision);
-      if (!isCurrent()) return;
-      setPreview(result);
-      setPreviewScope(scopeKey);
-      if (result.stale) await doc.refresh();
-      if (!isCurrent()) return;
-      requestFocus(result.plan.errors.length ? "error" : "heading");
-    } catch (failure) {
-      if (!isCurrent()) return;
-      setError(failure instanceof Error ? failure.message : "Could not preview this action.");
-      requestFocus("error");
-    }
-  });
-
-  const apply = () => submit(async isCurrent => {
-    if (!preview?.planId || stale || binding.unavailable) return;
-    focusHeading();
-    setError("");
-    try {
-      const result = await doc.mutate(() => actionReview.apply(doc.workspaceId, doc.documentId, preview.planId!, preview.revision));
-      if (!isCurrent()) return;
-      if (result.ok) closeDialog();
-      else {
-        setPreview(null);
-        setError(result.errors.map(e => e.message).join(" ") || "Apply failed. Preview the action again.");
-        requestFocus("error");
-      }
-    } catch (failure) {
-      if (!isCurrent()) return;
-      setPreview(null);
-      setError(failure instanceof Error ? failure.message : "Could not apply this action.");
-      requestFocus("error");
-    }
-  });
-
-  const open = () => {
-    const defaults = Object.fromEntries(parameters.map(p => [p.valueId, p.value]));
-    setValues(defaults);
-    setParameterErrors({});
-    setFormVersion(previous => previous + 1);
-    setError("");
-    setPreview(null);
-    openDialog();
-    if (!parameters.length) void plan(defaults);
-  };
-
+  const action = usePlannedAction(node);
+  const { trigger, id, busy, binding, open } = action;
   return <div className={compact ? "action action--compact" : "action"}>
     <button ref={trigger} type="button" className={`btn${compact ? " btn--small" : ""}${node.tone === "Danger" ? " btn--danger" : ""}`} aria-label={ariaLabel} aria-describedby={node.selectionTableId != null ? `${id}-selection` : undefined} title={compact ? node.description : undefined} disabled={busy || binding.unavailable} onClick={open}>{node.label}</button>
     {node.selectionTableId != null && <span id={`${id}-selection`} className="action__description">{binding.unavailable
       ? `Selection table ${binding.title} is unavailable or ambiguous. Open the table to use this action.`
       : `Applies to ${binding.title}. With no selection, applies to the whole document.`}</span>}
     {node.description && !compact && <span className="action__description">{node.description}</span>}
-    <dialog ref={dialog} className="dialog review-dialog" aria-labelledby={`${id}-title`} onClose={onClose}>
-      <form onSubmit={event => { event.preventDefault(); if (!busy && !invalid) void (preview?.planId && !stale ? apply() : plan()); }}>
-        <div className="dialog__body">
-          <h2 ref={heading} tabIndex={-1} id={`${id}-title`} className="dialog__title">Preview: {node.label}</h2>
-          <p>{scopeLabel}</p>
-          {node.confirm && <p className="notice notice--Warning">{node.confirm}</p>}
-          {!preview && parameters.map(p => {
-            const value = values[p.valueId];
-            return (
-              <div className="field" key={`${formVersion}-${p.valueId}`}>
-                <label className="field__label" id={`${id}-${p.valueId}-label`} htmlFor={`${id}-${p.valueId}`}>{p.label}</label>
-                <FieldControl
-                  id={`${id}-${p.valueId}`}
-                  labelledBy={`${id}-${p.valueId}-label`}
-                  describedBy={[parameterErrors[p.valueId] && `${id}-${p.valueId}-error`, p.description && `${id}-${p.valueId}-description`].filter(Boolean).join(" ") || undefined}
-                  valueId={p.valueId}
-                  actionId={node.actionId}
-                  spec={p.spec}
-                  value={value === undefined ? p.value : value}
-                  disabled={busy}
-                  invalid={Boolean(parameterErrors[p.valueId])}
-                  onLocalError={message => setParameterErrors(previous => ({ ...previous, [p.valueId]: message }))}
-                  onCommit={next => {
-                    setValues(previous => ({ ...previous, [p.valueId]: next }));
-                    return true;
-                  }}
-                />
-                {parameterErrors[p.valueId] && <span id={`${id}-${p.valueId}-error`} className="field__error" role="alert">{parameterErrors[p.valueId]}</span>}
-                {p.description && <span id={`${id}-${p.valueId}-description`} className="field__description">{p.description}</span>}
-              </div>
-            );
-          })}
-          <p role="status" aria-atomic="true">{busy ? "Working…" : preview ? `${preview.plan.changes.length} field changes · ${preview.plan.skippedRows.length} skipped rows · one undo step` : ""}</p>
-          {error && <p role="alert" tabIndex={-1} className="notice notice--Danger">{error}</p>}
-          {stale && <p role="alert">The document or selection changed. Preview again before applying.</p>}
-          {preview && <>
-            {preview.plan.errors.map((e, i) => <p role="alert" tabIndex={-1} key={i}>{e.valueId}: {e.message}</p>)}
-            {preview.plan.warnings.map((warning, i) => <p className="notice notice--Warning" key={i}>{warning}</p>)}
-            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Keyboard users must be able to scroll the preview table. */}
-            <div className="review-scroll" role="region" aria-label="Preview changes" tabIndex={0}><table className="review-table" aria-label="Preview changes">
-              <thead><tr><th>Field</th><th>Before</th><th>After</th></tr></thead>
-              <tbody>{changesPage.items.map((change, i) => <tr key={i}>
-                <th scope="row">{change.label}{change.derived && <small> (derived)</small>}</th>
-                <td>{reviewValue(change.oldValue, change.oldExists)}</td><td>{reviewValue(change.newValue, change.newExists)}</td>
-              </tr>)}</tbody>
-            </table></div>
-            <ReviewPager {...changesPage} label="Preview changes pages" />
-            {preview.plan.skippedRows.length > 0 && <details><summary>Skipped rows</summary><ul>{skippedPage.items.map((row, i) => <li key={i}>{row.rowKey}: {row.reason}</li>)}</ul><ReviewPager {...skippedPage} label="Skipped rows pages" /></details>}
-          </>}
-        </div>
-        <div className="dialog__footer">
-          <button type="button" className="btn btn--quiet" disabled={busy} onClick={closeDialog}>Cancel</button>
-          {preview && <button type="button" className="btn" disabled={busy} onClick={() => { setPreview(null); setError(""); requestFocus("parameters"); }}>Change parameters</button>}
-          <button type="submit" className={`btn ${node.tone === "Danger" ? "btn--danger" : "btn--primary"}`} disabled={busy || invalid || binding.unavailable || Boolean(preview?.planId && !stale && !doc.canEdit)}>
-            {preview?.planId && !stale ? "Apply" : "Preview"}
-          </button>
-        </div>
-      </form>
-    </dialog>
+    <PlannedActionDialog node={node} action={action} />
   </div>;
 }

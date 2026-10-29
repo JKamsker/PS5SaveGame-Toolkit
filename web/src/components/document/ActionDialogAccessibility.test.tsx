@@ -1,3 +1,4 @@
+import { installDialogStub } from "../../test/dialog";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { actionReview, type ActionPreview } from "../../api/actionReview";
@@ -13,18 +14,9 @@ const preview: ActionPreview = { revision: 1, planId: "plan", scope: {}, plan: {
 const result: EditResult = { ok: true, errors: [], changes: [], warnings: [], structureChanged: false,
   state: { canUndo: true, canRedo: false, isDirty: true, revision: 2 } };
 
-beforeEach(() => {
-  Object.defineProperty(HTMLDialogElement.prototype, "showModal", { configurable: true, value: function (this: HTMLDialogElement) { this.open = true; } });
-  Object.defineProperty(HTMLDialogElement.prototype, "close", { configurable: true, value: function (this: HTMLDialogElement) {
-    this.open = false;
-    this.dispatchEvent(new Event("close"));
-  } });
-});
-afterEach(() => {
-  cleanup(); vi.restoreAllMocks();
-  Reflect.deleteProperty(HTMLDialogElement.prototype, "showModal");
-  Reflect.deleteProperty(HTMLDialogElement.prototype, "close");
-});
+let restoreDialog = () => {};
+beforeEach(() => { restoreDialog = installDialogStub({ dispatchCloseEvent: true }); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); restoreDialog(); });
 
 function setup(supportsPlanning: boolean) {
   const runAction = vi.fn(async () => result);

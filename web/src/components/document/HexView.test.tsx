@@ -7,8 +7,10 @@ import { DocumentContext, DocumentStore, type DocumentContextValue } from "../..
 import { HexView } from "./HexView";
 
 vi.mock("@tanstack/react-virtual", () => ({ useVirtualizer: () => ({
-  getVirtualItems: () => [{ index: 0, key: 0, start: 0 }], getTotalSize: () => 22, scrollToIndex: vi.fn(),
+  getVirtualItems: () => [{ index: 0, key: 0, start: 0 }], getTotalSize: () => 22, scrollToIndex: (index: number, options: unknown) => scrollToIndex(index, options),
 }) }));
+
+const scrollToIndex = vi.fn();
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 function setup() {
@@ -72,4 +74,24 @@ describe("hex page lifecycle", () => {
     expect(api.blob).not.toHaveBeenCalledWith("w", "d", "empty", expect.anything(), expect.anything());
     client.clear();
   });
+});
+
+it("jumps to parsed offsets only on Enter and preserves hexadecimal and printable byte presentation", async () => {
+  vi.spyOn(api, "blob").mockResolvedValue(new Uint8Array([0x41, 0, 0x7f]));
+  const { client, rerender } = setup();
+  rerender({ type: "hex", blobId: "first", title: "Payload", length: 3 });
+  await screen.findByText("41 00 7f");
+  expect(screen.getByText("A··")).toBeTruthy();
+  expect(screen.getByRole("region", { name: "Payload hex dump" })).toBeTruthy();
+  const input = screen.getByRole("textbox", { name: "Go to offset" });
+  scrollToIndex.mockClear();
+  fireEvent.change(input, { target: { value: "0x20" } });
+  fireEvent.keyDown(input, { key: "ArrowDown" });
+  expect(scrollToIndex).not.toHaveBeenCalled();
+  fireEvent.keyDown(input, { key: "Enter" });
+  expect(scrollToIndex).toHaveBeenCalledExactlyOnceWith(2, { align: "start" });
+  fireEvent.change(input, { target: { value: "invalid" } });
+  fireEvent.keyDown(input, { key: "Enter" });
+  expect(scrollToIndex).toHaveBeenCalledOnce();
+  client.clear();
 });

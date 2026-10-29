@@ -1,10 +1,10 @@
 import { render } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { vi } from "vitest";
 import type { ReactNode } from "react";
 import type { ReferenceAttribution } from "../../../api/protocol";
 import type { GraphNode, MapNode } from "../../../api/spatial";
-import { DocumentContext, DocumentStore, type DocumentContextValue } from "../../../state/documentStore";
+import { DocumentContext } from "../../../state/documentStore";
+import { createDocumentFixture } from "../../../test/documentFixture";
 import { ReviewNavigationProvider } from "../review/navigation";
 
 const attribution: ReferenceAttribution = {
@@ -35,12 +35,7 @@ export const map: MapNode = {
 };
 
 export function renderSpatial(children: ReactNode) {
-  const store = new DocumentStore({ canUndo: false, canRedo: false, isDirty: false, revision: 0 });
-  const context: DocumentContextValue = { workspaceId: "w1", documentId: "d1", canEdit: true, store,
-    structureVersion: 0, refresh: vi.fn(async () => {}), commit: vi.fn(async () => true),
-    runAction: vi.fn(async () => ({ ok: true, errors: [], changes: [], warnings: [], structureChanged: false, state: store.state })), mutate: async call => { const result = await call(); await context.acceptResult(result); return result; },
-    acceptResult: vi.fn(async () => {}),
-  };
+  const { context } = createDocumentFixture({ acceptMutations: true, applyResults: false });
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return { context, ...render(<QueryClientProvider client={client}><DocumentContext.Provider value={context}>
     <ReviewNavigationProvider>{children}</ReviewNavigationProvider>

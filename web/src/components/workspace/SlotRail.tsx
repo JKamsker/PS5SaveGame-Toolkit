@@ -101,28 +101,34 @@ function Slot({ workspaceId, dir, expanded, dirty, activeFileId, onToggle, onOpe
         </span>
       </button>
       {expanded && (
-        <ul className="slot__files">
-          {dir.files.map((f) => {
-            const best = f.matches[0];
-            const isGame = best !== undefined && best.score > 1;
-            return (
-              <li key={f.id}>
-                <button type="button" className={`file${f.id === activeFileId ? " file--open" : ""}`} onClick={() => onOpen(f)}>
-                  <span style={{ minWidth: 0 }}>
-                    <span className="file__name mono" title={f.path} style={{ display: "block" }}>
-                      {f.path}
-                    </span>
-                    <span className={`file__plugin${isGame ? " file__plugin--game" : ""}`}>
-                      {best ? (best.label ? `${best.label}` : best.pluginName) : "No plugin"}
-                    </span>
-                  </span>
-                  <span className="file__size">{formatBytes(f.length)}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+        <SlotFiles files={dir.files} activeFileId={activeFileId} onOpen={onOpen} />
       )}
     </div>
+  );
+}
+
+function SlotFiles({ files, activeFileId, onOpen }: { files: SaveFileInfo[]; activeFileId: string | undefined; onOpen: (file: SaveFileInfo) => void }) {
+  return (
+    <ul className="slot__files">
+      {files.map((f) => {
+        const best = f.matches[0];
+        const isGame = best !== undefined && best.score > 1;
+        return (
+          <li key={f.id}>
+            <button type="button" className={`file${f.id === activeFileId ? " file--open" : ""}`} onClick={() => onOpen(f)}>
+              <span style={{ minWidth: 0 }}>
+                <span className="file__name mono" title={f.path} style={{ display: "block" }}>
+                  {f.path}
+                </span>
+                <span className={`file__plugin${isGame ? " file__plugin--game" : ""}`}>
+                  {best ? (best.label ? `${best.label}` : best.pluginName) : "No plugin"}
+                </span>
+              </span>
+              <span className="file__size">{formatBytes(f.length)}</span>
+            </button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

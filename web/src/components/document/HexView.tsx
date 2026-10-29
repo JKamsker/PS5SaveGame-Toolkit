@@ -38,20 +38,7 @@ export function HexView({ node }: { node: HexNode }) {
 
   return (
     <div className="hex">
-      <div className="hex__head">
-        <strong>{node.title ?? "Bytes"}</strong>
-        <span className="file__size">{formatBytes(node.length)}</span>
-        <input
-          className="hex__jump mono"
-          placeholder="Go to 0x…"
-          aria-label="Go to offset"
-          onKeyDown={(e) => {
-            if (e.key !== "Enter") return;
-            const target = parseInteger(e.currentTarget.value);
-            if (target !== null) virtualizer.scrollToIndex(Math.floor(Number(target) / BYTES_PER_ROW), { align: "start" });
-          }}
-        />
-      </div>
+      <HexHeader node={node} onJump={index => virtualizer.scrollToIndex(index, { align: "start" })} />
       {pages.some(page => page.isPending) && <p role="status">Loading bytes…</p>}
       {failed.length > 0 && <div>
         <p role="alert">Could not load bytes: {failed[0]!.error?.message}</p>
@@ -73,6 +60,25 @@ export function HexView({ node }: { node: HexNode }) {
           })}
         </div>
       </div>
+    </div>
+  );
+}
+
+function HexHeader({ node, onJump }: { node: HexNode; onJump: (index: number) => void }) {
+  return (
+    <div className="hex__head">
+      <strong>{node.title ?? "Bytes"}</strong>
+      <span className="file__size">{formatBytes(node.length)}</span>
+      <input
+        className="hex__jump mono"
+        placeholder="Go to 0x…"
+        aria-label="Go to offset"
+        onKeyDown={(e) => {
+          if (e.key !== "Enter") return;
+          const target = parseInteger(e.currentTarget.value);
+          if (target !== null) onJump(Math.floor(Number(target) / BYTES_PER_ROW));
+        }}
+      />
     </div>
   );
 }

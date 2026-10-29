@@ -79,6 +79,20 @@ it("does not publish a proposal after unmount", async () => {
   client.clear();
 });
 
+it("updates group-offer and close eligibility when the document becomes dirty", async () => {
+  vi.spyOn(groupApi, "propose").mockResolvedValue([offer]);
+  const { client, store } = setup();
+  fireEvent.click(screen.getByRole("button", { name: "Choose related files" }));
+  const open = await screen.findByRole<HTMLButtonElement>("button", { name: "Open group" });
+  expect(open.disabled).toBe(false);
+  act(() => store.apply({ ok: true, errors: [], warnings: [], changes: [], structureChanged: false,
+    state: { ...store.state, isDirty: true, revision: 1 } }));
+  expect(open.disabled).toBe(true);
+  expect(screen.getByRole<HTMLButtonElement>("button", { name: "Close document" }).disabled).toBe(true);
+  expect(screen.getByText("Undo this document’s edits before opening a group.").getAttribute("role")).toBe("status");
+  client.clear();
+});
+
 describe("document groups", () => {
   it("shows explicit partner paths and only opens the selected proposal after confirmation", async () => {
     const propose = vi.spyOn(groupApi, "propose").mockResolvedValue([offer]);

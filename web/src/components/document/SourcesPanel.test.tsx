@@ -68,6 +68,18 @@ it("suppresses reference-pack import errors after leaving the document", async (
   expect(toast).not.toHaveBeenCalled();
 });
 
+it("ignores an empty reference-pack choice while resetting the file input", async () => {
+  vi.spyOn(api, "sources").mockResolvedValue({ datasets: [] });
+  const upload = vi.spyOn(api, "importReferencePack");
+  const { toast } = renderPanel();
+  const input = screen.getByLabelText<HTMLInputElement>("Import reference pack…");
+  const reset = vi.spyOn(input, "value", "set");
+  await act(async () => { fireEvent.change(input, { target: { files: [] } }); });
+  expect(reset).toHaveBeenCalledExactlyOnceWith("");
+  expect(upload).not.toHaveBeenCalled();
+  expect(toast).not.toHaveBeenCalled();
+});
+
 describe("SourcesList", () => {
   it("shows full attribution with licence and source links for datasets in use", () => {
     render(<SourcesList datasets={[source({})]} pluginReferences={[]} />);

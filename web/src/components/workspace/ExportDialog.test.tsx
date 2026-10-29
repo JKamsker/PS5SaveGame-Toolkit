@@ -80,3 +80,20 @@ describe("export plan freshness", () => {
     client.clear();
   });
 });
+
+it("preserves scope and mirror choices across openings and permits an unchanged whole dump", async () => {
+  vi.spyOn(api, "exportPlan").mockResolvedValue(empty);
+  const { client, show } = setup();
+  await screen.findByText("Nothing has been changed yet.");
+  const download = screen.getByRole<HTMLButtonElement>("button", { name: "Download zip" });
+  expect(download.disabled).toBe(true);
+  fireEvent.click(screen.getByRole("radio", { name: /Whole dump/ }));
+  fireEvent.click(screen.getByRole("checkbox", { name: /Also update/ }));
+  await waitFor(() => expect(download.disabled).toBe(false));
+  show(false);
+  show(true);
+  await waitFor(() => expect(vi.mocked(api.exportPlan).mock.lastCall).toEqual(["w", "Everything", false]));
+  expect(screen.getByRole<HTMLInputElement>("radio", { name: /Whole dump/ }).checked).toBe(true);
+  expect(screen.getByRole<HTMLInputElement>("checkbox", { name: /Also update/ }).checked).toBe(false);
+  client.clear();
+});

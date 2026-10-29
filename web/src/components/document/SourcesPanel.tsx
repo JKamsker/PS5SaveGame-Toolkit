@@ -21,7 +21,7 @@ interface SourcesPanelProps {
  */
 export function SourcesPanel({ workspaceId, documentId, pluginReferences, refreshKey, onToast }: SourcesPanelProps) {
   const [open, setOpen] = useState(false);
-  const { busy, run: submit } = useAsyncTask(`${workspaceId}:${documentId}`);
+  const { busy, importPack } = usePackImport(workspaceId, documentId, onToast);
   const panelId = useId();
   const query = useQuery({
     queryKey: ["sources", workspaceId, documentId, refreshKey],
@@ -34,20 +34,6 @@ export function SourcesPanel({ workspaceId, documentId, pluginReferences, refres
   }, [open, refetch]);
 
   const used = query.data?.datasets.filter((d) => d.used) ?? [];
-  const importPack = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-    await submit(async isCurrent => {
-    try {
-      const pack = await api.importReferencePack(file);
-      if (isCurrent()) onToast(`Imported “${pack.title}”. Re-open the document to use it.`);
-    } catch (error) {
-      if (isCurrent()) onToast(error instanceof ApiError ? error.message : "The pack could not be imported.", true);
-    }
-    });
-  };
-
   return (
     <section className="sources">
       <button type="button" className="sources__toggle" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen((o) => !o)}>
@@ -72,6 +58,24 @@ export function SourcesPanel({ workspaceId, documentId, pluginReferences, refres
       )}
     </section>
   );
+}
+
+function usePackImport(workspaceId: string, documentId: string, onToast: SourcesPanelProps["onToast"]) {
+  const { busy, run: submit } = useAsyncTask(`${workspaceId}:${documentId}`);
+  const importPack = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    await submit(async isCurrent => {
+      try {
+        const pack = await api.importReferencePack(file);
+        if (isCurrent()) onToast(`Imported “${pack.title}”. Re-open the document to use it.`);
+      } catch (error) {
+        if (isCurrent()) onToast(error instanceof ApiError ? error.message : "The pack could not be imported.", true);
+      }
+    });
+  };
+  return { busy, importPack };
 }
 
 interface SourcesListProps {

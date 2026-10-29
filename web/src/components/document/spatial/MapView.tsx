@@ -1,13 +1,10 @@
 import { useState } from "react";
-import { api } from "../../../api/client";
 import type { MapMarker, MapNode } from "../../../api/spatial";
 import { useDocument } from "../../../state/documentStore";
-import { SpatialCanvas } from "./SpatialCanvas";
-import { Attribution, ExternalLink, JumpButton, MAX_SPATIAL_ITEMS, SpatialFilters, TextAlternative } from "./SpatialShared";
+import { MapDiagram } from "./MapDiagram";
+import { ExternalLink, JumpButton, MAX_SPATIAL_ITEMS, SpatialFilters, TextAlternative } from "./SpatialShared";
 
 const STATUSES = ["Found", "Missing", "Unknown"] as const;
-const MAP_WIDTH = 1000;
-const MAP_HEIGHT = 700;
 const PACK_ASSET = /^[a-z0-9][a-z0-9._-]{0,63}:[A-Za-z0-9_][A-Za-z0-9._-]*(\/[A-Za-z0-9_][A-Za-z0-9._-]*)*$/;
 
 export function MapView({ node }: { node: MapNode }) {
@@ -51,26 +48,9 @@ function BoundedMap({ node }: { node: MapNode }) {
     <p className="spatial-legend">{STATUSES.map(state => <span key={state} className={`spatial-state spatial-state--${state}`}>{state}</span>)}
       <span>Categories: {groups.join(", ") || "None"}</span></p>
     <p role="status">{markers.length} of {node.markers.length} locations shown.</p>
-    {hasDiagram ? <>
-      <p>Coordinate space: {node.coordinateSpace}. Unpositioned locations remain in the text list.</p>
-      <SpatialCanvas label={node.title} width={MAP_WIDTH} height={MAP_HEIGHT}>
-        {canEmbed && failedAsset !== background.assetId && <img className="spatial-background" alt={background.alt}
-          src={api.referenceAssetUrl(workspaceId, documentId, background.assetId)} draggable={false}
-          onError={() => setFailedAsset(background.assetId)} />}
-        {markers.map(marker => {
-          const point = position(marker);
-          if (!point) return null;
-          return <button key={marker.id} type="button" className={`spatial-marker spatial-state--${marker.status}`}
-            style={{ left: `${point.x * 100}%`, top: `${point.y * 100}%` }} aria-pressed={selected === marker.id}
-            aria-label={`${marker.label}: ${marker.status}, ${marker.category}`} title={marker.label} onClick={() => setSelected(marker.id)}>
-            {marker.status === "Found" ? "✓" : marker.status === "Missing" ? "!" : "?"}
-          </button>;
-        })}
-      </SpatialCanvas>
-      {canEmbed && <Attribution source={background.attribution} />}
-      {failedAsset === background?.assetId && <p role="status">Background unavailable. The schematic and text list remain usable.</p>}
-      {node.coordinateAttribution && <Attribution source={node.coordinateAttribution} />}
-    </> : <p>No embedded map data. Use the source link and location list.</p>}
+    {hasDiagram ? <MapDiagram node={node} workspaceId={workspaceId} documentId={documentId} markers={markers}
+      selected={selected} onSelect={setSelected} position={position} canEmbed={Boolean(canEmbed)}
+      failedAsset={failedAsset} onAssetFailure={setFailedAsset} /> : <p>No embedded map data. Use the source link and location list.</p>}
     {background && !canEmbed && <p role="alert">Background unavailable: an embedding permission and a local pack asset are required.</p>}
     {selectedMarker && <aside className="spatial-detail" aria-label={`Selected location: ${selectedMarker.label}`}>
       <h4>{selectedMarker.label}</h4><MarkerText marker={selectedMarker} showPosition={Boolean(canPosition)} coordinateSpace={node.coordinateSpace} />
