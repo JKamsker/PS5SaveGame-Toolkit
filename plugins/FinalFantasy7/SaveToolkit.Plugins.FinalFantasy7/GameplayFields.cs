@@ -133,7 +133,7 @@ internal sealed class GameplayFields(byte[] bytes, Ff7Schema schema, ReferenceDa
     private ScalarField Define(string id, string label, int offset, IntegerSpec spec, bool signed = false,
         bool singleByte = false, bool editable = false, string? warning = null) =>
         new(id, label, offset, spec, editable ? Confidence.Inferred : MeaningConfidence, signed, singleByte,
-            JoinWarnings(schema.IsDemo ? DemoWarning : null, warning), editable);
+            JoinWarnings(warning, schema.IsDemo ? DemoWarning : null), editable);
 
     private ScalarField DefineReference(string id, string label, int offset, string catalogId) =>
         new(id, label, offset, new ReferenceSpec(catalogId) { ReadOnly = true }, MeaningConfidence,
