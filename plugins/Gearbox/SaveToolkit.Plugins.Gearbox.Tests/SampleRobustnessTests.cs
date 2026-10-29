@@ -23,7 +23,7 @@ public sealed class SampleRobustnessTests
             for (var length = 0; length < container.PayloadOffset; length++)
             {
                 var truncated = bytes[..length];
-                Assert.Throws<SaveFormatException>(() => plugin.Open(SampleFormatTests.Overlay(file, truncated)));
+                Assert.Throws<SaveFormatException>(() => plugin.Open(GearboxTestData.Overlay(file, truncated)));
             }
             var plain = BogoCrypt.Decode(bytes.AsSpan(container.PayloadOffset, container.PayloadLength), container.Profile);
             // Keep all expected game records and repair outer framing/encryption. Rejection must
@@ -32,7 +32,7 @@ public sealed class SampleRobustnessTests
                 [0x9B, 0x06], [0x9A, 0x06, 0x81, 0x80, 0x80, 0x80, 0x10, 0xAA] })
             {
                 var damaged = WithPayload(container, [.. plain, .. suffix]);
-                Assert.Throws<SaveFormatException>(() => plugin.Open(SampleFormatTests.Overlay(file, damaged)));
+                Assert.Throws<SaveFormatException>(() => plugin.Open(GearboxTestData.Overlay(file, damaged)));
             }
             using var document = plugin.Open(file);
             Assert.Equal(bytes, document.Serialize().Single().Content.ToArray());
@@ -54,7 +54,7 @@ public sealed class SampleRobustnessTests
             if (entry is null)
             {
                 var spec = root.Schema.Spec(root.Type, list);
-                if (root.Schema.IsMessage(spec.Type)) _ = WriteAtomicityTests.AddMessage(root, list);
+                if (root.Schema.IsMessage(spec.Type)) _ = GearboxTestData.AddMessage(root, list);
                 else root.Add(new ProtoField(root.Schema.Tag(root.Type, list), 2, spec, [], Array.Empty<byte>(), null));
                 entry = root.Last(list)!;
             }
@@ -66,7 +66,7 @@ public sealed class SampleRobustnessTests
             }
             else entry.Set(new byte[] { 4, 0, 0 });
             var damaged = container.Encode(root);
-            using var document = (GearboxDocument)plugin.Open(SampleFormatTests.Overlay(file, damaged));
+            using var document = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, damaged));
             _ = document.BuildView();
             var corrupt = document.Inventory.Entries.Single(e => e.Serial.AsSpan().SequenceEqual(new byte[] { 4, 0, 0 }));
             Assert.False(document.Inventory.Info(corrupt.Id).Complete);

@@ -35,7 +35,7 @@ public sealed class NewRecordTests
         Assert.Empty(preview.Plan.Errors);
         Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
         var edited = document.Serialize().Single().Content.ToArray();
-        using var reopened = (GearboxDocument)plugin.Open(SerialWriteTests.Overlay(file, edited));
+        using var reopened = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, edited));
         Assert.Equal(count + 1, reopened.Inventory.Entries.Count(entry => entry.List == GearboxInventory.Bank));
         Assert.Equal(serial, reopened.Inventory.Entries.Last(entry => entry.List == GearboxInventory.Bank).Serial);
         Assert.True(session.Undo().Ok);

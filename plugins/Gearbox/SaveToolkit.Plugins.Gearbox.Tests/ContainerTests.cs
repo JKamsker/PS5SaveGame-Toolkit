@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.Text;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 
@@ -16,7 +15,7 @@ public sealed class ContainerTests
     {
         var title = wonderlands ? "PPSA01493" : "PPSA01463";
         byte[] tail = [0xAA, 0xBB, 0xCC];
-        var bytes = Create(wonderlands, profile, true, tail);
+        var bytes = GearboxTestData.CreateContainer(wonderlands, profile, true, tail);
         var container = GearboxContainer.Parse(bytes, title, profile);
         var root = container.Decode();
         Assert.Equal(bytes, container.Encode(root));
@@ -33,7 +32,7 @@ public sealed class ContainerTests
     [Fact]
     public void HeaderLengthVersionTitleAndClassMismatches_AreRejected()
     {
-        var bytes = Create(false, false);
+        var bytes = GearboxTestData.CreateContainer(false, false);
         Assert.Throws<SaveFormatException>(() => GearboxContainer.Parse(bytes, "PPSA01494", false));
         Assert.Throws<SaveFormatException>(() => GearboxContainer.Parse(bytes, "PPSA01493", false));
         Assert.Throws<SaveFormatException>(() => GearboxContainer.Parse(bytes, "PPSA01463", true));
@@ -48,7 +47,7 @@ public sealed class ContainerTests
     [Fact]
     public void CloneRetainsNewRecordProvenance_AfterRejectedBatch()
     {
-        var container = GearboxContainer.Parse(Create(false, true), "PPSA01463", true);
+        var container = GearboxContainer.Parse(GearboxTestData.CreateContainer(false, true), "PPSA01463", true);
         using var document = new GearboxDocument("profile", "PPSA01463", container, container.Decode(), SaveToolkit.Sdk.References.IReferenceContext.Empty);
         _ = document.BuildView();
         Assert.True(document.ApplyEdits([new("keys/2420693941", FieldValue.Of(9L))]).Succeeded);
@@ -61,7 +60,7 @@ public sealed class ContainerTests
     [Fact]
     public void InvalidUnicodeAndOversizedNames_AreRejectedWithoutMutation()
     {
-        var container = GearboxContainer.Parse(Create(false, false), "PPSA01463", false);
+        var container = GearboxContainer.Parse(GearboxTestData.CreateContainer(false, false), "PPSA01463", false);
         using var document = new GearboxDocument("1", "PPSA01463", container, container.Decode(), SaveToolkit.Sdk.References.IReferenceContext.Empty);
         _ = document.BuildView();
         foreach (var name in new[] { "\uD800", "bad\nname", new string('a', 100) })
@@ -74,39 +73,4 @@ public sealed class ContainerTests
     [Fact]
     public void SingularMessageFragments_AreRejectedInsteadOfMisinterpreted() =>
         Assert.Throws<SaveFormatException>(() => ProtoMessage.Parse([0x22, 0, 0x22, 0], GearboxSchema.Bl3, "Character"));
-
-    internal static byte[] Create(bool wonderlands, bool profile, bool unicode = false, byte[]? tail = null)
-    {
-        using var stream = new MemoryStream();
-        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
-        writer.Write("GVAS"u8);
-        writer.Write(2);
-        writer.Write(516);
-        writer.Write((ushort)4);
-        writer.Write((ushort)20);
-        writer.Write((ushort)3);
-        writer.Write(1234);
-        WriteString(writer, wonderlands ? "DAFFODIL-test" : "OAK-test", unicode);
-        writer.Write(3);
-        writer.Write(1);
-        writer.Write(Enumerable.Range(0, 16).Select(n => (byte)n).ToArray());
-        writer.Write(99);
-        WriteString(writer, (wonderlands, profile) switch
-        {
-            (false, false) => "OakSaveGame", (false, true) => "BP_DefaultOakProfile_C",
-            (true, false) => "BPSaveGame_Default_C", (true, true) => "OakProfile",
-        }, unicode);
-        byte[] plain = profile ? [0x08, 0x01] : [0x22, 0x06, 0x0A, 0x04, 0x74, 0x65, 0x73, 0x74, 0x38, 0x00];
-        var ciphertext = BogoCrypt.Encode(plain, profile);
-        writer.Write(ciphertext.Length);
-        writer.Write(ciphertext);
-        writer.Write(tail ?? []);
-        return stream.ToArray();
-    }
-
-    private static void WriteString(BinaryWriter writer, string text, bool unicode)
-    {
-        writer.Write((text.Length + 1) * (unicode ? -1 : 1));
-        writer.Write((unicode ? Encoding.Unicode : Encoding.UTF8).GetBytes(text + '\0'));
-    }
 }

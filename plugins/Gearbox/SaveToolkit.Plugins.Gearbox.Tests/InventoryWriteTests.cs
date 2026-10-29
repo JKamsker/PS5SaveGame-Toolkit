@@ -30,7 +30,7 @@ public sealed class InventoryWriteTests
         Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
         var edited = document.Serialize().Single().Content.ToArray();
         Assert.False(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
-        using var reopened = (GearboxDocument)plugin.Open(SerialWriteTests.Overlay(file, edited));
+        using var reopened = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, edited));
         Assert.All(reopened.Inventory.Entries, entry => Assert.Equal(17, new SerialReader(title == "PPSA01493").Read(entry.Serial).Level));
         SerialWriteTests.AssertUnrelated(GearboxContainer.Parse(original, title, false).Decode(), reopened.Root, "inventory_items");
         Assert.True(session.Undo().Ok);
@@ -63,7 +63,7 @@ public sealed class InventoryWriteTests
         Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
         Assert.Equal(entries.Where(e => e.Id != remove.Id).Select(e => e.Id), document.Inventory.Entries.Select(e => e.Id));
         var removed = document.Serialize().Single().Content.ToArray();
-        using var reopened = (GearboxDocument)plugin.Open(SerialWriteTests.Overlay(file, removed));
+        using var reopened = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, removed));
         Assert.Equal(entries.Length - 1, reopened.Inventory.Entries.Count());
         Assert.Equal(entries.Where(e => e.Id != remove.Id).Select(e => Convert.ToHexString(e.Field.Encode())), reopened.Inventory.Entries.Select(e => Convert.ToHexString(e.Field.Encode())));
         SerialWriteTests.AssertUnrelated(GearboxContainer.Parse(original, title, false).Decode(), reopened.Root, "inventory_items", "equipped_inventory_list");
@@ -79,7 +79,7 @@ public sealed class InventoryWriteTests
             var newId = document.Inventory.Entries.Last().Id;
             Assert.DoesNotContain(newId, entries.Select(e => e.Id));
             Assert.Equal(supported.Serial, document.Inventory.Entries.Last().Serial);
-            using var added = (GearboxDocument)plugin.Open(SerialWriteTests.Overlay(file, created));
+            using var added = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, created));
             Assert.Equal(entries.Length, added.Inventory.Entries.Count());
             Assert.Equal(reopened.Inventory.Entries.Select(e => Convert.ToHexString(e.Field.Encode())), added.Inventory.Entries.Take(entries.Length - 1).Select(e => Convert.ToHexString(e.Field.Encode())));
             Assert.True(session.Undo().Ok);

@@ -36,6 +36,11 @@ public sealed class SerialPartTests
                     var changed = SerialParts.Set(entry.Serial, wonderlands, index, candidate);
                     var before = IndependentSerialProbe.Decode(entry.Serial);
                     var after = IndependentSerialProbe.Decode(changed); // independently checks folded CRC
+                    var bits = new ProbeBits(after);
+                    for (var bit = 0; bit < slot.Offset; bit++) _ = bits.Take(1);
+                    Assert.Equal(int.Parse(candidate.Split(':')[1], CultureInfo.InvariantCulture), bits.Take(slot.Width));
+                    Assert.NotEqual(entry.Serial, changed);
+                    Assert.Equal(candidate, SerialParts.Slot(new SerialReader(wonderlands).Read(changed), index).Key);
                     Assert.Equal(before.Length, after.Length);
                     Assert.Equal(entry.Serial[..5], changed[..5]);
                     for (var bit = 0; bit < before.Length * 8; bit++)
@@ -89,7 +94,7 @@ public sealed class SerialPartTests
         var before = document.Root.Clone();
         Assert.True(session.ApplyEdits([new(field.ValueId, JsonSerializer.SerializeToElement(candidate))]).Ok);
         var output = document.Serialize().Single().Content;
-        using var reopened = (GearboxDocument)plugin.Open(SerialWriteTests.Overlay(file, output));
+        using var reopened = (GearboxDocument)plugin.Open(GearboxTestData.Overlay(file, output));
         Assert.Equal(candidate, SerialParts.Slot(reopened.Inventory.Info(entry.Id), slotIndex).Key);
         SerialWriteTests.AssertUnrelated(before, reopened.Root, entry.List);
         Assert.NotSame(originalInfo, document.Inventory.Info(entry.Id));

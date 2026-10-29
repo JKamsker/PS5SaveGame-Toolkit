@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
@@ -8,9 +7,11 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Gearbox.Tests;
 
-public sealed class SampleFormatTests
+public sealed class SampleFormatTests(ITestOutputHelper output)
 {
     private readonly GearboxPlugin _plugin = new();
+    // Largest supplied character opens allocate about 20 MB after schema initialization.
+    private const long SampleOpenAllocationLimit = 32 * 1024 * 1024;
 
     [Theory]
     [InlineData("PPSA01463")]
@@ -20,11 +21,14 @@ public sealed class SampleFormatTests
         var files = Files(title).ToArray();
         Assert.Equal(12, files.Length);
         Assert.Equal(3, files.Select(f => f.Directory.Generation).Distinct().Count());
+        using (var warmup = _plugin.Open(files[0])) { }
         foreach (var file in files)
         {
-            var timer = Stopwatch.StartNew();
+            var before = GC.GetAllocatedBytesForCurrentThread();
             using var document = _plugin.Open(file);
-            Assert.True(timer.Elapsed < TimeSpan.FromSeconds(2), "Opening a supplied Gearbox sample exceeded two seconds.");
+            var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            output.WriteLine($"{file.RelativePath}: open allocated {allocated:N0} bytes.");
+            Assert.True(allocated < SampleOpenAllocationLimit, $"Opening {file.RelativePath} allocated {allocated:N0} bytes.");
             Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());
             var twin = files.Single(f => f.Directory.Generation == file.Directory.Generation && f.FileName == file.FileName
                 && f.Directory.IsBackup != file.Directory.IsBackup);
@@ -64,7 +68,7 @@ public sealed class SampleFormatTests
                 ? [new("keys/2420693941", FieldValue.Of(11L))]
                 : [new("currency/618814354", FieldValue.Of(123_456_789L)), new("character/level", FieldValue.Of(20L))];
             Assert.True(document.ApplyEdits(edits).Succeeded);
-            using var reopened = _plugin.Open(Overlay(file, document.Serialize().Single().Content));
+            using var reopened = _plugin.Open(GearboxTestData.Overlay(file, document.Serialize().Single().Content));
             _ = reopened.BuildView();
             foreach (var edit in edits) Assert.Equal(edit.Value, reopened.GetValue(edit.ValueId));
             if (!profile)
@@ -128,7 +132,7 @@ public sealed class SampleFormatTests
             if (i == 3) b[container.PayloadOffset] ^= 0xFF;
             return b;
         }))
-            Assert.Throws<SaveFormatException>(() => _plugin.Open(Overlay(file, bytes)));
+            Assert.Throws<SaveFormatException>(() => _plugin.Open(GearboxTestData.Overlay(file, bytes)));
     }
 
     [Fact]
@@ -176,6 +180,4 @@ public sealed class SampleFormatTests
 
     private IEnumerable<DiskSaveFile> Files(string title) => SampleSaves.Load(title).AllDiskFiles.Where(f => _plugin.Probe(f).IsMatch);
     private DiskSaveFile Character(string title, int generation) => Files(title).Single(f => !f.Directory.IsBackup && f.Directory.Generation == generation && f.FileName == "1");
-    internal static ISaveFile Overlay(ISaveFile file, ReadOnlyMemory<byte> bytes) => ((ISaveSet)new OverlaySaveSet(file.Directory.SaveSet,
-        new Dictionary<string, ReadOnlyMemory<byte>> { [file.RelativePath] = bytes })).FindFile(file.RelativePath)!;
 }

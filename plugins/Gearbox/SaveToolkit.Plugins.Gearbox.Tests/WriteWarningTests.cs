@@ -33,7 +33,7 @@ public sealed class WriteWarningTests
     public void LegacyEditableFields_WarnAboutConsoleRejectionAndKeepSpecificQualifications(bool wonderlands, bool profile)
     {
         using var document = Create(wonderlands, profile);
-        if (!profile) _ = WriteAtomicityTests.AddMessage(document.Root, "resource_pools");
+        if (!profile) _ = GearboxTestData.AddMessage(document.Root, "resource_pools");
         var view = Assert.IsType<TabsNode>(document.BuildView());
         var fields = view.Tabs[0].Children.OfType<FieldNode>().ToDictionary(f => f.ValueId);
         var currencyIds = profile ? new[] { "keys/2420693941" } : ["currency/618814354", "currency/3679636065"];
@@ -57,7 +57,7 @@ public sealed class WriteWarningTests
     private static GearboxDocument Create(bool wonderlands, bool profile)
     {
         var title = wonderlands ? "PPSA01493" : "PPSA01463";
-        var container = GearboxContainer.Parse(ContainerTests.Create(wonderlands, profile), title, profile);
+        var container = GearboxContainer.Parse(GearboxTestData.CreateContainer(wonderlands, profile), title, profile);
         return new GearboxDocument(profile ? "profile" : "1", title, container, container.Decode(), IReferenceContext.Empty);
     }
 }

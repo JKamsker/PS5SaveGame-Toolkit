@@ -528,8 +528,13 @@ not establish console acceptance or BL4 codec progress.
 
 Completion tests add independently checked single-part bit/CRC changes, category/width rejection,
 host picker edits and history, attributed skill graphs/maps with reachable F7 targets, 1,200-row
-skill/mission queries and 5,000-item banks for both games. Bank tests measure view/paging allocations
-and elapsed time without timing assertions. New-record tests assert actual persisted import/transfer
+skill/mission queries and 5,000-item banks for both games, using both real and sample-free synthetic
+fixtures. Bank tests assert warmed allocation budgets for a fresh view/page (12 MiB) and a repeated
+page (256 KiB); every-sample open/no-op tests use a 32 MiB allocation budget instead of elapsed-time
+deadlines. Observed maxima are about 7 MB, 115 KB and 20 MB respectively. Part-write tests independently
+assert the selected index bits; synthetic regular/generic slots cover signed seed boundaries, exact
+payload/CRC output, no-ops, inversion and rejected slot/category/index/CRC inputs. A no-op writer
+mutation passes the former corpus oracle but fails the synthetic success cases. New-record tests assert actual persisted import/transfer
 counts after reopening; consecutive direct edits and failed batches verify bookkeeping/cache behavior.
 F12 tests compare the production hook to the independent probe across every primary/backup generation;
 F13 tests verify inspection annotations, browse-only filtering/sorting and rejection of edits.

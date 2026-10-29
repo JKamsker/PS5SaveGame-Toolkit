@@ -16,15 +16,14 @@ public sealed class ListTableTests
     public void LargeSduList_UsesOneTableAndRetainsUnknownZeroRecords(bool wonderlands, bool profile)
     {
         var title = wonderlands ? "PPSA01493" : "PPSA01463";
-        var container = GearboxContainer.Parse(ContainerTests.Create(wonderlands, profile), title, profile);
+        var container = GearboxContainer.Parse(GearboxTestData.CreateContainer(wonderlands, profile), title, profile);
         var root = container.Decode();
         var list = profile ? "profile_sdu_list" : "sdu_list";
         for (var i = 0; i < RecordCount; i++)
         {
-            var sdu = new ProtoMessage(root.Schema, root.Schema.Spec(root.Type, list).Type, []);
+            var sdu = GearboxTestData.AddMessage(root, list);
             sdu.SetText("sdu_data_path", "Synthetic/unknown-sdu/" + i);
             sdu.SetInteger("sdu_level", 0);
-            Add(root, list, sdu);
         }
         var bytes = container.Encode(root);
         using var document = new GearboxDocument(profile ? "profile" : "1", title,
@@ -52,18 +51,16 @@ public sealed class ListTableTests
     public void LargeGuardianList_UsesOneQueryableTableAndRetainsZeroAllocations(bool profile, string list, string asset, string lazySuffix)
     {
         const string title = "PPSA01463";
-        var container = GearboxContainer.Parse(ContainerTests.Create(false, profile), title, profile);
+        var container = GearboxContainer.Parse(GearboxTestData.CreateContainer(false, profile), title, profile);
         var root = container.Decode();
         var parentName = profile ? "guardian_rank" : "guardian_rank_character_data";
-        var parent = new ProtoMessage(root.Schema, root.Schema.Spec(root.Type, parentName).Type, []);
+        var parent = GearboxTestData.AddMessage(root, parentName);
         for (var i = 0; i < RecordCount; i++)
         {
-            var entry = new ProtoMessage(root.Schema, root.Schema.Spec(parent.Type, list).Type, []);
+            var entry = GearboxTestData.AddMessage(parent, list);
             entry.SetText(asset, "Synthetic/unknown-reward/" + i);
             if (list == "rank_rewards") entry.SetInteger("num_tokens", i % 2);
-            Add(parent, list, entry);
         }
-        Add(root, parentName, parent);
         var bytes = container.Encode(root);
         using var document = new GearboxDocument(profile ? "profile" : "1", title,
             GearboxContainer.Parse(bytes, title, profile), root, IReferenceContext.Empty);
@@ -85,7 +82,4 @@ public sealed class ListTableTests
         }
         Assert.Equal(bytes, document.Serialize().Single().Content.ToArray());
     }
-
-    private static void Add(ProtoMessage parent, string list, ProtoMessage child) =>
-        parent.Add(new(parent.Schema.Tag(parent.Type, list), 2, parent.Schema.Spec(parent.Type, list), [], Array.Empty<byte>(), child));
 }

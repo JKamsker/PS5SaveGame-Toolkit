@@ -56,7 +56,7 @@ public sealed class WorldCatalogTests
     public void MissionAndClassLabels_NormalizeDocumentedIdsAndPreserveUnknowns(bool wonderlands, string path, string name)
     {
         var title = wonderlands ? "PPSA01493" : "PPSA01463";
-        var container = GearboxContainer.Parse(ContainerTests.Create(wonderlands, false), title, false);
+        var container = GearboxContainer.Parse(GearboxTestData.CreateContainer(wonderlands, false), title, false);
         using var document = new GearboxDocument("1", title, container, container.Decode(), IReferenceContext.Empty);
         var field = document.World.Label("test/mission", "Mission", path, mission: true);
         Assert.Equal(path.Split('.')[0].ToLowerInvariant(), field.Value.AsString());

@@ -7,6 +7,9 @@ namespace SaveToolkit.Plugins.Gearbox.Tests;
 
 public sealed class AssetLoadMeasurements(ITestOutputHelper output)
 {
+    private const long FirstLoadAllocationLimit = 384 * 1024 * 1024;
+    private const long RepeatedLoadAllocationLimit = 64 * 1024 * 1024;
+
     [Theory]
     [InlineData("PPSA01463")]
     [InlineData("PPSA01493")]
@@ -15,7 +18,7 @@ public sealed class AssetLoadMeasurements(ITestOutputHelper output)
         var file = SampleSaves.Load(title).AllDiskFiles.MaxBy(f => f.Length)!;
         var plugin = new GearboxPlugin();
         var started = Stopwatch.GetTimestamp();
-        var allocated = GC.GetTotalAllocatedBytes(precise: true);
+        var allocated = GC.GetAllocatedBytesForCurrentThread();
         var store = new ReferencePackStore([plugin]);
         Assert.Empty(store.LoadErrors);
         for (var iteration = 0; iteration < 2; iteration++)
@@ -26,10 +29,13 @@ public sealed class AssetLoadMeasurements(ITestOutputHelper output)
             var queryable = (IQueryableDocument)document;
             foreach (var collection in queryable.Collections)
                 _ = queryable.Query(collection.Id, new() { Limit = 20 });
+            var bytes = GC.GetAllocatedBytesForCurrentThread() - allocated;
             output.WriteLine($"{title} largest={file.Length} bytes iteration={iteration + 1}: " +
-                $"{Stopwatch.GetElapsedTime(started).TotalMilliseconds:F3} ms; {GC.GetTotalAllocatedBytes(precise: true) - allocated} allocated bytes");
+                $"{Stopwatch.GetElapsedTime(started).TotalMilliseconds:F3} ms; {bytes} thread allocated bytes");
+            var limit = iteration == 0 ? FirstLoadAllocationLimit : RepeatedLoadAllocationLimit;
+            Assert.True(bytes < limit, $"Load {iteration + 1} allocated {bytes:N0} bytes (budget {limit:N0}).");
             started = Stopwatch.GetTimestamp();
-            allocated = GC.GetTotalAllocatedBytes(precise: true);
+            allocated = GC.GetAllocatedBytesForCurrentThread();
         }
     }
 }

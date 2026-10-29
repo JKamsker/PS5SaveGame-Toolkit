@@ -26,9 +26,9 @@ public sealed class WriteNoOpTests
     public void ZeroAmmoEdit_PreservesImportedNegativeZeroWithoutUntrackedWrites(bool wonderlands, bool roundTrip)
     {
         var title = wonderlands ? "PPSA01493" : "PPSA01463";
-        var container = GearboxContainer.Parse(ContainerTests.Create(wonderlands, false), title, false);
+        var container = GearboxContainer.Parse(GearboxTestData.CreateContainer(wonderlands, false), title, false);
         var root = container.Decode();
-        var pool = WriteAtomicityTests.AddMessage(root, "resource_pools");
+        var pool = GearboxTestData.AddMessage(root, "resource_pools");
         const uint negativeZeroBits = 0x80000000;
         pool.Add(new ProtoField(root.Schema.Tag(pool.Type, "amount"), 5, root.Schema.Spec(pool.Type, "amount"), [], negativeZeroBits, null));
         // Reparse to establish the imported wire spelling, including the zero's sign bit.
@@ -61,12 +61,12 @@ public sealed class WriteNoOpTests
     {
         const string title = "PPSA01493";
         const string id = "profile/account/myth/0/points";
-        var container = GearboxContainer.Parse(ContainerTests.Create(true, true), title, true);
+        var container = GearboxContainer.Parse(GearboxTestData.CreateContainer(true, true), title, true);
         var root = container.Decode();
         var spec = root.Schema.Spec(root.Type, "player_prestige");
         var prestige = ProtoMessage.Parse([0x1A, 0x04, 0x81, 0x00, 0x02, 0x03], root.Schema, spec.Type);
         root.Add(new ProtoField(root.Schema.Tag(root.Type, "player_prestige"), 2, spec, [], Array.Empty<byte>(), prestige));
-        var set = new MemorySaveSet().With(title, "CHAR", new Dictionary<string, byte[]> { ["1"] = ContainerTests.Create(true, false) })
+        var set = new MemorySaveSet().With(title, "CHAR", new Dictionary<string, byte[]> { ["1"] = GearboxTestData.CreateContainer(true, false) })
             .With(title, "PROFILE", new Dictionary<string, byte[]> { ["profile"] = container.Encode(root) });
         var plugin = new GearboxPlugin();
         var input = GearboxGroupTests.Input(set, Assert.Single(plugin.ProposeGroups(set.Directories[0].Files[0])));
