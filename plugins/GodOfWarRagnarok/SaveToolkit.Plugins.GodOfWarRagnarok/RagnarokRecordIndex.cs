@@ -21,6 +21,7 @@ internal sealed class RagnarokRecordIndex
     public IReadOnlyList<ResourceOccurrence> Occurrences { get; private init; } = [];
     public RagnarokGrammarEvidence Evidence { get; private set; } = new([], [], [], []);
     public RagnarokNestedRecords Nested { get; private init; } = RagnarokNestedRecords.Empty;
+    public RagnarokGearRecords Gear { get; private set; } = RagnarokGearRecords.Empty;
 
     // Legacy consumers expose hero resources without claiming any nested container framing.
     public IReadOnlyList<RagnarokWallet> GetResourceWallets() => Nested.Wallets.Count > 0 ? Nested.Wallets :
@@ -63,6 +64,7 @@ internal sealed class RagnarokRecordIndex
             Regions = DescribeRegions(count, flagsOffset, secondaryOffset, secondaryCount, wallet, walletCount),
             Occurrences = FindResourceOccurrences(bytes),
         };
+        index.Gear = RagnarokGearRecords.Find(bytes, index);
         index.Evidence = RagnarokGrammar.Analyze(bytes, index);
         return index;
     }

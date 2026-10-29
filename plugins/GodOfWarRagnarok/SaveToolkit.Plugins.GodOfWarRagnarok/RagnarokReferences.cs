@@ -24,12 +24,14 @@ internal sealed class RagnarokReferences
     private readonly Dictionary<ulong, ResolvedReference> _resolved = [];
     public RagnarokSkillReferences Skills { get; }
     public RagnarokCommunityTables Community { get; }
+    public RagnarokGearReferences Gear { get; }
 
     public RagnarokReferences(IReferenceContext context)
     {
         _context = context;
         Skills = new(context);
         Community = new(context);
+        Gear = new(context);
         _catalog = context.Catalog(CatalogId, Build);
         _collectibles = context.Catalog("gow-ragnarok-collectibles", Build);
         _evidence = context.Catalog("gow-ragnarok-community-ids", Build);

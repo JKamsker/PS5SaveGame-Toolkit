@@ -52,3 +52,16 @@ This owner decision is not an upstream licence grant. Retrieved 2026-10-29:
 The skill-facts pack contains no image files. Skill thumbnails resolve from the visual catalogue.
 No bulk dialogue, texture or wiki extraction is included, and no map coordinates or ownership,
 equipped-state or skill-unlock joins are asserted.
+
+## Gear definition facts (2026-10-29)
+
+[Community gear spreadsheet](https://docs.google.com/spreadsheets/d/17JWS2EyV68tRAajJIungRvhL5mmePIyGUNqekWu1lBc/edit),
+cfemen / Fixer / Sasha / Vinny / community gear-sheet contributors, accessed 2026-10-29.
+Licence: **No licence published; reused with attribution per owner decision 2026-10-28**.
+This is the owner's reuse policy, not an upstream licence grant. The new pack imports 2,092 unique
+hash/name/type/level candidates from a SHA-256-pinned CSV export. It preserves duplicate disagreements,
+marks missing/conflicting levels Unknown and makes no legal-maxima, equip-state or dependency claims.
+No source code, acquisition notes, presets, prose or assets were imported. The importer is original
+code and never executes source content. [Source/hash/transformation sidecar](SaveToolkit.Plugins.GodOfWarRagnarok/ReferencePacks/gow-ragnarok.gear.en/gear.source.md)
+and [field-discovery source register](FIELD_DISCOVERY.md#source-register-and-licence-decisions).
+Attribution appears in the F2 manifest/records, README, plugin references and every new UI/F12 name/level.
