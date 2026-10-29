@@ -7,6 +7,7 @@ namespace SaveToolkit.Plugins.Pragmata.Views;
 internal sealed class PragmataViews
 {
     internal const string QuantityAction = "inventory/set-quantities";
+    internal const string RestoreQuantityAction = "inventory/restore-imported-quantities";
     private readonly PragmataDocument _document;
     private readonly int _blockCount;
     private readonly LazyPages _pages = new();

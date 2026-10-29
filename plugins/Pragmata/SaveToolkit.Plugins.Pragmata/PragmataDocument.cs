@@ -68,6 +68,9 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
         ? FieldValue.Of(Encoding.Unicode.GetString(_plaintext, node.Offset, node.Size))
         : PrimitiveCodec.Read(node, _plaintext);
 
+    // Fixed-size edits preserve offsets; the container retains the immutable opening plaintext.
+    internal FieldValue ReadImported(SaveNode node) => PrimitiveCodec.Read(node, _container.Plaintext);
+
     internal string Preview(SaveNode node) => node.Type == FieldTags.String
         ? Encoding.Unicode.GetString(_plaintext, node.Offset, Math.Min(node.Size, MaximumStringPreviewBytes)) + (node.Size > MaximumStringPreviewBytes ? "…" : "")
         : Convert.ToHexString(_plaintext.AsSpan(node.Offset, Math.Min(node.Size, MaximumStructPreviewBytes))) + (node.Size > MaximumStructPreviewBytes ? "…" : "");

@@ -1,5 +1,6 @@
 using System.Globalization;
 using SaveToolkit.Plugins.Pragmata.Format;
+using SaveToolkit.Plugins.Pragmata.Views;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -41,8 +42,12 @@ public sealed class PresentationTests
         Assert.Contains("CityHash64 and Murmur3 are repaired; the RSA trailer is preserved but cannot be validated or regenerated.", notice.Text, StringComparison.Ordinal);
         Assert.Contains(inventory.Children.OfType<TextNode>(), note => note.Tone == Tone.Warning &&
             note.Text.Contains("Player-facing item mappings and legal stack limits are unverified.", StringComparison.Ordinal));
-        var action = Assert.Single(inventory.Children.OfType<ActionNode>());
-        foreach (var control in rows.Select(row => Assert.IsType<ActionNode>(row.Cells["action"])).Prepend(action))
+        var actions = inventory.Children.OfType<ActionNode>().ToArray();
+        Assert.Equal(2, actions.Length);
+        var action = Assert.Single(actions, node => node.ActionId == PragmataViews.QuantityAction);
+        var rowActions = rows.SelectMany(row => Assert.IsType<SectionNode>(row.Cells["action"]).Children.OfType<ActionNode>()).ToArray();
+        Assert.Equal(rows.Count * 2, rowActions.Length);
+        foreach (var control in rowActions.Where(node => node.ActionId == PragmataViews.QuantityAction).Prepend(action))
         {
             Assert.Equal("inventory/set-quantities", control.ActionId);
             Assert.Equal("Set stored quantities", control.Label);
@@ -51,6 +56,16 @@ public sealed class PresentationTests
             Assert.Equal("Target quantity", parameter.Label);
             Assert.Contains("Legal limits and game effects remain unverified.", control.Description!, StringComparison.Ordinal);
             Assert.Contains("Does not add items or set unlock flags.", control.Description!, StringComparison.Ordinal);
+        }
+        foreach (var control in rowActions.Where(node => node.ActionId == PragmataViews.RestoreQuantityAction)
+            .Prepend(Assert.Single(actions, node => node.ActionId == PragmataViews.RestoreQuantityAction)))
+        {
+            Assert.Equal("Restore imported quantities", control.Label);
+            Assert.Empty(control.Parameters);
+            Assert.True(control.SupportsPlanning);
+            Assert.Contains("Inferred", control.Description!, StringComparison.Ordinal);
+            Assert.Contains("immutable workspace opening amounts", control.Description!, StringComparison.Ordinal);
+            Assert.StartsWith(PragmataDocument.EditWarning, control.Description!, StringComparison.Ordinal);
         }
     }
 

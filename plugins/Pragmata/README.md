@@ -9,7 +9,8 @@ test has been performed; only a human should promote this plugin to Stable.
 - Gameplay overview: slot, console-local save date, hours played, cleared flag,
   difficulty hash and editable fixed-size header fields.
 - Inventory: existing item IDs in hex and decimal, int32 quantities, equipped
-  marker, and an F6 preview/apply quantity action for selected or all existing rows. F2 reference packs
+  marker, and F6 preview/apply actions to set quantities or restore eligible quantities
+  to their immutable workspace opening amounts, for selected or all existing rows. F2 reference packs
   supply attributed names/descriptions/icons through writable F4 reference fields
   and F3 detail cells. The embedded item catalog labels all 90 IDs unmapped.
 - A lazy illustrated reference library contains 29 compact images: 14 items and
@@ -95,6 +96,7 @@ console status and integrity limitation; F6 preview/apply outcomes retain warnin
 | Quests existing primitives | Unknown | Same; objective identifiers do not prove quest semantics | Same | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one objective state; verify prerequisites and downstream quest behavior |
 | World existing primitives | Unknown | Same; fixed physical row identities and bounded F8 details | Same | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one checkpoint/gimmick/prop/environment value; verify travel, interactions and dependent state |
 | Existing quantity controls and F6 selected/all quantity action (retained) | Inferred | Independent golden hashes; all-sample F1 quantity-only deltas; atomic planned apply and group undo | Same | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small quantity change; preview, apply, undo/redo, export/re-import and console load |
+| Restore imported eligible quantities (edit-coverage #14) | Inferred storage; item meanings Unknown; Experimental | Immutable opening plaintext; existing int32 setters/bounds; all 11 gameplay samples restored byte-identically after staged reductions; synthetic eligibility, alias, cancel, selection/query, stale/forged-plan and undo/redo checks | CityHash64/Murmur3 and encryption verified by export/reopen; RSA trailer preserved, unverified | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): identify/use one restored stack, load/resave and inspect equipped/unlock/dependency side effects |
 | Existing header/clock/raw primitive edits (retained) | Inferred for named fields; Unknown otherwise | 12 no-op identities; primitive/clock edit/reopen/reverse and derived-clock undo tests | Same | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): unchanged control first, then one small edit per family |
 
 **The game may reject edited saves.** RSA trailer verification/regeneration is
@@ -122,6 +124,29 @@ prove that unknown alignment, padding, counts and metadata survive rebuilding a
 different layout. No prepared cross-file transaction or proven sibling dependency
 exists to enable through F7. Existing operations emit only their owned file;
 no legal-max or progression preset is fabricated. Maturity stays Experimental.
+
+**Restore imported quantities** implements [ranked addition #14](../../docs/EDIT_COVERAGE.md#ranked-top-15-additions)
+over the existing quantity writer. Its preview uses the immutable plaintext captured
+when this document opened, independently of later edits or undo history. It raises
+only existing quantities below that opening amount, with both amounts nonnegative
+and the raw item ID unchanged. Equal/above-baseline amounts, negative opening/current
+amounts and changed IDs are listed as skips. Zero-count records remain eligible;
+the target can never exceed that row's opening int32 amount or existing field bounds.
+This is no legal-cap, named-resource or mission preset. It cannot recover a balance
+lost before import; re-importing edited bytes establishes a new baseline.
+
+Duplicate current or opening inventory IDs reject the whole restore preview, as do
+duplicate/unknown row keys, non-inventory or unresolved query scopes and unexpected
+parameters. The unloaded-primary-binding guard remains: explicit/document scopes
+must already expose their quantity controls, while bounded F8 whole-query resolution
+publishes every matching row before planning and honors exclusions. Empty selections
+and zero-match/fully excluded queries stay empty. The format has no verified
+per-record lock flag to reinterpret; unknown gameplay fields and dependencies remain
+untouched. Unmapped player-facing names do not disqualify known quantity storage;
+previews retain raw IDs, Inferred storage confidence and the common Experimental,
+RSA, console and dependency warnings. Cancel discards a pure preview; applying
+revalidates through `ActionPlans.ApplyScalar`, uses atomic `ApplyEdits`, reports
+exposed aliases and records one undo/redo step. No records or unlocks are granted.
 
 For each enabled surface, use a spare slot: record build/region/DLC, path and
 displayed old/new values; capture an unchanged load/save/reload control; make
@@ -335,8 +360,15 @@ Documentation audit, **2026-10-29**, against plugin code at `b369fa4`:
 The API build passed with **0 warnings, 0 errors**. This is software validation;
 console acceptance remains untested and maturity remains Experimental.
 
+Edit-coverage #14 validation, **2026-10-29**: **299 plugin tests passed, 0 failed,
+0 skipped** with samples (13 new restore cases). All 11 gameplay files return
+byte-identically to their imported bytes after restoring staged reductions;
+the system-file no-op remains covered. Existing allocation bounds, including
+`IdentityAllocationTests`, are unchanged and pass. The API build passed with
+**0 warnings, 0 errors**. No console acceptance is claimed; #31 remains open.
+
 ```powershell
-$scratch = 'D:/Temp/saveeditor/test-scratch/docs/accuracy-pragmata'
+$scratch = 'D:/Temp/saveeditor/test-scratch/feat-coverage-pragmata'
 New-Item -ItemType Directory -Force -Path $scratch | Out-Null
 $env:TEMP = $scratch
 $env:TMP = $scratch
@@ -344,7 +376,7 @@ $env:TMPDIR = $scratch
 $env:SAVETOOLKIT_TEST_TEMP = $scratch
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj --warnaserror
-dotnet test --project plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Tests
+dotnet test --project plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Tests --results-directory "$scratch/results"
 python docs/tests/test_documentation.py
 ```
 
@@ -392,7 +424,7 @@ measurements and remaining mission-text/save-ID gaps are in the
 | F3 rich cells | Used | Existing inventory/evidence cells plus lazy image/name/category/source rows for the illustrated library; icons are 64×64 with attribution. |
 | F4 pickers | Used | Writable inventory item IDs; browse-only mission/item-evidence and illustrated references. Wiki file keys are never eligible inventory IDs. |
 | F5 structural undo | N/A | Only fixed-size primitive patching exists; no preserve-first resizing writer. Unknown padding/count metadata prevents safe add/remove/reorder. |
-| F6 planned actions / #27 | Used | Existing quantity preview/apply; F8 whole-query selection, exclusions, stale-plan checks and one undo unit above 200 rows. No legal-max/loadout/progression preset has proven dependency rules. |
+| F6 planned actions / #27 | Used | Set quantities and restore imported eligible quantities; shared ActionPlans revalidation/application; F8 whole-query selection, exclusions, stale-plan checks and one undo unit above 200 rows. No legal-max/loadout/progression preset has proven dependency rules. |
 | F7 document groups | N/A | No proven coupled-file operation or partner identity. Claiming independent slot/system files would invent dependencies and lock unrelated saves. |
 | F8 queryable tables | Used | Family-view arrays register queryable collections when their containing sections expand; complete-model search/filter/sort precedes paging. Inventory switches above 200 rows, with numeric quantity sorting. |
 | F9 graphs/maps | Used | Existing mission DAG and checkpoint field targets; local 2048×585 Cradle background and 26 community hatches in the original image-pixel frame. Raw save hashes remain unpositioned and all saved states Unknown. |
@@ -403,13 +435,14 @@ measurements and remaining mission-text/save-ID gaps are in the
 
 Shared helper adoption was also checked against the current SDK. This plugin
 still uses local implementations: `CollectionIndex<T>` plus inventory/evidence
-queries (including retained projections and one ordered result), `QuantityActions`
-plan comparison/application, the origin-16 `TypedReader`, direct catalogue
+queries (including retained projections and one ordered result), the origin-16 `TypedReader`, direct catalogue
 `Find`/bounded `Search` calls, and local image/inspection rendering. It does not
-currently call `InMemoryCollection<T>`, `ActionPlans`, `BinaryRange`,
+currently call `InMemoryCollection<T>`, `BinaryRange`,
 `BoundedBinaryCursor`, `ReferenceCatalogReader`, `ReferenceViews.Icon` or
 `ReferenceInspection`. Those helpers are available; migrating eligible mechanics
-is an adoption task, not a missing SDK capability. `FStringCodec` and `Crc32Ieee`
+is an adoption task, not a missing SDK capability. Both quantity actions now use
+`ActionPlans.ApplyScalar` with the existing binding guard and warning policy.
+`FStringCodec` and `Crc32Ieee`
 are inapplicable: strings use counted UTF-16LE and integrity uses CityHash64/Murmur3.
 
 ## SDK requests
