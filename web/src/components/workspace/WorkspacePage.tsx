@@ -1,14 +1,16 @@
+import { lazy, Suspense } from "react";
 import { Link } from "react-router";
 import type { Workspace } from "../../api/protocol";
 import { ApiError } from "../../api/client";
 import { WorkspaceActivityContext } from "../../state/workspaceActivity";
 import { WorkspaceSelectionContext } from "../../state/workspaceSelection";
-import { DocumentEditor } from "../document/DocumentEditor";
 import { Toast } from "../ui/Toast";
 import { ExportDialog } from "./ExportDialog";
 import { SlotRail } from "./SlotRail";
 import { WorkspaceHeader } from "./WorkspaceHeader";
 import { useWorkspaceController } from "./useWorkspaceController";
+
+const DocumentEditor = lazy(() => import("../document/DocumentEditor").then(module => ({ default: module.DocumentEditor })));
 
 type Controller = ReturnType<typeof useWorkspaceController>;
 
@@ -59,14 +61,14 @@ function WorkspaceMain({ controller, workspace: ws }: { controller: Controller; 
         <button type="button" className="btn btn--small" disabled={workspace.isFetching} onClick={() => void workspace.refetch()}>Retry workspace</button>
       </div>}
       {activeDoc ? (
-        <DocumentEditor
+        <Suspense fallback={<div role="status" className="empty">Opening…</div>}><DocumentEditor
           key={`${ws.id}:${activeDoc.id}`}
           workspaceId={ws.id}
           documentId={activeDoc.id}
           file={activeFile}
           onSwitchPlugin={(pluginId) => { if (activeFile && !closing) void open(activeFile, pluginId); }}
           onToast={notify}
-        />
+        /></Suspense>
       ) : (
         <div className="empty">
           <h2 ref={focusHeading} tabIndex={-1}>Pick a save file</h2>

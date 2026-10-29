@@ -1,13 +1,15 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { afterEach, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, expect, it, vi } from "vitest";
 import { api, ApiError } from "../../api/client";
 import type { SaveDocument, Workspace } from "../../api/protocol";
 import { WorkspacePage } from "./WorkspacePage";
 import { deferred } from "../../test/deferred";
 
 const clients: QueryClient[] = [];
+// These cases measure request/state lifetimes; cold code loading has separate bundle coverage.
+beforeAll(async () => { await import("../document/DocumentEditor"); });
 afterEach(() => { cleanup(); clients.splice(0).forEach(client => client.clear()); vi.restoreAllMocks(); });
 
 function mount() {
