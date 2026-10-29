@@ -49,9 +49,15 @@ internal sealed class MateriaPlanning(Ff7Schema schema, GameplayFields gameplay,
             return Error("scope", "Only a Core-resolved materia query scope can be used for AP planning.");
         }
 
-        uint type;
-        uint ap;
         var stars = actionId == StarActionId;
+        var error = ReadTarget(parameters, stars, out var type, out var ap);
+        return error ?? PlanRows(type, ap, stars, scope);
+    }
+
+    private ActionPlan? ReadTarget(IReadOnlyDictionary<string, FieldValue> parameters, bool stars, out uint type, out uint ap)
+    {
+        type = 0;
+        ap = 0;
         try
         {
             if (parameters.Count != 2 || !parameters.TryGetValue("type", out var typeValue) ||
@@ -75,6 +81,11 @@ internal sealed class MateriaPlanning(Ff7Schema schema, GameplayFields gameplay,
             return Error("parameters", "Invalid materia type or AP value.");
         }
 
+        return null;
+    }
+
+    private ActionPlan PlanRows(uint type, uint ap, bool stars, ActionScope scope)
+    {
         var keys = scope.RowKeys ?? Enumerable.Range(0, GameplayFields.MateriaCount)
             .Where(slot => gameplay.TypeId(true, slot) == type).Select(slot => $"materia/{slot}").ToArray();
         var changes = new List<PlannedChange>();
