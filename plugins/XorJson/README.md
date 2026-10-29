@@ -328,7 +328,8 @@ dependencies remain Unknown.
   settings stay independently editable. Group models must prefix all member
   identities by role, capture complete immutable multi-member state restorable
   into a fresh instance, and serialize every selected member exactly once.
-  Backups must be explicit members. The group emits warnings because controlled
+  Every proposal includes the selected file; the alternative limit counts only
+  its eligible partners. Backups must be explicit members. The group emits warnings because controlled
   paired-file evidence is still absent; no plugin-local transaction coordinator
   bypasses Core.
 - No new SDK gap blocks these views or writes. Game-specific dependency validation,
