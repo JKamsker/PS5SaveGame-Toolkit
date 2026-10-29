@@ -58,6 +58,10 @@ python -B -m unittest discover -s scripts/docs/tests
 
 The source checks also verify the allowlist, tutorial links into authoritative documents, version pins and deployment policy. The rendered-site check is part of every build.
 
+For theme changes, also check the built site in a browser at widths **320, 390, 768 and 1440 CSS pixels**, in light and dark themes. Cover the [homepage](../index.md), [first plugin tutorial](../tutorials/first-plugin.md), [save workflow tables](../guides/working-with-saves.md), <xref:SaveToolkit.Sdk.IGamePlugin>, the long inherited-member links in <xref:SaveToolkit.Sdk.Values.FieldValueJsonConverter> and [HTTP reference](../reference/http.md); wait for the HTTP renderer to finish loading.
+
+The document must fit the viewport (`document.documentElement.scrollWidth <= window.innerWidth`), prose and headings must wrap without clipping, and wide code or tables must remain readable through their own horizontal scrolling. Scroll a long code block to its end to verify the content is accessible. Keep the article's desktop reading width when fixing mobile sizing.
+
 ## Automatic publication
 
 The **Documentation** workflow validates pull requests, pushes to `main` and manual dispatches. Pull requests only build and check the site. Pushes to `main` rebuild and deploy the verified static output through the official GitHub Pages artifact/deployment actions. A manual dispatch deploys only when run on `main`.
