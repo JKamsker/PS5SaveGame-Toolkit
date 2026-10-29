@@ -40,12 +40,16 @@ public sealed class SyntheticCorruptionTests
     [Theory]
     [InlineData(false, "zero-length")]
     [InlineData(false, "large-length")]
+    [InlineData(false, "overlong-name")]
+    [InlineData(false, "signed-length")]
     [InlineData(false, "identifier")]
     [InlineData(false, "duplicate")]
     [InlineData(false, "terminal-name")]
     [InlineData(false, "required-name")]
     [InlineData(true, "zero-length")]
     [InlineData(true, "large-length")]
+    [InlineData(true, "overlong-name")]
+    [InlineData(true, "signed-length")]
     [InlineData(true, "identifier")]
     [InlineData(true, "duplicate")]
     [InlineData(true, "terminal-name")]
@@ -60,7 +64,12 @@ public sealed class SyntheticCorruptionTests
         {
             case "zero-length":
             case "large-length":
-                save.Write(nameOffset - sizeof(uint), mutation == "zero-length" ? 0 : uint.MaxValue);
+            case "overlong-name":
+            case "signed-length":
+                save.Write(nameOffset - sizeof(uint), mutation switch
+                {
+                    "zero-length" => 0, "overlong-name" => 65, "signed-length" => int.MaxValue, _ => uint.MaxValue,
+                });
                 expected = yotei ? "Invalid Yōtei record name length." : "Invalid Tsushima inventory name length.";
                 break;
             case "identifier":
@@ -82,7 +91,7 @@ public sealed class SyntheticCorruptionTests
             default: throw new ArgumentOutOfRangeException(nameof(mutation));
         }
         save.Repair();
-        Assert.Equal(expected, Assert.Throws<SaveFormatException>(() => save.Open()).Message);
+        AssertBoundedRejection(save, expected);
     }
 
     [Theory]
@@ -96,18 +105,21 @@ public sealed class SyntheticCorruptionTests
     {
         var save = new SyntheticSave(yotei);
         var data = (yotei ? save.Secondary : save.Inventory)[save.LastName];
-        var end = part switch
+        var (start, end) = part switch
         {
-            "length-word" => data - save.LastName.Length - 1,
-            "name" => data - 1,
-            "trailer" => data + (yotei ? 16 : 20) - 1,
+            "length-word" => (data - save.LastName.Length - sizeof(uint), data - save.LastName.Length),
+            "name" => (data - save.LastName.Length, data),
+            "trailer" => (data, data + (yotei ? 16 : 20)),
             _ => throw new ArgumentOutOfRangeException(nameof(part)),
         };
-        save.SetEnd(end);
-        save.Repair();
         // Physical bytes still exist: the parser must respect the declared boundary.
         var expected = yotei ? "Yōtei named table is truncated." : "Tsushima inventory table is truncated.";
-        Assert.Equal(expected, Assert.Throws<SaveFormatException>(() => save.Open()).Message);
+        for (var boundary = start; boundary < end; boundary++)
+        {
+            save.SetEnd(boundary);
+            save.Repair();
+            Assert.Equal(expected, Assert.Throws<SaveFormatException>(() => save.Open()).Message);
+        }
     }
 
     [Theory]
@@ -173,5 +185,92 @@ public sealed class SyntheticCorruptionTests
         Assert.False(new SuckerPunchPlugin().Probe(file).IsMatch);
         var error = Assert.Throws<SaveFormatException>(() => new SuckerPunchPlugin().Open(file));
         Assert.Equal("This is not a recognised Sucker Punch save file.", error.Message);
+    }
+
+    public static TheoryData<string, uint> InvalidTableCounts()
+    {
+        var cases = new TheoryData<string, uint>();
+        foreach (var (table, count) in new[] { ("tsushima", 48U), ("inventory", 48U), ("registry", 48U),
+                     ("statistics", 33U), ("gear", 1037U) })
+            foreach (var value in new[] { 0U, count - 1, count + 1, (uint)int.MaxValue, uint.MaxValue })
+                cases.Add(table, value);
+        return cases;
+    }
+
+    [Theory]
+    [MemberData(nameof(InvalidTableCounts))]
+    public void EveryTableRejectsUnexpectedCountsWithoutAllocatingFromThem(string table, uint count)
+    {
+        var save = new SyntheticSave(yotei: table != "tsushima");
+        var start = table switch
+        {
+            "statistics" => save.StatisticsStart, "gear" => save.GearStart,
+            "registry" => save.SecondaryStart, _ => save.InventoryStart,
+        };
+        save.Write(start, count);
+        save.Repair();
+        var expected = table switch
+        {
+            "tsushima" => "Tsushima counted inventory table is missing or ambiguous.",
+            "statistics" => "Yōtei statistics table is missing or ambiguous.",
+            "gear" => "Yōtei gear registry is missing or ambiguous.",
+            "registry" => "Yōtei secondary inventory table is missing.",
+            _ => "Yōtei secondary inventory table is missing.",
+        };
+        AssertBoundedRejection(save, expected);
+    }
+
+    public static TheoryData<string, string> OtherYoteiTableCorruptions()
+    {
+        var cases = new TheoryData<string, string>();
+        foreach (var table in new[] { "registry", "statistics", "gear" })
+            foreach (var mutation in new[] { "zero-length", "overlong-name", "signed-length", "large-length",
+                         "identifier", "duplicate" })
+                cases.Add(table, mutation);
+        return cases;
+    }
+
+    [Theory]
+    [MemberData(nameof(OtherYoteiTableCorruptions))]
+    public void EveryYoteiTableValidatesNonAnchorRecords(string table, string mutation)
+    {
+        var save = new SyntheticSave(yotei: true);
+        var rows = table switch { "statistics" => save.Statistics, "gear" => save.Gear, _ => save.Secondary };
+        // Choose equal-length, non-anchor names so duplicate cases reach uniqueness validation.
+        var first = rows.ElementAt(5);
+        var second = rows.ElementAt(6);
+        var nameOffset = second.Value - second.Key.Length;
+        var expected = "Invalid Yōtei record name length.";
+        switch (mutation)
+        {
+            case "zero-length": save.Write(nameOffset - sizeof(uint), 0); break;
+            case "overlong-name": save.Write(nameOffset - sizeof(uint), 65); break;
+            case "signed-length": save.Write(nameOffset - sizeof(uint), int.MaxValue); break;
+            case "large-length": save.Write(nameOffset - sizeof(uint), uint.MaxValue); break;
+            case "identifier":
+                save.Bytes[nameOffset] = 0;
+                expected = "Invalid Yōtei record identifier.";
+                break;
+            case "duplicate":
+                Encoding.ASCII.GetBytes(first.Key, save.Bytes.AsSpan(nameOffset));
+                expected = "Duplicate Yōtei record identifier.";
+                break;
+            default: throw new ArgumentOutOfRangeException(nameof(mutation));
+        }
+        save.Repair();
+        AssertBoundedRejection(save, expected);
+    }
+
+    private static void AssertBoundedRejection(SyntheticSave save, string expected)
+    {
+        var file = save.File(); // Input copies are outside the parser allocation measurement.
+        var plugin = new SuckerPunchPlugin();
+        // Allow the fixed-size document copy and bounded tables, never a declared count/length allocation.
+        const long allocationBudget = 4 * 1024 * 1024;
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        var error = Assert.Throws<SaveFormatException>(() => plugin.Open(file));
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        Assert.Equal(expected, error.Message);
+        Assert.InRange(allocated, 0, allocationBudget);
     }
 }
