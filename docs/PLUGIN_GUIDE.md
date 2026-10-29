@@ -1473,6 +1473,15 @@ JSON-serialisability (incl. lazy sections), `GetValue` consistency, value/spec c
 byte-identical no-op serialisation and edit → serialise → re-open round trips.
 Override `ChooseEdits` to exercise a meaningful field (e.g. an item quantity).
 
+`Open_ReportsHonestLabelAdvisories` also reports mechanical presentation gaps: a `Verified`
+field needs a nonempty evidence `Description`; writable fields/actions should have `Experimental`
+plugin maturity, an editable document and local warning/confirmation text. Action parameters are
+inputs, not document setters. These checks use the same bounded lazy/F8 traversal and remain advisory
+by default. Override `EnforceHonestLabelAdvisories` to enforce them and `HonestLabelException` to
+record specific evidence-backed exceptions (for example, human-approved `Stable` maturity or an
+existing document-level warning). A nonempty description is not proof: separately reconcile names,
+catalog provenance, read-only gates and imported-restore semantics with the plugin README.
+
 Core's `DetectionMatrixTests` pins its cross-plugin detection matrix in
 [`DetectionMatrix.txt`](../tests/SaveToolkit.Core.Tests/Detection/DetectionMatrix.txt).
 It covers 29 synthetic fixtures: the 28 conformance seeds plus a plain-character JSON overlap
