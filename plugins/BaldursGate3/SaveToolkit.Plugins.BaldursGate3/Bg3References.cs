@@ -17,25 +17,27 @@ internal sealed class Bg3References(IReferenceContext context)
     internal static IReadOnlyList<string> CatalogIds { get; } =
         [Templates, Items, Equipment, Spells, Passives, Origins, Companions, CampSupplies, Classes];
     // The native build is not supplied. Never choose build-specific data by guessing a version.
-    private readonly IReferenceCatalog? _templates = BuildAgnostic(context.Catalog(Templates));
-    private readonly IReferenceCatalog? _origins = BuildAgnostic(context.Catalog(Origins));
     private readonly IReadOnlyDictionary<string, IReferenceCatalog> _catalogs = CatalogIds
-        .Select(id => (Id: id, Catalog: BuildAgnostic(context.Catalog(id))))
-        .Where(pair => pair.Catalog is not null)
+        .Select(id => (Id: id, Catalog: context.Catalog(id)))
+        .Where(pair => pair.Catalog?.Pack.GameBuilds.Count == 0)
         .ToDictionary(pair => pair.Id, pair => pair.Catalog!, StringComparer.Ordinal);
 
-    internal ReferenceRecord? Template(string rawGuid) => _templates?.Find(rawGuid);
-    internal ReferenceRecord? Origin(string rawOrigin) => _origins?.Find(rawOrigin);
+    internal ReferenceRecord? Template(string rawGuid) => Catalog(Templates)?.Find(rawGuid);
+    internal ReferenceRecord? Origin(string rawOrigin) => Catalog(Origins)?.Find(rawOrigin);
 
-    internal IReadOnlyList<IReferenceCatalog> Catalogs =>
-        CatalogIds.Where(id => _catalogs.ContainsKey(id)).Select(id => _catalogs[id]).ToArray();
+    internal IReadOnlyList<IReferenceCatalog> Catalogs => CatalogIds.Select(Catalog).OfType<IReferenceCatalog>().ToArray();
 
     internal IReferenceCatalog? Catalog(string id) => _catalogs.GetValueOrDefault(id);
 
-    internal ViewNode Icon(ReferenceRecord? record) =>
-        record?.AssetId is { } asset && context.AssetProvenance(asset) is { } provenance
+    internal ViewNode Icon(ReferenceRecord? record)
+    {
+        var icon = ReferenceViews.Icon(context, record);
+        if (icon is ImageNode) return icon;
+        // BG3 historically also exposes images with provenance but unavailable bytes.
+        return record?.AssetId is { } asset && context.AssetProvenance(asset) is { } provenance
             ? new ImageNode(asset, $"{record.Name}. {record.AttributionText}. Icon: {provenance.Attribution.ToShortText()}")
-            : new TextNode("No reference icon");
+            : icon;
+    }
 
     internal static FieldNode Describe(FieldNode field, ReferenceRecord? record, string rawId) => field with
     {
@@ -43,7 +45,4 @@ internal sealed class Bg3References(IReferenceContext context)
         Description = record is null ? $"Unresolved raw identifier: {rawId}. No matching build-agnostic reference record."
             : $"{record.Description} Raw identifier: {rawId}. {record.AttributionText}. Pack {record.Dataset.PackId}; candidate label only, not a live identity/ownership proof.",
     };
-
-    private static IReferenceCatalog? BuildAgnostic(IReferenceCatalog? catalog) =>
-        catalog?.Pack.GameBuilds.Count == 0 ? catalog : null;
 }

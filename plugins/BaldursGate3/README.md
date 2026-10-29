@@ -487,6 +487,20 @@ provides browse-only pickers for the existing read-only references and standard
 catalog filtering/sorting, replacing the plugin's full-catalog sorting workaround.
 No message-only inspection action or proven float duration exists to opt in.
 
+Shared helpers (#40): `BinaryData` delegates checked ranges and little-endian reads
+to `BoundedBinaryCursor`; its adapter retains the exact BG3 format-error text and
+exception shape. Buffer/record budgets, strict UTF-8, LSF/LSV layout, compression
+and all preflight checks remain local. `Bg3References` uses `ReferenceViews.Icon`
+and one catalog index, retaining separate record/image attribution and the existing
+candidate descriptions; live NewAge candidates remain Unknown. `ReferenceInspection`
+is not applicable to the existing browse-only fields: adding an inspection action
+would change the view/action contract.
+
+Optional SDK request: allow `ReferenceViews.Icon` to preserve an image node when
+provenance exists but image bytes are unavailable. BG3 retains that historical
+case in a local fallback; the SDK's normal missing-image fallback would change
+the existing node type. No SDK change is required for this migration.
+
 ## Framework feature adoption
 
 | Feature | Status | Where / concrete limit |
