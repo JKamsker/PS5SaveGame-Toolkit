@@ -86,15 +86,27 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
             throw new KeyNotFoundException($"Unknown ASTRO tree node '{lazyId}'.");
         }
 
-        var own = _fields.Where(f => f.Element == element).Select(ValueNode).Cast<ViewNode>();
-        var children = element.Children.Select(child => SectionNode.Lazy(child.Name, child.Id));
         var count = element.Values.Count + element.Children.Count;
         if (page > count / PageSize)
         {
             throw new KeyNotFoundException("Unknown ASTRO tree page.");
         }
 
-        var result = own.Concat(children).Skip(page * PageSize).Take(PageSize).ToList();
+        var start = page * PageSize;
+        var end = Math.Min(start + PageSize, count);
+        var result = new List<ViewNode>(end - start + 1);
+        for (var index = start; index < end; index++)
+        {
+            if (index < element.Values.Count)
+            {
+                result.Add(ValueNode(_byId[element.Values[index].Id]));
+            }
+            else
+            {
+                var child = element.Children[index - element.Values.Count];
+                result.Add(SectionNode.Lazy(child.Name, child.Id));
+            }
+        }
         if ((page + 1) * PageSize < count)
         {
             result.Add(SectionNode.Lazy("More…", $"{id}|{page + 1}"));
