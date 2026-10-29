@@ -57,3 +57,32 @@ it.each(["success", "failure"])("ignores a delayed review %s after a newer revis
   expect(screen.queryByRole("button", { name: "Revert Potion quantity" })).toBeNull();
   expect(screen.getByRole("button", { name: "Revert Current quantity" })).toHaveProperty("disabled", false);
 });
+
+it.each([
+  new ApiError("Revert rejected", 422),
+  new ApiError("Unknown document. Reopen the save.", 404),
+  new ApiError("Revert service unavailable", 503),
+  new ApiError("Request failed (502).", 502),
+  new TypeError("Failed to fetch"),
+])("keeps a failed field revert available for an explicit retry (%s)", async failure => {
+  const changes = vi.spyOn(actionReview, "changes").mockResolvedValue(log);
+  const revert = vi.spyOn(actionReview, "revert").mockRejectedValueOnce(failure).mockResolvedValue({ ok: true, errors: [], warnings: [],
+    structureChanged: false, changes: [{ valueId: "quantity", oldValue: "10", newValue: "2" }],
+    state: { canUndo: true, canRedo: false, isDirty: false, revision: 2 } });
+  const { store } = renderDocument(<ChangesPanel />);
+  openReview();
+  const button = await screen.findByRole("button", { name: "Revert Potion quantity" });
+  button.focus();
+  fireEvent.click(button);
+  expect((await screen.findByRole("alert")).textContent).toBe(failure.message);
+  await waitFor(() => expect(button).toHaveProperty("disabled", false));
+  expect(document.activeElement).toBe(screen.getByText("Changes against original").closest("summary"));
+  expect(store.state).toEqual({ canUndo: true, canRedo: false, isDirty: true, revision: 1 });
+  changes.mockResolvedValue({ ...log, revision: 2, changes: [] });
+  fireEvent.click(button);
+  await screen.findByText("No semantic changes.");
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(store.state.revision).toBe(2);
+  expect(store.state.isDirty).toBe(false);
+  expect(revert.mock.calls).toEqual([["w1", "d1", "quantity", 1], ["w1", "d1", "quantity", 1]]);
+});
