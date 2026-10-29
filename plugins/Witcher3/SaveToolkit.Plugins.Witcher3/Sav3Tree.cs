@@ -142,7 +142,7 @@ internal sealed class Sav3Tree
         }
 
         var tag = "Opaque";
-        var name = $"Bytes at 0x{offset:X}";
+        string? name = null;
         string? type = null;
         var valueStart = 0;
         if (raw.StartsWith("BS"u8))
@@ -153,14 +153,14 @@ internal sealed class Sav3Tree
         }
         else if (raw.StartsWith("VL"u8) || raw.StartsWith("OP"u8))
         {
-            tag = System.Text.Encoding.ASCII.GetString(raw[..2]);
+            tag = raw.StartsWith("VL"u8) ? "VL" : "OP";
             name = Name(BinaryData.UInt16(raw, 2));
             type = Name(BinaryData.UInt16(raw, 4));
             valueStart = 6;
         }
         else if (raw.StartsWith("PORP"u8) || raw.StartsWith("AVAL"u8))
         {
-            tag = System.Text.Encoding.ASCII.GetString(raw[..4]);
+            tag = raw.StartsWith("PORP"u8) ? "PORP" : "AVAL";
             name = Name(BinaryData.UInt16(raw, 4));
             type = Name(BinaryData.UInt16(raw, 6));
             valueStart = 12;
@@ -179,7 +179,7 @@ internal sealed class Sav3Tree
         }
         else if (raw.StartsWith("SXAP"u8) || raw.StartsWith("MANU"u8))
         {
-            tag = System.Text.Encoding.ASCII.GetString(raw[..4]);
+            tag = raw.StartsWith("SXAP"u8) ? "SXAP" : "MANU";
             name = tag == "MANU" ? "Name table" : "Archive version header";
             if (tag == "SXAP")
             {
@@ -188,7 +188,7 @@ internal sealed class Sav3Tree
         }
 
         _ = BinaryData.Slice(raw, 0, opaque ? 0 : valueStart);
-        var node = new Sav3Node(Nodes.Count, offset, size, tag, name, type, offset + valueStart, size - valueStart);
+        var node = new Sav3Node(Nodes.Count, offset, size, tag, name ?? $"Bytes at 0x{offset:X}", type, offset + valueStart, size - valueStart);
         Nodes.Add(node);
         return node;
     }
