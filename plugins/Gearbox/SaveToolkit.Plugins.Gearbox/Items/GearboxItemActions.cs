@@ -27,7 +27,7 @@ internal sealed class GearboxItemActions(GearboxDocument document)
             if (actionId == "items/import") PlanImport(parameters, scope, changes);
             else PlanSelected(actionId, parameters, scope, changes, skipped);
             return new() { Changes = changes, SkippedRows = skipped, Warnings = [SerialWrites.Warning,
-                "Removal unequips matching slots and rebases surviving equipment indices. Import assigns seen/pickup metadata; duplicates clone all existing metadata. Account cloud mirrors are not reconciled."] };
+                "Removal unequips matching slots and rebases surviving equipment indices. Import assigns seen/pickup metadata; duplicates retain existing metadata except for a new backpack pickup order. Account cloud mirrors are not reconciled."] };
         }
         catch (Exception ex) when (ex is SaveFormatException or FormatException or OverflowException)
         { return new() { Errors = [new("", ex.Message)], Warnings = [SerialWrites.Warning] }; }
