@@ -223,6 +223,9 @@ and every inventory ID/name/quantity/durability against the current model. It al
 slots, opaque prefixes, prefix names, attributes and tags are unchanged, as well as intended skill
 ranks, unedited skill properties and Gwent identities/counts. Failure throws before returning output.
 
+Durability edits that return to the imported numeric value retain its original float32 bits, including
+the sign of zero. Numeric control normalization therefore preserves byte-identical restoration (#40).
+
 ## Player identity and progression evidence
 
 Player ownership is established by matching `universe/Player/id : IdTag` to a direct
