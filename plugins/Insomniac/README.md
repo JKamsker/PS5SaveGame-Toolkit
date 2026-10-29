@@ -113,8 +113,8 @@ See [EVIDENCE.md](EVIDENCE.md) for the measured layouts and F1 comparisons.
 
 ## Integrity and writing
 
-**Not validated on console. Integrity coverage is unknown; the game may reject the
-edited save.** Every writable field repeats this warning and retains Inferred
+**Not validated on console. The game may reject or overwrite the edited save.
+Integrity coverage is unknown.** Every writable field repeats this warning and retains Inferred
 confidence. No edited save has been validated in-game. Conformance establishes
 toolkit behavior, not game acceptance; only the owner can mark Stable.
 
@@ -157,7 +157,7 @@ applicable mutation in this format yet.
 All validation items are tracked in [owner issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31);
 the exact protocol remains in [OWNER-CAPTURES.md](OWNER-CAPTURES.md).
 
-| Write | Confidence | Evidence | Integrity status | Owner validation needed (with a link to #31) |
+| Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
 | CareerBolts | Inferred | CC0 schema/name CRC; all 36 primary records; observed UInt16/UInt32 widths; descriptor probe and production edit/reopen/F1/undo tests | Fixed-width only; unrelated bytes unchanged; body integrity unknown; game may reject | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): baseline, +1 bolt, HUD wallet, purchase, re-save/reload/re-export |
 | SpentBolts | Inferred | Same schema and corpus; observed maximum 260,875; edit/reopen/F1/undo tests; final-balance batch validation | Same unknown integrity; game may reject; accounting semantics not console-calibrated | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): one purchase capture, isolated spent-counter edit and wallet/downstream validation |
@@ -174,16 +174,16 @@ The additional F6 action exposes the same career atom, rather than a new storage
 | --- | --- | --- |
 | F1 SaveDiff | **Used** | RiftEvidenceDecoder and differential/write/planning tests retain DDL identities, widths, generations and identical backup collapse; no private save bytes committed. |
 | F2 reference packs | **Used** | Seven embedded catalogs across two packs, immutable Open context, source sidecars, per-record UI provenance and Sources-panel attribution; no plugin I/O. |
-| F3 rich cells | **Used; extended this round** | Inventory lazy detail cells and confidence/warnings; F9 diagrams expand from F8 detail cells. Weapon icons, full-set armour previews and a separate upgraded-form reference table use local ImageNode cells with provenance. |
-| F4 reference pickers | **Used; extended this round** | Four loadout paths plus arsenal config paths, armour/world identity candidates and raw inventory type IDs. Unjoined opaque GUID/config bytes are retained rather than falsely treated as catalog keys. |
+| F3 rich cells | **Used** | Extended in the completion/asset rounds: inventory lazy detail cells and confidence/warnings; F9 diagrams expand from F8 detail cells. Weapon icons, full-set armour previews and a separate upgraded-form reference table use local ImageNode cells with provenance. |
+| F4 reference pickers | **Used** | Extended in the completion round: four loadout paths plus arsenal config paths, armour/world identity candidates and raw inventory type IDs. Unjoined opaque GUID/config bytes are retained rather than falsely treated as catalog keys. |
 | F5 structural undo | **N/A** | No lossless record constructor/remover/string relocation/dependency repair exists. Existing writes preserve size and use scalar undo; speculative structure mutation would violate data preservation. |
-| F6 action planning | **Added this round** | Explicit calculated-bolt target, primary/derived previews, warnings, no-op explanation, stale/forged-plan rejection and Core grouped undo. #27 query scopes are inapplicable to a document-wide wallet target; row/query scopes reject explicitly. Ammo/refill/loadout/upgrade actions lack ownership, legal caps and dependency recipes. |
+| F6 action planning | **Used** | Added in the completion round: explicit calculated-bolt target, primary/derived previews, warnings, no-op explanation, stale/forged-plan rejection and Core grouped undo. #27 query scopes are inapplicable to a document-wide wallet target; row/query scopes reject explicitly. Ammo/refill/loadout/upgrade actions lack ownership, legal caps and dependency recipes. |
 | F7 document groups | **N/A** | Gameplay and preferences have no identified coupled invariant; each writer affects one existing file. No transaction over unrelated files is invented. |
-| F8 queryable tables | **Used; extended this round** | Arsenal/armour/upgrades/collectibles/objectives/dimensions/globals plus upgrade-diagram lists and every populated raw inventory container; bounded pages, search/filter/sort and lazy cell bindings. Raw DDL arrays retain bounded diagnostic pages. |
-| F9 maps/graphs | **Added this round** | Read-only stored upgrade-row graphs with field targets; spybot storage map/list plus nine lazy regional community maps with aligned local backgrounds (403 markers), text alternatives and explicit Unknown semantics. Save-to-guide joins, fog transforms and prerequisites require owner captures. |
+| F8 queryable tables | **Used** | Extended in the completion round: arsenal/armour/upgrades/collectibles/objectives/dimensions/globals plus upgrade-diagram lists and every populated raw inventory container; bounded pages, search/filter/sort and lazy cell bindings. Raw DDL arrays retain bounded diagnostic pages. |
+| F9 maps/graphs | **Used** | Added in the completion round and extended in the community-map/asset rounds: read-only stored upgrade-row graphs with field targets; spybot storage map/list plus nine lazy regional community maps with aligned local backgrounds (403 markers), text alternatives and explicit Unknown semantics. Save-to-guide joins, fog transforms and prerequisites require owner captures. |
 | F10 exact/nullable numbers | **Used** | Width-specific integer specs and exact UInt64/128-bit transport preserve IDs/masks above 2^53 (including UInt64.MaxValue vectors). DDL floats retain their actual binary precision. DDL type-19 is an empty array, not a nullable scalar or union; no artificial nullable/union control. |
 | F11 shared codecs | **N/A** | These measured DAT1/DDL/TVNI files are uncompressed, with no Kraken or SQLite payload; no local codec implementation exists to replace. |
-| F12 SaveDiff F8 traversal/hooks | **Added** | Production `ISaveDecoderProvider` exposes SDK-only `insomniac-evidence`; existing F1 tests use a thin `HookSaveDecoder` adapter. Host sink/file/depth bounds stop decoding; the ordinary `insomniac` view decoder also benefits from bounded F8 traversal. |
+| F12 SaveDiff F8 traversal/hooks | **Used** | Production `ISaveDecoderProvider` exposes SDK-only `insomniac-evidence`; existing F1 tests use a thin `HookSaveDecoder` adapter. Host sink/file/depth bounds stop decoding; the ordinary `insomniac` view decoder also benefits from bounded F8 traversal. |
 | F13 browse/inspect/filter/duration | **Used** | Existing read-only F4 IDs open browse-only pickers; all seven F2 catalogs use framework category filtering and declared Key/Name/Category sorting. Playtime publishes a float duration hint with inferred seconds and unchanged float32 precision. Inspection actions are N/A: current inspection is already represented by views; the only action changes bolts and remains mutating. |
 
 Historical research tested 41,652 CRC/FNV/Murmur section-digest candidates across
