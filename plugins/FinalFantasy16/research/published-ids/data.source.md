@@ -28,5 +28,7 @@ The upstream Markdown documents SQL-like extraction queries: items/equipment use
 speaker-linked rows. These are partial community lists, with no demonstrated
 PS5 build/patch availability or NPC-instance/save-index mapping.
 
-No code or other source was previously excluded solely for having no licence;
-the other plugin exclusions concern proprietary game media. No new media is embedded.
+No code or other source was previously excluded solely for having no licence.
+The identifier import contains no media. The separate publisher-media decisions
+are now resolved by the attributed imports documented in
+[game-assets.source.md](../game-assets.source.md); they are not continuing licence refusals.

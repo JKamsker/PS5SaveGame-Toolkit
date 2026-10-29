@@ -68,8 +68,9 @@ measured **204.683 → 211.826 ms**, and **60,882,536 → 73,289,496 allocated b
 This is a quick stopwatch measurement including JIT, not a statistical benchmark.
 Core loads/validates image bytes once in its shared pack store and serves cached
 objects; the plugin does no runtime file/network I/O. Regional views and ability
-details expand lazily. Core currently allocates an 81,920-byte scratch buffer for
-each resource read; those temporary allocations contribute to cold-load overhead.
+details expand lazily. These asset-round measurements predate Core's resource-reader
+optimization: embedded seekable streams now read into exact-size output arrays,
+and non-seekable streams rent a shared buffer instead of allocating one per read.
 See [measurement details](research/assets-load.json).
 
 Asset-round verification: **131 passed, 0 failed, 0 skipped**, with the external
@@ -137,21 +138,21 @@ confirmed save mappings. See the [requirement/acceptance gap audit](COMPLETION.m
 
 ## Framework feature adoption
 
-| Feature | Adoption | Where / concrete reason |
+| Feature | Status | Where / concrete reason |
 | --- | --- | --- |
 | F1 SaveDiff | Used | Hash-pinned generation fixture, native `ffxvi-evidence` F12 hook and exact allowed-byte-range write tests. No local diff engine. |
 | F2 reference packs | Used | Six packs, immutable standalone catalogue fallbacks, Sources panel and provenance; separately attributed wiki, Nex, feats, abilities, published identifiers and maps. Asset round: 140 icons, 140 official-description excerpts, five map backgrounds. |
-| F3 rich cells | Used; added this round | Icons, field confidence, selected-row planned actions and expandable source/storage details in eager/queried rows and spoiler-gated ability rows. |
-| F4 pickers | Used; added this round | Inventory/gear/shortcut IDs, summon/command/map context, Nex skill and read-only ability references. Read-only IDs publish browse-only ReferenceSpec controls; catalogue searches use category and declared sort keys. Other numeric context is an index/bitset or has no catalogue. |
+| F3 rich cells | Used | Icons, field confidence, selected-row planned actions and expandable source/storage details in eager/queried rows and spoiler-gated ability rows. |
+| F4 pickers | Used | Inventory/gear/shortcut IDs, summon/command/map context, Nex skill and read-only ability references. Read-only IDs publish browse-only ReferenceSpec controls; catalogue searches use category and declared sort keys. Other numeric context is an index/bitset or has no catalogue. |
 | F5 structural undo | N/A | No safe allocator writer: free-list/generation/slot reuse and dependencies are unidentified. Fixed-width edits use value history. |
-| F6 planning / #27 | Used; added this round | Explicit main-stack targets for document, selected rows and resolved whole-query scopes, with exclusions, CRC, skips, warnings and one undo group. The only planned parameter is a numeric quantity; selected item IDs already use ReferenceSpec fields, so no planned-action ID fallback is needed. |
+| F6 planning / #27 | Used | Explicit main-stack targets for document, selected rows and resolved whole-query scopes, with exclusions, CRC, skips, warnings and one undo group. The only planned parameter is a numeric quantity; selected item IDs already use ReferenceSpec fields, so no planned-action ID fallback is needed. |
 | F7 groups | N/A | No established gameplay/system coupling or prepared multi-file writer; speculative sibling edits have no substantiated contract. |
-| F8 collections | Added this round | Main inventory reaches 1,200 rows; materialize only requested rich rows. Secondary <=100, gear 18, raw ability bytes 92. |
-| F9 graph/map | Used; added this round | Lazy spoiler-gated progression DAG; Valisthea background and four lazy regional references. Stored map marker stays unpositioned; text alternatives, attribution, missing-pack fallbacks and field navigation retained. |
+| F8 collections | Used | Main inventory reaches 1,200 rows; complete-model offset queries render only requested rich rows, with numeric slot ties. The local query adapter reads live storage and only the metadata required for filtering/sorting before rendering a page; it does not use InMemoryCollection. Secondary <=100, gear 18, raw ability bytes 92. |
+| F9 graph/map | Used | Lazy spoiler-gated progression DAG; Valisthea background and four lazy regional references. Stored map marker stays unpositioned; text alternatives, attribution, missing-pack fallbacks and field navigation retained. |
 | F10 numbers | Used | Exact integer-string wire and integer-duration seconds. ExactNumberSpec/nullable/union are N/A to present fixed-width binary integers/bytes with no lexeme or null/type discriminator. |
 | F11 codecs | N/A | Supported PS5 files are plaintext Faith blocks with CRC; no Kraken/SQLite or PC PNG/XOR/zlib wrapper. |
-| F12 diff traversal | Used | The `ffxvi-evidence` SDK decoder hook emits bounded Faith root, inventory and context evidence independently of UI paging; the existing F1 fixture now has a native hook option. |
-| F13 inspect/picker/metadata | Used | The catalogue lookup is an explicit `Mutates = false` inspect action. Read-only IDs use browse-only ReferenceSpec pickers, and catalogue views use category filtering plus declared key/category sorting. Field-metadata publishing is N/A because the plugin has no separate metadata source beyond its bound views. |
+| F12 diff traversal | Used | The `ffxvi-evidence` SDK decoder hook emits bounded level/XP, play-time, main-inventory, party, equipment and rank-byte evidence independently of UI paging. The F1 fixture selects this hook directly. It does not emit every writable field (for example secondary stacks, HP or flag arrays); shared plugin-view traversal remains available through decoder `ffxvi`. |
+| F13 inspect/picker/duration | Used | The catalogue lookup is an explicit `Mutates = false` inspect action. Read-only IDs use browse-only ReferenceSpec pickers, and catalogue views use category filtering plus declared key/category sorting. Float-duration hints are N/A: stored play time is an i32 count of seconds, exposed with IntegerSpec duration formatting. |
 
 ## Enabled writes and their evidence
 
@@ -169,6 +170,7 @@ These are experimental bounds, **not legal gameplay caps**.
 
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
+| Manual existing main stack | Verified storage layout; gameplay caps Unknown | Supported dense main records with an initially nonnegative stack; editable range 0..int.MaxValue is a storage bound | CRC repaired; container/allocators reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): small quantity change, use/spend/sell, save/reload/re-export |
 | Main existing item ID replacement | Inferred / Unknown original | Dense identity-key layout; named F2 IDs; complete candidate duplicate-ID check | CRC repaired; container/allocators reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): replace one unequipped item, inspect quantity/flags/dependencies, use/sell, save/reload |
 | Secondary existing stack | Unknown | Same fixed i32 record layout; observed 0..152; bank role unconfirmed | CRC repaired; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): edit one stack, identify active adult/child/stage behavior |
 | Secondary existing item ID | Inferred / Unknown original | Dense records; ID-zero records excluded; duplicate-ID check | CRC repaired; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): replace one nonzero ID; compare both banks after save/reload |
@@ -188,7 +190,9 @@ These are experimental bounds, **not legal gameplay caps**.
 All these writes can produce gameplay-inconsistent state that the game rejects or
 resets despite a valid CRC. No quest, ownership, AP/refund, stat/growth, capacity,
 unlock or loadout dependencies are reconciled. Unknown replacement IDs are rejected;
-original unknown IDs (including 900000) remain restorable. Main/secondary identity
+context/equipment references may also use zero within their numeric bounds, without
+assigning it a gameplay meaning. Main/secondary item identities require positive
+named replacements. Original unknown IDs (including 900000) remain restorable. Main/secondary identity
 replacement never allocates/removes a record. New duplicate IDs are rejected after
 validating the complete batch, so an atomic identity swap remains possible.
 
@@ -258,8 +262,9 @@ policies or progression reconciliation from Phases 3–6.
 | `FAITHDATAnnnn/game-save-data` | Manual/special gameplay state |
 | `FAITHDATASYSTEM/system-save-data` | System/settings |
 
-Only these basenames under the supported title IDs are claimed, with matching
-container versions. The PS5 inner files are plaintext binary. PC PNG `faTh`, XOR
+These directories describe observed file roles; recognition checks the basename,
+outer title ID and matching gameplay/system header, without requiring the listed
+directory names. The PS5 inner files are plaintext binary. PC PNG `faTh`, XOR
 and dictionary-zlib wrappers are separate formats and are not emitted here.
 No XML/runtime hook, sibling rewrite, slot transplant or demo conversion is used.
 
@@ -336,11 +341,14 @@ unique/key-item effects and progression dependencies.
 
 ## Reference data and presentation
 
-`Open(file, IReferenceContext)` resolves `ffxvi_published_items`, the earlier
+Documents opened with `Open(file, IReferenceContext)` resolve on demand
+`ffxvi_published_items`, the earlier
 `ffxvi_items`, `ffxvi_published_maps`, `ffxvi_published_bnpc`, `ffxvi_published_enpc`, `ffxvi_maps`,
 `ffxvi_summons`, `ffxvi_skills`, `ffxvi_commands`, `ffxvi_feats` and
-`ffxvi_abilities`. All have
-embedded attributed fallbacks. `ffxvi_feats` uses summon-mode keys;
+`ffxvi_abilities`. These record catalogues have embedded attributed fallbacks.
+Map artwork separately resolves `ffxvi_map_art` through the supplied reference
+context. Images and map backgrounds require that context; standalone opening
+retains text/reference records but does not serve embedded media. `ffxvi_feats` uses summon-mode keys;
 `ffxvi_commands` uses command keys. Optional external `ffxvi_growth` supplies
 label/context only; no matched growth curves are embedded. A level number does
 not identify a proven ParamGrow row. No XP/HP calculation follows from a label.
@@ -362,7 +370,8 @@ ability icons are available through the asset packs; missing assets use text fal
 
 Tables are bounded (main pages at most 200 of 1200, eager only at <=100;
 secondary at most 100, gear 18, skill arrays 92 bytes, named Nex skill research at
-most 68 references, ability-reference details 48, growth 2 branches, capacity
+most 68 references, ability-reference details 48 shipped / at most 100 from a pinned
+catalogue, growth 2 branches, capacity
 4 upgrade IDs). The spoiler tree is lazy; graph states remain Unknown.
 Structure expands lazily, at most 64 children and 128 words per leaf;
 raw words have Unknown meaning. Hex requests are bounded to 64 KiB.
@@ -467,8 +476,9 @@ the naming audit and independent corpus preservation checks also pass.
 
 ## Sources and attribution
 
-Research/retrieval date: 2026-10-28. Downloads stayed in scratch and were read as
-text; no upstream code/templates were executed. Notices are retained in
+Research/retrieval dates: 2026-10-28 and 2026-10-29, as recorded per source below.
+Upstream code/templates were read as text in scratch and never executed. Media
+processing is documented in the source sidecars. Notices are retained in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 | Dataset / code research | Source / revision | Licence / modifications |
@@ -582,9 +592,13 @@ quantity/identity bindings are registered at document construction so unloaded-r
 actions and undo work today. Owner validation (#31) does not gate the enabled
 experimental fixed-width writes.
 
-Performance follow-up (#40): minimal storage bindings avoid rich presentation
-work during opening, but `BoundSaveDocument.Field` still creates a `FieldNode`
-for every registration. A separate registration method preserving the same
-spec/getter/setter/validator contract could remove these remaining temporary
-nodes. Shared pack resource read buffers are a Core optimization opportunity;
-neither helper was changed in this plugin-scoped review.
+Resolved performance requests (#40): the SDK now provides
+`BoundSaveDocument.RegisterField` for registration without constructing a
+`FieldNode`, plus `Field(valueId, label)` to render an existing binding. This
+plugin still registers its unloaded primary bindings through the full `Field`
+overload; adopting the new helper is a remaining optimization, not an SDK gap.
+Core's resource reader also now uses exact-size arrays for seekable embedded
+resources and pooled scratch buffers for non-seekable streams. No corresponding
+framework request remains open. Shared `Crc32Ieee` is already used for parsing,
+edits, serialization and streaming preview checksums; fixed-offset reads and
+Faith-specific framing/allocator guards remain local as described above.

@@ -125,13 +125,19 @@
   ],
   "policy": "Owner enabled writes with warnings (2026-10-28). Every new write remains Experimental with Inferred/Unknown confidence; no console validation. Type ranges plus conservative observed ceilings; original outliers restorable. Unknown replacements rejected except zero/original IDs in fixed context arrays. Duplicate/absent/unknown block schemas stay opaque. No structural allocator or multi-file writer.",
   "catalogs": {
-    "ffxvi_items": "234 attributed English labels; 131/172 retail observed main IDs; 26/67 round-2 gaps resolved, 41 Unknown; CC-BY-SA-3.0 adaptation, MIT notices retained; no caps/art",
+    "ffxvi_items": "234 attributed English labels; this wiki pack alone covers 131/172 retail observed main IDs and 2/2 demo IDs; 26/67 round-2 gaps resolved here, the remaining 41 named by the separate published-ID pack; CC-BY-SA-3.0 adaptation, MIT notices retained; no caps/art",
+    "ffxvi_published_items": "879 named community item/equipment IDs; 172/172 retail and 2/2 demo observed main IDs named; Inferred joins/categories; 92 separately attributed icons and description excerpts; no gameplay caps",
+    "ffxvi_published_maps": "98 community map IDs from 110 named variant rows; grouped paths/notes; read-only reference browser, not a unique saved asset or coordinate mapping",
+    "ffxvi_published_bnpc": "1758 community battle-NPC IDs; partial speaker-linked list; read-only reference browser, no save joins",
+    "ffxvi_published_enpc": "1085 community event-NPC IDs; partial speaker-linked list; read-only reference browser, no save joins",
     "ffxvi_maps": "107 MIT Nex research annotations; incomplete subrows; Inferred",
     "ffxvi_summons": "10 MIT Nex research annotations; not unlock flags; Inferred",
     "ffxvi_commands": "7 MIT vanilla feat command labels from pinned restoration code; Inferred; no save-rank mapping",
     "ffxvi_growth": "Optional label/context only; no derived stats or cap calculation",
     "ffxvi_feats": "8 MIT summon-mode-to-vanilla-feat reference associations; keys are summon IDs, not saved commands",
-    "ffxvi_skills": "3 explicit MIT Nex skill IDs, 39/45/49; separate reference sheet, no rank-index/flag/AP association"
+    "ffxvi_skills": "3 explicit MIT Nex skill IDs, 39/45/49; separate reference sheet, no rank-index/flag/AP association",
+    "ffxvi_abilities": "48 CC-BY-SA-3.0 reference abilities in 10 Eikon groups; stage/AP annotations, 48 separately attributed icons and description excerpts; all saved progression states Unknown; at most 100 records rendered from a pinned catalogue",
+    "ffxvi_map_art": "5 attributed reference backgrounds: Valisthea and 4 regions; supplied reference context required for images; no positioned save markers or save-to-art transform"
   },
   "writeEnable": {
     "ownerTracking": "https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31",

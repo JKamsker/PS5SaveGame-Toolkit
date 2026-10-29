@@ -32,7 +32,8 @@ labels at two separate IDs, and source spelling Flame of Rebirth are documented
 per record. Every mapping carries **Inferred** confidence and an evidence note.
 No wiki prose, Japanese translations, images, icons, caps or availability rules
 are included. Missing labels are never generated from ID ranges or copied from
-uncleared CSVs. The 41 remaining observed gaps stay numeric.
+uncleared CSVs. The 41 observed gaps in this wiki pack are named by the separate
+published-ID pack described above.
 
 Nenkai's [published numeric ID research](https://github.com/Nenkai/ffxvi-modding/tree/4b5e7eb349d2decd776b60b0f2d0f2af7aaaac03/docs/resources/ids)
 was consulted to research identifier associations. Its CSV facts are now retained

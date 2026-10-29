@@ -65,7 +65,10 @@ F12/F13 are consumed from merged framework support: the native `ffxvi-evidence` 
 feeds bounded SaveDiff traversal, and the catalogue lookup is a read-only F13 inspect
 action with browse-only read-only ID pickers.
 
-Agent work complete; remaining items are owner-blocked (#31), with F12/F13 adoption
-recorded above. Final unblock-round plugin validation: 122 passed,
+Completion-round work is recorded above. Gameplay evidence and console acceptance
+remain owner-blocked (#31); plugin optimization work can proceed independently.
+The former SDK registration and Core resource-buffer requests are now resolved;
+this plugin has not yet adopted `RegisterField`. See the current README SDK status.
+Historical unblock-round validation (2026-10-29): 122 passed,
 0 failed, 0 skipped with samples configured; API Release build 0 warnings/errors;
 F1 fixture 1 passed, 0 failed/skipped. No files outside this plugin were changed.
