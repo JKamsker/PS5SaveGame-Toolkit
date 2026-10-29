@@ -71,6 +71,6 @@ public sealed class FinalFantasy7Plugin : IGamePlugin, ISaveDecoderProvider
 
         var bytes = file.ReadAllBytes();
         var records = LinkedRecords.Parse(bytes, schema, common);
-        return new FinalFantasy7Document(file.RelativePath, file.FileName, bytes, schema, common, records, references);
+        return new FinalFantasy7Document(file.RelativePath, file.FileName, bytes, file.Directory.TitleId, schema, common, records, references);
     }
 }

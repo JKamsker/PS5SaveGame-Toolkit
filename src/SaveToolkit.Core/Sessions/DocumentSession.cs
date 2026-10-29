@@ -87,12 +87,12 @@ public sealed partial class DocumentSession : IDisposable
     public DocumentViewSnapshot CaptureView() => Locked(() =>
         new DocumentViewSnapshot(Document.Title, Document.CanEdit, StateUnlocked(), BuildView()));
 
-    public ViewNode BuildView() => Locked(() =>
+    public ViewNode BuildView() => Locked(() => PublishView(staged =>
     {
         var view = Document.BuildView();
-        _index.Add(view);
-        return view;
-    });
+        staged.Add(view);
+        return staged.ResolveFieldReferences(Document, view);
+    }));
 
     public IReadOnlyList<ViewNode> Expand(string lazyId) => Locked(() =>
     {
@@ -101,11 +101,34 @@ public sealed partial class DocumentSession : IDisposable
             throw _retired.Contains(lazyId) ? new StaleViewException() : new KeyNotFoundException($"Unknown lazy node '{lazyId}'.");
         }
 
-        var nodes = Document.ExpandNode(lazyId);
-        _index.AddAll(nodes);
+        var resolved = PublishView(staged =>
+        {
+            var nodes = Document.ExpandNode(lazyId);
+            staged.AddAll(nodes);
+            return ((SectionNode)staged.ResolveFieldReferences(Document, new SectionNode(string.Empty, nodes))).Children;
+        });
         _expanded.Add(lazyId);
-        return nodes;
+        return resolved;
     });
+
+    // A rejected response must publish neither bindings/metadata nor remembered group pages.
+    private T PublishView<T>(Func<ViewIndex, T> prepare, CancellationToken cancellationToken = default)
+    {
+        var staged = _index.Copy(cancellationToken);
+        var restoreGroup = (Document as Groups.StagedGroupDocument)?.CancellationRollback();
+        try
+        {
+            var result = prepare(staged);
+            cancellationToken.ThrowIfCancellationRequested();
+            _index = staged;
+            return result;
+        }
+        catch
+        {
+            restoreGroup?.Invoke();
+            throw;
+        }
+    }
 
     /// <param name="incoming">Edits as sent by the client.</param>
     /// <param name="expectedRevision">The <see cref="DocumentState.Revision"/> the client's view was built at, if known.</param>

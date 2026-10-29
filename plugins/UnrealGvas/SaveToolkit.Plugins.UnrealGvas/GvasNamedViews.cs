@@ -8,7 +8,7 @@ namespace SaveToolkit.Plugins.UnrealGvas;
 /// <summary>Exact observed container names select navigation groups, never guessed gameplay joins.</summary>
 internal sealed class GvasNamedViews
 {
-    private const string Description = "Read-only storage projection. Group meanings are Inferred from serialized names by PS5 Save Game Toolkit contributors (GPL-3.0-or-later). Canonical raw identities refer to Properties/Search; game effects, limits and prerequisites remain Unknown.";
+    private const string Description = "Storage projection. Eligible scalar values reference canonical raw fields; actor observations and opaque values remain read-only. Group meanings are Inferred from serialized names by PS5 Save Game Toolkit contributors (GPL-3.0-or-later). Game effects, limits and prerequisites remain Unknown.";
     private readonly Dictionary<string, GvasPropertyCollection> _collections = new(StringComparer.Ordinal);
     private readonly List<Tab> _tabs = [];
 
@@ -19,19 +19,22 @@ internal sealed class GvasNamedViews
         var catalogIds = UnrealGvasReferences.PropertyCatalogues(schema.Kind)
             .Where(id => id != UnrealGvasReferences.SackboyImageFields);
         var catalogs = catalogIds.Select(id => references.Catalog(id)).OfType<IReferenceCatalog>().ToArray();
-        Add("gvas/properties", "All nested properties", entries, catalogs);
+        Func<GvasPropertyEntry, ViewNode>? scalarCell = schema.Kind == UnrealGvasSchemaKind.Generic
+            ? null : GvasFieldReferenceFactory.Value;
+        Add("gvas/properties", "All nested properties", entries, catalogs, valueCell: scalarCell);
         if (schema.Kind == UnrealGvasSchemaKind.SackboyGeneral)
         {
-            Group("Progression", ["CollectabellSaveData", "AchievementLoadSaveData", "Pins", "Activities"]);
-            Group("Costumes and emotes", ["CostumeSaveData", "unlockedEmotes", "SavedBoundEmotes"]);
-            Group("World and levels", ["HostReplicatedData", "LevelData", "ZoneData", "StickerbookData"]);
-            Group("Settings", ["Settings", "Tutorials"]);
+            Group("Progression", ["CollectabellSaveData", "AchievementLoadSaveData", "Pins", "Activities"], GvasFieldReferenceFactory.Value);
+            Group("Costumes and emotes", ["CostumeSaveData", "unlockedEmotes", "SavedBoundEmotes"], GvasFieldReferenceFactory.Value);
+            Group("World and levels", ["HostReplicatedData", "LevelData", "ZoneData", "StickerbookData"], GvasFieldReferenceFactory.Value);
+            Group("Settings", ["Settings", "Tutorials"], GvasFieldReferenceFactory.Value);
         }
         else if (schema.Kind == UnrealGvasSchemaKind.JediSettings)
-            _tabs.Add(new("Settings", [new TextNode(Description), Add("jedi/settings", "Display, input and saved overrides", entries, catalogs).View]));
+            _tabs.Add(new("Settings", [new TextNode(Description), Add("jedi/settings", "Display, input and saved overrides", entries, catalogs,
+                valueCell: GvasFieldReferenceFactory.Value).View]));
         else if (schema.Kind == UnrealGvasSchemaKind.JediGameplay)
         {
-            Group("Journey state", ["PlayerStartRecord", "InitialStreamingAreas", "MetaData", "TimeSaved"]);
+            Group("Journey state", ["PlayerStartRecord", "InitialStreamingAreas", "MetaData", "TimeSaved"], GvasFieldReferenceFactory.Value);
             var children = new List<ViewNode> { new TextNode(Description) };
             if (actors is { IsValid: true })
             {
@@ -47,12 +50,13 @@ internal sealed class GvasNamedViews
             _tabs.Add(new("Actors", children));
         }
 
-        void Group(string title, IReadOnlyList<string> containers)
+        void Group(string title, IReadOnlyList<string> containers, Func<GvasPropertyEntry, ViewNode> valueCell)
         {
             var selected = entries.Where(entry => containers.Contains(entry.Node.Name, StringComparer.Ordinal) ||
                 entry.Ancestors.Any(ancestor => containers.Contains(ancestor, StringComparer.Ordinal))).ToArray();
             if (selected.Length > 0)
-                _tabs.Add(new(title, [new TextNode(Description), Add("gvas/group/" + title, title, selected, catalogs).View]));
+                _tabs.Add(new(title, [new TextNode(Description), Add("gvas/group/" + title, title, selected, catalogs,
+                    valueCell: valueCell).View]));
         }
     }
 
@@ -62,9 +66,10 @@ internal sealed class GvasNamedViews
         ? collection.Query(query) : throw new KeyNotFoundException($"Unknown property collection '{id}'.");
 
     private GvasPropertyCollection Add(string id, string title, IReadOnlyList<GvasPropertyEntry> entries,
-        IReadOnlyList<IReferenceCatalog> catalogs, string description = Description)
+        IReadOnlyList<IReferenceCatalog> catalogs, string description = Description,
+        Func<GvasPropertyEntry, ViewNode>? valueCell = null)
     {
-        var collection = new GvasPropertyCollection(id, title, entries, catalogs, description);
+        var collection = new GvasPropertyCollection(id, title, entries, catalogs, description, valueCell);
         _collections.Add(id, collection);
         return collection;
     }
