@@ -672,11 +672,13 @@ current-slot movement, explicit empty selection, duplicate/missing owned joins, 
 compatibility variants, host preview/apply, and one-unit undo/redo. Actual console patch/build
 remains **unknown**; a pack's display/build label cannot establish it. The host's pinned
 content identity (including locale/origin and validated content fingerprints) is authoritative.
-The shared capture validator has no document reference context, so materia descriptors set
-`ReferenceSpec.AllowCustom` only to let raw IDs reach the plugin; the existing F6 planner still
-rejects unknown or ineligible IDs before planning, mutation or history. This is a host/adopter
-validation seam, not permission to acquire items or bypass the pinned picker/catalog when it is
-available.
+The published host contract now passes its document-pinned `ReferenceFieldService` and
+`ReferenceContext` through capture, plan coercion and summaries. The materia descriptors still
+set `ReferenceSpec.AllowCustom` for the two raw IDs, so the descriptor layer remains permissive;
+FF7 canonical invariant-decimal parsing, known-ID/current-eligibility checks and the existing F6
+planner reject unknown or ineligible IDs before planning, mutation or history. This is a
+host/adopter validation seam, not permission to acquire items or bypass the pinned picker/catalog
+when it is available. The earlier pre-R4 `ReferenceContext.None` behavior is historical only.
 Browser acceptance against a running host and private sample-backed validation are outside this
 plugin-only change and remain pending. No direct weapon edit, socket/materia movement, allocation,
 owner/detail repair or complete native loadout is added.
