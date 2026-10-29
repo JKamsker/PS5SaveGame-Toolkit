@@ -24,6 +24,10 @@ internal static class ActionReviewEndpoints
         : result.Stale ? Results.Conflict(result) : Results.UnprocessableEntity(result);
 }
 
+/// <summary>
+/// HTTP action-planning request. Omitting or sending null for Scope selects document scope; the
+/// response contains the normalized scope used for planning.
+/// </summary>
 public sealed record PlanActionRequest(string ActionId, Dictionary<string, JsonElement>? Parameters,
     ActionScope? Scope = null, long? Revision = null);
 public sealed record ApplyActionPlanRequest(string PlanId, long Revision);
