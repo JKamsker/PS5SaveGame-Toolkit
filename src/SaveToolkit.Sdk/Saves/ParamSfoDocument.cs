@@ -1,0 +1,216 @@
+using System.Buffers.Binary;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace SaveToolkit.Sdk.Saves;
+
+/// <summary>
+/// A bounded, lossless PSF/SFO document that can patch one existing UTF-8 value in place.
+/// </summary>
+public sealed class ParamSfoDocument
+{
+    private const uint Magic = 0x46535000;
+    private const ushort FormatUtf8Special = 0x0004;
+    private const ushort FormatUtf8 = 0x0204;
+    private const int HeaderSize = 20;
+    private const int IndexEntrySize = 16;
+    private static readonly UTF8Encoding StrictUtf8 = new(false, true);
+    private readonly byte[] _bytes;
+    private readonly ParamSfoPatchLimits _limits;
+
+    private ParamSfoDocument(byte[] bytes, ParamSfoPatchLimits limits, IReadOnlyList<ParamSfoEntry> entries)
+    {
+        _bytes = bytes;
+        _limits = limits;
+        Entries = entries.ToArray();
+        OriginalFileSha256 = Convert.ToHexStringLower(SHA256.HashData(bytes));
+    }
+
+    /// <summary>Original bytes, retained without normalization or resizing.</summary>
+    public ReadOnlyMemory<byte> OriginalBytes => _bytes.ToArray();
+
+    /// <summary>SHA-256 fingerprint of <see cref="OriginalBytes"/>.</summary>
+    public string OriginalFileSha256 { get; }
+
+    /// <summary>Entries in their original index-table order.</summary>
+    public IReadOnlyList<ParamSfoEntry> Entries { get; }
+
+    /// <summary>Parses a bounded SFO document and retains every source byte.</summary>
+    public static ParamSfoDocument Parse(ReadOnlySpan<byte> bytes, ParamSfoPatchLimits? limits = null)
+    {
+        limits ??= ParamSfoPatchLimits.Default;
+        if (bytes.Length > limits.MaxFileBytes)
+            throw Error($"SFO is {bytes.Length} bytes, exceeding MaxFileBytes {limits.MaxFileBytes}.");
+        if (bytes.Length < HeaderSize)
+            throw Error("SFO header is truncated.");
+        if (BinaryPrimitives.ReadUInt32LittleEndian(bytes) != Magic)
+            throw Error("SFO magic is invalid.");
+
+        var keyTable = ReadInt32(bytes, 8, "key table offset");
+        var dataTable = ReadInt32(bytes, 12, "data table offset");
+        var count = ReadInt32(bytes, 16, "entry count");
+        if (count < 0 || count > (bytes.Length - HeaderSize) / IndexEntrySize)
+            throw Error("SFO entry count exceeds the index table.");
+
+        var indexEnd = HeaderSize + (count * IndexEntrySize);
+        if (keyTable < indexEnd || keyTable > bytes.Length || dataTable < keyTable || dataTable > bytes.Length)
+            throw Error("SFO table offsets overlap or exceed the source bytes.");
+        if ((keyTable & 3) != 0 || (dataTable & 3) != 0)
+            throw Error("SFO table offsets are not four-byte aligned.");
+
+        var entries = new List<ParamSfoEntry>(count);
+        var keys = new HashSet<string>(StringComparer.Ordinal);
+        var keyRanges = new List<(int Start, int End, int Index)>(count);
+        var slots = new List<(int Start, int End, int Index)>(count);
+        for (var index = 0; index < count; index++)
+        {
+            var indexStart = HeaderSize + (index * IndexEntrySize);
+            var rawIndex = bytes.Slice(indexStart, IndexEntrySize).ToArray();
+            var keyOffset = BinaryPrimitives.ReadUInt16LittleEndian(rawIndex);
+            var format = BinaryPrimitives.ReadUInt16LittleEndian(rawIndex.AsSpan(2));
+            var length = ReadInt32(rawIndex, 4, $"entry {index} length");
+            var maximumLength = ReadInt32(rawIndex, 8, $"entry {index} maximum length");
+            var dataOffset = ReadInt32(rawIndex, 12, $"entry {index} data offset");
+            if (length < 0 || maximumLength < 0 || length > maximumLength)
+                throw Error($"Entry {index} has an invalid logical or reserved length.");
+            if (maximumLength > limits.MaxEntryBytes)
+                throw Error($"Entry {index} exceeds MaxEntryBytes {limits.MaxEntryBytes}.");
+            if (keyOffset >= dataTable - keyTable)
+                throw Error($"Entry {index} key offset exceeds the key table.");
+            if (dataOffset < 0 || dataOffset > bytes.Length - dataTable || maximumLength > bytes.Length - dataTable - dataOffset)
+                throw Error($"Entry {index} data slot exceeds the source bytes.");
+
+            var keyStart = keyTable + keyOffset;
+            var keyTerminator = bytes[keyStart..dataTable].IndexOf((byte)0);
+            if (keyTerminator < 0 || keyTerminator > limits.MaxKeyBytes)
+                throw Error($"Entry {index} key is missing its terminator or exceeds MaxKeyBytes.");
+            var keyEnd = keyStart + keyTerminator + 1;
+            foreach (var previous in keyRanges)
+            {
+                if (keyStart < previous.End && previous.Start < keyEnd)
+                    throw Error($"SFO key ranges for entries {previous.Index} and {index} overlap.");
+            }
+            keyRanges.Add((keyStart, keyEnd, index));
+            var keyBytes = bytes.Slice(keyStart, keyTerminator).ToArray();
+            var key = Encoding.ASCII.GetString(keyBytes);
+            if (!keys.Add(key))
+                throw Error($"SFO contains duplicate key '{key}'.");
+
+            var valueStart = dataTable + dataOffset;
+            var valueBytes = bytes.Slice(valueStart, length).ToArray();
+            var reservedBytes = bytes.Slice(valueStart, maximumLength).ToArray();
+            slots.Add((valueStart, valueStart + maximumLength, index));
+            entries.Add(new ParamSfoEntry(
+                index, key, keyOffset, format, length, maximumLength, dataOffset,
+                keyBytes, valueBytes, reservedBytes, rawIndex,
+                ComputeEntryFingerprint(rawIndex, keyBytes, reservedBytes)));
+        }
+
+        foreach (var left in slots)
+        foreach (var right in slots)
+        {
+            if (left.Index >= right.Index) continue;
+            if (left.Start < right.End && right.Start < left.End)
+                throw Error($"SFO data slots for entries {left.Index} and {right.Index} overlap.");
+        }
+
+        return new ParamSfoDocument(bytes.ToArray(), limits, entries);
+    }
+
+    /// <summary>Plans a strict UTF-8 replacement for one unique existing string entry.</summary>
+    public ParamSfoPatchPlan PlanExistingUtf8(string key, string newText)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+        ArgumentNullException.ThrowIfNull(newText);
+        if (newText.Contains('\0', StringComparison.Ordinal))
+            throw Error($"Replacement for '{key}' contains an embedded NUL.");
+
+        var entry = Entries.FirstOrDefault(candidate => string.Equals(candidate.Key, key, StringComparison.Ordinal));
+        if (entry is null) throw Error($"SFO key '{key}' does not exist.");
+        if (entry.Format is not (FormatUtf8 or FormatUtf8Special))
+            throw Error($"SFO key '{key}' has unsupported format 0x{entry.Format:X4}.");
+
+        var originalText = DecodeOriginalText(entry);
+        byte[] encoded;
+        try
+        {
+            encoded = StrictUtf8.GetBytes(newText);
+        }
+        catch (EncoderFallbackException exception)
+        {
+            throw Error($"Replacement for '{key}' is not valid UTF-8: {exception.Message}");
+        }
+        if (encoded.Length > _limits.MaxEncodedValueBytes)
+            throw Error($"Replacement for '{key}' exceeds MaxEncodedValueBytes {_limits.MaxEncodedValueBytes}.");
+        if (encoded.Length > entry.MaximumLength - 1)
+            throw Error($"Replacement for '{key}' needs {encoded.Length + 1} bytes including its terminator, but only {entry.MaximumLength} are reserved.");
+
+        return new ParamSfoPatchPlan(
+            key, entry.Format, entry.Index, entry.DataOffset, entry.Length, entry.MaximumLength,
+            originalText, newText, OriginalFileSha256, entry.EntrySha256);
+    }
+
+    /// <summary>Applies a previously planned replacement without mutating this document.</summary>
+    public ReadOnlyMemory<byte> Apply(ParamSfoPatchPlan plan)
+    {
+        ArgumentNullException.ThrowIfNull(plan);
+        if (!string.Equals(plan.OriginalFileSha256, OriginalFileSha256, StringComparison.OrdinalIgnoreCase))
+            throw Error("The patch plan does not match this SFO source fingerprint.");
+        if (plan.EntryIndex < 0 || plan.EntryIndex >= Entries.Count)
+            throw Error("The patch plan entry index is outside this SFO document.");
+        var entry = Entries[plan.EntryIndex];
+        if (!string.Equals(plan.Key, entry.Key, StringComparison.Ordinal)
+            || plan.Format != entry.Format
+            || plan.DataOffset != entry.DataOffset
+            || plan.OriginalLength != entry.Length
+            || plan.MaximumLength != entry.MaximumLength
+            || !string.Equals(plan.OriginalEntrySha256, entry.EntrySha256, StringComparison.OrdinalIgnoreCase))
+            throw Error("The patch plan entry identity does not match this SFO document.");
+        if (!string.Equals(plan.OriginalText, DecodeOriginalText(entry), StringComparison.Ordinal))
+            throw Error("The patch plan original text does not match this SFO document.");
+        if (plan.NewText.Contains('\0', StringComparison.Ordinal))
+            throw Error("The patch plan replacement contains an embedded NUL.");
+
+        byte[] encoded;
+        try { encoded = StrictUtf8.GetBytes(plan.NewText); }
+        catch (EncoderFallbackException exception) { throw Error($"Patch plan replacement is not valid UTF-8: {exception.Message}"); }
+        if (encoded.Length > _limits.MaxEncodedValueBytes || encoded.Length > entry.MaximumLength - 1)
+            throw Error("The patch plan replacement exceeds its finite SFO limits.");
+        if (plan.IsNoOp) return _bytes.ToArray();
+
+        var output = _bytes.ToArray();
+        var indexStart = HeaderSize + (entry.Index * IndexEntrySize);
+        BinaryPrimitives.WriteInt32LittleEndian(output.AsSpan(indexStart + 4), encoded.Length + 1);
+        var valueStart = BinaryPrimitives.ReadInt32LittleEndian(output.AsSpan(12)) + entry.DataOffset;
+        encoded.CopyTo(output.AsSpan(valueStart));
+        output[valueStart + encoded.Length] = 0;
+        return output;
+    }
+
+    private string DecodeOriginalText(ParamSfoEntry entry)
+    {
+        var raw = entry.ValueBytes.Span;
+        var terminator = raw.IndexOf((byte)0);
+        if (terminator < 0 || terminator != raw.Length - 1)
+            throw Error($"SFO key '{entry.Key}' has an invalid UTF-8 value terminator.");
+        try { return StrictUtf8.GetString(raw[..terminator]); }
+        catch (DecoderFallbackException exception) { throw Error($"SFO key '{entry.Key}' is not valid UTF-8: {exception.Message}"); }
+    }
+
+    private static int ReadInt32(ReadOnlySpan<byte> data, int offset, string label)
+    {
+        if (offset < 0 || offset > data.Length - sizeof(int)) throw Error($"SFO {label} is truncated.");
+        return BinaryPrimitives.ReadInt32LittleEndian(data[offset..]);
+    }
+
+    private static string ComputeEntryFingerprint(byte[] rawIndex, byte[] keyBytes, byte[] reservedBytes)
+    {
+        var input = new byte[rawIndex.Length + keyBytes.Length + reservedBytes.Length];
+        rawIndex.CopyTo(input, 0);
+        keyBytes.CopyTo(input, rawIndex.Length);
+        reservedBytes.CopyTo(input, rawIndex.Length + keyBytes.Length);
+        return Convert.ToHexStringLower(SHA256.HashData(input));
+    }
+
+    private static ParamSfoPatchException Error(string message) => new(message);
+}
