@@ -82,6 +82,7 @@ internal sealed class JsonTokenTree
                     Source = bytes, Parent = parent,
                     MemberOffset = parent?.Kind == JsonTokenType.StartObject ? propertyOffset : checked((int)reader.TokenStartIndex + bom),
                     MemberNameLength = parent?.Kind == JsonTokenType.StartObject ? propertyLength : 0,
+                    Position = parent?.Children.Count ?? 0,
                 };
                 tree.Nodes.Add(node);
                 parent?.Children.Add(node);
@@ -163,8 +164,8 @@ internal sealed class JsonTokenTree
             var occurrences = node.Kind == JsonTokenType.StartObject ? new Dictionary<string, int>(StringComparer.Ordinal) : null;
             for (var i = 0; i < node.Children.Count; i++)
             {
-                if (node.Kind == JsonTokenType.StartArray) node.Children[i].Label = $"[{i}]";
                 var child = node.Children[i];
+                if (node.Kind == JsonTokenType.StartArray && (child.Position != i || child.Parent != node)) child.Label = $"[{i}]";
                 child.Position = i;
                 child.Occurrence = 1;
                 if (occurrences is not null)

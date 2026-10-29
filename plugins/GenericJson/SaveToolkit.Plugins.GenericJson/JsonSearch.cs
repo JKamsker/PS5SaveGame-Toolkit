@@ -42,6 +42,8 @@ internal sealed class JsonSearch(JsonTokenTree imported)
         long total = 0, filtered = 0;
         var sort = query.SortColumn is not null || query.Descending;
         var filters = query.Filters.ToArray();
+        var textIdentity = query.Text is { } text ? tree.FindValue(text) : null;
+        var withinIdentity = query.Filters.TryGetValue("within", out var within) ? tree.FindValue(within) : null;
         var entries = collectionId == CollectionId ? tree.Nodes : root.Children;
         if (!sort && string.IsNullOrEmpty(query.Text) && query.Filters.Count == 0)
         {
@@ -53,7 +55,7 @@ internal sealed class JsonSearch(JsonTokenTree imported)
             foreach (var entry in entries)
             {
                 total++;
-                if (!Matches(entry, query.Text, filters)) continue;
+                if (!Matches(entry, query.Text, textIdentity, withinIdentity, filters)) continue;
                 if (sort || filtered >= offset && filtered - offset < limit) rows.Add(entry);
                 filtered++;
                 if (sort && rows.Count > MaxSortedMatches)
@@ -101,13 +103,14 @@ internal sealed class JsonSearch(JsonTokenTree imported)
     private static string Clip(string text) => text.Length <= MaxDisplayLiteral ? text
         : text[..MaxDisplayLiteral] + "… (complete value in raw JSON)";
 
-    private bool Matches(JsonValueToken node, string? text, KeyValuePair<string, string>[] filters)
+    private bool Matches(JsonValueToken node, string? text, JsonValueToken? textIdentity, JsonValueToken? withinIdentity,
+        KeyValuePair<string, string>[] filters)
     {
         foreach (var filter in filters)
         {
             if (filter.Key == "within")
             {
-                if (!Within(node, filter.Value)) return false;
+                if (filter.Value.Length != 0 && !Within(node, withinIdentity)) return false;
                 continue;
             }
             if (filter.Key == "path")
@@ -120,7 +123,7 @@ internal sealed class JsonSearch(JsonTokenTree imported)
                 : !value.Contains(filter.Value, StringComparison.OrdinalIgnoreCase)) return false;
         }
         return string.IsNullOrEmpty(text) || node.Label.Contains(text, StringComparison.OrdinalIgnoreCase)
-            || node.ValueId.Equals(text, StringComparison.Ordinal)
+            || node == textIdentity
             || (node.Parent?.Kind == JsonTokenType.StartArray ? node.Label : node.FriendlyLabel ??= JsonLabels.Friendly(node.Label))
                 .Contains(text, StringComparison.OrdinalIgnoreCase)
             || !node.IsContainer && node.Current.ToString().Contains(text, StringComparison.OrdinalIgnoreCase)
@@ -176,11 +179,11 @@ internal sealed class JsonSearch(JsonTokenTree imported)
         return true;
     }
 
-    private static bool Within(JsonValueToken node, string identity)
+    private static bool Within(JsonValueToken node, JsonValueToken? identity)
     {
-        if (identity.Length == 0) return true;
+        if (identity is null) return false;
         for (var ancestor = node; ancestor is not null; ancestor = ancestor.Parent)
-            if (ancestor.ValueId == identity) return true;
+            if (ancestor == identity) return true;
         return false;
     }
 

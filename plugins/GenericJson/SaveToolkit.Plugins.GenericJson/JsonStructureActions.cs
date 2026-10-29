@@ -14,6 +14,7 @@ internal static class JsonStructureActions
         + " Advanced JSON syntax edit. Membership, names and order may have game-specific dependencies; console acceptance is unknown. Templates describe JSON types, not a validated game schema.";
     private const int DisplayedIds = 64;
     private const int HashBufferBytes = 512;
+    private const int IdentityBufferChars = 32;
 
     public static string StructureId(JsonValueToken node) => $"structure/{node.Index}";
 
@@ -23,10 +24,14 @@ internal static class JsonStructureActions
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         var displayed = new List<string>();
         Span<byte> utf8 = stackalloc byte[HashBufferBytes];
+        Span<char> identity = stackalloc char[IdentityBufferChars];
         for (var i = 0; i < node.Children.Count; i++)
         {
             var child = node.Children[i];
-            var entry = node.Kind == JsonTokenType.StartObject ? $"{child.ValueId}:{JsonSerializer.Serialize(child.Label)}" : child.ValueId;
+            "value/".AsSpan().CopyTo(identity);
+            _ = child.Index.TryFormat(identity["value/".Length..], out var digits);
+            ReadOnlySpan<char> entry = identity[..("value/".Length + digits)];
+            if (node.Kind == JsonTokenType.StartObject) entry = $"{entry}:{JsonSerializer.Serialize(child.Label)}";
             if (i > 0) hash.AppendData(", "u8);
             var byteCount = Encoding.UTF8.GetByteCount(entry);
             if (byteCount <= utf8.Length)
@@ -34,8 +39,8 @@ internal static class JsonStructureActions
                 var written = Encoding.UTF8.GetBytes(entry, utf8);
                 hash.AppendData(utf8[..written]);
             }
-            else hash.AppendData(Encoding.UTF8.GetBytes(entry));
-            if (i < DisplayedIds) displayed.Add(entry.Length <= 160 ? entry : entry[..160] + "…");
+            else hash.AppendData(Encoding.UTF8.GetBytes(entry.ToString()));
+            if (i < DisplayedIds) displayed.Add(entry.Length <= 160 ? entry.ToString() : entry[..160].ToString() + "…");
         }
         var digest = Convert.ToHexStringLower(hash.GetHashAndReset());
         // Bound the displayed names as well as their count. The digest covers every complete name.
