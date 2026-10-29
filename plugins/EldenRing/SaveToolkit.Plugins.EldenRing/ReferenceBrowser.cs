@@ -11,6 +11,7 @@ internal sealed class ReferenceBrowser(IReferenceCatalog? catalog, IReferenceCat
     public const string CollectionId = "catalog/items";
     private const int MaximumRecords = 250_000;
     private readonly Lazy<IReadOnlyList<ReferenceRecord>> _index = new(() => Index(catalog));
+    private readonly ReferenceSearchText _searchText = new();
 
     public QueryableCollection Collection => new(CollectionId, "Item reference catalog", Columns, catalog?.Count ?? 0)
     {
@@ -47,7 +48,8 @@ internal sealed class ReferenceBrowser(IReferenceCatalog? catalog, IReferenceCat
 
     public QueryableCollectionPage Query(QueryableCollectionQuery query)
     {
-        var result = BrowseQuery.Apply(_index.Value, query, Columns, row => row.Key, Text, (_, _) => null);
+        var records = ReferenceSearchText.Filter(_index.Value, query, Matches);
+        var result = BrowseQuery.Apply(records, query with { Text = null }, Columns, row => row.Key, Text, (_, _) => null);
         return new QueryableCollectionPage(CollectionId, Columns, result.Page.Select(Row).ToArray(),
             catalog?.Count ?? 0, result.Filtered, result.Offset, result.Limit);
     }
@@ -65,6 +67,11 @@ internal sealed class ReferenceBrowser(IReferenceCatalog? catalog, IReferenceCat
         "details" => Details(row),
         _ => throw new ArgumentException("Unknown catalog column."),
     };
+
+    private bool Matches(ReferenceRecord record, string search) => ReferenceSearchText.Contains(record.Key, search)
+        || ReferenceSearchText.Contains(record.Name, search)
+        || ReferenceSearchText.Contains(record.Category ?? "unknown", search)
+        || _searchText.ContainsDetails(record, search);
 
     private static TableRow Row(ReferenceRecord record) => new($"catalog/{record.Key}",
         Columns.ToDictionary(column => column.Key, column => column.Key == "details"

@@ -50,6 +50,7 @@ internal sealed class CommunityCatalogView(string id, string title, IReferenceCa
 {
     private const int MaximumRecords = 20_000;
     private readonly Lazy<IReadOnlyList<ReferenceRecord>> _index = new(() => Read(catalog));
+    private readonly ReferenceSearchText _searchText = new();
     private static IReadOnlyList<QueryableColumn> Columns =>
         [new("id", "Source identity"), new("name", "Name / declaration"), new("category", "Category / table"),
             new("groups", "Source groups"), new("details", "Evidence / attribution")];
@@ -65,7 +66,8 @@ internal sealed class CommunityCatalogView(string id, string title, IReferenceCa
 
     public QueryableCollectionPage Query(QueryableCollectionQuery query)
     {
-        var result = BrowseQuery.Apply(_index.Value, query, Columns, row => row.Key, Text, (_, _) => null);
+        var records = ReferenceSearchText.Filter(_index.Value, query, Matches);
+        var result = BrowseQuery.Apply(records, query with { Text = null }, Columns, row => row.Key, Text, (_, _) => null);
         return new(id, Columns, result.Page.Select(record => new TableRow(id + "/" + record.Key,
             Columns.ToDictionary(column => column.Key, column => (ViewNode)new TextNode(Text(record, column.Key))))).ToArray(),
             _index.Value.Count, result.Filtered, result.Offset, result.Limit);
@@ -81,6 +83,18 @@ internal sealed class CommunityCatalogView(string id, string title, IReferenceCa
             + string.Join(" · ", record.Attributes.Select(attribute => $"{attribute.Key}: {attribute.Value}")),
         _ => throw new ArgumentException("Unknown community catalog column."),
     };
+
+    private bool Matches(ReferenceRecord record, string search)
+    {
+        // Groups and evidence both join parts with middle dots. Preserve substrings across
+        // those boundaries, including the boundary between provenance and attributes.
+        if (search.Contains('·')) return Columns.Any(column => ReferenceSearchText.Contains(Text(record, column.Key), search));
+        return ReferenceSearchText.Contains(record.Key, search) || ReferenceSearchText.Contains(record.Name, search)
+            || ReferenceSearchText.Contains(Text(record, "category"), search) || _searchText.ContainsDetails(record, search)
+            || record.Attributes.Any(attribute => ReferenceSearchText.Contains(attribute.Key, search)
+                || ReferenceSearchText.Contains(attribute.Value, search)
+                || search.Contains(':') && ReferenceSearchText.Contains(attribute.Key + ": " + attribute.Value, search));
+    }
 
     private static IReadOnlyList<ReferenceRecord> Read(IReferenceCatalog? catalog)
     {
