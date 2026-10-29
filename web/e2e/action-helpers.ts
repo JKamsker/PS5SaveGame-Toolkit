@@ -34,7 +34,9 @@ export async function editScalar(page: Page, field: Locator, value: string, mult
 export async function expectPreview(page: Page, scope: string, changes: { key: string; before: string; after: string }[]) {
   const preview = actionPreview(page);
   await expect(preview.getByText(scope, { exact: true })).toBeVisible();
-  await expect(preview.getByRole("status")).toHaveText(`${changes.length} field changes · 0 skipped rows · one undo step`);
+  await expect(preview.getByRole("status")).toHaveText(changes.length === 0
+    ? "No changes. No undo step will be created."
+    : `${changes.length} field changes · 0 skipped rows · one undo step`);
   const table = preview.getByRole("table", { name: "Preview changes", exact: true });
   await expect(table.getByRole("row")).toHaveCount(changes.length + 1);
   for (const change of changes) {
@@ -42,7 +44,9 @@ export async function expectPreview(page: Page, scope: string, changes: { key: s
     await expect(row.getByRole("cell").nth(0)).toHaveText(change.before);
     await expect(row.getByRole("cell").nth(1)).toHaveText(change.after);
   }
-  await expect(preview.getByRole("button", { name: "Apply", exact: true })).toBeEnabled();
+  const apply = preview.getByRole("button", { name: "Apply", exact: true });
+  if (changes.length === 0) await expect(apply).toBeDisabled();
+  else await expect(apply).toBeEnabled();
 }
 
 export async function closePreview(page: Page, button: "Cancel" | "Apply") {

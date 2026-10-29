@@ -1,13 +1,27 @@
 import { test, expect, type Page } from "@playwright/test";
-import type { SaveDocument, FieldNode } from "../src/api/protocol";
-import { importSave, openJson } from "./helpers";
+import type { SaveDocument, FieldNode, Workspace } from "../src/api/protocol";
+import { archive, importSave, openJson } from "./helpers";
 import { actionPreview, resetAction } from "./action-helpers";
 
-// Authored protocol fixture over a real GenericJson import/open. This proves browser behavior;
-// native storage/UTF-8 enforcement is covered by Core session tests, not this injected view.
+async function createCaptionDocument(page: Page) {
+  const imported = await page.request.post("/api/workspaces", { multipart: {
+    files: { name: "synthetic-save.zip", mimeType: "application/zip", buffer: archive() },
+  } });
+  expect(imported.ok()).toBe(true);
+  const workspace = await imported.json() as Workspace;
+  const files = workspace.titles.flatMap(title => title.directories.flatMap(directory => directory.files))
+    .filter(file => file.path === "save.json");
+  expect(files).toHaveLength(1);
+  const opened = await page.request.post(`/api/workspaces/${workspace.id}/files/${files[0]!.id}/open`, { data: { pluginId: "format.json" } });
+  expect(opened.ok()).toBe(true);
+  const document = await opened.json() as SaveDocument;
+  return `/w/${workspace.id}?doc=${document.id}`;
+}
+
+// Real HTTP import/open followed by a browser deep link avoids repeating unrelated picker UI
+// in each authored protocol case. Native UTF-8 enforcement is covered by Core, not this view.
 async function captionFixture(page: Page, maxUtf8Bytes: number | null = 4, canEdit = true) {
-  await importSave(page);
-  await openJson(page);
+  const url = await createCaptionDocument(page);
   const field: FieldNode = { type: "field", valueId: "caption", label: "Caption", value: "old",
     description: "Synthetic UTF-8 caption", spec: { kind: "text", maxUtf8Bytes } };
   let serverRevision: number | undefined;
@@ -39,7 +53,7 @@ async function captionFixture(page: Page, maxUtf8Bytes: number | null = 4, canEd
     ] };
     await route.fulfill({ response, json: document });
   });
-  await page.reload();
+  await page.goto(url);
   await expect(page.getByText("Synthetic caption controls", { exact: true })).toBeVisible();
   return {
     get revision() { return serverRevision!; },
