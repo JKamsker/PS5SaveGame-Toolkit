@@ -210,6 +210,12 @@ Primary value IDs are exact paths, e.g.
 `raw/`, avoiding duplicate IDs across views. Both aliases share one primitive;
 changes report every exposed alias. Contradictory alias edits reject atomically.
 
+Restoring a primitive's imported semantic value also restores its original stored
+bytes. This preserves accepted noncanonical nonzero boolean bytes and signed
+floating-point zero through edits and undo/revert. Numeric no-ops keep the stored
+representation. Synthetic accepted-input tests exercise these cases; they do not
+establish that consoles produce noncanonical values or accept edited saves.
+
 ## Clock decisions
 
 All 11 gameplay samples satisfy:
@@ -318,6 +324,14 @@ dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Tests
 dotnet test --project tests/SaveToolkit.Core.Tests
 ```
+
+Write-safety review (#40): **145 passed, 0 failed, 0 skipped** across all 12
+distinct supplied files; API build **0 warnings, 0 errors**. Six new cases cover
+canonical/noncanonical boolean no-ops, exact byte restoration through repeated
+Core undo/redo with primary/Raw aliases, and positive/negative float32 zero
+restoration after an intermediate edit. Before the fix, both noncanonical
+boolean cases and the negative-zero case failed; canonical controls passed.
+All new changed-plaintext assertions allow only the targeted primitive bytes.
 
 Conformance covers all 12 distinct files with meaningful quantity edits and a
 system boolean edit. Format tests check the research map's root/section values,

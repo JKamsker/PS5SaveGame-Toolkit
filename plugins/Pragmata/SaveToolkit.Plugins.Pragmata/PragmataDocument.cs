@@ -126,7 +126,15 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
         // Stage bytes so a failed batch cannot partially mutate the document.
         var staged = _plaintext.ToArray();
         foreach (var (node, value) in proposed)
-            if (Read(node) != value) PrimitiveCodec.Write(node, staged, value);
+        {
+            if (Read(node) == value) continue;
+            // Semantic values can hide stored representations (nonzero booleans, signed zero).
+            // Restoring an imported value must also restore its exact bytes for undo/revert.
+            if (PrimitiveCodec.Read(node, _container.Plaintext) == value)
+                _container.Plaintext.AsSpan(node.Offset, node.Size).CopyTo(staged.AsSpan(node.Offset, node.Size));
+            else
+                PrimitiveCodec.Write(node, staged, value);
+        }
         _plaintext = staged;
         return new EditOutcome { Changes = changes, Warnings = [EditWarning], StructureChanged = true };
     }
