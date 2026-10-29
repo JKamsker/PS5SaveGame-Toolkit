@@ -81,7 +81,7 @@ internal sealed class AriseReferences(IReferenceContext context)
         return catalog is null
             ? new QueryableCollectionPage(id, AriseCatalogQuery.Columns(id), [], 0, 0,
                 Math.Max(0, query.Offset), Math.Clamp(query.Limit, 1, ReferenceQuery.MaxLimit))
-            : AriseCatalogQuery.Query(id, catalog, query);
+            : AriseCatalogQuery.Query(context, id, catalog, query);
     }
 
     public ViewNode CatalogSection(string id, string? character = null)

@@ -31,9 +31,13 @@ internal static class AriseAssets
         "https://aselia.fandom.com/wiki/Talon_Storm?oldid=383173#Tales_of_Arise",
     ];
 
-    public static ViewNode Icon(ReferenceRecord? record) => record?.AssetId is { } asset
-        ? new ImageNode(asset, $"{record.Name}: {record.Attributes.GetValueOrDefault("iconRole") ?? "game icon"}. {MediaLicense}")
-        : new TextNode("—");
+    public static ViewNode Icon(IReferenceContext context, ReferenceRecord? record) =>
+        ReferenceViews.Icon(context, record, label: null, fallback: new TextNode("—"), options: new()
+        {
+            Availability = ReferenceIconAvailability.AssetIdOnly,
+            ExactAltText = record is null ? null
+                : $"{record.Name}: {record.Attributes.GetValueOrDefault("iconRole") ?? "game icon"}. {MediaLicense}",
+        });
 
     public static string Details(ReferenceRecord record) => record.Attributes.TryGetValue("iconSource", out var source)
         ? $"{record.Description}\n{record.AttributionText}\nIcon: {source}; {record.Attributes.GetValueOrDefault("iconRole")}. {MediaLicense}"

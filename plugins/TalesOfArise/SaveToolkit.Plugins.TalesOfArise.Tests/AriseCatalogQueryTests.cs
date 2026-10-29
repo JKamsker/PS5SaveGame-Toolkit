@@ -14,7 +14,7 @@ public sealed class AriseCatalogQueryTests
     public void StandardSortsDelegateBoundedPagingToTheCatalog(string column, ReferenceSortKey sort, bool descending)
     {
         var catalog = Catalog("equipment");
-        var page = AriseCatalogQuery.Query(catalog.Id, catalog, new()
+        var page = AriseCatalogQuery.Query(catalog.Context, catalog.Id, catalog, new()
         {
             Offset = 203, Limit = 17, SortColumn = column, Descending = descending,
         });
@@ -31,7 +31,7 @@ public sealed class AriseCatalogQueryTests
     public void CategoryFilteringAndCategorySortingShareOneBoundedCatalogQuery()
     {
         var catalog = Catalog("items");
-        var page = AriseCatalogQuery.Query(catalog.Id, catalog, new()
+        var page = AriseCatalogQuery.Query(catalog.Context, catalog.Id, catalog, new()
         {
             Offset = 2, Limit = 3, SortColumn = "category", Descending = true,
             Filters = new Dictionary<string, string> { ["category"] = "fishing item" },
@@ -49,7 +49,7 @@ public sealed class AriseCatalogQueryTests
     {
         var catalog = Catalog("skill-nodes");
         var first = catalog.Inner.Search(new() { Text = "Sonic Thrust", Limit = 1 }).Items[0];
-        var page = AriseCatalogQuery.Query(catalog.Id, catalog, new()
+        var page = AriseCatalogQuery.Query(catalog.Context, catalog.Id, catalog, new()
         {
             Text = "Escape Artist", SortColumn = "name",
             Filters = new Dictionary<string, string> { ["category"] = first.Category! },
@@ -68,7 +68,7 @@ public sealed class AriseCatalogQueryTests
     public void CatalogsWithoutDeclaredSortingRetainDeterministicFallback()
     {
         var catalog = Catalog("equipment", declareSorts: false);
-        var page = AriseCatalogQuery.Query(catalog.Id, catalog, new() { Offset = 203, Limit = 17, SortColumn = "name", Descending = true });
+        var page = AriseCatalogQuery.Query(catalog.Context, catalog.Id, catalog, new() { Offset = 203, Limit = 17, SortColumn = "name", Descending = true });
         Assert.All(catalog.Requests, request => Assert.Null(request.SortBy));
         var expected = catalog.Inner.Search(new() { SortBy = ReferenceSortKey.Name, Descending = true, Offset = 203, Limit = 17 });
         Assert.Equal(expected.Items.Select(record => record.Key), page.Rows.Select(row => row.Key));
@@ -78,11 +78,12 @@ public sealed class AriseCatalogQueryTests
     {
         var plugin = new TalesOfArisePlugin();
         var references = AriseTestReferences.CreateContext(plugin);
-        return new RecordingCatalog(references.Catalog(id)!, declareSorts);
+        return new RecordingCatalog(references, references.Catalog(id)!, declareSorts);
     }
 
-    private sealed class RecordingCatalog(IReferenceCatalog inner, bool declareSorts) : IReferenceCatalog
+    private sealed class RecordingCatalog(IReferenceContext context, IReferenceCatalog inner, bool declareSorts) : IReferenceCatalog
     {
+        public IReferenceContext Context => context;
         public IReferenceCatalog Inner => inner;
         public List<ReferenceQuery> Requests { get; } = [];
         public string Id => inner.Id;

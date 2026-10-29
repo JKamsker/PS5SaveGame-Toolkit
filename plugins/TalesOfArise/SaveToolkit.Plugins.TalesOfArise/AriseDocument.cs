@@ -244,7 +244,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             };
         var cells = new Dictionary<string, ViewNode>
         {
-            ["icon"] = AriseAssets.Icon(reference),
+            ["icon"] = AriseAssets.Icon(references, reference),
             ["id"] = idField,
             ["name"] = Field($"inventory/{row.Index}/name", "Item", new TextSpec(),
                 () => FieldValue.Of(name ?? "Unknown item / equipment"))

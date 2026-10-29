@@ -11,6 +11,22 @@ public sealed class AriseAssetTests
     private const string ResourcePrefix = "refpacks/talesofarise.catalog/";
     private static readonly string[] CatalogIds = ["items", "equipment", "artes", "skills", "skill-nodes", "progress"];
 
+    [Fact]
+    public void Icon_RegistersPinnedImageDatasetInSourcesWithExactAltText()
+    {
+        var context = AriseTestReferences.CreateContext();
+        var record = context.CatalogForHost("items")!.Find("1")!;
+        var provenance = context.AssetProvenance(record.AssetId!)!;
+        Assert.All(context.Datasets(), dataset => Assert.False(dataset.Used));
+
+        var icon = Assert.IsType<ImageNode>(AriseAssets.Icon(context, record));
+
+        Assert.Equal(record.AssetId, icon.AssetId);
+        Assert.Contains(AriseAssets.MediaLicense, icon.Alt);
+        Assert.Contains(context.Datasets(), dataset => dataset.Dataset == provenance && dataset.Used);
+        Assert.All(context.Datasets().Where(dataset => dataset.Dataset != provenance), dataset => Assert.False(dataset.Used));
+    }
+
     [Theory]
     [InlineData("skills", 64)]
     [InlineData("equipment", 675)]
@@ -98,7 +114,7 @@ public sealed class AriseAssetTests
 
             for (var offset = 0; offset < catalog.Count; offset += ReferenceQuery.MaxLimit)
             {
-                var page = AriseCatalogQuery.Query(catalogId, catalog, new() { Offset = offset, Limit = ReferenceQuery.MaxLimit });
+                var page = AriseCatalogQuery.Query(context, catalogId, catalog, new() { Offset = offset, Limit = ReferenceQuery.MaxLimit });
                 foreach (var row in page.Rows.Where(row => catalog.Find(row.Key)!.AssetId is not null))
                 {
                     Assert.Equal(catalog.Find(row.Key)!.AssetId, Assert.IsType<ImageNode>(row.Cells["icon"]).AssetId);
