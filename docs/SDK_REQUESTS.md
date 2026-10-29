@@ -8,7 +8,11 @@ Evidence paths and line numbers below refer to that snapshot. The review covers
 and the 292 comments available from `gh issue view 40 --comments` at collection time
 (through comment `6488004888`). No sample bytes or credentials were inspected.
 
-**40 deduplicated items: 9 open, 1 partially resolved, 27 resolved, 3 obsolete.**
+SDK-04 was subsequently implemented in local commit `f869910` on `feat/sdk04-group-adapter`.
+The original review snapshot remains the baseline for the other evidence below; plugin adoption
+is deferred and neither Gearbox nor XorJson was modified by this implementation.
+
+**40 deduplicated items: 8 open, 1 partially resolved, 28 resolved, 3 obsolete.**
 Counts describe capabilities, not individual comments or plugin migrations. Related
 requests are merged; delivered foundations and genuinely different remaining contracts
 have separate IDs. “Requested by” also names the plugin candidates explicitly identified
@@ -29,7 +33,6 @@ and characterization tests, L = a substantial lifecycle/serialization integratio
 | SDK-01 | Bounded F8 traversal in original/current semantic review, with labels, navigation and individual revert | TalesOfArise | open | `plugins/TalesOfArise/README.md:574`; `src/SaveToolkit.Core/Sessions/SemanticReview.cs:131` handles eager tables/lazy sections but no `QueryableTableNode`; `DocumentSession.Review.cs:25` requires a revertible semantic record | At least 3 F8 editors benefit: TalesOfArise, Pragmata and FinalFantasy16; users can review/revert quantities without opening every page | M | Additive Core behavior; original identity and budget correctness | Implement bounded query traversal on the separate original and current documents, including empty rows, stable row paths, explicit incomplete coverage and page/row/byte caps. Retain undo/edit-loaded-field workaround until shipped. |
 | SDK-02 | Publish field metadata and canonical primary/derived binding policy independently of rendered views | Pragmata | partially resolved | `plugins/Pragmata/README.md:478`; [design](plans/F13-FIELD-SPEC-PUBLISHING.md); `a1c08c0` adds storage registration; `src/SaveToolkit.Core/Editing/ViewIndex.cs:68` still learns specs from views | 1 explicit requester; at least 3 candidate editors with unloaded fields (Pragmata, FinalFantasy16, TalesOfArise); safer bulk preflight and complete named review | L | Additive optional capability; new alias, replay and invalidation contract | Implement optional `IFieldMetadataDocument` from the design, in bounded batches, with live setters, spec agreement, primary/derived classification and structural/group invalidation. `RegisterField` alone does not satisfy it. Keep Pragmata's unloaded-quantity guard and existing F8 query-resolution path. |
 | SDK-03 | Share pure embedded reference-pack decoding for direct `Open(file)` fallback | FinalFantasy7, FinalFantasy16, GodOfWarRagnarok | open | [duplication report, item 6](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `src/SaveToolkit.Core/References/ReferencePackStore.cs:36` loads embedded packs only in Core; `src/SaveToolkit.Sdk/References/IReferenceContext.cs:17` supplies an empty context, no loader | 3 plugins; direct and hosted opens retain the same names, icons and attribution with less duplicated parsing | M | Additive factory; moving shared decoding must preserve pack-selection contracts | Add SDK-facing `EmbeddedReferenceContext.Load` backed by a pure shared decoder. Keep ZIP persistence/cache ownership in Core and title/build/source precedence in explicit policy. Preserve enriched direct-open behavior; plugins must not reference Core. |
-| SDK-04 | Compose group member identity mapping and dispatch | Gearbox, XorJson | open | [duplication report, item 4](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `src/SaveToolkit.Sdk/DocumentGroups.cs:6` provides transactions, no member adapter; local `GearboxGroupMember` / `XorJsonGroupMember` still map views and identities | 2 plugins; fewer divergent field/action/collection/navigation mappings in grouped editing | M | Additive helper; identity-policy compatibility is sensitive | Add `DocumentMemberAdapter(role, document, identityPolicy)` using composition and policy callbacks. Characterize role-plus-collection versus role-plus-key identities, nested views, F6 scopes, targets and fresh mementos first. Keep transfer/dependency/snapshot policy local. |
 | SDK-05 | Preserve exact icon alt text and historical missing-byte/provenance behavior in shared icon helper | BaldursGate3, TalesOfArise | open | `plugins/BaldursGate3/README.md:518`; `plugins/TalesOfArise/README.md:567`; `src/SaveToolkit.Sdk/References/ReferenceViews.cs:12` requires bytes/provenance and composes alt text | 2 plugins; consistent migration without losing publisher notices or changing an image node to text | S | Additive overload/options; attribution and availability policy | Add explicit exact-alt and availability-policy options to `ReferenceViews.Icon`, retaining current defaults and Sources registration. Keep both local compatibility adapters until their node/provenance/alt fingerprints match. |
 | SDK-06 | Shared lossless JSON lexical tree and byte-preserving scalar patch substrate | GenericJson, XorJson | open | [duplication report, item 5](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `src/SaveToolkit.Sdk/Values/ExactJsonNumber.cs:10` handles numeric lexemes only; no shared token tree/writer in `src/` | 2 plugins; fewer preservation discrepancies across ordinary and transformed JSON | L | Additive library; high serialization and stable-identity migration risk | Add `LosslessJsonDocument.Parse(bytes, limits)` and span-preserving scalar patches only after golden characterizations of BOM/trivia, duplicate properties, exact numbers, untouched spans and undo. Reuse `ExactJsonNumber`; keep structural identities and XOR envelopes local. |
 | SDK-07 | Versioned toolkit preset storage outside save bytes, with title/build and owned-instance resolution | FinalFantasy7 (R19) | open | `plugins/FinalFantasy7/README.md:540`; `src/SaveToolkit.Sdk/ActionPlan.cs:7` describes action plans, no persisted preset capability; no preset store in `src/` | 1 confirmed requester; reusable loadouts/settings could benefit more plugins, but safe native loadout writing is not yet established | L | Additive host storage plus a new versioned compatibility/resolution contract | Design host-owned `PresetStore` and explicit missing/ambiguous-instance resolution before implementation. Initially document pure F6 parameter presets as the workaround. Never put persistence I/O in a plugin or imply that storage establishes safe socket/owner semantics. |
@@ -48,6 +51,7 @@ and characterization tests, L = a substantial lifecycle/serialization integratio
 | SDK-20 | Exact-number/union values render meaningfully in previews and Changes | GenericJson | resolved | `03b66b7`; `web/src/api/actionReview.ts:38` `reviewValue` / `formatValue`; SDK `Values/TaggedFieldValueJson.cs` | 1 requester; exact preview values replace object-string output | — | Delivered renderer fix | Use tagged F10 values and shared review rendering. |
 | SDK-21 | Opaque collection IDs containing `/` survive HTTP querying | GenericJson; UnrealGvas affected by the same route | resolved | `c1762df`; `src/SaveToolkit.Api/Endpoints/WorkspaceEndpoints.cs:76`; `web/src/api/client.ts` `queryCollection`; `tests/SaveToolkit.Core.Tests/OpaqueCollectionApiTests.cs` | 2 documented cases; every collection can keep its native opaque ID | — | Delivered additive route | Use `GET .../collections?collectionId=...`; keep old path route for compatibility. Do not indiscriminately decode the old route twice. URL-safe plugin IDs remain valid. |
 | SDK-22 | Explicit, atomic, fingerprinted multi-file ownership, staging, history and export | Gearbox (R4), XorJson | resolved | `6ae1c6c` (merged `7ff21ad`); `src/SaveToolkit.Sdk/DocumentGroups.cs:6`; `src/SaveToolkit.Core/Sessions/Groups/StagedGroupDocument.cs` | 2 adopted plugins; linked character/profile outputs commit and undo together | — | Delivered optional group capability | Use `IDocumentGroupPlugin` and `IGroupedSaveDocument.CaptureMemento`; no alternative output/transaction API is needed. SDK-04 only shares member adapters. |
+| SDK-04 | Compose group member identity mapping and dispatch | Gearbox, XorJson | resolved | [duplication report, item 4](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `f869910`; `src/SaveToolkit.Sdk/DocumentGroups/DocumentMemberAdapter.cs`; characterization `c6fdcf1` | 2 plugins; shared field/action/collection/navigation mapping with explicit compatibility policies | — | Delivered additive composition helper; existing group APIs and plugin copies unchanged | Use `DocumentMemberAdapter(role, document, identityPolicy)` and `DocumentMemberRouter`. Preserve each plugin's query/eager-row, navigation, graph/marker, collection-column and F6 scope policies; keep transfer/dependency/snapshot/rollback policy local. Exact adoption recipes are in `docs/PLUGIN_GUIDE.md` and the `GroupAdapterPolicies` compatibility fixture. |
 | SDK-23 | Overlay preserves untouched sibling bytes instead of exposing empty files | XorJson | resolved | `4532481`; `src/SaveToolkit.Core/Storage/OverlaySaveSet.cs`; `plugins/XorJson/README.md:329` | 1 reported case; safe verification of partial output sets | — | Delivered Core fix | Return changed outputs only; retain preservation/unchanged-file evidence. |
 | SDK-24 | Common F8 in-memory query pipeline and table shell | AstroPlayroom, AtomicHeart, Cyberpunk2077, EldenRing, FinalFantasy7, FinalFantasy16, Gearbox, Insomniac, Pragmata, TalesOfArise, UnrealGvas | resolved | [duplication item 1](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `1bbf6a2`; `src/SaveToolkit.Sdk/Collections/InMemoryCollection.cs:15` | 11 named candidates; consistent full-model filtering/sorting with bounded rendering | — | Delivered additive helper | Use `InMemoryCollection<T>.Query` / `ToTableNode` where policy adapters preserve behavior; keep database/partial-model engines. |
 | SDK-25 | Common F6 plan equality/revalidation and scalar application | AstroPlayroom, AtomicHeart, Cyberpunk2077, EldenRing, FinalFantasy7, FinalFantasy16, GodOfWarRagnarok, Insomniac, SuckerPunch, TalesOfArise | resolved | [duplication item 2](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40#issuecomment-6486086567); `1803b2d`; `src/SaveToolkit.Sdk/ActionPlans.cs:25` | 10 candidates; fewer stale/tampered-plan and warning-policy differences | — | Delivered additive helper | Use `ContentEquals`, `Revalidate`, `ApplyScalar`; explicitly select actual derived writes and warning merge policy. Core still owns tokens/revisions/query scope. |
@@ -69,9 +73,10 @@ and characterization tests, L = a substantial lifecycle/serialization integratio
 
 ## Resolved appendix
 
-The 27 resolved rows identify both the introducing commit and the surviving API or
-implementation above. Commits were checked as ancestors of the reviewed `main`; an
-issue comment saying “fixed” was not treated as sufficient evidence by itself.
+The 28 resolved rows identify both the introducing commit and the surviving API or
+implementation above. Baseline commits were checked as ancestors of the reviewed `main`;
+SDK-04 names its subsequent local implementation commit. An issue comment saying “fixed”
+was not treated as sufficient evidence by itself.
 
 - **Evidence tooling (SDK-14/15/35/36/40):** F12 `8063471` supplies both bounded
   `PluginViewDecoder` traversal and the optional SDK decoder hooks. Cardinality was
@@ -91,9 +96,17 @@ issue comment saying “fixed” was not treated as sufficient evidence by itsel
   independent-file downloads already existed in `e08c5b0`; grouped downloads must
   still use export. Format-specific relationships and console acceptance remain
   plugin/owner evidence, not absent framework APIs.
+- **Member composition (SDK-04):** `f869910` adds the non-owning adapter, explicit
+  identity/row/navigation/scope policy and preflight-only router. Tests first captured
+  the unchanged public Gearbox/XorJson behavior (`c6fdcf1`), then compared SDK mappings
+  to both copies and exercised Core staged group rollback, query-scoped plans and
+  undo/redo. Member `Revert` tokens remain local; groups replace them with whole-group
+  snapshots and recreate adapters/routers if restore replaces models. Plugin adoption
+  is deliberately separate from SDK delivery.
 - **Six delivered extraction recommendations (SDK-24–29):** the report's items
   1/2/3/7/8/9 map respectively to `1bbf6a2`, `1803b2d`, `9e12bfa`, `b5397b4`,
-  `b5397b4`, and `e226da4` (merged in `8ff24d7`). Items 4/5/6 remain SDK-04/06/03.
+  `b5397b4`, and `e226da4` (merged in `8ff24d7`). Item 4 is now SDK-04 (`f869910`);
+  items 5/6 remain SDK-06/03.
   Existing adapters may retain exact diagnostics, encoding limits, warning order,
   reference provenance and unusual historical availability behavior. The two icon
   compatibility requests are merged into SDK-05, not mistaken for missing helpers.
@@ -148,6 +161,8 @@ orchestrator follow-ups on #40. Missing controlled captures, safe structural wri
 socket/owner joins, coupled-file evidence, map alignment and console validation are
 likewise not missing framework capabilities. No new framework API can establish them.
 
-Validation for this documentation change: `python docs/tests/test_documentation.py`.
-Runtime behavior was assessed by source/history inspection; no new runtime or sample
-validation is claimed. Only this document is changed by the triage.
+Validation for the original documentation triage: `python docs/tests/test_documentation.py`.
+That triage assessed runtime behavior by source/history inspection and changed only this
+document. The SDK-04 follow-up adds executable plugin characterization and SDK/Core
+composition tests, with samples and all test scratch on D: as described in the implementation
+report on #40.
