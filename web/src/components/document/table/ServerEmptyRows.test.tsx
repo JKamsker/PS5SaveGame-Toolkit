@@ -43,8 +43,12 @@ it("resets paging and selection when showing/hiding, while retaining filters and
   const { client } = setup();
   await screen.findByText("50 empty slots hidden");
   expect(api.queryCollection).toHaveBeenLastCalledWith("w", "d", "items", expect.objectContaining({ includeEmpty: false }), 1);
-  fireEvent.change(screen.getByRole("searchbox"), { target: { value: "Potion" } });
-  fireEvent.change(screen.getByRole("combobox", { name: "Sort rows" }), { target: { value: "name" } });
+  const search = screen.getByRole("searchbox");
+  const sort = screen.getByRole("combobox", { name: "Sort rows" });
+  act(() => {
+    fireEvent.change(search, { target: { value: "Potion" } });
+    fireEvent.change(sort, { target: { value: "name" } });
+  });
   await waitFor(() => expect((screen.getByRole("button", { name: "Next" }) as HTMLButtonElement).disabled).toBe(false));
   fireEvent.click(screen.getByRole("button", { name: "Next" }));
   await waitFor(() => expect(api.queryCollection).toHaveBeenLastCalledWith("w", "d", "items", expect.objectContaining({ offset: 50 }), 1));
@@ -64,7 +68,7 @@ it("resets paging and selection when showing/hiding, while retaining filters and
   expect(screen.queryByRole("checkbox", { name: "Select Empty slot slot/127" })).toBeNull();
   expect(screen.queryByText("2 selected")).toBeNull();
   client.clear();
-});
+}, 10_000); // Multiple server pages, filters and selection resets: 1.4 s locally; allow slower Windows CI.
 
 it.each([false, true])("carries includeEmpty=%s and exclusions into select-all-matching F6 requests", async includeEmpty => {
   const { client, plan } = setup();

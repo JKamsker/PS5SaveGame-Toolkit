@@ -17,7 +17,8 @@ beforeAll(() => {
   HTMLDialogElement.prototype.showModal = function () { this.open = true; };
   HTMLDialogElement.prototype.close = function () { this.open = false; };
 });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+const clients: QueryClient[] = [];
+afterEach(() => { cleanup(); clients.splice(0).forEach(client => client.clear()); vi.restoreAllMocks(); });
 
 const change: SemanticChange = { valueId: "quantity", label: "Potion quantity", path: ["section:Inventory", "tab:Items"],
   originalValue: "2", currentValue: "10", originalExists: true, currentExists: true, canRevert: true };
@@ -37,6 +38,7 @@ function renderDocument(children: ReactNode, canEdit = true) {
     acceptResult: vi.fn(async outcome => { store.apply(outcome); }),
   };
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  clients.push(client);
   const rendered = render(<QueryClientProvider client={client}><DocumentContext.Provider value={context}>
     <ReviewNavigationProvider>{children}</ReviewNavigationProvider>
   </DocumentContext.Provider></QueryClientProvider>);
@@ -63,9 +65,14 @@ describe("action preview", () => {
       scope: { rowKeys: Array.from({ length: 58 }, (_, i) => `row-${i}`) } });
     const apply = vi.spyOn(actionReview, "apply").mockResolvedValue(result);
     renderDocument(<ViewRenderer node={{ type: "queryableTable", collectionId: "items", title: "Items", columns, totalCount: 100_000 }} />);
-    fireEvent.change(screen.getByRole("searchbox", { name: "Search Items" }), { target: { value: "potion" } });
-    fireEvent.change(screen.getByLabelText("Filter Name"), { target: { value: "healing" } });
-    fireEvent.change(screen.getByLabelText("Sort rows"), { target: { value: "name" } });
+    const search = screen.getByRole("searchbox", { name: "Search Items" });
+    const filter = screen.getByLabelText("Filter Name");
+    const sort = screen.getByLabelText("Sort rows");
+    act(() => {
+      fireEvent.change(search, { target: { value: "potion" } });
+      fireEvent.change(filter, { target: { value: "healing" } });
+      fireEvent.change(sort, { target: { value: "name" } });
+    });
     fireEvent.click(screen.getByRole("button", { name: "Ascending" }));
     fireEvent.click(await screen.findByRole("button", { name: "Select all 60 filtered rows" }));
     fireEvent.click(screen.getByRole("checkbox", { name: "Select Ether" }));
@@ -190,6 +197,59 @@ describe("action preview", () => {
 });
 
 describe("semantic changes panel", () => {
+  it("shows loading and request failures without presenting them as an empty change log", async () => {
+    let reject!: (failure: Error) => void;
+    vi.spyOn(actionReview, "changes").mockImplementationOnce(() => new Promise((_, fail) => { reject = fail; }));
+    const revert = vi.spyOn(actionReview, "revert");
+    renderDocument(<ChangesPanel />);
+    expect(actionReview.changes).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByText("Changes against original"));
+    await screen.findByRole("status");
+    expect(screen.getByRole("status").textContent).toBe("Loading changes…");
+    await act(async () => { reject(new Error("Change log unavailable")); });
+    expect((await screen.findByRole("alert")).textContent).toBe("Change log unavailable");
+    expect(actionReview.changes).toHaveBeenCalledExactlyOnceWith("w1", "d1");
+    expect(screen.queryByText("No semantic changes.")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Revert Potion quantity" })).toBeNull();
+    expect(revert).not.toHaveBeenCalled();
+  });
+
+  it.each(["request", "validation"])("reports a rejected revert (%s), then permits an explicit retry", async failure => {
+    const changes = vi.spyOn(actionReview, "changes").mockResolvedValue(log);
+    const revert = vi.spyOn(actionReview, "revert");
+    const rejected: EditResult = { ...result, ok: false, errors: [{ valueId: "quantity", message: "Revert rejected" }],
+      state: { ...result.state, revision: 1 } };
+    if (failure === "request") revert.mockRejectedValueOnce(new Error("Revert rejected"));
+    else revert.mockResolvedValueOnce(rejected);
+    const { context } = renderDocument(<ChangesPanel />);
+    fireEvent.click(screen.getByText("Changes against original"));
+    fireEvent.click(await screen.findByRole("button", { name: "Revert Potion quantity" }));
+    expect((await screen.findByRole("alert")).textContent).toBe("Revert rejected");
+    const retry = screen.getByRole("button", { name: "Revert Potion quantity" });
+    await waitFor(() => expect(retry).toHaveProperty("disabled", false));
+    if (failure === "request") expect(context.acceptResult).not.toHaveBeenCalled();
+    else expect(context.acceptResult).toHaveBeenCalledExactlyOnceWith(rejected);
+    revert.mockResolvedValueOnce(result);
+    changes.mockResolvedValue({ ...log, changes: [], revision: 2 });
+    fireEvent.click(retry);
+    await screen.findByText("No semantic changes.");
+    expect(revert.mock.calls).toEqual([["w1", "d1", "quantity", 1], ["w1", "d1", "quantity", 1]]);
+    expect(context.acceptResult).toHaveBeenLastCalledWith(result);
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("keeps read-only changes reviewable without offering a revert", async () => {
+    vi.spyOn(actionReview, "changes").mockResolvedValue(log);
+    const revert = vi.spyOn(actionReview, "revert");
+    renderDocument(<ChangesPanel />, false);
+    fireEvent.click(screen.getByText("Changes against original"));
+    const button = await screen.findByRole("button", { name: "Revert Potion quantity" });
+    expect(button).toHaveProperty("disabled", true);
+    expect(screen.getByRole("button", { name: "Jump to Potion quantity" })).toHaveProperty("disabled", false);
+    fireEvent.click(button);
+    expect(revert).not.toHaveBeenCalled();
+  });
+
   it("loads changes against original, filters them and reverts with the log revision", async () => {
     vi.spyOn(actionReview, "changes").mockResolvedValue(log);
     const revert = vi.spyOn(actionReview, "revert").mockResolvedValue(result);

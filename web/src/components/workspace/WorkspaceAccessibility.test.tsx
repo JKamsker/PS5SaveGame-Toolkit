@@ -86,4 +86,4 @@ it("keeps import, file/plugin selection, keyboard editing and export discoverabl
   fireEvent.click(dialog.getByRole("button", { name: "Cancel" }));
   await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   client.clear();
-});
+}, 10_000); // Import, two document opens, edit and export: 1.6 s locally; allow slower Windows CI.
