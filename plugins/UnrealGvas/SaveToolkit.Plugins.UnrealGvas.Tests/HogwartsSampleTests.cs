@@ -35,36 +35,57 @@ public sealed class HogwartsSampleTests
                 Assert.Contains(database.Tables, table => table.Name == "InventoryDynamic" &&
                     table.IdentityColumns.SequenceEqual(InventoryIdentity));
                 var inventory = database.Tables.Single(table => table.Name == "InventoryDynamic");
-                int itemIndex = inventory.Columns.ToList().IndexOf("ItemID") + 1;
-                int variationIndex = inventory.Columns.ToList().IndexOf("Variation") + 1;
-                int countIndex = inventory.Columns.ToList().IndexOf("Count") + 1;
-                long imageEmptySlots = 0;
-                for (int offset = 0; offset < inventory.Count; offset += QueryableCollectionLimits.MaxPageSize)
-                {
-                    var page = database.Query(inventory, new() { Offset = offset, Limit = QueryableCollectionLimits.MaxPageSize, IncludeEmpty = true });
-                    Assert.Equal(inventory.Count, page.Filtered);
-                    Assert.Equal(0, page.HiddenEmpty);
-                    foreach (var row in page.Result.Rows)
-                    {
-                        inventorySlots++;
-                        if (row[itemIndex] is null)
-                        {
-                            Assert.Null(row[variationIndex]);
-                            Assert.Equal(0L, row[countIndex]);
-                            imageEmptySlots++;
-                        }
-                        else if (row[countIndex] is 0L) namedZeroCounts++;
-                    }
-                }
-                var hidden = database.Query(inventory, new());
-                Assert.Equal(imageEmptySlots, hidden.HiddenEmpty);
-                Assert.Equal(inventory.Count - imageEmptySlots, hidden.Filtered);
-                emptySlots += imageEmptySlots;
+                var counts = AssertInventoryRows(database, inventory);
+                inventorySlots += counts.Total;
+                emptySlots += counts.Empty;
+                namedZeroCounts += counts.NamedZero;
             }
         }
         Assert.Equal(44_572, inventorySlots);
         Assert.Equal(21_387, emptySlots);
         Assert.Equal(30, namedZeroCounts);
+    }
+
+    [Fact]
+    public void InventoryCorpusAssertionsRetainNamedZeroRowsInAnAuthoredImage()
+    {
+        using var source = SqliteImage.Create();
+        source.Execute("""
+            CREATE TABLE InventoryDynamic(CharacterID TEXT, HolderID TEXT, SlotNumber INTEGER, ItemID TEXT, Variation TEXT, Count INTEGER);
+            INSERT INTO InventoryDynamic VALUES('Player0','Bag',0,NULL,NULL,0),
+                ('Player0','Bag',1,'UnknownItem',NULL,0),('Player0','Bag',2,'Item',NULL,5);
+            """);
+        using var database = new HogwartsDatabase("authored", source.Serialize());
+        Assert.Equal((3L, 1L, 1L), AssertInventoryRows(database, Assert.Single(database.Tables)));
+    }
+
+    private static (long Total, long Empty, long NamedZero) AssertInventoryRows(HogwartsDatabase database, HogwartsTable inventory)
+    {
+        int itemIndex = inventory.Columns.ToList().IndexOf("ItemID") + 1;
+        int variationIndex = inventory.Columns.ToList().IndexOf("Variation") + 1;
+        int countIndex = inventory.Columns.ToList().IndexOf("Count") + 1;
+        long total = 0, empty = 0, namedZero = 0;
+        for (int offset = 0; offset < inventory.Count; offset += QueryableCollectionLimits.MaxPageSize)
+        {
+            var page = database.Query(inventory, new() { Offset = offset, Limit = QueryableCollectionLimits.MaxPageSize, IncludeEmpty = true });
+            Assert.Equal(inventory.Count, page.Filtered);
+            Assert.Equal(0, page.HiddenEmpty);
+            foreach (var row in page.Result.Rows)
+            {
+                total++;
+                if (row[itemIndex] is null)
+                {
+                    Assert.Null(row[variationIndex]);
+                    Assert.Equal(0L, row[countIndex]);
+                    empty++;
+                }
+                else if (row[countIndex] is 0L) namedZero++;
+            }
+        }
+        var hidden = database.Query(inventory, new());
+        Assert.Equal(empty, hidden.HiddenEmpty);
+        Assert.Equal(inventory.Count - empty, hidden.Filtered);
+        return (total, empty, namedZero);
     }
 
     [Fact]
