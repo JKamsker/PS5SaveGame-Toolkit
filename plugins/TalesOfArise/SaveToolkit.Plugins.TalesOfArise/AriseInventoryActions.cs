@@ -118,7 +118,7 @@ internal sealed class AriseInventoryActions(AriseDocument document)
     public EditOutcome Apply(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
         ActionPlans.ApplyScalar(plan, () => Plan(actionId, parameters, scope),
             new FieldError(actionId, "The quantity preview changed; preview the action again."),
-            _ => document.EnsureInventoryBindings(),
+            document.EnsureInventoryBindings,
             fresh => fresh.Changes.Where(change => !change.Derived)
                 .Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray(),
             document.ApplyEdits, ActionPlanWarningPolicy.Merge);

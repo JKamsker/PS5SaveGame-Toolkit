@@ -149,11 +149,12 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
 
     public override AssetContent? GetAsset(string assetId) => references.GetAsset(assetId);
 
-    internal void EnsureInventoryBindings()
+    internal void EnsureInventoryBindings(ActionPlan plan)
     {
-        foreach (var row in ReadInventoryRows().Where(row => !row.IsEmpty))
+        var targets = plan.Changes.Where(change => !change.Derived).Select(change => change.ValueId).ToHashSet(StringComparer.Ordinal);
+        foreach (var row in ReadInventoryRows())
         {
-            _ = BuildInventoryRow(row);
+            if (targets.Contains(AriseInventoryActions.RowKey(row))) _ = InventoryQuantity(row);
         }
     }
 
@@ -226,7 +227,6 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
 
     internal TableRow BuildInventoryRow(AriseInventoryRow row)
     {
-        var offset = row.Offset;
         var id = row.Id;
         var reference = row.IsEmpty ? null : _references.Items?.Find(id.ToString(System.Globalization.CultureInfo.InvariantCulture));
         var name = row.IsEmpty ? AriseInventoryRow.EmptySlotLabel : reference?.Name ?? row.Name;
@@ -242,13 +242,6 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
                     ? "Unknown item/equipment identity; raw numeric ID is preserved."
                     : $"{name}; raw numeric ID is preserved. {attribution}",
             };
-        var spec = new IntegerSpec(0, Math.Max(ConsumableStackLimit, (int)save.Payload[offset]));
-        var canWrite = row.Name is not null && save.Payload[offset] <= ConsumableStackLimit;
-        var quantity = Field(valueId, "Quantity", spec,
-            () => FieldValue.Of((long)save.Payload[offset]),
-            canWrite ? v => save.Payload[offset] = checked((byte)v.AsUInt32()) : null,
-            v => v.AsInteger() < 0 || v.AsInteger() > ConsumableStackLimit ? $"Consumable quantities must be between 0 and {ConsumableStackLimit}." : null)
-            with { Confidence = row.Name is null ? Confidence.Unknown : Confidence.Inferred, Warning = canWrite ? ExperimentalWarning : null };
         var cells = new Dictionary<string, ViewNode>
         {
             ["icon"] = AriseAssets.Icon(reference),
@@ -256,13 +249,25 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
             ["name"] = Field($"inventory/{row.Index}/name", "Item", new TextSpec(),
                 () => FieldValue.Of(name ?? "Unknown item / equipment"))
                 with { Description = name is null ? "Unknown numeric identity; no name join is assumed." : reference is null ? attribution : AriseAssets.Details(reference), Confidence = name is null ? Confidence.Unknown : Confidence.Inferred },
-            ["quantity"] = quantity,
-            ["flags"] = new TextNode($"0x{save.Payload[offset + ItemFlagsOffset]:X2}"),
+            ["quantity"] = InventoryQuantity(row),
+            ["flags"] = new TextNode($"0x{row.Flags:X2}"),
             ["inspect"] = reference is null
                 ? new TextNode("—")
                 : AriseReferences.InspectionAction(_references.Items!, reference),
         };
         return new TableRow(valueId, cells) { IsEmpty = row.IsEmpty };
+    }
+
+    private FieldNode InventoryQuantity(AriseInventoryRow row)
+    {
+        var offset = row.Offset;
+        var spec = new IntegerSpec(0, Math.Max(ConsumableStackLimit, (int)save.Payload[offset]));
+        var canWrite = row.Name is not null && save.Payload[offset] <= ConsumableStackLimit;
+        return Field(AriseInventoryActions.RowKey(row), "Quantity", spec,
+            () => FieldValue.Of((long)save.Payload[offset]),
+            canWrite ? v => save.Payload[offset] = checked((byte)v.AsUInt32()) : null,
+            v => v.AsInteger() < 0 || v.AsInteger() > ConsumableStackLimit ? $"Consumable quantities must be between 0 and {ConsumableStackLimit}." : null)
+            with { Confidence = row.Name is null ? Confidence.Unknown : Confidence.Inferred, Warning = canWrite ? ExperimentalWarning : null };
     }
 
     private FieldNode Number(string id, string label, int offset, uint maximum, bool writable = true, uint minimum = 0)
