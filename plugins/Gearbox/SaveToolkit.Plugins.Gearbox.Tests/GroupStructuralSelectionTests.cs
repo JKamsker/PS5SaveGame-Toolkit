@@ -25,6 +25,9 @@ public sealed class GroupStructuralSelectionTests
         var unselectedId = page.Rows[1].Key[(collection.Length + 1)..];
         var unselectedBytes = member.Inventory.Find(unselectedId).Field.Encode();
         var ids = member.Inventory.Entries.Select(entry => entry.Id).ToArray();
+        var idsByList = member.Inventory.Entries
+            .GroupBy(entry => entry.List, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.Select(entry => entry.Id).ToArray(), StringComparer.Ordinal);
         var before = SelectionTestData.Bytes(group);
         var query = new ActionQueryScope(collection, new() { Limit = 1 }, 23) { ExcludedRowKeys = [page.Rows[1].Key, page.Rows[2].Key] };
         var scope = new ActionScope([row]) { QueryScope = query };
@@ -44,7 +47,28 @@ public sealed class GroupStructuralSelectionTests
         member = role == "character" ? group.Character : group.Profile;
         Assert.Equal(unselectedBytes, member.Inventory.Find(unselectedId).Field.Encode());
         var changedIds = member.Inventory.Entries.Select(entry => entry.Id).ToArray();
-        Assert.Equal(actionId == "items/remove" ? ids.Where(id => id != localId) : ids, changedIds.Take(actionId == "items/remove" ? ids.Length - 1 : ids.Length));
+        foreach (var (container, originalIds) in idsByList)
+        {
+            var currentIds = member.Inventory.Entries
+                .Where(entry => entry.List == container)
+                .Select(entry => entry.Id)
+                .ToArray();
+            if (container != list)
+            {
+                Assert.Equal(originalIds, currentIds);
+                continue;
+            }
+
+            if (actionId == "items/remove")
+            {
+                Assert.Equal(originalIds.Where(id => id != localId), currentIds);
+                continue;
+            }
+
+            Assert.Equal(originalIds, currentIds.Take(originalIds.Length));
+            Assert.Equal(originalIds.Length + 1, currentIds.Length);
+            Assert.DoesNotContain(currentIds[^1], originalIds);
+        }
         var changed = SelectionTestData.Bytes(group);
         using var fresh = SelectionTestData.Group(wonderlands);
         _ = fresh.RestoreMemento(group.CaptureMemento());
