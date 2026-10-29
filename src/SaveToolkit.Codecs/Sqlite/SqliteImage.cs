@@ -50,7 +50,7 @@ public sealed class SqliteImage : IDisposable
             Internal("PRAGMA temp_store=MEMORY; PRAGMA journal_mode=MEMORY; PRAGMA trusted_schema=OFF;");
             long pageSize = Convert.ToInt64(InternalScalar("PRAGMA page_size"));
             Internal($"PRAGMA max_page_count={limits.MaxDatabaseBytes / pageSize};");
-            ValidateIntegrity();
+            ValidateIntegrityCore();
         }
         catch
         {
@@ -127,7 +127,7 @@ public sealed class SqliteImage : IDisposable
             using var command = Command(sql, parameters);
             command.Transaction = transaction;
             int affected = command.ExecuteNonQuery();
-            ValidateIntegrity();
+            ValidateIntegrityCore();
             _guard.InternalSql = true;
             transaction.Commit();
             return affected;
@@ -147,7 +147,7 @@ public sealed class SqliteImage : IDisposable
     {
         CheckReady();
         _guard.Reset();
-        ValidateIntegrity();
+        ValidateIntegrityCore();
         // sqlite3_serialize internally queries page_count/page_size through the authorizer.
         _guard.InternalSql = true;
         IntPtr serialized;
@@ -168,6 +168,13 @@ public sealed class SqliteImage : IDisposable
     public void ValidateIntegrity()
     {
         CheckReady();
+        _guard.Reset();
+        ValidateIntegrityCore();
+    }
+
+    // Enclosing operations share their work budget with the integrity check they require.
+    private void ValidateIntegrityCore()
+    {
         _guard.InternalSql = true;
         try
         {
