@@ -83,7 +83,10 @@ it("retries candidate reads without losing raw-ID or search drafts", async () =>
   await advanceSearch();
   expect(screen.getByRole("alert").textContent).toBe("Candidates unavailable");
   expect(screen.getByRole("status").textContent).toBe("Candidates unavailable");
-  fireEvent.click(screen.getByRole("button", { name: "Retry candidates" }));
+  const retry = screen.getByRole("button", { name: "Retry candidates" });
+  retry.focus();
+  fireEvent.click(retry);
+  expect(document.activeElement).toBe(screen.getByRole("combobox", { name: "Search" }));
   await advanceSearch();
   expect(screen.queryByRole("alert")).toBeNull();
   expect(screen.getByRole("option", { name: /Potion/ })).toBeTruthy();

@@ -1,4 +1,6 @@
 .reference-trigger { text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reference-label-error { flex: none; padding-left: var(--space-1); }
+.reference-label-error .btn { gap: var(--space-1); padding-inline: var(--space-1); color: var(--danger); }
 .dialog.reference-picker { width: min(850px, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: hidden; }
 .dialog.reference-picker[open] { display: flex; flex-direction: column; }
 .reference-picker .dialog__body { min-height: 0; overflow: auto; }

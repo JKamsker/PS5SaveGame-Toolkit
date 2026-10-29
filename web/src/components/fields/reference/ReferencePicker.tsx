@@ -18,8 +18,14 @@ export function ReferencePicker(props: ReferencePickerProps) {
       </div>
       <ReferenceRawLookup picker={picker} />
       {error && <p role="alert" className="field__error">{error}</p>}
-      {needsRefresh ? <button type="button" className="btn btn--small" disabled={busy || loading} onClick={() => void refreshChoices()}>Refresh choices</button>
-        : loadFailed && <button type="button" className="btn btn--small" disabled={busy || loading} onClick={() => setReload(previous => previous + 1)}>Retry candidates</button>}
+      {needsRefresh ? <button type="button" className="btn btn--small" disabled={busy || loading} onClick={event => {
+        if (document.activeElement === event.currentTarget) picker.search.current?.focus();
+        void refreshChoices();
+      }}>Refresh choices</button>
+        : loadFailed && <button type="button" className="btn btn--small" disabled={busy || loading} onClick={event => {
+          if (document.activeElement === event.currentTarget) picker.search.current?.focus();
+          setReload(previous => previous + 1);
+        }}>Retry candidates</button>}
     </div>
     <div className="dialog__footer">
       <button type="button" className="btn btn--quiet" disabled={busy} onClick={onClose}>{browseOnly ? "Close" : "Cancel"}</button>
