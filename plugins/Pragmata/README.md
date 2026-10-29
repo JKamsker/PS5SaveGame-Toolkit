@@ -1,6 +1,6 @@
 # Pragmata (`pragmata`)
 
-PS5 title **PPSA02530**. Maturity: **Experimental**. All supplied samples pass
+PS5 title **PPSA02530**. Plugin **0.6.0**; maturity: **Experimental**. All supplied samples pass
 integrity, parsing, editing and byte-for-byte reversal checks. No console load
 test has been performed; only a human should promote this plugin to Stable.
 
@@ -281,6 +281,10 @@ stay outside the repository):
 python -I plugins/Pragmata/scripts/build-reference-pack.py --rsz <MIT-rszpragmata.json> --missions <MIT-missionuserdata.user.3.json> --community-dir <directory-with-three-REE-dumps>
 ```
 
+That command writes the base/community 1.3.0 manifest. Follow it with the
+[visual-pack rebuild](SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/visual-reference.source.md)
+using the reviewed external captures to restore the complete 1.4.0 pack.
+
 The generator validates source SHA-256
 `67e5ed72e0e9efff0287214ad36737a8959d799aa1510b6b76591731a21f4df2`,
 also validates the pinned mission-data and three community-input SHA-256 values
@@ -326,136 +330,60 @@ ordinal text with a stable row-key tie-break; queries use offsets, not cursors.
 
 ## Validation and development
 
-Performance review #40: [measurements, regression coverage and cache lifecycle](evidence/performance.md).
-Largest-sample Open + first-view allocation fell from 54.7 MB to 37.7 MB; repeated
-retail evidence pages now allocate about 19 KB. Timing remains diagnostic.
-
-Malformed-input correctness review (#40): **216 passed, 0 failed, 0 skipped**
-with all 12 supplied files; API build **0 warnings, 0 errors**. Three fixes
-preflight complete Mandarin block extents before plaintext allocation/decryption,
-apply scalar type/width rejection to empty value arrays, and safely present
-optional header strings, structs, containers and non-finite floats. Existing
-primitive IDs, primary/Raw aliases, fixed-size writes and no-op bytes are preserved.
-
-The 71 added cases include 70 that run without private saves: every truncation
-point in authored scalar/compound records, UTF-16 lengths and alignment, value
-and class arrays with/without hash metadata, depth 100/101, invalid array headers,
-physical truncation/extra bytes with repaired hashes, metadata/ciphertext damage,
-valid-integrity truncated plaintext, exact block boundaries and header fallbacks.
-In-memory mutations of all 12 real files cover late block truncation and invalid
-typed counts with repaired integrity. Invalid input retains the documented
-`SaveFormatException` rejection. A 156-byte file declaring 64 MiB previously
-allocated about 67 MB before rejection; its regression now limits rejection
-allocation to under 1 MiB without a timing threshold. The complete sample-free
-run passes 132 cases and cleanly skips 84 sample-dependent cases. Initial
-regressions reproduced 14 failures before their respective fixes.
+Documentation audit, **2026-10-29**, against plugin code at `b369fa4`:
+**284 plugin tests passed, 0 failed, 0 skipped** with all 12 supplied files.
+The API build passed with **0 warnings, 0 errors**. This is software validation;
+console acceptance remains untested and maturity remains Experimental.
 
 ```powershell
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
-$env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Tests
-dotnet test --project tests/SaveToolkit.Core.Tests
+$scratch = 'D:/Temp/saveeditor/test-scratch/docs/accuracy-pragmata'
+New-Item -ItemType Directory -Force -Path $scratch | Out-Null
+$env:TEMP = $scratch
+$env:TMP = $scratch
+$env:TMPDIR = $scratch
+$env:SAVETOOLKIT_TEST_TEMP = $scratch
+$env:SAVETOOLKIT_ARTIFACTS = 'C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj --warnaserror
+dotnet test --project plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Tests
+python docs/tests/test_documentation.py
 ```
 
-Write-safety review (#40): **145 passed, 0 failed, 0 skipped** across all 12
-distinct supplied files; API build **0 warnings, 0 errors**. Six new cases cover
-canonical/noncanonical boolean no-ops, exact byte restoration through repeated
-Core undo/redo with primary/Raw aliases, and positive/negative float32 zero
-restoration after an intermediate edit. Before the fix, both noncanonical
-boolean cases and the negative-zero case failed; canonical controls passed.
-All new changed-plaintext assertions allow only the targeted primitive bytes.
+Conformance exercises every distinct sample with quantity edits or a system
+boolean edit. Format tests verify the research map's values, offsets, classes,
+array counts and complete payload consumption, all-sample byte-identical no-ops,
+quantity edit/reopen/reversal and independent whole-output golden hashes.
+Additional coverage includes:
 
-Conformance covers all 12 distinct files with meaningful quantity edits and a
-system boolean edit. Format tests check the research map's root/section values,
-classes, offsets, array counts, all 990 inventory entries and exact consumption;
-all no-op bytes; quantity edit/reopen/reversal in every gameplay file; and 11
-whole-output SHA-256 golden digests independently generated by the Python
-toolkit. Item `2227368435` in `data000.bin` starts at 2575 and plaintext `0x0a9bcc`.
+- CityHash64/Murmur3 vectors, NIST AES-OFB vectors, block extents, damaged hashes
+  and key/IV metadata, typed truncation, alignment, array and nesting bounds.
+- Atomic type/range/alias rejection, synchronized clocks and Core undo/redo,
+  noncanonical boolean bytes and signed-zero restoration.
+- Existing item-ID and family writes with plaintext-byte isolation and reopen/
+  reversal checks, F6 selection/preflight/stale-plan handling, and F8 query scopes
+  with exclusions, complete paging, deterministic sorting and cache invalidation.
+- Pinned reference hashes, attribution, enum matching, user-pack overrides,
+  browse-only inspection/history, map/graph bounds and missing-pack fallbacks.
+- Production canonical decoder discovery, bounded shared view traversal, complete
+  node emission and explicit warnings for unproven positional identities.
 
-Tests also cover ciphertext damage with repaired outer hashes in every file,
-embedded metadata damage, malformed inputs, origin-16 struct alignment, 18
-CityHash64/Murmur3 vectors across length branches, NIST AES-OFB vectors, clock
-invariants, atomic rejection, raw aliases, float reversal, bounded million-entry
-paging, and framework action/clock undo/redo. Sample tests skip through
-`SampleSaves` when the archive is absent. No sample payload bytes are committed;
-the existing research map is linked into tests and new fixtures hold only digests.
+Sample tests skip through `SampleSaves` when the archive is absent; the audit run
+above supplied it and had no skips. No private sample payload is committed.
+Handwritten C# files are below 300 lines. No browser or console test is claimed.
 
-A local Release measurement of open plus initial view was approximately 36–185 ms
-per supplied file, including integrity checks and parsing. This is hardware
-dependent and is not a timing assertion in CI.
-
-Round 2 tests also check cheap probe labels, malformed directory-name fallbacks,
-backup/snapshot labels against parsed slot values, one experimental notice per
-tab, compact field and lazy Raw provenance, integrity hints, and current playtime
-titles under a locale that normally uses a decimal comma.
-
-Historical Round 2 validation: API build succeeded with zero warnings/errors;
-**74 plugin tests passed**, **43 Core tests passed**. An independent run with an
-empty sample directory passed 44 pure tests and skipped all 30 sample-based tests.
-The previous identifier-generation script reproduced 413 entries; the roadmap
-round replaced that data route with the pinned MIT-only subset. The current
-unblock round restores the remaining five with separate community attribution.
-
-Roadmap validation: **89 plugin tests passed, 0 failed, 0 skipped** with the sample
-environment exported in the test command. API and research builds passed with zero
-warnings/errors. New checks cover all-sample decoder completeness and unique paths,
-section/inventory reorder invariance, exact quantity delta, duplicate-key fallback,
-decode limits, manifest coverage, pack hashes/licensing, user-pack override and
-provenance, read-only batch rejection, bounded family views, and framework undo/redo
-of raw item-ID edits with read-only reference aliases.
-
-Roadmap round 2: **99 plugin tests passed, 0 failed, 0 skipped** with the artifact
-environment in the test command; API build passed with zero warnings/errors.
-Added all-sample query/read-only/no-op checks, complete pagination of the large
-world collection, exact filters, deterministic sort and reorder-stable row keys,
-query-bound rejection, attributed mission-ID cross-references, F6 pure previews,
-selection/skip/preflight/stale/tampered-plan rejection and one-step framework undo.
-F1 verifies the bulk operation in all eleven gameplay saves: only inventory quantity
-semantic paths and plaintext storage change; reopening and reversal preserve exact
-original bytes. These are synthetic preservation experiments, not causal in-game
-captures. Detailed remaining requirements: [round-2 research and evidence](evidence/round2.md).
-
-Write-enable validation: **108 passed, 0 failed, 0 skipped**, using all 12 distinct
-files with the artifact environment in the same test command. New coverage applies
-one existing primitive per family in all 11 gameplay saves, verifies complete F1
-deltas (including deliberate identity-key changes), confines plaintext-byte deltas
-to requested fields, reopens values and exercises framework group undo/redo.
-F4 item replacements receive the same all-sample byte/reopen/undo coverage;
-malformed IDs, invalid types/ranges and conflicting aliases reject atomically.
-Field/action descriptions and F6 plan/apply warnings explicitly cover console and
-RSA limitations. API build passes with zero warnings/errors. No new dataset,
-algorithm port or dependency was added; the original attribution remains intact.
-
-Completion validation: **120 passed, 0 failed, 0 skipped**, with
-`SAVETOOLKIT_ARTIFACTS` exported in the test command and all 12 supplied files
-exercised. Added F9 source/Unknown-state/navigation checks, F13 browse/filter/sort
-and inspection history invariance, 251-row F8/#27 preview/apply/reopen/review/undo,
-float-bound regressions and malformed-input rejection. API build: **0 warnings,
-0 errors**. Pack regeneration is byte-identical. No GUI/browser run is claimed.
-See the [updated requirement audit](evidence/completion.md).
-
-F12 follow-up validation: **132 passed, 0 failed, 0 skipped**, with the external
-artifact directory exported in the test command. The canonical SDK hook emits one
-value per parsed node across all 12 samples, preserves existing identity paths,
-rejects corruption, honors sink bounds and flags positional identity uncertainty.
-Shared F8 traversal reads all 251 synthetic inventory rows across different page
-sizes, detects a last-page quantity edit and reports row/page/byte caps. The stock
-CLI lists/selects `pragmata-canonical-v1`; a cross-slot smoke comparison decoded
-178,525 / 176,874 values and 74,523 semantic changes with zero decoder errors.
-These are uncontrolled slot differences, not causal game evidence. API build:
-**0 warnings, 0 errors**. All changes stay inside this plugin folder.
-
-All current C# files are below 300 lines. Completion-round housekeeping removes
-legacy plugin-local hooks, build targets and lint tooling to follow the current
-project rule prohibiting repository tooling inside plugin folders.
+Historical measurements and round-specific results remain in the dated
+[evidence manifest and capture checklist](evidence/README.md),
+[round-2 report](evidence/round2.md), [completion audit](evidence/completion.md),
+[community-source report](evidence/unlicensed.md), [asset report](evidence/assets.md)
+and [performance review](evidence/performance.md). Those reports describe their
+recorded revisions and environments; their test counts and timings are not current
+suite totals or performance guarantees.
 
 ## Framework feature adoption
 
-Asset-round validation: **139 passed, 0 failed, 0 skipped**; API build **0 warnings,
-0 errors**. The 29 icons and one atlas total **99,634 binary bytes** (**144,969 bytes**
-including all new embedded catalogues/source metadata). Largest-sample first load:
-**319.498 ms / 69,022,208 allocated bytes before → 353.9891 ms / 72,091,488 bytes after**.
-The library and map load lazily from shared F2 assets. Details and remaining
-mission-text/save-ID gaps: [asset-round evidence](evidence/assets.md).
+The embedded pack has 29 icons and one atlas totaling **99,634 binary bytes**.
+The library and map are lazy views over shared F2 assets; the historical load
+measurements and remaining mission-text/save-ID gaps are in the
+[asset report](evidence/assets.md).
 
 | Feature | Status | Where / concrete limitation |
 | --- | --- | --- |
@@ -466,12 +394,23 @@ mission-text/save-ID gaps: [asset-round evidence](evidence/assets.md).
 | F5 structural undo | N/A | Only fixed-size primitive patching exists; no preserve-first resizing writer. Unknown padding/count metadata prevents safe add/remove/reorder. |
 | F6 planned actions / #27 | Used | Existing quantity preview/apply; F8 whole-query selection, exclusions, stale-plan checks and one undo unit above 200 rows. No legal-max/loadout/progression preset has proven dependency rules. |
 | F7 document groups | N/A | No proven coupled-file operation or partner identity. Claiming independent slot/system files would invent dependencies and lock unrelated saves. |
-| F8 queryable tables | Used | All evidence arrays already queryable; inventory switches above 200 rows, with search/filter/numeric quantity sort. |
+| F8 queryable tables | Used | Family-view arrays register queryable collections when their containing sections expand; complete-model search/filter/sort precedes paging. Inventory switches above 200 rows, with numeric quantity sorting. |
 | F9 graphs/maps | Used | Existing mission DAG and checkpoint field targets; local 2048×585 Cradle background and 26 community hatches in the original image-pixel frame. Raw save hashes remain unpositioned and all saved states Unknown. |
-| F10 exact/nullable/union | Used / N/A variants | UInt64/Int64 use exact Int128 wire strings; this binary schema has no numeric lexemes, null primitive or discriminated-union storage to expose. |
+| F10 exact/nullable/union | N/A | Fixed-width binary primitives have no numeric lexemes, null primitive or discriminated-union storage to expose. Int64/UInt64 use the existing Int128 integer-string transport, which is separate from F10. |
 | F11 shared codecs | N/A | Supported DSSS flags 0x10 contain uncompressed Mandarin AES-OFB, neither Kraken nor SQLite. Unsupported flags reject. |
 | F12 decoder/traversal | Used | SDK-only `ISaveDecoderProvider`/`ISaveDecoderHook` registers `pragmata-canonical-v1` with the stock CLI. `--decoder pragmata` uses shared bounded F8 traversal, tested across 251 inventory rows and row/page/byte caps. Research executable removed. |
-| F13 inspection/browse/sort/durations | Used / N/A float duration | `Mutates=false` mission inspection, browse-only references, catalogue category/sort. Known timers are integer microseconds already using Duration; unidentified floats have no proven time unit. |
+| F13 inspection/browse/sort/durations | Used | `Mutates=false` mission inspection, browse-only references, catalogue category/sort. Float duration is N/A: known timers are integer microseconds already using Duration; unidentified floats have no proven time unit. |
+
+Shared helper adoption was also checked against the current SDK. This plugin
+still uses local implementations: `CollectionIndex<T>` plus inventory/evidence
+queries (including retained projections and one ordered result), `QuantityActions`
+plan comparison/application, the origin-16 `TypedReader`, direct catalogue
+`Find`/bounded `Search` calls, and local image/inspection rendering. It does not
+currently call `InMemoryCollection<T>`, `ActionPlans`, `BinaryRange`,
+`BoundedBinaryCursor`, `ReferenceCatalogReader`, `ReferenceViews.Icon` or
+`ReferenceInspection`. Those helpers are available; migrating eligible mechanics
+is an adoption task, not a missing SDK capability. `FStringCodec` and `Crc32Ieee`
+are inapplicable: strings use counted UTF-16LE and integrity uses CityHash64/Murmur3.
 
 ## SDK requests
 
@@ -499,14 +438,6 @@ honors sink depth/output/file bounds, fingerprints strings and opaque values,
 and marks unproven positional identities incomplete even when every node was
 emitted. Missing canonical paths in those reports cannot establish removal.
 Sections and uniquely keyed records retain their existing canonical paths.
-
-Unlicensed-source unblock validation: **135 passed, 0 failed, 0 skipped**, with
-the external artifact directory exported in the same test command. All five
-restored hashes occur in the supplied files; schema/enum cross-indexing, aliases,
-exact class/field/type/value matching, raw fallback and unchanged editor bounds
-are covered. All 12 files retain byte-identical no-op serialization. API build:
-**0 warnings, 0 errors**. Every reference/resource JSON regenerates identically
-after LF normalization. See the [unblock evidence and remaining owner checks](evidence/unlicensed.md).
 
 ## Sources and attribution
 
@@ -580,5 +511,5 @@ the SHA-pinned community atlas are imported with full attribution. Associating
 their names/icons/locations with saved inventory or checkpoint IDs still needs
 an exact crosswalk. The 43 mission references retain Unknown localized text;
 their PC source supplies message GUIDs, not the strings those GUIDs select.
-The central licence register is outside this task's permitted plugin folder;
-its historical Pragmata rows should be synchronized by the coordinating agent.
+The [central licence register](../../docs/LICENCE_EXCLUSIONS.md) records both
+resolved imports above and the imported Itemaps atlas/coordinates decision.

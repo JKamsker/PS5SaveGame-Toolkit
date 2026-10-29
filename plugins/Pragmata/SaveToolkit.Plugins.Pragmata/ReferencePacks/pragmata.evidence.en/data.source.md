@@ -1,6 +1,6 @@
-# Pragmata reference pack 1.3.0
+# Pragmata reference pack 1.4.0
 
-The three newly imported community datasets have their own
+The three community datasets have their own
 [source/hash/transformation sidecar](community.source.md). They do not change
 the MIT or CC0 provenance of the existing datasets below.
 
@@ -45,9 +45,20 @@ The F9 graph uses only the six existing inventory cross-references and their
 among others; PS5 unlock, ownership and completion states remain Unknown.
 Read-only F4 catalogue fields and F13 inspection display full record attribution.
 
-Regenerate with `python -I plugins/Pragmata/scripts/build-reference-pack.py --rsz
-<reviewed-MIT-schema.json> --missions <reviewed-MIT-mission.json>`. Both source SHA-256 values are checked; record-file hashes are
-recomputed with LF newlines. Pack version must change when semantic content changes.
+The illustrated catalogue, icons, Cradle atlas and location catalogue added in
+1.4.0 have a separate [visual source ledger and rebuild procedure](visual-reference.source.md).
+Their wiki/Capcom/Itemaps provenance remains distinct from the datasets above.
+
+Regenerate the base/community datasets with:
+
+```powershell
+python -I plugins/Pragmata/scripts/build-reference-pack.py --rsz <reviewed-MIT-schema.json> --missions <reviewed-MIT-mission.json> --community-dir <directory-with-three-REE-dumps>
+```
+
+All five source SHA-256 values are checked; record-file hashes use LF newlines.
+This generator writes the base/community 1.3.0 manifest. Then run the visual-pack
+builder as documented in the linked sidecar to restore the complete 1.4.0 manifest
+and assets. Pack version must change when semantic content changes.
 
 External F2 packs can supply names/descriptions/icons under catalog `pragmata-items`
 using exact invariant decimal uint32 IDs and a different pack ID. Identifier and

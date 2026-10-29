@@ -2,6 +2,10 @@
 
 Historical note: the [unlicensed-source unblock](unlicensed.md) supersedes the
 licence-only REE dataset refusal below; attributed factual subsets are now imported.
+The current plugin README also supersedes this round's read-only family/reference
+fields, research-only decoder and inventory-query limitations. The later
+[asset round](assets.md) imports wiki text/images and Itemaps atlas coordinates
+with attribution. The sections below preserve the 2026-10-28 round's evidence.
 
 This round extends Phase 2 read-only integration and the existing quantity
 operation's Phase 3 review/validation. It does not complete the causal mapping

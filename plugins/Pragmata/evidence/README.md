@@ -91,7 +91,8 @@ available, but no structural operation is exposed and maturity stays Experimenta
   chapter transition; named collectible pickup. Capture each operation separately,
   changing only one thing per pair, with screenshots or notes identifying the value.
 - Include empty/full inventory and examples across difficulty, chapters and cleared/NG+
-  modes. Supply licensed ID-to-name evidence or a user-owned extraction pack.
+  modes. Supply attributed ID-to-name evidence or a user-owned extraction pack;
+  a missing published licence alone is not a blocker under the owner policy.
   PC runtime observations need matching PS5 deltas; PC format equivalence is unconfirmed.
 - On a spare console slot: restore/export unchanged, load, re-save, reload; then test
   one small existing-quantity edit through the same cycle and confirm the displayed

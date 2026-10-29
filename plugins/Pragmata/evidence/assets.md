@@ -29,8 +29,9 @@ Sources, revisions, ownership notices, transformations and per-image fingerprint
 are in the [asset sidecar](../SaveToolkit.Plugins.Pragmata/ReferencePacks/pragmata.evidence.en/visual-reference.source.md)
 and its JSON ledger, the README, notices, Info.References, field/image attribution
 and the automatic Sources panel. The prior publisher-asset licence refusal is
-resolved for this subset by the 2026-10-29 owner decision. The central register is
-outside the authorized plugin-only scope and needs coordinator synchronization.
+resolved for this subset by the 2026-10-29 owner decision. The
+[central register](../../../docs/LICENCE_EXCLUSIONS.md) now records the resolved
+publisher-asset imports and the separate Itemaps coordinate decision.
 
 ## Exact footprint and load measurement
 

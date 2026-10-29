@@ -1,9 +1,14 @@
-# Community-source unblock — owner decision 2026-10-28
+# Historical community-source unblock — owner decision 2026-10-28
 
 Issue [#21](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/21), branch
 `plugin/pragmata-unlicensed`. The owner decision removes the previous
 licence-only refusal of community data. Existing independently implemented
 crypto/parser algorithms need no copied upstream code or replacement.
+This report records pack 1.3.0/plugin 0.5.1. The later [asset round](assets.md)
+supersedes the publisher-asset exclusion and unpinned/external-only map statements
+below: pack 1.4.0 imports attributed wiki text/images and SHA-pinned Cradle
+art/coordinates under the 2026-10-29 owner policy. Saved-ID associations remain
+unproven. The current README and central licence register record those imports.
 
 ## Imported facts
 
@@ -31,7 +36,7 @@ Each new dataset's licence field is exactly:
   `via.hid.KeyboardKey`, `via.hid.MouseButton`. Aliases remain attached to their
   exact value; indices and unrelated hashes are never interpreted as enum IDs.
 
-The F2 pack is now 1.3.0; plugin version 0.5.1 remains Experimental. Matching
+At this revision the F2 pack is 1.3.0; plugin version 0.5.1 remains Experimental. Matching
 primitive/raw descriptions include schema and exact enum labels with attribution
 and Inferred semantics. Typed enum uint32 keys normalize the signed reader's
 negative representation only for lookup. Stored values, editor specs, unknown
