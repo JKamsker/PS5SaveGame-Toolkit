@@ -36,16 +36,41 @@ if ($targetExists -and !$targetIsWrapper) {
     if (Test-Path -LiteralPath $original -PathType Leaf) {
         throw "An existing chained hook is already present at '$original'; remove it only after reviewing it."
     }
-    if ($PSCmdlet.ShouldProcess($target, 'preserve existing pre-commit hook as a chained hook')) {
-        Move-Item -LiteralPath $target -Destination $original
-    }
 }
-if ($PSCmdlet.ShouldProcess($target, 'install C# size pre-commit hook')) {
-    Copy-Item -LiteralPath $source -Destination $target -Force
+if (!$PSCmdlet.ShouldProcess($target, 'install C# size pre-commit hook')) {
+    Write-Host "What if: would install staged C# size guard in $target"
+    return
+}
+
+$temporary = Join-Path $hookDirectory ('.pre-commit.savetoolkit-' + [guid]::NewGuid().ToString('N') + '.tmp')
+$movedOriginal = $false
+try {
+    # Prepare and validate the replacement while the existing hook is still active.
+    Copy-Item -LiteralPath $source -Destination $temporary -Force
+    if (!$IsWindows) {
+        $mode = [IO.File]::GetUnixFileMode($source)
+        [IO.File]::SetUnixFileMode($temporary, $mode)
+    }
+    if (!(Test-ToolkitWrapper $temporary)) { throw 'The prepared hook does not match the checked-in wrapper.' }
+
+    if ($targetExists -and !$targetIsWrapper) {
+        Move-Item -LiteralPath $target -Destination $original
+        $movedOriginal = $true
+    }
+    Move-Item -LiteralPath $temporary -Destination $target -Force
     Write-Host "Installed staged C# size guard in $target"
 }
-else {
-    Write-Host "What if: would install staged C# size guard in $target"
+catch {
+    if ($movedOriginal -and !(Test-Path -LiteralPath $target -PathType Leaf) -and
+        (Test-Path -LiteralPath $original -PathType Leaf)) {
+        Move-Item -LiteralPath $original -Destination $target -Force -ErrorAction SilentlyContinue
+    }
+    throw
+}
+finally {
+    if (Test-Path -LiteralPath $temporary -PathType Leaf) {
+        Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue
+    }
 }
 if (Test-Path -LiteralPath $original -PathType Leaf) {
     Write-Host "Preserved existing hook chain at $original"

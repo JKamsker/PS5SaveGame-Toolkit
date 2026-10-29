@@ -8,7 +8,7 @@ Run a complete tracked-source report from the repository root:
 python -B scripts/check_csharp_size.py --all
 ```
 
-The report reads the committed `HEAD` tree and blobs, independent of staged additions, deletions or renames. Add `--report-only` when inspecting existing debt without making the command fail. Generated files are excluded only by explicit `generatedGlobs` entries in [.csharp-size-policy.json](../.csharp-size-policy.json). Entries must use a repository-relative generated directory prefix such as `generated/**/*.cs` or `src/Generated/**/*.cs`; the `**` means zero or more directory levels, so both `generated/output.cs` and `generated/sub/output.cs` match. Root-wide or extension-only catchalls are rejected by the parser.
+The report reads the committed `HEAD` tree and blobs, independent of staged additions, deletions or renames. Add `--report-only` when inspecting existing debt without making the command fail. Generated files are excluded only by explicit `generatedGlobs` entries in [.csharp-size-policy.json](../.csharp-size-policy.json). Entries must use a repository-relative generated directory prefix such as `generated/**/*.cs` or `src/Generated/**/*.cs`; the `**` means zero or more directory levels, so both `generated/output.cs` and `generated/sub/output.cs` match. Root-wide or extension-only catchalls are rejected by the parser. The policy cannot raise the global 300-line warning or 500-line hard limit; only stricter positive limits are accepted, and over-500 allowances require exact-path legacy exceptions.
 
 ## Pull requests and staged work
 
@@ -20,7 +20,7 @@ The opt-in hook checks the Git index, so it examines exactly what will be commit
 ./scripts/install-hooks.ps1
 ```
 
-The installer writes only to the repository's active hook directory. If an unknown pre-commit hook already exists, it moves that hook to a sibling `pre-commit.savetoolkit-original` file and runs it after the size guard. Re-running the installer recognizes its own wrapper, refreshes it and leaves the reviewed backup untouched. An unknown target plus an existing backup is refused. Review that local backup before removing it. The hook requires Python 3; CI remains the authoritative check.
+The installer writes only to the repository's active hook directory. If an unknown pre-commit hook already exists, it prepares and validates a temporary wrapper before moving that hook to a sibling `pre-commit.savetoolkit-original` file, then atomically replaces the active path. Copy or replacement failures attempt to restore the original active hook. Re-running the installer recognizes its own wrapper, refreshes it and leaves the reviewed backup untouched. An unknown target plus an existing backup is refused. Review that local backup before removing it. The wrapper chains a preserved original only when it remains executable, so a previously disabled hook stays disabled. The hook requires Python 3; CI remains the authoritative check.
 
 When no `--policy` override is supplied, staged mode reads `.csharp-size-policy.json` from the
 index and changed/full modes read it from `HEAD`, matching the source object used for C# content.

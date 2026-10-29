@@ -69,6 +69,11 @@ def load_policy_bytes(content: bytes, source: str) -> Policy:
 
     warning = _positive_int(raw.get("warningLines", DEFAULT_WARNING_LINES), "warningLines")
     error = _positive_int(raw.get("errorLines", DEFAULT_ERROR_LINES), "errorLines")
+    if warning > DEFAULT_WARNING_LINES or error > DEFAULT_ERROR_LINES:
+        raise GuardError(
+            f"warningLines must be <= {DEFAULT_WARNING_LINES} and errorLines must be <= "
+            f"{DEFAULT_ERROR_LINES}; stricter positive limits are allowed"
+        )
     if warning >= error:
         raise GuardError("warningLines must be smaller than errorLines")
     generated = _string_list(raw.get("generatedGlobs", []), "generatedGlobs")
@@ -188,19 +193,31 @@ def changed_paths(root: Path, base: str) -> list[str]:
     return parse_name_status(data)
 
 
-def tracked_paths(root: Path) -> list[str]:
-    data = run_git(root, ["ls-tree", "-r", "-z", "--name-only", "HEAD"])
-    return [field.decode("utf-8", errors="surrogateescape")
-            for field in data.split(b"\0") if field and field.lower().endswith(b".cs")]
-
-
 def read_blob(root: Path, path: str, *, staged: bool) -> bytes:
     object_name = f":{path}" if staged else f"HEAD:{path}"
     return run_git(root, ["show", object_name])
 
 
-def read_head_blobs(root: Path, paths: Sequence[str]) -> dict[str, bytes]:
-    """Read many committed blobs through one Git process for a practical full audit."""
+def committed_tree(root: Path) -> list[tuple[str, str]]:
+    """Return exact HEAD paths and object IDs from NUL-delimited tree records."""
+    data = run_git(root, ["ls-tree", "-r", "-z", "HEAD"])
+    entries: list[tuple[str, str]] = []
+    for record in data.split(b"\0"):
+        if not record:
+            continue
+        try:
+            metadata, path_bytes = record.split(b"\t", 1)
+            fields = metadata.split()
+            object_id = fields[2].decode("ascii")
+        except (IndexError, UnicodeDecodeError, ValueError) as error:
+            raise GuardError("Git returned an invalid HEAD tree record") from error
+        if path_bytes.lower().endswith(b".cs"):
+            entries.append((path_bytes.decode("utf-8", errors="surrogateescape"), object_id))
+    return entries
+
+
+def read_object_blobs(root: Path, entries: Sequence[tuple[str, str]]) -> list[SourceBlob]:
+    """Read committed blobs by object ID so newline-containing paths never enter a request line."""
     try:
         process = subprocess.Popen(["git", "-C", str(root), "cat-file", "--batch"],
                                    stdin=subprocess.PIPE, stdout=subprocess.PIPE,
@@ -208,14 +225,14 @@ def read_head_blobs(root: Path, paths: Sequence[str]) -> dict[str, bytes]:
     except OSError as error:
         raise GuardError(f"Cannot run Git cat-file --batch: {error}") from error
     assert process.stdin is not None and process.stdout is not None
-    requests = b"".join(f"HEAD:{path}\n".encode("utf-8", errors="surrogateescape") for path in paths)
+    requests = b"".join(f"{object_id}\n".encode("ascii") for _, object_id in entries)
     stdout, stderr = process.communicate(requests)
     if process.returncode:
         detail = stderr.decode("utf-8", errors="replace").strip()
         raise GuardError(f"Git cat-file --batch failed ({process.returncode}): {detail}")
-    result: dict[str, bytes] = {}
     offset = 0
-    for path in paths:
+    blobs: list[SourceBlob] = []
+    for path, _ in entries:
         end = stdout.find(b"\n", offset)
         if end < 0:
             raise GuardError(f"Git returned an incomplete blob header for {path}")
@@ -232,9 +249,9 @@ def read_head_blobs(root: Path, paths: Sequence[str]) -> dict[str, bytes]:
         content = stdout[offset:offset + size]
         if len(content) != size or stdout[offset + size:offset + size + 1] != b"\n":
             raise GuardError(f"Git returned a truncated blob for {path}")
-        result[path] = content
+        blobs.append(SourceBlob(path, content))
         offset += size + 1
-    return result
+    return blobs
 
 
 def is_csharp(path: str) -> bool:
@@ -242,17 +259,13 @@ def is_csharp(path: str) -> bool:
 
 
 def is_generated(path: str, policy: Policy) -> bool:
-    normalised = _normalise_path(path)
-    return any(normalised.startswith(pattern[:-len("/**/*.cs")] + "/")
+    return any(path.startswith(pattern[:-len("/**/*.cs")] + "/")
                for pattern in policy.generated_globs)
 
 
 def collect_blobs(root: Path, paths: Iterable[str], policy: Policy, *, staged: bool) -> list[SourceBlob]:
-    selected = [path for path in sorted({_normalise_path(path) for path in paths})
+    selected = [path for path in sorted(set(paths))
                 if is_csharp(path) and not is_generated(path, policy)]
-    if not staged:
-        head_blobs = read_head_blobs(root, selected)
-        return [SourceBlob(path, head_blobs[path]) for path in selected]
     blobs: list[SourceBlob] = []
     for path in selected:
         try:
@@ -328,7 +341,9 @@ def main(arguments: Sequence[str] | None = None) -> int:
         elif args.changed:
             blobs = collect_blobs(root, changed_paths(root, args.base), policy, staged=False)
         else:
-            blobs = collect_blobs(root, tracked_paths(root), policy, staged=False)
+            tree_entries = [entry for entry in committed_tree(root)
+                            if not is_generated(entry[0], policy)]
+            blobs = read_object_blobs(root, tree_entries)
         return evaluate(blobs, policy, report_only=args.report_only)
     except GuardError as error:
         print(f"C# size guard: {error}", file=sys.stderr)

@@ -42,6 +42,102 @@ class SizeGuardTests(unittest.TestCase):
                         "generatedGlobs": [pattern], "legacyExemptions": []
                     }).encode(), "test policy")
 
+    def test_permissive_global_limits_fail_staged_and_committed_modes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._git(root, "init")
+            self._git(root, "config", "user.email", "guard@example.invalid")
+            self._git(root, "config", "user.name", "Guard Test")
+            policy = root / ".csharp-size-policy.json"
+            strict = {"warningLines": 300, "errorLines": 500,
+                      "generatedGlobs": [], "legacyExemptions": []}
+            policy.write_text(json.dumps(strict), encoding="utf-8")
+            self._git(root, "add", ".")
+            self._git(root, "commit", "-m", "strict baseline")
+            base = self._git(root, "rev-parse", "HEAD").stdout.strip()
+            policy.write_text(json.dumps({"warningLines": 1000, "errorLines": 5000,
+                                          "generatedGlobs": [], "legacyExemptions": []}), encoding="utf-8")
+            source = root / "TooLarge.cs"
+            source.write_text("line\n" * 501, encoding="utf-8")
+            self._git(root, "add", ".")
+            staged = self._run(root, "--staged")
+            self.assertEqual(2, staged.returncode)
+            self.assertIn("warningLines must be <= 300", staged.stderr)
+            self._git(root, "commit", "-m", "permissive policy")
+            changed = self._run(root, "--changed", "--base", base)
+            audited = self._run(root, "--all")
+            self.assertEqual(2, changed.returncode)
+            self.assertEqual(2, audited.returncode)
+
+    def test_strict_policy_keeps_301_line_warning(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._git(root, "init")
+            policy = root / ".csharp-size-policy.json"
+            policy.write_text(json.dumps({"warningLines": 300, "errorLines": 500,
+                                          "generatedGlobs": [], "legacyExemptions": []}), encoding="utf-8")
+            source = root / "301.cs"
+            source.write_text("line\n" * 301, encoding="utf-8")
+            self._git(root, "add", ".")
+            result = self._run(root, "--staged")
+            self.assertEqual(0, result.returncode)
+            self.assertIn("WARNING 301.cs: 301 lines exceeds 300", result.stdout)
+
+    def test_committed_modes_keep_newline_filename_blob_identity(self):
+        if os.name == "nt":
+            self.skipTest("POSIX permits newline filenames used by this identity regression")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._git(root, "init")
+            self._git(root, "config", "user.email", "guard@example.invalid")
+            self._git(root, "config", "user.name", "Guard Test")
+            policy = root / ".csharp-size-policy.json"
+            policy.write_text(json.dumps({"warningLines": 300, "errorLines": 500,
+                                          "generatedGlobs": [], "legacyExemptions": []}), encoding="utf-8")
+            self._git(root, "add", ".")
+            self._git(root, "commit", "-m", "baseline")
+            base = self._git(root, "rev-parse", "HEAD").stdout.strip()
+            source = root / "odd\nname.cs"
+            source.write_text("line\n" * 501, encoding="utf-8")
+            self._git(root, "add", ".")
+            self._git(root, "commit", "-m", "newline source")
+            all_result = self._run(root, "--all")
+            changed_result = self._run(root, "--changed", "--base", base)
+            self.assertEqual(1, all_result.returncode, all_result.stdout + all_result.stderr)
+            self.assertEqual(1, changed_result.returncode, changed_result.stdout + changed_result.stderr)
+            self.assertIn("hard limit 500", all_result.stdout)
+            self.assertIn("hard limit 500", changed_result.stdout)
+
+    def test_all_changed_and_staged_preserve_literal_backslash_path_identity(self):
+        if os.name == "nt":
+            self.skipTest("POSIX permits literal backslash filenames used by this identity regression")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._git(root, "init")
+            self._git(root, "config", "user.email", "guard@example.invalid")
+            self._git(root, "config", "user.name", "Guard Test")
+            policy = root / ".csharp-size-policy.json"
+            policy.write_text(json.dumps({"warningLines": 300, "errorLines": 500,
+                                          "generatedGlobs": [], "legacyExemptions": []}), encoding="utf-8")
+            self._git(root, "add", ".")
+            self._git(root, "commit", "-m", "baseline")
+            base = self._git(root, "rev-parse", "HEAD").stdout.strip()
+            literal_backslash = root / "a\\b.cs"
+            slash_path = root / "a" / "b.cs"
+            slash_path.parent.mkdir()
+            literal_backslash.write_text("line\n" * 501, encoding="utf-8")
+            slash_path.write_text("line\n" * 2, encoding="utf-8")
+            self._git(root, "add", ".")
+            staged = self._run(root, "--staged")
+            self.assertEqual(1, staged.returncode, staged.stdout + staged.stderr)
+            self._git(root, "commit", "-m", "backslash and slash sources")
+            changed = self._run(root, "--changed", "--base", base)
+            audited = self._run(root, "--all")
+            self.assertEqual(1, changed.returncode, changed.stdout + changed.stderr)
+            self.assertEqual(1, audited.returncode, audited.stdout + audited.stderr)
+            self.assertIn("hard limit 500", changed.stdout)
+            self.assertIn("hard limit 500", audited.stdout)
+
     def test_name_status_keeps_rename_destination_and_ignores_deletes_by_contract(self):
         records = b"M\0folder/with space.cs\0R100\0old.cs\0new name.cs\0"
         self.assertEqual(["folder/with space.cs", "new name.cs"], self.guard.parse_name_status(records))
@@ -200,6 +296,27 @@ class SizeGuardTests(unittest.TestCase):
             self.assertNotEqual(0, refused.returncode)
             self.assertIn("existing chained hook", refused.stderr + refused.stdout)
 
+    def test_installer_copy_failure_keeps_active_hook_and_does_not_create_backup(self):
+        pwsh = shutil.which("pwsh")
+        if not pwsh:
+            self.skipTest("PowerShell 7 is required to exercise the installer")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".githooks").mkdir()
+            (root / "scripts").mkdir()
+            shutil.copy(ROOT / ".githooks/pre-commit", root / ".githooks/pre-commit")
+            shutil.copy(ROOT / "scripts/install-hooks.ps1", root / "scripts/install-hooks.ps1")
+            self._git(root, "init")
+            hooks = root / ".git/hooks"
+            target = hooks / "pre-commit"
+            original_bytes = b"#!/bin/sh\nexit 23\n"
+            target.write_bytes(original_bytes)
+            failed = self._run_installer_with_copy_failure(pwsh, root)
+            self.assertNotEqual(0, failed.returncode)
+            self.assertEqual(original_bytes, target.read_bytes())
+            self.assertFalse((hooks / "pre-commit.savetoolkit-original").exists())
+            self.assertEqual([], list(hooks.glob(".pre-commit.savetoolkit-*.tmp")))
+
     def test_hook_forwards_arguments_and_original_exit_code(self):
         shell = shutil.which("sh")
         if not shell:
@@ -223,6 +340,13 @@ class SizeGuardTests(unittest.TestCase):
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             self.assertEqual(17, result.returncode, result.stdout + result.stderr)
             self.assertEqual(["first", "two words"], arguments_path.read_text().splitlines())
+            arguments_path.unlink()
+            original.chmod(0o644)
+            disabled = subprocess.run([shell, str(hook), "disabled"], cwd=root,
+                                      env={**os.environ, "HOOK_ARGS_PATH": str(arguments_path)},
+                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            self.assertEqual(0, disabled.returncode, disabled.stdout + disabled.stderr)
+            self.assertFalse(arguments_path.exists())
 
     @staticmethod
     def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
@@ -230,12 +354,18 @@ class SizeGuardTests(unittest.TestCase):
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     def _run(self, root: Path, *args: str) -> subprocess.CompletedProcess:
-        return subprocess.run(["python", str(SCRIPT), "--root", str(root), *args],
+        return subprocess.run([sys.executable, str(SCRIPT), "--root", str(root), *args],
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     def _run_installer(self, pwsh: str, root: Path, *args: str) -> subprocess.CompletedProcess:
         return subprocess.run([pwsh, "-NoProfile", "-File", str(root / "scripts/install-hooks.ps1"), *args],
                               cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    def _run_installer_with_copy_failure(self, pwsh: str, root: Path) -> subprocess.CompletedProcess:
+        script = str(root / "scripts/install-hooks.ps1").replace("'", "''")
+        command = "function Copy-Item { throw 'injected copy failure' }; & '" + script + "'"
+        return subprocess.run([pwsh, "-NoProfile", "-Command", command], cwd=root,
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
 
 if __name__ == "__main__":
