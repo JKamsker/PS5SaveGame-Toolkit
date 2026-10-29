@@ -43,12 +43,7 @@ internal static class YoteiFormat
             position += sizeof(uint);
             Require(content, position, (int)length + trailer);
             var nameBytes = content.Slice(position, (int)length);
-            foreach (var value in nameBytes)
-            {
-                if (!(value is >= (byte)'a' and <= (byte)'z' or >= (byte)'A' and <= (byte)'Z' or
-                    >= (byte)'0' and <= (byte)'9' or (byte)'_'))
-                    throw new SaveFormatException("Invalid Yōtei record identifier.");
-            }
+            if (!AsciiIdentifier.IsValid(nameBytes)) throw new SaveFormatException("Invalid Yōtei record identifier.");
             var name = Encoding.ASCII.GetString(nameBytes);
             if (!seen.Add(name)) throw new SaveFormatException("Duplicate Yōtei record identifier.");
             position += (int)length;

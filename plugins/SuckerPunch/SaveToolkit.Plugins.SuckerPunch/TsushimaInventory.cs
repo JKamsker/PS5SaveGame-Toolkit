@@ -64,7 +64,11 @@ internal sealed record TsushimaInventory(int Start, int End, IReadOnlyList<Inven
             throw new SaveFormatException("Tsushima counted inventory table is missing or ambiguous.");
         }
 
-        var start = searchStart + relative;
+        return ReadRecords(content, searchStart + relative);
+    }
+
+    private static TsushimaInventory ReadRecords(ReadOnlySpan<byte> content, int start)
+    {
         var position = start + sizeof(uint);
         var records = new List<InventoryRecord>(RecordCount);
         var names = new HashSet<string>(StringComparer.Ordinal);
@@ -81,13 +85,9 @@ internal sealed record TsushimaInventory(int Start, int End, IReadOnlyList<Inven
             position += sizeof(uint);
             Require(content, position, (int)length + InventoryRecord.WordCount * sizeof(uint));
             var nameBytes = content.Slice(position, (int)length);
-            foreach (var value in nameBytes)
+            if (!AsciiIdentifier.IsValid(nameBytes))
             {
-                if (!((value >= 'A' && value <= 'Z') || (value >= 'a' && value <= 'z') ||
-                      (value >= '0' && value <= '9') || value == '_'))
-                {
-                    throw new SaveFormatException("Invalid Tsushima inventory identifier.");
-                }
+                throw new SaveFormatException("Invalid Tsushima inventory identifier.");
             }
 
             var name = Encoding.ASCII.GetString(nameBytes);
