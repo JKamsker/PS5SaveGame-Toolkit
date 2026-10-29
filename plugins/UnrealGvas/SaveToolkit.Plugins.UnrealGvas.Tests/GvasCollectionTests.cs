@@ -25,7 +25,9 @@ public sealed class GvasCollectionTests
         Assert.Equal("Item0", document.GetValue(first.Rows[0].Key).AsString());
         Assert.Equal("Item1", document.GetValue(second.Rows[0].Key).AsString());
         Assert.True(fields.ContainsKey(first.Rows[0].Key));
-        Assert.All(first.Rows.SelectMany(row => row.Cells.Values), cell => Assert.IsType<TextNode>(cell));
+        Assert.All(first.Rows.SelectMany(row => row.Cells.Where(pair => pair.Key != "value").Select(pair => pair.Value)),
+            cell => Assert.IsType<TextNode>(cell));
+        Assert.All(first.Rows, row => Assert.IsType<TextNode>(row.Cells["value"]));
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 

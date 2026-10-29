@@ -3,6 +3,7 @@ import { api } from "../../api/client";
 import type { StatsNode, TextNode, ViewNode } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
 import { FieldRow } from "../fields/FieldRow";
+import { UnavailableFieldReference } from "../fields/UnavailableFieldReference";
 import { ActionButton } from "./ActionButton";
 import { HexView } from "./HexView";
 import { useFieldJump } from "./review/navigation";
@@ -39,6 +40,8 @@ function ViewContent({ node }: { node: ViewNode }) {
       return <TabsView node={node} />;
     case "field":
       return <NavigableField node={node} />;
+    case "fieldReference":
+      return <UnavailableFieldReference node={node} />;
     case "table":
       return <TableView node={node} />;
     case "queryableTable":
