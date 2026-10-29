@@ -1,0 +1,19 @@
+using SaveToolkit.Testing;
+
+namespace @PROJECT@.Tests;
+
+public sealed class @NAME@SampleTests
+{
+    [Fact]
+    public void Sample_OpensRecognizedFile()
+    {
+        // Load uses Assert.Skip when this private archive is absent; never return a false pass.
+        var set = SampleSaves.Load(@SAMPLE_TITLE@);
+        var plugin = new @NAME@Plugin();
+        var file = set.AllDiskFiles.FirstOrDefault(file => !file.IsSystemFile && plugin.Probe(file).IsMatch);
+        Assert.NotNull(file);
+        using var document = plugin.Open(file);
+        Assert.NotNull(document.BuildView());
+        // TODO: assert a researched, known value from a specific real sample here.
+    }
+}

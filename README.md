@@ -108,6 +108,13 @@ Documentation checks use Python 3.10+ with no extra packages:
 `python -B docs/tests/test_documentation.py`. They check local links/anchors, commands and selected
 source-backed claims against `HEAD`; add `--code-ref main` to audit against local `main`.
 
+To start a plugin, follow the [contributor walkthrough](docs/PLUGIN_GUIDE.md#scaffold).
+The scaffold includes a working read-only synthetic view using `InMemoryCollection` and
+`BoundedBinaryCursor`, conformance tests, a missing-sample skip example and the required README
+tables. Replace the demonstration format with researched game data before claiming support.
+Run `./scripts/self-test.ps1 -ScratchDirectory <scratch-path>` for scaffold/script regressions;
+the generated-project checks require the .NET SDK above and package restore access, but no private saves.
+
 ## Architecture
 
 - **SDK** (`src/SaveToolkit.Sdk`): the plugin contract. Plugins describe *what* data is — types,

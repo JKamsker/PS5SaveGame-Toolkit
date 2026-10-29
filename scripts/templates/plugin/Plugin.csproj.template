@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>@PROJECT@</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Production plugins depend on the SDK, never on Core/Api/Testing. -->
+    <ProjectReference Include="..\..\..\src\SaveToolkit.Sdk\SaveToolkit.Sdk.csproj" />
+  </ItemGroup>
+</Project>

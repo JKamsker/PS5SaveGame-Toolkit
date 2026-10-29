@@ -1,0 +1,63 @@
+# @GAME_NAME@ plugin (`@ID@`)
+
+Target titles: @TITLE_IDS@
+
+**Synthetic scaffold only. No real game support or in-game validation is claimed.**
+Replace the demonstration signature, parser, fixtures and evidence before publishing support.
+
+## Format
+
+The original demonstration format is `STKDEMO1` (eight ASCII bytes), a little-endian signed
+32-bit record count (0–64), then that many signed 32-bit values. Files are limited to 1 MiB.
+There is no crypto, compression or checksum in this synthetic format. Trailing bytes are
+uninterpreted and preserved. `example.bin` is the synthetic fixture's only file role.
+Record offsets are stable only because there are no structural writes.
+
+TODO: document researched game file roles, layout, integrity and verified/inferred/unknown fields.
+Open questions: the real game format and all game semantics are unknown.
+
+## Enabled writes and their evidence
+
+None. The document is read-only; synthetic tests prove inspection and byte-identical serialization,
+including unknown trailing bytes. They provide no evidence of console compatibility.
+
+## Framework feature adoption
+
+| Feature | Status | Concrete use / evidence or reason |
+| --- | --- | --- |
+| F1 | N/A | No SaveDiff fixture/decoder integration; synthetic unit tests cover byte preservation. |
+| F2 | N/A | The synthetic integer format has no reference datasets or assets. |
+| F3 | N/A | Basic integer cells only; no rich cells/details or selection-driven actions. |
+| F4 | N/A | Synthetic integers have no reference IDs or action parameters. |
+| F5 | N/A | Read-only fixed records; no structural writer. |
+| F6 | N/A | No mutating actions in the read-only example. |
+| F7 | N/A | The synthetic format has one independent file. |
+| F8 | Used | InMemoryCollection queries the complete bounded model before paging. |
+| F9 | N/A | Synthetic integers have no spatial or prerequisite meaning. |
+| F10 | N/A | Only signed 32-bit integers; no exact lexemes, nulls or unions. |
+| F11 | N/A | The synthetic format uses neither Kraken nor SQLite. |
+| F12 | N/A | No native decoder hook or semantic diff integration for the synthetic format. |
+| F13 | N/A | No catalogues, inspection actions or durations in the synthetic format. |
+
+Reassess every row when replacing the demonstration format with a real one.
+
+## Sources and attribution
+
+| Source / revision | Author / rights holder | Licence / policy basis | Use / modifications |
+| --- | --- | --- | --- |
+| Toolkit scaffold in this checkout | PS5 Save Game Toolkit contributors | GPL-3.0-or-later | Original synthetic format and fixtures; no upstream game data. |
+
+TODO: research and cite every real format source, dataset and code port; populate `Info.References`
+and retain sidecars/notices as required by the plugin guide.
+
+## SDK requests
+
+None for the synthetic example. Record concrete missing capabilities here rather than editing `src/`.
+
+## Licence exclusions
+
+No sources have been refused for the synthetic example. Replace this placeholder with one row per
+actual refusal and synchronize `docs/LICENCE_EXCLUSIONS.md` when adding a real source decision.
+
+| Source URL / revision | Exact licence found | Refused material / reason | Alternative used | What would unblock reuse |
+| --- | --- | --- | --- | --- |

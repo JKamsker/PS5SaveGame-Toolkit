@@ -17,18 +17,76 @@ browser (React)  ──JSON──▶  Api  ──▶  Core: DocumentSession ─�
 
 ## Scaffold
 
+Install the .NET 10 SDK selected by `global.json`, then run these commands in PowerShell
+from the repository root (no solution-file edits are needed):
+
 ```powershell
 ./scripts/new-plugin.ps1 -Name ExampleGame -Id example-game -TitleIds PPSA00000 -GameName "Example Game"
+dotnet build plugins/ExampleGame/SaveToolkit.Plugins.ExampleGame/SaveToolkit.Plugins.ExampleGame.csproj
 dotnet test --project plugins/ExampleGame/SaveToolkit.Plugins.ExampleGame.Tests
+python docs/tests/test_documentation.py
 ```
 
 Replace the example name, ID and placeholder title with your new plugin's values. The name must
 not already exist under `plugins/`; the scaffolder refuses to overwrite an existing plugin.
-It creates a ReadOnly skeleton whose probe/open implementation and sample-backed tests still
-need to be written before the conformance suite can pass.
+Names start with an uppercase ASCII letter and contain at least two letters/digits; IDs use
+lowercase letters/digits separated by dots or hyphens. Title IDs have four uppercase ASCII letters
+and five digits (normally `PPSA` followed by five digits). Omit `-TitleIds` for a generic format
+plugin; its sample tests use `PPSA00000` until you choose a real sample title.
 
 This creates `plugins/<Name>/SaveToolkit.Plugins.<Name>/` (picked up by the app automatically)
-and `plugins/<Name>/SaveToolkit.Plugins.<Name>.Tests/` with the conformance suite wired to the samples.
+and `plugins/<Name>/SaveToolkit.Plugins.<Name>.Tests/`. The generated read-only plugin builds
+without warnings. Its **synthetic demonstration format is not a real game format**: `STKDEMO1`,
+a bounded little-endian record count and signed integer records, with unknown trailing bytes preserved.
+The supplied title IDs are targets, not evidence of game support. Research the real format before
+replacing the demonstration probe, parser, fixture and README claims together.
+
+The initial test run exercises synthetic parsing, bounded collection queries, read-only bindings,
+corruption rejection and byte-identical serialization. Four sample-dependent tests (including
+conformance) skip when the archive is absent; this is a passing bootstrap, not real-save validation.
+`<Name>SampleTests.cs` demonstrates `SampleSaves.Load`, which reports a real skip instead of silently
+returning. Once you implement the real parser, supply samples as described under [Tests](#tests)
+and check that those skips disappear.
+
+The documentation command must pass, but its plugin inventory comes from `HEAD` (or `--code-ref`),
+so it does **not** validate an uncommitted plugin's README or register it in the support/licence tables.
+Review the [required README sections](#plugin-readme) yourself. A throwaway scaffold must remain
+uncommitted and be removed after the exercise. For a plugin you intend to ship, request the central
+support/licence documentation updates from the maintainer when they fall outside your allowed scope.
+
+### Try the read-only SDK helper view
+
+The generated `<Name>Document.cs` is a complete minimal integration of the
+[shared SDK helpers](#shared-sdk-helpers), with the required namespaces already imported:
+
+1. `SaveToolkit.Sdk.Binary.BoundedBinaryCursor` checks the signature, bounds the record count with
+   `ReadCount`, and rejects truncated `ReadInt32LE` records with a contextual `SaveFormatException`.
+2. `SaveToolkit.Sdk.Collections.InMemoryCollection<T>` receives the complete bounded record model,
+   stable keys, one adapter per metadata column and a page-only row renderer. The metadata becomes
+   a view through `ToTableNode`; `IQueryableDocument.Collections` and `Query` expose it to Core.
+3. The renderer calls `BoundSaveDocument.Field` without a setter, registering read-only `GetValue`
+   bindings. `CanEdit` is false, and `Serialize` returns the full original buffer and relative path.
+
+To make one small change in `<Name>DocumentTests.cs`, change the count in `ExampleBytes` from
+`3, 0, 0, 0` to `4, 0, 0, 0` and insert `30, 0, 0, 0` before the trailing `0xAA, 0xBB`.
+Update the fixture comment and the `page.TotalCount` assertion from 3 to 4. In the existing
+`SyntheticView_QueriesCompleteModelAndPreservesBytes` test, add:
+
+```csharp
+var added = queryable.Query(collection.Id, new() { Text = "30", Limit = 1 });
+var addedField = Assert.IsType<FieldNode>(Assert.Single(added.Rows).Cells["value"]);
+Assert.Equal(FieldValue.Of(30), document.GetValue(addedField.ValueId));
+```
+
+Rerun the build and test commands above. Keep numeric sorts on native values; formatting them
+as strings would put `10` before `2`. The supplied test
+already checks sorting before paging, search, edit rejection and preservation of unknown trailing bytes.
+Offsets are suitable row keys only for this fixed read-only example; real structural formats need
+native record identities that survive insertion, removal and reorder.
+
+Scaffold regression coverage (including real generated-project builds and tests with absent and
+synthetic samples) runs through `./scripts/self-test.ps1 -ScratchDirectory <scratch-path>`.
+It needs the repository's .NET SDK and package restore access, but no private saves or Pester.
 
 ## Contract (src/SaveToolkit.Sdk)
 
@@ -1073,7 +1131,19 @@ mutating the original byte array after creating a synthetic file does not edit t
 
 `plugins/<Name>/README.md` must document: titles, file roles, binary layout, crypto/compression,
 checksums, which fields are verified vs inferred, open questions, and all sources.
-Add an `## SDK requests` section if the SDK lacked something you needed — do not edit `src/`.
+Keep these headings even when the answer is "None":
+
+- `## Enabled writes and their evidence`: exact writable scope and sample/in-game evidence, or read-only.
+- `## Framework feature adoption`: the F1–F13 table below, reassessed for the actual format.
+- `## Sources and attribution`: source/revision, author/rights holder, licence/policy basis and use/modifications.
+- `## SDK requests`: concrete missing capabilities, or none; do not edit `src/`.
+- `## Licence exclusions`: the five-column table below, even when there are no refusals.
+
+| Source URL / revision | Exact licence found | Refused material / reason | Alternative used | What would unblock reuse |
+| --- | --- | --- | --- | --- |
+
+Leave the exclusions table empty when no source was refused; never invent a refusal to fill a row.
+Actual source decisions must also be recorded in the central register as required by rule 9.
 
 ### Framework feature adoption table
 

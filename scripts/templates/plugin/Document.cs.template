@@ -1,0 +1,66 @@
+using System.Globalization;
+using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Binary;
+using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.Values;
+using SaveToolkit.Sdk.Views;
+
+namespace @PROJECT@;
+
+internal sealed class @NAME@Document : BoundSaveDocument, IQueryableDocument
+{
+    private const string CollectionId = "example-values";
+    private const string ValueColumn = "value";
+    private readonly string _path;
+    private readonly byte[] _original;
+    private readonly InMemoryCollection<ExampleRecord> _values;
+
+    public @NAME@Document(string path, byte[] original)
+    {
+        _path = path;
+        _original = original;
+        var cursor = new BoundedBinaryCursor(original, "Synthetic scaffold example");
+        if (!cursor.Take(@NAME@Plugin.ExampleMagic.Length).SequenceEqual(@NAME@Plugin.ExampleMagic))
+            throw new SaveFormatException("Not a synthetic scaffold example.");
+        var count = cursor.ReadCount(@NAME@Plugin.MaximumRecords);
+        var records = new List<ExampleRecord>(count);
+        for (var index = 0; index < count; index++)
+        {
+            // Offsets are stable only because this example never inserts, removes or reorders records.
+            var key = cursor.Position.ToString("X8", CultureInfo.InvariantCulture);
+            records.Add(new ExampleRecord(key, cursor.ReadInt32LE()));
+        }
+
+        var metadata = new QueryableCollection(CollectionId, "Synthetic values",
+            [new QueryableColumn(ValueColumn, "Value", IntegerSpec.Int32 with { ReadOnly = true })], records.Count);
+        _values = new InMemoryCollection<ExampleRecord>(metadata, () => records, record => record.Key,
+            [new InMemoryColumn<ExampleRecord>(ValueColumn)
+            {
+                SearchText = record => record.Value.ToString(CultureInfo.InvariantCulture),
+                FilterText = record => record.Value.ToString(CultureInfo.InvariantCulture),
+                Comparer = Comparer<ExampleRecord>.Create((left, right) => left.Value.CompareTo(right.Value)),
+            }], record => new TableRow(record.Key, new Dictionary<string, ViewNode>(StringComparer.Ordinal)
+            {
+                [ValueColumn] = Field($"example/{record.Key}", "Synthetic value", IntegerSpec.Int32,
+                    () => FieldValue.Of(record.Value)) with
+                {
+                    Confidence = Confidence.Verified,
+                    Description = "Verified only against the synthetic fixture; no game semantics are claimed.",
+                },
+            }));
+    }
+
+    public override string Title => "Synthetic scaffold example";
+    public override bool CanEdit => false;
+    public IReadOnlyList<QueryableCollection> Collections => [_values.Metadata];
+    public override ViewNode BuildView() => new SectionNode(Title,
+        [new TextNode("Demonstration format only. Replace with researched game data."), _values.Metadata.ToTableNode()]);
+
+    public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
+        collectionId == CollectionId ? _values.Query(query) : throw new KeyNotFoundException("Unknown collection.");
+
+    // Preserve the complete original, including unparsed trailing bytes.
+    public override IReadOnlyList<FileOutput> Serialize() => [new FileOutput(_path, _original)];
+
+    private sealed record ExampleRecord(string Key, int Value);
+}

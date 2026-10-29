@@ -1,14 +1,14 @@
 <#
 .SYNOPSIS
-  Scaffolds a plugin project plus its conformance test project.
+  Scaffolds a read-only synthetic example plus conformance and sample tests.
 .EXAMPLE
-  ./scripts/new-plugin.ps1 -Name Pragmata -Id pragmata -TitleIds PPSA02530 -GameName "Pragmata"
+  ./scripts/new-plugin.ps1 -Name ExampleGame -Id example-game -TitleIds PPSA00000 -GameName "Example Game"
 #>
 param(
-    [Parameter(Mandatory)][ValidatePattern('^[A-Z][A-Za-z0-9]+$')][string]$Name,
-    [Parameter(Mandatory)][ValidatePattern('^[a-z0-9]+([.-][a-z0-9]+)*$')][string]$Id,
-    [string[]]$TitleIds = @(),
-    [string]$GameName = $Name
+    [Parameter(Mandatory)][ValidatePattern('^[A-Z][A-Za-z0-9]+$', Options = 'CultureInvariant')][string]$Name,
+    [Parameter(Mandatory)][ValidatePattern('^[a-z0-9]+([.-][a-z0-9]+)*$', Options = 'CultureInvariant')][string]$Id,
+    [ValidatePattern('^[A-Z]{4}[0-9]{5}$', Options = 'CultureInvariant')][string[]]$TitleIds = @(),
+    [ValidateNotNullOrEmpty()][string]$GameName = $Name
 )
 
 $ErrorActionPreference = 'Stop'
@@ -22,88 +22,41 @@ function ConvertTo-CSharpLiteral([string]$Value) {
     return ConvertTo-Json -InputObject $Value -Compress
 }
 
-$src = New-Item -ItemType Directory -Force (Join-Path $pluginDir $project)
-$tests = New-Item -ItemType Directory -Force (Join-Path $pluginDir "$project.Tests")
-
 $gameLiteral = ConvertTo-CSharpLiteral $GameName
 $games = ($TitleIds | ForEach-Object { "new GameTitle($(ConvertTo-CSharpLiteral $_), $gameLiteral)" }) -join ', '
-$titleList = ($TitleIds | ForEach-Object { ConvertTo-CSharpLiteral $_ }) -join ', '
-
-Set-Content -LiteralPath (Join-Path $src "$project.csproj") @"
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <RootNamespace>$project</RootNamespace>
-  </PropertyGroup>
-  <ItemGroup>
-    <!-- Plugins depend on the SDK only (never on Core/Api). -->
-    <ProjectReference Include="..\..\..\src\SaveToolkit.Sdk\SaveToolkit.Sdk.csproj" />
-  </ItemGroup>
-</Project>
-"@
-
-Set-Content -LiteralPath (Join-Path $src "${Name}Plugin.cs") @"
-using SaveToolkit.Sdk;
-using SaveToolkit.Sdk.Saves;
-
-namespace $project;
-
-public sealed class ${Name}Plugin : IGamePlugin
-{
-    public PluginInfo Info { get; } = new("$Id", $gameLiteral, "0.1.0")
-    {
-        Description = "TODO",
-        Games = [$games],
-        Maturity = PluginMaturity.ReadOnly,
-    };
-
-    public ProbeResult Probe(ISaveFile file) => ProbeResult.None;
-
-    public ISaveDocument Open(ISaveFile file) => throw new SaveFormatException("Not implemented yet.");
+# Generic plugins still need a sample title for the inherited conformance tests.
+$sampleTitles = if ($TitleIds.Count) { $TitleIds } else { @('PPSA00000') }
+$tokens = [ordered]@{
+    '@PROJECT@' = $project
+    '@NAME@' = $Name
+    '@ID@' = $Id
+    '@GAME_LITERAL@' = $gameLiteral
+    '@GAMES@' = $games
+    '@SAMPLE_TITLES@' = ($sampleTitles | ForEach-Object { ConvertTo-CSharpLiteral $_ }) -join ', '
+    '@SAMPLE_TITLE@' = ConvertTo-CSharpLiteral @($sampleTitles)[0]
+    '@GAME_NAME@' = $GameName
+    '@TITLE_IDS@' = if ($TitleIds.Count) { $TitleIds -join ', ' } else { 'None (generic format plugin).' }
 }
-"@
-
-Set-Content -LiteralPath (Join-Path $tests "$project.Tests.csproj") @"
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <IsPackable>false</IsPackable>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="xunit.v3" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\$project\$project.csproj" />
-    <ProjectReference Include="..\..\..\src\SaveToolkit.Testing\SaveToolkit.Testing.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Using Include="Xunit" />
-  </ItemGroup>
-</Project>
-"@
-
-Set-Content -LiteralPath (Join-Path $tests "${Name}ConformanceTests.cs") @"
-using SaveToolkit.Testing;
-
-namespace $project.Tests;
-
-public sealed class ${Name}ConformanceTests : PluginConformanceTests<${Name}Plugin>
-{
-    protected override IReadOnlyList<string> SampleTitleIds => [$titleList];
+$templateRoot = Join-Path $PSScriptRoot 'templates/plugin'
+$files = [ordered]@{
+    'Plugin.cs.template' = "$project/${Name}Plugin.cs"
+    'Document.cs.template' = "$project/${Name}Document.cs"
+    'Plugin.csproj.template' = "$project/$project.csproj"
+    'ConformanceTests.cs.template' = "$project.Tests/${Name}ConformanceTests.cs"
+    'DocumentTests.cs.template' = "$project.Tests/${Name}DocumentTests.cs"
+    'SampleTests.cs.template' = "$project.Tests/${Name}SampleTests.cs"
+    'Tests.csproj.template' = "$project.Tests/$project.Tests.csproj"
+    'README.md.template' = 'README.md'
 }
-"@
+foreach ($file in $files.GetEnumerator()) {
+    $template = Get-Content -LiteralPath (Join-Path $templateRoot $file.Key) -Raw
+    # Replace in one pass so user-supplied text containing a token stays literal.
+    $content = [regex]::Replace($template, '@[A-Z_]+@', { param($match) $tokens[$match.Value] })
+    $destination = Join-Path $pluginDir $file.Value
+    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $destination) | Out-Null
+    Set-Content -LiteralPath $destination -Value $content -NoNewline -Encoding utf8
+}
 
-Set-Content -LiteralPath (Join-Path $pluginDir 'README.md') @"
-# $GameName plugin (``$Id``)
-
-Titles: $($TitleIds -join ', ')
-
-## Format
-
-TODO: document the file layout, encryption/compression, checksums and what is verified vs. inferred.
-
-## Sources
-
-TODO: links to upstream tools, wikis and research used.
-"@
-
-Write-Host "Created plugins/$Name. Build: dotnet test --project plugins/$Name/$project.Tests"
+Write-Host "Created plugins/$Name (synthetic example only; replace before claiming game support)."
+Write-Host "Build: dotnet build plugins/$Name/$project/$project.csproj"
+Write-Host "Test:  dotnet test --project plugins/$Name/$project.Tests"
