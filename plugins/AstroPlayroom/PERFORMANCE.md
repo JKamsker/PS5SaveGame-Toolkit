@@ -1,5 +1,8 @@
 # Performance review (#40)
 
+Historical measurements and validation from 2026-10-29, not current suite counts or a fresh
+benchmark of main. See [README validation](README.md#validation) for the documentation-accuracy run.
+
 Branch: `review/perf-astroplayroom`. Baseline: `b4c2e20`. Production changes stop at `e099950`.
 All source/test edits stay under `plugins/AstroPlayroom/`; the parallel shared
 `InMemoryCollection` optimization is outside this review.
@@ -80,7 +83,7 @@ precedence, current edit/revert membership, document isolation, and all 4,096 mi
 The mixed-text case asserts a single source-file read across opening, complete traversal, query,
 planning and serialization. No wall-clock assertion was added.
 
-Final Release validation with external samples: **236 passed / 0 failed / 0 skipped**, baseline
+Review-round Release validation with external samples: **236 passed / 0 failed / 0 skipped**, baseline
 **210 passed**; **26 cases added**. Without private samples: **176 passed / 0 failed / 60 clean
 skips**, including all 21 new sample-free cases. TRX counters independently inspected. API Release
 build with warnings as errors: **0 warnings / 0 errors**. Conformance, byte-identical no-op output,
