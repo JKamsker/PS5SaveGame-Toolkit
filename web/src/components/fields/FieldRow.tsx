@@ -23,7 +23,7 @@ export function FieldRow({ node }: { node: FieldNode }) {
     <div className={`field${modified ? " field--modified" : ""}${shownError ? " field--error" : ""}`}>
       <label className="field__label" id={labelId} htmlFor={id}>
         {node.label}
-        {node.confidence && node.confidence !== "Verified" && (
+        {node.confidence && (
           <span className={`tag tag--${node.confidence.toLowerCase()}`}>{confidenceText[node.confidence]}</span>
         )}
         {modified && <span className="tag tag--modified">modified</span>}

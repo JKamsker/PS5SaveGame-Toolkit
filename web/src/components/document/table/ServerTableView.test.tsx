@@ -5,6 +5,7 @@ import { api, ApiError } from "../../../api/client";
 import type { QueryablePage } from "../../../api/protocol";
 import { DocumentContext, DocumentStore, type DocumentContextValue } from "../../../state/documentStore";
 import { ServerTableView } from "./ServerTableView";
+import { deferred } from "../../../test/deferred";
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
@@ -25,6 +26,38 @@ function setup(refresh = vi.fn(async () => {})) {
 }
 
 describe("server table request lifecycle", () => {
+  it("distinguishes loading rows from a completed empty result", async () => {
+    const pending = deferred<QueryablePage>();
+    vi.spyOn(api, "queryCollection").mockReturnValue(pending.promise);
+    const { client } = setup();
+    expect(screen.getByRole("status").textContent).toBe("Loading rows…");
+    expect(screen.getByRole("table").getAttribute("aria-busy")).toBe("true");
+    expect(screen.queryByText("No rows match the current filters.")).toBeNull();
+    await act(async () => pending.resolve({ ...page, rows: [], filteredCount: 0 }));
+    expect(await screen.findByText("No rows match the current filters.")).toBeTruthy();
+    expect(screen.queryByRole("status")).toBeNull();
+    client.clear();
+  });
+
+  it("honors column widths and aligns numeric headings without moving filter or page controls", async () => {
+    vi.spyOn(api, "queryCollection").mockResolvedValue({ ...page, columns: [
+      { key: "name", label: "Name", width: "Wide" },
+      { key: "quantity", label: "Quantity", width: "Narrow", spec: { kind: "integer", min: "0", max: "999" } },
+    ], rows: [{ key: "a", cells: { name: { type: "text", text: "Potion" }, quantity: {
+      type: "field", valueId: "q", label: "Quantity", spec: { kind: "integer", min: "0", max: "999" }, value: "123",
+    } } }] });
+    const { client } = setup();
+    await screen.findByRole("checkbox", { name: "Select Potion" });
+    const table = screen.getByRole("table", { name: "Items" });
+    expect(table.style.gridTemplateColumns).toContain("var(--table-column-wide)");
+    expect(table.style.gridTemplateColumns).toContain("var(--table-column-narrow)");
+    expect(screen.getByRole("columnheader", { name: "Quantity" }).classList.contains("table__head--number")).toBe(true);
+    expect(screen.getByRole("columnheader", { name: "Quantity" }).title).toBe("Quantity");
+    expect(screen.getByRole("searchbox", { name: "Search Items" })).toBeTruthy();
+    expect(screen.getByRole("navigation", { name: "Items pages" })).toBeTruthy();
+    client.clear();
+  });
+
   it.each([false, true])("preserves row drafts and selection when a read fails (new generation=%s)", async newGeneration => {
     const editable: QueryablePage = { ...page, rows: [{ key: "a", cells: { name: {
       type: "field", valueId: "quantity", label: "Quantity", value: "2", spec: { kind: "integer", min: "0", max: "99" },

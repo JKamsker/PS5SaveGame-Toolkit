@@ -94,7 +94,7 @@ export function WorkspacePage() {
       </header>
       <SlotRail workspace={ws} activeFileId={activeDoc?.fileId} onOpen={(f) => { if (!closing) void open(f); }} />
       <main className="main" inert={closing}>
-        {workspace.isError && <div>
+        {workspace.isError && <div className="read-error">
           <p role="alert" className="notice notice--Danger">Could not refresh the workspace: {workspace.error.message}</p>
           <button type="button" className="btn btn--small" disabled={workspace.isFetching} onClick={() => void workspace.refetch()}>Retry workspace</button>
         </div>}

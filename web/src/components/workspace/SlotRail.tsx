@@ -89,10 +89,10 @@ function Slot({ workspaceId, dir, expanded, dirty, activeFileId, onToggle, onOpe
           <span className="slot__art slot__art--empty">{dir.files.length}</span>
         )}
         <span style={{ minWidth: 0 }}>
-          <span className="slot__name" style={{ display: "block" }}>
+          <span className="slot__name" title={dir.name} style={{ display: "block" }}>
             {dir.name}
           </span>
-          {subtitle && <span className="slot__subtitle" style={{ display: "block" }}>{subtitle}</span>}
+          {subtitle && <span className="slot__subtitle" title={subtitle} style={{ display: "block" }}>{subtitle}</span>}
           <span className="slot__meta">
             <span>{dir.files.length === 1 ? "1 file" : `${dir.files.length} files`}</span>
             {dir.isBackup && <span>console backup{dir.twinIdentical ? ", identical" : ", differs"}</span>}
@@ -109,7 +109,7 @@ function Slot({ workspaceId, dir, expanded, dirty, activeFileId, onToggle, onOpe
               <li key={f.id}>
                 <button type="button" className={`file${f.id === activeFileId ? " file--open" : ""}`} onClick={() => onOpen(f)}>
                   <span style={{ minWidth: 0 }}>
-                    <span className="file__name mono" style={{ display: "block" }}>
+                    <span className="file__name mono" title={f.path} style={{ display: "block" }}>
                       {f.path}
                     </span>
                     <span className={`file__plugin${isGame ? " file__plugin--game" : ""}`}>

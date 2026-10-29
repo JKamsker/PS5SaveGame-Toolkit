@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 
 const tokens = readFileSync("src/styles/tokens.css", "utf8");
-const viewStyles = readFileSync("src/styles/view.css", "utf8");
+const viewStyles = readFileSync("src/styles/view.css", "utf8") + readFileSync("src/styles/table.css", "utf8");
 const uiStyles = readFileSync("src/styles/ui.css", "utf8");
 
 type Palette = Record<string, string>;
@@ -28,21 +28,29 @@ function contrast(first: string, second: string): number {
 
 describe.each([["light", light], ["dark", dark]] as const)("%s confidence contrast", (_name, palette) => {
   it("keeps small hints and metadata readable across workspace surfaces", () => {
-    for (const surface of ["ground", "surface", "surface-sunk", "modified-soft", "signal-soft"]) {
+    for (const surface of ["ground", "surface", "surface-sunk", "modified-soft", "signal-soft", "row-hover"]) {
       expect(contrast(palette["ink-faint"]!, palette[surface]!), `ink-faint on ${surface}`).toBeGreaterThanOrEqual(4.5);
     }
   });
 
   it.each(["verified", "inferred", "unknown"])("keeps %s text readable on field and table surfaces", confidence => {
-    for (const surface of ["surface", "surface-sunk", "modified-soft", "signal-soft"]) {
+    for (const surface of ["surface", "surface-sunk", "modified-soft", "signal-soft", "row-hover"]) {
       expect(contrast(palette[confidence]!, palette[surface]!), `${confidence} on ${surface}`).toBeGreaterThanOrEqual(4.5);
     }
   });
 
-  it.each(["inferred", "unknown"])("keeps %s badge glyphs readable", confidence => {
+  it.each(["inferred", "unknown", "info", "danger"])("keeps %s badge glyphs readable", confidence => {
     const block = /\.cell-badge\s*\{([^}]+)\}/.exec(viewStyles)![1]!;
-    const foreground = /\bcolor:\s*var\(--([\w-]+)\)/.exec(block)![1]!;
-    expect(contrast(palette[foreground]!, palette[confidence]!)).toBeGreaterThanOrEqual(4.5);
+    const specific = new RegExp(`\\.cell-badge--${confidence}\\s*\\{([^}]+)\\}`).exec(viewStyles)?.[1] ?? "";
+    const foreground = /\bcolor:\s*var\(--([\w-]+)\)/.exec(specific)?.[1]
+      ?? /\bcolor:\s*var\(--([\w-]+)\)/.exec(block)![1]!;
+    const background = /\bbackground:\s*var\(--([\w-]+)\)/.exec(specific)?.[1] ?? confidence;
+    expect(contrast(palette[foreground]!, palette[background]!)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("keeps the quiet Verified badge readable on its own surface", () => {
+    expect(viewStyles).toMatch(/\.cell-badge--verified\s*\{\s*color:\s*var\(--verified\);\s*background:\s*var\(--surface-sunk\)/);
+    expect(contrast(palette.verified!, palette["surface-sunk"]!)).toBeGreaterThanOrEqual(4.5);
   });
 
   it("keeps warning badge glyphs, warning text and notice text readable", () => {

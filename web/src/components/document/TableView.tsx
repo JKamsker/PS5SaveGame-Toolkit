@@ -10,13 +10,12 @@ import { TableToolbar } from "./table/TableToolbar";
 import { useTableRows, type FacetSelection } from "./table/useTableRows";
 import { EmptyRowsToggle } from "./table/EmptyRowsToggle";
 import { scrollTableByKey } from "./table/keyboardScroll";
+import { columnTrack, numericColumns } from "./table/presentation";
 
-/** Height of one data row; must match `.table__cell` height in view.css. Detail rows are measured. */
+/** Height of one data row; must match `.table__cell` height in table.css. Detail rows are measured. */
 const ROW_HEIGHT = 41;
 const DETAIL_ESTIMATE = 240;
 const CONTROL_COLUMN = "36px";
-/** Content-independent tracks, so columns do not jump as virtual rows mount and unmount. */
-const widths = { Narrow: "minmax(96px, 0.6fr)", Normal: "minmax(160px, 1fr)", Wide: "minmax(280px, 2fr)" } as const;
 
 type Entry = { kind: "row"; row: TableRow } | { kind: "detail"; row: TableRow };
 
@@ -83,7 +82,9 @@ export function TableView({ node }: { node: TableNode }) {
     const index = entries.findIndex(entry => entry.kind === "row" && next === `row:${entry.row.key}`);
     if (index >= 0) virtualizer.scrollToIndex(index, { align: "center" });
   }, [next, entries, virtualizer]);
-  const template = [CONTROL_COLUMN, ...(hasDetails ? [CONTROL_COLUMN] : []), ...node.columns.map((c) => widths[c.width ?? "Normal"])].join(" ");
+  const template = useMemo(() => [CONTROL_COLUMN, ...(hasDetails ? [CONTROL_COLUMN] : []),
+    ...node.columns.map(column => columnTrack(column, node.rows))].join(" "), [node.columns, node.rows, hasDetails]);
+  const numbers = useMemo(() => numericColumns(node.columns, node.rows), [node.columns, node.rows]);
   const items = virtualizer.getVirtualItems();
   const padTop = items[0]?.start ?? 0;
   const padBottom = virtualizer.getTotalSize() - (items.at(-1)?.end ?? 0);
@@ -110,7 +111,7 @@ export function TableView({ node }: { node: TableNode }) {
         <div className="table__scroller" ref={scroller} tabIndex={0} role="region" aria-label={`${node.title ?? "Table"} rows`}
           onKeyDown={event => scrollTableByKey(event, virtualizer.getTotalSize(), ROW_HEIGHT)}>
           <div className="table__grid" role="table" aria-label={node.title} aria-rowcount={entries.length + 1} style={{ gridTemplateColumns: template }}>
-            <HeaderRow columns={node.columns} hasDetails={hasDetails} visible={rows} visibleSelected={visibleSelected} selection={selection} />
+            <HeaderRow columns={node.columns} numbers={numbers} hasDetails={hasDetails} visible={rows} visibleSelected={visibleSelected} selection={selection} />
             {padTop > 0 && <div aria-hidden style={{ gridColumn: "1 / -1", height: padTop }} />}
             {items.map((item) => {
               const entry = entries[item.index];
@@ -161,13 +162,14 @@ export function TableView({ node }: { node: TableNode }) {
 
 interface HeaderRowProps {
   columns: readonly TableColumn[];
+  numbers: ReadonlySet<string>;
   hasDetails: boolean;
   visible: readonly TableRow[];
   visibleSelected: number;
   selection: TableSelection;
 }
 
-function HeaderRow({ columns, hasDetails, visible, visibleSelected, selection }: HeaderRowProps) {
+function HeaderRow({ columns, numbers, hasDetails, visible, visibleSelected, selection }: HeaderRowProps) {
   const box = useRef<HTMLInputElement>(null);
   const all = visible.length > 0 && visibleSelected === visible.length;
   const some = visibleSelected > 0 && !all;
@@ -193,7 +195,7 @@ function HeaderRow({ columns, hasDetails, visible, visibleSelected, selection }:
         </div>
       )}
       {columns.map((c) => (
-        <div key={c.key} className="table__head" role="columnheader" title={c.description}>
+        <div key={c.key} className={`table__head${numbers.has(c.key) ? " table__head--number" : ""}`} role="columnheader" title={c.description ? `${c.label}: ${c.description}` : c.label}>
           {c.label}
           {c.description && <span className="visually-hidden">: {c.description}</span>}
         </div>

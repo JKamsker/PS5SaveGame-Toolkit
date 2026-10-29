@@ -11,36 +11,37 @@ interface CellBadgesProps {
 }
 
 /**
- * Compact indicators for a table cell. Each one is a small glyph with an accessible name and a
- * tooltip; the full text is also shown in the row's detail panel. Verified confidence is the
- * default and stays quiet, matching the field rows.
+ * Explicit confidence words and diagnostic labels fit within the fixed-height data row.
+ * Accessible names and tooltips retain the full meaning; details retain all supporting text.
  */
 export function CellBadges({ confidence, description, warning, error }: CellBadgesProps) {
-  const showConfidence = confidence !== undefined && confidence !== "Verified";
+  const showConfidence = confidence !== undefined;
   if (!showConfidence && !description && !warning && !error) return null;
   return (
     <span className="cell-badges">
       {showConfidence && (
-        <Badge kind={confidence.toLowerCase()} glyph={confidenceGlyph[confidence]} label={`Confidence: ${confidenceText[confidence]}`} />
+        <Badge kind={confidence.toLowerCase()} glyph={confidenceGlyph[confidence]} text={confidence} label={`Confidence: ${confidenceText[confidence]}`} />
       )}
-      {description && <Badge kind="info" glyph="i" label={`Description: ${description}`} />}
-      {warning && <Badge kind="warning" glyph="!" label={`Warning: ${warning}`} />}
-      {error && (
-        <>
-          <Badge kind="error" glyph="×" label={`Error: ${error}`} />
-          <span className="visually-hidden" role="alert">
-            {error}
-          </span>
-        </>
-      )}
+      {(description || warning || error) && <span className="cell-badges__diagnostics">
+        {description && <Badge kind="info" glyph="i" label={`Description: ${description}`} />}
+        {warning && <Badge kind="warning" glyph="!" text="Warning" label={`Warning: ${warning}`} />}
+        {error && (
+          <>
+            <Badge kind="error" glyph="×" text="Error" label={`Error: ${error}`} />
+            <span className="visually-hidden" role="alert">
+              {error}
+            </span>
+          </>
+        )}
+      </span>}
     </span>
   );
 }
 
-function Badge({ kind, glyph, label }: { kind: string; glyph: string; label: string }) {
+function Badge({ kind, glyph, text, label }: { kind: string; glyph: string; text?: string; label: string }) {
   return (
-    <span className={`cell-badge cell-badge--${kind}`} role="img" aria-label={label} title={label}>
-      {glyph}
+    <span className={`cell-badge cell-badge--${kind}${text ? " cell-badge--label" : ""}`} role="img" aria-label={label} title={label}>
+      <span aria-hidden="true">{glyph}</span>{text && <span>{text}</span>}
     </span>
   );
 }

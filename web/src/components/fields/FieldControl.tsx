@@ -31,7 +31,8 @@ export function FieldControl(props: FieldControlProps) {
   const { spec, value, disabled } = props;
   if (spec.kind === "reference") return <ReferenceControl {...props} spec={spec} />;
   if (spec.readOnly || disabled) {
-    return <span className={spec.kind === "integer" && spec.format === "Hex" ? "readonly-value mono" : "readonly-value"}>{displayValue(spec, value)}</span>;
+    const text = displayValue(spec, value);
+    return <span title={text} className={spec.kind === "integer" && spec.format === "Hex" ? "readonly-value mono" : "readonly-value"}>{text}</span>;
   }
   switch (spec.kind) {
     case "nullable":

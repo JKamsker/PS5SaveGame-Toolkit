@@ -183,7 +183,7 @@ export function DocumentEditor({ workspaceId, documentId, file, onSwitchPlugin, 
             )}
           </div>
         </header>
-        {query.isError && <div>
+        {query.isError && <div className="read-error">
           <p role="alert" className="notice notice--Danger">Could not refresh the document: {query.error.message}</p>
           <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={() => void refresh()}>Refresh document</button>
         </div>}
