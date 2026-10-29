@@ -55,9 +55,26 @@ it.each(["folder", "zip"])("uploads changed %s bytes at equal title/path, preser
   await act(async () => { open(); });
   expect(upload).toHaveBeenCalledTimes(2);
   expect(upload.mock.calls.map(call => call[0])).toEqual([librarySources(a, kind), librarySources(b, kind)]);
+  expect(upload.mock.calls[0]![0][0]!.file).toBe(a[0]!.file);
+  expect(upload.mock.calls[1]![0][0]!.file).toBe(b[0]!.file);
   expect(screen.getByLabelText("Location").textContent).toBe("/w/b");
   expect(remove).not.toHaveBeenCalled();
   expect(older.documents[0]?.isDirty).toBe(true);
+});
+
+it("retires a direct ZIP upload and its progress before React adopts a replacement library", async () => {
+  const pending = deferred<Workspace>();
+  vi.spyOn(api, "upload").mockReturnValue(pending.promise);
+  await mount();
+  await act(async () => {
+    fireEvent.change(document.querySelector('input[accept=".zip"]')!, { target: { files: [new File(["AAA"], "save.zip")] } });
+  });
+  await act(async () => {
+    await library.scanFiles("B", folder("BBB"));
+    pending.resolve(workspace("old")); await pending.promise;
+  });
+  expect(screen.getByLabelText("Location").textContent).toBe("/");
+  expect(screen.queryByText(/Importing save.zip/)).toBeNull();
 });
 function librarySources(files: ReturnType<typeof folder>, kind: string) {
   return files.map(source => ({ ...source, path: kind === "zip" ? source.file.name : path }));

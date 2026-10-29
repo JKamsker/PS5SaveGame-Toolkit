@@ -111,20 +111,20 @@ async function applyScan(files: ScannedFile[], generation: number): Promise<void
   }
 }
 
-async function scanDirectory(handle: FileSystemDirectoryHandle, generation: number): Promise<void> {
+async function scanDirectory(handle: FileSystemDirectoryHandle, generation: number, files?: ScannedFile[]): Promise<void> {
   if (generation !== scanGeneration) return;
   beginScan(handle.name, true);
   await persist(generation, store => store.put(handle, tabId()));
   if (generation !== scanGeneration) return;
   try {
-    await applyScan(await listDirectory(handle), generation);
+    await applyScan(files ?? await listDirectory(handle), generation);
   } catch (error) {
     if (generation !== scanGeneration) return;
     set({ status: "error", error: error instanceof Error ? error.message : "The folder could not be read." });
   }
 }
 
-const scanHandle = (handle: FileSystemDirectoryHandle) => scanDirectory(handle, ++scanGeneration);
+const scanHandle = (handle: FileSystemDirectoryHandle, files?: ScannedFile[]) => scanDirectory(handle, ++scanGeneration, files);
 
 export const library = {
   get: (): LibraryState => state,

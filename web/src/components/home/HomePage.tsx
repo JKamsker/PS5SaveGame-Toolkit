@@ -76,7 +76,7 @@ function ImportDropZone({ controller }: { controller: ReturnType<typeof useHomeI
           Open zip
         </button>
       </div>
-      {status && <p className={status.isError ? "notice notice--Danger" : "drop__status"} role={status.isError ? "alert" : "status"}>{status.text}</p>}
+      {status && <p className={status.isError ? "notice notice--Danger" : "drop__status"} role={status.isError ? "alert" : "status"} aria-label="Dropped files status">{status.text}</p>}
       {status?.isError && failedUpload.length > 0 && <button ref={retryImport} type="button" className="btn btn--small" onClick={() => void upload(failedUpload)}>Retry import</button>}
       <ImportInputs controller={controller} />
     </div>
