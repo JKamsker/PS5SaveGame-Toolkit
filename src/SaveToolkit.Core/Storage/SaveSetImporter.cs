@@ -55,7 +55,7 @@ public static partial class SaveSetImporter
             using var zip = new ZipArchive(stream, ZipArchiveMode.Read);
             foreach (var entry in zip.Entries)
             {
-                if (entry.FullName.EndsWith('/')) continue;
+                if (entry.FullName.EndsWith('/') || entry.FullName.EndsWith('\\')) continue;
                 try
                 {
                     using var entryStream = entry.Open();
@@ -78,8 +78,8 @@ public static partial class SaveSetImporter
     /// <summary>Splits an archive path into title / save directory / path inside the directory.</summary>
     internal static ParsedPath? ParsePath(string path)
     {
-        var segments = path.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
-        if (segments.Length == 0 || segments.Any(s => !IsSafeSegment(s)) || segments[0] == "__MACOSX")
+        var segments = PathSegments(path);
+        if (segments.Length == 0 || segments.Any(s => !IsSafeSegment(s)) || IsMetadataPath(segments))
         {
             return null;
         }
@@ -92,15 +92,23 @@ public static partial class SaveSetImporter
                 return null;
             }
 
-            var title = dirIndex > 0 && TitleIdRegex().IsMatch(segments[dirIndex - 1]) ? segments[dirIndex - 1].ToUpperInvariant() : null;
+            var title = segments.Take(dirIndex).LastOrDefault(s => TitleIdRegex().IsMatch(s))?.ToUpperInvariant();
             return new ParsedPath(title, segments[dirIndex], string.Join('/', segments[(dirIndex + 1)..]));
         }
 
-        var anyTitle = segments.FirstOrDefault(s => TitleIdRegex().IsMatch(s))?.ToUpperInvariant();
-        return segments.Length >= 2
-            ? new ParsedPath(anyTitle, segments[^2], segments[^1])
-            : new ParsedPath(anyTitle, "loose", segments[0]);
+        var titleIndex = Array.FindIndex(segments, s => TitleIdRegex().IsMatch(s));
+        var anyTitle = titleIndex < 0 ? null : segments[titleIndex].ToUpperInvariant();
+        var rootIndex = titleIndex < 0 ? 0 : titleIndex + 1;
+        if (rootIndex < segments.Length - 1)
+            return new ParsedPath(anyTitle, segments[rootIndex], string.Join('/', segments[(rootIndex + 1)..]));
+
+        return new ParsedPath(anyTitle, "loose", segments[^1]);
     }
+
+    private static string[] PathSegments(string path) => path.Replace('\\', '/')
+        .Split('/', StringSplitOptions.RemoveEmptyEntries).Where(s => s != ".").ToArray();
+
+    private static bool IsMetadataPath(string[] segments) => segments.Contains("__MACOSX", StringComparer.OrdinalIgnoreCase);
 
     private static bool IsSafeSegment(string s) =>
         s is not ("." or "..") && s.IndexOfAny(['\0', ':', '*', '?', '"', '<', '>', '|']) < 0 && s.Length <= 255;
@@ -111,16 +119,24 @@ public static partial class SaveSetImporter
     private sealed class Builder(string storageRoot, ImportLimits limits)
     {
         private readonly Dictionary<string, int> _occurrences = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> _directoryNames = new(StringComparer.OrdinalIgnoreCase);
         private readonly List<PendingFile> _files = [];
         private long _totalBytes;
 
         public void Add(string archivePath, Stream content, long? expectedLength = null, uint? expectedCrc32 = null)
         {
+            if (IsMetadataPath(PathSegments(archivePath))) return;
             var parsed = ParsePath(archivePath);
             if (parsed is null)
             {
-                return;
+                throw new ImportException($"Cannot import file '{archivePath}': unsupported or invalid path (maximum name length: 255 characters).");
             }
+
+            var directoryKey = $"{parsed.TitleId}/{parsed.RawDirectory}";
+            if (_directoryNames.TryGetValue(directoryKey, out var rawDirectory))
+                parsed = parsed with { RawDirectory = rawDirectory };
+            else
+                _directoryNames.Add(directoryKey, parsed.RawDirectory);
 
             if (_files.Count >= limits.MaxEntries)
             {
