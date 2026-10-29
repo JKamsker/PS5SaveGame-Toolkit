@@ -1,5 +1,10 @@
 # Completion audit — issue #20
 
+Historical 0.6.0 completion-round snapshot, with the 0.7.0 follow-up below.
+The 0.8.0 asset round supersedes the artwork exclusions and expands the catalogue
+inventory; see the final section and [README.md](README.md) for current scope.
+Test counts below are historical results from those rounds, not fresh suite totals.
+
 Baseline: main `1f0d1f1`, 2026-10-28. Prior handoffs through `ee52a06` reviewed.
 Branch: `plugin/insomniac-completion`. No push or merge.
 The completion/write briefs override historical read-only gates in the plan.
@@ -71,11 +76,13 @@ F4 references and F8 raw inventory paging are expanded. Repeated schema loads,
 redundant serialization/ASCII copies, unbounded ASCII previews and diagnostic
 cardinality/negative-value errors are addressed. All C# files remain below 300 lines.
 
-Framework adoption: F1/F2/F3/F4/F8/F10 used, F4/F8 expanded, F6/F9 added; F5 lacks a
+Framework adoption: F1/F2/F3/F4/F8 used, F4/F8 expanded, F6/F9 added; F5 lacks a
 safe structural writer, F7 has no identified cross-file invariant, F11 has no
 compressed/SQLite payload. The F12/F13 follow-up adopts the production evidence hook,
 browse-only references, shared filter/sort across all five catalogs and float Playtime
-duration hints. Inspection actions and planned reference parameters are N/A here.
+duration hints. Exact integers use existing integer-string transport, not F10
+exact-lexeme controls; empty DDL arrays are not nullable scalars. Inspection actions
+and planned reference parameters are N/A here.
 See README's full adoption table. No SDK bug/request blocks the delivered work.
 F12/F13 follow-up validation: **124 passed, 0 failed, 0 skipped**; API build:
 **0 warnings/errors**. CLI hook discovery and sample comparisons pass. All changes
@@ -102,8 +109,9 @@ Agent work complete; remaining items are owner-blocked (#31).
 The historical link-only exclusion above is resolved for Guides4Gamers factual
 community data by owner decision 2026-10-28. A second F2 pack now embeds 403
 attributed marker records across nine pinned regional snapshots, with lazy F9
-coordinate maps and per-marker categories/source links. Publisher art remains
-excluded. Guide positions are Inferred, all pickup statuses Unknown, and no
+coordinate maps and per-marker categories/source links. Publisher art was not
+included in 0.7.0; the 0.8.0 import below supersedes that exclusion.
+Guide positions are Inferred, all pickup statuses Unknown, and no
 save-bit/hash join or fog/world transform is asserted. Existing write warnings
 and owner capture requirements remain applicable.
 
@@ -112,3 +120,14 @@ same test invocation; API build 0 warnings/errors. Four new tests cover snapshot
 vectors/counts/provenance, all nine maps in Core across 36 primary saves with
 unchanged bytes, and absent-pack fallback. See SPATIAL-SOURCES.md and the new
 pack's markers.source.md for pin hashes, extraction and the owner reuse notice.
+
+## Asset follow-up (0.8.0, 2026-10-29)
+
+Nine attributed Guides4Gamers backgrounds and 55 weapon/upgraded-form/armour-set
+images are embedded under owner decision 2026-10-29. The current inventory is seven
+record catalogues and two asset datasets across two packs. Source pins, processing,
+sizes and separate publisher/community terms are in [ASSETS.md](ASSETS.md) and the
+adjacent sidecars. The central licence register records both source decisions as
+resolved imports. Guide pickup states remain Unknown, with no save-bit joins or
+physical world/fog transform. Current test/build results are in
+[README.md](README.md#validation).
