@@ -42,7 +42,7 @@ it("allows one new automatic stale recovery after a successful page load", async
   client.clear();
 });
 
-describe("server table request lifecycle", () => {
+describe("server table filters", () => {
   it("removes a cleared exact filter and restores rows while preserving other filters", async () => {
     const query = vi.spyOn(api, "queryCollection").mockImplementation(async (_workspace, _document, _collection, query) => ({
       ...page,
@@ -80,7 +80,9 @@ describe("server table request lifecycle", () => {
     await waitFor(() => expect(query).toHaveBeenLastCalledWith("w", "d", "items", expect.objectContaining({ q: undefined, sort: undefined }), 1));
     client.clear();
   });
+});
 
+describe("server table loaded-page presentation", () => {
   it("recomputes column confidence for each page and preserves cell screen-reader labels", async () => {
     const unknown = field("a", { kind: "text", readOnly: true }, "Potion", { confidence: "Unknown" });
     const verified = field("b", { kind: "text", readOnly: true }, "Ether", { confidence: "Verified" });
@@ -115,7 +117,9 @@ describe("server table request lifecycle", () => {
     expect(screen.queryByRole("status")).toBeNull();
     client.clear();
   });
+});
 
+describe("server table column presentation", () => {
   it("honors column widths and aligns numeric headings without moving filter or page controls", async () => {
     vi.spyOn(api, "queryCollection").mockResolvedValue({ ...page, columns: [
       { key: "name", label: "Name", width: "Wide" },
@@ -134,7 +138,9 @@ describe("server table request lifecycle", () => {
     expect(screen.getByRole("navigation", { name: "Items pages" })).toBeTruthy();
     client.clear();
   });
+});
 
+describe("server table retained reads", () => {
   it.each([false, true])("preserves row drafts and selection when a read fails (new generation=%s)", async newGeneration => {
     const editable: QueryablePage = { ...page, rows: [{ key: "a", cells: { name: {
       type: "field", valueId: "quantity", label: "Quantity", value: "2", spec: { kind: "integer", min: "0", max: "99" },
@@ -175,7 +181,9 @@ describe("server table request lifecycle", () => {
     expect((screen.getByRole("checkbox", { name: "Select Potion" }) as HTMLInputElement).checked).toBe(true);
     client.clear();
   });
+});
 
+describe("server table content and details", () => {
   it("refetches after scalar changes even if the structural revision is unchanged", async () => {
     vi.spyOn(api, "queryCollection").mockResolvedValue(page);
     const { store, client } = setup();
@@ -210,7 +218,9 @@ describe("server table request lifecycle", () => {
     expect(screen.getByRole("table").getAttribute("aria-rowcount")).toBe("101");
     client.clear();
   });
+});
 
+describe("server table details and query isolation", () => {
   it("counts expanded detail rows when indexing subsequent data rows", async () => {
     vi.spyOn(api, "queryCollection").mockResolvedValue({ ...page, rows: [
       { key: "a", cells: { name: { type: "text", text: "Potion".repeat(20) } } },
@@ -248,7 +258,9 @@ describe("server table request lifecycle", () => {
     expect(screen.queryByText("No rows match the current filters.")).toBeNull();
     client.clear();
   });
+});
 
+describe("server table revision and paging", () => {
   it("discards old pages and selections after undo or a group edit", async () => {
     let finish!: (value: QueryablePage) => void;
     vi.spyOn(api, "queryCollection").mockResolvedValueOnce(page)
