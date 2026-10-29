@@ -51,6 +51,7 @@ public sealed class CliOutputTests
             Assert.Equal(first.Exit, written.Exit);
             Assert.Empty(first.Err);
             Assert.Empty(written.Err);
+            Assert.Equal($"Report written to {Display(reportPath)}\n", written.Out);
             Assert.DoesNotContain('\r', first.Out);
             Assert.EndsWith("\n", first.Out, StringComparison.Ordinal);
             Assert.Equal(Encoding.UTF8.GetBytes(first.Out), File.ReadAllBytes(reportPath));

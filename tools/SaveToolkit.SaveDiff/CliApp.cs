@@ -99,7 +99,7 @@ internal static class CliApp
         if (outputPath is { } path)
         {
             File.WriteAllText(path, text);
-            stdout.WriteLine($"Report written to {path}");
+            stdout.Write($"Report written to {DisplayPath(path)}\n");
         }
         else
         {
