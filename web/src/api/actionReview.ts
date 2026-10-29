@@ -1,4 +1,5 @@
 import { request } from "./client";
+import { documentPath, postJson } from "./requests";
 import type { CollectionQuery, EditResult, FieldError, FieldValue } from "./protocol";
 
 /** SDK query names differ from the collection endpoint's query-string names. */
@@ -37,17 +38,14 @@ export interface SemanticChange {
 }
 export interface SemanticChangeLog { changes: SemanticChange[]; complete: boolean; warnings: string[]; revision: number }
 
-const base = (workspace: string, document: string) => `/workspaces/${encodeURIComponent(workspace)}/documents/${encodeURIComponent(document)}`;
-const post = (body: unknown): RequestInit => ({ method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-
 export const actionReview = {
   plan: (workspace: string, document: string, actionId: string, parameters: Record<string, FieldValue>, scope: ActionScope, revision?: number) =>
-    request<ActionPreview>(`${base(workspace, document)}/actions/plan`, post({ actionId, parameters, scope, revision })),
+    request<ActionPreview>(`${documentPath(workspace, document)}/actions/plan`, postJson({ actionId, parameters, scope, revision })),
   apply: (workspace: string, document: string, planId: string, revision: number) =>
-    request<EditResult>(`${base(workspace, document)}/actions/apply`, post({ planId, revision })),
-  changes: (workspace: string, document: string) => request<SemanticChangeLog>(`${base(workspace, document)}/changes`),
+    request<EditResult>(`${documentPath(workspace, document)}/actions/apply`, postJson({ planId, revision })),
+  changes: (workspace: string, document: string) => request<SemanticChangeLog>(`${documentPath(workspace, document)}/changes`),
   revert: (workspace: string, document: string, valueId: string, revision: number) =>
-    request<EditResult>(`${base(workspace, document)}/changes/revert`, post({ valueId, revision })),
+    request<EditResult>(`${documentPath(workspace, document)}/changes/revert`, postJson({ valueId, revision })),
 };
 
 export function reviewValue(value: FieldValue, exists = true): string {
