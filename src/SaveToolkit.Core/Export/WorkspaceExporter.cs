@@ -71,8 +71,6 @@ public static class WorkspaceExporter
             }
         }
 
-        Verify(workspace, dirty, overrides);
-
         if (options.MirrorBackups)
         {
             var protectedPaths = groups.SelectMany(g => g.Members.Select(m => m.RelativePath))
@@ -80,6 +78,10 @@ public static class WorkspaceExporter
             var groupPaths = groups.SelectMany(g => g.Members.Select(m => m.RelativePath)).ToHashSet(StringComparer.OrdinalIgnoreCase);
             MirrorBackups(set, overrides, reasons, protectedPaths, groupPaths);
         }
+
+        // Mirrored siblings can participate in plugin/group invariants too. Validate the
+        // complete overlay that will be exported, after every automatic override is added.
+        Verify(workspace, dirty, overrides);
 
         var included = Select(set, overrides, options.Scope);
         var files = included
