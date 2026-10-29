@@ -1,4 +1,3 @@
-using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -15,7 +14,7 @@ public sealed class AriseFixedInspectionTests
     public void FixedCatalogAction_ResolvesOnlyItsOwnRecordOnAFreshDocument(string catalogId)
     {
         var plugin = new TalesOfArisePlugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, AriseTestContainer.TitleId);
+        var context = AriseTestReferences.CreateContext(plugin);
         var bytes = new AriseTestContainer().Encrypt();
         var file = MemorySaveSet.SingleFile(AriseTestContainer.FileName, bytes, AriseTestContainer.TitleId);
         using var document = plugin.Open(file, context);
@@ -36,7 +35,7 @@ public sealed class AriseFixedInspectionTests
     public void InventoryAction_RejectsAnotherExistingItemAndPreservesBytes()
     {
         var plugin = new TalesOfArisePlugin();
-        var context = new ReferencePackStore([plugin]).Pin(plugin, AriseTestContainer.TitleId);
+        var context = AriseTestReferences.CreateContext(plugin);
         var bytes = new AriseTestContainer().Encrypt();
         using var document = plugin.Open(MemorySaveSet.SingleFile(
             AriseTestContainer.FileName, bytes, AriseTestContainer.TitleId), context);
@@ -54,8 +53,7 @@ public sealed class AriseFixedInspectionTests
     [Fact]
     public void CatalogPicker_AllowsOtherPinnedRecordsButRejectsExtraParameters()
     {
-        var references = new AriseReferences(new ReferencePackStore([new TalesOfArisePlugin()])
-            .Pin(new TalesOfArisePlugin(), AriseTestContainer.TitleId));
+        var references = new AriseReferences(AriseTestReferences.CreateContext());
         var section = Assert.IsType<SectionNode>(references.CatalogSection("items"));
         var action = Assert.Single(section.Children.OfType<ActionNode>());
         Assert.Equal("references/inspect/items", action.ActionId);

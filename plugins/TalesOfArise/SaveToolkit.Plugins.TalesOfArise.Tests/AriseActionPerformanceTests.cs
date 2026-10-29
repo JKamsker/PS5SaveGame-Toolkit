@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
@@ -88,7 +87,7 @@ public sealed class AriseActionPerformanceTests
         }
 
         var plugin = new TalesOfArisePlugin();
-        var references = new CountingContext(new ReferencePackStore([plugin]).Pin(plugin, AriseTestContainer.TitleId));
+        var references = new CountingContext(AriseTestReferences.CreateContext(plugin));
         var document = new AriseDocument("generated", AriseTestContainer.FileName, new([], fixture.Payload, fixture.Sections), references);
         _ = document.ExpandNode("inventory");
         return (document, references);

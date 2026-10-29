@@ -13,9 +13,29 @@ public sealed class AriseReferenceCharacterizationTests
     private const string InspectItems = "references/inspect/items";
 
     [Fact]
+    public void FreshContexts_KeepDatasetUsageIndependentAndReferenceIdentityConsistent()
+    {
+        var first = Assert.IsType<ReferenceContext>(AriseTestReferences.CreateContext());
+        var second = Assert.IsType<ReferenceContext>(AriseTestReferences.CreateContext());
+        Assert.NotSame(first, second);
+        Assert.All(first.Datasets(), dataset => Assert.False(dataset.Used));
+        Assert.All(second.Datasets(), dataset => Assert.False(dataset.Used));
+        var apple = first.Catalog("items")!.Find("1")!;
+        Assert.Equal("Apple Gel", apple.Name);
+        Assert.NotNull(first.GetAsset(apple.AssetId!));
+        Assert.Contains(first.Datasets(), dataset => dataset.Dataset.Id == "items" && dataset.Used);
+        Assert.All(second.Datasets(), dataset => Assert.False(dataset.Used));
+        var other = second.Catalog("items")!.Find("1")!;
+        Assert.Equal((apple.Key, apple.Name, apple.AssetId, apple.Source, apple.AttributionText),
+            (other.Key, other.Name, other.AssetId, other.Source, other.AttributionText));
+        Assert.Equal(apple.Attributes.OrderBy(pair => pair.Key), other.Attributes.OrderBy(pair => pair.Key));
+        Assert.Equal(first.Packs.Select(pack => (pack.Id, pack.Version)), second.Packs.Select(pack => (pack.Id, pack.Version)));
+    }
+
+    [Fact]
     public void InspectionPicker_PreservesLabelsFlagsInitialValueAndAttribution()
     {
-        var context = Context();
+        var context = AriseTestReferences.CreateContext();
         var catalog = context.Catalog(ItemsId)!;
         var record = catalog.Find("1")!;
         var action = AriseReferences.InspectionAction(catalog, record);
@@ -30,7 +50,7 @@ public sealed class AriseReferenceCharacterizationTests
     [Fact]
     public void InspectionMessageAndOutcome_AreReadOnlyAndPreserveExactDetails()
     {
-        var context = Context();
+        var context = AriseTestReferences.CreateContext();
         var record = context.Catalog(ItemsId)!.Find("1")!;
         var bytes = new AriseTestContainer().Encrypt();
         using var document = new TalesOfArisePlugin().Open(
@@ -54,7 +74,7 @@ public sealed class AriseReferenceCharacterizationTests
     [InlineData("case")]
     public void InvalidInspectionSelection_IsRejected(string mutation)
     {
-        var references = new AriseReferences(Context());
+        var references = new AriseReferences(AriseTestReferences.CreateContext());
         var parameters = mutation switch
         {
             "missing" => new Dictionary<string, FieldValue>(),
@@ -83,7 +103,7 @@ public sealed class AriseReferenceCharacterizationTests
     [Fact]
     public void Icon_PreservesAssetRoleAndPublisherNotice_AndNullFallback()
     {
-        var record = Context().Catalog(ItemsId)!.Find("1")!;
+        var record = AriseTestReferences.CreateContext().Catalog(ItemsId)!.Find("1")!;
         var icon = Assert.IsType<ImageNode>(AriseAssets.Icon(record));
         Assert.Equal(record.AssetId, icon.AssetId);
         Assert.Equal($"{record.Name}: {record.Attributes["iconRole"]}. {AriseAssets.MediaLicense}", icon.Alt);
@@ -106,11 +126,5 @@ public sealed class AriseReferenceCharacterizationTests
         Assert.Equal(ItemsId, spec.CatalogId);
         Assert.Equal(fixedRecord, spec.ReadOnly);
         Assert.False(spec.AllowCustom);
-    }
-
-    private static IReferenceContext Context()
-    {
-        var plugin = new TalesOfArisePlugin();
-        return new ReferencePackStore([plugin]).Pin(plugin, AriseTestContainer.TitleId);
     }
 }
