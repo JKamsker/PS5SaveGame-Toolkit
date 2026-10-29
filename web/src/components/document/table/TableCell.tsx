@@ -3,6 +3,7 @@ import type { Confidence, FieldNode, ImageNode, ViewNode } from "../../../api/pr
 import { api } from "../../../api/client";
 import { useDocument } from "../../../state/documentStore";
 import { FieldControl } from "../../fields/FieldControl";
+import { UnavailableFieldReference } from "../../fields/UnavailableFieldReference";
 import { useLiveField } from "../../fields/FieldRow";
 import { ActionButton } from "../ActionButton";
 import { useFieldJump } from "../review/navigation";
@@ -31,6 +32,8 @@ export function TableCell({ node, columnConfidence, emptySlot, rowLabel, onOpenD
   switch (node.type) {
     case "field":
       return <FieldCell node={node} columnConfidence={columnConfidence} rowLabel={rowLabel} onOpenDetails={onOpenDetails} />;
+    case "fieldReference":
+      return <Cell><UnavailableFieldReference node={node} compact /></Cell>;
     case "text":
       return <TextCell node={node} />;
     case "image":

@@ -26,6 +26,7 @@ internal sealed class DocumentMemberViewMapper(DocumentMemberAdapter member, Doc
     public ViewNode Node(ViewNode node, string scope) => node switch
     {
         FieldNode field => field with { ValueId = member.Prefix(field.ValueId) },
+        FieldReferenceNode reference => reference with { TargetValueId = member.Prefix(reference.TargetValueId) },
         SectionNode section => section with
         {
             LazyId = section.LazyId is { } id ? member.Prefix(id) : null,

@@ -50,15 +50,24 @@ public static class WorkspaceExporter
         var set = workspace.Set;
         var overrides = new Dictionary<string, ReadOnlyMemory<byte>>(StringComparer.OrdinalIgnoreCase);
         var reasons = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var dirty = workspace.Documents.Where(d => d.GetState(cancellationToken).IsDirty).ToList();
+        var dirty = new List<DocumentSession>();
         var groups = workspace.DocumentGroups;
-        foreach (var group in groups) group.CheckFingerprints(cancellationToken);
-
-        foreach (var session in dirty)
+        foreach (var group in groups)
         {
-            var outputs = session.Serialize(cancellationToken);
-            DocumentOutputVerifier.AddOutputs(workspace, session, outputs, overrides, cancellationToken);
-            foreach (var output in outputs)
+            try { group.CheckFingerprints(cancellationToken); }
+            catch (Exception ex) when (ex is InvalidOperationException or SaveFormatException or IOException)
+            {
+                throw new ExportException(ex.Message, ex);
+            }
+        }
+
+        foreach (var session in workspace.Documents)
+        {
+            var capture = session.CaptureOutputs(cancellationToken);
+            if (!capture.IsDirty) continue;
+            dirty.Add(session);
+            DocumentOutputVerifier.AddOutputs(workspace, session, capture, overrides, cancellationToken);
+            foreach (var output in capture.Outputs)
                 reasons[output.RelativePath] = $"edited with {session.Plugin.Info.Name}";
         }
 
@@ -74,16 +83,17 @@ public static class WorkspaceExporter
             foreach (var document in workspace.Documents)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                protectedPaths.Add(document.File.RelativePath);
+                protectedPaths.UnionWith(document.OwnedOutputPaths);
             }
             MirrorBackups(set, overrides, reasons, protectedPaths, groupPaths, cancellationToken);
         }
 
         // Mirrored siblings can participate in plugin/group invariants too. Validate the
         // complete overlay that will be exported, after every automatic override is added.
+        var included = Select(set, overrides, options.Scope, cancellationToken);
+        PreflightIncludedOrdinarySessions(workspace, included, options.Scope, cancellationToken);
         DocumentOutputVerifier.Verify(workspace, dirty, overrides, cancellationToken);
 
-        var included = Select(set, overrides, options.Scope, cancellationToken);
         var files = new List<ExportedFile>(included.Count);
         foreach (var file in included)
         {
@@ -93,6 +103,21 @@ public static class WorkspaceExporter
                 reasons.GetValueOrDefault(file.RelativePath, "unchanged")));
         }
         return new ExportPlan(files, overrides, included);
+    }
+
+    private static void PreflightIncludedOrdinarySessions(Workspace workspace, IReadOnlyList<ISaveFile> included,
+        ExportScope scope, CancellationToken cancellationToken)
+    {
+        if (scope is not (ExportScope.Everything or ExportScope.ChangedDirectories)) return;
+        var groups = workspace.DocumentGroups;
+        foreach (var session in workspace.Documents)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (groups.Any(group => group.Session.Id == session.Id)) continue;
+            if (scope == ExportScope.ChangedDirectories
+                && !included.Any(file => file.Directory.Id == session.File.Directory.Id)) continue;
+            DocumentOutputVerifier.CheckFingerprints(session, cancellationToken);
+        }
     }
 
     public static void WriteZip(ExportPlan plan, Stream output) => WriteZip(plan, output, CancellationToken.None);
@@ -110,12 +135,13 @@ public static class WorkspaceExporter
             cancellationToken.ThrowIfCancellationRequested();
             // Group backups are explicit members. Independent open backup sessions also retain ownership.
             if (groupPaths.Contains(path)) continue;
-            if (((ISaveSet)set).FindFile(path) is not DiskSaveFile original || original.Directory.IsBackup)
+            if (((ISaveSet)set).FindAnyFile(path) is not DiskSaveFile original || original.Directory.IsBackup)
             {
                 continue;
             }
 
-            var twin = set.Twin(original.Directory, cancellationToken)?.Files
+            var twinDirectory = set.Twin(original.Directory, cancellationToken);
+            var twin = twinDirectory?.Files.Concat(twinDirectory.SystemFiles)
                 .OfType<DiskSaveFile>()
                 .FirstOrDefault(f =>
                 {

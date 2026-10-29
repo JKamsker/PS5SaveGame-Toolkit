@@ -1,8 +1,13 @@
+using System.Text.Json;
 using SaveToolkit.Core.Editing;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Core.Sessions;
+
+internal sealed record CanonicalMetadataOutcome(bool Applied, IReadOnlyList<string> IncompleteIds,
+    string? Diagnostic = null);
 
 internal static class SemanticTargetedAuthority
 {
@@ -14,7 +19,7 @@ internal static class SemanticTargetedAuthority
             if (string.Equals(before.CanonicalValueId, after.CanonicalValueId, StringComparison.Ordinal)
                 && before.BindingKind == after.BindingKind && before.ReadOnly == after.ReadOnly
                 && before.Spec is { } beforeSpec && after.Spec is { } afterSpec
-                && FieldSpecMetadata.Agree(beforeSpec, afterSpec)) continue;
+                && AuthoritySpecAgree(beforeSpec, afterSpec)) continue;
             current.Fields.Remove(id);
             current.Complete = false;
             current.QueryWarnings = [.. current.QueryWarnings,
@@ -22,12 +27,16 @@ internal static class SemanticTargetedAuthority
         }
     }
 
-    public static void ApplyCanonicalMetadata(ISaveDocument document, SemanticSnapshot snapshot,
+    public static CanonicalMetadataOutcome ApplyCanonicalMetadata(ISaveDocument document, SemanticSnapshot snapshot,
         long maxBytes, CancellationToken cancellationToken)
     {
-        if (document is not IFieldMetadataDocument || snapshot.Fields.Count == 0) return;
-        var index = new FieldMetadataIndex(document, Math.Max(0, maxBytes - snapshot.Bytes));
-        foreach (var batch in snapshot.Fields.Keys.Chunk(FieldMetadataIndex.BatchSize))
+        if (document is not IFieldMetadataDocument || snapshot.Fields.Count == 0)
+            return new(true, []);
+
+        var working = snapshot.Clone();
+        var index = new FieldMetadataIndex(document, Math.Max(0, maxBytes - working.Bytes));
+        var ids = working.Fields.Keys.ToArray();
+        foreach (var batch in ids.Chunk(FieldMetadataIndex.BatchSize))
         {
             cancellationToken.ThrowIfCancellationRequested();
             try
@@ -36,22 +45,14 @@ internal static class SemanticTargetedAuthority
             }
             catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
             {
-                snapshot.Complete = false;
-                snapshot.QueryWarnings = [.. snapshot.QueryWarnings,
-                    $"Canonical metadata coverage is incomplete: {ex.Message}"];
-                continue;
+                return Failure(batch, $"Canonical metadata coverage is incomplete: {ex.Message}");
             }
 
             foreach (var id in batch)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (snapshot.Fields[id] is not { } semantic || index.Cached(id) is not { } metadata)
-                {
-                    snapshot.Complete = false;
-                    snapshot.QueryWarnings = [.. snapshot.QueryWarnings,
-                        $"Canonical metadata coverage is incomplete: no descriptor was published for '{id}'."];
-                    continue;
-                }
+                if (working.Fields[id] is not { } semantic || index.Cached(id) is not { } metadata)
+                    return Failure([id], $"Canonical metadata coverage is incomplete: no descriptor was published for '{id}'.");
 
                 var updated = semantic with
                 {
@@ -65,25 +66,47 @@ internal static class SemanticTargetedAuthority
                 };
                 if (!SemanticSnapshot.TryEstimate(updated, long.MaxValue, out var updatedCost)
                     || !SemanticSnapshot.TryEstimate(semantic, long.MaxValue, out var existingCost))
-                {
-                    snapshot.Complete = false;
-                    snapshot.QueryWarnings = [.. snapshot.QueryWarnings,
-                        $"Canonical metadata coverage is incomplete: review metadata is too large for '{id}'."];
-                    continue;
-                }
+                    return Failure([id], $"Canonical metadata coverage is incomplete: review metadata is too large for '{id}'.");
 
                 var additional = updatedCost - existingCost;
-                if (additional > 0 && additional > maxBytes - snapshot.Bytes)
-                {
-                    snapshot.Complete = false;
-                    snapshot.QueryWarnings = [.. snapshot.QueryWarnings,
-                        $"Canonical metadata coverage is incomplete: review budget exceeded for '{id}'."];
-                    continue;
-                }
+                if (additional > 0 && additional > maxBytes - working.Bytes)
+                    return Failure([id], $"Canonical metadata coverage is incomplete: review budget exceeded for '{id}'.");
 
-                snapshot.Bytes += Math.Max(0, additional);
-                snapshot.Fields[id] = updated with { Spec = FieldSpecMetadata.Snapshot(metadata.Spec) };
+                working.Bytes += Math.Max(0, additional);
+                working.Fields[id] = updated with { Spec = FieldSpecMetadata.Snapshot(metadata.Spec) };
             }
         }
+
+        snapshot.ReplaceWith(working);
+        return new(true, []);
+
+        CanonicalMetadataOutcome Failure(IReadOnlyList<string> incompleteIds, string diagnostic) =>
+            new(false, incompleteIds, diagnostic);
+    }
+
+    private static bool AuthoritySpecAgree(FieldSpec first, FieldSpec second)
+    {
+        if (FieldSpecMetadata.Agree(first, second)) return true;
+        if (first.GetType() != second.GetType()
+            || !JsonSerializer.SerializeToUtf8Bytes(first).AsSpan().SequenceEqual(JsonSerializer.SerializeToUtf8Bytes(second)))
+            return false;
+
+        return (first, second) switch
+        {
+            (ReferenceSpec a, ReferenceSpec b) => PoliciesEquivalent(a.Assess, b.Assess),
+            (NullableSpec a, NullableSpec b) => AuthoritySpecAgree(a.Inner, b.Inner),
+            (UnionSpec a, UnionSpec b) => a.Options.Count == b.Options.Count
+                && a.Options.Zip(b.Options).All(pair => AuthoritySpecAgree(pair.First.Spec, pair.Second.Spec)),
+            _ => true,
+        };
+    }
+
+    private static bool PoliciesEquivalent(Func<ReferenceRecord, ReferenceEligibility>? first,
+        Func<ReferenceRecord, ReferenceEligibility>? second)
+    {
+        if (first == second) return true;
+        return first is not null && second is not null
+            && first.Method == second.Method
+            && first.Target?.GetType() == second.Target?.GetType();
     }
 }
