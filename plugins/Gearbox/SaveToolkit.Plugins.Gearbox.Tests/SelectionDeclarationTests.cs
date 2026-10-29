@@ -1,5 +1,6 @@
 using SaveToolkit.Core.Editing;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.Gearbox.Tests;

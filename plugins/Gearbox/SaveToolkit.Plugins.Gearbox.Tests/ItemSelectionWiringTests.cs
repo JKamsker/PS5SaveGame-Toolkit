@@ -8,11 +8,14 @@ namespace SaveToolkit.Plugins.Gearbox.Tests;
 public sealed class ItemSelectionWiringTests
 {
     private static readonly Dictionary<string, JsonElement> Empty = [];
+    private static readonly bool[] GameVariants = [false, true];
+    private static readonly string[] ActionIds = ["items/duplicate", "items/remove"];
+    private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
     public static IEnumerable<object[]> Cases =>
-        from wonderlands in new[] { false, true }
+        from wonderlands in GameVariants
         from list in new[] { GearboxInventory.Backpack, GearboxInventory.Bank, GearboxInventory.LostLoot }
-        from action in new[] { "items/duplicate", "items/remove" }
+        from action in ActionIds
         select new object[] { wonderlands, list, action };
 
     [Theory]
@@ -23,16 +26,16 @@ public sealed class ItemSelectionWiringTests
         var file = workspace.Set.AllDiskFiles.Single(file => file.FileName == (list == GearboxInventory.Backpack ? "1" : "profile"));
         var session = workspace.Open(file.Id, "gearbox");
         _ = session.BuildView();
-        var page = session.QueryCollection(list, new() { Limit = 1 });
+        var page = session.QueryCollection(list, new() { Limit = 1 }, expectedRevision: null, cancellationToken: Ct);
         Assert.Single(page.Rows); // Other selected rows are not loaded by this client page.
         var details = session.Expand(Assert.IsType<SectionNode>(page.Rows[0].Cells["detail"]).LazyId!);
         var action = Assert.Single(details.OfType<ActionNode>(), node => node.ActionId == actionId);
-        var original = session.Serialize().Single().Content.ToArray();
-        var originalKeys = session.QueryCollection(list, new() { Limit = 10 }).Rows.Select(row => row.Key).ToArray();
+        var original = session.Serialize(cancellationToken: Ct).Single().Content.ToArray();
+        var originalKeys = session.QueryCollection(list, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key).ToArray();
 
         foreach (var querySelection in new[] { false, true })
         {
-            var current = session.QueryCollection(list, new() { Limit = 1 });
+            var current = session.QueryCollection(list, new() { Limit = 1 }, expectedRevision: null, cancellationToken: Ct);
             _ = session.Expand(Assert.IsType<SectionNode>(current.Rows[0].Cells["detail"]).LazyId!);
             var selected = querySelection ? new[] { originalKeys[2], originalKeys[0] } : [originalKeys[0]];
             var scope = querySelection ? new ActionScope
@@ -40,16 +43,16 @@ public sealed class ItemSelectionWiringTests
                 QueryScope = new(list, new() { Offset = 1, Limit = 1, SortColumn = "index", Descending = true }, session.State.Revision)
                 { ExcludedRowKeys = [originalKeys[1]] },
             } : new(selected);
-            var preview = session.PlanAction(action.ActionId, Empty, scope);
+            var preview = session.PlanAction(action.ActionId, Empty, scope, expectedRevision: null, cancellationToken: Ct);
             Assert.Empty(preview.Plan.Errors);
             Assert.Equal(selected, preview.Scope.RowKeys);
             Assert.Equal(selected.Order(StringComparer.Ordinal), preview.Plan.Changes.Where(change => !change.Derived)
                 .Select(change => change.ValueId[..^"/presence".Length]).Order(StringComparer.Ordinal));
-            Assert.Equal(original, session.Serialize().Single().Content.ToArray());
+            Assert.Equal(original, session.Serialize(cancellationToken: Ct).Single().Content.ToArray());
             Assert.False(session.State.CanUndo);
-            Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
-            var changed = session.Serialize().Single().Content.ToArray();
-            var changedKeys = session.QueryCollection(list, new() { Limit = 10 }).Rows.Select(row => row.Key).ToArray();
+            Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: Ct).Ok);
+            var changed = session.Serialize(cancellationToken: Ct).Single().Content.ToArray();
+            var changedKeys = session.QueryCollection(list, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key).ToArray();
             Assert.Equal(originalKeys.Length + (actionId == "items/duplicate" ? selected.Length : -selected.Length), changedKeys.Length);
             Assert.Contains(originalKeys[1], changedKeys);
             if (actionId == "items/remove") Assert.DoesNotContain(changedKeys, selected.Contains);
@@ -62,15 +65,15 @@ public sealed class ItemSelectionWiringTests
             if (list == GearboxInventory.Backpack)
                 Assert.Equal(actionId == "items/duplicate" ? new long[] { 0, 2 } : querySelection ? [-1, -1] : [-1, 1],
                     reopened.Root.Children("equipped_inventory_list").Select(slot => slot.Integer("inventory_list_index")));
-            Assert.False(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+            Assert.False(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: Ct).Ok);
             Assert.True(session.Undo().Ok);
-            Assert.Equal(original, session.Serialize().Single().Content.ToArray());
-            Assert.Equal(originalKeys, session.QueryCollection(list, new() { Limit = 10 }).Rows.Select(row => row.Key));
+            Assert.Equal(original, session.Serialize(cancellationToken: Ct).Single().Content.ToArray());
+            Assert.Equal(originalKeys, session.QueryCollection(list, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key));
             Assert.False(session.State.CanUndo);
             Assert.False(session.State.IsDirty);
             Assert.True(session.Redo().Ok);
-            Assert.Equal(changed, session.Serialize().Single().Content.ToArray());
-            Assert.Equal(changedKeys, session.QueryCollection(list, new() { Limit = 10 }).Rows.Select(row => row.Key));
+            Assert.Equal(changed, session.Serialize(cancellationToken: Ct).Single().Content.ToArray());
+            Assert.Equal(changedKeys, session.QueryCollection(list, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key));
             Assert.True(session.Undo().Ok);
         }
     }
@@ -83,14 +86,14 @@ public sealed class ItemSelectionWiringTests
         var file = workspace.Set.AllDiskFiles.Single(file => file.FileName == (list == GearboxInventory.Backpack ? "1" : "profile"));
         var session = workspace.Open(file.Id, "gearbox");
         _ = session.BuildView();
-        var page = session.QueryCollection(list, new() { Limit = 10 });
+        var page = session.QueryCollection(list, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct);
         _ = session.Expand(Assert.IsType<SectionNode>(page.Rows[0].Cells["detail"]).LazyId!);
-        var before = session.Serialize().Single().Content.ToArray();
+        var before = session.Serialize(cancellationToken: Ct).Single().Content.ToArray();
         var revision = session.State.Revision;
-        Assert.NotEmpty(session.PlanAction(actionId, Empty).Plan.Errors);
-        Assert.False(session.InvokeAction(actionId, Empty).Ok); // Planning cannot be bypassed.
-        Assert.NotEmpty(session.PlanAction(actionId, Empty, new(["foreign"])).Plan.Errors);
-        Assert.NotEmpty(session.PlanAction(actionId, Empty, new([page.Rows[0].Key, page.Rows[0].Key])).Plan.Errors);
+        Assert.NotEmpty(session.PlanAction(actionId, Empty, scope: null, expectedRevision: null, cancellationToken: Ct).Plan.Errors);
+        Assert.False(session.InvokeAction(actionId, Empty, expectedRevision: null, cancellationToken: Ct).Ok); // Planning cannot be bypassed.
+        Assert.NotEmpty(session.PlanAction(actionId, Empty, new(["foreign"]), expectedRevision: null, cancellationToken: Ct).Plan.Errors);
+        Assert.NotEmpty(session.PlanAction(actionId, Empty, new([page.Rows[0].Key, page.Rows[0].Key]), expectedRevision: null, cancellationToken: Ct).Plan.Errors);
         foreach (var scope in new ActionScope[]
         {
             new([]),
@@ -98,15 +101,15 @@ public sealed class ItemSelectionWiringTests
             new() { QueryScope = new(list, new() { Text = "no-such-synthetic-item" }, revision) },
         })
         {
-            var preview = session.PlanAction(actionId, Empty, scope);
+            var preview = session.PlanAction(actionId, Empty, scope, expectedRevision: null, cancellationToken: Ct);
             Assert.Empty(preview.Plan.Errors);
             Assert.Empty(preview.Scope.RowKeys!);
             Assert.Empty(preview.Plan.Changes);
-            Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+            Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: Ct).Ok);
             Assert.Equal(revision, session.State.Revision);
             Assert.False(session.State.IsDirty);
             Assert.False(session.State.CanUndo);
-            Assert.Equal(before, session.Serialize().Single().Content.ToArray());
+            Assert.Equal(before, session.Serialize(cancellationToken: Ct).Single().Content.ToArray());
         }
     }
 }

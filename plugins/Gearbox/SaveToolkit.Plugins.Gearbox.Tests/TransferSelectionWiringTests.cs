@@ -8,10 +8,13 @@ namespace SaveToolkit.Plugins.Gearbox.Tests;
 public sealed class TransferSelectionWiringTests
 {
     private static readonly Dictionary<string, JsonElement> Empty = [];
+    private static readonly bool[] GameVariants = [false, true];
+    private static readonly string[] ActionIds = ["transfer/deposit", "transfer/withdraw", "transfer/claim"];
+    private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
     public static IEnumerable<object[]> Cases =>
-        from wonderlands in new[] { false, true }
-        from action in new[] { "transfer/deposit", "transfer/withdraw", "transfer/claim" }
+        from wonderlands in GameVariants
+        from action in ActionIds
         select new object[] { wonderlands, action };
 
     [Theory]
@@ -23,20 +26,20 @@ public sealed class TransferSelectionWiringTests
         var action = Assert.Single(Assert.IsType<SectionNode>(session.BuildView()).Children.OfType<ActionNode>(), action => action.ActionId == actionId);
         var source = action.SelectionTableId!;
         var target = actionId == "transfer/deposit" ? "profile/bank_inventory_list" : "character/inventory_items";
-        var originals = session.Serialize().ToDictionary(output => output.RelativePath, output => output.Content.ToArray());
-        var sourceRows = session.QueryCollection(source, new() { Limit = 10 }).Rows.Select(row => row.Key).ToArray();
-        var targetRows = session.QueryCollection(target, new() { Limit = 10 }).Rows.Select(row => row.Key).ToArray();
+        var originals = session.Serialize(cancellationToken: Ct).ToDictionary(output => output.RelativePath, output => output.Content.ToArray());
+        var sourceRows = session.QueryCollection(source, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key).ToArray();
+        var targetRows = session.QueryCollection(target, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key).ToArray();
 
         foreach (var querySelection in new[] { false, true })
         {
-            Assert.Single(session.QueryCollection(source, new() { Limit = 1 }).Rows);
+            Assert.Single(session.QueryCollection(source, new() { Limit = 1 }, expectedRevision: null, cancellationToken: Ct).Rows);
             var selected = querySelection ? new[] { sourceRows[2], sourceRows[0] } : [sourceRows[0]];
             var scope = querySelection ? new ActionScope
             {
                 QueryScope = new(source, new() { Offset = 1, Limit = 1, SortColumn = "index", Descending = true }, session.State.Revision)
                 { ExcludedRowKeys = [sourceRows[1]] },
             } : new(selected);
-            var preview = session.PlanAction(action.ActionId, Empty, scope);
+            var preview = session.PlanAction(action.ActionId, Empty, scope, expectedRevision: null, cancellationToken: Ct);
             Assert.Empty(preview.Plan.Errors);
             Assert.Equal(selected, preview.Scope.RowKeys);
             Assert.Equal(selected.Order(StringComparer.Ordinal), preview.Plan.Changes.Where(change => !change.Derived && !change.NewExists)
@@ -45,12 +48,12 @@ public sealed class TransferSelectionWiringTests
             Assert.Equal(2, preview.Plan.Changes.Count(change => change.Derived && change.ValueId.EndsWith("/count", StringComparison.Ordinal)));
             AssertBytes(session, originals);
             Assert.False(session.State.CanUndo);
-            Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
-            var changed = session.Serialize().ToDictionary(output => output.RelativePath, output => output.Content.ToArray());
+            Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: Ct).Ok);
+            var changed = session.Serialize(cancellationToken: Ct).ToDictionary(output => output.RelativePath, output => output.Content.ToArray());
             Assert.Equal(2, changed.Count);
-            var remaining = session.QueryCollection(source, new() { Limit = 10 }).Rows.Select(row => row.Key).ToArray();
+            var remaining = session.QueryCollection(source, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key).ToArray();
             Assert.Equal(sourceRows.Where(row => !selected.Contains(row)), remaining);
-            var moved = session.QueryCollection(target, new() { Limit = 10 }).Rows.Select(row => row.Key).ToArray();
+            var moved = session.QueryCollection(target, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key).ToArray();
             Assert.Equal(targetRows, moved.Take(targetRows.Length));
             var role = source.Split('/')[0];
             var movedIds = selected.Order(StringComparer.Ordinal).Select(row => target + "/" + role + ":" + row[(source.Length + 1)..]);
@@ -67,17 +70,17 @@ public sealed class TransferSelectionWiringTests
             }
             Assert.True(session.Undo().Ok);
             AssertBytes(session, originals);
-            Assert.Equal(sourceRows, session.QueryCollection(source, new() { Limit = 10 }).Rows.Select(row => row.Key));
-            Assert.Equal(targetRows, session.QueryCollection(target, new() { Limit = 10 }).Rows.Select(row => row.Key));
+            Assert.Equal(sourceRows, session.QueryCollection(source, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key));
+            Assert.Equal(targetRows, session.QueryCollection(target, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key));
             Assert.False(session.State.CanUndo);
             Assert.False(session.State.IsDirty);
             Assert.True(session.Redo().Ok);
             AssertBytes(session, changed);
-            Assert.Equal(moved, session.QueryCollection(target, new() { Limit = 10 }).Rows.Select(row => row.Key));
+            Assert.Equal(moved, session.QueryCollection(target, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key));
             Assert.True(session.Undo().Ok);
-            Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Stale);
+            Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: Ct).Stale);
             if (querySelection)
-                Assert.True(session.PlanAction(action.ActionId, Empty, scope, session.State.Revision).Stale);
+                Assert.True(session.PlanAction(action.ActionId, Empty, scope, session.State.Revision, cancellationToken: Ct).Stale);
         }
     }
 
@@ -90,18 +93,18 @@ public sealed class TransferSelectionWiringTests
         var root = Assert.IsType<SectionNode>(session.BuildView());
         var action = Assert.Single(root.Children.OfType<ActionNode>(), action => action.ActionId == actionId);
         var source = action.SelectionTableId!;
-        var rows = session.QueryCollection(source, new() { Limit = 10 }).Rows.Select(row => row.Key).ToArray();
-        var before = session.Serialize().ToDictionary(output => output.RelativePath, output => output.Content.ToArray());
+        var rows = session.QueryCollection(source, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key).ToArray();
+        var before = session.Serialize(cancellationToken: Ct).ToDictionary(output => output.RelativePath, output => output.Content.ToArray());
         var revision = session.State.Revision;
-        Assert.NotEmpty(session.PlanAction(actionId, Empty).Plan.Errors);
-        Assert.False(session.InvokeAction(actionId, Empty).Ok);
+        Assert.NotEmpty(session.PlanAction(actionId, Empty, scope: null, expectedRevision: null, cancellationToken: Ct).Plan.Errors);
+        Assert.False(session.InvokeAction(actionId, Empty, expectedRevision: null, cancellationToken: Ct).Ok);
         foreach (var foreign in root.Children.OfType<ActionNode>().Where(node => node.ActionId != actionId))
         {
-            var row = session.QueryCollection(foreign.SelectionTableId!, new() { Limit = 1 }).Rows[0].Key;
-            Assert.NotEmpty(session.PlanAction(actionId, Empty, new([row])).Plan.Errors);
-            Assert.NotEmpty(session.PlanAction(actionId, Empty, new() { QueryScope = new(foreign.SelectionTableId!, new(), revision) }).Plan.Errors);
+            var row = session.QueryCollection(foreign.SelectionTableId!, new() { Limit = 1 }, expectedRevision: null, cancellationToken: Ct).Rows[0].Key;
+            Assert.NotEmpty(session.PlanAction(actionId, Empty, new([row]), expectedRevision: null, cancellationToken: Ct).Plan.Errors);
+            Assert.NotEmpty(session.PlanAction(actionId, Empty, new() { QueryScope = new(foreign.SelectionTableId!, new(), revision) }, expectedRevision: null, cancellationToken: Ct).Plan.Errors);
         }
-        Assert.NotEmpty(session.PlanAction(actionId, Empty, new([rows[0], rows[0]])).Plan.Errors);
+        Assert.NotEmpty(session.PlanAction(actionId, Empty, new([rows[0], rows[0]]), expectedRevision: null, cancellationToken: Ct).Plan.Errors);
         foreach (var scope in new ActionScope[]
         {
             new([]),
@@ -109,11 +112,11 @@ public sealed class TransferSelectionWiringTests
             new() { QueryScope = new(source, new() { Text = "no-such-synthetic-item" }, revision) },
         })
         {
-            var preview = session.PlanAction(actionId, Empty, scope);
+            var preview = session.PlanAction(actionId, Empty, scope, expectedRevision: null, cancellationToken: Ct);
             Assert.Empty(preview.Plan.Errors);
             Assert.Empty(preview.Scope.RowKeys!);
             Assert.Empty(preview.Plan.Changes);
-            Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+            Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: Ct).Ok);
             Assert.Equal(revision, session.State.Revision);
             Assert.False(session.State.CanUndo);
             Assert.False(session.State.IsDirty);
@@ -129,8 +132,8 @@ public sealed class TransferSelectionWiringTests
         var session = Open(workspace, new() { MaxQueryActionRows = SelectionTestData.ItemCount - 1 });
         var action = Assert.Single(Assert.IsType<SectionNode>(session.BuildView()).Children.OfType<ActionNode>(), action => action.ActionId == actionId);
         var source = action.SelectionTableId!;
-        var rows = session.QueryCollection(source, new() { Limit = 10 }).Rows.Select(row => row.Key).ToArray();
-        var preview = session.PlanAction(actionId, Empty, new() { QueryScope = new(source, new(), session.State.Revision) { ExcludedRowKeys = rows } });
+        var rows = session.QueryCollection(source, new() { Limit = 10 }, expectedRevision: null, cancellationToken: Ct).Rows.Select(row => row.Key).ToArray();
+        var preview = session.PlanAction(actionId, Empty, new() { QueryScope = new(source, new(), session.State.Revision) { ExcludedRowKeys = rows } }, expectedRevision: null, cancellationToken: Ct);
         Assert.NotEmpty(preview.Plan.Errors);
         Assert.Null(preview.PlanId);
         Assert.False(session.State.IsDirty);
@@ -167,5 +170,5 @@ public sealed class TransferSelectionWiringTests
     }
 
     private static void AssertBytes(DocumentSession session, IReadOnlyDictionary<string, byte[]> expected) =>
-        Assert.All(session.Serialize(), output => Assert.Equal(expected[output.RelativePath], output.Content.ToArray()));
+        Assert.All(session.Serialize(cancellationToken: Ct), output => Assert.Equal(expected[output.RelativePath], output.Content.ToArray()));
 }
