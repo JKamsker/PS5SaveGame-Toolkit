@@ -14,3 +14,7 @@ node_modules/
 web/dist/
 src/SaveToolkit.Api/wwwroot/
 .vitest/
+
+# Python bytecode from docs/ and plugin tooling checks.
+__pycache__/
+*.pyc
