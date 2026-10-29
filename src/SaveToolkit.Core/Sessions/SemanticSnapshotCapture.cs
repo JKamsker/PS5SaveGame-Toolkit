@@ -1,5 +1,6 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Core.Sessions;
@@ -52,7 +53,8 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
             {
                 case FieldNode f:
                     if (fields.ContainsKey(f.ValueId)) break;
-                    var field = new SemanticField(f.ValueId, rowLabel is null ? f.Label : $"{rowLabel} / {f.Label}", path, f.Value, f.Spec.ReadOnly, target);
+                    var field = new SemanticField(f.ValueId, rowLabel is null ? f.Label : $"{rowLabel} / {f.Label}", path, f.Value, f.Spec.ReadOnly, target,
+                        Spec: FieldSpecMetadata.Snapshot(f.Spec));
                     var cost = SemanticSnapshot.Estimate(field);
                     if (cost > limits.MaxOriginalBytes - bytes)
                     {

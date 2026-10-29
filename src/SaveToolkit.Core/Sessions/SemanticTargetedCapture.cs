@@ -1,5 +1,6 @@
 using SaveToolkit.Core.Editing;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Core.Sessions;
 
@@ -56,13 +57,16 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                     snapshot.Fields[field.ValueId] = existing with
                     {
                         ReadOnly = field.Spec.ReadOnly, CanonicalValueId = canonical, BindingKind = field.BindingKind,
+                        Spec = FieldSpecMetadata.Snapshot(field.Spec), Label = field.Label,
+                        Path = field.Path?.ToArray() ?? existing.Path,
                     };
                     continue;
                 }
 
                 var semantic = new SemanticField(field.ValueId, field.Label, field.Path?.ToArray() ?? [],
                     document.GetValue(field.ValueId), field.Spec.ReadOnly,
-                    CanonicalValueId: canonical, BindingKind: field.BindingKind);
+                    CanonicalValueId: canonical, BindingKind: field.BindingKind,
+                    Spec: FieldSpecMetadata.Snapshot(field.Spec));
                 var cost = SemanticSnapshot.Estimate(semantic);
                 if (cost > maxBytes - snapshot.Bytes)
                 {
