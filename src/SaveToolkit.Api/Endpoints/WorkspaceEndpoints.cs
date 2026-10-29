@@ -83,11 +83,11 @@ internal static class WorkspaceEndpoints
         doc.MapPost("/undo", (DocumentRef d, HistoryRequest? request) => ToResult(d.Value.Undo()));
         doc.MapPost("/redo", (DocumentRef d, HistoryRequest? request) => ToResult(d.Value.Redo()));
         doc.MapGet("/assets", (DocumentRef d, [FromQuery] string id) =>
-            d.Value.GetAsset(id) is { } asset ? Results.Bytes(asset.Content.ToArray(), asset.ContentType) : Results.NotFound());
+            d.Value.GetAsset(id) is { } asset ? Results.Bytes(asset.Content, asset.ContentType) : Results.NotFound());
         doc.MapGet("/blobs", (DocumentRef d, [FromQuery] string id, [FromQuery] long offset, [FromQuery] int count) =>
             offset < 0
                 ? (IResult)Results.BadRequest(new ErrorDto("Offset cannot be negative."))
-                : Results.Bytes(d.Value.ReadBlob(id, offset, Math.Clamp(count, 0, MaxBlobPage)).ToArray(), "application/octet-stream"));
+                : Results.Bytes(d.Value.ReadBlob(id, offset, Math.Clamp(count, 0, MaxBlobPage)), "application/octet-stream"));
         doc.MapGet("/download", (DocumentRef d) =>
         {
             var session = d.Value;
@@ -96,7 +96,7 @@ internal static class WorkspaceEndpoints
             var own = session.Serialize().FirstOrDefault(o => o.RelativePath == session.File.RelativePath);
             return own is null
                 ? Results.Stream(session.File.OpenRead(), "application/octet-stream", session.File.FileName)
-                : Results.File(own.Content.ToArray(), "application/octet-stream", session.File.FileName);
+                : Results.Bytes(own.Content, "application/octet-stream", session.File.FileName);
         });
     }
 
