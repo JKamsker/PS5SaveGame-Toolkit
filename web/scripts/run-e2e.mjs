@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { runSelectedSuites } from "./e2e-suite-runner.mjs";
 
 const cli = createRequire(import.meta.url).resolve("@playwright/test/cli");
 const args = process.argv.slice(2);
@@ -55,14 +56,9 @@ try {
   writeFileSync(path.join(invocation, "discovery.json"), JSON.stringify({ all, canonical, unreal }, null, 2));
   console.log(`E2E discovery: ${all.length} selected = ${canonical.length} canonical + ${unreal.length} real Unreal. Reports: ${invocation}`);
   if (!args.includes("--list")) {
-    for (const [suite, selected] of [["canonical", canonical], ["unreal", unreal]]) {
-      if (!selected.length) continue; // A developer's file/grep filter can select only one complementary suite.
-      const result = spawnSync(process.execPath, [cli, "test", ...args],
-        { env: environment(suite), stdio: "inherit" });
-      if (result.error) throw result.error;
-      if (result.status !== 0) process.exitCode = result.status || 1;
-      // Run the second mandatory suite even when the first fails, retaining both reports.
-    }
+    process.exitCode = runSelectedSuites([["canonical", canonical], ["unreal", unreal]],
+      suite => spawnSync(process.execPath, [cli, "test", ...args], { env: environment(suite), stdio: "inherit" }),
+      message => console.error(message));
   }
 } catch (error) {
   console.error(`E2E failed: ${error.message}`);
