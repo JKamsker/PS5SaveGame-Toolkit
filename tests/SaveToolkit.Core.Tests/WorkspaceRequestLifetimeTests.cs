@@ -15,7 +15,7 @@ public sealed class WorkspaceRequestLifetimeTests
     [InlineData(true)]
     public async Task RemovingWorkspace_DuringRequest_RetainsBlobsUntilCompletion(bool cancel)
     {
-        using var probing = new ManualResetEventSlim();
+        var probing = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         using var resume = new ManualResetEventSlim();
         var plugin = new BlockingProbePlugin(probing, resume);
         using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
@@ -30,7 +30,7 @@ public sealed class WorkspaceRequestLifetimeTests
         var request = client.GetAsync(new Uri($"/api/workspaces/{workspace.Id}", UriKind.Relative), cancellation.Token);
         try
         {
-            Assert.True(probing.Wait(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken));
+            await probing.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
             Assert.True(store.Remove(workspace.Id));
             Assert.Null(store.Get(workspace.Id));
             Assert.True(Directory.Exists(workspace.Set.StorageRoot), "An active request still needs its imported blobs.");
@@ -42,7 +42,9 @@ public sealed class WorkspaceRequestLifetimeTests
                 using var response = await request;
                 response.EnsureSuccessStatusCode();
             }
-            Assert.True(SpinWait.SpinUntil(() => !Directory.Exists(workspace.Set.StorageRoot), TimeSpan.FromSeconds(10)));
+            for (var attempt = 0; attempt < 1_000 && Directory.Exists(workspace.Set.StorageRoot); attempt++)
+                await Task.Delay(TimeSpan.FromMilliseconds(10), TestContext.Current.CancellationToken);
+            Assert.False(Directory.Exists(workspace.Set.StorageRoot));
         }
         finally
         {
@@ -52,12 +54,12 @@ public sealed class WorkspaceRequestLifetimeTests
         }
     }
 
-    private sealed class BlockingProbePlugin(ManualResetEventSlim probing, ManualResetEventSlim resume) : IGamePlugin
+    private sealed class BlockingProbePlugin(TaskCompletionSource probing, ManualResetEventSlim resume) : IGamePlugin
     {
         public PluginInfo Info { get; } = new("test.blocking-probe", "Blocking probe", "1.0.0");
         public ProbeResult Probe(ISaveFile file)
         {
-            probing.Set();
+            probing.TrySetResult();
             Assert.True(resume.Wait(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken));
             Assert.Equal(new byte[] { 1 }, file.ReadAllBytes());
             return ProbeResult.None;
