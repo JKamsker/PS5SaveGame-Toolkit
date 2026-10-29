@@ -1,5 +1,18 @@
 # GodOfWarRagnarok third-party data notices
 
+## GOWTool MIT research follow-up (2026-10-29)
+
+[kainotoa / GOWTool, f2899f6c89cb85bf0f313f8a844fb1884ff23633](https://github.com/kainotoa/GOWTool/tree/f2899f6c89cb85bf0f313f8a844fb1884ff23633)
+now publishes [MIT, copyright (c) 2026 kainotoa](https://github.com/kainotoa/GOWTool/blob/f2899f6c89cb85bf0f313f8a844fb1884ff23633/LICENSE),
+added in f0e92b0c720fd5abc44023a0d01b55d416516088. Retrieved 2026-10-29. Source was inspected
+as text for applicability; no implementation, reference dataset or asset was copied into this plugin.
+Consequently this assessment adds no distributed third-party code component. Any future code reuse
+must carry the exact upstream copyright and full MIT permission/warranty notice. The grant does not
+extend to external game DLLs or publisher assets. See [the pinned assessment](GOWTOOL_ASSESSMENT.md)
+for source hashes, the asset/save distinction and the missing inputs; there is no licence refusal.
+
+## Existing reference datasets
+
 This notice is plugin-local because the implementation worker may modify only this plugin folder.
 No third-party implementation was ported in round 2. The following derived reference datasets
 retain their upstream GPL-3.0 licence; they are distributed separately from the original CC BY-SA
