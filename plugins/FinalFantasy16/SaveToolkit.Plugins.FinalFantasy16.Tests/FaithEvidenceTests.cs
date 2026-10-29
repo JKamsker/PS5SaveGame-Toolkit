@@ -137,8 +137,8 @@ public sealed class FaithEvidenceTests
         Assert.Contains("Legacy experimental policy", quantity.Warning);
         Assert.Contains("No dependent flags", quantity.Warning);
         Assert.IsAssignableFrom<IActionPlanningDocument>(document);
-        Assert.Contains(Actions(view), action => action.ActionId == FaithQuantityPlanning.ActionId && action.SupportsPlanning);
-        Assert.Contains(Actions(view), action => action.ActionId == FaithCatalog.LookupActionId && !action.Mutates);
+        Assert.Contains(FaithViewNodes.All(view).OfType<ActionNode>(), action => action.ActionId == FaithQuantityPlanning.ActionId && action.SupportsPlanning);
+        Assert.Contains(FaithViewNodes.All(view).OfType<ActionNode>(), action => action.ActionId == FaithCatalog.LookupActionId && !action.Mutates);
         Assert.False(document.ApplyEdits([new ValueEdit("capacity/506/main/1", FieldValue.Of(0))]).Succeeded);
         var outcome = document.ApplyEdits([new ValueEdit(quantity.ValueId, FieldValue.Of(0))]);
         Assert.True(outcome.Succeeded);
@@ -152,12 +152,4 @@ public sealed class FaithEvidenceTests
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 
-    private static IEnumerable<ActionNode> Actions(ViewNode node) => node switch
-    {
-        ActionNode action => [action],
-        TabsNode tabs => tabs.Tabs.SelectMany(tab => tab.Children).SelectMany(Actions),
-        SectionNode section => section.Children.SelectMany(Actions),
-        TableNode table => table.Rows.SelectMany(row => row.Cells.Values).SelectMany(Actions),
-        _ => [],
-    };
 }

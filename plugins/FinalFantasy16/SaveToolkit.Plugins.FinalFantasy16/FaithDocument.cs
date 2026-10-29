@@ -193,13 +193,7 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
         };
         if (player is not null)
         {
-            nodes.Add(new SectionNode("Character", [
-                ContextInt("player/level", "Level", player.PayloadOffset),
-                ContextInt("player/xp", "Experience", player.PayloadOffset + sizeof(int)),
-                ContextInt("player/childLevel", "Child level", player.PayloadOffset + ChildLevelOffset),
-                ContextInt("player/childXp", "Child experience", player.PayloadOffset + ChildXpOffset),
-                new TextNode("Level/XP are independent stored values. Growth/stat dependencies are not recalculated.") { Tone = Tone.Warning },
-            ]));
+            nodes.Add(CharacterOverview(player));
         }
 
         if (user is not null)
@@ -216,6 +210,14 @@ internal sealed class FaithDocument : BoundSaveDocument, IActionPlanningDocument
 
         return nodes;
     }
+
+    private SectionNode CharacterOverview(FaithBlock player) => new("Character", [
+        ContextInt("player/level", "Level", player.PayloadOffset),
+        ContextInt("player/xp", "Experience", player.PayloadOffset + sizeof(int)),
+        ContextInt("player/childLevel", "Child level", player.PayloadOffset + ChildLevelOffset),
+        ContextInt("player/childXp", "Child experience", player.PayloadOffset + ChildXpOffset),
+        new TextNode("Level/XP are independent stored values. Growth/stat dependencies are not recalculated.") { Tone = Tone.Warning },
+    ]);
 
     private FieldNode Quantity(FaithItem item, string bank = "inventory")
     {

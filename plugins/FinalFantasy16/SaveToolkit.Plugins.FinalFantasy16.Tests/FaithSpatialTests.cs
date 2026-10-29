@@ -88,7 +88,7 @@ public sealed class FaithSpatialTests
     {
         var file = FaithSamples.Snapshot(title);
         using var document = _plugin.Open(file);
-        var maps = Nodes(document.BuildView()).OfType<MapNode>();
+        var maps = FaithViewNodes.All(document.BuildView()).OfType<MapNode>();
         var map = Assert.Single(maps);
         SpatialViewValidation.Validate(map);
         var marker = Assert.Single(map.Markers);
@@ -112,7 +112,7 @@ public sealed class FaithSpatialTests
         var party = new byte[FaithSchema.PartyLength];
         BinaryPrimitives.WriteInt32LittleEndian(party.AsSpan(FaithContextLayout.MapOffset), int.MaxValue);
         using var unknown = _plugin.Open(FaithTestData.File(FaithTestData.Container((FaithSchema.PartyType, FaithSchema.PartyVersion, party))));
-        var marker = Assert.Single(Assert.Single(Nodes(unknown.BuildView()).OfType<MapNode>()).Markers);
+        var marker = Assert.Single(Assert.Single(FaithViewNodes.All(unknown.BuildView()).OfType<MapNode>()).Markers);
         Assert.Equal("Unknown map 2147483647", marker.Label);
         Assert.Equal(Confidence.Unknown, marker.Confidence);
         foreach (var bytes in new[] { FaithTestData.Container((99, 1, new byte[8])),
@@ -121,16 +121,9 @@ public sealed class FaithSpatialTests
                 (FaithSchema.PartyType, FaithSchema.PartyVersion, party)) })
         {
             using var document = _plugin.Open(FaithTestData.File(bytes));
-            Assert.Empty(Nodes(document.BuildView()).OfType<MapNode>());
+            Assert.Empty(FaithViewNodes.All(document.BuildView()).OfType<MapNode>());
             Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
         }
     }
 
-    private static IEnumerable<ViewNode> Nodes(ViewNode root) => new[] { root }.Concat(root switch
-    {
-        TabsNode tabs => tabs.Tabs.SelectMany(tab => tab.Children).SelectMany(Nodes),
-        SectionNode section => section.Children.SelectMany(Nodes),
-        TableNode table => table.Rows.SelectMany(row => row.Cells.Values).SelectMany(Nodes),
-        _ => [],
-    });
 }

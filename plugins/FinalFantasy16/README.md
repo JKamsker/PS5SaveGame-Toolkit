@@ -139,7 +139,7 @@ confirmed save mappings. See the [requirement/acceptance gap audit](COMPLETION.m
 
 | Feature | Adoption | Where / concrete reason |
 | --- | --- | --- |
-| F1 SaveDiff | Used | Hash-pinned generation fixture, native `ffxvi` F12 hook and exact allowed-byte-range write tests. No local diff engine. |
+| F1 SaveDiff | Used | Hash-pinned generation fixture, native `ffxvi-evidence` F12 hook and exact allowed-byte-range write tests. No local diff engine. |
 | F2 reference packs | Used | Six packs, immutable standalone catalogue fallbacks, Sources panel and provenance; separately attributed wiki, Nex, feats, abilities, published identifiers and maps. Asset round: 140 icons, 140 official-description excerpts, five map backgrounds. |
 | F3 rich cells | Used; added this round | Icons, field confidence, selected-row planned actions and expandable source/storage details in eager/queried rows and spoiler-gated ability rows. |
 | F4 pickers | Used; added this round | Inventory/gear/shortcut IDs, summon/command/map context, Nex skill and read-only ability references. Read-only IDs publish browse-only ReferenceSpec controls; catalogue searches use category and declared sort keys. Other numeric context is an index/bitset or has no catalogue. |
@@ -150,7 +150,7 @@ confirmed save mappings. See the [requirement/acceptance gap audit](COMPLETION.m
 | F9 graph/map | Used; added this round | Lazy spoiler-gated progression DAG; Valisthea background and four lazy regional references. Stored map marker stays unpositioned; text alternatives, attribution, missing-pack fallbacks and field navigation retained. |
 | F10 numbers | Used | Exact integer-string wire and integer-duration seconds. ExactNumberSpec/nullable/union are N/A to present fixed-width binary integers/bytes with no lexeme or null/type discriminator. |
 | F11 codecs | N/A | Supported PS5 files are plaintext Faith blocks with CRC; no Kraken/SQLite or PC PNG/XOR/zlib wrapper. |
-| F12 diff traversal | Used | The `ffxvi` SDK decoder hook emits bounded Faith root, inventory and context evidence independently of UI paging; the existing F1 fixture now has a native hook option. |
+| F12 diff traversal | Used | The `ffxvi-evidence` SDK decoder hook emits bounded Faith root, inventory and context evidence independently of UI paging; the existing F1 fixture now has a native hook option. |
 | F13 inspect/picker/metadata | Used | The catalogue lookup is an explicit `Mutates = false` inspect action. Read-only IDs use browse-only ReferenceSpec pickers, and catalogue views use category filtering plus declared key/category sorting. Field-metadata publishing is N/A because the plugin has no separate metadata source beyond its bound views. |
 
 ## Enabled writes and their evidence
@@ -357,7 +357,8 @@ note. Historical wiki aliases/plural normalization remain explicitly documented;
 the published picker uses the upstream CSV spelling. Two
 Martelle Apples IDs remain separate. Known `<i>` and
 `<color=...>` game presentation tags are removed from imported names; unknown
-markup remains literal text. No text is interpreted as HTML. There are no icons.
+markup remains literal text. No text is interpreted as HTML. Attributed item and
+ability icons are available through the asset packs; missing assets use text fallbacks.
 
 Tables are bounded (main pages at most 200 of 1200, eager only at <=100;
 secondary at most 100, gear 18, skill arrays 92 bytes, named Nex skill research at

@@ -1,7 +1,6 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Diff;
 using SaveToolkit.Sdk.Saves;
-using System.Buffers.Binary;
 using SaveToolkit.Sdk.References;
 
 namespace SaveToolkit.Plugins.FinalFantasy16;
@@ -64,31 +63,26 @@ public sealed class FinalFantasy16Plugin : IGamePlugin, ISaveDecoderProvider
 
     public ProbeResult Probe(ISaveFile file)
     {
-        if (!IsSupportedTitle(file.Directory.TitleId) || !IsSaveName(file.FileName))
+        if (!FaithSaveIdentity.IsSupportedFile(file))
         {
             return ProbeResult.None;
         }
 
-        var header = file.ReadHeader(FaithContainer.HeaderSize);
-        if (header.Length < FaithContainer.HeaderSize ||
-            BinaryPrimitives.ReadUInt32LittleEndian(header) != FaithContainer.HeaderSize)
+        if (!FaithSaveIdentity.HasMatchingHeader(file))
         {
             return ProbeResult.None;
         }
 
-        var version = BinaryPrimitives.ReadUInt64LittleEndian(header.AsSpan(FaithContainer.VersionOffset));
         var system = file.FileName == "system-save-data";
-        return version == (system ? FaithContainer.SystemVersion : FaithContainer.GameVersion)
-            ? ProbeResult.Match(ProbeScore.Title, system ? "System/settings" :
-                file.FileName == "game-save-data" ? "Manual/special gameplay save" : $"Autosave {file.FileName[^2..]}")
-            : ProbeResult.None;
+        return ProbeResult.Match(ProbeScore.Title, system ? "System/settings" :
+            file.FileName == "game-save-data" ? "Manual/special gameplay save" : $"Autosave {file.FileName[^2..]}");
     }
 
     public ISaveDocument Open(ISaveFile file) => Open(file, IReferenceContext.Empty);
 
     public ISaveDocument Open(ISaveFile file, IReferenceContext references)
     {
-        if (!IsSupportedTitle(file.Directory.TitleId) || !IsSaveName(file.FileName))
+        if (!FaithSaveIdentity.IsSupportedFile(file))
         {
             throw new SaveFormatException("Expected an FFXVI retail or demo PS5 save file.");
         }
@@ -108,9 +102,4 @@ public sealed class FinalFantasy16Plugin : IGamePlugin, ISaveDecoderProvider
         return new FaithDocument(file, bytes, container, FaithSchema.ForTitle(file.Directory.TitleId), references);
     }
 
-    private static bool IsSupportedTitle(string title) => title is "PPSA10665" or "PPSA13803";
-
-    private static bool IsSaveName(string name) => name is "game-save-data" or "system-save-data" ||
-        (name.Length == "game-save-data00".Length && name.StartsWith("game-save-data0", StringComparison.Ordinal) &&
-         name[^1] is >= '0' and <= '9');
 }
