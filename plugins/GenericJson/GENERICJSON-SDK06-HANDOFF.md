@@ -4,7 +4,7 @@
 
 - Consumer branch: `t3/genericjson-sdk06-adoption`
 - Consumer base before dependency merge: `e76e51035fec308a56e5c26b5d97a9c08089f881`
-- Consumer implementation head: `ee2b5a6c` (`feat(genericjson): adopt SDK06 lossless scalar substrate`)
+- Consumer implementation head: `c78fa498` (`fix(genericjson): preflight scalar output size before encoding`)
 - Reviewed dependency: SDK-06 PR #51, exact commit
   `72490fe8756627013c73c0b80fa874b563a0e652` (parent `a466a4b16ef271eb98e30f784cfcaba03e8654ae`)
 - Dependency branch/base: `t3/sdk06-lossless-json` / `e76e51035fec308a56e5c26b5d97a9c08089f881`
@@ -62,3 +62,24 @@ patching is unavailable after topology/name changes and correctly falls back to 
 Title writes remain experimental, with existing Inferred/Unknown labels and external game-integrity
 warnings. PR #51's hosted Windows CI and eventual main merge remain parent-owned; after merge,
 retarget this consumer PR and rerun the full required checks.
+
+## PR62-R1 response
+
+Review `PR62-R1-01` identified one P1: the adapter encoded every changed scalar and retained all
+replacement byte arrays before checking the complete output budget. Fixed in `c78fa498`. The
+adapter now computes `JsonScalar.EncodedLength` for every changed scalar first, using a nonallocating
+counter for JSON quotes, control escapes, default HTML-sensitive escapes, non-ASCII UTF-16 escapes,
+surrogate pairs, exact numbers, booleans and null. Checked cumulative deltas include the original
+BOM/trivia and every current replacement. Only a passing batch is sorted shrink-first and then
+encoded/applied under the existing source lock and SDK snapshot `finally` restore.
+
+Added `JsonResourceTests.ScalarLengthPreflightRejectsEscapedGrowthBeforeReplacementAllocation`:
+a valid near-16 MiB multibyte string whose escaped output would be roughly 96 MiB is rejected with
+an allocation assertion of at most 10 MiB, unchanged bytes, unchanged typed value and no undo
+history. `ScalarLengthPreflightMatchesDefaultJsonEscaping` covers non-ASCII, surrogate-pair,
+HTML-sensitive and control escapes. Final-fitting grow/shrink order coverage remains in the exact
+16 MiB boundary test. No other R1 finding was reported; dependency remains exact SDK06 `72490fe…`.
+
+Post-fix plugin validation: **463 total, 430 passed, 33 explicit missing-sample skips, 0 failed**;
+synthetic mutation fuzzing passed. The API Release build and documentation checks were rerun after
+the final follow-up commit; all build/cache/results remain under the assigned D: scratch root.
