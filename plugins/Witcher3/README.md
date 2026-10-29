@@ -508,6 +508,11 @@ shared file is intentionally left for the integrating owner because this task is
 
 ## SDK requests
 
+The plugin rejects duplicate value IDs in an edit batch before mutation (#40). Shared scalar history
+currently replays old values in order, so multiple transitions for one ID can undo to an intermediate
+value. A shared rejection or coalescing policy would remove the need for this local guard; no SDK
+change is required for the shipped plugin.
+
 No blocking SDK request for the shipped scope. F12 [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32)
 resolves the earlier request for bounded F8 traversal and native CLI decoder registration: the
 SDK-only production hook is registered explicitly, and F1 tests use its shared host adapter.
