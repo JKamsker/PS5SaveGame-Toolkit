@@ -1453,8 +1453,12 @@ relative path, and takes up to `MaxMutationFuzzFilesPerTitle` (**1**) distinct f
 the default run fast while exercising real format bytes. This independent cap keeps existing exhaustive
 `MaxFilesPerTitle` overrides from expanding the fuzz run without limit. Missing titles are ignored
 without hiding available titles. Every selected file gets the full mutation count; increase the
-file cap for a broader local corpus run. Built-in synthetic seeds cover GenericJson (one) and
-XorJson (two); other plugins must supply valid fixtures to run without private samples.
+file cap for a broader local corpus run. All **17 plugin conformance classes** supply **27 synthetic
+seeds** without private samples. Shared defaults cover GenericJson (one) and XorJson (two); the other
+15 plugins reuse authored builders in their test projects. See the [per-plugin coverage table and
+limits](RELEASING.md#nightly-mutation-fuzz): FF7 covers common containers, Pragmata has parser-valid
+integrity without authentic RSA signing, and Elden Ring requires a large fixed allocation that
+exceeded the local 60-second nightly budget. No plugin has a rejection-only baseline.
 Override `MutationFuzzSyntheticSeeds` to supply small valid
 `ISaveFile`s, including required siblings, for sample-free CI. With neither samples nor synthetic
 seeds the fact reports a real skip. Environment overrides can select a different seed/count and
@@ -1485,6 +1489,9 @@ lets the parent kill a stuck parser and its process tree, rather than leave back
 Worker/sample preparation has a separate two-minute guard. A completed case also checks elapsed time,
 so a timeout cannot be missed between progress polls. Allocation accounting is checked after a case;
 it is a regression budget, not an allocator limit. Keep plugin parsers' own pre-allocation bounds.
+For focused allocation assertions, the shared `SaveToolkit.Testing.AllocationProbe` supplies
+warm-up and repeated measurements; `MeasureOpen` disposes prior documents outside the measured
+interval. Fuzzing intentionally includes rejected inputs and disposal in its per-case accounting.
 
 Run the inherited check alone with the normal .NET 10 MTP runner:
 
