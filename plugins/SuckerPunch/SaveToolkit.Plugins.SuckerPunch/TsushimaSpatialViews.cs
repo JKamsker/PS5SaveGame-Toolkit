@@ -31,6 +31,7 @@ internal sealed class TsushimaSpatialViews(
 
     public MapNode CollectibleMap()
     {
+        var background = TsushimaAssets.Background(references);
         var catalog = references.Catalog(TsushimaIds.WorldGuide);
         var records = catalog?.Search(new ReferenceQuery { Limit = ReferenceQuery.MaxLimit }).Items ?? [];
         var markers = records
@@ -57,15 +58,18 @@ internal sealed class TsushimaSpatialViews(
         var alternative = BoundText(
             "Schematic shrine and collectible reference list: " + (labels.Length == 0 ? "no pinned entries" : labels) +
             ". Coordinates and saved discovery, completion and reward state are not established. " +
-            "Use the external guide for map imagery; no map art or community coordinates are embedded.");
+            (background is null ? "No island artwork is available; the schematic list remains available." :
+                "Island artwork is reference only: shrine alignment is unverified, so markers remain unpositioned. " +
+                "The complete text list remains available."));
 
         return new MapNode(
             "Tsushima collectibles (reference-only map)",
-            new MapBounds(0, 0, 100, 100),
+            new MapBounds(0, 0, TsushimaAssets.MapWidth, TsushimaAssets.MapHeight),
             markers,
             alternative)
         {
-            CoordinateSpace = "Schematic; no save-coordinate transform is known",
+            CoordinateSpace = "Reference-image pixels only; no shrine or save-coordinate transform is known",
+            Background = background,
             ExternalSource = new ExternalViewLink(
                 ShrineMapUrl,
                 "Open external Tsushima collectible guide",

@@ -49,17 +49,18 @@ internal sealed class TsushimaGuideViews(IReferenceContext references, Func<Fiel
         });
         var rows = page.Items.Select(record => new TableRow(record.Key, new Dictionary<string, ViewNode>
         {
+            [TsushimaAssets.IconColumn] = TsushimaAssets.Icon(references, record),
             ["name"] = bind(new FieldNode($"guides/{catalog.Id}/{record.Key}/reference", record.Name,
                 new ReferenceSpec(catalog.Id) { ReadOnly = true }, FieldValue.Of(record.Key))
             {
                 Confidence = Confidence.Unknown,
-                Description = $"{record.Description} {record.AttributionText}",
+                Description = $"{record.Description} {record.AttributionText}" + TsushimaAssets.Attribution(references, record),
                 Warning = GuideWarning,
             }),
             ["category"] = new TextNode(record.Category ?? "Unknown"),
             ["description"] = new TextNode(record.Description ?? ""),
             ["state"] = new TextNode("Unmapped; save state Unknown") { Tone = Tone.Warning },
-            ["source"] = new TextNode(record.AttributionText),
+            ["source"] = new TextNode(record.AttributionText + TsushimaAssets.Attribution(references, record)),
         })).ToArray();
         return new TableNode(Columns(), rows)
         {
@@ -69,6 +70,7 @@ internal sealed class TsushimaGuideViews(IReferenceContext references, Func<Fiel
     }
 
     private static IReadOnlyList<TableColumn> Columns() =>
-    [new("name", "Name"), new("category", "Category / region"), new("description", "Description"),
+    [new(TsushimaAssets.IconColumn, "Artwork") { Width = ColumnWidth.Narrow },
+        new("name", "Name"), new("category", "Category / region"), new("description", "Description"),
         new("state", "Save mapping / state"), new("source", "Attribution")];
 }
