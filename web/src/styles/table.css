@@ -54,11 +54,34 @@
   font-weight: var(--weight-heading);
   text-align: left;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
 }
+.table__head-label { display: block; overflow: hidden; text-overflow: ellipsis; }
+.table__confidence { display: inline-flex; position: relative; margin-top: var(--space-1); }
+.table__confidence-tooltip {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 2;
+  width: 240px;
+  padding: var(--space-3);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+  white-space: normal;
+  text-align: left;
+  font-weight: 400;
+}
+.table__confidence:hover .table__confidence-tooltip,
+.table__confidence:focus .table__confidence-tooltip { display: block; }
+.table__confidence--dismissed:hover .table__confidence-tooltip,
+.table__confidence--dismissed:focus .table__confidence-tooltip { display: none; }
+.table__head--number .table__confidence-tooltip { left: auto; right: 0; }
 .table__head--number { text-align: right; }
 .table__cell {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -230,7 +253,25 @@
 .cell-badge--verified > span:first-child { font-weight: 700; }
 .cell-badge--inferred { background: var(--modified-soft); color: var(--inferred); }
 .cell-badge--unknown { background: var(--surface-sunk); color: var(--unknown); }
-.cell-badge--info { background: var(--info); font-style: italic; font-family: Georgia, serif; }
+.cell-badge--info {
+  position: absolute;
+  right: var(--space-3);
+  top: 2px;
+  opacity: 0;
+  background: var(--info);
+  font-style: italic;
+  font-family: Georgia, serif;
+}
+.table__cell:hover .cell-badge--info,
+.table__cell:focus-within .cell-badge--info { opacity: 1; }
+/* Keep warnings/errors unobscured when they share the diagnostic line. */
+.cell-badges__diagnostics:has(.cell-badge--warning, .cell-badge--error) .cell-badge--info {
+  position: static;
+  opacity: 1;
+}
+@media (hover: none) {
+  .cell-badge--info { opacity: 1; }
+}
 .cell-badge--warning { background: var(--inferred); }
 .cell-badge--error { background: var(--danger); }
 

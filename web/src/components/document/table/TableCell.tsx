@@ -1,5 +1,5 @@
 import { useId, useState, type ReactNode, type Ref } from "react";
-import type { FieldNode, ImageNode, ViewNode } from "../../../api/protocol";
+import type { Confidence, FieldNode, ImageNode, ViewNode } from "../../../api/protocol";
 import { api } from "../../../api/client";
 import { useDocument } from "../../../state/documentStore";
 import { FieldControl } from "../../fields/FieldControl";
@@ -12,6 +12,7 @@ import { isNumericCell } from "./presentation";
 
 export interface TableCellProps {
   node: ViewNode | undefined;
+  columnConfidence?: Confidence | undefined;
   /** Show a vacant slot label in the compact cell; the original node remains in row details. */
   emptySlot?: boolean;
   /** Short name of the row, used to give repeated controls distinct accessible names. */
@@ -24,12 +25,18 @@ export interface TableCellProps {
  * One fixed-height table cell. Every node type renders something: compact forms inline, large or
  * nested content as a button that opens the row details, unknown types as a visible placeholder.
  */
-export function TableCell({ node, emptySlot, rowLabel, onOpenDetails }: TableCellProps) {
-  if (emptySlot) return <Cell><DetailsChip label="Empty slot" rowLabel={rowLabel} onOpen={onOpenDetails} /></Cell>;
+export function TableCell({ node, columnConfidence, emptySlot, rowLabel, onOpenDetails }: TableCellProps) {
+  if (emptySlot) return <Cell>
+    <DetailsChip label="Empty slot" rowLabel={rowLabel} onOpen={onOpenDetails} />
+    {node?.type === "field" && <>
+      <CellConfidenceLabel confidence={node.confidence} columnConfidence={columnConfidence} />
+      <CellBadges confidence={node.confidence === columnConfidence ? undefined : node.confidence} />
+    </>}
+  </Cell>;
   if (!node) return <div className="table__cell" role="cell" />;
   switch (node.type) {
     case "field":
-      return <FieldCell node={node} rowLabel={rowLabel} onOpenDetails={onOpenDetails} />;
+      return <FieldCell node={node} columnConfidence={columnConfidence} rowLabel={rowLabel} onOpenDetails={onOpenDetails} />;
     case "text":
       return (
         <Cell className={isNumericCell(node) ? " table__cell--number" : ""}>
@@ -88,6 +95,12 @@ function Cell({ children, className = "", fieldRef }: { children: ReactNode; cla
   );
 }
 
+/** A suppressed visual chip still belongs to its individual cell in the accessibility tree. */
+function CellConfidenceLabel({ confidence, columnConfidence }: { confidence: Confidence | undefined; columnConfidence: Confidence | undefined }) {
+  if (!confidence || confidence !== columnConfidence) return null;
+  return <span className="visually-hidden">Confidence: {confidence === "Unknown" ? "meaning unknown" : confidence.toLowerCase()}</span>;
+}
+
 function nestedLabel(node: Extract<ViewNode, { type: "section" | "tabs" | "table" | "hex" | "graph" | "map" }>): string {
   switch (node.type) {
     case "section": {
@@ -124,7 +137,7 @@ function needsDetailsEditor(node: FieldNode): boolean {
   return node.spec.kind === "flags" || (node.spec.kind === "text" && node.spec.multiline === true);
 }
 
-function FieldCell({ node, rowLabel, onOpenDetails }: { node: FieldNode; rowLabel: string; onOpenDetails: () => void }) {
+function FieldCell({ node, columnConfidence, rowLabel, onOpenDetails }: { node: FieldNode; columnConfidence: Confidence | undefined; rowLabel: string; onOpenDetails: () => void }) {
   const fieldRef = useFieldJump(node.valueId);
   const { canEdit } = useDocument();
   const { value, error, modified, commit } = useLiveField(node);
@@ -160,8 +173,9 @@ function FieldCell({ node, rowLabel, onOpenDetails }: { node: FieldNode; rowLabe
         {name}
       </span>
       <span className="cell-value">{control}</span>
+      <CellConfidenceLabel confidence={node.confidence} columnConfidence={columnConfidence} />
       {description && <span id={`${labelId}-description`} className="visually-hidden">{description}</span>}
-      <CellBadges confidence={node.confidence} description={node.description} warning={node.warning} error={shownError} />
+      <CellBadges confidence={node.confidence === columnConfidence ? undefined : node.confidence} description={node.description} warning={node.warning} error={shownError} />
     </Cell>
   );
 }

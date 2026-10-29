@@ -40,7 +40,7 @@ export function CellBadges({ confidence, description, warning, error }: CellBadg
 
 function Badge({ kind, glyph, text, label }: { kind: string; glyph: string; text?: string; label: string }) {
   return (
-    <span className={`cell-badge cell-badge--${kind}${text ? " cell-badge--label" : ""}`} role="img" aria-label={label} title={label}>
+    <span className={`cell-badge cell-badge--${kind}${text ? " cell-badge--label" : ""}`} tabIndex={kind === "info" ? 0 : undefined} role="img" aria-label={label} title={label}>
       <span aria-hidden="true">{glyph}</span>{text && <span>{text}</span>}
     </span>
   );
