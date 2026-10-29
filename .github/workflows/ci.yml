@@ -58,6 +58,10 @@ jobs:
           tar -xzf actionlint_1.7.12_linux_amd64.tar.gz actionlint
           cd "$GITHUB_WORKSPACE"
           "$RUNNER_TEMP/actionlint/actionlint" -color
+      - name: Documentation checks
+        if: runner.os == 'Linux'
+        shell: bash
+        run: python3 docs/tests/test_documentation.py
       - name: Backend build and every test project (without samples)
         env:
           SAVETOOLKIT_TEST_TEMP: ${{ runner.temp }}/savetoolkit-tests
