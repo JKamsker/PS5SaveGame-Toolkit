@@ -8,7 +8,7 @@ Run a complete tracked-source report from the repository root:
 python -B scripts/check_csharp_size.py --all
 ```
 
-The report reads committed `HEAD` blobs and prints every warning, approved legacy exception and hard-limit error. Add `--report-only` when inspecting existing debt without making the command fail. Generated files are excluded only by the explicit `generatedGlobs` entries in [.csharp-size-policy.json](../.csharp-size-policy.json); do not add a broad catch-all to hide source.
+The report reads the committed `HEAD` tree and blobs, independent of staged additions, deletions or renames. Add `--report-only` when inspecting existing debt without making the command fail. Generated files are excluded only by explicit `generatedGlobs` entries in [.csharp-size-policy.json](../.csharp-size-policy.json). Entries must use a repository-relative generated directory prefix such as `generated/**/*.cs` or `src/Generated/**/*.cs`; the `**` means zero or more directory levels, so both `generated/output.cs` and `generated/sub/output.cs` match. Root-wide or extension-only catchalls are rejected by the parser.
 
 ## Pull requests and staged work
 
@@ -20,7 +20,11 @@ The opt-in hook checks the Git index, so it examines exactly what will be commit
 ./scripts/install-hooks.ps1
 ```
 
-The installer writes only to the repository's active hook directory. If a pre-commit hook already exists, it moves that hook to a sibling `pre-commit.savetoolkit-original` file and runs it after the size guard. Review that local backup before removing it. The hook requires Python 3; CI remains the authoritative check.
+The installer writes only to the repository's active hook directory. If an unknown pre-commit hook already exists, it moves that hook to a sibling `pre-commit.savetoolkit-original` file and runs it after the size guard. Re-running the installer recognizes its own wrapper, refreshes it and leaves the reviewed backup untouched. An unknown target plus an existing backup is refused. Review that local backup before removing it. The hook requires Python 3; CI remains the authoritative check.
+
+When no `--policy` override is supplied, staged mode reads `.csharp-size-policy.json` from the
+index and changed/full modes read it from `HEAD`, matching the source object used for C# content.
+An explicit `--policy` path intentionally opts into a filesystem policy override.
 
 ## Legacy files
 

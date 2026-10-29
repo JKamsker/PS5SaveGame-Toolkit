@@ -23,8 +23,16 @@ $target = Join-Path $hookDirectory 'pre-commit'
 $original = Join-Path $hookDirectory 'pre-commit.savetoolkit-original'
 if (!(Test-Path -LiteralPath $source -PathType Leaf)) { throw "Missing checked-in hook: $source" }
 
-if ((Test-Path -LiteralPath $target -PathType Leaf) -and
-    ([IO.Path]::GetFullPath($target) -ne [IO.Path]::GetFullPath($source))) {
+function Test-ToolkitWrapper([string]$path) {
+    if (!(Test-Path -LiteralPath $path -PathType Leaf)) { return $false }
+    $content = Get-Content -LiteralPath $path -Raw
+    return $content.Contains('Optional repository hook installed by scripts/install-hooks.ps1.') -and
+        $content.Contains('check_csharp_size.py')
+}
+
+$targetExists = Test-Path -LiteralPath $target -PathType Leaf
+$targetIsWrapper = Test-ToolkitWrapper $target
+if ($targetExists -and !$targetIsWrapper) {
     if (Test-Path -LiteralPath $original -PathType Leaf) {
         throw "An existing chained hook is already present at '$original'; remove it only after reviewing it."
     }
@@ -34,8 +42,11 @@ if ((Test-Path -LiteralPath $target -PathType Leaf) -and
 }
 if ($PSCmdlet.ShouldProcess($target, 'install C# size pre-commit hook')) {
     Copy-Item -LiteralPath $source -Destination $target -Force
+    Write-Host "Installed staged C# size guard in $target"
 }
-Write-Host "Installed staged C# size guard in $target"
+else {
+    Write-Host "What if: would install staged C# size guard in $target"
+}
 if (Test-Path -LiteralPath $original -PathType Leaf) {
     Write-Host "Preserved existing hook chain at $original"
 }

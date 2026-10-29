@@ -25,7 +25,7 @@ fi
 # The installer moves an existing hook beside this wrapper so it remains part of the chain.
 original_hook="$(dirname "$0")/pre-commit.savetoolkit-original"
 if [ -f "$original_hook" ]; then
-  "$original_hook"
+  "$original_hook" "$@"
   exit $?
 fi
 exit 0

@@ -7,12 +7,12 @@ keeps hooks and detached-checkout CI deterministic and makes path handling Git's
 from __future__ import annotations
 
 import argparse
-import fnmatch
 import json
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Iterable, Sequence
 
 
@@ -46,16 +46,24 @@ class GuardError(RuntimeError):
 
 
 def _normalise_path(path: str) -> str:
-    return path.replace("\\", "/").lstrip("./")
+    normalised = path.replace("\\", "/")
+    while normalised.startswith("./"):
+        normalised = normalised[2:]
+    return normalised
 
 
 def load_policy(path: Path) -> Policy:
     try:
-        raw = json.loads(path.read_text(encoding="utf-8-sig"))
+        return load_policy_bytes(path.read_bytes(), str(path))
     except OSError as error:
         raise GuardError(f"Cannot read policy {path}: {error}") from error
-    except json.JSONDecodeError as error:
-        raise GuardError(f"Policy {path} is not valid JSON: {error}") from error
+
+
+def load_policy_bytes(content: bytes, source: str) -> Policy:
+    try:
+        raw = json.loads(content.decode("utf-8-sig"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise GuardError(f"Policy {source} is not valid UTF-8 JSON: {error}") from error
     if not isinstance(raw, dict):
         raise GuardError("C# size policy must be a JSON object")
 
@@ -64,6 +72,12 @@ def load_policy(path: Path) -> Policy:
     if warning >= error:
         raise GuardError("warningLines must be smaller than errorLines")
     generated = _string_list(raw.get("generatedGlobs", []), "generatedGlobs")
+    for pattern in generated:
+        if not _is_narrow_generated_glob(pattern):
+            raise GuardError(
+                f"generatedGlobs entry '{pattern}' must be a repository-relative generated "
+                "directory pattern such as 'src/Generated/**/*.cs'"
+            )
 
     exemptions_raw = raw.get("legacyExemptions", [])
     if not isinstance(exemptions_raw, list):
@@ -89,6 +103,18 @@ def load_policy(path: Path) -> Policy:
             )
         exemptions[normalised] = LegacyExemption(normalised, max_lines, reason.strip())
     return Policy(warning, error, tuple(generated), exemptions)
+
+
+_GENERATED_GLOB = re.compile(
+    r"^(?P<prefix>(?:[A-Za-z0-9_.-]+/)*[Gg]enerated)/\*\*/\*\.cs$"
+)
+
+
+def _is_narrow_generated_glob(pattern: str) -> bool:
+    """Only allow explicit generated-directory prefixes; reject root-wide catchalls."""
+    if pattern.startswith("/") or ".." in pattern.split("/"):
+        return False
+    return _GENERATED_GLOB.fullmatch(pattern) is not None
 
 
 def _positive_int(value: object, name: str) -> int:
@@ -163,8 +189,9 @@ def changed_paths(root: Path, base: str) -> list[str]:
 
 
 def tracked_paths(root: Path) -> list[str]:
-    data = run_git(root, ["ls-files", "-z", "--", "*.cs"])
-    return [field.decode("utf-8", errors="surrogateescape") for field in data.split(b"\0") if field]
+    data = run_git(root, ["ls-tree", "-r", "-z", "--name-only", "HEAD"])
+    return [field.decode("utf-8", errors="surrogateescape")
+            for field in data.split(b"\0") if field and field.lower().endswith(b".cs")]
 
 
 def read_blob(root: Path, path: str, *, staged: bool) -> bytes:
@@ -216,8 +243,7 @@ def is_csharp(path: str) -> bool:
 
 def is_generated(path: str, policy: Policy) -> bool:
     normalised = _normalise_path(path)
-    candidate = PurePosixPath(normalised)
-    return any(fnmatch.fnmatchcase(normalised, pattern) or candidate.match(pattern)
+    return any(normalised.startswith(pattern[:-len("/**/*.cs")] + "/")
                for pattern in policy.generated_globs)
 
 
@@ -290,9 +316,13 @@ def main(arguments: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(arguments)
     root = (args.root or Path(__file__).resolve().parents[1]).resolve()
-    policy_path = (args.policy or root / ".csharp-size-policy.json").resolve()
     try:
-        policy = load_policy(policy_path)
+        if args.policy is not None:
+            policy = load_policy(args.policy.resolve())
+        else:
+            policy_object = ":.csharp-size-policy.json" if args.staged else "HEAD:.csharp-size-policy.json"
+            policy_source = "staged index" if args.staged else "HEAD"
+            policy = load_policy_bytes(run_git(root, ["show", policy_object]), policy_source)
         if args.staged:
             blobs = collect_blobs(root, staged_paths(root), policy, staged=True)
         elif args.changed:
