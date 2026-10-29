@@ -36,7 +36,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree, IRefe
         {
             new("Overview", [
                 new StatsNode([new Stat("Imported bytes", file.Length.ToString()), new Stat("Values", _tree.Nodes.Count.ToString())]),
-                new TextNode("Generic JSON workbench. Raw edits and explicit scalar type choices do not establish game compatibility.") { Tone = Tone.Warning },
+                new TextNode(JsonWriteWarnings.Raw + " Generic JSON workbench. Raw edits and explicit scalar type choices do not establish game compatibility.") { Tone = Tone.Warning },
                 new TextNode("The Changes panel compares all exposed fields with the original, including collapsed content. Child-order fields describe structure; use undo for additions, removals and reordering. Framework resource limits can make review incomplete."),
                 JsonResetActions.View(),
                 JsonInspection.View(),
@@ -113,7 +113,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree, IRefe
             return edited with { Warnings = fresh.Warnings, StructureChanged = edited.Succeeded };
         }
         if (actionId == JsonResetActions.ActionId)
-            return ApplyEdits(fresh.Changes.Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray());
+            return ApplyEdits(fresh.Changes.Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray()) with { Warnings = fresh.Warnings };
         var result = Structural(() =>
         {
             JsonStructureActions.Mutate(_tree, actionId, parameters);
@@ -161,7 +161,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree, IRefe
             spec.ReadOnly ? null : value => node.Current = value, node.Validate) with
         {
             Confidence = Confidence.Unknown,
-            Warning = node.Warning ?? "Game-specific constraints and dependencies are unknown.",
+            Warning = node.Warning is null ? JsonWriteWarnings.Raw : JsonWriteWarnings.Raw + " " + node.Warning,
             Description = $"{JsonPaths.ForNode(node)}; session identity {node.ValueId}. Source UTF-8 token at 0x{node.Offset:X}. "
                 + "Explicit type changes affect JSON syntax only; game compatibility is unknown.",
         };

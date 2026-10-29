@@ -10,7 +10,8 @@ namespace SaveToolkit.Plugins.GenericJson;
 
 internal static class JsonStructureActions
 {
-    internal const string SafetyWarning = "Advanced JSON syntax edit. Membership, names and order may have game-specific dependencies; console acceptance is unknown. Templates describe JSON types, not a validated game schema.";
+    internal const string SafetyWarning = JsonWriteWarnings.Raw
+        + " Advanced JSON syntax edit. Membership, names and order may have game-specific dependencies; console acceptance is unknown. Templates describe JSON types, not a validated game schema.";
     private const int DisplayedIds = 64;
 
     public static string StructureId(JsonValueToken node) => $"structure/{node.Index}";

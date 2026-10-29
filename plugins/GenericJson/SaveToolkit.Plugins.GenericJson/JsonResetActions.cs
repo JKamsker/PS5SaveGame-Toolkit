@@ -11,7 +11,7 @@ internal static class JsonResetActions
     public static ActionNode View() => new(ActionId, "Reset existing values to imported values")
     {
         SupportsPlanning = true,
-        Description = "Preview original/current values, then reset as one undo step. Search selections can cover all matching rows. "
+        Description = JsonWriteWarnings.Raw + " Preview original/current values, then reset as one undo step. Search selections can cover all matching rows. "
             + "New entries are skipped; removed entries and order require structural undo. This restores the imported file, not game defaults.",
     };
 
@@ -37,6 +37,6 @@ internal static class JsonResetActions
             if (changes.Count + skipped.Count > MaxChanges)
                 return new() { Errors = [new(ActionId, "Reset affects too many fields; narrow the selection to at most 5,000.")] };
         }
-        return new() { Changes = changes, SkippedRows = skipped };
+        return new() { Changes = changes, SkippedRows = skipped, Warnings = [JsonWriteWarnings.Raw] };
     }
 }
