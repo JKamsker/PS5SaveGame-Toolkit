@@ -10,6 +10,7 @@ namespace SaveToolkit.Plugins.Pragmata.Views;
 /// <summary>Pages large inventories and publishes primary bindings through normal F8 queries.</summary>
 internal sealed class InventoryCollections(PragmataDocument document)
 {
+    private readonly CollectionIndex<Row> _index = new();
     internal const string CollectionId = "inventory/items";
     internal const string Title = "Stored inventory records";
     internal const string NativeArrayDescription = "Stored records from the native _InventoryItems array.";
@@ -38,8 +39,22 @@ internal sealed class InventoryCollections(PragmataDocument document)
     {
         if (!Enabled) throw new KeyNotFoundException("This inventory uses an eager table.");
         CollectionQueries.Validate(query, Columns);
+        var filtered = _index.Match(query, DescribeAll, Select);
+        var page = filtered.Skip(query.Offset).Take(query.Limit).Select(row => InventoryView.Row(document, row.Node)).ToArray();
+        return new QueryableCollectionPage(CollectionId, Columns, page, document.Layout.Items.Count,
+            filtered.Length, query.Offset, query.Limit);
+    }
+
+    public void Invalidate() => _index.Invalidate();
+
+    private Row[] DescribeAll()
+    {
         var equipped = document.Read(document.Layout.Inventory!.Find(KnownHashes.EquippedItem)!).AsUInt32();
-        var rows = document.Layout.Items.Select(item => Describe(item, equipped));
+        return document.Layout.Items.Select(item => Describe(item, equipped)).ToArray();
+    }
+
+    private static IEnumerable<Row> Select(IEnumerable<Row> rows, QueryableCollectionQuery query)
+    {
         if (!string.IsNullOrWhiteSpace(query.Text))
             rows = rows.Where(row => row.Search.Contains(query.Text, StringComparison.OrdinalIgnoreCase));
         foreach (var (column, value) in query.Filters)
@@ -51,10 +66,7 @@ internal sealed class InventoryCollections(PragmataDocument document)
         else
             ordered = query.Descending ? rows.OrderByDescending(row => row.Cell(sort), StringComparer.Ordinal)
                 : rows.OrderBy(row => row.Cell(sort), StringComparer.Ordinal);
-        var filtered = ordered.ThenBy(row => row.Key, StringComparer.Ordinal).ToArray();
-        var page = filtered.Skip(query.Offset).Take(query.Limit).Select(row => InventoryView.Row(document, row.Node)).ToArray();
-        return new QueryableCollectionPage(CollectionId, Columns, page, document.Layout.Items.Count,
-            filtered.Length, query.Offset, query.Limit);
+        return ordered.ThenBy(row => row.Key, StringComparer.Ordinal);
     }
 
     private Row Describe(SaveNode item, uint equipped)
@@ -68,10 +80,12 @@ internal sealed class InventoryCollections(PragmataDocument document)
 
     private sealed record Row(SaveNode Node, string Key, string Id, string Name, string Category, int Quantity, string Equipped)
     {
-        public string Search => $"{Id} {Name} {Category} {Quantity.ToString(CultureInfo.InvariantCulture)} {Equipped}";
+        private string? _search;
+        private string QuantityText { get; } = Quantity.ToString(CultureInfo.InvariantCulture);
+        public string Search => _search ??= $"{Id} {Name} {Category} {QuantityText} {Equipped}";
         public string Cell(string column) => column switch
         {
-            "id" => Id, "name" => Name, "category" => Category, "quantity" => Quantity.ToString(CultureInfo.InvariantCulture),
+            "id" => Id, "name" => Name, "category" => Category, "quantity" => QuantityText,
             "equipped" => Equipped, "details" or "action" => "", _ => throw new ArgumentException("Unknown inventory column."),
         };
     }

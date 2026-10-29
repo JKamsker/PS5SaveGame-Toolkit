@@ -137,6 +137,8 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
                 PrimitiveCodec.Write(node, staged, value);
         }
         _plaintext = staged;
+        InventoryRows.Invalidate();
+        Evidence.Invalidate();
         return new EditOutcome { Changes = changes, Warnings = [EditWarning], StructureChanged = true };
     }
 
