@@ -88,7 +88,7 @@ public sealed class TsushimaSpatialViewTests
     }
 
     [Fact]
-    public void WorldPublishesExternalLinkOnlyUnknownCollectibleMapAndRowTargets()
+    public void WorldPublishesAttributedIslandArtworkWithUnpositionedUnknownCollectibles()
     {
         var plugin = new SuckerPunchPlugin();
         using var document = plugin.Open(Slot("suckerpunchUser1"),
@@ -99,7 +99,11 @@ public sealed class TsushimaSpatialViewTests
 
         SpatialViewValidation.Validate(map);
         Assert.Equal(17, map.Markers.Count);
-        Assert.Null(map.Background);
+        var background = Assert.IsType<MapBackground>(map.Background);
+        Assert.True(background.EmbeddingPermitted);
+        Assert.Equal("suckerpunch.tsushima:maps/tsushima.webp", background.AssetId);
+        Assert.Contains("owner decision 2026-10-29", background.Attribution.License);
+        Assert.Equal(new MapBounds(0, 0, 1152, 2048), map.Bounds);
         Assert.False(map.CoordinateEmbeddingPermitted);
         Assert.NotNull(map.ExternalSource);
         Assert.All(map.Markers, marker =>
@@ -114,5 +118,6 @@ public sealed class TsushimaSpatialViewTests
             Assert.NotNull(marker.ExternalLink);
         });
         Assert.Contains("Coordinates", map.TextAlternative, StringComparison.Ordinal);
+        Assert.Contains("alignment is unverified", map.TextAlternative, StringComparison.Ordinal);
     }
 }

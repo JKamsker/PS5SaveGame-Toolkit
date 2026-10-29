@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "id": "suckerpunch.tsushima",
-  "version": "2.0.0",
-  "title": "Ghost of Tsushima attributed names and reference guides",
+  "version": "3.0.0",
+  "title": "Ghost of Tsushima attributed names, game imagery and reference guides",
   "description": "Evidence-qualified save-ID labels plus unjoined wiki guides. Guide keys are wiki identities, never save IDs or selectable replacements.",
   "plugins": [
     "suckerpunch"
@@ -37,7 +37,7 @@
       "files": [
         {
           "path": "equipment.json",
-          "sha256": "849e40efd4deef10e43a94ce550f4f921d8c4dd58a74977d3cc33cd105f49960"
+          "sha256": "accde4d50db4e6dce867033851aa11af90300ceb2b58b921c90362e7f977ff07"
         }
       ],
       "attribution": {
@@ -45,8 +45,8 @@
         "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "retrieved": "2026-10-28",
-        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
+        "retrieved": "2026-10-29",
+        "modifications": "Extracted wiki names and evidence-qualified mappings; transcribed game effect/flavor descriptions from pinned wiki revisions, omitted button instructions and retained existing factual acquisition summaries, normalized markup/spacing, and linked local icons. Wiki adaptations retain CC BY-SA 3.0; quoted game text is credited to Sony Interactive Entertainment / Sucker Punch Productions under owner decision 2026-10-29. No saved-state or capacity inference added."
       }
     },
     {
@@ -56,7 +56,7 @@
       "files": [
         {
           "path": "techniques.json",
-          "sha256": "ab80e9e851923dd4f625b8432bcfc7f1e2f78f71e890abe9e391888364619b0d"
+          "sha256": "5cc0808ec2b96526f790a825ca75f2709a8272eea0ca1782a79f1a8752cd3a8f"
         }
       ],
       "attribution": {
@@ -64,8 +64,8 @@
         "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "retrieved": "2026-10-28",
-        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
+        "retrieved": "2026-10-29",
+        "modifications": "Extracted wiki names and evidence-qualified mappings; transcribed game effect/flavor descriptions from pinned wiki revisions, omitted button instructions and retained existing factual acquisition summaries, normalized markup/spacing, and linked local icons. Wiki adaptations retain CC BY-SA 3.0; quoted game text is credited to Sony Interactive Entertainment / Sucker Punch Productions under owner decision 2026-10-29. No saved-state or capacity inference added."
       }
     },
     {
@@ -94,7 +94,7 @@
       "files": [
         {
           "path": "charms-guide.json",
-          "sha256": "b1b2faa655289225911af7425b1b14242c57ccd3e9516d487c512af52953e468"
+          "sha256": "b7079b4e269f5f1355582b6174f4c87653c94ba55bfb579dbe4d215b9ac8d2af"
         }
       ],
       "attribution": {
@@ -102,8 +102,8 @@
         "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "retrieved": "2026-10-28",
-        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
+        "retrieved": "2026-10-29",
+        "modifications": "Extracted wiki names and evidence-qualified mappings; transcribed game effect/flavor descriptions from pinned wiki revisions, omitted button instructions and retained existing factual acquisition summaries, normalized markup/spacing, and linked local icons. Wiki adaptations retain CC BY-SA 3.0; quoted game text is credited to Sony Interactive Entertainment / Sucker Punch Productions under owner decision 2026-10-29. No saved-state or capacity inference added."
       }
     },
     {
@@ -113,7 +113,7 @@
       "files": [
         {
           "path": "armor-guide.json",
-          "sha256": "4146eb8b9fefcd07b707c5fe432e339cc4869b49db51f130d9406e507200b729"
+          "sha256": "57f894cf0bd35f4fc25ea93c87dea7236dab191b6275de8a654ec2eeefc76143"
         }
       ],
       "attribution": {
@@ -121,8 +121,8 @@
         "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "retrieved": "2026-10-28",
-        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
+        "retrieved": "2026-10-29",
+        "modifications": "Extracted wiki names and evidence-qualified mappings; transcribed game effect/flavor descriptions from pinned wiki revisions, omitted button instructions and retained existing factual acquisition summaries, normalized markup/spacing, and linked local icons. Wiki adaptations retain CC BY-SA 3.0; quoted game text is credited to Sony Interactive Entertainment / Sucker Punch Productions under owner decision 2026-10-29. No saved-state or capacity inference added."
       }
     },
     {
@@ -132,7 +132,7 @@
       "files": [
         {
           "path": "sword-kits-guide.json",
-          "sha256": "c464518cd4d3279dffd1f4671e05f52be7cab3ae13e3cb8ab01ed0581ee2cb4d"
+          "sha256": "e45a521004c86025030b212bf18e774efe240bf21c2d324085774ccab0e30944"
         }
       ],
       "attribution": {
@@ -140,8 +140,8 @@
         "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "retrieved": "2026-10-28",
-        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
+        "retrieved": "2026-10-29",
+        "modifications": "Extracted wiki names and evidence-qualified mappings; transcribed game effect/flavor descriptions from pinned wiki revisions, omitted button instructions and retained existing factual acquisition summaries, normalized markup/spacing, and linked local icons. Wiki adaptations retain CC BY-SA 3.0; quoted game text is credited to Sony Interactive Entertainment / Sucker Punch Productions under owner decision 2026-10-29. No saved-state or capacity inference added."
       }
     },
     {
@@ -151,7 +151,7 @@
       "files": [
         {
           "path": "techniques-guide.json",
-          "sha256": "696c21db52e77366cd32a717b92162864851b74c80905008ba0d4a0591c6f60b"
+          "sha256": "22e74751f3382c2bb6d138d9a9a9249e58e297474c420af8705aa66a87cf0b13"
         }
       ],
       "attribution": {
@@ -159,8 +159,8 @@
         "author": "Ghost Franchise Wiki contributors; save-ID evidence by PS5 Save Game Toolkit contributors",
         "license": "CC-BY-SA-3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "retrieved": "2026-10-28",
-        "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
+        "retrieved": "2026-10-29",
+        "modifications": "Extracted wiki names and evidence-qualified mappings; transcribed game effect/flavor descriptions from pinned wiki revisions, omitted button instructions and retained existing factual acquisition summaries, normalized markup/spacing, and linked local icons. Wiki adaptations retain CC BY-SA 3.0; quoted game text is credited to Sony Interactive Entertainment / Sucker Punch Productions under owner decision 2026-10-29. No saved-state or capacity inference added."
       }
     },
     {
@@ -180,6 +180,494 @@
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "retrieved": "2026-10-28",
         "modifications": "Extracted Tsushima names/categories and gameplay facts; shortened descriptions and acquisition information; omitted images and quoted game flavor text. Added original sample-derived raw IDs and explicit mapping evidence where applicable. Derived data remains CC BY-SA 3.0."
+      }
+    },
+    {
+      "id": "suckerpunch_techniques_art",
+      "kind": "assets",
+      "title": "Techniques game icons and thumbnails",
+      "files": [
+        {
+          "path": "icons/0a6455e59613c1b0e9f6.png",
+          "sha256": "0a6455e59613c1b0e9f639341ab2c29e2197d42dede4c3779ab718c6951a1018"
+        },
+        {
+          "path": "icons/0ea04ce9786d0c26c141.webp",
+          "sha256": "0ea04ce9786d0c26c14110f988c184b3b541f90fa2a21a2feeaa8ed5a4ce3688"
+        },
+        {
+          "path": "icons/176d9c51bdca22af8b9d.png",
+          "sha256": "176d9c51bdca22af8b9d2f54ba657d6a51e24b9ad9d3ba0b97975ae03ca9756d"
+        },
+        {
+          "path": "icons/2da7409eb7920cad4499.png",
+          "sha256": "2da7409eb7920cad4499db85a7bed90aaa44e7bc4360d76cb9644d3f8306ac30"
+        },
+        {
+          "path": "icons/2e570ebc494369c0dd35.png",
+          "sha256": "2e570ebc494369c0dd356ec9d259c2d2f9b1ff02bf60c42599a45d9b1765b73e"
+        },
+        {
+          "path": "icons/2ef55bfb83cb5eeea323.webp",
+          "sha256": "2ef55bfb83cb5eeea323e899eee78780632c875468d1a8e339e38f2b773d9833"
+        },
+        {
+          "path": "icons/344e37c760eb30cd3f9a.png",
+          "sha256": "344e37c760eb30cd3f9afa38be1edeac3977ff7dc41f73654949dfd8a6efbc51"
+        },
+        {
+          "path": "icons/4b6bfb297b7d319c8d78.png",
+          "sha256": "4b6bfb297b7d319c8d783ee6d0694d8b936143d0353a177cf637f4c9ef5aa20b"
+        },
+        {
+          "path": "icons/4c6e84d2e08dda8b9f7d.webp",
+          "sha256": "4c6e84d2e08dda8b9f7d8657bc5a138cc4c0e3d2c5d319e75ef142854f6a78cc"
+        },
+        {
+          "path": "icons/5f5fc8e35b97d528d0b6.png",
+          "sha256": "5f5fc8e35b97d528d0b6f6d16a45cc8c64cc32392e427d184e8fcc1a6f673128"
+        },
+        {
+          "path": "icons/672f04261fe396ba008d.png",
+          "sha256": "672f04261fe396ba008dc6f9b7cf1702d94b7689d5d23a0da29cfc1332bb5ef6"
+        },
+        {
+          "path": "icons/6afcb3ee2e1f76aef93d.webp",
+          "sha256": "6afcb3ee2e1f76aef93d198f5ffc76be837c23262f35553b436cc45eeabc3a20"
+        },
+        {
+          "path": "icons/8a5b0541eee256de725a.webp",
+          "sha256": "8a5b0541eee256de725a12e693354418111e970b642c111f16f847f412dc8c04"
+        },
+        {
+          "path": "icons/b71b2ace5015e1f7b413.png",
+          "sha256": "b71b2ace5015e1f7b413beb0b9c3797a002ce3ae0deaa8d6966dd28128b43bda"
+        },
+        {
+          "path": "icons/d8e455d08fc7f0528ddf.png",
+          "sha256": "d8e455d08fc7f0528ddfc2d24f5aa3d4ef4feb3124ff152b747c30a6c093265c"
+        },
+        {
+          "path": "icons/f47559d33548b0171c32.png",
+          "sha256": "f47559d33548b0171c321948728b057f9fc06c0c00a054e06f7c401a7c60224d"
+        },
+        {
+          "path": "icons/f7605f17f47fdd44e68d.webp",
+          "sha256": "f7605f17f47fdd44e68d1ced380c48f7b032dc71fc3e8a14682ac88d6347c6fc"
+        },
+        {
+          "path": "icons/f8bb1fb00620458f1bf6.webp",
+          "sha256": "f8bb1fb00620458f1bf6c90812f85df90ed2e8473eb4ed8303ba2bef66252be3"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+        "author": "Sony Interactive Entertainment / Sucker Punch Productions; hosted by Ghost Franchise Wiki contributors",
+        "license": "Rights reserved by SIE; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271",
+        "retrieved": "2026-10-29",
+        "modifications": "Resized to at most 64x64; selected smaller WebP or PNG-8, deduplicated identical encoded bytes. Armor and sword kits use reference appearance thumbnails. Minor charms and major charms without individual art use game category symbols; see assets.source.md for every file/source binding."
+      }
+    },
+    {
+      "id": "suckerpunch_charms_art",
+      "kind": "assets",
+      "title": "Charms game icons and thumbnails",
+      "files": [
+        {
+          "path": "icons/06feaf7cfe37521e8679.png",
+          "sha256": "06feaf7cfe37521e867933fec1dec7ea079f337444188bfe5cba541d87c7e4f7"
+        },
+        {
+          "path": "icons/10056ef9556880de9837.png",
+          "sha256": "10056ef9556880de983753f16085a40f79d2d5e6c9f3b7c7658d7af58228deec"
+        },
+        {
+          "path": "icons/1c604a84f8ecc6fafd93.png",
+          "sha256": "1c604a84f8ecc6fafd93b73488fbff9c38cd36f461d698045299927e38e3be1e"
+        },
+        {
+          "path": "icons/1c95832752dd539e328c.png",
+          "sha256": "1c95832752dd539e328c748988218bfc8e44ca546fb7c323c818ef6a818531b1"
+        },
+        {
+          "path": "icons/20370dba7806dc7e1d88.png",
+          "sha256": "20370dba7806dc7e1d88b9e2a16311e67008eb40b243768004c0d5e24773f0bf"
+        },
+        {
+          "path": "icons/22f9adf70cc05e07c509.png",
+          "sha256": "22f9adf70cc05e07c509915307c6f8b3811204b1a853995060456cbd1bbebe95"
+        },
+        {
+          "path": "icons/23aece3989b1dfc587a9.png",
+          "sha256": "23aece3989b1dfc587a9b7190fcf8a93ae4e728684e03fa73718f1d01704e360"
+        },
+        {
+          "path": "icons/3481fad0db1b1d7812d1.png",
+          "sha256": "3481fad0db1b1d7812d1186aef7a9478e67c6491c535eaf09435807778fda2e1"
+        },
+        {
+          "path": "icons/3f547ec5d84999571f84.png",
+          "sha256": "3f547ec5d84999571f84d420aeb076c0d81e3daab7967b86fd0a09b826e698a4"
+        },
+        {
+          "path": "icons/3ffeb6cc60aa170a437f.png",
+          "sha256": "3ffeb6cc60aa170a437fca020200b0ab43aaea28b265abb1e50c3c97d5e4c47e"
+        },
+        {
+          "path": "icons/44a42bd9b6eda3d54ca1.png",
+          "sha256": "44a42bd9b6eda3d54ca1173851c2b592244921095506ad5d5ba8d8d1760fa5ce"
+        },
+        {
+          "path": "icons/6e5f4a83eba56b51bce5.png",
+          "sha256": "6e5f4a83eba56b51bce5f8a4332809bdbe2fb48d38668214aaf965f4d1cb4dad"
+        },
+        {
+          "path": "icons/78322d84aa487fd56ceb.png",
+          "sha256": "78322d84aa487fd56ceb8bd128829e64b0f792944fddea94b195c7b2b4c6bb89"
+        },
+        {
+          "path": "icons/81655a98b136c0d4ba9f.png",
+          "sha256": "81655a98b136c0d4ba9f8b90f7429b21740267f0f881934bc05708c060376a73"
+        },
+        {
+          "path": "icons/81816abc8252a09681d5.png",
+          "sha256": "81816abc8252a09681d5a8826d3dab57e92f6efa8f45465c7a2e5d9c28b6d575"
+        },
+        {
+          "path": "icons/852e8610d61bd0fb9f64.png",
+          "sha256": "852e8610d61bd0fb9f64328367abd6f1f254060c6dfbd03d67f436ab0ea82cd2"
+        },
+        {
+          "path": "icons/8c0a4dda2be407be7547.webp",
+          "sha256": "8c0a4dda2be407be7547c9cbf8c2b5bab75542d09320b91ff4af785c930271fe"
+        },
+        {
+          "path": "icons/8e3d4168bb786bbdfcb6.png",
+          "sha256": "8e3d4168bb786bbdfcb6bd41192ce5b46974038da99c42212434e0882ac79ac7"
+        },
+        {
+          "path": "icons/9a8f144b57d239a44389.png",
+          "sha256": "9a8f144b57d239a44389cfad02bb5966bc291b581f9147ffdebeaa30a44acfd3"
+        },
+        {
+          "path": "icons/9a9c3e947d211fea743b.png",
+          "sha256": "9a9c3e947d211fea743b3fe68962c044bc481abf9fa502d8721981c221ec6cfa"
+        },
+        {
+          "path": "icons/a08d431c6a48795a7a23.png",
+          "sha256": "a08d431c6a48795a7a23168f00faa2de70577d6df82ff12736939f0353e68c2b"
+        },
+        {
+          "path": "icons/a1f19450d6c109851061.png",
+          "sha256": "a1f19450d6c1098510619ad69d8a5028314bb2305eda61b890f6db2cc8d4a166"
+        },
+        {
+          "path": "icons/a38adedde50f84aadf22.png",
+          "sha256": "a38adedde50f84aadf22fac6be227639b92eb0da2aa1abe71c84df09a6cf39d6"
+        },
+        {
+          "path": "icons/b5b8f5ca48004c31f1e3.png",
+          "sha256": "b5b8f5ca48004c31f1e339201475e2cbbc5ee61f14c3108ddc36fdc2e50527ae"
+        },
+        {
+          "path": "icons/c68648d1ef9920653c67.png",
+          "sha256": "c68648d1ef9920653c67e07cb826b7fd098e8ce52c386d69f1642cb070d07bd5"
+        },
+        {
+          "path": "icons/dd721637c1f585d9bb97.png",
+          "sha256": "dd721637c1f585d9bb97907e77d7a6b175a7b4a51be41801534c8a8d2223819a"
+        },
+        {
+          "path": "icons/e0df38c8ae448076c85f.png",
+          "sha256": "e0df38c8ae448076c85f60ba99dddb2bac2f3c5d3f46d2522a7a328cdf455265"
+        },
+        {
+          "path": "icons/e71275bf2e07825c56f0.png",
+          "sha256": "e71275bf2e07825c56f0aba86d6e31af6e73a7ba55e91d50236c61900acd4d03"
+        },
+        {
+          "path": "icons/eada5be38a6b59c8c4d1.png",
+          "sha256": "eada5be38a6b59c8c4d15bb33ae939959a75ef3dba17ffd26c608efa3d1ff929"
+        },
+        {
+          "path": "icons/f1322008bc61d6965766.png",
+          "sha256": "f1322008bc61d6965766161e9b59aeb83118dc7a83e0e670c8c051a5c04817cb"
+        },
+        {
+          "path": "icons/f181caabd61c99425488.png",
+          "sha256": "f181caabd61c99425488dbb2fd815a6ae387d7d6c96297134f99c5bb6d0bbbb6"
+        },
+        {
+          "path": "icons/f4f273555d8a19426736.png",
+          "sha256": "f4f273555d8a194267363409bd5bf410ad746a16e5c71c3b8316526f7472e85f"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+        "author": "Sony Interactive Entertainment / Sucker Punch Productions; hosted by Ghost Franchise Wiki contributors",
+        "license": "Rights reserved by SIE; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085",
+        "retrieved": "2026-10-29",
+        "modifications": "Resized to at most 64x64; selected smaller WebP or PNG-8, deduplicated identical encoded bytes. Armor and sword kits use reference appearance thumbnails. Minor charms and major charms without individual art use game category symbols; see assets.source.md for every file/source binding."
+      }
+    },
+    {
+      "id": "suckerpunch_gear_art",
+      "kind": "assets",
+      "title": "Gear game icons and thumbnails",
+      "files": [
+        {
+          "path": "icons/0c2d0fb37e94663c0216.webp",
+          "sha256": "0c2d0fb37e94663c0216ce4b4d285f0fd2f76dfc5fe25b10a17aeaf26901a833"
+        },
+        {
+          "path": "icons/189e3c686764803b0cb2.webp",
+          "sha256": "189e3c686764803b0cb256e3b1bb00f1d83f56e9504fab57513dabf28453022b"
+        },
+        {
+          "path": "icons/1cc9e5393b0606feca1a.webp",
+          "sha256": "1cc9e5393b0606feca1afad6c42b75ce1931fd7846a081de6a146b025a328d20"
+        },
+        {
+          "path": "icons/23b2fbfdb616e260f7c1.png",
+          "sha256": "23b2fbfdb616e260f7c1665db6b90134955b8f4a00a6cf4455a4d9f1768ef832"
+        },
+        {
+          "path": "icons/291a1938d5c6738fe6fe.webp",
+          "sha256": "291a1938d5c6738fe6fef9e6d57bd76e916298666bc1b6196801fecae9224cfc"
+        },
+        {
+          "path": "icons/2dd25fb50ad17269af4a.png",
+          "sha256": "2dd25fb50ad17269af4a07a4e68fce1da4b4569283228926b4b05a781ef9d7c6"
+        },
+        {
+          "path": "icons/34f9b120d8c203e0129f.png",
+          "sha256": "34f9b120d8c203e0129f491108458259462d0ac2d7554f406866f53476c3a5c6"
+        },
+        {
+          "path": "icons/35d4dab1fde0365ced97.webp",
+          "sha256": "35d4dab1fde0365ced972d99b95fe42e1c9509811abcc044a0699b40a6f52ab6"
+        },
+        {
+          "path": "icons/3836d2784613a8e73a81.webp",
+          "sha256": "3836d2784613a8e73a8131d96880fa4af555962ead21e07cce0f9b62469f5c14"
+        },
+        {
+          "path": "icons/38a23721f69911b06d7f.webp",
+          "sha256": "38a23721f69911b06d7ffc97b550a60880aa93a7e3d6e492dcf7aee8b26f40a0"
+        },
+        {
+          "path": "icons/40fdf8e12730b114c0f0.png",
+          "sha256": "40fdf8e12730b114c0f08ee239178b4373f2ab789f96cc2a63e00f99c4188d4c"
+        },
+        {
+          "path": "icons/442d5b46137574e7d9cf.webp",
+          "sha256": "442d5b46137574e7d9cf575c1babf87a8c34eef3171d3b25e2292aa26e15b182"
+        },
+        {
+          "path": "icons/44fac91b7e939d6d7909.webp",
+          "sha256": "44fac91b7e939d6d790989dbbda94ef69e5ba0a0098fea497b9bb846ac0e5756"
+        },
+        {
+          "path": "icons/47066a03491265335110.webp",
+          "sha256": "47066a034912653351105171a38aa6bca6e72e6da78e0ce5ddcfeff1c50133be"
+        },
+        {
+          "path": "icons/47a708a7676dbb64ffcb.webp",
+          "sha256": "47a708a7676dbb64ffcb6fb8dbe7e040dde53742981aea4649b6a95817a42005"
+        },
+        {
+          "path": "icons/48df302c6480932e3e2f.png",
+          "sha256": "48df302c6480932e3e2f4b083264364e1bdf88d6daf64a2cbef775c9daedca2c"
+        },
+        {
+          "path": "icons/4b5d9cfd09c1092e02fe.png",
+          "sha256": "4b5d9cfd09c1092e02fec53e8bc21a06081a6755bc93a44aaea60eeec6531ccc"
+        },
+        {
+          "path": "icons/551b088bbfaf513e5ad0.webp",
+          "sha256": "551b088bbfaf513e5ad0ceea710eb3586f72575f9765c50f64b768e1f9d5d78e"
+        },
+        {
+          "path": "icons/57e02df5155ca04396cc.webp",
+          "sha256": "57e02df5155ca04396cc5c8e552a7465c4086ae40cd71d2bae311a4e6408d223"
+        },
+        {
+          "path": "icons/5e7c728284c8c8bb33f5.webp",
+          "sha256": "5e7c728284c8c8bb33f5f07fbf04ebda8311da3035c2d713a42c66114486a86d"
+        },
+        {
+          "path": "icons/5ebd0b75fdd1e19fbd4c.webp",
+          "sha256": "5ebd0b75fdd1e19fbd4c0b860df746e316769638be1915a9f378187a5b8938bd"
+        },
+        {
+          "path": "icons/63302b5dd24659fe2c8b.png",
+          "sha256": "63302b5dd24659fe2c8b1a8d1bbb70221127e50d1a44b41bbbdde45844628244"
+        },
+        {
+          "path": "icons/65ee98d3f9e98d3a9ccf.webp",
+          "sha256": "65ee98d3f9e98d3a9ccfede23ee18784ae717a3e73d366613a1bec0b6397ed86"
+        },
+        {
+          "path": "icons/67674c214cb55259ed5c.webp",
+          "sha256": "67674c214cb55259ed5c1f38d700638a5dd58c46934bfa70e28b783d667c9447"
+        },
+        {
+          "path": "icons/6919998744d44df00682.webp",
+          "sha256": "6919998744d44df00682436e21be5565bfc1c3f7b5e9859415a472129bef57c8"
+        },
+        {
+          "path": "icons/6d70fdfa779774f124a8.png",
+          "sha256": "6d70fdfa779774f124a8fc57a0ea378630472df40b41cadc00068307669f2746"
+        },
+        {
+          "path": "icons/6e96f866dfffd626dd9f.png",
+          "sha256": "6e96f866dfffd626dd9feadfa008ff792ba24bf422db409cc986b90714ed5fdb"
+        },
+        {
+          "path": "icons/7b4a03e46b479a87c002.webp",
+          "sha256": "7b4a03e46b479a87c0028c02be2221d0799de480f25fec9213212f520a3d21c6"
+        },
+        {
+          "path": "icons/800264f1ec44b553c148.webp",
+          "sha256": "800264f1ec44b553c14888cfeb87763c2487d371cd311b2c7c0dd65d253a7aa1"
+        },
+        {
+          "path": "icons/8866198a8c15823bfcb5.webp",
+          "sha256": "8866198a8c15823bfcb5e68415f8cd8a3babcdf306c57b69d6bca630f148e7ae"
+        },
+        {
+          "path": "icons/8a514716ca5fdfd672a6.webp",
+          "sha256": "8a514716ca5fdfd672a6dbe70a99f8440e3ef0b3d2792199168a1d2381b5d5a0"
+        },
+        {
+          "path": "icons/8a671378bb5e72350ffd.webp",
+          "sha256": "8a671378bb5e72350ffdad6c397f1f188e7ea9fe0cc17f64a8fb8d2feaf30599"
+        },
+        {
+          "path": "icons/97400bc4b39729c56f9f.webp",
+          "sha256": "97400bc4b39729c56f9f4eec6fe408702b0a35184f245bb8fcccf63f60d556b5"
+        },
+        {
+          "path": "icons/99defab20a10736fbfd3.webp",
+          "sha256": "99defab20a10736fbfd3319584763f866aeac35cd977dd43c363ccdad988f979"
+        },
+        {
+          "path": "icons/9cee0e619ac2aa93733d.webp",
+          "sha256": "9cee0e619ac2aa93733d5c92c0682d4a5de07a7e4b78db93512c5a79aa01fc1b"
+        },
+        {
+          "path": "icons/aadaa10b16b7a06e9e64.webp",
+          "sha256": "aadaa10b16b7a06e9e6400300663480fd9aad9ac6493f609d852a5b051821e51"
+        },
+        {
+          "path": "icons/acfad174f1fbb1b35b31.webp",
+          "sha256": "acfad174f1fbb1b35b31906e801cf84adc030c25296fee97fe9f0fe89f55fcbe"
+        },
+        {
+          "path": "icons/addc91f335cc09307958.webp",
+          "sha256": "addc91f335cc0930795855f58af443d0d93eba144ae9b6d95ef6253076a34fc4"
+        },
+        {
+          "path": "icons/b0c92ff28ecae98080c4.webp",
+          "sha256": "b0c92ff28ecae98080c4bdb0f8189866c9a0dd6ac3f165eb17b8340cd16259c1"
+        },
+        {
+          "path": "icons/b3266611b34b5a8aa45b.webp",
+          "sha256": "b3266611b34b5a8aa45b591d3e87414e603b7bc254448dcb94befc1aca81e36a"
+        },
+        {
+          "path": "icons/b3f536fdaa63d36ed93b.webp",
+          "sha256": "b3f536fdaa63d36ed93b703f6f08eb2ae03dbca257856ebff5d197a393ba88c8"
+        },
+        {
+          "path": "icons/b729c18317accf9e6637.webp",
+          "sha256": "b729c18317accf9e66374f0d11fcdf4f5aa6fc4a0223e98f3040bd303683159f"
+        },
+        {
+          "path": "icons/b841a261fd4b002815d2.webp",
+          "sha256": "b841a261fd4b002815d2d37aa59446867f510a6e3e7879829561ac6369a3a3f9"
+        },
+        {
+          "path": "icons/beed9675b8d8ac220dd7.webp",
+          "sha256": "beed9675b8d8ac220dd7a9d1fe21be4daf0667457ecae9b61e97f00241045bf2"
+        },
+        {
+          "path": "icons/bf4a4696431fa804d6ea.png",
+          "sha256": "bf4a4696431fa804d6ea36d747a5cde89652af823fb327ccf11e34c75754241d"
+        },
+        {
+          "path": "icons/bfb11ff53126d862cf55.webp",
+          "sha256": "bfb11ff53126d862cf5580fc0204f347a38c16c728619732ba09b00a6438850d"
+        },
+        {
+          "path": "icons/c295a5c891013ded8fa1.webp",
+          "sha256": "c295a5c891013ded8fa16a586a52a3504c8187e7ecaa38c2c42536daf7e6ea93"
+        },
+        {
+          "path": "icons/c31e5489e979beee189e.webp",
+          "sha256": "c31e5489e979beee189e81685ba549e515516c92cd509e548b4023e04ec019c0"
+        },
+        {
+          "path": "icons/d0ee6e0f41d7e1948936.webp",
+          "sha256": "d0ee6e0f41d7e194893607495b470bcccd400dd980a660bdc1e8b5f80ed096b6"
+        },
+        {
+          "path": "icons/e7ce9b8749ca8793e6f6.webp",
+          "sha256": "e7ce9b8749ca8793e6f623e53b7be3cfa5b0ce40ccbff7131f7989c228e3627f"
+        },
+        {
+          "path": "icons/f0851cff852d1f8f0d96.png",
+          "sha256": "f0851cff852d1f8f0d96a95c42b603fe61bf92219d804a1d38d1570b1f96290a"
+        },
+        {
+          "path": "icons/f2fd14d28ab9f8690fb4.webp",
+          "sha256": "f2fd14d28ab9f8690fb48eb7e392a72f86fb381275c5d116640572df80e7aa51"
+        },
+        {
+          "path": "icons/f5b902b373d6f9fb13aa.webp",
+          "sha256": "f5b902b373d6f9fb13aa31ff1c0b2fde4442430f6a1e68cf3bf2c76f5c1ae315"
+        },
+        {
+          "path": "icons/f78720440c48104a891a.webp",
+          "sha256": "f78720440c48104a891a07583f10193a60d866c14774f9eddad9d5bf021fbf9e"
+        },
+        {
+          "path": "icons/f7a3157388879dc7f7b5.webp",
+          "sha256": "f7a3157388879dc7f7b58e82491beb947f354e3b531865325348db25dba4a6c6"
+        },
+        {
+          "path": "icons/fac1922bb368c9cca26a.png",
+          "sha256": "fac1922bb368c9cca26a80b956e42db7c508fa107769ff77210c3fad06a9bc5c"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+        "author": "Sony Interactive Entertainment / Sucker Punch Productions; hosted by Ghost Franchise Wiki contributors",
+        "license": "Rights reserved by SIE; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366",
+        "retrieved": "2026-10-29",
+        "modifications": "Resized to at most 64x64; selected smaller WebP or PNG-8, deduplicated identical encoded bytes. Armor and sword kits use reference appearance thumbnails. Minor charms and major charms without individual art use game category symbols; see assets.source.md for every file/source binding."
+      }
+    },
+    {
+      "id": "suckerpunch_map_art",
+      "kind": "assets",
+      "title": "Tsushima whole-island reference artwork",
+      "files": [
+        {
+          "path": "maps/tsushima.webp",
+          "sha256": "847cb74d02b198049e60f894fc74a1f2f27502fd325b314d65bb0eb8beb606fb"
+        }
+      ],
+      "attribution": {
+        "sourceUrl": "https://ghostfranchise.fandom.com/wiki/File:Map_of_Tsushima.png",
+        "author": "Sony Interactive Entertainment / Sucker Punch Productions; hosted by Ghost Franchise Wiki contributors",
+        "license": "Rights reserved by SIE; used with attribution per owner decision 2026-10-29",
+        "licenseUrl": "https://ghostfranchise.fandom.com/wiki/File:Map_of_Tsushima.png",
+        "retrieved": "2026-10-29",
+        "modifications": "Resized 2160x3840 to 1152x2048 without crop, rotation or projection; encoded WebP quality 78. Reference artwork only: shrine/save coordinate alignment is unverified, so markers remain unpositioned and the text list is retained."
       }
     }
   ],

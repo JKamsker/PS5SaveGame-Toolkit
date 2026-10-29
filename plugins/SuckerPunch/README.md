@@ -1,7 +1,7 @@
 # Sucker Punch save plugin (`suckerpunch`)
 
 Titles: **PPSA02225** (Ghost of Tsushima, Director's Cut) and **PPSA26344** (Ghost of Yōtei).
-Version 0.7.0 is **Experimental**: Tsushima inventory and play-time edits pass conformance and exact byte-difference
+Version 0.8.0 is **Experimental**: Tsushima inventory and play-time edits pass conformance and exact byte-difference
 tests, but have not been tested in-game. Yōtei documents remain **read-only**. No sample bytes,
 extracted saves, or third-party implementation code are included in this plugin.
 
@@ -81,10 +81,10 @@ Still disabled for structural safety, rather than pending console approval:
   eager table. Both retain Unknown ownership/state. Lazy reference guides cover resources, charms, armor,
   sword kits and techniques. The Techniques tab adds an F9 read-only `GraphNode` over observed identifiers;
   every item links back to its reference field, and no prerequisite edge is invented while the state is
-  unproven. The World tab adds an F9 external-link-first `MapNode` over 17 region-scoped Shinto shrine
-  references plus an eager text table for row navigation. It is a schematic list with no imported art or
-  coordinates: discovered/completed/rewarded state is Unknown for every entry, and the external PowerPyx
-  guide is link-only. Edits invalidate raw block snapshots. Guide views are capped at 200 rows and report
+  unproven. The World tab adds an F9 `MapNode` over 17 region-scoped Shinto shrine
+  references plus an eager text table for row navigation. It includes attributed whole-island artwork;
+  shrine alignment is unverified, so all markers stay unpositioned and the text list stays available.
+  Discovered/completed/rewarded state is Unknown for every entry. The external PowerPyx guide remains linked. Edits invalidate raw block snapshots. Guide views are capped at 200 rows and report
   truncation if a larger pack is used. Guide names are also read-only `ReferenceSpec` fields: their
   pickers browse the complete pinned catalog even when the eager guide page is capped. Guide tables
   use shared category sorting, while wiki IDs remain separate from saved IDs and cannot be committed.
@@ -97,14 +97,14 @@ Still disabled for structural safety, rather than pending console approval:
 | Feature | Status | Concrete adoption or reason |
 | --- | --- | --- |
 | F1 SaveDiff | Used | `fixtures.json` records the uncontrolled Tsushima generation pair and selects `suckerpunch.native-v1`; bounded native and F8 view decoding are tested alongside `ByteDiffer`. No fixture embeds save bytes. |
-| F2 reference packs | Used | Embedded `suckerpunch.tsushima` v2.0.0 catalogs are loaded through `IReferenceContext`; per-record and UI descriptions carry attribution and the Sources panel exposes each dataset. |
-| F3 rich table cells | Used | Inventory, equipment, technique and world tables expose raw IDs, descriptions, mapping-confidence cells, warning tones and F6 action controls. Images are intentionally absent because no icon licence is cleared; the SDK has no separate detail-cell node, and actions remain dedicated planned controls rather than blank table cells. |
+| F2 reference packs | Used | Embedded `suckerpunch.tsushima` v3.0.0 catalogs and four art datasets are loaded through `IReferenceContext`; per-record and UI descriptions carry attribution and the Sources panel exposes each dataset. |
+| F3 rich table cells | Used | Inventory, equipment, technique and world tables expose raw IDs, descriptions, mapping-confidence cells, warning tones and F6 action controls. Equipment/technique tables and lazy guides show local attributed ImageNode cells (106 unique icons/thumbnails, 158 catalogue bindings); the SDK has no separate detail-cell node, and actions remain dedicated planned controls rather than blank table cells. |
 | F4 reference pickers | Used | Every catalog-backed inventory, equipment and technique ID is a read-only `ReferenceSpec` field with raw-ID fallback, category/description metadata and attribution. |
 | F5 structural edits | N/A | No safe add/remove/reorder writer exists: enclosing sizes, references, ownership and acquisition side effects are unproven, so a plugin-local structural substitute would risk data loss. |
 | F6 planned actions | Used | Existing resource/ammo target actions provide pure previews, skipped rows, derived ammo/checksum changes, stale-plan rejection and one Core undo/redo group. Query scopes are rejected because the writable inventory is a bounded fixed table and the equipment collection is read-only. |
 | F7 document groups | N/A | No controlled capture proves that `memory.dat`, `dis.dat`, `param.sfo` or a backup must change with a supported edit; the safe contract rewrites only the selected file. |
 | F8 queryable collections | Used | The per-save equipment identifier view is `equipment/identifiers`, with stable IDs, bounded pages, search, filters and deterministic sorting. Small inventory/technique/world views remain eager because they are below the paging threshold. |
-| F9 maps and graphs | Used | Techniques publish a validated read-only `GraphNode` with field targets and a text alternative; World publishes a validated external-link-first `MapNode` with row targets, Unknown statuses, and a schematic/list fallback. |
+| F9 maps and graphs | Used | Techniques publish a validated read-only `GraphNode` with field targets and a text alternative; World publishes a validated `MapNode` with attributed whole-island art, row targets, Unknown statuses and unpositioned markers because alignment is unverified; the schematic/list fallback remains. |
 | F10 exact numbers and nullable/union specs | N/A | Supported edits are fixed-width uint32 quantities and an observed float32 timer; no save field carries an exact JSON number lexeme, nullable value or union that this plugin could preserve. |
 | F11 shared codecs | N/A | Tsushima/Yōtei samples are fixed-size plaintext containers; no Kraken, Oodle or SQLite codec is involved. |
 | F12 SaveDiff traversal/decoder hooks | Added | `ISaveDecoderProvider` registers SDK-only `suckerpunch.native-v1`; the F1 fixture uses the hook through `HookSaveDecoder`. Separate `PluginViewDecoder` tests traverse every F8 equipment row across small pages and verify incomplete-input limits. |
@@ -332,16 +332,41 @@ quantity parser; no third-party code or new reference dataset was imported in th
 | `suckerpunch_sword_guide` | 41 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356) | CC-BY-SA-3.0 |
 | `suckerpunch_technique_guide` | 18 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271) | CC-BY-SA-3.0 |
 | `suckerpunch_world_guide` | 17 | [Ghost Franchise Wiki contributors](https://ghostfranchise.fandom.com/wiki/Shinto_Shrines?oldid=29432) | CC-BY-SA-3.0 |
+| `suckerpunch_techniques_art` | 18 icons / 34,818 bytes | [Pinned Techniques page](https://ghostfranchise.fandom.com/wiki/Techniques?oldid=29271), individual files in [asset sidecar](SaveToolkit.Plugins.SuckerPunch/ReferencePacks/suckerpunch.tsushima/assets.source.md) | SIE rights reserved; owner decision 2026-10-29 |
+| `suckerpunch_charms_art` | 32 images / 64,167 bytes | [Pinned Charms page](https://ghostfranchise.fandom.com/wiki/Charms?oldid=32085), individual files in asset sidecar | SIE rights reserved; owner decision 2026-10-29 |
+| `suckerpunch_gear_art` | 56 thumbnails / 61,612 bytes | [Armor](https://ghostfranchise.fandom.com/wiki/Armor?oldid=29366) and [Sword Kits](https://ghostfranchise.fandom.com/wiki/Sword_Kits?oldid=32356), individual files in asset sidecar | SIE rights reserved; owner decision 2026-10-29 |
+| `suckerpunch_map_art` | 1 background / 78,140 bytes | [Map of Tsushima](https://ghostfranchise.fandom.com/wiki/File:Map_of_Tsushima.png), retrieved 2026-10-29 | SIE rights reserved; owner decision 2026-10-29 |
+| Official armor descriptions (part of `suckerpunch_armor_guide`) | 14 descriptions | [Pinned per-article revisions in asset sidecar](SaveToolkit.Plugins.SuckerPunch/ReferencePacks/suckerpunch.tsushima/assets.source.md#official-descriptions) | CC BY-SA 3.0 wiki adaptations; game text credited to SIE / Sucker Punch |
 | External collectible map link (no imported data) | 17 linked markers | [PowerPyx Tsushima guide](https://www.powerpyx.com/ghost-of-tsushima-wiki-strategy-guide/) | Link only; licence not asserted |
 
-Every row above is a separate dataset in embedded pack `suckerpunch.tsushima` v2.0.0, retrieved
-2026-10-28. Wiki-derived data and the adapted mappings retain
+The nine text catalogues and four art datasets belong to embedded pack `suckerpunch.tsushima`
+v3.0.0. Original wiki retrieval was 2026-10-28; artwork and game-description retrieval was 2026-10-29. Wiki-derived data and the adapted mappings retain
 [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) share-alike. Each dataset has a
 `.source.md` sidecar, manifest attribution, per-record pinned source, and UI attribution; upstream
 URLs are also in `Info.References`. The inventory dataset additionally uses
 [Arrows, oldid 31796](https://ghostfranchise.fandom.com/wiki/Arrows?oldid=31796). Source changes and
 contributor attribution are detailed in the pack's `SOURCES.md`. Names, gameplay facts and acquisition
-information are extracted/shortened; images, button glyphs and quoted game flavor text are omitted.
+information were initially extracted/shortened. The asset round adds 157 catalogue records with game
+effect/flavor descriptions, omits button instructions and retains the existing factual acquisition
+summaries. All 106 icons/thumbnails are at most 64x64 and are deduplicated; the whole-island image is
+1152x2048 WebP without crop, rotation or projection. **Total new embedded binary assets: 238,737 bytes.**
+There are 158 icon bindings: 18 technique guides, 4 Inferred saved stance mappings, 79 charm guides,
+15 armor guides, 41 sword-kit guides and the existing Inferred Storm of Clan Sakai mapping.
+Minor charms reuse game category symbols; nine major charms without individual art use their major
+category symbol. Appearance thumbnails do not identify a saved armor dye/tier or establish ownership.
+Ambiguous numbered charms/armor slots stay raw/Unknown with no guessed icon.
+
+Art is credited to **Sony Interactive Entertainment / Sucker Punch Productions** and hosted by
+**Ghost Franchise Wiki contributors**. The F2 licence field is
+`Rights reserved by SIE; used with attribution per owner decision 2026-10-29`; SIE abbreviates Sony
+Interactive Entertainment to fit the framework's 100-character licence-label cap. This records the owner's
+reuse policy, not a new publisher licence. Full holder names, individual source/download URLs, downloaded
+content hashes, retrieval date, processing and bindings are in `assets.source.md`, pack attribution,
+`Info.References`, field descriptions, table attribution cells and the Sources panel. Wiki text
+adaptations retain CC BY-SA 3.0; quoted game text is credited separately in dataset modification notices.
+No game-state coordinates are invented: image bounds are pixel bounds only, alignment remains
+unverified, all 17 shrine markers are unpositioned, and missing art/provenance retains the list.
+No Yōtei imagery is attached to the opaque reader because no gameplay catalogue exists there.
 
 ### Mapping policy and evidence
 
@@ -374,6 +399,12 @@ choices. Armor/charm ownership, technique unlocks, and world discovery/completio
 Unknown. The historical Archery Master's Attire is marked removed in patch 2.04. The shrine reference
 separates Izuhara (7), Toyotama (6), Kamiagata (3), and Iki expansion (1), without claiming a
 save-specific denominator or completed count. No Yōtei entries are imported into Tsushima's pack.
+
+## Licence exclusions
+
+| Source / revision | Terms found | Status and alternative | Remaining requirement |
+| --- | --- | --- | --- |
+| [PowerPyx Tsushima guide](https://www.powerpyx.com/ghost-of-tsushima-wiki-strategy-guide/), historical check 2026-10-28 | No separate media licence recorded | Resolved: publisher-asset refusal superseded by owner decision 2026-10-29. Attributed wiki island art and game icons imported instead; PowerPyx remains an optional source link. | Marker alignment and native saved-state joins still need evidence; these are not licence refusals. |
 
 ### Remaining work and owner captures
 
@@ -450,6 +481,29 @@ The follow-up rechecked the existing [KOVRlN technical notes](https://github.com
 and [Apollo ammo anchors](https://github.com/bucanero/apollo-patches/blob/main/PS4/CUSA11456.savepatch)
 on 2026-10-28. The hook reuses existing validated parsers; no new format hypothesis, reference dataset
 or upstream implementation code was added. Existing attribution remains intact.
+
+Asset-round checks on 2026-10-29: **140 passed, 0 failed, 0 skipped** with the artifact path above;
+the full API build passes with **0 warnings and 0 errors**. Tests validate all 107 asset hashes and
+types, deduplication, every catalogue icon, 64-pixel icon bounds through the shared loader, cached
+asset-object reuse across pinned documents, visible attribution, source title isolation, byte-identical
+exports, F9 bounds and missing-art/list fallback. New C# files remain below 300 physical lines.
+
+A standalone TEMP stopwatch measured the largest Tsushima content (`sce_sdmemory/memory.dat`,
+555,008 file bytes, 380,388 declared bytes), after sample import and before any F2 load. Debug build,
+same harness/machine, current-thread allocated bytes; single cold-process timings are approximate:
+
+| Operation | Before assets | After assets |
+| --- | ---: | ---: |
+| Cold F2 store + Open + BuildView | 94.847 ms / 4,507,432 bytes | 127.997 ms / 14,089,144 bytes |
+| F2 store alone | 65.117 ms / 3,158,440 bytes | 87.030 ms / 12,724,480 bytes |
+| Cached Open + BuildView, mean of 20 | 5.834 ms / 1,320,304 bytes | 6.905 ms / 1,335,952 bytes |
+
+The shared F2 store eagerly validates/caches packs once at startup; each document pins that store,
+and image requests reuse its AssetContent objects. Plugin code performs no image decode or I/O;
+guide tables expand lazily. The added cold-load allocations belong primarily to one-time pack
+validation, not each open. Browser image fetching/decoding happens when the local image is displayed.
+No shared loader changes were made. Image preparation and benchmarking were outside the repository;
+all committed changes are inside `plugins/SuckerPunch/`.
 
 ## Open questions
 

@@ -65,13 +65,15 @@ internal sealed class TsushimaReferenceViews(
         var rows = identifiers.Where(identifier => identifier.Group == group).Select(identifier =>
             new TableRow(identifier.Name, new Dictionary<string, ViewNode>
             {
+                [TsushimaAssets.IconColumn] = TsushimaAssets.Icon(references, catalog?.Find(identifier.Name)),
                 ["raw"] = new TextNode(identifier.Name) { Monospace = true },
                 ["reference"] = ReferenceField($"{catalogId}/{identifier.Name}/reference", identifier.Name, catalogId, catalog),
                 ["location"] = new TextNode($"0x{identifier.Offset:X}") { Monospace = true },
                 ["mapping"] = new TextNode(MappingConfidence(catalog?.Find(identifier.Name)).ToString()),
                 ["state"] = new TextNode("Unknown") { Tone = Tone.Warning },
             })).ToArray();
-        return new TableNode([new("raw", "Raw ID"), new("reference", "Reference"), new("location", "First offset"),
+        return new TableNode([new(TsushimaAssets.IconColumn, "Artwork") { Width = ColumnWidth.Narrow },
+            new("raw", "Raw ID"), new("reference", "Reference"), new("location", "First offset"),
             new("mapping", "Name mapping"), new("state", "Ownership / state")], rows)
         {
             Title = group == IdentifierGroup.Equipment ? "Observed equipment identifiers" : "Observed technique identifiers",
@@ -163,7 +165,8 @@ internal sealed class TsushimaReferenceViews(
         {
             Confidence = MappingConfidence(record),
             Description = record is null ? "Raw identifier; no pinned name mapping." :
-                $"{record.Description} Mapping: {record.Attributes.GetValueOrDefault("mappingEvidence", "Unspecified")}. {record.AttributionText}",
+                $"{record.Description} Mapping: {record.Attributes.GetValueOrDefault("mappingEvidence", "Unspecified")}. {record.AttributionText}" +
+                    TsushimaAssets.Attribution(references, record),
             Warning = "Read-only identifier: presence does not establish ownership, equipped state, or edit safety.",
         });
     }
@@ -178,6 +181,7 @@ internal sealed class TsushimaReferenceViews(
 
     private static IReadOnlyList<QueryableColumn> IdentifierColumns() =>
     [
+        new(TsushimaAssets.IconColumn, "Artwork") { Width = ColumnWidth.Narrow },
         new("raw", "Raw ID"), new("reference", "Reference"), new("category", "Category"),
         new("location", "First offset"), new("mapping", "Name mapping"), new("state", "Ownership / state"),
     ];
@@ -186,6 +190,7 @@ internal sealed class TsushimaReferenceViews(
     {
         return new TableRow(identifier.Name, new Dictionary<string, ViewNode>
         {
+            [TsushimaAssets.IconColumn] = TsushimaAssets.Icon(references, record),
             ["raw"] = new TextNode(identifier.Name) { Monospace = true },
             ["reference"] = ReferenceField($"{TsushimaIds.Equipment}/{identifier.Name}/reference", identifier.Name,
                 TsushimaIds.Equipment, catalog),
@@ -214,6 +219,7 @@ internal sealed class TsushimaReferenceViews(
                 "category" => record?.Category ?? "Unknown",
                 "mapping" => MappingConfidence(record).ToString(),
                 "state" => "Unknown",
+                TsushimaAssets.IconColumn => record?.Name ?? identifier.Name,
                 _ => throw new ArgumentException($"Unknown equipment filter '{key}'.", nameof(query)),
             };
             if (!actual.Contains(value, StringComparison.OrdinalIgnoreCase))
@@ -233,6 +239,7 @@ internal sealed class TsushimaReferenceViews(
         "location" => identifier.Offset.ToString("D10"),
         "mapping" => MappingConfidence(record).ToString(),
         "state" => "Unknown",
+        TsushimaAssets.IconColumn => record?.Name ?? identifier.Name,
         _ => throw new ArgumentException($"Unknown equipment sort column '{column}'.", nameof(column)),
     };
 }
