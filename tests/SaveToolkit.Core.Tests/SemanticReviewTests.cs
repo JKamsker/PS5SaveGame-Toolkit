@@ -136,6 +136,47 @@ public sealed class SemanticReviewTests : IDisposable
         Assert.Empty(log.Changes);
     }
 
+    [Fact]
+    public void FailedLaterTargetedBatchDoesNotPublishAnEarlierBaselineBatch()
+    {
+        var review = new SemanticReview(new());
+        using var first = new BatchCaptureDocument();
+        review.CaptureTargetedOriginals(() => first, ["first"], CancellationToken.None);
+        Assert.True(review.TryOriginal("first", out _));
+
+        using var failing = new BatchCaptureDocument(failSecondBatch: true);
+        review.CaptureTargetedOriginals(() => failing,
+            Enumerable.Range(0, 201).Select(index => $"new{index}"), CancellationToken.None);
+        Assert.True(review.TryOriginal("first", out _));
+        Assert.False(review.TryOriginal("new0", out _));
+        Assert.False(review.Query(first, _ => { }, _ => { }, 1).Complete);
+
+        using var retry = new BatchCaptureDocument();
+        review.CaptureTargetedOriginals(() => retry,
+            Enumerable.Range(0, 201).Select(index => $"new{index}"), CancellationToken.None);
+        Assert.True(review.TryOriginal("new0", out _));
+    }
+
+    [Fact]
+    public void FailedOriginalWalkDoesNotHideStructuralAdditionsAfterASecondEdit()
+    {
+        var zip = TestZips.Build(("PPSA99999/sdimg_SAVE/save.dat", new byte[] { 1 }));
+        using var workspace = _store.Create("structural-incomplete", [new ImportSource("save.zip", () => new MemoryStream(zip))]);
+        using var current = new StructuralReviewDocument();
+        using var session = new DocumentSession("structural-incomplete", workspace.Set.AllDiskFiles.Single(),
+            new CounterPlugin(), current, openOriginal: () => new StructuralReviewDocument(failView: true));
+        _ = session.BuildView();
+
+        Assert.True(session.ApplyEdits([new IncomingEdit("value", JsonSerializer.SerializeToElement(2))]).Ok);
+        Assert.True(session.InvokeAction("add", NoParameters).Ok);
+        var secondEdit = session.ApplyEdits([new IncomingEdit("value", JsonSerializer.SerializeToElement(3))]);
+        if (!secondEdit.Ok) throw new Xunit.Sdk.XunitException(JsonSerializer.Serialize(secondEdit));
+
+        var review = session.GetChanges();
+        Assert.False(review.Complete);
+        Assert.Contains(review.Warnings, warning => warning.Contains("incomplete", StringComparison.OrdinalIgnoreCase));
+    }
+
     private sealed class TargetedMetadataDocument : BoundSaveDocument, IFieldMetadataDocument
     {
         private int _value;
@@ -161,5 +202,64 @@ public sealed class SemanticReviewTests : IDisposable
             return new TextNode("No rendered fields");
         }
         public override IReadOnlyList<FileOutput> Serialize() => [new("save.dat", new byte[] { (byte)_value })];
+    }
+
+    private sealed class BatchCaptureDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        private readonly bool _failSecondBatch;
+
+        public BatchCaptureDocument(bool failSecondBatch = false)
+        {
+            _failSecondBatch = failSecondBatch;
+            RegisterField(new FieldMetadata("first", "First", IntegerSpec.Int32), () => FieldValue.Of(1), _ => { });
+            for (var index = 0; index < 201; index++)
+                RegisterField(new FieldMetadata($"new{index}", $"new{index}", IntegerSpec.Int32),
+                    () => FieldValue.Of(index), _ => { });
+        }
+
+        public override string Title => "Batch capture";
+        public override ViewNode BuildView() => new TextNode("No fields");
+        public override IReadOnlyList<FileOutput> Serialize() => [];
+
+        public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> ids)
+        {
+            if (_failSecondBatch && ids.Contains("new200", StringComparer.Ordinal))
+                throw new InvalidOperationException("resolver failed in second batch");
+            return base.ResolveFieldMetadata(ids);
+        }
+    }
+
+    private sealed class StructuralReviewDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        private int _value = 1;
+        private bool _added;
+        private readonly bool _failView;
+
+        public StructuralReviewDocument(bool failView = false)
+        {
+            _failView = failView;
+            RegisterField(new FieldMetadata("value", "Value", IntegerSpec.Int32),
+                () => FieldValue.Of(_value), value => _value = value.AsInt32());
+        }
+
+        public override string Title => "Structural review";
+        public override ViewNode BuildView()
+        {
+            if (_failView) throw new InvalidOperationException("Original view unavailable.");
+            RegisterField(new FieldMetadata("value", "Value", IntegerSpec.Int32),
+                () => FieldValue.Of(_value), value => _value = value.AsInt32());
+            return new SectionNode("Review", [Field("value", "Value"), new ActionNode("add", "Add")]);
+        }
+
+        public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) =>
+            actionId == "add" ? Structural(() => _added = true, "Added") : throw new KeyNotFoundException(actionId);
+
+        protected override DocumentMemento CaptureSnapshot() => DocumentMemento.Snapshot((_value, _added), 8);
+        protected override void LoadSnapshot(DocumentMemento snapshot) => (_value, _added) =
+            ((SnapshotMemento<(int Value, bool Added)>)snapshot).State;
+        public override IReadOnlyList<FileOutput> Serialize() => [];
+
+        public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> ids) =>
+            base.ResolveFieldMetadata(ids);
     }
 }
