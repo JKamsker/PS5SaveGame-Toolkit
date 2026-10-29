@@ -117,6 +117,20 @@ public sealed class FaithInventoryQueryTests
         var file = fixture.File;
         using var document = _plugin.Open(file);
         using var session = new DocumentSession("capacity-query", file, _plugin, document);
+        // Derive the oracle from the fixture's slot layout, independently of the query/planner/parser.
+        const int PayloadOffset = 32;
+        const int RecordSize = 16;
+        const int QuantityOffset = sizeof(int);
+        var selectedSlots = Enumerable.Range(2, 1198).Where(slot => slot != 1100).ToArray();
+        var expected = bytes.ToArray();
+        foreach (var slot in selectedSlots)
+            BinaryPrimitives.WriteInt32LittleEndian(expected.AsSpan(PayloadOffset + slot * RecordSize + QuantityOffset), 1);
+        FaithTestData.FixCrc(expected);
+        var expectedChanges = selectedSlots.Select(slot =>
+            (ValueId: $"inventory/{slot}/quantity", OldValue: FieldValue.Of(slot + 2), NewValue: FieldValue.Of(1)))
+            .Append((ValueId: "integrity/crc32", OldValue: FieldValue.Of((ulong)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(4))),
+                NewValue: FieldValue.Of((ulong)BinaryPrimitives.ReadUInt32LittleEndian(expected.AsSpan(4)))))
+            .OrderBy(change => change.ValueId, StringComparer.Ordinal).ToArray();
         _ = session.BuildView();
         _ = session.QueryCollection(FaithInventoryView.CollectionId, new QueryableCollectionQuery { Limit = 1 });
         var parameters = new Dictionary<string, JsonElement> { [FaithQuantityPlanning.QuantityParameter] = JsonSerializer.SerializeToElement(1) };
@@ -129,19 +143,25 @@ public sealed class FaithInventoryQueryTests
         var preview = session.PlanAction(FaithQuantityPlanning.ActionId, parameters, scope);
         Assert.Empty(preview.Plan.Errors);
         Assert.NotNull(preview.PlanId);
-        Assert.Equal(1197, preview.Plan.Changes.Count(change => !change.Derived));
-        Assert.DoesNotContain(preview.Plan.Changes, change => change.ValueId == "inventory/1100/quantity");
-        Assert.Contains(preview.Plan.Changes, change => change.ValueId == "inventory/1199/quantity");
+        Assert.Empty(preview.Plan.SkippedRows);
+        Assert.Equal(selectedSlots.Select(slot => $"inventory/{slot}").Reverse(), preview.Scope.RowKeys!);
+        Assert.Equal(expectedChanges, preview.Plan.Changes.Select(change => (change.ValueId, change.OldValue, change.NewValue))
+            .OrderBy(change => change.ValueId, StringComparer.Ordinal));
+        Assert.All(preview.Plan.Changes, change => Assert.Equal(change.ValueId == "integrity/crc32", change.Derived));
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
-        Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision).Ok);
+        var applied = session.ApplyActionPlan(preview.PlanId, preview.Revision);
+        Assert.True(applied.Ok);
+        Assert.Equal(expectedChanges, applied.Changes.Select(change => (change.ValueId, change.OldValue, change.NewValue))
+            .OrderBy(change => change.ValueId, StringComparer.Ordinal));
         var edited = Assert.Single(document.Serialize()).Content.ToArray();
-        Assert.Equal(1102, document.GetValue("inventory/1100/quantity").AsInt32());
-        Assert.Equal(1, document.GetValue("inventory/1199/quantity").AsInt32());
+        Assert.Equal(expected, edited);
         using var reopened = _plugin.Open(FaithTestData.File(edited));
-        Assert.Equal(1, reopened.GetValue("inventory/1199/quantity").AsInt32());
-        var items = FaithInventory.Parse(bytes, FaithContainer.Parse(bytes));
-        FaithWriteTests.AssertOnlyRanges(bytes, edited, items.Items.Where(item => item.Slot >= 2 && item.Slot != 1100)
-            .Select(item => (item.Offset + sizeof(int), sizeof(int))).ToArray());
+        for (var slot = 0; slot < FaithInventory.Capacity; slot++)
+        {
+            var quantity = slot >= 2 && slot != 1100 ? 1 : slot + 2;
+            Assert.Equal(quantity, document.GetValue($"inventory/{slot}/quantity").AsInt32());
+            Assert.Equal(quantity, reopened.GetValue($"inventory/{slot}/quantity").AsInt32());
+        }
         Assert.True(session.Undo().Ok);
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
         Assert.False(session.State.CanUndo);
