@@ -48,8 +48,10 @@ define archive naming, metadata, decoder discovery and fixture manifests. For ev
 6. Supply version/locale-matched reference data with provenance. Under the owner decision of
    2026-10-28, import unlicensed community facts/data with full attribution and reimplement unlicensed
    code from documented behaviour with source credit; no published licence is required for those paths.
-   GPL-2.0-only code, NC/no-redistribution terms and publisher art, icons, screenshots or game-extracted
-   text remain refusals. Consult the [licence exclusions register](LICENCE_EXCLUSIONS.md) for current
+   The 2026-10-29 owner decision also permits rights-reserved guide material and publisher art, icons,
+   screenshots and game-extracted text with source, rights-holder and revision/date attribution.
+   GPL-2.0-only code and NC/no-redistribution terms remain refusals. Follow
+   [plugin guide rule 9](PLUGIN_GUIDE.md#hard-rules) and the [licence exclusions register](LICENCE_EXCLUSIONS.md) for current
    status and imports in progress. Seek compatible terms for remaining refusals; matching captures
    and ID joins still need evidence.
 
@@ -98,8 +100,8 @@ bounded NewAge live candidates; no authoritative party/gold total.
       level-up/respec, quest accept/complete/fail, approval change, rest/romance and
       recipe/waypoint event pairs.
 - [ ] Provide build/language/module-matched community template/stat/ID facts with full attribution,
-      including unlicensed sources under the owner decision. Record source terms; publisher LOCA text,
-      icons and legacy NC prose remain excluded without compatible permission. Record spoiler choices.
+      including unlicensed sources under the owner decision. Record source terms and rights-holder
+      attribution for publisher LOCA text/icons under rule 9; NC prose remains excluded. Record spoiler choices.
 
 ### PPSA01325 — ASTRO's PLAYROOM
 
@@ -314,7 +316,7 @@ and reviewed main-stack targets. No allocator/growth/dependency repair is claime
 - [ ] Earn XP without leveling, then cross one level; repeat adult/child and normal/Final Fantasy mode.
 - [ ] Supply matched, legally owned PC binary/XML states with build/locale/DLC if available.
 - [ ] Supply attributed community labels, including unlicensed tables under the owner decision, or observed
-      item-label/acquisition pairs for the 41 Unknown IDs; keep publisher-extracted text separate.
+      item-label/acquisition pairs for the 41 Unknown IDs; attribute publisher-extracted text under rule 9.
 - [ ] Capture one upgrade each for potency/capacity IDs 506, 507, 508 and 509, with both banks,
       displayed capacities/potencies, quest, mode, DLC, stage, zero-stack control and stage replay.
 - [ ] Capture learn, upgrade, master and reset for skill IDs 39, 45 and 49 independently, with
@@ -649,7 +651,7 @@ Progress, Quests and World. RSA trailer is preserved but unverified/unregenerate
 - [ ] Capture one named collectible pickup.
 - [ ] Supply empty/full inventories and difficulty, chapter, cleared and NG+ examples.
 - [ ] Supply attributed community ID/name evidence, including unlicensed sources under the owner decision;
-      publisher-extracted text/art still requires compatible permission.
+      record source, rights-holder and revision/date attribution for publisher-extracted text/art under rule 9.
 
 ### PPSA02225 — Ghost of Tsushima (Director's Cut)
 

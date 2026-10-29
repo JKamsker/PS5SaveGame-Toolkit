@@ -86,6 +86,22 @@ class DocumentationTests(unittest.TestCase):
                     self.assertIn(route, guide)
 
 
+    def test_current_policy_has_no_superseded_publisher_refusal(self):
+        policy = document("docs/PLUGIN_GUIDE.md").split("## Hard rules", 1)[1].split(
+            "## Catalog-valued", 1)[0]
+        self.assertIn("Owner decision, 2026-10-29", policy)
+        # The decision is repository policy, not a claim about an upstream licence grant.
+        for page in ("README.md", "docs/OWNER_CHECKLIST.md", "docs/PLUGIN_GUIDE.md"):
+            with self.subTest(page=page):
+                text = document(page)
+                self.assertIn("2026-10-29", text)
+                refusal = re.search(r"(?is)publisher\s+(?:artwork|art|assets|LOCA text|map art)"
+                                    r"[^.;]{0,160}(?:remain[^.;]*refus|remain[^.;]*excluded|requires compatible permission)", text)
+                self.assertIsNone(refusal, f"Superseded publisher refusal in {page}")
+                self.assertNotRegex(text, r"(?is)does not permit\s+publisher")
+
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--code-ref", default="HEAD", help="Git ref for implementation checks (default: HEAD)")

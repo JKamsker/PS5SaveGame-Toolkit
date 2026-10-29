@@ -122,5 +122,7 @@ Licensed under **GPL-3.0-or-later**; see [LICENSE](LICENSE) and [THIRD-PARTY-NOT
 Upstream components retain their own compatible licences and attribution.
 The [licence exclusions register](docs/LICENCE_EXCLUSIONS.md) tracks remaining refusals and imports in
 progress. Per the owner decision of 2026-10-28, unlicensed community facts/data are reused with full
-attribution; unlicensed code is reimplemented with source credit. GPL-2.0-only code, NC/no-redistribution
-terms and proprietary publisher assets remain refusal reasons.
+attribution; unlicensed code is reimplemented with source credit. The 2026-10-29 owner decision also
+permits rights-reserved guide material and publisher assets with source, rights-holder and revision/date
+attribution. GPL-2.0-only code and NC/no-redistribution terms remain refusal reasons. See
+[plugin guide rule 9](docs/PLUGIN_GUIDE.md#hard-rules) for the exact policy and required notices.

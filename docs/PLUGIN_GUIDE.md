@@ -120,8 +120,9 @@ parsed host and attribution, opens a new tab, and sets `rel="noopener noreferrer
 applies to source/licence links in map attribution. Invalid links are rejected by Core; the web
 renderer additionally renders them as non-clickable text if given a malformed payload.
 
-**Follow rule 9 for imports**, including the owner decision on unlicensed community facts. Publisher
-art remains excluded without permission. For an original or permitted schematic/background, resolve
+**Follow rule 9 for imports**, including the 2026-10-28/29 owner decisions on community facts,
+rights-reserved guides and publisher assets. Record the source, rights holder and revision/date;
+NC/no-redistribution restrictions remain refusal reasons. For a background allowed by that policy, resolve
 a local F2 asset with `references.GetAsset(id)` and `references.AssetProvenance(id)`. If unavailable,
 omit `Background`. Otherwise use
 `new MapBackground("pack.id:maps/region.png", alt, provenance.Attribution, EmbeddingPermitted: true)`.
@@ -129,7 +130,7 @@ This is served through the existing local F2 reference-asset endpoint, with full
 to the diagram and in Sources. Remote URLs and ordinary plugin asset IDs are not backgrounds.
 `EmbeddingPermitted` defaults to false and is an explicit assertion by the plugin author; the
 framework cannot decide reuse policy from a licence name. Set it only after recording the applicable
-terms or owner-policy basis; the owner decision on community facts does not permit publisher artwork.
+terms or owner-policy basis from rule 9, including its required rights-holder attribution for publisher artwork.
 
 Embedding **any coordinates**, including save-derived positions and original schematics, similarly
 requires `CoordinateAttribution` (`ReferenceAttribution`) and `CoordinateEmbeddingPermitted = true`.
