@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 using static SaveToolkit.Plugins.SuckerPunch.Tests.SuckerPunchTestData;
 
 namespace SaveToolkit.Plugins.SuckerPunch.Tests;
@@ -30,9 +31,14 @@ public sealed class TsushimaCorruptionTests
     [InlineData(12, 0)]
     public void InvalidHeadersAreRejected(int offset, uint value)
     {
-        var bytes = Slot("suckerpunchUser0").ReadAllBytes();
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), value);
-        Assert.Throws<SaveFormatException>(() => Open(WithBytes(bytes)));
+        var files = SampleSaves.Load(TsushimaTitle).AllDiskFiles.Where(file => new SuckerPunchPlugin().Probe(file).IsMatch).ToArray();
+        Assert.NotEmpty(files);
+        foreach (var file in files)
+        {
+            var bytes = file.ReadAllBytes();
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), value);
+            Assert.Throws<SaveFormatException>(() => Open(WithBytes(bytes)));
+        }
     }
 
     [Theory]
@@ -44,8 +50,14 @@ public sealed class TsushimaCorruptionTests
     [InlineData("ambiguous", "Tsushima inventory anchor is ambiguous.")]
     public void MalformedInventoryIsRejectedEvenWithAValidChecksum(string corruption, string expected)
     {
-        var bytes = Slot("suckerpunchUser0").ReadAllBytes();
-        const int tableOffset = 0x4B92F;
+        var files = SampleSaves.Load(TsushimaTitle).AllDiskFiles.Where(file => new SuckerPunchPlugin().Probe(file).IsMatch).ToArray();
+        Assert.NotEmpty(files);
+        foreach (var file in files) AssertMalformedInventory(file.ReadAllBytes(), corruption, expected);
+    }
+
+    private static void AssertMalformedInventory(byte[] bytes, string corruption, string expected)
+    {
+        var tableOffset = WriteAssertions.CountOffset(bytes, "ArrowNormal") - sizeof(uint) - "ArrowNormal".Length - 2 * sizeof(uint);
         var suppliesName = WriteAssertions.CountOffset(bytes, "Supplies") - sizeof(uint) - "Supplies".Length;
         switch (corruption)
         {
@@ -59,11 +71,11 @@ public sealed class TsushimaCorruptionTests
                 bytes[suppliesName] = 0xFF;
                 break;
             case "duplicate":
-                var offset = bytes.AsSpan().IndexOf("ArrowHeavy"u8);
+                var offset = WriteAssertions.CountOffset(bytes, "ArrowHeavy") - sizeof(uint) - "ArrowHeavy".Length;
                 "DartNormal"u8.CopyTo(bytes.AsSpan(offset));
                 break;
             case "truncated":
-                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4), tableOffset + 32);
+                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4), (uint)(tableOffset + 32));
                 break;
             case "ambiguous":
                 "\x11\0\0\0LegendsInvestment"u8.CopyTo(bytes.AsSpan(16));
@@ -78,7 +90,13 @@ public sealed class TsushimaCorruptionTests
     [Fact]
     public void LengthMismatchIsRejected()
     {
-        var bytes = Slot("suckerpunchUser0").ReadAllBytes();
-        Assert.Throws<SaveFormatException>(() => Open(WithBytes(bytes[..^1])));
+        var files = SampleSaves.Load(TsushimaTitle).AllDiskFiles.Where(file => new SuckerPunchPlugin().Probe(file).IsMatch).ToArray();
+        Assert.NotEmpty(files);
+        foreach (var file in files)
+        {
+            var bytes = file.ReadAllBytes();
+            foreach (var end in new[] { 0, 15, (int)Word(bytes, 4), bytes.Length - 1 })
+                Assert.Throws<SaveFormatException>(() => Open(WithBytes(bytes[..end])));
+        }
     }
 }
