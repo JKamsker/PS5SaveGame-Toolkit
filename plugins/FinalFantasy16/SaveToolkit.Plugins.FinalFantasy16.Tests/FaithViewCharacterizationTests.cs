@@ -8,7 +8,7 @@ namespace SaveToolkit.Plugins.FinalFantasy16.Tests;
 public sealed class FaithViewCharacterizationTests
 {
     // Golden protocol hashes refreshed for the #40 item-meaning badges and CRC evidence tooltip.
-    // Project out only the four additive coverage actions to keep pinning all inherited content.
+    // Project out the additive coverage actions and stored-stack state column to pin inherited content.
     [Theory]
     [InlineData("PPSA10665", false, "8fd78aff59875c710cce6df1c84886a329378a897f1562727273df79f196d8a1")]
     [InlineData("PPSA10665", true, "7e3ca31a09b611629995acfbd34c593ca558b44f7d9bdd09d2958eea32c265f0")]
@@ -44,8 +44,15 @@ public sealed class FaithViewCharacterizationTests
         SectionNode { Title: "Selected main-bank rows" } section => section.Children[0],
         SectionNode section => section with { Children = ExistingChildren(section.Children) },
         TabsNode tabs => tabs with { Tabs = tabs.Tabs.Select(tab => tab with { Children = ExistingChildren(tab.Children) }).ToArray() },
-        TableNode table => table with { Rows = table.Rows.Select(row => row with
-            { Cells = row.Cells.ToDictionary(pair => pair.Key, pair => ExistingView(pair.Value)) }).ToArray() },
+        TableNode table => table with
+        {
+            Columns = table.Columns.Where(column => column.Key != FaithStoredStackState.ColumnKey).ToArray(),
+            Rows = table.Rows.Select(row => row with
+            {
+                Cells = row.Cells.Where(pair => pair.Key != FaithStoredStackState.ColumnKey)
+                    .ToDictionary(pair => pair.Key, pair => ExistingView(pair.Value)),
+            }).ToArray(),
+        },
         _ => node,
     };
 

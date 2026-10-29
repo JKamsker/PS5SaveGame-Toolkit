@@ -69,6 +69,7 @@ internal sealed class FaithInventoryQuery(byte[] bytes, FaithInventory inventory
     {
         "slot" or "id" or "quantity" => FaithCatalog.Key(Number(item, column)),
         "name" => catalog.Name(item.Id), "category" => catalog.Category(item.Id),
+        FaithStoredStackState.ColumnKey => FaithStoredStackState.Label(Number(item, "quantity")),
         "flags" => $"0x{ReadInt(item.Offset + 2 * sizeof(int)):X8}",
         "details" => catalog.Provenance(item.Id), _ => "",
     };
