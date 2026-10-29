@@ -26,7 +26,7 @@ JSON. Whether external integrity or console-side validation exists is
 
 ## Enabled writes and their evidence
 
-| write | confidence | evidence | integrity status | owner validation needed |
+| Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
 | Existing scalar token edits in shifted settings | Unknown | One PS5 settings snapshot plus editor-generated F1 `masterVolume` differential | No checksum observed in decoded JSON; external checks are Unknown; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): spare-slot import, reload and rewritten-file comparison |
 | Existing scalar token edits in offline `FCharacterSaveV1` | Unknown | One PS5 SoftVersion 2 / FormatHash 3777917472 snapshot; field paths observed, gameplay meaning unproven | No checksum observed in decoded JSON; dependencies and console acceptance Unknown; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): validate each scalar on a disposable offline slot |
@@ -43,14 +43,14 @@ JSON. Whether external integrity or console-side validation exists is
 | F3 rich table cells | Used: F8 character collections | Inventory/collection image cells and attributed game descriptions; raw details stay lazy. |
 | F4 ReferenceSpec | Used: item, effect, enchantment, world, attribute and rarity IDs | Existing-value picker and planned-action parameters use native catalog validation, category filtering and declared sorting. |
 | F5 structural edits | Used: `JsonEditModel` / detached mementos | Generic object/array add, remove and replace preserve unknown members and support undo/redo; output is reparsed. |
-| F6 planned actions | Added this round: `JsonActionPlanner` | Scalar, attribute, stack, item and rarity actions preview changes/skips/warnings and accept F8 selected/query scopes through Core. |
+| F6 planned actions | Used: `JsonActionPlanner` | Added in `16679ae`: scalar, attribute, stack, item and rarity actions preview changes/skips/warnings and accept F8 selected/query scopes through Core. |
 | F7 document groups | Used: character + GlobalSaveDataDefault | Same-generation role validation, role-prefixed IDs, complete mementos and staged multi-file serialization. |
-| F8 queryable tables | Used and extended this round | Seven character collections plus automatic server-backed tables for raw arrays with 100+ rows. |
+| F8 queryable tables | Used | Extended in `16679ae`: seven character collections plus automatic server-backed tables for raw arrays with 100+ rows. |
 | F9 graphs / maps | Used: `CharacterSpatialViews` / `CharacterMapView` | Bounded quest DAG and attributed Overworld reference art; saved locations remain unpositioned with text alternatives because no verified ID-to-pixel mapping exists. |
 | F10 exact numbers | Used: token parser and `ExactNumberSpec` | Numeric lexemes, nulls, duplicate members and unchanged spelling survive edits. |
 | F11 shared codecs | N/A | XorJson is UTF-8 JSON with byte transforms; it has no Kraken, SQLite or Oodle payload. |
-| F12 decoder hook | Added this round: `XorJsonDecoder` | `ISaveDecoderProvider` exposes `xorjson.tokens`; F1 tests use `HookSaveDecoder`, with depth/value/byte bounds. |
-| F13 inspection / browse picker | Used | `json/inspect` is explicitly non-mutating; catalog pickers inherit browse search/category/sort from Core. |
+| F12 decoder hook | Used: `XorJsonDecoder` | Added in `16679ae`: `ISaveDecoderProvider` exposes `xorjson.tokens`; F1 tests use `HookSaveDecoder`, with depth/value/byte bounds. |
+| F13 inspection / browse picker | Used | `json/inspect` is explicitly non-mutating; catalog pickers inherit browse search/category/sort from Core. Float duration: N/A — no evidenced float time unit. |
 
 The pack sidecars and this README document pinned sources, modifications, hashes and PS5 uncertainty. Game artwork and game descriptions are attributed under the owner decision of 2026-10-29; earlier community facts retain their 2026-10-28 policy basis. No saved-location coordinates or wiki text are imported.
 
