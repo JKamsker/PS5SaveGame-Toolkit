@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SaveToolkit.Api.Contracts;
+using SaveToolkit.Api.Infrastructure;
 using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.References;
 
@@ -40,10 +41,7 @@ internal static class ReferenceEndpoints
                 return Results.NotFound();
             }
 
-            http.Response.Headers.XContentTypeOptions = "nosniff";
-            http.Response.Headers.ContentSecurityPolicy = "default-src 'none'";
-            http.Response.Headers.CacheControl = "private, max-age=3600";
-            return Results.Bytes(asset.Content.ToArray(), asset.ContentType);
+            return ReferenceAssetResponse.Create(asset, http.Response);
         });
     }
 

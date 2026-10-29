@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using SaveToolkit.Api.Contracts;
+using SaveToolkit.Api.Infrastructure;
 using SaveToolkit.Core;
 using SaveToolkit.Core.Catalog;
 using SaveToolkit.Core.Export;
@@ -158,12 +159,7 @@ internal static class WorkspaceEndpoints
             return Results.BadRequest(new ErrorDto(ex.Message));
         }
 
-        var dto = QueryablePageDto.From(page);
-        var body = JsonSerializer.SerializeToUtf8Bytes(dto, ToolkitJson.Options);
-        const int maxResponseBytes = 2 * 1024 * 1024;
-        return body.Length > maxResponseBytes
-            ? Results.Json(new ErrorDto("The collection page exceeds the response size limit."), statusCode: StatusCodes.Status413PayloadTooLarge, options: ToolkitJson.Options)
-            : Results.Bytes(body, "application/json");
+        return CollectionPageResponse.Create(QueryablePageDto.From(page));
     }
 
     private static Dictionary<string, string>? ParseFilters(HttpRequest request)

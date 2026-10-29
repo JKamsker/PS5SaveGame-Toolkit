@@ -9,7 +9,6 @@ public static class OodleCodec
     public const int MaximumBytes = 256 * 1024 * 1024;
     private const int QuantumBytes = 256 * 1024;
     private const int PaddingBytes = 64;
-    private const int ScratchBytes = 0x6C000;
     private const long MaximumOperations = 256_000_000;
 
     /// <summary>Decode exactly the declared output length and consume the entire input, or throw.</summary>
@@ -31,11 +30,10 @@ public static class OodleCodec
         var source = new byte[checked(compressed.Length + 2 * PaddingBytes)];
         compressed.CopyTo(source.AsSpan(PaddingBytes));
         var destination = new byte[checked(outputLength + PaddingBytes)];
-        var scratch = new byte[ScratchBytes + PaddingBytes];
         try
         {
             int decoded = StreamDecoder.DecompressCore(new(source, PaddingBytes, budget), compressed.Length,
-                new(destination, 0, budget), outputLength, new(scratch, 0, budget));
+                new(destination, 0, budget), outputLength);
             if (decoded != outputLength)
                 throw new InvalidDataException("Invalid or unsupported Kraken stream.");
         }

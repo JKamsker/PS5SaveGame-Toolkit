@@ -23,11 +23,13 @@ namespace SaveToolkit.Codecs.Oodle;
 
 internal static class StreamDecoder
 {
+    private const int ScratchBytes = 0x6C000;
+    private const int ScratchPaddingBytes = 64;
+
     internal sealed class KrakenDecoder
     {
         public int src_used, dst_used;
         public BufferView<byte> scratch;
-        public long scratch_size;
         public KrakenHeader hdr = new();
     }
 
@@ -105,8 +107,12 @@ internal static class StreamDecoder
             return true;
         }
 
+        // Stored and memset quanta never use entropy scratch. Allocate it only for the first
+        // compressed quantum and retain the same owned, padded buffer for the rest of this stream.
+        if (dec.scratch == default)
+            dec.scratch = BufferView<byte>.Allocate(ScratchBytes + ScratchPaddingBytes, src.Budget);
         n = Kraken_DecodeQuantum(dst_start + offset, dst_start + offset + dst_bytes_left, dst_start,
-                                 src, src + qhdr.compressed_size, dec.scratch, dec.scratch + dec.scratch_size);
+                                 src, src + qhdr.compressed_size, dec.scratch, dec.scratch + ScratchBytes);
 
         if (n != qhdr.compressed_size)
             return false;
@@ -116,11 +122,9 @@ internal static class StreamDecoder
         return true;
     }
 
-    internal static int DecompressCore(BufferView<byte> src, long src_len, BufferView<byte> dst, long dst_len, BufferView<byte> scratch)
+    internal static int DecompressCore(BufferView<byte> src, long src_len, BufferView<byte> dst, long dst_len)
     {
         KrakenDecoder dec = new();
-        dec.scratch = scratch;
-        dec.scratch_size = 0x6C000;
         int offset = 0;
         while (dst_len != 0)
         {
