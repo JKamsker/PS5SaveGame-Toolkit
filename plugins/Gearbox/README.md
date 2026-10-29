@@ -298,6 +298,14 @@ inside the group. Edit both stored mirrors explicitly if desired: the plugin doe
 authoritative mirror, calculate rank, grant derived rewards or invent missing account records.
 
 Select rows from the source F8 table, then preview **deposit**, **withdraw** or **claim lost loot**.
+SDK-41 binds those controls to `character/inventory_items`, `profile/bank_inventory_list` and
+`profile/lost_loot_inventory_list`, respectively. The source Inventory tab must be mounted;
+inactive/unmounted source tables disable their bound controls. With no selection, the host supplies
+document scope, which transfers reject. Duplicate/remove controls live in each item row's **Serial
+and parts** details and inherit that table's selection, so bank and lost-loot selections remain distinct.
+These retain the existing action IDs. Import remains document-scoped and item levels retain their
+existing document/explicit/query behavior. Explicitly empty selections and fully excluded queries
+change nothing and create no history entry; they never mean all items.
 F6 shows the original serial, source/destination counts, equipment index changes and warnings.
 Unresolved whole-query scopes are rejected; the host resolves bounded full-filter selections.
 Every operation is atomic. One group undo restores both files exactly. F5 snapshots retain cloned

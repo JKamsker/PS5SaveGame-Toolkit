@@ -240,12 +240,12 @@ item index, binary readers, icons and inspection bindings still use their local 
 | --- | --- | --- |
 | F1 SaveDiff | Used | SDK-only `eldenring-evidence` hook, `Evidence/fixtures.json`, endpoint privacy masks and intended-only byte diffs. Existing paths and privacy allowlist retained; fixtures now use the shared hook adapter. |
 | F2 reference packs | Used | Complete 5,770 identities, 1,245 official descriptions and illustrated records, 1,096 deduplicated icons, 597 inferred placements and three backgrounds; separate text/image/coordinate attribution. Progress/classes/community packs retained. |
-| F3 rich cells | Used | Catalogue and inventory details display bundled attributed icons and official text. Inferred/Unknown badges, refill actions and raw identity fallback retained. |
+| F3 rich cells | Used | Catalogue and inventory details display bundled attributed icons and official text. Inventory Editing status and details explain exact opening-time quantity restrictions and observed ranges. Inferred/Unknown badges, refill actions and raw identity fallback retained. |
 | F4 reference pickers | Used | Class/progress/equipment semantic identities now join inventory and inspection through `ReferenceSpec`; F13 provides browse-only lookup on read-only fields/saves. Immutable raw diagnostics retain their numeric encoding. All current semantic references preserve unknown IDs. |
 | F5 structural undo | N/A | No safe structural writer exists: free-handle allocation, variable GaItem growth, counts/acquisition and dependent equipment cleanup are unproven. Fixed-size scalar edits already have exact undo; arbitrary insertion/removal would corrupt unknown structure. |
 | F6 action planning | Used | Held-only runes, linked rune/history and supported-stack refill; pure previews, warnings/skips, semantic review, stale/tampered-plan rejection, atomic group undo and #27 whole-query selections/exclusions. Respec/loadout presets lack complete dependency writers. |
 | F7 document groups | N/A | Every enabled operation changes one `memory.dat`; there is no independently coupled character/profile partner file. Originally identical backups are mirrored atomically by Core export, not a new plugin-owned group. |
-| F8 queryable tables | Used | Inventory/storage, the 5,770-item catalog, 499-entry progress table, community item/flag/layout catalogs and community progress collections, plus the lazy 186-table regulation directory. Remaining eager regional/equipment/raw lists are bounded to at most 100 rows. |
+| F8 queryable tables | Used | Inventory/storage includes complete-model Editing status filtering and restriction-text search; the 5,770-item catalog, 499-entry progress table, community item/flag/layout catalogs and community progress collections, plus the lazy 186-table regulation directory. Remaining eager regional/equipment/raw lists are bounded to at most 100 rows. |
 | F9 maps/graphs | Used | Local surface/underground/DLC art with inferred event-ID positions, bounded regional candidates, Unknown states and raw-field targets. Missing/unpositioned candidates retain accessible lists; attribute-to-level DAG retained. Spatial validation, protocol, Core navigation and preservation tested. |
 | F10 exact/nullable/union values | Used | UInt32 fields and UInt64 millisecond durations use exact SDK integer transport. Decimal lexemes/nullable/union specs are N/A: modeled scalars are binary integers or fixed text without tagged/null states; inactive slots omit fields. |
 | F11 shared codecs | N/A | This format uses public AES/DCX/DFLT plus BND/PARAM directories; it has neither Kraken nor SQLite. BCL AES/ZLib remain bounded and preserve original encrypted bytes; no redundant shared-codec route or dependency added. |
@@ -313,10 +313,24 @@ longer → shorter → undo sequences byte-identical without erasing unexplained
 Quantity eligibility requires an existing positive common-array direct-goods row, unique handle in
 that container, matching declared counts, one of the two IDs, and an imported quantity within its
 observed ceiling. Technical array capacity is never used as a stack cap. Zero, larger imported stacks,
-key/story/container-managed items, unknown IDs and ambiguous/residual rows remain protected because
-their write would require unmodeled removal/dependency handling. These ceilings are conservative
-sample observations, **not legal carry/storage limits**. Storage coverage is synthetic; no nonempty
+key-array rows, IDs outside the allowlist (including Cracked Pot) and ambiguous/residual rows remain
+protected; their quantity/dependency rules are unverified. Names do not establish ownership or a legal
+inventory role. These ceilings are conservative sample observations, **not legal carry/storage limits**.
+Storage coverage is synthetic; no nonempty
 private storage snapshot exists. No transfer, insertion, removal or automatic equipment change occurs.
+
+Inventory/storage exposes one compact **Editing** column: exact filters accept **Editable quantity**,
+**Protected**, or **Read-only version** (case-insensitive). Text search also finds the actual restriction
+in row details: vacant slot, unsupported serialized array/category/resolution, unresolved or unallowlisted
+identity, zero or above-ceiling imported quantity, duplicate container handle, or declared/observed count
+disagreement. Count disagreement protects the entire container, including otherwise supported rows.
+The same opening-time descriptor controls setters, field descriptions and F6 protected-row skips.
+Supported rows show their observed 1–12 or 1–3 range, remain editable at the ceiling, and retain their
+eligibility after edits; refill separately reports **Already at the conservative observed ceiling**.
+A read-only document version overrides the Editing status while retaining the row's own eligibility
+explanation. Unknown character layouts still omit deeper inventory views. Filtering occurs before
+empty-slot visibility, sorting and bounded paging, so whole-query selections retain the same row IDs,
+hidden-slot counts and exclusions. This adds no PARAM decoding, writer scope or game-acceptance claim.
 
 Manual history and linked writes are bounded by the larger of imported history and the sample's
 4427, with held balances additionally capped at 999999999. A direct balance above current history
@@ -465,6 +479,12 @@ API build: **0 warnings, 0 errors**.
 Repeated handle/selection scans now use lookups/sets; empty edit batches avoid a full-save copy/reparse.
 Sample-dependent cases skip when samples are absent. Implementation-round results are recorded on
 issue #14 and subsequent review results on #40; no binary sample or extracted regulation is included.
+
+The inventory-eligibility UX round adds independent synthetic regressions for exact protected reasons,
+editable observed ranges, read-only/unknown versions, complete-model status/reason queries, hidden counts,
+sorting/paging, F6 whole-query selection/exclusions, no-op/rejected history preservation and exact
+serialization through edit/undo/redo/reopen. These newly authored tests have **not yet been executed**;
+builds, full plugin/conformance checks and browser validation are assigned to integration validation.
 
 The correctness review for #40 adds test-first regressions for incomplete zlib members and evidence
 validation before output, plus GaItem stride/count boundaries, exact/overflowing fixed capacities,

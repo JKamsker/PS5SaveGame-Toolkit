@@ -49,6 +49,7 @@ public sealed partial class DocumentSession : IDisposable
     private readonly ReferenceFieldService _referenceFields;
     private readonly ReferenceContext _references;
     private bool _disposed;
+    private bool _idleRetired;
 
     public DocumentSession(string id, DiskSaveFile file, IGamePlugin plugin, ISaveDocument document,
         DocumentSessionOptions? options = null, Func<ISaveDocument>? openOriginal = null, ReferenceContext? references = null)
@@ -234,6 +235,18 @@ public sealed partial class DocumentSession : IDisposable
         return true;
     });
 
+    // Workspace idle eviction holds all clean session gates through unregistration and
+    // retirement. Never wait for a plugin operation or inspect/serialize plugin state.
+    internal bool TryEnterCleanState()
+    {
+        if (_gate.IsHeldByCurrentThread || !_gate.TryEnter()) return false;
+        if (_disposed || !StateUnlocked().IsDirty) return true;
+        _gate.Exit();
+        return false;
+    }
+    internal void RetireCleanState() => _idleRetired = true;
+    internal void ExitCleanState() => _gate.Exit();
+
     private EditOutcome Revert(IReadOnlyList<ValueChange> batch, bool useOld)
     {
         try
@@ -280,7 +293,7 @@ public sealed partial class DocumentSession : IDisposable
     private T Locked<T>(Func<T> func, CancellationToken cancellationToken)
         => OperationCancellation.Locked(_gate, () =>
         {
-            ObjectDisposedException.ThrowIf(_disposed, this);
+            ObjectDisposedException.ThrowIf(_disposed || _idleRetired, this);
             return func();
         }, cancellationToken);
 }

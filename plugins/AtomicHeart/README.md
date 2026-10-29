@@ -59,6 +59,16 @@ Existing populated slots expose bounded Amount edits and the F6 action
 instead of a manual target. It restores only reduced eligible quantities; equal
 or higher amounts stay unchanged. Re-importing edited bytes establishes a new
 baseline, so this cannot recover a balance lost before import.
+
+The inventory's read-only `Quantity state` column compares each stable slot's
+current Amount with that immutable opening value: `Unchanged`, `Reduced since import`
+or `Increased since import`. Search, exact filters and sorting use the complete
+model before paging. Enter `Reduced since import` in `Filter Quantity state`,
+select matching rows and use their existing restore preview; whole-query selections
+retain exclusions. Opening Amounts remain visible in Item details through edits,
+restore and undo/redo. Filter membership follows the current values after each
+change. This comparison cannot distinguish gameplay consumption from editing.
+
 Preview lists direct changes, skipped rows and warnings; selected rows
 and whole-document scopes are supported. F8 select-all-matching scopes resolve
 unloaded rows on the server and honor explicit exclusions and empty-slot visibility (#27, #38). An empty
@@ -118,12 +128,12 @@ enabled paths.
 | --- | --- | --- |
 | F1 SaveDiff | Used | `PluginViewDecoder` and the production `atomic-heart.saveextension-v1` F12 hook expose stable scalar tag identities; real twin/generation evidence and authored relocated-property fixtures remain in the evidence tests. |
 | F2 reference packs | Used | Expanded in the 2026-10-29 asset round: host-loaded, hashed 48-entry item catalogue plus 8 screenshot resource/module and 9 Shok guide entries. Original GPL notices retained; game art/text and guide additions use the 2026-10-29 owner policy. Twenty-three cached icons; reference tables expand lazily. |
-| F3 rich cells | Used | Added in the 2026-10-29 asset round: inventory details, descriptions/provenance/hex; existing action cells and field confidence badges. Inventory/query rows and reference tables show attributed F2 icons; missing images retain text fallbacks. |
+| F3 rich cells | Used | Inventory details include immutable opening Amounts alongside descriptions/provenance/hex; existing action cells and field confidence badges. Inventory/query rows and reference tables show attributed F2 icons; missing images retain text fallbacks. |
 | F4 reference pickers | Used | Expanded in the 2026-10-29 asset round: existing inventory asset replacements plus browse-only `ReferenceSpec` fields for read-only catalog-matched asset IDs in the record explorer and catalogue inspection action. Unknown IDs remain raw and never become invented choices. |
 | F5 structural undo | N/A | No safe add/remove/move/split writer exists: opaque instance allocation, grid/indices, equipment and ownership references cannot be reconstructed from this snapshot. Scalar edits use normal undo. |
 | F6 planned actions | Used | `inventory/set-amount` and `inventory/restore-imported-amounts` preview selected, document and #27 F8 whole-query scopes with skipped rows, exclusions, warnings and grouped undo. Set-amount takes `Target quantity (Amount)` (key `amount`); restore takes no parameters and targets each immutable opening Amount only when lower. No item parameter needs a `ReferenceSpec`. Skill/loadout/spend/refund presets have no safe underlying writer. |
 | F7 document groups | N/A | One self-contained gameplay file is rewritten. No coupled partner with a proved transaction contract exists; identical console backups are mirrored by the host. |
-| F8 queryable tables | Used | All 4,063 records and all inventory slots; whole-model search/filter/sort, numeric Amount/ItemId ordering, stable IDs and bounded 200-row pages. Inventory details/hex live in the single F8 table; original raw record inspection remains available. |
+| F8 queryable tables | Used | All 4,063 records and all inventory slots; whole-model search/filter/sort, numeric Amount/ItemId ordering, stable IDs and bounded 200-row pages. Live `quantityState` text compares current/opening Amounts, including exact `Reduced since import` filtering; stable row keys break sort ties. Inventory details/hex live in the single F8 table; original raw record inspection remains available. |
 | F9 maps/graphs | Used | Added in the 2026-10-29 implementation round: paged skill/weapon evidence graphs and external-only saved-level map, compact stable IDs, text alternatives, confidence and tested navigation. Prerequisites/coordinates/discovery remain unknown. |
 | F10 exact/nullable/union values | N/A | The decoded UE tags use fixed-width signed/unsigned integers and IEEE floating-point scalars; no JSON numeric lexemes, nullable scalar storage or tagged union is rewritten. Existing Int128 SDK values preserve all integer bits. |
 | F11 shared codecs | Used | `SaveToolkit.Codecs` Kraken decode/stored encode; one `OodleWorkspace` per decode batch and caller-owned aggregate slices, retained compressed frames, exact output allocation, validated serialization cache and byte-identical no-op. Current measured 14-stream codec allocation is about 0.63 MB; see [PERFORMANCE.md](PERFORMANCE.md). No local codec. |
@@ -270,6 +280,15 @@ Representable unsigned values remain inspectable; unsigned Amount tags do not
 become write targets.
 
 ## Validation
+
+Quantity-state follow-up (2026-10-29): authored regressions cover mixed states
+before 200-row paging, exact filters/search/sort ties, signed 64-bit extremes,
+missing packs, hidden-empty counts, immutable opening details, re-import,
+read-only query preservation, asset replacement, restore query exclusions and
+unloaded rows, preview purity/staleness, grouped undo/redo and byte-identical full
+reset. These new tests have **not yet been executed**; the dedicated validation
+worker must run them and the existing suite. No new source/data imports,
+serialization rules or gameplay/weapon semantics are introduced.
 
 Run from the repository root:
 

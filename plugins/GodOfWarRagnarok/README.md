@@ -26,7 +26,7 @@ No new writer or confidence upgrade follows from the licence change.
 | F3 rich table cells | **Used**: confidence badges/warnings, detail fields, attributed icon cells, attribution cells and per-row inspect/restore actions. |
 | F4 `ReferenceSpec` pickers | **Used**: catalogue-backed resource IDs in F8 pages, read-only gear-definition references and skill-reference fields; unknown IDs remain raw. |
 | F5 structural edits | **N/A**: no safe add/remove/reorder grammar or free-slot/ownership invariant is proven. |
-| F6 action planning | **Used**: import-bounded restore supports selected/document/query scopes, skipped rows, preview revalidation and grouped undo/redo. |
+| F6 action planning | **Used**: import-bounded restore supports selected/document/query scopes, skipped rows, preview revalidation and grouped undo/redo; the main restore control binds to the `resources` table through SDK-41. |
 | F7 document groups | **N/A**: no proven coupled gameplay/preferences write contract; editing both would guess dependencies. |
 | F8 queryable tables | **Used**: eight server-backed collections page resources, IDs, words, flags, directory records and read-only inferred gear definitions/catalog levels. |
 | F9 graphs/maps | **Used**: three attributed weapon skill DAGs and a nine-realm map with a compact Midgard background, external guide links, text alternatives and stable targets. |
@@ -69,6 +69,15 @@ does not grant new rows or raise a counter above its import. Duplicate IDs/conta
 Individual fields, action descriptions, previews, direct action outcomes and edit/apply outcomes
 carry explicit integrity and console/dependency warnings. Canonical counter bindings are separate
 from read-only raw diagnostics, so expanding a raw alias cannot replace an editable binding.
+
+The main **Restore counters to imported values** button uses the `resources` table's selection
+through SDK-41, including selected rows on unloaded pages and all-filtered query selections with
+their exclusions and revision. The host names that table and the **whole document** fallback in
+its scope hint. With no explicit selection and no query selection, the button retains document
+scope (all existing wallet counters, excluding play time); it does not follow the separate XP
+table's selection. An explicit empty row list, zero query matches or a fully excluded query restores
+nothing. Cell restore actions retain their enclosing table's scope, including XP/collectible tables.
+Direct plugin restore invocation remains a non-mutating direction to F6; Core requires preview/apply.
 
 Only decoded fixed-size words are patched. IDs, counts, lengths, metadata words, padding, links,
 opaque regions and trailing bytes are preserved. Structural inventory edits, gear/equipped-reference writes,
@@ -294,6 +303,15 @@ or tampered previews, skipped rows, empty selections and F8 query scopes. A synt
 non-hero-container fixture tests that writer/history path without claiming console evidence. A
 synthetic wallet-marker collision proves Serialize rejects output that cannot be re-parsed.
 No console test is claimed.
+
+SDK-41 selection regressions use synthetic saves: staged reductions in three independent wallets
+exercise the declared table association, meaningful selected/unselected ownership through
+`SelectionScopeFixture`, empty scopes, document fallback, direct invocation and grouped undo/redo.
+A 1,024-row synthetic wallet checks full-query resolution beyond loaded pages, retained query
+metadata/exclusions, eligibility and stale revisions. Exact serialized-byte expectations keep
+unselected counters, play time and opaque data covered. Presentation characterizations assert the
+new binding separately and retain their complete baseline fingerprints after removing only that
+asserted property; preferences are unchanged. These checks do not establish browser or console acceptance.
 
 The 2026-10-29 maintainability review recorded **240 plugin tests, 0 failed, 0 skipped** in Release.
 Its 22 added characterizations pin complete parsed indexes, grammar evidence, presentation and

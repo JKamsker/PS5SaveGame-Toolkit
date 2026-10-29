@@ -148,11 +148,21 @@ public sealed class AriseIconCharacterizationTests
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         var view = Assert.IsType<TabsNode>(document.BuildView());
         Assert.Single(view.Tabs.SelectMany(tab => tab.Children).OfType<ActionNode>(), action => action.ActionId == AriseInventoryActions.RestoreImportedAction);
-        // Restore and CP additions are covered separately. Pins include the set-quantity control's console warning.
+        // Restore, CP and SDK-41 selection declarations are covered separately. Keep the historical
+        // fingerprint for every other node, including the set-quantity control's console warning.
+        var setControl = Assert.Single(view.Tabs.SelectMany(tab => tab.Children).OfType<ActionNode>(),
+            action => action.ActionId == AriseInventoryActions.SetQuantityAction);
+        Assert.Equal(JsonSerializer.SerializeToUtf8Bytes(AriseInventoryActions.View()), JsonSerializer.SerializeToUtf8Bytes(setControl));
+        const string historicalScopeDescription = "Expand the inventory table, then preview a selected set of existing recognised consumable rows, or all such rows in this save. ";
+        const string currentScopeDescription = "Expand the inventory table, then preview its selected rows or all matching query rows minus exclusions. With no selection, preview all existing recognised consumables in this save. An explicitly empty selection changes nothing. ";
+        Assert.StartsWith(currentScopeDescription, setControl.Description);
         view = view with { Tabs = view.Tabs.Select(tab => tab with
         {
             Children = tab.Children.Where(node => node is not ActionNode { ActionId: AriseInventoryActions.RestoreImportedAction }
-                and not FieldNode { ValueId: "party/current-cp" or "party/max-cp" }).ToArray(),
+                and not FieldNode { ValueId: "party/current-cp" or "party/max-cp" }).Select(node =>
+                node is ActionNode { ActionId: AriseInventoryActions.SetQuantityAction } action
+                    ? action with { SelectionTableId = null, Description = historicalScopeDescription + action.Description![currentScopeDescription.Length..] }
+                    : node).ToArray(),
         }).ToArray() };
         hash.AppendData(JsonSerializer.SerializeToUtf8Bytes((ViewNode)view));
         hash.AppendData(JsonSerializer.SerializeToUtf8Bytes(WithoutRestoreControl(document.LoadInventory())));

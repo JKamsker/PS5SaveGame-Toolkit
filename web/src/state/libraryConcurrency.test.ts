@@ -70,3 +70,28 @@ it("does not publish restored permissions after the user chooses another folder"
   permission.resolve("prompt"); await restore;
   expect(library.get()).toMatchObject({ status: "ready", folderName: "New files", persistent: false, games: [game("new")] });
 });
+
+it("retires remembered imports as soon as a rescan requests permission", async () => {
+  vi.mocked(group).mockResolvedValue({ games: [game("same")], skipped: 0 });
+  await library.scanFiles("Folder", []);
+  const oldSnapshot = library.get().snapshotId;
+  library.rememberImport("same", "older-dirty");
+  const permission = deferred<PermissionState>();
+  const requested = deferred<void>();
+  const handle = { name: "Folder", requestPermission: () => { requested.resolve(); return permission.promise; } };
+  const success = <T>(result: T) => {
+    const request = { result, onsuccess: null as null | (() => void) };
+    queueMicrotask(() => request.onsuccess?.()); return request;
+  };
+  vi.stubGlobal("indexedDB", { open: () => success({ transaction: () => ({ objectStore: () => ({ get: () => success(handle), put: () => success(undefined) }) }) }) });
+  vi.mocked(list).mockResolvedValue([]);
+  const rescan = library.reconnect();
+  await requested.promise;
+  expect(library.get().snapshotId).not.toBe(oldSnapshot);
+  expect(library.get().games).toEqual([]);
+  expect(library.importedWorkspace("same")).toBeUndefined();
+  permission.resolve("granted"); await rescan;
+  expect(library.get().status).toBe("ready");
+  library.rememberImport("same", "late-result", oldSnapshot);
+  expect(library.importedWorkspace("same")).toBeUndefined();
+});

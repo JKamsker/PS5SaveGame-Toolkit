@@ -16,17 +16,13 @@ internal sealed class ValueWrites
         + "https://github.com/ClayAmore/ER-Save-Editor/blob/014107f0ca1cff867b5f7565cb79d6684f9b35df/src/save/common/save_slot.rs";
     public const string QuantityWarning = Warning + " Legal carry/storage caps are unverified; only positive "
         + "existing ordinary stacks are editable, up to conservative observed ceilings (Rowa Fruit 12; Smithing Stone [1] 3).";
-    // These are conservative observed values, NOT PARAM-derived legal stack caps.
-    private const uint RowaFruit = 0x400050F0;
-    private const uint SmithingStoneOne = 0x40002774;
-    private const uint ObservedRowaFruit = 12;
-    private const uint ObservedSmithingStoneOne = 3;
     public const uint ObservedRuneHistory = 4427;
     private readonly byte[] _bytes;
     private readonly ParsedSave _save;
     private readonly Dictionary<int, NameWriter> _names;
     private readonly Dictionary<int, uint> _historyCeilings;
     private readonly Dictionary<string, (int Slot, InventoryEntry Entry, uint Ceiling)> _quantities = [];
+    private readonly Dictionary<(int Slot, int Offset), QuantityEligibility> _eligibility = [];
 
     public ValueWrites(byte[] bytes, ParsedSave save, IReadOnlyList<SemanticCharacter> characters)
     {
@@ -36,16 +32,15 @@ internal sealed class ValueWrites
         _historyCeilings = save.Slots.Where(slot => slot.Active).ToDictionary(slot => slot.Index,
             slot => Math.Max(ObservedRuneHistory, Read(slot.PlayerOffset!.Value + EldenRingLayout.RuneMemoryOffset)));
         foreach (var character in characters)
-        foreach (var container in character.Containers.Where(container => container.Warnings.Count == 0))
+        foreach (var container in character.Containers)
         {
             var handleCounts = container.Entries.GroupBy(entry => entry.Handle).ToDictionary(group => group.Key, group => group.Count());
             foreach (var entry in container.Entries)
             {
-                var ceiling = entry.ItemId switch { RowaFruit => ObservedRowaFruit, SmithingStoneOne => ObservedSmithingStoneOne, _ => 0U };
-                if (entry.Group == "common" && entry.Category == "goods" && entry.Resolution == "direct"
-                    && entry.Quantity > 0 && entry.Quantity <= ceiling
-                    && handleCounts[entry.Handle] == 1)
-                    _quantities.Add(entry.Key(character.Slot), (character.Slot, entry, ceiling));
+                var eligibility = QuantityEligibility.Evaluate(entry, container, handleCounts[entry.Handle], save.CanEdit);
+                _eligibility.Add((character.Slot, entry.Offset), eligibility);
+                if (eligibility.IsEligible)
+                    _quantities.Add(entry.Key(character.Slot), (character.Slot, entry, eligibility.Ceiling));
             }
         }
     }
@@ -56,6 +51,7 @@ internal sealed class ValueWrites
     public uint HistoryCeiling(CharacterSlot slot) => _historyCeilings[slot.Index];
     public uint RuneCeiling(CharacterSlot slot) => Math.Min(HistoryCeiling(slot), EldenRingLayout.MaximumRunes);
     public uint Current(InventoryEntry entry) => Read(entry.Offset + sizeof(uint));
+    public QuantityEligibility Eligibility(InventoryEntry entry, int slot) => _eligibility[(slot, entry.Offset)];
     public static string QuantityId(InventoryEntry entry, int slot) => entry.Key(slot) + "/quantity";
 
     public FieldNode Name(CharacterSlot slot, BindWrite bind) => bind($"slots/{slot.Index}/name", "Name",
@@ -82,14 +78,15 @@ internal sealed class ValueWrites
 
     public FieldNode Quantity(InventoryEntry entry, int slot, BindWrite bind)
     {
-        var eligible = _quantities.TryGetValue(entry.Key(slot), out var supported);
-        return bind(QuantityId(entry, slot), "Quantity", new IntegerSpec(eligible ? 1 : 0, eligible ? supported.Ceiling : uint.MaxValue),
+        var eligibility = Eligibility(entry, slot);
+        var eligible = eligibility.IsEligible;
+        return bind(QuantityId(entry, slot), "Quantity", new IntegerSpec(eligible ? 1 : 0, eligible ? eligibility.Ceiling : uint.MaxValue),
             () => FieldValue.Of((long)Current(entry)),
-            eligible && _save.CanEdit ? value => Write(entry.Offset + sizeof(uint), value.AsUInt32()) : null,
-            value => IntegerError(value, 1, supported.Ceiling)) with
+            eligibility.CanEdit ? value => Write(entry.Offset + sizeof(uint), value.AsUInt32()) : null,
+            value => IntegerError(value, 1, eligibility.Ceiling)) with
         {
             Confidence = eligible ? Confidence.Inferred : Confidence.Unknown,
-            Description = eligible ? QuantityWarning : "Read-only: unknown identity/cap, protected category, zero stack, duplicate handle or count disagreement.",
+            Description = eligibility.Description + (eligible ? " " + QuantityWarning : ""),
             Warning = eligible ? QuantityWarning : "No structural insertion, removal, transfer or container-managed edits.",
         };
     }

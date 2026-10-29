@@ -4,6 +4,15 @@ import { sameValue } from "../lib/values";
 
 type Listener = () => void;
 
+/** Identity of one installed diagnostic, replaced even when a newer message has identical text. */
+export interface FieldDiagnosticReceipt { readonly message: string }
+
+export interface FieldCommitOutcome {
+  accepted: boolean;
+  /** Only a diagnostic installed by this submission's result, never an existing field error. */
+  rejection?: FieldDiagnosticReceipt;
+}
+
 /**
  * Client-side cache of live values for one open document. View nodes carry the value at the time
  * they were fetched; edits, undo and actions report changes which override those snapshots here,
@@ -12,7 +21,7 @@ type Listener = () => void;
 export class DocumentStore {
   private values = new Map<string, FieldValue>();
   private original = new Map<string, FieldValue>();
-  private errors = new Map<string, string>();
+  private errors = new Map<string, FieldDiagnosticReceipt>();
   private listeners = new Map<string, Set<Listener>>();
   private valueListeners = new Map<string, Set<Listener>>();
   private globalListeners = new Set<Listener>();
@@ -39,16 +48,31 @@ export class DocumentStore {
   }
 
   error(valueId: string): string | undefined {
+    return this.errors.get(valueId)?.message;
+  }
+
+  diagnostic(valueId: string): FieldDiagnosticReceipt | undefined {
     return this.errors.get(valueId);
+  }
+
+  /** Clear only this exact installation; a replacement diagnostic belongs to a different result. */
+  clearError(valueId: string, receipt: FieldDiagnosticReceipt): void {
+    if (this.errors.get(valueId) === receipt) this.setError(valueId, undefined);
   }
 
   setError(valueId: string, message: string | undefined): void {
     if (message === undefined) this.errors.delete(valueId);
-    else this.errors.set(valueId, message);
+    else this.errors.set(valueId, { message });
     this.emit([valueId]);
   }
 
   apply(result: EditResult): void {
+    this.applyWithDiagnostics(result);
+  }
+
+  /** Apply one result and return its installations, even if a subscriber immediately replaces one. */
+  applyWithDiagnostics(result: EditResult): ReadonlyMap<string, FieldDiagnosticReceipt> {
+    const diagnostics = new Map<string, FieldDiagnosticReceipt>();
     const touched = result.changes.map((c: ValueChange) => {
       this.seed(c.valueId, c.oldValue);
       this.values.set(c.valueId, c.newValue);
@@ -56,13 +80,16 @@ export class DocumentStore {
       return c.valueId;
     });
     for (const e of result.errors) {
-      this.errors.set(e.valueId, e.message);
+      const receipt = { message: e.message };
+      this.errors.set(e.valueId, receipt);
+      diagnostics.set(e.valueId, receipt);
       touched.push(e.valueId);
     }
     this.state = result.state;
     this.lastMessage = result.message ?? (result.warnings.length ? result.warnings.join(" ") : null);
     if (result.changes.length) this.emitValues(result.changes.map(change => change.valueId));
     this.emit(touched);
+    return diagnostics;
   }
 
   /** Drops cached values after the view was rebuilt from scratch. */
@@ -133,6 +160,8 @@ export interface DocumentContextValue {
   /** Refetches the view (and bumps `structureVersion`), e.g. after a stale-id rejection. */
   refresh: () => Promise<void>;
   commit: (valueId: string, value: FieldValue) => Promise<boolean>;
+  /** Same serialized/deduplicated commit, with proof of any diagnostic that its result installed. */
+  commitWithDiagnostics?: (valueId: string, value: FieldValue) => Promise<FieldCommitOutcome>;
   acceptResult: (result: EditResult) => Promise<void>;
   /** Serialize a mutation with other writes/history and accept its result before the next starts. */
   mutate: (call: () => Promise<EditResult>) => Promise<EditResult>;

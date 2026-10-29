@@ -123,6 +123,17 @@ F6 previews accept Core-resolved **all matching rows** scopes (#27), including
 unloaded pages and exclusions. Empty selection remains empty. Primary storage
 bindings are independent of paging, including original values needed by undo.
 
+The **Stored stack state** column filters signed storage as **Positive**, **Zero**
+or **Negative** in the existing main/secondary tables. Main queries combine this
+exact filter (`stackState`) with search, other filters, sorting and paging across
+all allocated rows. Membership reads current quantities after edits and undo/redo.
+These labels establish neither ownership nor vacancy nor valid gameplay inventory:
+zero/negative values and exact record identities remain intact, initial visibility
+and include-empty behavior stay unchanged, and negative main stacks remain read-only
+and skipped by quantity actions. No gameplay caps or normalization are introduced.
+Synthetic state/query/history regressions were authored for this change but have
+**not yet been executed**; integration validation and browser verification are pending.
+
 The **Ability reference** tab has a collapsed spoiler section with 48 attributed
 abilities in ten Eikon groups, including Ifrit, Leviathan and Ultima. F9 chains
 show published initial/upgrade/master progression and individual AP annotations

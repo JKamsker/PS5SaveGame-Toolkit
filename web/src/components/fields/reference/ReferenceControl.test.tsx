@@ -98,6 +98,36 @@ describe("reference picker drafts and focus", () => {
 });
 
 describe("reference picker eligibility and queries", () => {
+  it.each(["shiftKey", "ctrlKey", "metaKey", "altKey"])("preserves native navigation with %s", async modifier => {
+    vi.useFakeTimers();
+    const context = renderField();
+    await openPicker();
+    const search = screen.getByRole("combobox", { name: "Search" });
+    fireEvent.keyDown(search, { key: "Home" });
+    const active = search.getAttribute("aria-activedescendant");
+    for (const key of ["Home", "End", "ArrowUp", "ArrowDown"]) {
+      const event = new KeyboardEvent("keydown", { key, [modifier]: true, bubbles: true, cancelable: true });
+      fireEvent(search, event);
+      expect(event.defaultPrevented).toBe(false);
+      expect(search.getAttribute("aria-activedescendant")).toBe(active);
+      expect(document.activeElement).toBe(search);
+    }
+    expect(context.commit).not.toHaveBeenCalled();
+  });
+
+  it("prevents plain navigation and moves the active candidate", async () => {
+    vi.useFakeTimers();
+    renderField();
+    await openPicker();
+    const search = screen.getByRole("combobox", { name: "Search" });
+    for (const [key, label] of [["Home", /Potion/], ["End", /Sword/], ["ArrowDown", /Potion/], ["ArrowUp", /Sword/]] as const) {
+      const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+      fireEvent(search, event);
+      expect(event.defaultPrevented).toBe(true);
+      expect(search.getAttribute("aria-activedescendant")).toBe(screen.getByRole("option", { name: label }).id);
+    }
+  });
+
   it("previews disabled choices and explains eligibility without committing", async () => {
     const context = renderField();
     await openPicker();

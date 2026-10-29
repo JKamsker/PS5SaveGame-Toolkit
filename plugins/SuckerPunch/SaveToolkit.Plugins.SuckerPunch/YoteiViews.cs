@@ -10,6 +10,7 @@ internal sealed class YoteiViews(byte[] bytes, YoteiState state, IReferenceConte
     private readonly CollectionQueryCache<YoteiRecord> _queries = new();
     public const string ItemsCatalog = "suckerpunch_yotei_items";
     public const string GearCollectionId = "yotei/gear-registry";
+    public const string InventorySelectionId = "yotei/inventory";
     public const string TechniquesCatalog = "suckerpunch_yotei_techniques";
     public const string WorldCatalog = "suckerpunch_yotei_world";
     public static IReadOnlyList<string> SourceUrls =>
@@ -43,7 +44,7 @@ internal sealed class YoteiViews(byte[] bytes, YoteiState state, IReferenceConte
                     ["quantity"] = quantity(row), ["copy"] = row.Ammo ? copy(row) : new TextNode("—"),
                     ["evidence"] = new TextNode(reference?.Description ?? "Unknown game-name mapping; raw identifier retained.") { Tone = Tone.Warning },
                 });
-            }).ToArray());
+            }).ToArray()) { SelectionId = InventorySelectionId, Title = "Existing Yōtei inventory" };
     }
 
     public TableNode Statistics() => new([new("id", "Raw statistic identifier"), new("value", "Stored uint32"), new("meaning", "Evidence")],

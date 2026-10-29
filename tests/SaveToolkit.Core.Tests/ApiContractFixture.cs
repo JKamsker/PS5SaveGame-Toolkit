@@ -6,18 +6,25 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.Tests.Fakes;
+using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Core.Tests;
 
 public sealed class ApiContractFixture : IDisposable
 {
-    private readonly WebApplicationFactory<Program> _factory = new WebApplicationFactory<Program>()
-        .WithWebHostBuilder(builder =>
+    private readonly WebApplicationFactory<Program> _factory;
+
+    public ApiContractFixture() : this(new CounterPlugin()) { }
+
+    internal ApiContractFixture(IGamePlugin plugin)
+    {
+        _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseEnvironment("Production").UseSetting("Toolkit:DataRoot", TestZips.TempDir())
                 .UseSetting("Toolkit:PackRoot", TestZips.TempDir());
-            builder.ConfigureServices(services => services.AddSingleton(new PluginCatalog([new CounterPlugin()])));
+            builder.ConfigureServices(services => services.AddSingleton(new PluginCatalog([plugin])));
         });
+    }
 
     public HttpClient Client => field ??= _factory.CreateClient();
     public static CancellationToken Ct => TestContext.Current.CancellationToken;

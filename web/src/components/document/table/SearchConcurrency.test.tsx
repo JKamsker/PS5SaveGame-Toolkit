@@ -46,3 +46,33 @@ it.each(["resolve", "reject"] as const)("keeps the latest search/filter rows whe
   expect(screen.queryByRole("checkbox", { name: "Select Oldest search" })).toBeNull();
   expect(screen.queryByRole("alert")).toBeNull();
 });
+
+it.each(["resolve", "reject"] as const)("keeps restored rows when an obsolete filtered query settles with %s after clearing", async outcome => {
+  const obsolete = deferred<QueryablePage>();
+  const read = vi.spyOn(api, "queryCollection").mockImplementation((_w, _d, _collection, query) => {
+    if (query?.filters?.name) return obsolete.promise;
+    return Promise.resolve(page(query?.q ? "Search result" : "Restored"));
+  });
+  const store = new DocumentStore({ revision: 1, isDirty: false, canUndo: false, canRedo: false });
+  const context: DocumentContextValue = { workspaceId: "w", documentId: "d", structureVersion: 0, canEdit: true, store,
+    commit: vi.fn(), refresh: vi.fn(), acceptResult: vi.fn(), runAction: vi.fn(), mutate: call => call() };
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } }); clients.push(client);
+  await act(async () => { render(<QueryClientProvider client={client}><DocumentContext.Provider value={context}>
+    <ServerTableView node={{ type: "queryableTable", collectionId: "items", title: "Items", columns, totalCount: 100 }} />
+  </DocumentContext.Provider></QueryClientProvider>); });
+  await act(async () => { fireEvent.change(screen.getByRole("searchbox"), { target: { value: "Potion" } }); });
+  await act(async () => { fireEvent.change(screen.getByLabelText("Filter Name"), { target: { value: "Healing" } }); });
+  expect(read).toHaveBeenLastCalledWith("w", "d", "items", expect.objectContaining({ q: "Potion", filters: { name: "Healing" } }), 1);
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Clear search and filters" })); });
+  expect(screen.getByRole("checkbox", { name: "Select Restored" })).toBeTruthy();
+  await act(async () => {
+    if (outcome === "resolve") obsolete.resolve(page("Obsolete filtered row"));
+    else obsolete.reject(new ApiError("Obsolete filter failed", 400));
+    await obsolete.promise.catch(() => {});
+  });
+  expect(screen.getByRole("checkbox", { name: "Select Restored" })).toBeTruthy();
+  expect(screen.queryByRole("checkbox", { name: "Select Obsolete filtered row" })).toBeNull();
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(screen.getByRole("searchbox")).toHaveProperty("value", "");
+  expect(screen.getByLabelText("Filter Name")).toHaveProperty("value", "");
+});

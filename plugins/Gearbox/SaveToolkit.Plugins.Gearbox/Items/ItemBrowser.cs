@@ -187,6 +187,7 @@ internal sealed class ItemBrowser
                     _references.Database.Find(ItemCatalogs.Indices, p.Key)?.AttributionText) })).ToArray();
         nodes.Add(new TableNode([new("category", "Category"), new("index", "Index"), new("name", "Community label"),
             new("effects", "Community effect text"), new("asset", "Raw asset"), new("icon", "Whole-item reference")], parts));
+        nodes.AddRange(GearboxItemActions.SelectedActions());
         return nodes;
     }
 

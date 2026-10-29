@@ -1,8 +1,10 @@
 import type { Ref } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { api } from "../../api/client";
 import type { SaveDocument, SaveFileInfo } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
 import { HistoryButtons } from "./HistoryButtons";
+import { documentClosures } from "./documentClosures";
 
 const maturityText = { ReadOnly: "read-only", Experimental: "experimental", Stable: "tested in-game" } as const;
 
@@ -16,13 +18,16 @@ interface DocumentHeaderProps {
 export function DocumentHeader({ document, file, focusHeading, onSwitchPlugin }: DocumentHeaderProps) {
   const context = useDocument();
   const { workspaceId, documentId } = context;
+  const closures = documentClosures(useQueryClient());
+  const history = (call: () => ReturnType<typeof api.undo>) => closures.get(workspaceId, documentId).pending
+    ? Promise.resolve() : context.mutate(call);
   return (
     <header className="editor__head">
       <div>
         <h1 ref={focusHeading} tabIndex={-1} className="editor__title">{document.title}</h1>
         <span className="editor__file mono">{document.filePath}</span>
       </div>
-      <HistoryButtons store={context.store} onUndo={() => context.mutate(() => api.undo(workspaceId, documentId))} onRedo={() => context.mutate(() => api.redo(workspaceId, documentId))} />
+      <HistoryButtons store={context.store} onUndo={() => history(() => api.undo(workspaceId, documentId))} onRedo={() => history(() => api.redo(workspaceId, documentId))} />
       {!document.groupMembers && <a className="btn btn--small btn--quiet" href={api.downloadUrl(workspaceId, documentId)} download>
         Download file
       </a>}

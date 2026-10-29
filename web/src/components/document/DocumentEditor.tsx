@@ -8,6 +8,7 @@ import { DocumentGroupControls } from "./DocumentGroupControls";
 import { DocumentHeader } from "./DocumentHeader";
 import { useDocumentSession } from "./useDocumentSession";
 import { useEntryFocus } from "../ui/useEntryFocus";
+import { useDocumentCloseState } from "./documentClosures";
 
 interface DocumentEditorProps {
   workspaceId: string;
@@ -15,9 +16,21 @@ interface DocumentEditorProps {
   file: SaveFileInfo | undefined;
   onSwitchPlugin: (pluginId: string) => void;
   onToast: (message: string, isError?: boolean) => void;
+  onClosed?: () => void;
+  onOpenGroup?: (documentId: string) => void;
 }
 
 export function DocumentEditor(props: DocumentEditorProps) {
+  const { pending } = useDocumentCloseState(props.workspaceId, props.documentId);
+  const focusClosing = useEntryFocus(`${props.workspaceId}:${props.documentId}:closing`);
+  if (pending) return <div ref={focusClosing} tabIndex={-1} role="status" aria-label="Document close status" className="empty">
+    Closing document… You can open another file while this finishes.
+  </div>;
+  // Do not mount a fresh mutation queue or history handlers for an identity still being closed.
+  return <DocumentSessionEditor {...props} />;
+}
+
+function DocumentSessionEditor(props: DocumentEditorProps) {
   const { workspaceId, documentId, onToast } = props;
   const session = useDocumentSession(workspaceId, documentId, onToast);
   const { query, context, refresh } = session;
@@ -38,7 +51,7 @@ export function DocumentEditor(props: DocumentEditorProps) {
   return <OpenDocument {...props} session={session} focusHeading={focusHeading} />;
 }
 
-function OpenDocument({ session, focusHeading, workspaceId, documentId, file, onSwitchPlugin, onToast }:
+function OpenDocument({ session, focusHeading, workspaceId, documentId, file, onSwitchPlugin, onToast, onClosed, onOpenGroup }:
   DocumentEditorProps & { session: ReturnType<typeof useDocumentSession>; focusHeading: ReturnType<typeof useEntryFocus> }) {
   const { query, context, refresh, structureVersion } = session;
   if (!context || !query.data) return null;
@@ -52,7 +65,7 @@ function OpenDocument({ session, focusHeading, workspaceId, documentId, file, on
             <p role="alert" className="notice notice--Danger">Could not refresh the document: {query.error.message}</p>
             <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={() => void refresh()}>Refresh document</button>
           </div>}
-          {(doc.plugin.supportsGroups || doc.groupMembers) && <DocumentGroupControls document={doc} />}
+          <DocumentGroupControls document={doc} onClosed={onClosed} onOpenGroup={onOpenGroup} />
           <SourcesPanel
             workspaceId={workspaceId}
             documentId={documentId}

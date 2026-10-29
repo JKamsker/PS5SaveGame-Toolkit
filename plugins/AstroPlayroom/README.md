@@ -81,6 +81,8 @@ ownership remains live. Raw paging constructs only visible nodes, and world prev
 - **Inferred effects, literal saved names:** boolean fields in `Progress` and `World`, including boss,
   visited, clear and map-notification flags. `Artifact`, `Puzzle` and `Prop` expose `IsGot` and
   existing `IsCinematicsPlayed` fields in Raw (props have no cinematic field in these samples).
+  Each uniquely resolved boolean `IsGot` also has a **Saved IsGot / ownership flag** control in
+  collectible Record details, reusing the same experimental binding, confidence and warning.
   The catalogue adds 50 candidate artifact aliases without claiming verified saved-ID mappings.
   These names strongly suggest collection/progression semantics, but linked counters, notification
   behavior, cinematics and trophy effects have not been tested in-game.
@@ -95,7 +97,9 @@ ownership remains live. Raw paging constructs only visible nodes, and world prev
 The Collectibles tab has separate Artifact, Puzzle and Prop sections. Each shows actual saved-record
 and ownership totals, mapped/unmapped counts, F3 confidence badges, searchable raw keys, candidate
 world/category and status filters, and expandable provenance/flag details. Catalogue labels/statuses
-remain read-only; reviewed ownership actions are described below. Individual flag controls remain in Raw.
+remain read-only; reviewed ownership actions are described below. Individual saved ownership can
+also be edited in Record details without opening Raw. Missing, ambiguous or nonboolean ownership
+remains Unknown with no detail control; other individual flag controls remain in Raw.
 Mapped means an **Inferred candidate identity or internal-stage alias**. All 50 artifacts have
 candidate names and all 96 puzzles have candidate internal-stage names, but physical piece locations
 remain unresolved; prop identities remain **0/18**. Raw keys are always retained.
@@ -118,7 +122,7 @@ whitespace, offsets and opaque suffix; it includes empty elements, attributes an
 It is **not** a claimed patch/version detector. See [EVIDENCE.md](EVIDENCE.md).
 
 Several puzzle prefixes contain five/three entries rather than four/four. Those exact groups survive
-unchanged, with no guessed physical piece order or mural position. After a raw edit,
+unchanged, with no guessed physical piece order or mural position. After an individual flag edit,
 undo or redo the plugin requests a view refresh so ownership filters, section totals and detail text
 reflect current values. F6 planning exposes reviewed coin and collect-existing actions, with explicit
 old/new values, skipped rows and warnings before apply. Each apply is one undo/redo group.
@@ -200,7 +204,7 @@ packs are cached once and repeated asset requests return the same AssetContent i
 | --- | --- | --- |
 | F1 SaveDiff | Used | `fixtures.json`, PluginViewDecoder and sample tests reproduce all 94 observed primitive transitions, byte changes and identical backups. Independent text oracles cover ownership output. |
 | F2 reference packs | Used | Offline schema-qualified English catalogue, 49 official-caption records, 52 attributed WebP assets, Sources panel and pinned context; no plugin I/O. Pack 1.1.0; assets shared by host cache. |
-| F3 rich cells | Used | Read-only name/confidence fields, provenance/details and selected-row planned action; F3/F8 thumbnail cells for 50 artifacts and 96 puzzles (one shared puzzle illustration). Unresolved props retain a text fallback. |
+| F3 rich cells | Used | Read-only name/confidence fields, provenance/details, existing Saved IsGot control and selected-row planned action; F3/F8 thumbnail cells for 50 artifacts and 96 puzzles (one shared puzzle illustration). Unresolved props retain a text fallback. |
 | F4 reference picker | Used | F6's planned candidate-world parameter uses `ReferenceSpec("astro_worlds")` with eligibility restricted to worlds that have existing mapped records. Read-only catalogue inspection parameters use the browse-only picker with attribution. |
 | F5 structural undo | N/A | Writer patches existing primitive spans only. Record creation/removal/reorder lacks a known game grammar/dependency repair; no structural writer exists. Existing batches use ordinary grouped value history. |
 | F6 planned actions / #27 | Used | Coins/collect-all, restore-imported ownership, candidate-world ownership and bounded gatcha-budget top-up presets. Core resolves all-matching F8 scopes and exclusions; preview/apply/one-step undo/redo are tested. `AstroPlanning.Apply` uses shared `ActionPlans.Revalidate` to compare reviewed and fresh plans before applying scalar edits. |

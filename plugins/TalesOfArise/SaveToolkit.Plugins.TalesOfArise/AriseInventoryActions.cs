@@ -20,8 +20,9 @@ internal sealed class AriseInventoryActions(AriseDocument document)
     public static ActionNode View() => new(SetQuantityAction, "Set existing consumable quantities")
     {
         SupportsPlanning = true,
+        SelectionTableId = AriseInventoryQuery.CollectionId,
         Tone = Tone.Warning,
-        Description = "Expand the inventory table, then preview a selected set of existing recognised consumable rows, or all such rows in this save. Unknown/equipment rows, records above the observed bound and new records are skipped. The batch is one undo step. " + Warning,
+        Description = "Expand the inventory table, then preview its selected rows or all matching query rows minus exclusions. With no selection, preview all existing recognised consumables in this save. An explicitly empty selection changes nothing. Unknown/equipment rows, records above the observed bound and new records are skipped. The batch is one undo step. " + Warning,
         Parameters = [new FieldNode(QuantityParameter, "Quantity", new IntegerSpec(0, AriseDocument.ConsumableStackLimit), FieldValue.Of((long)AriseDocument.ConsumableStackLimit))],
     };
 

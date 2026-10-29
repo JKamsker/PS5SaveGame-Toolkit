@@ -26,7 +26,7 @@ function useDraftSubmission(onCommit: FieldControlProps["onCommit"]) {
 }
 
 /** Owns typed drafts independently of snapshots, preserving newer and rejected edits. */
-export function useTextualDraft({ spec, value, onCommit, onLocalError, invalid: parentInvalid }: FieldControlProps) {
+export function useTextualDraft({ spec, value, onCommit, onLocalError, onDraftDiscard, invalid: parentInvalid }: FieldControlProps) {
   const [draft, setDraft] = useState(() => String(toDraft(spec, value)));
   const previousValue = useRef(draft);
   const { invalid, setInvalid, invalidate, submit } = useDraftSubmission(onCommit);
@@ -52,9 +52,11 @@ export function useTextualDraft({ spec, value, onCommit, onLocalError, invalid: 
   };
   const revert = () => {
     invalidate();
-    setDraft(String(toDraft(spec, value)));
+    const saved = String(toDraft(spec, value));
+    setDraft(saved);
     setInvalid(false);
     onLocalError?.(undefined);
+    if (draft !== saved) onDraftDiscard?.();
   };
   const step = async (delta: bigint) => {
     const parsed = parseDraft(spec, draft);

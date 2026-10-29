@@ -16,6 +16,7 @@ internal sealed class MateriaPlanning(Ff7Schema schema, GameplayFields gameplay,
     public ActionNode View(bool stars = false) => new(stars ? StarActionId : ActionId, stars ? "Set stars and dependent AP" : "Set AP and derived stars")
     {
         SupportsPlanning = true,
+        SelectionTableId = "materia",
         Description = (stars ? "Choose a materia type and star tier; dependent AP is set to that tier threshold. " : "Choose a materia type, then preview AP changes. ") +
             "Scope covers selected rows or all owned copies. " +
             "Summons and mismatched rows are skipped. Ordinary stars follow the pinned AP curve. " + WriteWarnings.Experimental + " " + EmbeddedCatalogs.Attribution,

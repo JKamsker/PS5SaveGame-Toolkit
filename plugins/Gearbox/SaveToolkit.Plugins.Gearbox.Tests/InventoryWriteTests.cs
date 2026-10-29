@@ -57,6 +57,7 @@ public sealed class InventoryWriteTests
         var entries = document.Inventory.Entries.ToArray();
         var supported = entries.First(e => new SerialReader(title == "PPSA01493").Read(e.Serial).Complete);
         var remove = entries.Last(e => e.Id != supported.Id);
+        _ = SelectionTestData.DiscoverItemAction(session, GearboxInventory.Backpack, remove.Id, remove.Index, "items/remove");
         var preview = session.PlanAction("items/remove", new Dictionary<string, JsonElement>(), new([remove.Id]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Empty(preview.Plan.Errors);
         Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
@@ -68,6 +69,10 @@ public sealed class InventoryWriteTests
         SerialWriteTests.AssertUnrelated(GearboxContainer.Parse(original, title, false).Decode(), reopened.Root, "inventory_items", "equipped_inventory_list");
         foreach (var action in new[] { "items/duplicate", "items/import" })
         {
+            // Discover the survivor's actual row declaration again after the structural refresh.
+            if (action == "items/duplicate")
+                _ = SelectionTestData.DiscoverItemAction(session, GearboxInventory.Backpack, supported.Id,
+                    document.Inventory.Find(supported.Id).Index, action);
             var parameters = action == "items/import" ? new Dictionary<string, JsonElement> { ["code"] = JsonSerializer.SerializeToElement("BL3(" + Convert.ToBase64String(supported.Serial) + ")") } : new();
             var scope = action == "items/import" ? new ActionScope() : new([supported.Id]);
             var create = session.PlanAction(action, parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
@@ -91,6 +96,8 @@ public sealed class InventoryWriteTests
         Assert.True(session.Undo().Ok);
         Assert.Equal(original, document.Serialize().Single().Content.ToArray());
         Assert.Equal(entries.Select(e => e.Id), document.Inventory.Entries.Select(e => e.Id));
+        _ = SelectionTestData.DiscoverItemAction(session, GearboxInventory.Backpack, remove.Id,
+            document.Inventory.Find(remove.Id).Index, "items/remove");
         Assert.NotEmpty(session.PlanAction("items/remove", new Dictionary<string, JsonElement>(), scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Plan.Errors);
         Assert.NotEmpty(session.PlanAction("items/remove", new Dictionary<string, JsonElement>(), new(["foreign"]), expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Plan.Errors);
         Assert.NotEmpty(session.PlanAction("items/import", new Dictionary<string, JsonElement> { ["code"] = JsonSerializer.SerializeToElement("BL3(bad)") }, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Plan.Errors);

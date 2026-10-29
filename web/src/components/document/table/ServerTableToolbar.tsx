@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import type { QueryableTableNode } from "../../../api/protocol";
 import { EmptyRowsToggle } from "./EmptyRowsToggle";
 import type { ServerTableModel } from "./ServerTableView";
@@ -38,9 +39,14 @@ export function ServerTableToolbar({ node, table }: ServerTableToolbarProps) {
 
 function ServerTableFilters({ node, table }: ServerTableToolbarProps) {
   const { columns, text, sort, descending, filters, updateQuery, updateFilter } = table;
+  const search = useRef<HTMLInputElement>(null);
   return (
     <div className="table__filters table__filters--paged">
-      <input className="table__search" type="search" placeholder="Search all rows" aria-label={`Search ${node.title}`} value={text} onChange={(e) => updateQuery({ q: e.target.value || undefined })} />
+      <input ref={search} className="table__search" type="search" placeholder="Search all rows" aria-label={`Search ${node.title}`} value={text} onChange={(e) => updateQuery({ q: e.target.value || undefined })} />
+      {(text || Object.keys(filters).length > 0) && <button type="button" className="btn btn--quiet btn--small" onClick={() => {
+        updateQuery({ q: undefined, filters: {} });
+        search.current?.focus();
+      }}>Clear search and filters</button>}
       <select className="input input--compact" aria-label="Sort rows" value={sort} onChange={(e) => updateQuery({ sort: e.target.value || undefined })}>
         <option value="">Default order</option>
         {columns.map((column) => <option key={column.key} value={column.key}>{column.label}</option>)}

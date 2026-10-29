@@ -14,13 +14,14 @@ public sealed class GroupProtocolTests
 {
     private static readonly Dictionary<string, FieldValue> Empty = [];
 
-    // Refreshed for #40 legacy-field evidence and write warnings; still pins plans and export bytes.
+    // Keep the historical presentation baseline while SelectionDeclarationTests pins the intentional
+    // selection wiring change. All existing field/row identities, plans and export bytes stay pinned.
     [Theory]
     [InlineData(false, "F6230C01C08B3ECE9D19A6121304C245CFD4B1D33AC04916D8E3B845386FA80B", "en-US")]
     [InlineData(true, "D0427AB8DC32351377832EED070C3FAD6BC27C59C3ADF26B85B5306F409CDF2B", "en-US")]
     [InlineData(false, "F6230C01C08B3ECE9D19A6121304C245CFD4B1D33AC04916D8E3B845386FA80B", "th-TH")]
     [InlineData(true, "D0427AB8DC32351377832EED070C3FAD6BC27C59C3ADF26B85B5306F409CDF2B", "th-TH")]
-    public void ViewsPlansAndExport_RetainPreAdapterFingerprint(bool wonderlands, string expected, string cultureName)
+    public void LegacyPresentationPlansAndExport_RetainPreAdapterFingerprint(bool wonderlands, string expected, string cultureName)
     {
         using var ambientCulture = new TestCulture(CultureInfo.GetCultureInfo(cultureName));
         AssertSyntheticFingerprint(wonderlands, expected);
@@ -118,15 +119,15 @@ public sealed class GroupProtocolTests
 
     private static void Capture(GearboxGroupDocument group, List<string> transcript)
     {
-        var view = group.BuildView();
+        var view = LegacySelectionPresentation.View(group);
         transcript.Add(JsonSerializer.Serialize<ViewNode>(view));
-        foreach (var node in GearboxGroupTests.Walk(group, view)) transcript.Add(JsonSerializer.Serialize<ViewNode>(node));
+        foreach (var node in LegacySelectionPresentation.Walk(group, view)) transcript.Add(JsonSerializer.Serialize<ViewNode>(node));
         transcript.Add(JsonSerializer.Serialize(group.Collections));
         foreach (var collection in group.Collections)
         {
             var page = group.Query(collection.Id, new() { Limit = 2 });
             transcript.Add(JsonSerializer.Serialize(page));
-            foreach (var node in page.Rows.SelectMany(row => row.Cells.Values).SelectMany(node => GearboxGroupTests.Walk(group, node)))
+            foreach (var node in page.Rows.SelectMany(row => row.Cells.Values).SelectMany(node => LegacySelectionPresentation.Walk(group, node)))
                 transcript.Add(JsonSerializer.Serialize<ViewNode>(node));
         }
         foreach (var output in group.Serialize()) transcript.Add(output.RelativePath + ":" + Hash(output.Content.Span));

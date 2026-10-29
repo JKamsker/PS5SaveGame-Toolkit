@@ -75,7 +75,7 @@ internal static class WorkspaceEndpoints
             Status412PreconditionFailed, Status422UnprocessableEntity);
         doc.MapActionReview();
         doc.MapGet("", (DocumentRef d) => d.Value.ToDto(d.Workspace));
-        doc.MapDelete("", (DocumentRef d) => d.Workspace.Close(d.Value.Id) ? Results.NoContent() : Results.NotFound())
+        doc.MapDelete("", (DocumentRef d) => d.Workspace.CloseClean(d.Value.Id) ? Results.NoContent() : Results.NotFound())
             .Produces(StatusCodes.Status204NoContent);
         doc.MapGet("/nodes", (DocumentRef d, [FromQuery] string id) => d.Value.Expand(id));
         // Opaque IDs may contain slashes, which Kestrel preserves as %2F in route parameters.
@@ -103,9 +103,7 @@ internal static class WorkspaceEndpoints
         doc.MapGet("/download", (DocumentRef d, CancellationToken ct) =>
         {
             var session = d.Value;
-            if (d.Workspace.DocumentGroups.Any(g => g.Session.Id == session.Id))
-                return Results.Conflict(new ErrorDto("Use workspace export to download all group members atomically."));
-            var own = session.Serialize(ct).FirstOrDefault(o => o.RelativePath == session.File.RelativePath);
+            var own = DocumentDownloader.Capture(d.Workspace, session, ct);
             return own is null
                 ? Results.Stream(session.File.OpenRead(), "application/octet-stream", session.File.FileName)
                 : Results.Bytes(own.Content, "application/octet-stream", session.File.FileName);

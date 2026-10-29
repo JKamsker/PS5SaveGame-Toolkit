@@ -20,6 +20,7 @@ internal sealed class FaithInventoryView(byte[] bytes, FaithInventory inventory,
         new("icon", "Icon"),
         new("slot", "Storage slot", IntegerSpec.Int32), new("id", "Raw ID / reference", IntegerSpec.Int32),
         new("name", "Name"), new("category", "Category"), new("quantity", "Stored stack", IntegerSpec.Int32),
+        new(FaithStoredStackState.ColumnKey, "Stored stack state"),
         new("flags", "Raw new-flag word"), new("details", "Evidence"), new("action", "Selected rows"),
     ];
 
@@ -60,6 +61,7 @@ internal sealed class FaithInventoryView(byte[] bytes, FaithInventory inventory,
         ["name"] = new TextNode(catalog.Name(item.Id)),
         ["category"] = new TextNode(catalog.Category(item.Id)),
         ["quantity"] = quantity(item, bank),
+        [FaithStoredStackState.ColumnKey] = new TextNode(FaithStoredStackState.Label(ReadInt(item.Offset + sizeof(int)))),
         ["flags"] = new TextNode($"0x{ReadInt(item.Offset + 2 * sizeof(int)):X8}"),
         ["details"] = new SectionNode("Source and storage", [new TextNode(catalog.Provenance(item.Id)),
             new TextNode($"Record at 0x{item.Offset:X}; allocation does not establish current ownership. " + FaithWriteMap.Warning)])

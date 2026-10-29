@@ -93,7 +93,8 @@ internal sealed class CharacterCollection
         {
             var found = false;
             foreach (var cell in row.Cells.Values)
-                if (cell.Text.Contains(text, StringComparison.OrdinalIgnoreCase)) { found = true; break; }
+                if (cell.Text.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+                    cell.Reference?.Name.Contains(text, StringComparison.OrdinalIgnoreCase) == true) { found = true; break; }
             if (!found) return false;
         }
         foreach (var filter in filters)

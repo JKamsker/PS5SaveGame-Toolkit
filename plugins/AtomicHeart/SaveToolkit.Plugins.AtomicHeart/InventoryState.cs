@@ -10,6 +10,9 @@ internal sealed record InventoryItem(string Key, string Container, TaggedPropert
 /// <summary>Existing slot values only. No allocation, identity, equipment or ownership changes.</summary>
 internal sealed class InventoryState
 {
+    internal const string ReducedQuantity = "Reduced since import";
+    internal const string IncreasedQuantity = "Increased since import";
+    internal const string UnchangedQuantity = "Unchanged";
     private const string ReferenceOnlyAttribute = "referenceOnly";
     private const string EmptyAssetPath = "None";
     private const long EmptyAmount = 0;
@@ -103,6 +106,12 @@ internal sealed class InventoryState
     internal long Limit(InventoryItem item) => Math.Min(containerLimits.GetValueOrDefault(item.ContainerId),
         item.Quantity.Type == "IntProperty" ? int.MaxValue : long.MaxValue);
     internal FieldValue Current(TaggedProperty property) => values.GetValueOrDefault(property.Payload.Offset, property.Value!.Value);
+    // Compare this stable parsed slot with its immutable opening Amount, never a prior edit.
+    internal string QuantityState(InventoryItem item) => Current(item.Quantity).AsInt64().CompareTo(item.Amount) switch {
+        < 0 => ReducedQuantity,
+        > 0 => IncreasedQuantity,
+        _ => UnchangedQuantity,
+    };
     internal void Set(TaggedProperty property, FieldValue value) => values[property.Payload.Offset] = value;
     internal string Asset(InventoryItem item) => Current(item.Asset).AsString();
     // Both sentinel identities occur with None/zero in the supplied slot arrays.

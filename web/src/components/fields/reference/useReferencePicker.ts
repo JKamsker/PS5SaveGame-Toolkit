@@ -163,6 +163,7 @@ export function useReferencePicker(props: ReferencePickerProps) {
   const previewRaw = useRawLookup(identity, state);
   const navigate = (event: KeyboardEvent<HTMLInputElement>) => {
     if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key) && items.length) {
+      if (event.shiftKey || event.ctrlKey || event.metaKey || event.altKey) return;
       event.preventDefault();
       setRawCandidate(undefined);
       const next = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1

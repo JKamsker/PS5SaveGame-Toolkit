@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import type { TitleInfo } from "../../api/protocol";
 import type { LibraryGame } from "../../lib/library";
@@ -31,7 +31,7 @@ export function GameLibrary({ onChooseFolder }: { onChooseFolder: () => void }) 
       )}
       <ul className="library__grid">
         {state.games.map((game) => (
-          <GameTile key={game.key} game={game} title={game.titleId ? byId.get(game.titleId) : undefined} icon={state.icons[game.key]} />
+          <GameTile key={`${state.snapshotId}:${game.key}`} snapshotId={state.snapshotId} game={game} title={game.titleId ? byId.get(game.titleId) : undefined} icon={state.icons[game.key]} />
         ))}
       </ul>
     </section>}
@@ -47,10 +47,10 @@ function describe(status: string, count: number, skipped: number, persistent: bo
   return `${found}${rest}. ${persistent ? "Remembered in this tab." : "Choose the folder again after reloading this page."}`;
 }
 
-function GameTile({ game, title, icon }: { game: LibraryGame; title: TitleInfo | undefined; icon: string | undefined }) {
+function GameTile({ game, title, icon, snapshotId }: { game: LibraryGame; title: TitleInfo | undefined; icon: string | undefined; snapshotId: number }) {
   const name = title?.name ?? game.fallbackName;
   const support = title?.support ?? "None";
-  const { progress, error, task, open } = useGameImport(game, name);
+  const { progress, error, task, open } = useGameImport(game, name, snapshotId);
   const busy = progress !== null;
   return (
     <li className={`game${busy ? " game--busy" : ""}`}>
@@ -110,29 +110,36 @@ function LibraryHeader({ state, onChooseFolder }: { state: LibraryState; onChoos
   );
 }
 
-function useGameImport(game: LibraryGame, name: string) {
+function useGameImport(game: LibraryGame, name: string, snapshotId: number) {
   const navigate = useNavigate();
+  const client = useQueryClient();
   const [progress, setProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const task = useImportTask(game.key);
+  const task = useImportTask(`${snapshotId}:${game.key}`);
 
-  const open = () => task.run(async isCurrent => {
+  const open = () => task.run(async taskIsCurrent => {
+    const isCurrent = () => taskIsCurrent() && library.get().snapshotId === snapshotId;
+    if (!isCurrent()) return;
     setError(null);
     setProgress(0);
-    const existing = library.importedWorkspace(game.key);
-    if (existing) {
-      const alive = await api.workspace(existing).then(() => true, () => false);
-      if (!isCurrent()) return;
-      if (alive) return navigate(`/w/${existing}`);
-    }
     try {
+      const existing = library.importedWorkspace(game.key, snapshotId);
+      if (existing) {
+        const alive = await api.workspace(existing).then(() => true, () => false);
+        if (!isCurrent()) return;
+        if (alive) return navigate(`/w/${existing}`);
+      }
       const ws = await api.upload(game.sources, name, progress => { if (isCurrent()) setProgress(progress); });
+      void client.invalidateQueries({ queryKey: ["workspaces"] });
+      // The snapshot owns reuse; source-selection intent separately owns navigation/feedback.
+      library.rememberImport(game.key, ws.id, snapshotId);
       if (!isCurrent()) return;
-      library.rememberImport(game.key, ws.id);
       void navigate(`/w/${ws.id}`);
     } catch (e) {
       if (!isCurrent()) return;
       setError(e instanceof ApiError ? e.message : "The import failed.");
+    } finally {
+      // This tile owns only its local progress; even a retired observer must release it.
       setProgress(null);
     }
   });

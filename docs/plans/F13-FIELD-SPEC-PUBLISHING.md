@@ -2,12 +2,23 @@
 
 Issue #33 permits a design deliverable for this item. **Status — 2026-10-29:** storage-only
 binding registration shipped in `a1c08c0`, through `BoundSaveDocument.RegisterField(...)` and
-`Field(valueId, label)`. That part of the proposal is done. Host metadata resolution, primary/alias
-classification and Core lifecycle integration below remain proposed; plugins must retain their
-preflight guards. See [the shipped contract](../PLUGIN_GUIDE.md#contract-srcsavetoolkitsdk) and
-[SDK-02 / SDK-32](../SDK_REQUESTS.md#prioritized-inventory).
+`Field(valueId, label)`. That part of the proposal is done. SDK-02 (`de78531`) also delivers
+`IFieldMetadataDocument`, canonical specs/labels, primary/derived classification, unloaded-edit
+and F6 preflight, and live replay bindings. Pragmata has adopted it while retaining its binding
+guard; opening quantity pages is no longer a prerequisite for planning or direct edits.
 
-## What the current code actually does
+The proposal remains partial because targeted original/current semantic-review metadata capture,
+generic cross-ID alias relationships and automatic group forwarding remain proposed. Pragmata's
+quantity projections already share canonical IDs; its 251-row regression expects 250 review
+entries for 250 edits. This does not establish a general cross-ID deduplication contract.
+See [the shipped SDK-02 contract](../PLUGIN_GUIDE.md#field-metadata-without-rendering-a-page-sdk-02)
+and [SDK-02 / SDK-32](../SDK_REQUESTS.md#prioritized-inventory).
+
+The design below preserves the **historical pre-SDK-02 problem and full proposed scope**.
+Its descriptions of missing metadata and future lifecycle work refer to that snapshot;
+the current contract and remaining integration limits above supersede them.
+
+## Historical problem before SDK-02
 
 `DocumentSession.Revert` already replays action-reported value IDs that have **no** indexed spec.
 It only excludes IDs whose known spec is read-only. The regression test
@@ -83,5 +94,7 @@ staging must resolve against the candidate model, never bindings from a previous
   incomplete coverage honestly when its bounded baseline cannot include them.
 - Grouped documents resolve/restage bindings correctly across members and publication boundaries.
 
-This deserves a follow-up framework issue and plugin adoption round. The current Pragmata guard
-should remain until the capability and these checks ship together.
+For current adoption, follow the shipped contract rather than treating this historical design as
+an absent API. Preserve plugin binding/dependency guards. Broader semantic-review and group
+integrations still need their own design, implementation and verification; SDK-02 delivery and
+Pragmata adoption do not complete every part of this proposal.

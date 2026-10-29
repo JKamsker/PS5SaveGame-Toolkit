@@ -28,7 +28,9 @@ internal static class GearboxGroupIdentity
         var document = (GearboxDocument)member.Document;
         var rows = document.Inventory.Entries.ToDictionary(entry => member.Prefix(entry.List + "/" + entry.Id),
             entry => (Collection: entry.List, Key: entry.Id), StringComparer.Ordinal);
-        var poolCount = document.Root.Children("resource_pools").Count();
+        // Ammo is character-only; the profile schema contains no resource_pools field.
+        // Profile selections still resolve exclusively through their exact inventory row identities.
+        var poolCount = document.Profile ? 0 : document.Root.Children("resource_pools").Count();
         for (var index = 0; index < poolCount; index++)
         {
             var key = index.ToString(CultureInfo.InvariantCulture);

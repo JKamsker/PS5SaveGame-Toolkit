@@ -10,8 +10,8 @@ internal sealed class InventoryView(PragmataDocument document)
     public IReadOnlyList<ViewNode> Build() => [
         new TextNode("Player-facing item mappings and legal stack limits are unverified. Attributed reference packs can supply names, descriptions and images; raw IDs are always preserved. Quantities use the stored int32 range.") { Tone = Tone.Warning },
         document.Layout.Items.Count <= LazyPages.PageSize ? Table() : document.InventoryRows.Table(),
-        QuantityAction(),
-        RestoreQuantityAction(),
+        QuantityAction() with { SelectionTableId = InventoryCollections.CollectionId },
+        RestoreQuantityAction() with { SelectionTableId = InventoryCollections.CollectionId },
     ];
 
     private static ActionNode QuantityAction() => new(PragmataViews.QuantityAction, "Set stored quantities")
@@ -42,7 +42,11 @@ internal sealed class InventoryView(PragmataDocument document)
 
     private TableNode Table() => new(InventoryCollections.Columns.Select(column => new TableColumn(column.Key, column.Label)).ToArray(),
         document.Layout.Items.Select(item => Row(document, item)).ToArray())
-        { Title = InventoryCollections.Title, Description = InventoryCollections.NativeArrayDescription };
+        {
+            SelectionId = InventoryCollections.CollectionId,
+            Title = InventoryCollections.Title,
+            Description = InventoryCollections.NativeArrayDescription,
+        };
 
     internal static TableRow Row(PragmataDocument document, SaveNode item)
     {

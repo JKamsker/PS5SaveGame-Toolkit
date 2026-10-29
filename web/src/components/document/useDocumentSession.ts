@@ -3,18 +3,24 @@ import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import type { EditResult, FieldValue, SaveDocument, Workspace } from "../../api/protocol";
-import { DocumentStore, type DocumentContextValue } from "../../state/documentStore";
+import { DocumentStore, type DocumentContextValue, type FieldCommitOutcome, type FieldDiagnosticReceipt } from "../../state/documentStore";
 import { sameValue } from "../../lib/values";
 import { WorkspaceActivityContext } from "../../state/workspaceActivity";
 
 type DocumentQuery = UseQueryResult<SaveDocument, Error>;
 type Notify = (message: string, isError?: boolean) => void;
 
+interface PendingFieldCommit {
+  value: FieldValue;
+  outcome: Promise<FieldCommitOutcome>;
+  accepted: Promise<boolean>;
+}
+
 function useDocumentLifetime(workspaceId: string, documentId: string, store: DocumentStore | null) {
   // Document identity deliberately starts a new request lifetime even when the initial values match.
   const lifetime = useMemo(() => ({ active: true, generation: 0, tail: Promise.resolve() }), [workspaceId, documentId]);
   const currentStore = useRef(store);
-  const pendingEdits = useRef(new Map<string, { value: FieldValue; promise: Promise<boolean> }>());
+  const pendingEdits = useRef(new Map<string, PendingFieldCommit>());
   currentStore.current = store;
   useEffect(() => {
     lifetime.active = true;
@@ -49,7 +55,7 @@ function useDocumentResult(workspaceId: string, documentId: string, query: Docum
         if (lifetime.active) onToast("The document changed. Please try again with the current view.", true);
         return;
       }
-      currentStore.current.apply(result);
+      const diagnostics = currentStore.current.applyWithDiagnostics(result);
       if (result.structureChanged) { lifetime.generation++; await refetch(); }
       if (!lifetime.active) return;
       if (result.message) onToast(result.message);
@@ -60,6 +66,7 @@ function useDocumentResult(workspaceId: string, documentId: string, query: Docum
       }));
       void queryClient.invalidateQueries({ queryKey: ["workspace", workspaceId] });
       void queryClient.invalidateQueries({ queryKey: ["export-plan", workspaceId] });
+      return diagnostics;
     },
     [lifetime, currentStore, refetch, queryClient, workspaceId, documentId, onToast],
   );
@@ -68,12 +75,12 @@ function useDocumentResult(workspaceId: string, documentId: string, query: Docum
 }
 
 function useDocumentMutation(workspaceId: string, documentId: string, query: DocumentQuery, store: DocumentStore | null,
-  session: SessionLifetime, handleResult: DocumentContextValue["acceptResult"], onToast: Notify) {
+  session: SessionLifetime, handleResult: ReturnType<typeof useDocumentResult>["handleResult"], onToast: Notify) {
   const queryClient = useQueryClient();
   const activity = useContext(WorkspaceActivityContext);
   const { lifetime, currentStore, enqueue } = session;
   const run = useCallback(
-    (call: () => Promise<EditResult>): Promise<EditResult> => {
+    (call: () => Promise<EditResult>, onApplied?: (diagnostics: ReadonlyMap<string, FieldDiagnosticReceipt> | undefined) => void): Promise<EditResult> => {
       const generation = lifetime.generation;
       const rejected = (message: string): EditResult => ({ ok: false, errors: [{ valueId: "", message }], changes: [], warnings: [],
         structureChanged: false, state: currentStore.current?.state ?? query.data!.state });
@@ -90,7 +97,9 @@ function useDocumentMutation(workspaceId: string, documentId: string, query: Doc
           // Also retire snapshots that began while this write was in flight.
           await queryClient.cancelQueries({ queryKey: ["document", workspaceId, documentId] });
           if (!lifetime.active) return rejected("The document is no longer open.");
-          await handleResult(result);
+          const diagnostics = await handleResult(result);
+          // Pass this result's installations, never errors left over from another queued write.
+          onApplied?.(diagnostics);
           const globalError = result.errors.find(error => error.valueId === "");
           if (lifetime.active && !result.ok && !result.stale && globalError) onToast(globalError.message, true);
           return result;
@@ -113,10 +122,23 @@ function useDocumentMutation(workspaceId: string, documentId: string, query: Doc
 
 function useDocumentContext(workspaceId: string, documentId: string, query: DocumentQuery, store: DocumentStore | null,
   pendingEdits: SessionLifetime["pendingEdits"], refresh: DocumentContextValue["refresh"],
-  handleResult: DocumentContextValue["acceptResult"], run: DocumentContextValue["mutate"]) {
+  handleResult: ReturnType<typeof useDocumentResult>["handleResult"], run: ReturnType<typeof useDocumentMutation>) {
   const structureVersion = query.dataUpdatedAt;
   const context = useMemo<DocumentContextValue | null>(() => {
     if (!query.data || !store) return null;
+    const pendingCommit = (valueId: string, value: FieldValue): PendingFieldCommit => {
+      const pending = pendingEdits.current.get(valueId);
+      if (pending && sameValue(pending.value, value)) return pending;
+      let rejection: FieldDiagnosticReceipt | undefined;
+      const outcome = run(() => api.edit(workspaceId, documentId, [{ valueId, value }], store.state.revision),
+        diagnostics => { rejection = diagnostics?.get(valueId); })
+        .then(result => ({ accepted: result.ok, rejection: result.ok ? undefined : rejection }));
+      // Cache both promises once: legacy callers also share their pending promise by reference.
+      const entry = { value, outcome, accepted: outcome.then(result => result.accepted) };
+      pendingEdits.current.set(valueId, entry);
+      void outcome.finally(() => { if (pendingEdits.current.get(valueId) === entry) pendingEdits.current.delete(valueId); });
+      return entry;
+    };
     return {
       workspaceId,
       documentId,
@@ -124,17 +146,10 @@ function useDocumentContext(workspaceId: string, documentId: string, query: Docu
       store,
       structureVersion,
       refresh,
-      acceptResult: handleResult,
+      acceptResult: async result => { await handleResult(result); },
       mutate: run,
-      commit: (valueId: string, value: FieldValue) => {
-        const pending = pendingEdits.current.get(valueId);
-        if (pending && sameValue(pending.value, value)) return pending.promise;
-        const promise = run(() => api.edit(workspaceId, documentId, [{ valueId, value }], store.state.revision)).then(result => result.ok);
-        const entry = { value, promise };
-        pendingEdits.current.set(valueId, entry);
-        void promise.finally(() => { if (pendingEdits.current.get(valueId) === entry) pendingEdits.current.delete(valueId); });
-        return promise;
-      },
+      commitWithDiagnostics: (valueId, value) => pendingCommit(valueId, value).outcome,
+      commit: (valueId, value) => pendingCommit(valueId, value).accepted,
       runAction: async (actionId: string, parameters: Record<string, FieldValue>) =>
         run(() => api.action(workspaceId, documentId, actionId, parameters, store.state.revision)),
     };

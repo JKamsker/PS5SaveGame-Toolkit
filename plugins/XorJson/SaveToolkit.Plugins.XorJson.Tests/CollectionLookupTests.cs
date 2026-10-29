@@ -53,6 +53,25 @@ public sealed class CollectionLookupTests
         Assert.Equal(bytes, document.Serialize().Single().Content.ToArray());
     }
 
+    [Fact]
+    public void AttributeMetadataAndRepeatedPagesKeepReferenceProjectionsLazyAndCached()
+    {
+        const int rowCount = 1000;
+        var plugin = new XorJsonPlugin();
+        var references = new CountingReferences(new ReferencePackStore([plugin]).Pin(plugin, "PPSA16064"));
+        var bytes = AttributeSearchData.Hero(Enumerable.Range(0, rowCount).Select(index => ("SpringStone", index)));
+        using var document = plugin.Open(MemorySaveSet.SingleFile("hero.sav", bytes), references);
+        var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
+        Assert.Equal(rowCount, queryable.Collections.Single(collection => collection.Id == AttributeSearchData.CollectionId).TotalCount);
+        Assert.Equal(0, references.FindCalls);
+        var query = new QueryableCollectionQuery { Offset = rowCount - 1, Limit = 1 };
+        var first = Assert.Single(queryable.Query(AttributeSearchData.CollectionId, query).Rows);
+        Assert.Equal(2, references.FindCalls); // One projected record and one live field lookup.
+        Assert.Equal(first.Key, Assert.Single(queryable.Query(AttributeSearchData.CollectionId, query).Rows).Key);
+        Assert.Equal(3, references.FindCalls); // The reference attached to the projection is reused.
+        Assert.Equal(bytes, document.Serialize().Single().Content.ToArray());
+    }
+
     private sealed class CountingReferences(IReferenceContext inner) : IReferenceContext
     {
         private readonly Dictionary<string, IReferenceCatalog> _catalogs = new(StringComparer.Ordinal);

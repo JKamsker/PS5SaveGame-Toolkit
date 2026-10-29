@@ -140,6 +140,12 @@ public sealed class AtomicHeartEmptySlotTests
         Assert.Equal(150, exact.HiddenEmptyCount);
         Assert.Equal(0, collection.Query(query with { Text = "no match" }).HiddenEmptyCount);
         Assert.Equal(450, collection.Query(query with { IncludeEmpty = true }).FilteredCount);
+        var unchanged = emptyQuery with { Filters = AtomicHeartQuantityStateTests.Filter("Unchanged").Filters };
+        Assert.Equal(150, collection.Query(unchanged).HiddenEmptyCount);
+        Assert.Equal(150, collection.Query(unchanged with { IncludeEmpty = true }).FilteredCount);
+        var reduced = collection.Query(AtomicHeartQuantityStateTests.Filter("Reduced since import"));
+        Assert.Empty(reduced.Rows);
+        Assert.Equal(0, reduced.HiddenEmptyCount); // Unchanged vacant slots are not reduced matches.
     }
 
     private static (InventoryState State, InventoryCollection Collection) Collection(TaggedProperty[] elements)

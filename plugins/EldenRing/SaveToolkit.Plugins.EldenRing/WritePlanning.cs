@@ -75,20 +75,20 @@ internal sealed class WritePlanning(byte[] bytes, ParsedSave save, IReadOnlyList
             && InventoryBrowser.Id(slot.Index, row.Container) != scoped.CollectionId))
             return Error(RefillId(slot), "Selection contains rows outside the requested collection.");
 
-        var eligible = writes.Quantities.ToDictionary(row => row.Key, StringComparer.Ordinal);
         var changes = new List<PlannedChange>();
         var skipped = new List<SkippedActionRow>();
         var attribution = new HashSet<string>(StringComparer.Ordinal);
         foreach (var row in rows.Where(row => selected is null ? !row.IsEmpty : selected.Contains(row.Key(slot.Index))))
         {
             var key = row.Key(slot.Index);
-            if (!eligible.TryGetValue(key, out var supported))
+            var eligibility = writes.Eligibility(row, slot.Index);
+            if (!eligibility.IsEligible)
             {
-                skipped.Add(new(key, "Protected: outside ordinary-stack allowlist or ambiguous/zero/count-inconsistent row."));
+                skipped.Add(new(key, eligibility.Description));
                 continue;
             }
             var old = FieldValue.Of((long)writes.Current(row));
-            var next = FieldValue.Of((long)supported.Ceiling);
+            var next = FieldValue.Of((long)eligibility.Ceiling);
             if (old == next) { skipped.Add(new(key, "Already at the conservative observed ceiling.")); continue; }
             var reference = catalog.Find(row.RawId);
             var label = reference?.Name ?? row.RawId;

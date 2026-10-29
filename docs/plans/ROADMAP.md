@@ -27,13 +27,23 @@ been accepted on PS5. All plugins remain Experimental. See the [current support 
 
 Shared collection/action/binary/reference/CRC helpers, storage-only field registration and conformance
 mutation fuzzing are also delivered. The [field-metadata proposal](F13-FIELD-SPEC-PUBLISHING.md) is
-**partially delivered**, not fully done: host metadata/alias discovery remains
-[SDK-02](../SDK_REQUESTS.md#prioritized-inventory). See that backlog for other pending contracts.
+**partially delivered** overall: [SDK-02](../SDK_REQUESTS.md#prioritized-inventory) delivers opt-in
+canonical field metadata, primary/derived binding policy, unloaded-edit preflight and live replay
+integration, and Pragmata has adopted it. Targeted original/current semantic-review metadata capture,
+generic cross-ID alias relationships and automatic group forwarding remain separate integrations.
+The four open SDK requests are lossless JSON sharing (SDK-06, large), versioned preset storage
+(SDK-07, large), a field-reference presentation node (SDK-08, medium; needs a concrete consumer),
+and SFO subtitle synchronization (SDK-10; blocked on evidence). See the backlog for their scope.
 
 The backend quality pass [#34](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/34) and web quality
 pass [#35](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/35) have also landed. Their reported
 fixes/tests are delivered; this does not promise further unperformed review. GitHub issue state is
 separate from implementation status.
+
+The delivered baseline above was rechecked at `8d6a261c4afc539224996eb4f67d5a8cc0b4f1e4`.
+As of this reconciliation, the subsequent functionality/UX improvement wave is unmerged and awaits
+integration validation and review. Local implementation handoffs do not mark that wave shipped or
+close the remaining gameplay, format and owner-evidence gaps below.
 
 ### Plugin rounds
 

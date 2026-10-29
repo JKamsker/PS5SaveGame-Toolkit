@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Routing;
@@ -23,10 +24,7 @@ public sealed class ApiDocumentationTests(WebApplicationFactory<Program> factory
         Assert.Contains("POST /api/workspaces/{workspaceId}/documents/{documentId}/reference-fields/records", endpoints);
         Assert.Equal(endpoints.Length, endpoints.Distinct(StringComparer.Ordinal).Count());
 
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "SaveToolkit.slnx")))
-            directory = directory.Parent;
-        Assert.NotNull(directory);
+        var directory = RepositoryRoot();
         string reference = Path.Combine(directory.FullName, "docs", "API.md");
         Assert.True(File.Exists(reference), "Missing docs/API.md.");
         string markdown = File.ReadAllText(reference);
@@ -37,5 +35,18 @@ public sealed class ApiDocumentationTests(WebApplicationFactory<Program> factory
         Assert.True(endpoints.SequenceEqual(documented, StringComparer.Ordinal),
             "Missing from docs: " + string.Join(", ", endpoints.Except(documented, StringComparer.Ordinal))
             + "\nDocumented but absent: " + string.Join(", ", documented.Except(endpoints, StringComparer.Ordinal)));
+    }
+
+    private static DirectoryInfo RepositoryRoot([CallerFilePath] string sourceFile = "")
+    {
+        // Redirected build outputs can live outside the checkout; keep the API reference tied to this source tree.
+        foreach (var start in new[] { AppContext.BaseDirectory, Path.GetDirectoryName(sourceFile) })
+        {
+            var directory = start is null ? null : new DirectoryInfo(start);
+            while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "SaveToolkit.slnx")))
+                directory = directory.Parent;
+            if (directory is not null) return directory;
+        }
+        throw new DirectoryNotFoundException("Could not locate the checkout containing docs/API.md.");
     }
 }

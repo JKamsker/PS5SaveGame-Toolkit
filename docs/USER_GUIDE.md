@@ -144,8 +144,12 @@ need space. Contributors running tests/builds should use the separate
 [disk and scratch guidance](RELEASING.md#disk-and-scratch).
 
 **A workspace is temporary.** Edits and undo history live in the running server session.
-Closing a dump discards its workspace; restarting the server clears imported workspaces,
-and workspaces idle for six hours expire by default. The home page's **Open dumps** list
+Closing a dump discards its workspace; restarting the server clears imported workspaces.
+Clean workspaces idle for six hours expire by default. Workspaces with committed edits,
+including related-file groups and edits that cannot be undone, survive automatic idle
+cleanup while the server keeps running. Undoing all reversible edits allows expiry again.
+Export and **Download file** leave edits marked dirty, so close finished documents or dumps
+to release their retained memory and working files. The home page's **Open dumps** list
 is for currently open workspaces, not saved editing projects. Export before closing or
 stopping the app. Keep originals and exported zips outside `data/`.
 
@@ -271,8 +275,10 @@ manage their own selected backups.
 The toolkit reopens edited output with its plugin before packing it. If verification
 fails, read the error and undo or correct the edit; passing these checks still does not
 prove console acceptance. Save the downloaded zip separately from the original. A
-document's **Download file** downloads just that file; use workspace Export for complete
-save folders and for related-file groups. Inspect the plan paths: additional generations use `genN/`,
+document's **Download file** verifies edited output with the same plugin before downloading
+just that file. A verification failure returns an error without an attachment and keeps your
+edits available to correct or undo. Use workspace Export for complete save folders,
+independent documents that rewrite sibling files, and related-file groups. Inspect the plan paths: additional generations use `genN/`,
 wrapper folders above a recognized title are dropped, and an unrecognized title/layout keeps its
 imported path.
 
@@ -409,8 +415,10 @@ installing Node.js does not address it.
 
 ### Edits disappeared or the workspace is gone
 
-Closing a dump, server restart or idle expiration ends the workspace. Re-import your
-original or last exported zip. There is no persistent project/autosave recovery from
+Closing a dump or restarting the server ends its workspace and discards remaining edits.
+Automatic idle expiration applies only to clean workspaces; committed dirty edits stay
+available while the server runs. Re-import your original or last exported zip if the
+workspace is gone. There is no persistent project/autosave recovery from
 `data/workspaces/`; export before ending a session.
 
 ## Report a problem

@@ -82,6 +82,13 @@ Still disabled for structural safety:
   on apply. A second action, `inventory/set-quantity`, extends the same workflow to all existing
   supported resource/ammo records, with derived ammo copies shown explicitly. Both actions use
   ordinary validated scalar edits and one Core undo/redo group. Neither unlocks items or claims a capacity.
+  SDK-41 binds both target controls to eager table selection ID `tsushima/inventory`; Yōtei's existing
+  `yotei/inventory/set-quantity` binds to `yotei/inventory`. Selected raw row keys include rows hidden
+  by filters. **With nothing selected, these sibling target controls use document scope**, even if a
+  filter is active. An explicit API `rowKeys: []` remains a no-op. Select-all/deselect in these eager
+  inventories sends explicit row keys; neither ID is an F8 collection, and query scopes (including
+  exclusions or a fully excluded query) are rejected. The read-only equipment collections remain
+  `equipment/identifiers` and `yotei/gear-registry` and cannot scope a quantity action.
 * `inventory/restore-imported-ammo` previews each eligible ammo row's immutable opening count,
   restoring only rows reduced during this workspace session. Document scope covers existing ammo;
   explicit selections exclude non-ammo with reasons, and an empty selection changes nothing.
@@ -164,10 +171,10 @@ additional production correctness defect requiring a parser change.
 | --- | --- | --- |
 | F1 SaveDiff | Used | `fixtures.json` records the uncontrolled Tsushima generation pair and selects `suckerpunch.native-v1`; bounded native and F8 view decoding are tested alongside `ByteDiffer`. No fixture embeds save bytes. Yōtei tests compare all 55 nonempty pairs; ten native CLI comparisons cover every slot. |
 | F2 reference packs | Used | Embedded `suckerpunch.tsushima` v3.0.0 catalogs and four art datasets are loaded through `IReferenceContext`; per-record and UI descriptions carry attribution and the Sources panel exposes each dataset. Yōtei pack adds 48 raw item references, 10 technique guides, 16 location guides and four attributed assets. |
-| F3 rich table cells | Used | Inventory, equipment, technique and world tables expose raw IDs, descriptions, mapping-confidence cells, warning tones and F6 action controls. Tsushima inventory cells publish selection-scoped ammo restoration alongside an explicitly document-wide standalone control. Equipment/technique tables and lazy guides show local attributed ImageNode cells (106 unique icons/thumbnails, 158 catalogue bindings); the SDK has no separate detail-cell node. Yōtei adds inventory symbols, read-only reference cells, raw statistics, warning/confidence metadata and F6 controls. |
+| F3 rich table cells | Used | Inventory, equipment, technique and world tables expose raw IDs, descriptions, mapping-confidence cells, warning tones and F6 action controls. SDK-41 gives both eager inventories stable selection IDs and binds their sibling target controls. Tsushima inventory cells publish selection-scoped ammo restoration alongside an explicitly document-wide standalone control. Equipment/technique tables and lazy guides show local attributed ImageNode cells (106 unique icons/thumbnails, 158 catalogue bindings); the SDK has no separate detail-cell node. Yōtei adds inventory symbols, read-only reference cells, raw statistics, warning/confidence metadata and F6 controls. |
 | F4 reference pickers | Used | Every catalog-backed inventory, equipment and technique ID is a read-only `ReferenceSpec` field with raw-ID fallback, category/description metadata and attribution. Yōtei item/technique/location catalog IDs are browse-only with raw fallback and provenance; no gear-name catalogue join is invented. |
 | F5 structural edits | N/A | No safe add/remove/reorder writer exists: enclosing sizes, references, ownership and acquisition side effects are unproven, so a plugin-local structural substitute would risk data loss. |
-| F6 planned actions | Used | Existing resource/ammo target actions and Tsushima restore-imported-ammo provide pure previews, skipped rows, derived ammo/checksum changes, stale-plan rejection and one Core undo/redo group. Restore uses each eligible row's opening count only when lower. Query scopes are rejected because the writable inventory is a bounded fixed table and the equipment collection is read-only. Yōtei adds one target-quantity action with per-row observed bounds and the same atomic preview/apply guarantees. |
+| F6 planned actions | Used | Existing resource/ammo target actions and Tsushima restore-imported-ammo provide pure previews, skipped rows, derived ammo/checksum changes, stale-plan rejection and one Core undo/redo group. Target controls use SDK-41 selected rows (including hidden selections), falling back to document scope when nothing is selected; explicit empty API scopes remain no-ops. Restore uses each eligible row's opening count only when lower and retains its distinct cell/document controls. Query scopes are rejected because the writable inventory is a bounded fixed table and the equipment collection is read-only. Yōtei adds one target-quantity action with per-row observed bounds and the same atomic preview/apply guarantees. |
 | F7 document groups | N/A | No controlled capture proves that `memory.dat`, `dis.dat`, `param.sfo` or a backup must change with a supported edit; the safe contract rewrites only the selected file. |
 | F8 queryable collections | Used | The per-save equipment identifier view is `equipment/identifiers`, with stable IDs, bounded pages, search, filters and deterministic sorting. Small inventory/technique/world views remain eager because they are below the paging threshold. Yōtei adds `yotei/gear-registry` (1,037 entries); its 33 statistics remain a bounded eager table. |
 | F9 maps and graphs | Used | Techniques publish a validated read-only `GraphNode` with field targets and a text alternative; World publishes a validated `MapNode` with attributed whole-island art, row targets, Unknown statuses and unpositioned markers because alignment is unverified; the schematic/list fallback remains. Yōtei adds a 10-node Unknown technique graph and 16-location map/table; only Horizon View is placed on its local screenshot excerpt. |
@@ -560,6 +567,64 @@ load/save control. Then capture separate before/after pairs for:
    counters, all participating files and `param.sfo SUBTITLE`; record normalization or rejection.
 
 ## Validation and maintenance
+
+SDK-41 target-selection adoption, **2026-10-29**: authored regression tests in
+`QuantitySelectionBindingTests`, `QuantitySelectionSessionTests` and
+`YoteiQuantitySelectionEligibilityTests` are **NOT YET EXECUTED**. This implementation round ran
+static checks only; dedicated integration agents own builds, test hosts and browser validation.
+The new tests cover title/version declarations, unchanged restore placement, staged advisory
+selection ownership/pure repeated plans, empty/document/foreign/query scopes, all 14 native Yōtei
+types and bounds, eligibility/checksum restrictions, exact changed ranges, export/reopen and
+sample-backed one-step undo/redo/no-op history and stale rejection. Advisory fixture success means
+only that staged case passed; NotEvaluated and Failed are not passes. Runtime/browser scope wiring
+has not been established by these authored assertions.
+
+After configuring scratch and samples below, run the focused cases and full plugin suite:
+
+```powershell
+dotnet test --project plugins/SuckerPunch/SaveToolkit.Plugins.SuckerPunch.Tests -c Release --filter-class '*QuantitySelection*'
+dotnet test --project plugins/SuckerPunch/SaveToolkit.Plugins.SuckerPunch.Tests -c Release
+```
+
+The binding/advisory/eligibility cases use invented in-memory saves. The session cases require the
+external `PPSA02225` archive (`suckerpunchUser1`) and `PPSA26344` archive (`suckerpunchUser4`);
+missing archives must report skips. No private samples or extracted save data belong in the checkout.
+
+### Browser scope validation recipe (pending)
+
+Use the integration agent's running app and isolated workspace; do not change the shared frontend.
+Inspect live request scopes without retaining private save payloads or exported sample files in logs.
+
+1. Import each title and open Inventory. Confirm the target control's accessible hint names
+   **Existing inventory** (Tsushima) or **Existing Yōtei inventory** and describes document fallback.
+   Check both Tsushima target controls and Yōtei's target control retain the console/integrity warnings.
+2. Stage distinct eligible quantities: Supplies/Mon = 0, ArrowNormal = 0, Flowers = 0. Select the
+   resource and ArrowNormal, then filter to hide ArrowNormal. Preview target 1 on the resource/ammo
+   control. Inspect `POST .../actions/plan`: the original action ID and `scope.rowKeys` must contain
+   exactly both raw IDs, with no `queryScope`. Preview changes only these eligible primaries, the ammo
+   copy and checksum. Cancel must leave staged bytes/history unchanged. Repeat/apply, verify Flowers
+   and every unselected count/copy are unchanged, export/reopen, then undo/redo in one step.
+3. For Tsushima goods, keep the same selection. Preview must change Supplies only and skip ArrowNormal
+   with an exclusion reason. For either title, select TestItem/locked/inconsistent rows as applicable;
+   verify skip reasons and existing eligibility. Yōtei target 5 must skip ArrowFire when its bound is 3;
+   retain the checksum-tail warning. No equipment/progression/world write should appear.
+4. Select all filtered inventory rows, deselect one, and hide a selected row with a new filter.
+   The target request must contain exactly the remaining selected raw IDs, including hidden selections.
+   These eager tables have no all-query selection. Query/excluded-query requests for either inventory
+   ID or the read-only equipment IDs must reject; a fully excluded query must never become document scope.
+5. Clear selection while a filter is active. Preview must send document scope (no rowKeys/queryScope),
+   include eligible rows outside that filter and show **Whole document**. Separately send an explicit
+   empty `rowKeys: []`: preview/apply must change nothing and add no undo step. Tsushima's table-cell
+   ammo restore with no selection must remain empty; its whole-document restore remains independent.
+6. Switch away from Inventory and return: table selection resets, and a fresh target preview uses
+   document scope. After apply/undo/view rebuild, verify the binding still resolves. A bound control
+   retained in an open dialog must disable if its table unmounts; no unavailable-table request should
+   be sent. A stale preview after an intervening edit/undo must require a fresh preview.
+
+These checks establish software scope only; maturity stays **Experimental**, and console load/effect/
+resave/reload acceptance and Yōtei checksum-tail coverage remain unverified.
+
+### Existing suite commands and historical evidence
 
 ```powershell
 $scratch = 'D:/Temp/saveeditor/test-scratch/feat-coverage-suckerpunch'

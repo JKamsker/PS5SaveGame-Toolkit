@@ -9,9 +9,12 @@ internal sealed class GearboxTransferActions(GearboxGroupDocument group)
 {
     public static IReadOnlyList<ViewNode> Build() =>
     [
-        GearboxItemActions.Action("transfer/deposit", "Move selected backpack items to bank", []),
-        GearboxItemActions.Action("transfer/withdraw", "Move selected bank items to backpack", []),
-        GearboxItemActions.Action("transfer/claim", "Claim selected lost-loot items", []),
+        GearboxItemActions.Action("transfer/deposit", "Move selected backpack items to bank", []) with
+        { SelectionTableId = GearboxGroups.CharacterRole + "/" + GearboxInventory.Backpack },
+        GearboxItemActions.Action("transfer/withdraw", "Move selected bank items to backpack", []) with
+        { SelectionTableId = GearboxGroups.ProfileRole + "/" + GearboxInventory.Bank },
+        GearboxItemActions.Action("transfer/claim", "Claim selected lost-loot items", []) with
+        { SelectionTableId = GearboxGroups.ProfileRole + "/" + GearboxInventory.LostLoot },
     ];
 
     public ActionPlan Plan(string actionId, ActionScope scope)

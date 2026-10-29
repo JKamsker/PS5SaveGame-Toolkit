@@ -8,7 +8,7 @@ import { fromInput } from "./collectFiles";
 import { GameLibrary } from "./GameLibrary";
 import { AppVersion } from "../ui/AppVersion";
 import { useEntryFocus } from "../ui/useEntryFocus";
-import { ImportTaskContext } from "./importTask";
+import { ImportIntentContext, ImportTaskContext } from "./importTask";
 import { useHomeImport } from "./useHomeImport";
 
 const maturityText = { ReadOnly: "view only", Experimental: "editing, untested on console", Stable: "editing, tested in-game" } as const;
@@ -20,7 +20,7 @@ export function HomePage() {
   const recent = useQuery({ queryKey: ["workspaces"], queryFn: api.workspaces });
   useEffect(() => void library.restore(), []);
   return (
-    <ImportTaskContext.Provider value={controller.importTask}><main className="home">
+    <ImportTaskContext.Provider value={controller.importTask}><ImportIntentContext.Provider value={controller.beginImportIntent}><main className="home">
       <div className="home__brand">
         <span className="bar__mark" aria-hidden="true" />
         Savebench
@@ -45,7 +45,7 @@ export function HomePage() {
         </div>
       </div>
       <AppVersion />
-    </main></ImportTaskContext.Provider>
+    </main></ImportIntentContext.Provider></ImportTaskContext.Provider>
   );
 }
 
@@ -76,7 +76,7 @@ function ImportDropZone({ controller }: { controller: ReturnType<typeof useHomeI
           Open zip
         </button>
       </div>
-      {status && <p className={status.isError ? "notice notice--Danger" : "drop__status"} role={status.isError ? "alert" : "status"}>{status.text}</p>}
+      {status && <p className={status.isError ? "notice notice--Danger" : "drop__status"} role={status.isError ? "alert" : "status"} aria-label="Dropped files status">{status.text}</p>}
       {status?.isError && failedUpload.length > 0 && <button ref={retryImport} type="button" className="btn btn--small" onClick={() => void upload(failedUpload)}>Retry import</button>}
       <ImportInputs controller={controller} />
     </div>

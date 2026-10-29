@@ -7,7 +7,8 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Plugins.EldenRing;
 
 internal sealed class InventoryBrowser(IReadOnlyList<SemanticCharacter> characters, ReferenceBrowser references,
-    Func<string, string?> assetAttribution, Func<InventoryEntry, uint> quantity)
+    Func<string, string?> assetAttribution, Func<InventoryEntry, uint> quantity,
+    Func<InventoryEntry, int, QuantityEligibility> eligibility)
 {
     public const string EmptySlotLabel = "Empty slot";
     private static EmptyRowPresentation EmptyRows => new("item");
@@ -27,6 +28,7 @@ internal sealed class InventoryBrowser(IReadOnlyList<SemanticCharacter> characte
     [
         new("item", "Item", new ReferenceSpec(ReferenceBrowser.CatalogId) { ReadOnly = true }),
         new("category", "Category"), new("sourceGroup", "Community group"), new("quantity", "Quantity", IntegerSpec.UInt32),
+        new("editing", "Editing") { Description = "Filter by Editable quantity, Protected or Read-only version. Details explain the opening-time restrictions." },
         new("group", "Array"), new("handle", "Instance / direct handle"),
         new("index", "Inventory index", IntegerSpec.UInt32 with { ReadOnly = true }), new("resolution", "Resolution"),
         new("details", "Evidence / provenance"), new("refill", "Refill selected stacks"),
@@ -42,7 +44,8 @@ internal sealed class InventoryBrowser(IReadOnlyList<SemanticCharacter> characte
         {
             if (id != Id(character.Slot, container.Id)) continue;
             var visibility = query with { IncludeEmpty = query.IncludeEmpty ?? !EmptyRows.HideByDefault };
-            var result = BrowseQuery.Apply(container.Entries, visibility, Columns, row => row.Key(character.Slot), Text, Number,
+            var result = BrowseQuery.Apply(container.Entries, visibility, Columns, row => row.Key(character.Slot),
+                (row, column) => Text(row, column, character.Slot), Number,
                 row => row.IsEmpty);
             var rows = result.Page.Select(entry => new TableRow(entry.Key(character.Slot), new Dictionary<string, ViewNode>
             {
@@ -50,11 +53,12 @@ internal sealed class InventoryBrowser(IReadOnlyList<SemanticCharacter> characte
                 ["category"] = new TextNode(entry.Category),
                 ["sourceGroup"] = new TextNode(references.CommunityGroups(entry.RawId)),
                 ["quantity"] = quantityField(entry, character.Slot),
+                ["editing"] = new TextNode(eligibility(entry, character.Slot).Status),
                 ["group"] = new TextNode(entry.Group),
                 ["handle"] = new TextNode($"0x{entry.Handle:X8}") { Monospace = true },
                 ["index"] = new TextNode(entry.InventoryIndex.ToString(CultureInfo.InvariantCulture)),
                 ["resolution"] = new TextNode(entry.Resolution),
-                ["details"] = Detail(entry),
+                ["details"] = Detail(entry, character.Slot),
                 ["refill"] = WritePlanning.RefillAction(character.Slot),
             }) { IsEmpty = entry.IsEmpty }).ToArray();
             return new QueryableCollectionPage(id, Columns, rows, container.Entries.Count, result.Filtered, result.Offset, result.Limit)
@@ -63,17 +67,18 @@ internal sealed class InventoryBrowser(IReadOnlyList<SemanticCharacter> characte
         throw new KeyNotFoundException($"Unknown collection '{id}'.");
     }
 
-    private string Text(InventoryEntry entry, string column) => column switch
+    private string Text(InventoryEntry entry, string column, int slot) => column switch
     {
         "item" => entry.IsEmpty ? $"{EmptySlotLabel} {entry.RawId}" : $"{entry.RawId} {references.Find(entry.RawId)?.Name}",
         "category" => entry.Category,
         "sourceGroup" => references.CommunityGroups(entry.RawId),
         "quantity" => quantity(entry).ToString(CultureInfo.InvariantCulture),
+        "editing" => eligibility(entry, slot).Status,
         "group" => entry.Group,
         "handle" => $"0x{entry.Handle:X8}",
         "index" => entry.InventoryIndex.ToString(CultureInfo.InvariantCulture),
         "resolution" => entry.Resolution,
-        "details" => references.ItemDetails(entry.RawId),
+        "details" => references.ItemDetails(entry.RawId) + " " + eligibility(entry, slot).Description,
         "refill" => "Refill supported ordinary stacks",
         _ => throw new ArgumentException("Unknown inventory column."),
     };
@@ -83,11 +88,12 @@ internal sealed class InventoryBrowser(IReadOnlyList<SemanticCharacter> characte
         "quantity" => quantity(entry), "index" => entry.InventoryIndex, "handle" => entry.Handle, _ => null,
     };
 
-    private SectionNode Detail(InventoryEntry entry)
+    private SectionNode Detail(InventoryEntry entry, int slot)
     {
         var record = references.Find(entry.RawId);
         var nodes = new List<ViewNode>
         {
+            new TextNode(eligibility(entry, slot).Description),
             new TextNode($"{entry.RawId}; file offset 0x{entry.Offset:X}; record {entry.Record}; {entry.Resolution}. "
                 + "Inferred identity, no console capture. No legal quantity cap established."),
         };

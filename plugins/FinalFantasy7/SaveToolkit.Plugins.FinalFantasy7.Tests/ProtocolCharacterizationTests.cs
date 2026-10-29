@@ -45,7 +45,7 @@ public sealed class ProtocolCharacterizationTests
             var file = MemorySaveSet.SingleFile(schema.Prefix + "000", fixture.Bytes, title);
             using var document = hosted ? plugin.Open(file, references) : plugin.Open(file);
             var transcript = new StringBuilder();
-            transcript.AppendLine(JsonSerializer.Serialize(document.BuildView()));
+            transcript.AppendLine(JsonSerializer.Serialize(WithoutSelectionBindings(document.BuildView())));
             CaptureCollections((IQueryableDocument)document, transcript);
             CaptureLazyRoutes(document, schema, transcript);
             CapturePlans((IActionPlanningDocument)document, schema, transcript);
@@ -57,6 +57,30 @@ public sealed class ProtocolCharacterizationTests
         {
             CultureInfo.CurrentCulture = previousCulture;
         }
+    }
+
+    // Retain the existing protocol fingerprints except for the three intentionally added SDK-41
+    // declarations. BulkSelectionDeclarationTests checks their actual published metadata separately.
+    private static ViewNode WithoutSelectionBindings(ViewNode root)
+    {
+        var tabs = Assert.IsType<TabsNode>(root);
+        return tabs with { Tabs = tabs.Tabs.Select(tab => tab with
+        {
+            Children = tab.Children.Select(node => node is ActionNode { SelectionTableId: not null } action
+                ? WithoutBinding(action) : node).ToArray(),
+        }).ToArray() };
+    }
+
+    private static ActionNode WithoutBinding(ActionNode action)
+    {
+        var expected = action.ActionId switch
+        {
+            InventoryPlanning.ActionId => "inventory",
+            MateriaPlanning.ActionId or MateriaPlanning.StarActionId => "materia",
+            _ => throw new InvalidOperationException("Unexpected selection binding in the protocol fingerprint."),
+        };
+        Assert.Equal(expected, action.SelectionTableId);
+        return action with { SelectionTableId = null };
     }
 
     private static void SeedMateria(byte[] bytes, Ff7Schema schema)

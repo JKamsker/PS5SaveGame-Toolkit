@@ -12,7 +12,7 @@ const game: LibraryGame = { key: "fixture", titleId: "PPSA00001", fallbackName: 
   sources: [], saveDirs: 1, totalBytes: 10, icon: null };
 
 function setup() {
-  const state: libraryStore.LibraryState = { status: "empty", folderName: "Saves", games: [], icons: {}, skipped: 0, error: null, persistent: false };
+  const state: libraryStore.LibraryState = { snapshotId: libraryStore.library.get().snapshotId, status: "empty", folderName: "Saves", games: [], icons: {}, skipped: 0, error: null, persistent: false };
   const snapshot = vi.spyOn(libraryStore, "useLibrary").mockReturnValue(state);
   vi.spyOn(api, "titles").mockResolvedValue([]);
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
@@ -64,6 +64,6 @@ it("imports a game again after its remembered workspace disappears", async () =>
   const remember = vi.spyOn(libraryStore.library, "rememberImport").mockImplementation(() => {});
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: /Fixture game/ })); });
   expect(upload).toHaveBeenCalledWith(game.sources, "Fixture game", expect.any(Function));
-  expect(remember).toHaveBeenCalledExactlyOnceWith("fixture", "fresh");
+  expect(remember).toHaveBeenCalledExactlyOnceWith("fixture", "fresh", libraryStore.library.get().snapshotId);
   client.clear();
 });

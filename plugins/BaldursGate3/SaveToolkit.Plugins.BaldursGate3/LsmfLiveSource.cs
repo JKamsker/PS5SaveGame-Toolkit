@@ -28,6 +28,7 @@ internal sealed class LsmfLiveSource
     private readonly LarianResource? _resource;
     private readonly Lazy<IReadOnlyList<LsmfEntity>> _entities;
     private readonly HashSet<int> _keyOffsets;
+    private readonly IReadOnlyDictionary<(int ContainerRow, int EntityRow), LsmfSlot> _slotsByEntry;
 
     internal LsmfLiveSource(int entry, int attribute, ReadOnlyMemory<byte> bytes, LarianResource? resource = null)
     {
@@ -40,6 +41,9 @@ internal sealed class LsmfLiveSource
         Owners = Access.Owners();
         Stacks = Optional(() => LsmfInventory.Stacks(Access), "Stacks");
         Slots = Optional(() => LsmfInventory.Slots(Access), "Containers");
+        // Validated maps contain each entity at most once per container. Keep this
+        // native binding separate from imported graph keys and stable path identities.
+        _slotsByEntry = Slots.ToDictionary(slot => (slot.ContainerRow, slot.EntityRow));
         Identity = null;
         Inventory = null;
         try { Identity = new LsmfIdentityGraph(Access, resource); }
@@ -98,6 +102,7 @@ internal sealed class LsmfLiveSource
         ? (long)unchecked((int)Read(offset)) : Read(offset));
     internal int Slot(LsmfSlot slot) => (int)(_patches.GetValueOrDefault(slot.KeyOffset,
         BinaryData.U16(Access.Model.Bytes.Span, slot.KeyOffset)) & ushort.MaxValue);
+    internal int Slot(LsmfInventoryEntry entry) => Slot(_slotsByEntry[(entry.ContainerRow, entry.ItemEntityRow)]);
 
     internal void Set(LsmfNumber number, FieldValue value)
     {

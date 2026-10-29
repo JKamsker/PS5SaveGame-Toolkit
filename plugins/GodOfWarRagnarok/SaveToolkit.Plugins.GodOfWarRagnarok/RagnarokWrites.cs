@@ -65,9 +65,10 @@ internal sealed class RagnarokWrites
         BinaryPrimitives.WriteUInt32LittleEndian(_bytes.AsSpan(counter.Offset), value.AsUInt32());
     }
 
-    public static ActionNode RestoreAction() => new(RestoreActionId, "Restore counters to imported values")
+    public static ActionNode RestoreAction(string? selectionTableId = null) => new(RestoreActionId, "Restore counters to imported values")
     {
         SupportsPlanning = true,
+        SelectionTableId = selectionTableId,
         Description = "Restore existing resource/XP/raven counters after reductions in this session. " +
             EvidenceWarning + " " + IntegrityWarning,
         Confirm = "Review the raw counters and skipped rows. " + IntegrityWarning,
