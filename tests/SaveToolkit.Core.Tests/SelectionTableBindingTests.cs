@@ -17,6 +17,8 @@ public sealed class SelectionTableBindingTests
         var table = new TableNode([], []);
         Assert.Null(action.SelectionTableId);
         Assert.Null(table.SelectionId);
+        Assert.DoesNotContain("SelectionTableId", JsonSerializer.Serialize(action), StringComparison.Ordinal);
+        Assert.DoesNotContain("SelectionId", JsonSerializer.Serialize(table), StringComparison.Ordinal);
         ViewNode root = new SectionNode("Inventory", [action with { SelectionTableId = "items" }, table with { SelectionId = "items" }]);
         var json = JsonSerializer.Serialize(root, ToolkitJson.Options);
         var result = Assert.IsType<SectionNode>(JsonSerializer.Deserialize<ViewNode>(json, ToolkitJson.Options));
