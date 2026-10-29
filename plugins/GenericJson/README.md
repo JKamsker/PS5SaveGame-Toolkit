@@ -124,6 +124,16 @@ Duplicate object names, including equivalent escaped names, are intentionally ac
 
 ## Validation
 
+Maintainability review, 2026-10-29 (#40): **433 passed, 0 failed, 0 skipped** (402 existing cases retained,
+31 added characterizations); API Release build **0 warnings, 0 errors**. Named parsing, planning,
+query-rendering and decoder phases replace the six production methods over 50 lines. Current token-type
+classification and test-only view traversal are shared. All 1,536 baseline/current sample view, expansion,
+page, semantic-plan and decoder fingerprints match; all 12 recognized sample files retain byte-identical
+no-op exports. Duplicate-key/huge-number coverage and existing allocation bounds remain unchanged.
+One intermediate full run exceeded the 44 MB opening budget (44,756,936 bytes); the unchanged confirmation
+run and isolated allocation suite passed. External before/after allocation measurements converge to the
+same 35,465,4xx-byte steady-state range; no threshold or production runtime setting was changed.
+
 Performance review, 2026-10-29 (#40): **402 passed, 0 failed, 0 skipped**; API Release build **0 warnings, 0 errors**.
 Six findings fixed, with allocation/call-count regressions and unchanged view/page fingerprints.
 Largest-sample Open + first view: **3,393,344 → 2,092,920 allocated bytes**; 50k-array deep whole-tree page:
@@ -139,11 +149,15 @@ The unchanged frontend production build and **164 tests across 29 files** passed
 
 Write-enable validation, 2026-10-28: **180 passed, 0 failed, 0 skipped** with private artifacts configured; API build **0 warnings, 0 errors**. Every supplied primary/backup generation exercises editable semantic adapters through the host's F6 plan/apply, serialize/reopen and undo/redo. Tests independently patch only planned source tokens, then use F1 `ByteDiffer` to require identical output, proving unrelated bytes remain intact. Presets include real sample defaults, present flags, counter zero, explicit progress tuples and imported-wrapper restoration. Single-value conservative ranges remain unchanged rather than inventing alternatives. Synthetic regressions cover invalid bounds/steps, exact decimal arithmetic, approximate float defaults, malformed metadata/overflow, duplicate keys, dynamic pairs, stale previews, wrong scopes/types, selected/all-matching/empty selections and bounded coverage. Existing generic F5/F10 conformance remains green. No new browser or PS5 console validation is claimed for this write-enable round.
 
-Run sample-backed tests with the environment variable in the **same shell command**:
+Run sample-backed tests with these environment variables in the **same shell command**:
 
 ```powershell
-$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/GenericJson/SaveToolkit.Plugins.GenericJson.Tests
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
+$env:SAVETOOLKIT_TEST_TEMP='D:/Temp/saveeditor/test-scratch'
+$env:TEMP='D:/Temp/saveeditor/test-scratch/review-maint-genericjson'; $env:TMP=$env:TEMP
+New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
+dotnet test --project plugins/GenericJson/SaveToolkit.Plugins.GenericJson.Tests -c Release
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj -c Release --warnaserror
 ```
 
 Round-2 validation, 2026-10-28: **139 passed, 0 failed, 0 skipped**; API build **0 warnings, 0 errors**. Tests cover sample conformance/backup twins, content detection, conservative overlay fallback, richer read-only overlays across every generation, exact tagged host wire values, null/missing/empty/type changes, atomic invalid-input/resource rejection, collapsed 40,001-node search, imported comparison/subtree filters, lazy container navigation, baseline preservation, selected resets, structural boundaries, object rename/insert/remove, nested duplication, duplicate keys, stale requests, identity retirement, schema validation/generation/budgets and mixed undo/redo. Tests skip when private samples are absent; a skipped run does not count as sample validation.
@@ -211,7 +225,8 @@ The embedded choice pack combines original GPL-3.0-or-later factual annotations 
   a suitable map. Keep the existing external guide and text list; do not place markers on screenshots.
 - **Scope/budget:** 0 icons, 1 official description, 0 backgrounds; **0 new embedded image bytes**.
   Reference JSON is minified, versioned and hash-validated. The existing pack store loads once;
-  catalogues remain cached and are resolved only when the corresponding controls are expanded.
+  catalogues remain cached and are resolved when title adapters are first requested (including the
+  initial view). Repeated views and unchanged previews reuse the adapters and catalogue lookups.
   See [asset-round validation](ASSET_ROUND.md) for measurements and test results.
 
 ## Licence exclusions
@@ -230,4 +245,4 @@ F10, F5, F8 and F6 are consumed directly; no plugin-local substitute history, qu
 
 - **Resolved:** tagged ExactNumber/Union review rendering, reported in [issue #18](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/18#issuecomment-6479348148), was fixed by `03b66b7` with shared tests. Exact preview rendering works in the browser; no obsolete warning remains.
 - Resolved in 63580dc; shared planned-action reference parameters are supported. GenericJson's enum fallback remains a plugin migration task. Verified against the current `PlannedActionButton.tsx`, which passes both `valueId={p.valueId}` and `actionId={node.actionId}` to `FieldControl`; that commit also adds a shared regression test. GenericJson's `JsonSemanticTarget.ViewParameter` still publishes the attributed raw-ID enum; its separate F4 field remains browse-only.
-- **Open, avoided by URL-safe IDs:** collection IDs containing `/` fail over the HTTP query route. Publish collection `json-array/0`; the browser requests `collections/json-array%2F0`, but the server reports `Unknown collection 'json-array%2F0'`. In-process queries succeed. Define/decode the route's identifier encoding consistently and test it through HTTP. GenericJson ships `json-array-<immutable-id>` instead, verified in the browser; its F8 features remain functional.
+- **Resolved by a query-string route:** the API now supports `GET .../collections?collectionId=...` for IDs containing `/`; see [API routing guidance](../../docs/API.md). The earlier encoded path-segment failure does not require changing this plugin: GenericJson continues to ship `json-array-<immutable-id>`, with its existing stable identities and working F8 features.
