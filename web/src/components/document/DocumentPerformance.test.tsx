@@ -2,8 +2,9 @@ import { defaultScheduler, notifyManager, QueryClient, QueryClientProvider } fro
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { Profiler, type ProfilerOnRenderCallback } from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { actionReview } from "../../api/actionReview";
 import { api } from "../../api/client";
-import type { SaveDocument } from "../../api/protocol";
+import type { EditResult, SaveDocument } from "../../api/protocol";
 import { DocumentStore } from "../../state/documentStore";
 import { DocumentEditor } from "./DocumentEditor";
 import { field, stubViewport, table } from "./table/tableTestUtils";
@@ -86,3 +87,24 @@ it("keeps live values, errors and replacement snapshots responsive behind the re
   expect(screen.queryByRole("table")).toBeNull();
 });
 
+it("loads one current Changes snapshot after a revert instead of refetching the retired query", async () => {
+  const changes = vi.spyOn(actionReview, "changes").mockResolvedValue({ revision: 1, complete: true, warnings: [], changes: [{
+    valueId: "flag0", label: "Flag", path: [], originalValue: false, currentValue: true,
+    originalExists: true, currentExists: true, canRevert: true,
+  }] });
+  vi.spyOn(actionReview, "revert").mockResolvedValue({ ok: true, errors: [], warnings: [], structureChanged: false,
+    changes: [{ valueId: "flag0", oldValue: true, newValue: false }],
+    state: { revision: 1, isDirty: false, canUndo: true, canRedo: false } } satisfies EditResult);
+  await mount(10);
+  await act(async () => {
+    const details = screen.getByText("Changes against original").closest("details")!;
+    details.open = true; fireEvent(details, new Event("toggle"));
+  });
+  expect(changes).toHaveBeenCalledOnce();
+  changes.mockResolvedValue({ revision: 1, complete: true, warnings: [], changes: [] });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Revert Flag" })); });
+  expect(screen.getByText("No semantic changes.")).toBeTruthy();
+  expect(screen.getByRole("switch", { name: /^flag0/ }).getAttribute("aria-checked")).toBe("false");
+  if (process.env.PERF_REPORT) console.info(JSON.stringify({ changesRequestsIncludingOpen: changes.mock.calls.length }));
+  expect(changes).toHaveBeenCalledTimes(2);
+});
