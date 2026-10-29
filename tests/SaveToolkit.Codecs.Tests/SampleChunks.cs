@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Collections.Concurrent;
 using System.IO.Compression;
 
 namespace SaveToolkit.Codecs.Tests;
@@ -8,6 +9,7 @@ internal static class SampleChunks
     private const ulong Magic = 0x9E2A83C1;
     private const int HeaderLength = 48;
     private const int BlockLength = 131072;
+    private static readonly ConcurrentDictionary<(string Archive, string Name, string? Slot), Lazy<byte[]>> Cache = new();
 
     internal static byte[] Read(string titleId, string fileName, string? slot = null)
     {
@@ -15,6 +17,13 @@ internal static class SampleChunks
         string? archive = directory is not null && Directory.Exists(directory)
             ? Directory.EnumerateFiles(directory, $"{titleId}_saves_dec*.zip").FirstOrDefault() : null;
         if (archive is null) Assert.Skip($"Sample {titleId} unavailable; set SAVETOOLKIT_ARTIFACTS.");
+        // Cache decompression, not mutable test inputs: every caller still receives its own bytes.
+        return Cache.GetOrAdd((archive, fileName, slot), key => new Lazy<byte[]>(() =>
+            ReadEntry(key.Archive, key.Name, key.Slot))).Value.ToArray();
+    }
+
+    private static byte[] ReadEntry(string archive, string fileName, string? slot)
+    {
         using var zip = ZipFile.OpenRead(archive);
         var entry = zip.Entries.FirstOrDefault(e => e.Name == fileName && (slot is null || e.FullName.Contains($"/{slot}/", StringComparison.Ordinal)));
         if (entry is null) Assert.Skip($"Sample entry {fileName} unavailable.");
