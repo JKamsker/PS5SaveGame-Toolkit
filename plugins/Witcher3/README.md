@@ -223,6 +223,9 @@ and every inventory ID/name/quantity/durability against the current model. It al
 slots, opaque prefixes, prefix names, attributes and tags are unchanged, as well as intended skill
 ranks, unedited skill properties and Gwent identities/counts. Failure throws before returning output.
 
+Durability edits that return to the imported numeric value retain its original float32 bits, including
+the sign of zero. Numeric control normalization therefore preserves byte-identical restoration (#40).
+
 ## Player identity and progression evidence
 
 Player ownership is established by matching `universe/Player/id : IdTag` to a direct
@@ -507,6 +510,11 @@ shared file is intentionally left for the integrating owner because this task is
 `plugins/Witcher3/` while other agents work in parallel.
 
 ## SDK requests
+
+The plugin rejects duplicate value IDs in an edit batch before mutation (#40). Shared scalar history
+currently replays old values in order, so multiple transitions for one ID can undo to an intermediate
+value. A shared rejection or coalescing policy would remove the need for this local guard; no SDK
+change is required for the shipped plugin.
 
 No blocking SDK request for the shipped scope. F12 [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32)
 resolves the earlier request for bounded F8 traversal and native CLI decoder registration: the

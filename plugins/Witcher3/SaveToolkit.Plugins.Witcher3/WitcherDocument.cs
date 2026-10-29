@@ -59,6 +59,12 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
+        // Scalar history replays old values in order, so each ID must describe one transition.
+        var duplicates = edits.GroupBy(edit => edit.ValueId, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => new FieldError(group.Key, "A field can only be edited once in a batch.")).ToArray();
+        if (duplicates.Length > 0) { return new EditOutcome { Errors = duplicates }; }
+
         var outcome = base.ApplyEdits(edits);
         return outcome with { StructureChanged = outcome.Succeeded && outcome.Changes.Any(c => c.ValueId.StartsWith("abilities/skills/", StringComparison.Ordinal)) };
     }

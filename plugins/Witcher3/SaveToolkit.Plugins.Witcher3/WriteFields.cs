@@ -30,7 +30,11 @@ internal sealed class WriteFields(FieldBinding bind)
     public FieldNode Durability(InventoryItem item) => bind(item.DurabilityId, "Stored durability",
         item.CanEditDurability ? FloatSpec.Single with { Min = 0, Max = InventoryItem.MaximumDurability } : FloatSpec.Single,
         () => FieldValue.Of(item.Durability),
-        item.CanEditDurability ? v => item.Durability = (float)v.AsDouble() : null,
+        item.CanEditDurability ? v => {
+            var value = (float)v.AsDouble();
+            // Numeric controls may normalize -0 to 0. Returning to the imported value must retain its bits.
+            item.Durability = value == item.OriginalDurability ? item.OriginalDurability : value;
+        } : null,
         v => v.Kind is not (FieldValueKind.Float or FieldValueKind.Integer) || !double.IsFinite(v.AsDouble()) ||
             v.AsDouble() < 0 || v.AsDouble() > InventoryItem.MaximumDurability ? "Durability must be finite and in 0..100." : null) with {
         Confidence = Confidence.Inferred,
