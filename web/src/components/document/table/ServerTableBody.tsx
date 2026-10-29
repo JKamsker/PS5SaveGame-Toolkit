@@ -5,6 +5,13 @@ import type { ServerTableModel } from "./ServerTableView";
 
 interface ServerTablePartProps { node: QueryableTableNode; table: ServerTableModel }
 
+/** Busy pagers and successful retries retire their active controls; the table title remains. */
+function focusTableHeading(trigger: HTMLButtonElement) {
+  if (document.activeElement === trigger) {
+    trigger.closest(".table")?.querySelector<HTMLElement>(".table__title")?.focus();
+  }
+}
+
 export function ServerTableReadError({ table }: Pick<ServerTablePartProps, "table">) {
   const { result, stale, refresh } = table;
   if (!result.isError) return null;
@@ -12,10 +19,7 @@ export function ServerTableReadError({ table }: Pick<ServerTablePartProps, "tabl
     <div className="read-error">
       <p role="alert" className="notice notice--Danger">{stale ? "This table is out of date. Refresh the document to load current rows." : result.error.message}</p>
       <button type="button" className="btn btn--small" onClick={event => {
-        // Retrying removes this error control; keep keyboard focus at the persistent table title.
-        if (document.activeElement === event.currentTarget) {
-          event.currentTarget.closest(".table")?.querySelector<HTMLElement>(".table__title")?.focus();
-        }
+        focusTableHeading(event.currentTarget);
         if (stale) void refresh().catch(() => {});
         else void result.refetch();
       }}>{stale ? "Refresh document" : "Retry rows"}</button>
@@ -43,9 +47,15 @@ export function ServerTablePagination({ node, table }: ServerTablePartProps) {
   const { canPrevious, result, updateQuery, page, offset, limit, canNext } = table;
   return (
     <nav className="table__pagination" aria-label={`${node.title} pages`}>
-      <button type="button" className="btn btn--small" disabled={!canPrevious || result.isFetching} onClick={() => updateQuery({ offset: Math.max(0, (page?.offset ?? offset) - limit), cursor: undefined }, false)}>Previous</button>
+      <button type="button" className="btn btn--small" disabled={!canPrevious || result.isFetching} onClick={event => {
+        focusTableHeading(event.currentTarget);
+        updateQuery({ offset: Math.max(0, (page?.offset ?? offset) - limit), cursor: undefined }, false);
+      }}>Previous</button>
       <span>Page {Math.floor((page?.offset ?? offset) / limit) + 1}</span>
-      <button type="button" className="btn btn--small" disabled={!canNext || result.isFetching} onClick={() => updateQuery({ offset: page?.nextCursor ? 0 : (page?.offset ?? offset) + limit, cursor: page?.nextCursor }, false)}>Next</button>
+      <button type="button" className="btn btn--small" disabled={!canNext || result.isFetching} onClick={event => {
+        focusTableHeading(event.currentTarget);
+        updateQuery({ offset: page?.nextCursor ? 0 : (page?.offset ?? offset) + limit, cursor: page?.nextCursor }, false);
+      }}>Next</button>
     </nav>
   );
 }

@@ -5,6 +5,7 @@ import type { QueryablePage } from "../../../api/protocol";
 import { networkMessage } from "../../../api/http";
 import { DocumentContext, DocumentStore, type DocumentContextValue } from "../../../state/documentStore";
 import { ServerTableView } from "./ServerTableView";
+import { deferred } from "../../../test/deferred";
 
 const clients: QueryClient[] = [];
 afterEach(() => {
@@ -79,6 +80,28 @@ it.each([true, false])("keeps focus sensible when retry removes its control (foc
   await screen.findByRole("checkbox", { name: "Select Potion" });
   expect(screen.queryByRole("alert")).toBeNull();
   expect(document.activeElement).toBe(focused ? screen.getByRole("heading", { name: "Items" }) : search);
+});
+
+it.each(["Next", "Previous"])("keeps focus at the table heading while %s paging fails", async direction => {
+  const pending = deferred<Response>();
+  const fetch = vi.fn().mockResolvedValueOnce(response(page(0)));
+  if (direction === "Previous") fetch.mockResolvedValueOnce(response(page(50)));
+  fetch.mockReturnValueOnce(pending.promise);
+  vi.stubGlobal("fetch", fetch);
+  mount();
+  await screen.findByRole("checkbox", { name: "Select Potion" });
+  if (direction === "Previous") {
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    await screen.findByRole("checkbox", { name: "Select Ether" });
+  }
+  const button = screen.getByRole("button", { name: direction });
+  button.focus();
+  fireEvent.click(button);
+  await waitFor(() => expect(button).toHaveProperty("disabled", true));
+  expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Items" }));
+  await act(async () => { pending.resolve(response({ error: "Page unavailable; try again" }, 422)); });
+  expect(await screen.findByRole("alert")).toHaveProperty("textContent", "Page unavailable; try again");
+  expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Items" }));
 });
 
 it("preserves a loaded page draft and selection while the same page read fails offline", async () => {
