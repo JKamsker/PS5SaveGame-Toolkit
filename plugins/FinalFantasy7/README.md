@@ -404,6 +404,12 @@ Tests check complete record walks, byte-identical round trips and an initial vie
 Correctness tests do not gate on wall-clock speed, which varies with CI scheduling and machine load.
 No framework changes, runtime file/network access or extra NuGet dependencies are required.
 
+Collection queries use the shared SDK `InMemoryCollection<CollectionEntry>` engine. The thin
+`CollectionQuery` adapter retains FFVII's validation messages, signed-64-bit numeric comparer with
+ordinal text fallback, whitespace-only search normalization and ascending ordinal key tie breaks
+(also for descending column sorts). F14 still uses the native slot predicates; only requested page
+rows render bindings. Characterization tests pin these policies before the helper migration (#40).
+
 ## Research log and validation
 
 Research date: 2026-10-28. Read upstream code as untrusted text; no downloaded code was executed.
