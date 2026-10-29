@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError, api, isStaleError } from "../../api/client";
 import { reviewValue, type ActionPreview } from "../../api/actionReview";
-import type { ActionNode, FieldValue, PresetActionCapability, PresetCapability, SaveDocument, ToolkitPreset, DocumentPreset } from "../../api/protocol";
+import type { ActionNode, FieldValue, PresetActionCapability, PresetCapability, SaveDocument, ToolkitPreset } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
 import { ActionParameterFields } from "./ActionParameterFields";
 import { useActionSelection } from "./table/selectionBindings";
 import "./presets.css";
 
+const PresetRows = lazy(() => import("./PresetRows").then(module => ({ default: module.PresetRows })));
 const filterReferenceTime = Date.now();
 
 interface PresetsPanelProps { document: SaveDocument; onToast: (message: string, isError?: boolean) => void; children?: ReactNode }
@@ -114,8 +115,9 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
       {children}
       {presets.isError && <><p role="alert">Could not load presets: {presets.error.message}</p><button type="button" className="btn btn--small" onClick={() => void reloadPresets().catch(error => setMessage(error instanceof Error ? error.message : "Could not reload presets."))}>Retry loading presets</button></>}
       {presets.data?.length === 0 && <p className="notice notice--Muted">No presets saved for this toolkit yet.</p>}
-      {presets.data && <><div className="presets-filters"><label>Filter presets <input className="input" value={filter} onChange={event => setFilter(event.target.value)} placeholder="Name or action" /></label><label>Title <input className="input" value={titleFilter} onChange={event => setTitleFilter(event.target.value)} placeholder="Title id" /></label><label>Build <input className="input" value={buildFilter} onChange={event => setBuildFilter(event.target.value)} placeholder="Build" /></label><label>Plugin <input className="input" value={pluginFilter} onChange={event => setPluginFilter(event.target.value)} placeholder="Plugin id or version" /></label><label>Compatibility <select className="input" value={compatFilter} onChange={event => setCompatFilter(event.target.value)}><option value="all">All</option><option value="ready">Ready to apply</option><option value="attention">Needs attention</option></select></label><label>Updated <select className="input" value={dateFilter} onChange={event => setDateFilter(event.target.value)}><option value="all">Any date</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select></label></div><p className="presets-meta" role="status" aria-live="polite">{filteredPresets.length} matching preset{filteredPresets.length === 1 ? "" : "s"}{filteredPresets.length > 50 ? "; showing the first 50" : ""}.</p><ul className="presets-list" aria-label="Saved toolkit presets">{visiblePresets.map(row => <PresetRow key={row.preset.id} row={row}
-        busy={apply.isPending || rename.isPending} onPreview={() => loadPreview(row.preset.id)} onDelete={() => { setPendingDelete(row.preset); return Promise.resolve(); }} onRename={async value => { await rename.mutateAsync({ id: row.preset.id, value }); }} />)}</ul>{visiblePresets.length === 0 && <p className="notice notice--Muted">No presets match this filter.</p>}</>}
+      {presets.data && <><div className="presets-filters"><label>Filter presets <input className="input" value={filter} onChange={event => setFilter(event.target.value)} placeholder="Name or action" /></label><label>Title <input className="input" value={titleFilter} onChange={event => setTitleFilter(event.target.value)} placeholder="Title id" /></label><label>Build <input className="input" value={buildFilter} onChange={event => setBuildFilter(event.target.value)} placeholder="Build" /></label><label>Plugin <input className="input" value={pluginFilter} onChange={event => setPluginFilter(event.target.value)} placeholder="Plugin id or version" /></label><label>Compatibility <select className="input" value={compatFilter} onChange={event => setCompatFilter(event.target.value)}><option value="all">All</option><option value="ready">Ready to apply</option><option value="attention">Needs attention</option></select></label><label>Updated <select className="input" value={dateFilter} onChange={event => setDateFilter(event.target.value)}><option value="all">Any date</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select></label></div><p className="presets-meta" role="status" aria-live="polite">{filteredPresets.length} matching preset{filteredPresets.length === 1 ? "" : "s"}{filteredPresets.length > 50 ? "; showing the first 50" : ""}.</p><Suspense fallback={<p role="status">Loading saved preset rows…</p>}><PresetRows rows={visiblePresets}
+        busy={apply.isPending || rename.isPending} onPreview={loadPreview} onDelete={setPendingDelete}
+        onRename={async (id, value) => { await rename.mutateAsync({ id, value }); }} /></Suspense>{visiblePresets.length === 0 && <p className="notice notice--Muted">No presets match this filter.</p>}</>}
       {pendingDelete && <DeleteDialog preset={pendingDelete} onDelete={() => void confirmDelete()} onCancel={() => setPendingDelete(undefined)} />}
       {retryPresetId && <button type="button" className="btn btn--small" onClick={() => void loadPreview(retryPresetId)}>Retry preview</button>}
       {create.isError && <button type="button" className="btn btn--small" onClick={() => create.mutate()}>Retry saving preset</button>}
@@ -135,18 +137,6 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
       </form>
     </div>
   </details>;
-}
-
-function PresetRow({ row, busy, onPreview, onDelete, onRename }: { row: DocumentPreset; busy: boolean; onPreview: () => Promise<void>; onDelete: () => Promise<void>; onRename: (value: string) => Promise<void> }) {
-  const [renaming, setRenaming] = useState(false);
-  const [name, setName] = useState(row.preset.name);
-  const reason = !row.compatibility.compatible ? row.compatibility.reason ?? "Compatibility is unknown."
-    : !row.compatibility.canPreview || row.compatibility.unsupportedActions.length > 0
-      ? row.compatibility.previewReason ?? "This preset is not supported by the current document."
-      : undefined;
-  return <li className="presets-list__item"><div>{renaming ? <form onSubmit={event => { event.preventDefault(); void onRename(name).then(() => setRenaming(false)); }}><label>Preset name <input className="input" value={name} onChange={event => setName(event.target.value)} maxLength={100} /></label><button className="btn btn--small" type="submit">Save name</button><button className="btn btn--small" type="button" onClick={() => setRenaming(false)}>Cancel</button></form> : <><strong>{row.preset.name}</strong><span className="presets-meta">{row.preset.compatibility.titleIds.join(", ")} · {row.preset.compatibility.gameBuild ?? "build unknown"} · {row.preset.actions.length} action{row.preset.actions.length === 1 ? "" : "s"}</span><span className="presets-meta">Current title: {row.compatibility.currentTitleId ?? "unknown"} · kind: {row.compatibility.currentPresetKind ?? row.compatibility.presetKind} · readiness: {row.compatibility.readiness ?? (row.compatibility.canPreview ? "ready" : "unknown")} · {row.compatibility.canApply ? "Can apply" : "Review only"}</span>{reason && <span className="presets-meta notice--Warning" role="status">{reason}</span>}<details className="presets-boundaries"><summary>Compatibility boundaries</summary><dl><dt>Titles</dt><dd>{(row.compatibility.savedTitleIds ?? row.preset.compatibility.titleIds).join(", ")} → {row.compatibility.currentTitleId ?? "unknown"}</dd><dt>Plugin</dt><dd>{row.compatibility.savedPluginVersion} → {row.compatibility.currentPluginVersion}</dd><dt>Plugin id</dt><dd>{row.preset.compatibility.pluginId}</dd><dt>Build</dt><dd>{boundary(row.compatibility.savedGameBuild, row.compatibility.currentGameBuild)}</dd><dt>Variant</dt><dd>{boundary(row.compatibility.savedFormatVariant, row.compatibility.currentFormatVariant)}</dd><dt>Reference pack</dt><dd>{boundary(row.compatibility.savedReferencePackIdentity, row.compatibility.currentReferencePackIdentity)}</dd><dt>Schema</dt><dd>{boundary(row.compatibility.savedSchemaFingerprint, row.compatibility.currentSchemaFingerprint)}</dd><dt>Role</dt><dd>{boundary(row.compatibility.savedFileRole, row.compatibility.currentFileRole)}</dd><dt>Capability schema</dt><dd>{boundary(row.compatibility.savedCapabilitySchemaVersion, row.compatibility.currentCapabilitySchemaVersion)}</dd></dl></details></>}</div>
-    <div className="bar__actions"><button className="btn btn--small" type="button" disabled={busy || Boolean(reason)} onClick={() => void onPreview()}>{reason ?? "Preview"}</button><button className="btn btn--small" type="button" disabled={busy} onClick={() => setRenaming(true)}>Rename</button>
-      <button className="btn btn--small btn--danger" type="button" onClick={() => void onDelete()}>Delete</button></div></li>;
 }
 
 function DeleteDialog({ preset, onDelete, onCancel }: { preset: ToolkitPreset; onDelete: () => void; onCancel: () => void }) {
@@ -191,10 +181,6 @@ function supportedScopeKinds(action: PresetActionCapability | undefined, capabil
 function firstScope(action: ActionNode | undefined, capability: PresetCapability | undefined): string {
   const published = capability?.actions.find(candidate => candidate.actionId === action?.actionId);
   return supportedScopeKinds(published, capability)[0] ?? "document";
-}
-
-function boundary(saved: string | undefined, current: string | undefined): string {
-  return `${saved ?? "unknown"} → ${current ?? "unknown"}`;
 }
 
 function scopeLabel(scope: string): string { return ({ document: "Whole document", allEligible: "All eligible", allCopies: "All copies", selected: "Selected rows" } as Record<string, string>)[scope] ?? scope; }

@@ -8,6 +8,8 @@
     "DocumentEditor.css": 1660,
     "PresetsPanel.js": 5800,
     "PresetsPanel.css": 580,
+    "PresetRows.js": 1350,
+    "PresetRows.css": 320,
     "ImportPresetDialog.js": 2600,
     "ExportPresetDialog.js": 1250,
     "TransferDialog.js": 1030,

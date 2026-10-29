@@ -12,11 +12,13 @@ public sealed class PresetTransferRequestLimitTests(IsolatedApiFactory factory) 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
     [Theory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
-    public async Task TransferKeepsItsOwnExactCapsAndReadsOnlyCapPlusOne(bool declaredLength, bool package)
+    [InlineData(false, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, false, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, false)]
+    [InlineData(false, true, false)]
+    public async Task TransferKeepsItsOwnExactCapsAndReadsOnlyCapPlusOne(bool declaredLength, bool package, bool chunked)
     {
         var root = TestZips.TempDir();
         using var host = factory.WithWebHostBuilder(builder => builder.UseSetting("Toolkit:PresetRoot", root));
@@ -33,13 +35,13 @@ public sealed class PresetTransferRequestLimitTests(IsolatedApiFactory factory) 
         Array.Fill(padded, (byte)' ');
         valid.CopyTo(padded, 0);
         using var exact = new MemoryStream(padded);
-        var accepted = await Send(host, path, exact, declaredLength);
+        var accepted = await Send(host, path, exact, declaredLength, chunked);
         Assert.Equal(StatusCodes.Status200OK, accepted.Response.StatusCode);
         Assert.Equal(limit, exact.Position);
 
         // Deliberately invalid JSON: a 413 must precede parsing, even without Content-Length.
         using var oversized = new MemoryStream(new byte[limit * 2]);
-        var rejected = await Send(host, path, oversized, declaredLength);
+        var rejected = await Send(host, path, oversized, declaredLength, chunked);
         Assert.Equal(StatusCodes.Status413PayloadTooLarge, rejected.Response.StatusCode);
         Assert.Equal(declaredLength ? 0 : limit + 1, oversized.Position);
         using var error = await JsonDocument.ParseAsync(rejected.Response.Body, cancellationToken: Ct);
@@ -52,6 +54,8 @@ public sealed class PresetTransferRequestLimitTests(IsolatedApiFactory factory) 
     [Theory]
     [InlineData("/api/presets", PresetRequestBodyLimits.CreateBytes, false)]
     [InlineData("/api/presets", PresetRequestBodyLimits.CreateBytes, true)]
+    [InlineData("/api/presets/p", PresetRequestBodyLimits.RenameBytes, false)]
+    [InlineData("/api/presets/p", PresetRequestBodyLimits.RenameBytes, true)]
     [InlineData("/api/workspaces/w/documents/d/presets/capture", PresetRequestBodyLimits.CaptureBytes, false)]
     [InlineData("/api/workspaces/w/documents/d/presets/capture", PresetRequestBodyLimits.CaptureBytes, true)]
     [InlineData("/api/workspaces/w/documents/d/presets/p/preview", PresetRequestBodyLimits.PreviewBytes, false)]
@@ -63,7 +67,7 @@ public sealed class PresetTransferRequestLimitTests(IsolatedApiFactory factory) 
         using var host = factory.WithWebHostBuilder(builder => builder.UseSetting("Toolkit:PresetRoot", TestZips.TempDir()));
         using var client = host.CreateClient();
         using var body = new MemoryStream(new byte[limit * 2]);
-        var rejected = await Send(host, path, body, declaredLength);
+        var rejected = await Send(host, path, body, declaredLength, method: path == "/api/presets/p" ? "PATCH" : "POST");
         Assert.Equal(StatusCodes.Status413PayloadTooLarge, rejected.Response.StatusCode);
         using var error = await JsonDocument.ParseAsync(rejected.Response.Body, cancellationToken: Ct);
         Assert.Equal("presetPayloadTooLarge", error.RootElement.GetProperty("code").GetString());
@@ -74,13 +78,13 @@ public sealed class PresetTransferRequestLimitTests(IsolatedApiFactory factory) 
     }
 
     private static Task<HttpContext> Send(Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program> host,
-        string path, MemoryStream body, bool declaredLength) => host.Server.SendAsync(context =>
+        string path, MemoryStream body, bool declaredLength, bool chunked = true, string method = "POST") => host.Server.SendAsync(context =>
         {
-            context.Request.Method = HttpMethods.Post;
+            context.Request.Method = method;
             context.Request.Path = path;
             context.Request.ContentType = "application/json";
             context.Request.Body = body;
             if (declaredLength) context.Request.ContentLength = body.Length;
-            else context.Request.Headers.TransferEncoding = "chunked";
+            else if (chunked) context.Request.Headers.TransferEncoding = "chunked";
         }, Ct);
 }

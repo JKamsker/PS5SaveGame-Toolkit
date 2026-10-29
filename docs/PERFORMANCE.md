@@ -93,6 +93,16 @@ request helper includes the document compatibility endpoint (TransferDialog chun
 Transfer measurements below reflect this combined source;
 other rows preserve the original split baseline. No runtime dependency was added.
 
+The published R6 foundation plus transfer composition was remeasured on 2026-10-30.
+The added readiness/boundary disclosure and library filters initially produced
+6261 bytes of panel JavaScript and 582 bytes of CSS, exceeding the unchanged
+5800/580 limits. Existing saved-row rendering and its styles now form a small lazy
+`PresetRows` leaf (1211 bytes JavaScript, 289 bytes CSS), with explicit 1350/320
+budgets. Filter state, loading/error handling and transfer controls stay mounted in
+the existing panel; row loading has an accessible status. The resulting panel is
+5751 bytes JavaScript and 419 bytes CSS; initial JavaScript is 120132 bytes.
+Initial, editor, panel and existing transfer limits remain unchanged.
+
 ### Enforced gzip limits
 
 `web/bundle-budgets.json` owns these limits, with approximately 10% headroom over the after result.
@@ -114,6 +124,8 @@ output-directory behavior, so the check never removes or rewrites output.
 | DocumentEditor.css | 1504 | 1660 |
 | PresetsPanel.js | 5249 | 5800 |
 | PresetsPanel.css | 523 | 580 |
+| PresetRows.js | 1211 | 1350 |
+| PresetRows.css | 289 | 320 |
 | ImportPresetDialog.js | 2348 | 2600 |
 | ExportPresetDialog.js | 1125 | 1250 |
 | TransferDialog.js | 932 | 1030 |
