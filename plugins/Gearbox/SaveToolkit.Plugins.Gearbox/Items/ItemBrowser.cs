@@ -34,7 +34,7 @@ internal sealed class ItemBrowser
             foreach (var entry in document.Inventory.Entries.Where(e => e.List == list))
             {
                 var field = entry.Field;
-                var serial = field.Message?.Last("item_serial_number")?.Value as byte[] ?? field.Value as byte[] ?? [];
+                var serial = entry.Serial;
                 var item = new BrowserItem(entry.Id, list, entry.Index, serial,
                     field.Message?.Integer("flags"), field.Message?.Integer("pickup_order_index"), new(() => document.Inventory.Info(entry.Id)));
                 _items.Add(item);

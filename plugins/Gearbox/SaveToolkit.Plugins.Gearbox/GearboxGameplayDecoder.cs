@@ -32,7 +32,7 @@ internal sealed class GearboxGameplayDecoder : ISaveDecoderHook
         var occurrences = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (var field in lists.SelectMany(root.All))
         {
-            var serial = field.Message?.Last("item_serial_number")?.Value as byte[] ?? field.Value as byte[] ?? [];
+            var serial = InventoryEntry.SerialOf(field);
             // Unchanged content aligns across reorder. Replacements remain removed/added; duplicates retain multiplicity.
             var hash = Convert.ToHexStringLower(SHA256.HashData(serial));
             var occurrence = occurrences.GetValueOrDefault(hash);
