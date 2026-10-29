@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SaveToolkit.Sdk.Binary;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok;
 
@@ -21,7 +22,7 @@ internal static class RagnarokIntegrity
         foreach (var range in Coverage(ranges, bytes.Length))
         {
             var covered = bytes[range.Offset..(range.Offset + range.Length)];
-            probes.Add(Compare("CRC32-IEEE", range.Name, covered, bytes, Crc32));
+            probes.Add(Compare("CRC32-IEEE", range.Name, covered, bytes, Crc32Ieee.Compute));
             probes.Add(Compare("Adler32", range.Name, covered, bytes, Adler32));
         }
 
@@ -53,21 +54,6 @@ internal static class RagnarokIntegrity
         }
 
         return new RagnarokChecksumProbe(algorithm, coverage, covered.Length, comparedWords, matches);
-    }
-
-    private static uint Crc32(ReadOnlySpan<byte> bytes)
-    {
-        var crc = uint.MaxValue;
-        foreach (var value in bytes)
-        {
-            crc ^= value;
-            for (var bit = 0; bit < 8; bit++)
-            {
-                crc = (crc >> 1) ^ (0xEDB88320u & (uint)-(int)(crc & 1));
-            }
-        }
-
-        return ~crc;
     }
 
     private static uint Adler32(ReadOnlySpan<byte> bytes)
