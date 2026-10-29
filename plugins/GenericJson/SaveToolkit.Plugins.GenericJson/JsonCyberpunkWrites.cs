@@ -31,8 +31,10 @@ internal static class JsonCyberpunkWrites
         if (!JsonOverlay.HasType(JsonOverlay.Unique(option, "name"), JsonScalar.Text)
             || value is null || JsonSemanticValues.Primitive(value, false) is not { } target) return null;
         // Metadata edited through the raw workbench is not silently promoted to an authoritative schema.
-        if (option.Children.Where(n => n.Label != "value" && n.Label != "index")
-            .SelectMany(Descendants).Any(n => !n.Imported || n.Label != n.OriginalLabel || !n.IsContainer && n.Current != n.Original)) return null;
+        if (!option.HasOriginalChildren || option.Children.Any(n => n.Label != n.OriginalLabel)
+            || option.Children.Where(n => n.Label != "value" && n.Label != "index")
+                .SelectMany(Descendants).Any(n => !n.Imported || n.Label != n.OriginalLabel
+                    || (n.IsContainer ? !n.HasOriginalChildren : n.Current != n.Original))) return null;
         var type = JsonOverlay.Unique(option, "type")?.Current.ToString();
         var choices = JsonOverlay.Unique(option, "values");
         var index = JsonOverlay.Unique(option, "index");

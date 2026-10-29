@@ -60,6 +60,7 @@ internal sealed class JsonTokenTree
                 {
                     var container = parents.Pop();
                     container.Length = checked((int)reader.BytesConsumed + bom - container.Offset);
+                    container.OriginalChildIds = Array.AsReadOnly(container.Children.Select(child => child.Index).ToArray());
                     continue;
                 }
 
@@ -182,7 +183,8 @@ internal sealed class JsonTokenTree
     {
         const int NodeOverhead = 320;
         return Nodes.Select(n => n.Source).Distinct().Sum(b => (long)b.Length)
-            + Nodes.Sum(n => NodeOverhead + 2L * (n.Label.Length + n.OriginalLabel.Length + n.Original.ToString().Length + n.Current.ToString().Length));
+            + Nodes.Sum(n => NodeOverhead + (long)sizeof(int) * n.OriginalChildIds.Count
+                + 2L * (n.Label.Length + n.OriginalLabel.Length + n.Original.ToString().Length + n.Current.ToString().Length));
     }
 
     private static void ReadValue(JsonValueToken node, ref Utf8JsonReader reader)
