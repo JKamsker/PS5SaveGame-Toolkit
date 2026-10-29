@@ -128,7 +128,9 @@ The five resource counts are 211/10/8/0/3; the hero has 261 subsequent IDs and 1
 Only HERO and the blacksmith-chest role have research labels, both **Inferred**. Other containers
 keep their raw IDs. These invariants establish structure, not a complete serialization grammar.
 A zero enclosing-length word retains the legacy hero-only fallback (used by minimal fixtures);
-it does not claim nested structures or authentication.
+it does not claim nested structures or authentication. All three legacy wallet counts still obey
+the 65,536-record bound, and the combined resource/ID/index arrays must fit before the EOF sentinel.
+Malformed counts or truncated arrays are rejected with `SaveFormatException`, as in nested mode.
 
 ## Meaning and confidence
 
