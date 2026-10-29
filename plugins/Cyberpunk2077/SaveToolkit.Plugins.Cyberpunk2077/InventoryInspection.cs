@@ -36,7 +36,7 @@ internal sealed class InventoryInspection
         _equipment = equipment;
         _actions = actions ?? (() => []);
         _details = new ItemDetailInspection(container, tree, references);
-        QueryableColumn[] columns = [new("node", "Instance / raw bytes"), new("container", "Container ID", IntegerSpec.UInt64),
+        QueryableColumn[] columns = [new("icon", "Icon"), new("node", "Instance / raw bytes"), new("container", "Container ID", IntegerSpec.UInt64),
             new("id", "Item name / identifier"), new("category", "Catalog category"), new("hash", "TweakDB ID"),
             new("quantity", "Quantity", IntegerSpec.UInt32), new("equipped", "Owner-1 loadout"), new("flags", "Stored item flags"), new("details", "Evidence and details"),
             new("actions", "Supported stack actions")];
@@ -47,6 +47,7 @@ internal sealed class InventoryInspection
                 "Equipment joins require full instance identity. Extended bodies are inspected read-only; catalog categories never authorize edits.",
         }, items, item => item.NodeId.ToString(CultureInfo.InvariantCulture), new Dictionary<string, Func<InventoryItem, string>>
         {
+            ["icon"] = _ => "",
             ["node"] = item => item.NodeId.ToString(CultureInfo.InvariantCulture),
             ["container"] = item => item.ContainerId.ToString(CultureInfo.InvariantCulture),
             ["id"] = Name,
@@ -83,33 +84,34 @@ internal sealed class InventoryInspection
 
     private TableRow Row(InventoryItem item)
     {
-        var record = _references.Item(item.TweakId);
-        var known = record is not null || _baseline.Find(item.TweakId) is not null || _references.ItemLabel(item.TweakId) is not null;
-        var attribution = record is not null || _references.ItemLabel(item.TweakId) is not null ? _references.ItemAttribution(item.TweakId)
+        var content = _references.ItemContent(item.TweakId);
+        var known = content is not null || _baseline.Find(item.TweakId) is not null || _references.ItemLabel(item.TweakId) is not null;
+        var attribution = content is not null || _references.ItemLabel(item.TweakId) is not null ? _references.ItemAttribution(item.TweakId)
             : known ? CyberpunkReferences.BaselineAttribution : "Unknown identifier; preserved exactly.";
         var prefix = $"inventory/{item.NodeId}";
         var node = _tree.Nodes[item.NodeId];
         List<ViewNode> details = [
-            _readField(prefix + "/record", "Catalog identity (read-only)", new ReferenceSpec("items") { AllowCustom = true }, CyberpunkReferences.ItemKey(item.TweakId))
+            _readField(prefix + "/record", "Catalog identity (read-only)", new ReferenceSpec(_references.ItemArt(item.TweakId) is null ? "items" : "item-art") { AllowCustom = true }, CyberpunkReferences.ItemKey(item.TweakId))
                 with { Confidence = known ? Confidence.Inferred : Confidence.Unknown, Description = attribution,
                     Warning = "Recognizing a base record does not prove instance tier, equipment state or replacement safety." },
             new TextNode($"Full 16-byte item identity: {Identity(item)}") { Monospace = true },
             new TextNode($"Structure {item.Structure}; itemData size {node.Size}. Extended data remains read-only. {EquipmentState(item)}."),
             .. _details.Build(item),
-            new TextNode(record?.Description ?? "No licensed localized description supplied."),
+            new TextNode(content?.Description ?? "No reference description supplied."),
         ];
-        if (record?.AssetId is { } asset)
+        if (content?.AssetId is { } asset)
         {
-            details.Add(new SectionNode("Reference image", [new ImageNode(asset, record.Name),
+            details.Add(new SectionNode("Reference image", [new ImageNode(asset, content.Name),
                 new TextNode(_references.AssetAttribution(asset) ?? attribution)]) { Description = attribution });
         }
         else
         {
-            details.Add(new TextNode("No licensed icon supplied."));
+            details.Add(new TextNode("No reference icon supplied."));
         }
 
         return new TableRow(item.NodeId.ToString(CultureInfo.InvariantCulture), new Dictionary<string, ViewNode>
         {
+            ["icon"] = (ViewNode?)_references.ItemIcon(item.TweakId) ?? new TextNode("No reference icon"),
             ["node"] = SectionNode.Lazy($"itemData {item.NodeId}", $"node/{item.NodeId}"),
             ["container"] = new TextNode(item.ContainerId.ToString(CultureInfo.InvariantCulture)),
             ["id"] = _readField(prefix + "/name", "Item name / identifier", new TextSpec(), Name(item))

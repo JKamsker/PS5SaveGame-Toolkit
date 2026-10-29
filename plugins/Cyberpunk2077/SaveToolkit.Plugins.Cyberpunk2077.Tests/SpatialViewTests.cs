@@ -83,7 +83,7 @@ public sealed class SpatialViewTests
             Assert.False(node.CoordinateEmbeddingPermitted);
             Assert.Null(node.CoordinateAttribution);
             Assert.Equal(TravelMapInspection.SourceUrl, node.ExternalSource!.Url);
-            Assert.Contains("all rights reserved", node.ExternalSource.Attribution);
+            Assert.Contains("used with attribution per owner decision 2026-10-29", node.ExternalSource.Attribution);
             Assert.Contains("Found means registered", node.TextAlternative);
             var fields = Assert.IsType<SectionNode>(expanded[1]).Children.Cast<FieldNode>().ToDictionary(field => field.ValueId);
             foreach (var marker in node.Markers)

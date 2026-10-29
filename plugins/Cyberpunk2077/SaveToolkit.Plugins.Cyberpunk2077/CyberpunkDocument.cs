@@ -57,7 +57,7 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument,
         }
         _equipment = new EquipmentInspection(equipment, _references, equipmentWarning);
         _cyberware = new CyberwareInspection(items, equipment, _references, container, tree);
-        _development = new DevelopmentInspection(reader, inspectionWarning, _progression);
+        _development = new DevelopmentInspection(reader, inspectionWarning, _progression, _references);
         _world = new WorldInspection(reader, container, tree, _references, inspectionWarning);
         _itemStats = new ItemStatsInspection(container, tree, items);
         _journal = new JournalInspection(container, tree);

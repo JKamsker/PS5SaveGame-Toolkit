@@ -5,18 +5,19 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Plugins.Cyberpunk2077;
 
 /// <summary>Link-first map over the same attributed saved/catalog union used by the F8 table.</summary>
-internal sealed class TravelMapInspection(IReadOnlyList<InspectionRow> rows)
+internal sealed class TravelMapInspection(IReadOnlyList<InspectionRow> rows, CyberpunkReferences? references = null)
 {
     public const string Prefix = "travel-map/";
     public const string SourceUrl = "https://maps.piggyback.com/cyberpunk-2077/maps/night-city";
     public const string SourceAttribution = "Piggyback Interactive Limited / CD PROJEKT RED, official interactive map; " +
-        "all rights reserved, consulted 2026-10-28. External link only; no map art, coordinates or location data imported. " +
+        "Rights reserved by Piggyback Interactive Limited / CD PROJEKT RED; used with attribution per owner decision 2026-10-29. " +
         "The external map may describe another build; saved marker IDs have no verified external-location join.";
     private const string DetailsTitle = "Travel marker details";
-    private const string Explanation = "Fast-travel registration list with an external Night City map. " +
+    private const string Explanation = "Fast-travel registration list with attributed Night City reference art when the pack is available. " +
         "Found means registered in saved FastTravelSystem only, not currently accessible or completed. " +
         "Unknown includes unregistered catalog entries and unavailable decoding; absence never means locked. " +
-        "No coordinates, geographic placement, artwork or collectible completion have been inferred.";
+        "Saved travel identifiers have no verified geographic join: markers stay in the text list, not on the artwork. " +
+        "No coordinates, geographic placement or collectible completion have been inferred.";
     private readonly InspectionRow[] _rows = rows.OrderBy(row => row.Key, StringComparer.Ordinal).ToArray();
 
     public IReadOnlyList<ViewNode> Build() => [.. Enumerable.Range(0, (_rows.Length + SpatialDetails.PageSize - 1) / SpatialDetails.PageSize)
@@ -40,7 +41,8 @@ internal sealed class TravelMapInspection(IReadOnlyList<InspectionRow> rows)
                     { Path = ["tab:World", "section:" + lazyId, "section:" + DetailsTitle] },
             }).ToArray(), Explanation)
         {
-            CoordinateSpace = "External-only; positions not imported",
+            Background = references?.MapBackground(),
+            CoordinateSpace = "Reference artwork only; saved markers are unpositioned",
             ExternalSource = new ExternalViewLink(SourceUrl, "Open official Night City map", SourceAttribution),
         };
         SpatialViewValidation.Validate(map);

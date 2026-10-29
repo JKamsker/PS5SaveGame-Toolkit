@@ -67,7 +67,7 @@ public sealed class SpatialSampleTests(ITestOutputHelper output)
         IEnumerable<ViewTarget> MapTargets(MapNode map)
         {
             SpatialViewValidation.Validate(map);
-            Assert.Null(map.Background);
+            Assert.Equal(CyberpunkReferences.MapAssetId, Assert.IsType<MapBackground>(map.Background).AssetId);
             Assert.All(map.Markers, marker => { Assert.Null(marker.X); Assert.Null(marker.Y); });
             allMarkers.AddRange(map.Markers);
             return map.Markers.Select(marker => Assert.IsType<ViewTarget>(marker.Target));

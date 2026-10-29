@@ -28,7 +28,7 @@ public sealed class ReadOnlyCatalogActionTests
         var view = Assert.IsType<TabsNode>(session.BuildView());
         var catalogs = view.Tabs.Single(tab => tab.Title == "Reference catalogs");
         var actions = catalogs.Children.OfType<SectionNode>().SelectMany(section => section.Children).OfType<ActionNode>().ToArray();
-        Assert.Equal(5, actions.Length);
+        Assert.Equal(7, actions.Length);
         var initialState = session.State;
 
         foreach (var action in actions)

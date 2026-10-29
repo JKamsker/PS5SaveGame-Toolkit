@@ -54,7 +54,7 @@ internal sealed class WorldInspection
                 $"catalog IsEP1: {pair.Record?.Attributes.GetValueOrDefault("requiresEp1") ?? "unknown"}. " +
                 "Registration does not prove current accessibility, discovery cause or DLC entitlement.");
         }).ToArray();
-        _map = new TravelMapInspection(points);
+        _map = new TravelMapInspection(points, references);
         Travel = new InspectionTable(TravelId, "Fast travel registration (read-only)", [new("id", "TweakDB ID"),
             new("name", "Travel point identifier"), new("state", "Saved registration"), new("details", "Marker / evidence")], points,
             "Catalog + saved handle union; each handle must target gameFastTravelPointData. Marker refs remain separate from record IDs. " +
