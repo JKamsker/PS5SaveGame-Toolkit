@@ -67,12 +67,12 @@ for matched timings, D: benchmark artifacts, regression failures and measurement
 | F6 planned actions | Used | Set-supported-stack-target and refill-to-opening-quantity previews, exclusions/warnings, document/explicit/empty/F8 whole-query scopes (#27), atomic apply and one undo group. No coherent perk-allocation preset exists without effect/requirement mutation. |
 | F7 document groups | N/A | Only `sav.dat` is authoritative and owned here. No demonstrated coupled write to `user.gls`, settings or metadata; JSON partners belong to GenericJson. Core already mirrors gameplay backups and the ZIP test verifies that behavior. |
 | F8 collections | Used | Complete inventory, saved/merged facts, equipment, cyberware, development, modifier, garage/travel and journal queries; max 200 materialized rows. Spatial views use separate lazy 128-entry pages. |
-| F9 maps/graphs | Added this round | `PerkGraphInspection` and `TravelMapInspection`: stable IDs, accessible text alternatives, bounded pages, independently expandable field targets, local attributed Night City background, unpositioned marker list until a save-ID crosswalk is verified, official reference perk text and no invented prerequisite edges. |
-| F10 exact/nullable/union values | Added this round | Merged fact-value details use read-only `NullableSpec(UInt32)`: null for absence, integer zero for saved zero; live getters follow edit/undo. Numeric sorting unwraps nullable integers. Exact JSON lexemes and union alternatives are N/A to the fixed binary integer/float schema; UInt64 identities already use lossless decimal strings. |
+| F9 maps/graphs | Used | Completion round: `PerkGraphInspection` and `TravelMapInspection`: stable IDs, accessible text alternatives, bounded pages, independently expandable field targets, local attributed Night City background, unpositioned marker list until a save-ID crosswalk is verified, official reference perk text and no invented prerequisite edges. |
+| F10 exact/nullable/union values | Used | Completion round: merged fact-value details use read-only `NullableSpec(UInt32)`: null for absence, integer zero for saved zero; live getters follow edit/undo. Numeric sorting unwraps nullable integers. Exact JSON lexemes and union alternatives are N/A to the fixed binary integer/float schema; UInt64 identities already use lossless decimal strings. |
 | F11 shared codecs | N/A | CSAV uses raw LZ4, already handled by managed K4os with exact-length checks and original-chunk preservation. Shared F11 provides Kraken/SQLite, neither occurs in this format; no local Kraken/SQLite implementation exists to replace. |
-| F12 decoder hooks / F8 diff traversal | Added | Production SDK-only `CyberpunkEvidenceDecoder` registered by `ISaveDecoderProvider` as `cyberpunk2077-evidence`; tests use shared `HookSaveDecoder`. The shared view decoder also traverses F8 collections. |
-| F13 non-mutating inspection / browse-only picker | Added | All seven catalogue inspection actions publish `Mutates = false`, including on read-only schemas. Existing read-only `ReferenceSpec` fields use shared browse-only search/category/sort/details. |
-| F14 empty slots / one table per list | Added this round | One inventory table (eager through 100 rows, F8 above), one F8 attachment table per item, and F8 equipment slots with explicit vacancy flags, matching hidden counts and default hiding. Original node/slot/part keys, raw bytes, edit/undo and whole-query visibility remain intact. |
+| F12 decoder hooks / F8 diff traversal | Used | F12/F13 follow-up: production SDK-only `CyberpunkEvidenceDecoder` registered by `ISaveDecoderProvider` as `cyberpunk2077-evidence`; tests use shared `HookSaveDecoder`. The shared view decoder also traverses F8 collections. |
+| F13 non-mutating inspection / browse-only picker | Used | F12/F13 follow-up: all seven catalogue inspection actions publish `Mutates = false`, including on read-only schemas. Existing read-only `ReferenceSpec` fields use shared browse-only search/category/sort/details. Float durations are N/A: exposed floats are forced level/attribute stats, not time values. |
+| F14 empty slots / one table per list | Used | F14 audit (2026-10-29): one inventory table (eager through 100 rows, F8 above), one F8 attachment table per item, and F8 equipment slots with explicit vacancy flags, matching hidden counts and default hiding. Original node/slot/part keys, raw bytes, edit/undo and whole-query visibility remain intact. |
 
 ## F14 table and empty-slot audit (2026-10-29)
 
@@ -201,7 +201,8 @@ No fact records, inventory instances or perk allocations are created or deleted.
 | Set supported stack quantities | Inferred | Existing quantity writer and 36-entry reviewed allowlist | F6 prevalidation; exact selected payload patches; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): quantities, charge behavior, re-save/reload |
 | Refill stacks to opening quantities | Inferred | Original observed quantities in the opened save; never reduces stacks | F6 prevalidation; exact selected payload patches; reparsed | [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): ammo/use/replenishment and reload |
 
-All fields say “Not validated on console”; raw fact semantics remain Unknown. CSAV has no known
+Editable-field warnings and stack previews begin “Not validated on console. The game may reject or
+overwrite the edited save.” Raw fact semantics remain Unknown. CSAV has no known
 container checksum/signature, but integrity algorithms inside opaque data or console wrappers are
 unknown, so **the game may reject the edited save**. The serializer re-decompresses and reparses
 its output, including intended progression values and existing stat mirrors. No game keys or
@@ -597,11 +598,11 @@ Stack actions continue to use shared F6/F8 whole-query planning (#27).
 
 ## Licence exclusions
 
-| Source / revision | Licence found | Current status / reason | Alternative / remaining evidence |
-| --- | --- | --- | --- |
-| [Piggyback Night City](https://maps.piggyback.com/cyberpunk-2077/maps/night-city), 49 public zoom-3 tile hashes pinned, 2026-10-29 | Rights reserved by Piggyback / CDPR; used with attribution per owner decision 2026-10-29 | **Resolved: imported (owner decision 2026-10-29)**, background art | Positions remain omitted because a save-ID/geographic crosswalk is unverified, independent of rights. |
-| [CDPR planner](https://www.cyberpunk.net/en/build-planner), English chunk `8603-b6e6f72c476c734a52a4.js`, retrieved 2026-10-29 | Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29 | **Resolved: imported (owner decision 2026-10-29)**, official names/descriptions | Build-matched prerequisites/costs/effects/entitlement remain evidence gaps. |
-| Complete PS5 2.21 TweakDB/localization/icon exports, no complete matching source supplied | Missing data; publisher assets are usable under owner decision 2026-10-29 | Partial import completed: 146 item IDs, 193 perks, 16 icons; no rights refusal | Remaining identifiers keep raw/baseline names and explicit missing-art fallback. No speculative joins. |
+| Source / revision | Licence found | Disposition | Alternative | Unblock |
+| --- | --- | --- | --- | --- |
+| [Piggyback Night City](https://maps.piggyback.com/cyberpunk-2077/maps/night-city), 49 public zoom-3 tile hashes pinned, 2026-10-29 | Rights reserved by Piggyback / CDPR; used with attribution per owner decision 2026-10-29 | **Resolved: imported (owner decision 2026-10-29)**, background art | Unpositioned marker list; positions remain omitted because a save-ID/geographic crosswalk is unverified. | No licence blocker remains. Positioning needs a verified save-ID/geographic crosswalk, independent of rights. |
+| [CDPR planner](https://www.cyberpunk.net/en/build-planner), English chunk `8603-b6e6f72c476c734a52a4.js`, retrieved 2026-10-29 | Rights reserved by CD PROJEKT RED; used with attribution per owner decision 2026-10-29 | **Resolved: imported (owner decision 2026-10-29)**, official names/descriptions | Reference text and stored ranks; no invented prerequisite edges or gameplay rules. | No licence blocker remains. Build-matched prerequisites/costs/effects/entitlement remain evidence gaps. |
+| Complete PS5 2.21 TweakDB/localization/icon exports, no complete matching source supplied | Missing data; publisher assets are usable under owner decision 2026-10-29 | Partial import completed: 146 item IDs, 193 perks, 16 icons; no rights refusal | Remaining identifiers keep raw/baseline names and explicit missing-art fallback. No speculative joins. | Supply complete build-matched exports and verify exact identifier joins; this is an evidence gap, not a licence refusal. |
 
 The central `docs/LICENCE_EXCLUSIONS.md` rows for Cyberpunk2077 are superseded by the statuses above;
 this round's folder restriction leaves that shared file for the coordinating agent to synchronize.

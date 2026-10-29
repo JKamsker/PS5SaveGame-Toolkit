@@ -65,7 +65,7 @@ internal sealed class ProgressionEditor(ProgressionData data, byte[] payload)
                 () => FieldValue.Of(BinaryData.Int32(payload, attribute.Offset)), setter,
                 value => Validate(value, minimum, maximum))) with {
                 Warning = setter is null ? data.AttributeWarning ?? "No matching unique player stat mirror; edit refused."
-                    : "Updates both development data and the forced player stat. Existing perks and point balances are preserved. " + WriteSafety.Warning,
+                    : WriteSafety.Warning + " Updates both development data and the forced player stat. Existing perks and point balances are preserved.",
             });
         }
 
@@ -75,7 +75,7 @@ internal sealed class ProgressionEditor(ProgressionData data, byte[] payload)
             var label = point.Type switch { "Attribute" => "Unspent attribute points", "Primary" => "Unspent perk points", _ => "Unspent relic points" };
             result.Add(bind(new($"progression/points/{point.Type}", label, new IntegerSpec(0, maximum),
                 () => FieldValue.Of(point.Value), value => point.Value = value.AsInt32(), value => Validate(value, 0, maximum))) with {
-                Warning = "Experimental: changes only unspent points. Spent points and unlocks are preserved; the editor cap is a policy. " + WriteSafety.Warning,
+                Warning = WriteSafety.Warning + " Experimental: changes only unspent points. Spent points and unlocks are preserved; the editor cap is a policy.",
             });
         }
 

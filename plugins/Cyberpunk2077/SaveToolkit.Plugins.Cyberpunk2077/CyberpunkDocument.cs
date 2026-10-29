@@ -85,7 +85,7 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument,
                 new Stat("Nodes", _tree.Nodes.Count.ToString()),
                 new Stat("Expanded bytes", _edited.Length.ToString())]),
             new TextNode(CanEdit
-                ? "Experimental: attributes, point balances, raw stored progression, supported stacks and saved facts can be changed. " + WriteSafety.Warning
+                ? WriteSafety.Warning + " Experimental: attributes, point balances, raw stored progression, supported stacks and saved facts can be changed."
                 : "Read-only: no editable records in a verified PS5 schema were found.") { Tone = Tone.Warning },
             new TextNode(_progressionWarning ?? WriteSafety.ProgressionWarning) { Tone = Tone.Warning },
             .. (_stacks.Money is null ? Array.Empty<ViewNode>() : [QuantityField(_stacks.Money)])]),

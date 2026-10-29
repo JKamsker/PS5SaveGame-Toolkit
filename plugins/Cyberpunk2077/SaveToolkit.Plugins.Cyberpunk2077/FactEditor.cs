@@ -40,7 +40,7 @@ internal sealed class FactEditor
                 ? "Raw fact value must be within the nonnegative observed corpus range (including 0 and 1)." : null)) with
         {
             Confidence = Confidence.Unknown,
-            Warning = "Raw uint32 edit; quest stages, callbacks and related facts are not updated. " + WriteSafety.Warning,
+            Warning = WriteSafety.Warning + " Raw uint32 edit; quest stages, callbacks and related facts are not updated.",
         };
     }
 }

@@ -39,7 +39,7 @@ internal sealed class FactInspection
                 },
                 ["value"] = valueField(key, row.Fact.Value) with { Confidence = Confidence.Unknown,
                     Description = attribution + " Based on the parsed parallel uint32 value plane. " + WriteSafety.Warning,
-                    Warning = "Raw uint32; quest stages, callbacks and related facts are not updated. " + WriteSafety.Warning },
+                    Warning = WriteSafety.Warning + " Raw uint32; quest stages, callbacks and related facts are not updated." },
             });
         }
 

@@ -36,7 +36,7 @@ internal sealed class StackEditor(CsavContainer container, CsavTree tree, IReadO
         {
             Confidence = writable ? Confidence.Inferred : Confidence.Verified,
             Description = CyberpunkReferences.BaselineAttribution + " Based on the parsed PS5 2.21 quantity-only record. " + WriteSafety.Warning,
-            Warning = writable ? "The editor cap is a policy, not a verified game limit. " + WriteSafety.Warning : null,
+            Warning = writable ? WriteSafety.Warning + " The editor cap is a policy, not a verified game limit." : null,
         };
     }
 
@@ -85,7 +85,7 @@ internal sealed class StackEditor(CsavContainer container, CsavTree tree, IReadO
                 FieldValue.Of((ulong)current), FieldValue.Of((ulong)next)));
         }
         return new ActionPlan { Changes = changes, SkippedRows = skipped,
-            Warnings = ["Only supported existing quantity fields change. Charges/replenishment and gameplay caps are unverified. " + WriteSafety.Warning] };
+            Warnings = [WriteSafety.Warning + " Only supported existing quantity fields change. Charges/replenishment and gameplay caps are unverified."] };
     }
 
     public void BindTargets(ActionPlan plan, Func<ScalarBinding, FieldNode> bind)
