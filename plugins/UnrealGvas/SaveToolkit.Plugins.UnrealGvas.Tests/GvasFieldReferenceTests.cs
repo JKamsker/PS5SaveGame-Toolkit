@@ -84,6 +84,17 @@ public sealed class GvasFieldReferenceTests
         using var session = new DocumentSession("sackboy", import.File, plugin, plugin.Open(import.File));
         var token = TestContext.Current.CancellationToken;
 
+        var all = session.QueryCollection("gvas/properties", new() { Limit = 200, SortColumn = "value" }, null, token);
+        var container = Assert.Single(all.Rows, row => row.Key == "property/0");
+        Assert.Contains("children", Assert.IsType<TextNode>(container.Cells["value"]).Text, StringComparison.Ordinal);
+        var opaque = Assert.Single(all.Rows, row => row.Key == "property/1");
+        Assert.NotEmpty(Assert.IsType<TextNode>(opaque.Cells["value"]).Text);
+        var namedContainer = session.QueryCollection("gvas/group/Progression", new()
+        {
+            Text = "CollectabellSaveData", SortColumn = "value", Limit = 200,
+        }, null, token);
+        Assert.Contains(namedContainer.Rows, row => row.Key == "property/0");
+
         var raw = session.QueryCollection("gvas/properties", new() { Text = "CollectabellsStored", Limit = 1 }, null, token);
         var progression = session.QueryCollection("gvas/group/Progression", new() { Limit = 200 }, null, token);
         var rawRow = Assert.Single(raw.Rows);
@@ -104,6 +115,7 @@ public sealed class GvasFieldReferenceTests
         Assert.True(session.Undo().Ok);
         Assert.Equal(FieldValue.Of(17), Assert.IsType<FieldNode>(session.QueryCollection(
             "gvas/properties", new() { Text = "CollectabellsStored", Limit = 1 }, null, token).Rows.Single().Cells["value"]).Value);
+        Assert.Empty(session.Serialize(token));
     }
 
     [Fact]
@@ -175,6 +187,7 @@ public sealed class GvasFieldReferenceTests
             GvasFixture.Property(body, "CollectabellsStored", "IntProperty", GvasFixture.Body(value => value.Write(17)));
             GvasFixture.String(body, "None");
         }), "CollectabellSaveData");
+        GvasFixture.Property(writer, "OpaqueContainer", "FutureProperty", [0xFE, 0xED, 0xFA, 0xCE]);
         GvasFixture.Property(writer, "Checksum", "UInt32Property", [0x78, 0x56, 0x34, 0x12]);
     }, minor: 25, patch: 1, packageVersion: 518, saveClass: "/Script/GingerBread.GingerbreadSaveUser");
 }

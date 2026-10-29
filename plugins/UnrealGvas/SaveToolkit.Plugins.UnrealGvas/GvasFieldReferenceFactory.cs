@@ -17,7 +17,7 @@ internal static class GvasFieldReferenceFactory
 
     public static ViewNode Value(GvasPropertyEntry entry)
     {
-        return Value(entry.Id, entry.Node);
+        return entry.Node.Scalar is null ? Text(entry.Value) : Value(entry.Id, entry.Node);
     }
 
     private static TextNode Text(string value) =>
