@@ -290,6 +290,14 @@ export interface ReferencePage {
   sortKeys?: ReferenceSortKey[];
 }
 
+/** Full envelope returned by GET /references/{catalogId}/record. */
+export interface ReferenceRecordDetail {
+  record: ReferenceRecord;
+  packTitle: string;
+  packVersion: string;
+  dataset: ReferenceDatasetInfo;
+}
+
 export interface ReferenceEligibility { available: boolean; eligible: boolean; reasons: string[]; selectable: boolean }
 export interface ReferenceCandidate {
   rawId: string;
