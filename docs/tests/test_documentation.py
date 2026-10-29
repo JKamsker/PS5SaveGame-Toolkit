@@ -5,6 +5,7 @@ No samples, network, third-party dependencies or generated files are needed.
 """
 
 import argparse
+from collections import Counter
 from functools import lru_cache
 import json
 from pathlib import Path
@@ -58,7 +59,108 @@ def heading_anchors(text):
     return anchors
 
 
+def markdown_section(text, heading):
+    match = re.search(rf"(?m)^{re.escape(heading)}\s*$", text)
+    if match is None:
+        raise AssertionError(f"Missing Markdown section: {heading}")
+    level = len(heading.split(" ", 1)[0])
+    return re.split(rf"(?m)^#{{1,{level}}} ", text[match.end():], maxsplit=1)[0]
+
+
+def markdown_table(text):
+    rows = []
+    for line in text.splitlines():
+        if line.startswith("|"):
+            cells = [cell.strip() for cell in re.split(r"(?<!\\)\|", line.strip()[1:-1])]
+            if not all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells):
+                rows.append(cells)
+    if not rows:
+        raise AssertionError("Missing Markdown table")
+    header, *data = rows
+    if any(len(row) != len(header) for row in data):
+        raise AssertionError("Inconsistent Markdown table column count")
+    return header, data
+
+
+def canonical_cell(cell, page):
+    """Compare copied cells while allowing relative links to be rebased."""
+    def canonical_link(match):
+        url = urlsplit(match[2])
+        if url.scheme:
+            return match[0]
+        target = ((ROOT / page).parent / unquote(url.path)).resolve()
+        destination = target.relative_to(ROOT).as_posix()
+        if url.fragment:
+            destination += "#" + unquote(url.fragment)
+        return match[1] + destination + ")"
+
+    cell = re.sub(r"(\[[^\]\n]+\]\()([^\s)]+)\)", canonical_link, cell)
+    return " ".join(cell.split())
+
+
+def licence_rows(heading):
+    header, rows = markdown_table(markdown_section(document("docs/LICENCE_EXCLUSIONS.md"), heading))
+    if header != ["Plugin", "Source / revision", "Licence found", "Status",
+                  "Disposition", "Alternative", "Unblock"]:
+        raise AssertionError(f"Unexpected register columns in {heading}")
+    return rows
+
+
 class DocumentationTests(unittest.TestCase):
+    def test_readme_licence_exclusions_match_register_in_both_directions(self):
+        register = licence_rows("## README exclusion decisions")
+        names = {name for name, _, _ in plugins()}
+        self.assertEqual(names, {row[0] for row in register})
+        for name in sorted(names):
+            with self.subTest(plugin=name):
+                page = f"plugins/{name}/README.md"
+                header, expected = markdown_table(markdown_section(document(page), "## Licence exclusions"))
+                self.assertIn(len(header), (4, 5))
+                # Two legacy four-column tables omit a separate alternative.
+                # Preserve their wording instead of silently dropping their rows.
+                if len(header) == 4:
+                    expected = [[*row[:3], "Not separately recorded in README.", row[3]] for row in expected]
+                expected = [tuple(canonical_cell(cell, page) for cell in row) for row in expected]
+                actual = [tuple(canonical_cell(cell, "docs/LICENCE_EXCLUSIONS.md")
+                                for cell in [*row[1:3], *row[4:]])
+                          for row in register if row[0] == name]
+                self.assertCountEqual(expected, actual, "README/register source, revision or disposition drift")
+
+    def test_additional_licence_decisions_have_readme_source_evidence(self):
+        names = {name for name, _, _ in plugins()}
+        for row in licence_rows("## Additional README source decisions"):
+            name, source_cell = row[:2]
+            with self.subTest(plugin=name, source=source_cell):
+                self.assertIn(name, names)
+                readme = document(f"plugins/{name}/README.md")
+                urls = re.findall(r"\]\((https?://[^\s)]+)\)", source_cell)
+                self.assertTrue(urls, "Additional decisions need concrete README source URLs")
+                for url in urls:
+                    self.assertIn(url, readme, "Historical source no longer appears in the README")
+
+    def test_licence_register_summary_matches_decisions(self):
+        sections = (licence_rows("## README exclusion decisions"),
+                    licence_rows("## Additional README source decisions"))
+        counts = Counter()
+        for section_index, rows in enumerate(sections):
+            for row in rows:
+                with self.subTest(plugin=row[0], source=row[1]):
+                    self.assertIn(row[3], ("Imported", "Still refused", "Not used"))
+                counts[row[0], section_index] += 1
+                counts[row[0], row[3]] += 1
+        header, summary = markdown_table(markdown_section(document("docs/LICENCE_EXCLUSIONS.md"), "## Summary"))
+        self.assertEqual(["Plugin", "README exclusions", "Additional decisions", "Imported",
+                          "Still refused", "Not used", "Total"], header)
+        names = {name for name, _, _ in plugins()}
+        self.assertCountEqual([*sorted(names), "**Total**"], [row[0] for row in summary])
+        for name, *values in summary:
+            selected = names if name == "**Total**" else {name}
+            expected = [sum(counts[plugin, key] for plugin in selected)
+                        for key in (0, 1, "Imported", "Still refused", "Not used")]
+            expected.append(sum(expected[:2]))
+            with self.subTest(plugin=name):
+                self.assertEqual(expected, [int(value) for value in values])
+
     def test_support_tables_match_registered_plugins(self):
         for page in ("README.md", "docs/PLUGINS.md"):
             text = document(page)
