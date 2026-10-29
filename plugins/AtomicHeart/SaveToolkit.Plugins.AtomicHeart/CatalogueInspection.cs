@@ -9,19 +9,13 @@ internal static class CatalogueInspection
 {
     internal const string ActionId = "references/inspect/items";
     internal const string ParameterId = "item";
+    private const string Description = "Read-only inspection of the pinned, attributed item catalogue. It does not edit the save or resolve gameplay ownership.";
 
-    internal static ActionNode Action(IReferenceCatalog catalog)
-    {
-        var first = catalog.Search(new ReferenceQuery { Limit = 1 }).Items.FirstOrDefault();
-        if (first is null) throw new InvalidOperationException("The Atomic Heart item catalogue is empty.");
-
-        return new ActionNode(ActionId, "Inspect catalogue item")
-        {
-            Mutates = false,
-            Description = "Read-only inspection of the pinned, attributed item catalogue. It does not edit the save or resolve gameplay ownership.",
-            Parameters = [new FieldNode(ParameterId, "Catalogue item", new ReferenceSpec(InventoryViews.CatalogId), FieldValue.Of(first.Key))],
+    internal static ActionNode Action(IReferenceCatalog catalog) =>
+        (ReferenceInspection.Create(catalog, ActionId, "Inspect catalogue item", ParameterId, "Catalogue item", Description)
+            ?? throw new InvalidOperationException("The Atomic Heart item catalogue is empty.")) with {
+            Description = Description, Tone = Tone.Normal,
         };
-    }
 
     internal static ActionOutcome Inspect(IReferenceCatalog? catalog, IReadOnlyDictionary<string, FieldValue> parameters)
     {
@@ -29,8 +23,9 @@ internal static class CatalogueInspection
         if (parameters.Count != 1 || !parameters.TryGetValue(ParameterId, out var value) || value.Kind != FieldValueKind.Text)
             throw new ArgumentException("Choose one catalogue item.", nameof(parameters));
 
-        var record = catalog.Find(value.AsString())
-            ?? throw new ArgumentException("The selected catalogue item is not in the pinned catalogue.", nameof(parameters));
+        ReferenceRecord record;
+        try { record = ReferenceInspection.ResolveSelection(catalog, parameters, ParameterId); }
+        catch (ArgumentException) { throw new ArgumentException("The selected catalogue item is not in the pinned catalogue.", nameof(parameters)); }
         return new ActionOutcome
         {
             Message = $"{record.Name} · {record.Key} · {record.Category ?? "Unknown category"}\n" +
