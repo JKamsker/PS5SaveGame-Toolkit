@@ -1,0 +1,9 @@
+using SaveToolkit.Testing;
+
+namespace @PROJECT@.Tests;
+
+public sealed class @NAME@ConformanceTests : PluginConformanceTests<@NAME@Plugin>
+{
+    // Real samples skip when absent. Replace the synthetic format before using real game samples.
+    protected override IReadOnlyList<string> SampleTitleIds => [@SAMPLE_TITLES@];
+}

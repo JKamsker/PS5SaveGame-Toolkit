@@ -1,0 +1,58 @@
+using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.Values;
+using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
+
+namespace @PROJECT@.Tests;
+
+public sealed class @NAME@DocumentTests
+{
+    // STKDEMO1, count=3, values=2/10/20, and two unknown trailing bytes.
+    private static byte[] ExampleBytes =>
+        [.. "STKDEMO1"u8, 3, 0, 0, 0, 2, 0, 0, 0, 10, 0, 0, 0, 20, 0, 0, 0, 0xAA, 0xBB];
+
+    [Fact]
+    public void SyntheticView_QueriesCompleteModelAndPreservesBytes()
+    {
+        var file = MemorySaveSet.SingleFile("example.bin", ExampleBytes);
+        var plugin = new @NAME@Plugin();
+        Assert.True(plugin.Probe(file).IsMatch);
+        using var document = plugin.Open(file);
+        Assert.False(document.CanEdit);
+        Assert.IsType<SectionNode>(document.BuildView());
+        var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
+        var collection = Assert.Single(queryable.Collections);
+        // Numeric sorting must precede paging (lexical sorting would put 2 after 10).
+        var page = queryable.Query(collection.Id, new() { SortColumn = "value", Offset = 1, Limit = 1 });
+        Assert.Equal(3, page.TotalCount);
+        var row = Assert.Single(page.Rows);
+        var field = Assert.IsType<FieldNode>(row.Cells["value"]);
+        Assert.True(field.Spec.ReadOnly);
+        Assert.Equal(FieldValue.Of(10), document.GetValue(field.ValueId));
+        Assert.False(document.ApplyEdits([new ValueEdit(field.ValueId, FieldValue.Of(99))]).Succeeded);
+        var filtered = queryable.Query(collection.Id, new() { Text = "20", Limit = 1 });
+        Assert.Equal(1, filtered.FilteredCount);
+        Assert.Single(filtered.Rows);
+        var output = Assert.Single(document.Serialize());
+        Assert.Equal(file.RelativePath, output.RelativePath);
+        Assert.Equal(ExampleBytes, output.Content.ToArray());
+    }
+
+    [Theory]
+    [MemberData(nameof(InvalidInputs))]
+    public void Open_RejectsInvalidSyntheticInput(byte[] bytes)
+    {
+        var file = MemorySaveSet.SingleFile("example.bin", bytes);
+        Assert.Throws<SaveFormatException>(() => new @NAME@Plugin().Open(file));
+    }
+
+    public static TheoryData<byte[]> InvalidInputs => new()
+    {
+        Array.Empty<byte>(),
+        (byte[])[.. "NOTDEMO1"u8, 0, 0, 0, 0],
+        (byte[])[.. "STKDEMO1"u8, 1, 0, 0, 0], // Truncated record.
+        (byte[])[.. "STKDEMO1"u8, 65, 0, 0, 0], // Count exceeds the example's bound of 64.
+        (byte[])[.. "STKDEMO1"u8, 255, 255, 255, 255], // Negative count.
+    };
+}
