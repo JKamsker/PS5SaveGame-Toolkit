@@ -50,6 +50,15 @@ Do not infer a latency guarantee from these stopwatch observations. The unchange
 story pass and root view demonstrate timing variation; no story-scan fix is claimed.
 The primary comparable after run executes the measurement class alone, like baseline.
 
+The subsequent test-quality review (#40) removes the two one-second test deadlines.
+Graph construction still exercises all 50,000 slots and now checks their complete
+native slot/entity sequence, ownership and ambiguity; its stopwatch is diagnostic.
+First sample story expansion instead has a generous 64 KiB managed-allocation
+ceiling plus an independent string/regex oracle for marker keys and occurrences.
+The supplied story has no known raw markers; synthetic positive controls cover
+occurrence counts, UTF-16LE at both byte alignments, partial names and the exact
+64 MiB inspection limit. Existing codec, parser and paging allocation budgets remain.
+
 The additional synthetic 50,000-slot unowned inventory graph measured
 **1,862.21 -> 155.70 ms** in isolated Release tests. It remains within the existing
 100,000-slot parser budget. The regression runs outside parallel test collections.
