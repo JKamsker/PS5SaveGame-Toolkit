@@ -86,7 +86,8 @@ public sealed partial class DocumentSession : IDisposable
     private PresetCapability? EffectivePresetCapability()
     {
         if (Document is not IPresetDocument adapter) return null;
-        return adapter.PresetCapability with { ReferencePackIdentity = ((IReferenceContext)_references).ContentIdentity };
+        if (adapter.PresetCapability is not { } capability) return null;
+        return capability with { ReferencePackIdentity = ((IReferenceContext)_references).ContentIdentity };
     }
 
     private ISaveDocument Document { get; }

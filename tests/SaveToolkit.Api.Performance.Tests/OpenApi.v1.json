@@ -2465,6 +2465,9 @@
       },
       "PresetCompatibilitySummaryDto": {
         "properties": {
+          "canPreview": {
+            "type": "boolean"
+          },
           "code": {
             "type": [
               "null",
@@ -2512,6 +2515,18 @@
           },
           "presetKind": {
             "type": "string"
+          },
+          "previewCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "previewReason": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "readOnly": {
             "type": "boolean"
@@ -2568,6 +2583,7 @@
         "required": [
           "compatible",
           "readOnly",
+          "canPreview",
           "presetKind",
           "unsupportedActions"
         ],
@@ -4820,6 +4836,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "tags": [
@@ -4877,6 +4903,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "tags": [
@@ -4939,6 +4975,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "tags": [
@@ -4998,6 +5044,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "tags": [
@@ -5065,6 +5121,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "tags": [
@@ -7918,6 +7984,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "tags": [
@@ -8013,6 +8089,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "tags": [
@@ -8116,6 +8202,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "tags": [
@@ -8219,6 +8315,16 @@
               }
             },
             "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "tags": [

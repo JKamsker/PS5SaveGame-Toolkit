@@ -1,5 +1,6 @@
 using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.Presets;
+using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
@@ -63,16 +64,53 @@ internal static class DtoMapper
     {
         var check = PresetStore.CheckCompatibility(preset, document);
         var capability = document.PresetCapability;
-        var unsupported = capability is null
-            ? []
-            : preset.Actions.Where(action => capability.Actions.All(item => item.ActionId != action.ActionId
-                || !item.SupportedScopes.Contains(action.ScopeKind, StringComparer.Ordinal)
-                || !item.SupportsApply)).Select(action => action.ActionId).Distinct(StringComparer.Ordinal).ToArray();
+        var unsupported = new List<string>();
+        string? previewCode = null;
+        string? previewReason = null;
+        if (capability is null && document.PresetDocument is not null)
+        {
+            unsupported.Add("capability");
+            previewCode = "capabilityMalformed";
+            previewReason = "The semantic preset capability is malformed.";
+        }
+        else if (capability is null)
+        {
+            if (preset.Actions.Count != 1)
+            {
+                unsupported.Add("generic:action-count");
+                previewCode = "genericShapeUnsupported";
+                previewReason = "Generic preview requires exactly one action.";
+            }
+            else if (preset.Actions[0].ScopeKind != PresetScopeKinds.Document || preset.Actions[0].Instances is { Count: > 0 })
+            {
+                unsupported.Add(preset.Actions[0].ActionId);
+                previewCode = "genericShapeUnsupported";
+                previewReason = "Generic preview requires one document-scope action without semantic targets.";
+            }
+        }
+        else if (PresetContractValidation.ValidateCapability(capability) is { } capabilityError)
+        {
+            unsupported.Add("capability");
+            previewCode = "capabilityMalformed";
+            previewReason = capabilityError;
+        }
+        else if (PresetContractValidation.ValidateActions(capability, preset.Actions,
+            document.PinnedReferences is ReferenceContext pinned ? new ReferenceFieldService(pinned) : null) is { } actionError)
+        {
+            unsupported.AddRange(preset.Actions.Select(action => action.ActionId).Distinct(StringComparer.Ordinal));
+            previewCode = "actionUnsupported";
+            previewReason = actionError;
+        }
+        var canPreview = check.Compatible && unsupported.Count == 0;
+        if (!check.Compatible) { previewCode = check.Code; previewReason = check.Message; }
         return new DocumentPresetDto(preset.ToDto(), new(
             check.Compatible,
             check.Code,
             check.Message,
             !document.CanEdit,
+            canPreview,
+            previewCode,
+            previewReason,
             preset.Compatibility.PresetKind,
             preset.Compatibility.GameBuild,
             capability?.GameBuild,
