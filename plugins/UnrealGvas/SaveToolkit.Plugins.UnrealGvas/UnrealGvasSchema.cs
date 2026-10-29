@@ -45,7 +45,7 @@ internal sealed record UnrealGvasSchema(
         if (saveClass == HogwartsImage.SaveClass && names.Contains("RawDatabaseImage") &&
             file.Header is { EngineMajor: 4, EngineMinor: 27, EnginePatch: 2, PackageVersion: 524, CustomVersionCount: 72 })
             return new(UnrealGvasSchemaKind.HogwartsMetadata, "Hogwarts metadata envelope", BuildText(file),
-                "PersistentData save class and raw database image names match the supplied PS5 generations.", "Verified storage; database state is read-only and game effects remain unverified");
+                "PersistentData save class and raw database image names match the supplied PS5 generations.", "Verified storage; only allowlisted database cells are editable and game effects remain unverified");
         return new(UnrealGvasSchemaKind.Generic, "Generic GVAS", BuildText(file),
             "No complete title schema signature matched; the generic lossless property explorer is used.", "Unknown");
     }
