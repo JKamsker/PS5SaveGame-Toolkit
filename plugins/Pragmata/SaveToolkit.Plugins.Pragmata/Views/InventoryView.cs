@@ -11,6 +11,7 @@ internal sealed class InventoryView(PragmataDocument document)
         new TextNode("Player-facing item mappings and legal stack limits are unverified. Attributed reference packs can supply names, descriptions and images; raw IDs are always preserved. Quantities use the stored int32 range.") { Tone = Tone.Warning },
         document.Layout.Items.Count <= LazyPages.PageSize ? Table() : document.InventoryRows.Table(),
         QuantityAction(),
+        RestoreQuantityAction(),
     ];
 
     private static ActionNode QuantityAction() => new(PragmataViews.QuantityAction, "Set stored quantities")
@@ -20,6 +21,18 @@ internal sealed class InventoryView(PragmataDocument document)
             Parameters = [new FieldNode("quantity", "Target quantity", IntegerSpec.Int32 with { Min = 0 }, FieldValue.Of(1L))],
             Description = PragmataDocument.EditWarning + " Preview selected rows from the table, or every existing row from document scope. Legal limits and game effects remain unverified. " +
                 "For large inventories, select all matching rows to include unloaded pages. Document scope requires loaded quantity bindings. Applying is one undo step. Does not add items or set unlock flags.",
+        };
+
+    private static ActionNode RestoreQuantityAction() => new(PragmataViews.RestoreQuantityAction, "Restore imported quantities")
+        {
+            SupportsPlanning = true,
+            Tone = Tone.Warning,
+            Description = PragmataDocument.EditWarning + " Inferred quantity storage; raw item IDs remain visible. " +
+                "Preview selected existing rows, or all existing rows from document scope. Restore only nonnegative quantities below their immutable workspace opening amounts. " +
+                "Values already above that baseline stay unchanged. Skip negative quantities and changed item IDs; reject duplicate IDs or invalid selections. " +
+                "This cannot recover amounts lost before import. Re-import establishes a new baseline. " +
+                "For large inventories, select all matching rows to include unloaded pages; explicit/document scope requires loaded quantity bindings. " +
+                "Applying is one undo step. No items, unlock flags or dependency repairs are added; legal stack limits and console effects remain Unknown.",
         };
 
     private TableNode Table() => new(InventoryCollections.Columns.Select(column => new TableColumn(column.Key, column.Label)).ToArray(),
@@ -38,7 +51,7 @@ internal sealed class InventoryView(PragmataDocument document)
                 ["quantity"] = document.Field(item.Find(KnownHashes.Quantity)!) with { Label = "Quantity" },
                 ["equipped"] = new TextNode(id == equipped ? "Equipped" : ""),
                 ["details"] = new SectionNode("Item details and sources", document.References.ItemDetails(id)),
-                ["action"] = QuantityAction(),
+                ["action"] = new SectionNode("Quantity actions", [QuantityAction(), RestoreQuantityAction()]),
         });
     }
 }

@@ -132,14 +132,20 @@ public sealed class EnabledWriteTests
         var inventory = tabs.Single(tab => tab.Title == "Inventory");
         var table = inventory.Children.OfType<TableNode>().Single();
         Assert.All(table.Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>(), AssertEnabled);
-        var action = inventory.Children.OfType<ActionNode>().Single();
-        Assert.True(action.SupportsPlanning);
-        Assert.Contains("RSA", action.Description!, StringComparison.Ordinal);
+        var actions = inventory.Children.OfType<ActionNode>().ToArray();
+        Assert.Equal(2, actions.Length);
+        Assert.All(actions, action =>
+        {
+            Assert.True(action.SupportsPlanning);
+            Assert.Contains("RSA", action.Description!, StringComparison.Ordinal);
+        });
         var parameters = new Dictionary<string, FieldValue> { ["quantity"] = FieldValue.Of(17L) };
         var plan = document.PlanAction(PragmataViews.QuantityAction, parameters, new ActionScope());
         Assert.Contains(plan.Warnings, warning => warning.Contains("RSA", StringComparison.Ordinal));
         var outcome = document.ApplyActionPlan(PragmataViews.QuantityAction, parameters, new ActionScope(), plan);
         Assert.Contains(outcome.Warnings, warning => warning.Contains("game may reject", StringComparison.Ordinal));
+        var restore = document.PlanAction(PragmataViews.RestoreQuantityAction, ImportedQuantityTests.NoParameters, new ActionScope());
+        Assert.Contains(restore.Warnings, warning => warning.Contains("RSA", StringComparison.Ordinal));
     }
 
     [Fact]
