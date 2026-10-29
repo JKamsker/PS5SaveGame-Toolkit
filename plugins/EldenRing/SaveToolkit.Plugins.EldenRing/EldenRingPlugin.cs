@@ -9,7 +9,7 @@ public sealed class EldenRingPlugin : IGamePlugin, ISaveDecoderProvider
 {
     public IReadOnlyList<ISaveDecoderHook> Decoders { get; } = [new EldenRingEvidenceDecoder()];
 
-    public PluginInfo Info { get; } = new("eldenring", "Elden Ring", "0.6.1")
+    public PluginInfo Info { get; } = new("eldenring", "Elden Ring", "0.7.0")
     {
         Description = "Experimental bounded writes with F6 review, attributed inventory/classes, read-only progress maps and attribute dependency graph.",
         Games =
@@ -22,6 +22,10 @@ public sealed class EldenRingPlugin : IGamePlugin, ISaveDecoderProvider
         Maturity = PluginMaturity.Experimental,
         References =
         [
+            ProgressMapAssets.Source,
+            ProgressMapAssets.Source + "/packages/data/src/generated",
+            ProgressMapAssets.Source + "/packages/data/images",
+            ProgressMapAssets.Source + "/apps/web/src/lib/map-affine.ts",
             .. CommunitySourceReferences.All,
             "https://github.com/ClayAmore/ER-Save-Editor",
             "https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df",

@@ -27,15 +27,14 @@ public sealed class SpatialViewTests
         Assert.NotEmpty(regions);
         var markers = new HashSet<string>(StringComparer.Ordinal);
         var setCount = 0;
+        var positioned = 0;
         foreach (var region in regions)
         {
             var children = session.Expand(region.LazyId!);
             var map = Assert.Single(children.OfType<MapNode>());
             var table = Assert.Single(children.OfType<TableNode>());
             SpatialViewValidation.Validate(map);
-            Assert.Null(map.Background);
-            Assert.Null(map.CoordinateAttribution);
-            Assert.False(map.CoordinateEmbeddingPermitted);
+            VisualAssetTests.ValidateMap(map, references);
             Assert.Equal(ProgressViews.MapUrl, map.ExternalSource!.Url);
             Assert.Contains("Link only", map.ExternalSource.Attribution);
             Assert.Equal(table.Rows.Count, map.Markers.Count);
@@ -44,7 +43,7 @@ public sealed class SpatialViewTests
             foreach (var marker in map.Markers)
             {
                 Assert.True(markers.Add(marker.Id));
-                Assert.Null(marker.X); Assert.Null(marker.Y);
+                if (marker.X.HasValue) positioned++;
                 Assert.Equal(MapMarkerStatus.Unknown, marker.Status);
                 Assert.Equal(Confidence.Inferred, marker.Confidence);
                 Assert.Contains("MIT", marker.Description);
@@ -63,6 +62,7 @@ public sealed class SpatialViewTests
             Assert.Equal(map.Markers.Select(marker => marker.Id), roundTrip.Markers.Select(marker => marker.Id));
         }
         Assert.Equal(499, markers.Count);
+        Assert.InRange(positioned, 300, 471);
         Assert.InRange(setCount, 1, 498); // One snapshot contains both raw set and unset candidates, no status claim.
         Assert.False(session.State.IsDirty);
         Assert.False(session.State.CanUndo);

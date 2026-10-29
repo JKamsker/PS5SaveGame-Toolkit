@@ -54,7 +54,7 @@ internal sealed class ReferenceBrowser(IReferenceCatalog? catalog, IReferenceCat
 
     public static string Details(ReferenceRecord record) => string.Join(" · ",
         new[] { record.Description, record.AttributionText, $"Pack {record.Dataset.PackId}; dataset {record.Dataset.Id}",
-            record.Dataset.PackId == CommunityReferences.PackId ? record.Dataset.Attribution.Modifications : null }
+            record.Dataset.Attribution.Modifications }
             .Where(value => !string.IsNullOrWhiteSpace(value)));
 
     private static string Text(ReferenceRecord row, string column) => column switch
@@ -68,7 +68,8 @@ internal sealed class ReferenceBrowser(IReferenceCatalog? catalog, IReferenceCat
 
     private static TableRow Row(ReferenceRecord record) => new($"catalog/{record.Key}",
         Columns.ToDictionary(column => column.Key, column => column.Key == "details"
-            ? (ViewNode)new SectionNode("Reference evidence", [new TextNode(Details(record))])
+            ? (ViewNode)new SectionNode("Reference evidence", [new TextNode(Details(record)),
+                .. record.AssetId is { } asset ? new ViewNode[] { new ImageNode(asset, record.Name) } : []])
             : new TextNode(Text(record, column.Key))));
 
     private static IReadOnlyList<ReferenceRecord> Index(IReferenceCatalog? source)

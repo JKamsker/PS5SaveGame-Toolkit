@@ -80,7 +80,7 @@ public sealed class CommunityBrowsingTests
             var map = Assert.Single(nodes.OfType<MapNode>());
             var table = Assert.Single(nodes.OfType<TableNode>());
             SpatialViewValidation.Validate(map);
-            Assert.Null(map.Background);
+            VisualAssetTests.ValidateMap(map, context);
             Assert.InRange(map.Markers.Count, 1, 100);
             Assert.Equal(table.Rows.Count, map.Markers.Count);
             foreach (var marker in map.Markers)
@@ -90,7 +90,6 @@ public sealed class CommunityBrowsingTests
                 Assert.Equal(Confidence.Inferred, marker.Confidence);
                 Assert.Contains("No licence published", marker.Description);
                 Assert.Contains("not console-validated", marker.Description);
-                Assert.Null(marker.X); Assert.Null(marker.Y);
                 var target = Assert.IsType<ViewTarget>(marker.Target);
                 Assert.Equal(["tab:World / progress", "section:community-progress", "section:community-progress/0",
                     "section:" + region.LazyId, "row:" + marker.Id], target.Path);
