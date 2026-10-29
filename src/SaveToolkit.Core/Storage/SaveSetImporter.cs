@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using SaveToolkit.Sdk.Saves;
 
@@ -25,12 +26,17 @@ public sealed class ImportException(string message) : Exception(message);
 public static partial class SaveSetImporter
 {
     private const string UnknownTitle = "UNKNOWN";
+    // SFO is optional display metadata. Oversized files remain exportable without parsing them in memory.
+    private const int MaxMetadataBytes = 1024 * 1024;
+    private const int MinimumZipBytes = 22; // Smallest valid ZIP: an empty end-of-central-directory record.
+    // ZIP APPNOTE appendix D: unflagged names use CP437; ZipArchive still honors flagged UTF-8 names.
+    private static readonly Encoding LegacyZipEncoding = CodePagesEncodingProvider.Instance.GetEncoding(437)!;
 
     public static DiskSaveSet Import(IEnumerable<ImportSource> sources, string storageRoot, ImportLimits? limits = null)
     {
         limits ??= new ImportLimits();
         System.IO.Directory.CreateDirectory(storageRoot);
-        var builder = new Builder(storageRoot, limits);
+        using var builder = new Builder(storageRoot, limits);
         foreach (var source in sources)
         {
             if (source.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
@@ -44,7 +50,9 @@ public static partial class SaveSetImporter
             }
         }
 
-        return builder.Build();
+        var set = builder.Build();
+        builder.Commit();
+        return set;
     }
 
     private static void ImportArchive(ImportSource source, Builder builder)
@@ -52,10 +60,13 @@ public static partial class SaveSetImporter
         try
         {
             using var stream = source.Open();
-            using var zip = new ZipArchive(stream, ZipArchiveMode.Read);
+            // ASP.NET's bounded upload stream throws on negative seeks, unlike MemoryStream.
+            if (stream.CanSeek && stream.Length - stream.Position < MinimumZipBytes)
+                throw new InvalidDataException("The ZIP file is empty or truncated (missing end-of-central-directory record).");
+            using var zip = new ZipArchive(stream, ZipArchiveMode.Read, leaveOpen: false, entryNameEncoding: LegacyZipEncoding);
             foreach (var entry in zip.Entries)
             {
-                if (entry.FullName.EndsWith('/')) continue;
+                if (entry.FullName.EndsWith('/') || entry.FullName.EndsWith('\\')) continue;
                 try
                 {
                     using var entryStream = entry.Open();
@@ -78,8 +89,8 @@ public static partial class SaveSetImporter
     /// <summary>Splits an archive path into title / save directory / path inside the directory.</summary>
     internal static ParsedPath? ParsePath(string path)
     {
-        var segments = path.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
-        if (segments.Length == 0 || segments.Any(s => !IsSafeSegment(s)) || segments[0] == "__MACOSX")
+        var segments = PathSegments(path);
+        if (segments.Length == 0 || segments.Any(s => !IsSafeSegment(s)) || IsMetadataPath(segments))
         {
             return null;
         }
@@ -92,15 +103,26 @@ public static partial class SaveSetImporter
                 return null;
             }
 
-            var title = dirIndex > 0 && TitleIdRegex().IsMatch(segments[dirIndex - 1]) ? segments[dirIndex - 1].ToUpperInvariant() : null;
+            var title = segments.Take(dirIndex).LastOrDefault(s => TitleIdRegex().IsMatch(s))?.ToUpperInvariant();
             return new ParsedPath(title, segments[dirIndex], string.Join('/', segments[(dirIndex + 1)..]));
         }
 
-        var anyTitle = segments.FirstOrDefault(s => TitleIdRegex().IsMatch(s))?.ToUpperInvariant();
-        return segments.Length >= 2
-            ? new ParsedPath(anyTitle, segments[^2], segments[^1])
-            : new ParsedPath(anyTitle, "loose", segments[0]);
+        var titleIndex = Array.FindIndex(segments, s => TitleIdRegex().IsMatch(s));
+        var anyTitle = titleIndex < 0 ? null : segments[titleIndex].ToUpperInvariant();
+        var rootIndex = titleIndex < 0 ? 0 : titleIndex + 1;
+        if (rootIndex < segments.Length - 1 && string.Equals(segments[rootIndex], "sce_sys", StringComparison.OrdinalIgnoreCase))
+            return new ParsedPath(anyTitle, "loose", string.Join('/', segments[rootIndex..]));
+
+        if (rootIndex < segments.Length - 1)
+            return new ParsedPath(anyTitle, segments[rootIndex], string.Join('/', segments[(rootIndex + 1)..]));
+
+        return new ParsedPath(anyTitle, "loose", segments[^1]);
     }
+
+    private static string[] PathSegments(string path) => path.Replace('\\', '/')
+        .Split('/', StringSplitOptions.RemoveEmptyEntries).Where(s => s != ".").ToArray();
+
+    private static bool IsMetadataPath(string[] segments) => segments.Contains("__MACOSX", StringComparer.OrdinalIgnoreCase);
 
     private static bool IsSafeSegment(string s) =>
         s is not ("." or "..") && s.IndexOfAny(['\0', ':', '*', '?', '"', '<', '>', '|']) < 0 && s.Length <= 255;
@@ -108,19 +130,45 @@ public static partial class SaveSetImporter
     [GeneratedRegex("^[A-Z]{4}[0-9]{5}$", RegexOptions.IgnoreCase)]
     private static partial Regex TitleIdRegex();
 
-    private sealed class Builder(string storageRoot, ImportLimits limits)
+    private sealed class Builder(string storageRoot, ImportLimits limits) : IDisposable
     {
         private readonly Dictionary<string, int> _occurrences = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> _directoryNames = new(StringComparer.OrdinalIgnoreCase);
         private readonly List<PendingFile> _files = [];
+        private readonly List<string> _createdBlobs = [];
         private long _totalBytes;
+        private bool _committed;
+
+        public void Commit() => _committed = true;
+
+        public void Dispose()
+        {
+            if (_committed) return;
+            List<Exception> errors = [];
+            foreach (var path in _createdBlobs)
+            {
+                try { File.Delete(path); }
+                catch (IOException ex) { errors.Add(ex); }
+                catch (UnauthorizedAccessException ex) { errors.Add(ex); }
+            }
+            if (errors.Count > 0)
+                throw new IOException("Import failed and temporary blobs could not all be removed.", new AggregateException(errors));
+        }
 
         public void Add(string archivePath, Stream content, long? expectedLength = null, uint? expectedCrc32 = null)
         {
+            if (IsMetadataPath(PathSegments(archivePath))) return;
             var parsed = ParsePath(archivePath);
             if (parsed is null)
             {
-                return;
+                throw new ImportException($"Cannot import file '{archivePath}': unsupported or invalid path (maximum name length: 255 characters).");
             }
+
+            var directoryKey = $"{parsed.TitleId}/{parsed.RawDirectory}";
+            if (_directoryNames.TryGetValue(directoryKey, out var rawDirectory))
+                parsed = parsed with { RawDirectory = rawDirectory };
+            else
+                _directoryNames.Add(directoryKey, parsed.RawDirectory);
 
             if (_files.Count >= limits.MaxEntries)
             {
@@ -139,9 +187,14 @@ public static partial class SaveSetImporter
 
         private (long Length, string Sha256) CopyToBlob(Stream content, string blobPath, long? expectedLength, uint? expectedCrc32)
         {
+            if (expectedLength > limits.MaxTotalBytes - _totalBytes)
+                throw new ImportException($"Upload exceeds {limits.MaxTotalBytes / (1024 * 1024)} MiB.");
+
             using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             var checksum = expectedCrc32.HasValue ? new ZipEntryChecksum() : null;
             using var output = new FileStream(blobPath, FileMode.CreateNew, FileAccess.Write);
+            // Track only files we created: a name collision must never delete someone else's data.
+            _createdBlobs.Add(blobPath);
             var buffer = new byte[81920];
             long length = 0;
             int read;
@@ -195,7 +248,8 @@ public static partial class SaveSetImporter
             foreach (var group in groups)
             {
                 var sfoFile = group.FirstOrDefault(f => string.Equals(f.Path.PathInDirectory, "sce_sys/param.sfo", StringComparison.OrdinalIgnoreCase));
-                var sfo = sfoFile is null ? null : ParamSfo.TryParse(File.ReadAllBytes(sfoFile.BlobPath));
+                var sfo = sfoFile is null || sfoFile.Length > MaxMetadataBytes
+                    ? null : ParamSfo.TryParse(File.ReadAllBytes(sfoFile.BlobPath));
                 var title = group.Key.TitleId ?? NormalizeTitle(sfo?.TitleId) ?? UnknownTitle;
 
                 var directory = new DiskSaveDirectory(set, $"d{dirIndex++}", title, group.Key.Raw, group.Key.Generation) { ParamSfo = sfo };
