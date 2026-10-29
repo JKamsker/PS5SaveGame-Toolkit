@@ -376,7 +376,11 @@ a known singular message are rejected because protobuf merge semantics need addi
 occur in the samples.
 
 Edits run on a cloned message tree; failure discards it, retaining original wire encodings and the
-provenance of newly created records. Derived changes are reported for framework undo/redo, including
+provenance of newly created records. This includes failures during setter rollback: an imported
+over-capacity inventory must not retain earlier edits from a rejected SDU batch. Batches with no
+semantic changes also discard their clone and level-award policy changes. Unchanged packed Myth
+values retain noncanonical varints; unchanged ammo retains the original floating-point zero sign.
+These cases must not change output bytes without an undo entry. Derived changes are reported for framework undo/redo, including
 exact XP, skills/statistics and removal of newly added key records. Serialize parses its own complete
 output wrapper, decodes/validates the protobuf and compares it with the intended wire message.
 
@@ -413,13 +417,20 @@ dotnet run --project tools/SaveToolkit.SaveDiff -- verify plugins/Gearbox/fixtur
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
-Validated 2026-10-29: **156 Gearbox tests passed, 0 failed, 0 skipped**; F1 CLI **2 fixtures passed,
+Asset-round validation, 2026-10-29: **156 Gearbox tests passed, 0 failed, 0 skipped**; F1 CLI **2 fixtures passed,
 0 failed, 0 skipped** with Gearbox-only plugin discovery; API build **0 warnings, 0 errors**. The full
 multi-plugin SaveDiff command currently fails before decoding because another plugin registers the
 duplicate hook ID `ffxvi`. For the Gearbox check, the built CLI/dependencies and Gearbox assembly
 were copied to an external temporary folder with other plugin assemblies omitted; no repository
 files were changed for this isolation. The environment variable was exported in the
 same shell command as each sample-backed test run. Sample-dependent tests still skip when absent.
+
+Write-safety review ([#40](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/40)), 2026-10-29:
+**179 Gearbox tests passed, 0 failed, 0 skipped**; API build **0 warnings, 0 errors**. Ten new cases
+cover rollback-setter failure with imported over-capacity inventories, byte/identity/level-award
+restoration, packed/unpacked no-op allocations, signed-zero ammo, net-zero edit batches and F7
+no-op output/history. Defect cases were confirmed failing before their fixes. Build outputs and
+test scratch were directed to `D:/Temp/saveeditor/test-scratch/review-writes-gearbox`.
 
 Tests include conformance with meaningful currency/key edits, valid F2 packs and fixture archive hashes,
 every generation/twin, independent
