@@ -57,7 +57,7 @@ describe("action preview", () => {
     fireEvent.click(screen.getByRole("button", { name: "Ascending" }));
     fireEvent.click(await screen.findByRole("button", { name: "Select all 60 filtered rows" }));
     fireEvent.click(screen.getByRole("checkbox", { name: "Select Ether" }));
-    expect(screen.getByText("59 selected")).toBeTruthy();
+    expect(screen.getByRole("status", { name: "Items selection" }).textContent).toContain("59 selected");
     fireEvent.click(screen.getByRole("button", { name: /Refill/ }));
     await screen.findByText("58 selected rows");
     expect(plan).toHaveBeenCalledWith("w1", "d1", "refill", {}, { queryScope: {
