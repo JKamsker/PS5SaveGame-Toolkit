@@ -47,6 +47,18 @@ public sealed class RedPackageFormatTests
     }
 
     [Fact]
+    public void ChangedOmittedPointRequestsMissingFieldAndTypeNames()
+    {
+        var package = new RedPackage(Fixture(includeUnspentName: false), true);
+        var balance = new PointBalance("Attribute", package.Chunk(0)) { Value = 42 };
+        var expanded = package.WithNames(balance.RequiredNames);
+        var modified = expanded.Chunk(0).Rebuild(new Dictionary<string, byte[]> { ["unspent"] = [42, 0, 0, 0] });
+        var reopened = new RedPackage(expanded.Rebuild(0, modified), true);
+
+        Assert.Equal(42, reopened.Chunk(0).Int("unspent"));
+    }
+
+    [Fact]
     public void CorruptClassHeadersAndTruncationsThrowFormatErrors()
     {
         var bytes = Fixture();
@@ -65,10 +77,12 @@ public sealed class RedPackageFormatTests
         Assert.Throws<SaveFormatException>(() => new PackageClass(package, overlapping, 0, overlapping.Length));
     }
 
-    private static byte[] Fixture()
+    private static byte[] Fixture(bool includeUnspentName = true)
     {
         // Independent v4/6-section package: two chunks, one opaque property, padding, no point balance.
-        string[] names = ["PlayerDevelopmentData", "OtherChunk", "opaque", "Blob", "unspent", "Int32"];
+        string[] names = includeUnspentName
+            ? ["PlayerDevelopmentData", "OtherChunk", "opaque", "Blob", "unspent", "Int32"]
+            : ["PlayerDevelopmentData", "OtherChunk", "opaque", "Blob"];
         var namesSize = names.Sum(n => Encoding.ASCII.GetByteCount(n) + 1);
         var namesData = names.Length * 4;
         var chunkDescriptors = namesData + namesSize;
