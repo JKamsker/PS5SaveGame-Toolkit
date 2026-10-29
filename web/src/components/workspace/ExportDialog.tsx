@@ -46,7 +46,9 @@ export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(fun
       onToast(`Exported ${name}`);
       onClose();
     } catch (error) {
-      setDownloadError(error instanceof ApiError ? error.message : "Export failed.");
+      const message = error instanceof ApiError ? error.message : "Export failed.";
+      setDownloadError(message);
+      onToast(message, true);
     } finally {
       setBusy(false);
     }

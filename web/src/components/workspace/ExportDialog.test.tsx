@@ -12,11 +12,12 @@ const changed: ExportPlan = { changedCount: 1, files: [{ relativePath: "save.dat
 
 function setup() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000, gcTime: 0 } } });
+  const toast = vi.fn();
   const view = (open: boolean) => <QueryClientProvider client={client}>
-    <ExportDialog ref={element => { if (element) element.open = open; }} workspaceId="w" open={open} onClose={vi.fn()} onToast={vi.fn()} />
+    <ExportDialog ref={element => { if (element) element.open = open; }} workspaceId="w" open={open} onClose={vi.fn()} onToast={toast} />
   </QueryClientProvider>;
   const { rerender } = render(view(true));
-  return { client, show: (open: boolean) => rerender(view(open)) };
+  return { client, toast, show: (open: boolean) => rerender(view(open)) };
 }
 
 describe("export plan freshness", () => {
@@ -24,7 +25,7 @@ describe("export plan freshness", () => {
     vi.spyOn(api, "exportPlan").mockResolvedValue(changed);
     let fail!: (error: Error) => void;
     vi.spyOn(api, "exportZip").mockImplementation(() => new Promise((_resolve, reject) => { fail = reject; }));
-    const { client } = setup();
+    const { client, toast } = setup();
     const dialog = within(screen.getByRole("dialog", { name: "Export edited saves" }));
     await dialog.findByText("save.dat");
     fireEvent.click(dialog.getByRole("button", { name: "Download zip" }));
@@ -32,6 +33,7 @@ describe("export plan freshness", () => {
     await act(async () => { fail(new ApiError("Save failed integrity validation", 422)); });
     expect(packingText).toBe("Packing edited saves…");
     expect(dialog.getByRole("alert").textContent).toBe("Save failed integrity validation");
+    expect(toast).toHaveBeenCalledWith("Save failed integrity validation", true);
     expect((dialog.getByRole("button", { name: "Download zip" }) as HTMLButtonElement).disabled).toBe(false);
     client.clear();
   });
