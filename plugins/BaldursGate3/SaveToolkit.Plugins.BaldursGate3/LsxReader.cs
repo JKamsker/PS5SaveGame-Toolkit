@@ -20,11 +20,32 @@ internal static class LsxReader
             XmlResolver = null,
             MaxCharactersInDocument = BinaryData.MaxBufferSize,
         });
-        // Check depth before materializing XML, including otherwise unused wrapper elements.
+        // Charge the complete model before materializing XML, including wrapper elements.
+        var elementCount = 0;
+        var attributeCount = 0;
+        var hasText = new bool[MaxDepth + 1];
         while (reader.Read())
         {
             BinaryData.Require(reader.Depth <= MaxDepth, "LSX nesting exceeds 256 levels.");
+            if (reader.NodeType == XmlNodeType.Element)
+            {
+                elementCount++;
+                attributeCount += reader.AttributeCount;
+                hasText[reader.Depth] = false;
+            }
+            else if (reader.NodeType is XmlNodeType.Text or XmlNodeType.CDATA or XmlNodeType.SignificantWhitespace &&
+                reader.Depth > 0 && !hasText[reader.Depth - 1] && !string.IsNullOrWhiteSpace(reader.Value))
+            {
+                // Projection concatenates direct XText/CDATA into one optional #text attribute.
+                hasText[reader.Depth - 1] = true;
+                attributeCount++;
+            }
+
+            BinaryData.Require(elementCount <= BinaryData.MaxRecords, "Too many LSX elements.");
+            BinaryData.Require(attributeCount <= BinaryData.MaxRecords, "Too many LSX attributes.");
         }
+
+        budget.Reserve(0, elementCount, attributeCount);
 
         stream.Position = 0;
         using var secondReader = XmlReader.Create(stream, new XmlReaderSettings
@@ -42,7 +63,6 @@ internal static class LsxReader
         while (pending.TryDequeue(out var item))
         {
             BinaryData.Require(nodes.Count < BinaryData.MaxRecords, "Too many LSX elements.");
-            budget.Reserve(0, 1, 0);
             var (element, parent) = item;
             var label = element.Attribute("id") is { } id ? $"{element.Name} · {id.Value}" : element.Name.ToString();
             var index = nodes.Count;
@@ -72,7 +92,6 @@ internal static class LsxReader
             void AddAttribute(string name, string value)
             {
                 BinaryData.Require(attributes.Count < BinaryData.MaxRecords, "Too many LSX attributes.");
-                budget.Reserve(0, 0, 1);
                 node.Attributes.Add(attributes.Count);
                 attributes.Add(new ResourceAttribute(name, LarianAttributeType.String, ReadOnlyMemory<byte>.Empty) { XmlValue = value });
             }
