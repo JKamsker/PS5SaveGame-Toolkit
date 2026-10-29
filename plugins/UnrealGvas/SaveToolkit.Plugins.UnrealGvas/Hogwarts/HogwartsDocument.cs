@@ -127,14 +127,14 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
             string key = table.RowKey(row);
             long rowId = Convert.ToInt64(row[0], System.Globalization.CultureInfo.InvariantCulture);
             var cells = table.Columns.Select((column, index) => (column, value: row[index + 1]))
-                .ToDictionary(cell => cell.column, cell => Cell(database, table, key, rowId, cell.column, cell.value), StringComparer.Ordinal);
+                .ToDictionary(cell => cell.column, cell => Cell(database, table, row, key, rowId, cell.column, cell.value), StringComparer.Ordinal);
             return new TableRow(key, cells) { IsEmpty = HogwartsInventorySlots.IsEmpty(table, row) };
         }).ToArray();
         return new(collectionId, Metadata(table).Columns, rows, table.Count, page.Filtered, page.Offset, page.Limit)
         { HiddenEmptyCount = page.HiddenEmpty };
     }
 
-    private ViewNode Cell(HogwartsDatabase database, HogwartsTable table, string rowKey, long rowId, string column, object? value)
+    private ViewNode Cell(HogwartsDatabase database, HogwartsTable table, IReadOnlyList<object?> row, string rowKey, long rowId, string column, object? value)
     {
         string id = $"{table.Id}/{rowKey}/{column}";
         if (value is string key && _catalog?.Find(key) is { } record &&
@@ -145,6 +145,8 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
                 Description = record.AttributionText + ". " + record.Description,
                 Warning = "Exact saved ID matched; location/state meaning has not been console-validated. Read-only catalog picker.",
             };
+        if (HogwartsDiscoveryFields.Label(table, row, column) is { } label && value is long or double or string)
+            return ReadOnlyCell(table, id, label, value);
         if (!CanEdit || value is null or byte[] || table.IdentityColumns.Contains(column, StringComparer.Ordinal) || !IsWritableColumn(table.Name, column, value))
             return new TextNode(HogwartsTable.Text(value)) { Monospace = value is byte[] };
         return value switch
@@ -153,6 +155,19 @@ internal sealed class HogwartsDocument : BoundSaveDocument, ISaveDocument, IQuer
             double number => EditableCell(database, table, id, rowId, column, number, FloatSpec.Double),
             string text => EditableCell(database, table, id, rowId, column, text, new TextSpec { MaxLength = 1_048_576 }),
             _ => new TextNode(HogwartsTable.Text(value)),
+        };
+    }
+
+    private FieldNode ReadOnlyCell(HogwartsTable table, string id, string label, object value)
+    {
+        FieldSpec spec = value switch
+        {
+            long => IntegerSpec.Int64, double => FloatSpec.Double, _ => new TextSpec { Multiline = true },
+        };
+        return Field(id, label, spec, () => ToFieldValue(value)) with
+        {
+            Confidence = Confidence.Inferred, Description = HogwartsDiscoveryFields.Description(table, label),
+            Warning = HogwartsDiscoveryFields.Warning,
         };
     }
 
