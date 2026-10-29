@@ -26,6 +26,10 @@ and is not approved or endorsed by CD PROJEKT RED. See [ASSETS.md](ASSETS.md) fo
 sizes, processing, benchmarks and limitations. Native saved-tag region/coordinate joins remain
 unknown, so saved tags stay in the text list and regional artwork never invents marker positions.
 
+The [performance review](PERFORMANCE.md) records largest-sample open/first-view,
+query allocation and retained-memory measurements, regression coverage, and the
+lazy saved-world metadata and per-query Gwent snapshot changes from #40.
+
 ## Framework feature adoption
 
 | Feature | Status | Adoption / concrete scope |
