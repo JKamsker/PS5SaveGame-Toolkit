@@ -103,7 +103,7 @@ public sealed class AriseAssetTests
         var file = AriseSampleTests.GameplayFiles().First(file => file.FileName == "SaveData_002.sav");
         using var document = plugin.Open(file, context);
         _ = document.BuildView();
-        var inventory = Assert.IsType<TableNode>(Assert.Single(document.ExpandNode("inventory")));
+        var inventory = document.LoadInventory();
         var apple = inventory.Rows.Single(row => row.Key == "inventory/24/quantity");
         var icon = Assert.IsType<ImageNode>(apple.Cells["icon"]);
         Assert.Same(context.GetAsset(icon.AssetId), document.GetAsset(icon.AssetId));

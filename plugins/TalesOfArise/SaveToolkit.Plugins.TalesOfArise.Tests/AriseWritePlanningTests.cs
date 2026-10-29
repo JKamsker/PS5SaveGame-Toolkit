@@ -22,7 +22,7 @@ public sealed class AriseWritePlanningTests
         var file = AriseSampleTests.GameplayFiles().Single(file => file.FileName == "SaveData_002.sav" && !file.Directory.IsBackup);
         using var document = _plugin.Open(file);
         _ = document.BuildView();
-        _ = document.ExpandNode("inventory");
+        _ = document.LoadInventory();
         var planner = Assert.IsAssignableFrom<IActionPlanningDocument>(document);
         var before = AriseFormat.Decode(file.ReadAllBytes());
         var row = Assert.Single(((AriseDocument)document).ReadInventoryRows(), row => row.Index == 24);
@@ -51,7 +51,7 @@ public sealed class AriseWritePlanningTests
 
         using var reopened = _plugin.Open(MemorySaveSet.SingleFile(file.FileName, output, "PPSA02745"));
         _ = reopened.BuildView();
-        _ = reopened.ExpandNode("inventory");
+        _ = reopened.LoadInventory();
         Assert.Equal(15, reopened.GetValue(RowKey).AsInt64());
 
         var undo = document.ApplyEdits(outcome.Changes.Select(change => new ValueEdit(change.ValueId, change.OldValue)).ToArray());
@@ -60,7 +60,7 @@ public sealed class AriseWritePlanningTests
     }
 
     [Fact]
-    public void QuantityPlan_RequiresBindings_AndSkipsUnknownRows()
+    public void QuantityPlan_RequiresInventoryExpansion_AndSkipsUnknownRows()
     {
         var file = AriseSampleTests.GameplayFiles().First(file => file.FileName == "SaveData_002.sav" && !file.Directory.IsBackup);
         using var document = _plugin.Open(file);
@@ -69,7 +69,7 @@ public sealed class AriseWritePlanningTests
         var notExpanded = planner.PlanAction(ActionId, Parameters(15), new ActionScope([RowKey]));
         Assert.NotEmpty(notExpanded.Errors);
 
-        _ = document.ExpandNode("inventory");
+        _ = document.LoadInventory();
         var all = planner.PlanAction(ActionId, Parameters(15), new ActionScope());
         Assert.Empty(all.Errors);
         Assert.NotEmpty(all.SkippedRows);
@@ -92,6 +92,7 @@ public sealed class AriseWritePlanningTests
         using var session = new DocumentSession("arise-write", file, _plugin, document);
         _ = session.BuildView();
         _ = session.Expand("inventory");
+        _ = session.QueryCollection("inventory", new());
 
         var preview = session.PlanAction(ActionId, ParametersAsJson(15), new ActionScope([RowKey]));
         Assert.NotNull(preview.PlanId);
@@ -101,9 +102,11 @@ public sealed class AriseWritePlanningTests
         Assert.True(session.State.CanUndo);
         var changes = session.GetChanges().Changes;
         Assert.Contains(changes, change => change.ValueId == RowKey && change.CurrentValue.AsInt64() == 15);
-        Assert.Single(changes, change => change.CanRevert);
+        // Core's semantic baseline does not traverse F8 rows; query-only changes use undo.
+        Assert.False(changes.Single(change => change.ValueId == RowKey).CanRevert);
 
         Assert.True(session.Undo().Ok);
+        Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
         Assert.False(session.State.CanUndo);
         Assert.True(session.Redo().Ok);
         Assert.True(session.State.CanUndo);

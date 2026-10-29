@@ -62,7 +62,7 @@ public sealed class AriseReadOnlyViewTests
             }
 
             var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
-            foreach (var collection in queryable.Collections)
+            foreach (var collection in queryable.Collections.Where(collection => collection.Id != AriseInventoryQuery.CollectionId))
             {
                 foreach (var offset in new[] { 0, checked((int)Math.Max(0, collection.TotalCount - 3)) })
                 {

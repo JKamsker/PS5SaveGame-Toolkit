@@ -55,7 +55,7 @@ public sealed class AriseSampleTests
             var save = AriseFormat.Decode(bytes);
             using var document = _plugin.Open(file);
             _ = document.BuildView();
-            var inventory = Assert.IsType<SaveToolkit.Sdk.Views.TableNode>(Assert.Single(document.ExpandNode("inventory")));
+            var inventory = document.LoadInventory();
             Assert.Equal(itemCount, inventory.Rows.Count);
             Assert.Equal(0, document.GetValue("party/gald").AsInt64());
             Assert.Equal(seconds, document.GetValue("party/play-seconds").AsUInt32());
@@ -87,7 +87,7 @@ public sealed class AriseSampleTests
         {
             using var document = _plugin.Open(file);
             _ = document.BuildView();
-            _ = document.ExpandNode("inventory");
+            _ = document.LoadInventory();
             var before = AriseFormat.Decode(file.ReadAllBytes());
             List<ValueEdit> edits =
             [
@@ -124,7 +124,7 @@ public sealed class AriseSampleTests
 
             using var reopened = _plugin.Open(MemorySaveSet.SingleFile(file.FileName, output, "PPSA02745"));
             _ = reopened.BuildView();
-            _ = reopened.ExpandNode("inventory");
+            _ = reopened.LoadInventory();
             foreach (var edit in edits)
             {
                 Assert.Equal(edit.Value, reopened.GetValue(edit.ValueId));
@@ -143,7 +143,7 @@ public sealed class AriseSampleTests
     {
         using var document = _plugin.Open(GameplayFiles().First());
         _ = document.BuildView();
-        _ = document.ExpandNode("inventory");
+        _ = document.LoadInventory();
         var original = Assert.Single(document.Serialize()).Content.ToArray();
         Assert.False(document.ApplyEdits([new("party/gald", FieldValue.Of(50L)), new("character/0/level", FieldValue.Of(101L))]).Succeeded);
         Assert.False(document.ApplyEdits([new("inventory/0/quantity", FieldValue.Of(2L))]).Succeeded);

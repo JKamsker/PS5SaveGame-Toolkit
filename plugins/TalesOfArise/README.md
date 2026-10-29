@@ -14,7 +14,7 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
 - Curated gald, six character levels/current HP/SP, existing recognised consumable
   quantities, and read-only play time, experience and base HP. All gameplay meanings
   carry **Inferred** confidence for the PS5 mapping.
-- Party stats and character table, lazy inventory table, lazy read-only explorer of
+- Party stats and character table, one lazy F8 inventory table, lazy read-only explorer of
   all 30 sections / 138,832 primitive uint32 words, and paged plaintext/outer hex views.
   Primitive pages contain at most 256 rows. Opening and building the initial view
   stays below two seconds in the sample tests.
@@ -48,10 +48,10 @@ Other regions, PC/PS4 input, Beyond the Dawn and different section versions are 
   a Dahna artwork background behind the original schematic progress map with attributed external links for 128 guide rows
   plus owl, camp and map domains. Coordinates are plugin-authored grouping positions,
   never claimed in-game coordinates; every saved state remains Unknown.
-- Inventory is also exposed through an F8 queryable collection. Core can resolve a
-  filtered inventory query into stable fixed-slot row keys for the F6 quantity preview;
-  query pages keep quantity cells read-only so only the expanded editor owns writable
-  bindings.
+- Inventory uses one F8 table for all 934 fixed slots, with bounded editable quantity
+  pages and whole-inventory search/filter/sort. Zero-ID slots are hidden by default
+  and can be shown as "Empty slot" with their raw values intact. Core resolves filtered
+  inventory queries into stable fixed-slot row keys for the F6 quantity preview.
 - Records section-relative evidence in `Resources/EvidenceLedger.csv`. `AriseDiff` aligns
   decrypted bodies by schema ID and reports relative changed offsets, so shuffled physical
   addresses do not become false field evidence. No new gameplay meaning is promoted by this ledger.
@@ -80,6 +80,7 @@ only returns its own file, without silently changing the console backup twin.
 | F11 shared codecs | N/A | Tales of Arise uses its measured AES/XOR/SHA1 format; it has no Kraken or SQLite payload, so `SaveToolkit.Codecs` does not apply. |
 | F12 SaveDiff F8 traversal and decoder hooks | Added | `TalesOfArisePlugin` registers `AriseDiff` through `ISaveDecoderProvider` as `tales-of-arise.sections-v1`; section-relative uint32 evidence has stable schema identities, explicit bounds and no Testing dependency. The shared view decoder also traverses rich F8 evidence with explicit test budgets. |
 | F13 inspect/picker/filter and float-duration improvements | Added | Every reference inspection declares `Mutates = false`; read-only item/arte/skill identities retain browse-only `ReferenceSpec` pickers. Standard category filtering and declared Key/Name/Category sorting delegate to F2; rich facts/character/title filters retain plugin policy. Float durations are N/A: the supported counters are integers and retain integer duration formatting. |
+| F14 empty inventory slots | Added this round | One F8 inventory table retains all 934 fixed slots; zero-ID rows carry `IsEmpty`, matching `EmptyRows` metadata and default hiding. Queries filter before visibility/paging and report matching hidden counts. F6 query scopes preserve visibility/exclusions and skip empty rows even when shown. |
 
 ## Publisher assets (2026-10-29)
 
@@ -228,7 +229,8 @@ offset discrepancy above.
 | same | `i * 16 + 2` | Item ID, uint16 | Read-only; 934-record scan from cited PS4 patch |
 
 Character names and the 13 consumable IDs are embedded reference tables; unknown
-item IDs retain numeric labels. Empty record IDs are omitted; there is no item
+item IDs retain numeric labels. Zero-ID records are retained as empty slots and hidden
+by default; there is no item
 insertion, flag editing, accessory editing or bulk grant action. Existing values
 outside the supported editing guardrails remain visible but read-only. IDs 6/7 of the
 character sections are unmapped and read-only, not assumed to be active party members.
@@ -258,6 +260,31 @@ not six independent play sessions. No repeated ZIP path generations exist here.
 
 Base/current HP are 321, 282, 255, 291, 339, 312 for character indices 0–5 in all
 three slots. Slot 002 adds an Apple Gel stack of one at inventory record 24.
+
+### F14 inventory audit
+
+Previously the eager inventory omitted empty records while a separate read-only F8
+collection covered the same occupied slots. Both are replaced by one F8 table with
+editable recognised quantities. Every slot retains its `inventory/<index>/quantity`
+row key and original physical offset. The six sample files have 934 slots each:
+slots 000/001 contain 24 nonzero IDs and 910 empty slots; slot 002 contains 25 nonzero
+IDs and 909 empty slots. Tests independently check that every zero-ID sample record
+is entirely zero-filled across its 16 bytes. This retains the existing zero-ID
+empty-record rule; zero quantity alone and unknown nonzero IDs never hide a row.
+For other saves the marker follows the raw zero ID without rewriting residual bytes.
+The supported PS5 inventory layout and field meanings remain Inferred, based on the
+[existing PS4 research](https://web.save-editor.com/bbs/patchcode/ps4/dl.cgi?file=31135.txt)
+and sample observations; this presentation change makes no new console-qualified claim.
+
+The eager eight-character table, reference catalogues, F8 section-evidence tables
+and paged primitive explorer were also audited. They have no confirmed vacant-slot
+semantics, so zero words and unmapped characters remain visible. Explorer byte pages
+are raw-format inspection, not inventory slot groups; no "Slots N–M" sections exist.
+
+F6 document scope continues to select occupied records only. Query scope selects all
+matching visible slots across unloaded pages, retains explicit visibility/exclusions,
+and skips empty rows if shown. Direct page edits, grouped actions, undo/redo and
+byte-identical no-op serialization retain the original slot identities.
 
 ## Validation
 
@@ -294,6 +321,12 @@ backup equivalence, physical section relocation, a controlled single-word edit, 
 file limits, corruption rejection, read-only and edited Core inspection sessions with unchanged
 bytes/revision/undo/redo, browse-only picker metadata and unknown IDs, and delegated catalogue
 category/sort/page queries with rich-search and custom-catalog fallbacks.
+
+F14 adoption: **96 passed, 0 failed, 0 skipped**, including seven new empty-slot
+cases covering all sample slots, default/direct/Core queries, matching hidden counts,
+show/hide paging, sentinel/zero-count distinctions, exact visible-slot writes,
+reopen/undo/redo and F6 all-matching visibility/exclusions. API build: **0 warnings,
+0 errors**. All source changes are inside this plugin.
 
 ### Native SaveDiff evidence
 
@@ -421,7 +454,14 @@ PPSA02745 only. No complete licensed owl/quest identity table or save join was e
 
 ## SDK requests
 
-None. F12 decoder hooks and F13 inspection/browse/category/sort contracts are now adopted.
+F14 exposes an existing Core semantic-review limitation: its original/current view
+walk does not traverse F8 collections. Quantity changes remain listed by value ID,
+but query-only inventory fields have no semantic-review jump or individual Revert;
+use undo/redo or edit the loaded quantity field. F6 previews still include named
+old/new quantities and apply as one undo group. Bounded F8 traversal in semantic
+review is a framework request; no Core changes or duplicate eager editor were added.
+
+F12 decoder hooks and F13 inspection/browse/category/sort contracts are adopted.
 The `63580dc` F6 reference-parameter fix needs no migration: the only planned-action parameter
 is an integer quantity, with no `EnumSpec` identity fallback. Float-duration hints do not apply
 to the supported integer counters. The existing bindings, queryable tables, reference picker,
