@@ -63,6 +63,13 @@ internal static class CliApp
                 return args.Count == 0 ? ExitError : ExitSame;
             }
 
+            if (args.Count == 2 && args[0] is "compare" or "verify" or "list" or "list-decoders"
+                && args[1] is "--help" or "-h")
+            {
+                stdout.Write(Usage);
+                return ExitSame;
+            }
+
             return args[0] switch
             {
                 "compare" => CompareCommand.Run(CliArguments.Parse(args, CompareFlags, CompareValued), stdout, resolver),

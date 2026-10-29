@@ -43,7 +43,7 @@ internal sealed class CliArguments
             }
             else if (valued.Contains(name))
             {
-                if (i + 1 >= args.Count)
+                if (i + 1 >= args.Count || args[i + 1].StartsWith("--", StringComparison.Ordinal))
                 {
                     throw new UsageException($"Option --{name} needs a value.");
                 }
