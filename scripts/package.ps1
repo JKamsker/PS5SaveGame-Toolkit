@@ -14,7 +14,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$output = [IO.Path]::GetFullPath($OutputDirectory)
+$output = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutputDirectory)
 New-Item -ItemType Directory -Force -Path $output | Out-Null
 
 function Invoke-Checked([string]$Command, [string[]]$Arguments) {
@@ -22,10 +22,10 @@ function Invoke-Checked([string]$Command, [string[]]$Arguments) {
     if ($LASTEXITCODE -ne 0) { throw "$Command failed with exit code $LASTEXITCODE." }
 }
 
-Push-Location $root
+Push-Location -LiteralPath $root
 try {
     if (!$SkipWebBuild) {
-        Push-Location (Join-Path $root 'web')
+        Push-Location -LiteralPath (Join-Path $root 'web')
         try {
             Invoke-Checked npm @('ci', '--no-audit', '--no-fund')
             Invoke-Checked npm @('run', 'build')
@@ -33,7 +33,7 @@ try {
         finally { Pop-Location }
     }
     $webRoot = Join-Path $root 'src/SaveToolkit.Api/wwwroot'
-    if (!(Test-Path (Join-Path $webRoot 'index.html'))) { throw 'Build the web UI before packaging.' }
+    if (!(Test-Path -LiteralPath (Join-Path $webRoot 'index.html'))) { throw 'Build the web UI before packaging.' }
 
     $project = 'src/SaveToolkit.Api/SaveToolkit.Api.csproj'
     Invoke-Checked dotnet @('restore', $project)
@@ -56,7 +56,7 @@ try {
             $nativeName = if ($rid.StartsWith('win-')) { 'e_sqlite3.dll' }
                 elseif ($rid.StartsWith('osx-')) { 'libe_sqlite3.dylib' } else { 'libe_sqlite3.so' }
             foreach ($required in @('wwwroot/index.html', $nativeName, 'SaveToolkit.Api.deps.json')) {
-                if (!(Test-Path (Join-Path $bundle $required))) { throw "Bundle $rid is missing $required." }
+                if (!(Test-Path -LiteralPath (Join-Path $bundle $required))) { throw "Bundle $rid is missing $required." }
             }
             Copy-Item -LiteralPath (Join-Path $root 'LICENSE'), (Join-Path $root 'THIRD-PARTY-NOTICES') -Destination $bundle
             Copy-Item -LiteralPath (Join-Path $root 'docs/licenses') -Destination $bundle -Recurse
@@ -79,7 +79,12 @@ cd /d "%~dp0"
 "%~dp0SaveToolkit.Api.exe" --urls http://127.0.0.1:5180 --contentRoot "%~dp0." --Toolkit:DataRoot "%~dp0data\workspaces" --Toolkit:PackRoot "%~dp0data\reference-packs"
 '@ | Set-Content -LiteralPath (Join-Path $bundle 'start.cmd') -Encoding ascii
                 $archive = Join-Path $output "$name.zip"
-                Compress-Archive -Path $bundle -DestinationPath $archive -Force
+                # Compress-Archive also expands wildcards in DestinationPath's parent directory.
+                # ZipFile treats every path literally and retains the top-level bundle folder.
+                $stagedArchive = Join-Path $stage "$name.zip"
+                [IO.Compression.ZipFile]::CreateFromDirectory($bundle, $stagedArchive,
+                    [IO.Compression.CompressionLevel]::Optimal, $true)
+                Move-Item -LiteralPath $stagedArchive -Destination $archive -Force
             }
             else {
                 $launcher = @'
@@ -101,7 +106,7 @@ exec ./SaveToolkit.Api --urls http://127.0.0.1:5180 --contentRoot "$PWD" --Toolk
         finally {
             if (Test-Path -LiteralPath $stage) {
                 $resolvedStage = (Resolve-Path -LiteralPath $stage).Path
-                if ([IO.Path]::GetDirectoryName($resolvedStage) -ne $output.TrimEnd([IO.Path]::DirectorySeparatorChar)) {
+                if ([IO.Path]::GetDirectoryName($resolvedStage) -ne [IO.Path]::TrimEndingDirectorySeparator($output)) {
                     throw "Refusing to delete unexpected staging directory: $resolvedStage"
                 }
                 Remove-Item -LiteralPath $resolvedStage -Recurse -Force
