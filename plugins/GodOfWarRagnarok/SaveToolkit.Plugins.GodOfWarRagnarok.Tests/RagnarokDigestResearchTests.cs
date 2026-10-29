@@ -33,6 +33,7 @@ public sealed class RagnarokDigestResearchTests(ITestOutputHelper output)
         }
         output.WriteLine($"156 records, {cache.Count} distinct byte sequences; {comparisons} embedded digest comparisons; {matches.Count} matches.");
         Assert.Equal(78, cache.Count);
+        Assert.Equal(81_216, comparisons);
         Assert.Empty(matches);
     }
 

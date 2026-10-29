@@ -93,6 +93,9 @@ public sealed class RagnarokCrcResearchTests(ITestOutputHelper output)
         // Backups are exercised, but only distinct primary generations count as independent seed evidence.
         var consistent = hypotheses.Where(pair => pair.Value.Count >= 3 && pair.Value.Distinct().Count() == 1).Select(pair => pair.Key).ToArray();
         output.WriteLine($"156 records; {comparisons} field/range/encoding/XOR comparisons; {standardMatches.Count} standard-seed leads; {consistent.Length} consistent custom-seed hypotheses.");
+        Assert.Equal(15_616, comparisons);
+        Assert.Equal(comparisons / 2, hypotheses.Values.Sum(seeds => seeds.Count));
+        Assert.Contains(hypotheses.Values, seeds => seeds.Count >= 3);
         Assert.Empty(standardMatches);
         Assert.Empty(consistent);
     }
