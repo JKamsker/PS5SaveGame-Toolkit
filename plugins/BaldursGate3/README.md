@@ -244,8 +244,13 @@ unchanged; paths contain stable entry indexes, not mutable map keys. Existing cy
 guards and ambiguous/unowned attribution are retained. `RecursiveInventoryBindingTests`
 adds an authored three-container fixture with sparse keys, a nested cycle and a shared
 item occurrence, covering both tables, row details, review navigation, history, reopen,
-intended key bytes and immutable imported baselines. These new tests have **not yet been
-executed** in this implementation worker; independent validation is required.
+intended key bytes and immutable imported baselines. Initial independent execution passed
+the source-baseline case and rejected all three host swap cases as read-only: the original
+fixture had no writable primitive or decoded numeric field. The corrected host fixture
+includes one supported, unowned Health storage row; its exposed candidates remain Unknown
+with console warnings. A separate containers-only case retains and checks the existing
+read-only rejection. Production write gates are unchanged. The corrected tests have
+**not yet been executed** in this implementation worker; independent validation is required.
 
 ## Enabled writes and their evidence
 
