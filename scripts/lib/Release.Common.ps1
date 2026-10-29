@@ -8,8 +8,15 @@ function Assert-ReleaseVersion([string]$Version) {
 }
 
 function Invoke-ReleaseGit {
-    $output = & git -C $releaseRoot @args 2>&1
-    if ($LASTEXITCODE -ne 0) { throw "git $($args -join ' ') failed: $($output -join "`n")" }
+    # git emits UTF-8; pwsh would otherwise decode it with the console code page (for example 850) and mangle non-ASCII subjects.
+    $previous = [Console]::OutputEncoding
+    try {
+        [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+        $output = & git -C $releaseRoot -c i18n.logOutputEncoding=UTF-8 @args 2>&1
+        $code = $LASTEXITCODE
+    }
+    finally { [Console]::OutputEncoding = $previous }
+    if ($code -ne 0) { throw "git $($args -join ' ') failed: $($output -join "`n")" }
     return $output
 }
 
