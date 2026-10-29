@@ -113,7 +113,15 @@ internal sealed class SemanticReview
             _originalMetadataAvailable = original is IFieldMetadataDocument;
             _original = _capture.Capture(original, static _ => { }, static _ => { }, cancellationToken);
             if (_originalMetadataAvailable == true)
-                SemanticTargetedAuthority.ApplyCanonicalMetadata(original, _original, _maxBytes, cancellationToken);
+            {
+                var metadata = SemanticTargetedAuthority.ApplyCanonicalMetadata(original, _original, _maxBytes, cancellationToken);
+                if (!metadata.Applied)
+                {
+                    _original.Complete = false;
+                    _original.QueryWarnings = [.. _original.QueryWarnings, metadata.Diagnostic!];
+                    RecordFailures(metadata.IncompleteIds, metadata.Diagnostic!);
+                }
+            }
             _originalMetadataAttempted = true;
         }
         catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
@@ -174,7 +182,13 @@ internal sealed class SemanticReview
                             "Legacy original view coverage is incomplete; targeted values do not prove whole-document coverage."];
                         _targetedOnly = true;
                     }
-                    SemanticTargetedAuthority.ApplyCanonicalMetadata(original, snapshot, _maxBytes, cancellationToken);
+                    var metadata = SemanticTargetedAuthority.ApplyCanonicalMetadata(original, snapshot, _maxBytes, cancellationToken);
+                    if (!metadata.Applied)
+                    {
+                        snapshot.Complete = false;
+                        snapshot.QueryWarnings = [.. snapshot.QueryWarnings, metadata.Diagnostic!];
+                        RecordFailures(metadata.IncompleteIds, metadata.Diagnostic!);
+                    }
                     _originalMetadataAvailable = true;
                     _originalMetadataAttempted = true;
                 }
@@ -213,7 +227,9 @@ internal sealed class SemanticReview
             var outcome = CaptureTargeted(original, existing, ids, revokeOnFailure: false, cancellationToken);
             _targeted.UnionWith(outcome.CapturedIds);
             foreach (var id in outcome.CapturedIds) _captureFailures.Remove(id);
-            SemanticTargetedAuthority.ApplyCanonicalMetadata(original, existing, _maxBytes, cancellationToken);
+            var metadata = SemanticTargetedAuthority.ApplyCanonicalMetadata(original, existing, _maxBytes, cancellationToken);
+            if (!metadata.Applied)
+                RecordFailures(metadata.IncompleteIds, metadata.Diagnostic!);
             }
             catch (OperationCanceledException) { throw; }
             catch (Exception ex) when (ex is not OutOfMemoryException)
@@ -236,8 +252,11 @@ internal sealed class SemanticReview
             EnsureOriginal(openOriginal, cancellationToken);
             if (!_originalMetadataAttempted && _originalMetadataAvailable != false && _original is { } baseline)
             {
-                SemanticOriginalMetadata.Enrich(openOriginal, baseline, _maxBytes, ref _capturingOriginal, cancellationToken);
-                _originalMetadataAttempted = true;
+                var metadata = SemanticOriginalMetadata.Enrich(openOriginal, baseline, _maxBytes,
+                    ref _capturingOriginal, cancellationToken);
+                if (!metadata.Applied)
+                    RecordFailures(metadata.IncompleteIds, metadata.Diagnostic!);
+                _originalMetadataAttempted = metadata.Applied;
             }
             return Query(document, index, expandedLazy, revision, cancellationToken);
         }
@@ -267,7 +286,12 @@ internal sealed class SemanticReview
         else
         {
             current.Merge(walked, _maxBytes);
-            SemanticTargetedAuthority.ApplyCanonicalMetadata(document, current, _maxBytes, cancellationToken);
+            var metadata = SemanticTargetedAuthority.ApplyCanonicalMetadata(document, current, _maxBytes, cancellationToken);
+            if (!metadata.Applied)
+            {
+                current.Complete = false;
+                current.QueryWarnings = [.. current.QueryWarnings, metadata.Diagnostic!];
+            }
         }
         foreach (var id in targetedCaptured.IncompleteIds) current.Fields.Remove(id);
         SemanticTargetedAuthority.Validate(original, current);
@@ -329,9 +353,12 @@ internal sealed class SemanticReview
                 seen.Add(id);
                 ids.Add(id);
             }
-            else if (omittedCount < int.MaxValue)
+            else
             {
-                omittedCount++;
+                // Do not consume an untrusted or lazy affected-ID stream after the bound.
+                // The diagnostic is intentionally a lower bound because the remainder is unknown.
+                omittedCount = 1;
+                break;
             }
         }
         return ids.ToArray();
@@ -343,6 +370,18 @@ internal sealed class SemanticReview
             _captureFailures[id] = diagnostic;
         else
             RecordOmissions(1, "Per-ID targeted metadata diagnostics exceeded the bounded aggregate limit.");
+    }
+
+    private void RecordFailures(IReadOnlyList<string> ids, string diagnostic)
+    {
+        if (ids.Count == 0)
+        {
+            RecordOmissions(1, diagnostic);
+            return;
+        }
+
+        foreach (var id in ids)
+            RecordFailure(id, diagnostic);
     }
 
     private void RecordOmissions(int count, string reason)
