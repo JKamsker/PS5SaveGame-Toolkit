@@ -4,6 +4,11 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # Must match the SQLitePCLRaw.bundle_e_sqlite3 that Microsoft.Data.Sqlite brings in; a major
+      # bump mixes a 3.x core with the 2.x native provider. Move it together with Microsoft.Data.Sqlite.
+      - dependency-name: SQLitePCLRaw.core
+        update-types: ['version-update:semver-major']
     groups:
       nuget:
         patterns: ['*']
