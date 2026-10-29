@@ -55,11 +55,11 @@ public sealed class NullableFactTests
         var values = new[] { "100", "20", "", "0" };
         var collection = new InspectionCollection<string>(new QueryableCollection("null-test", "Nullable quantities",
             [new("value", "Value", new NullableSpec(IntegerSpec.UInt32))], values.Length), values,
-            value => value, new Dictionary<string, Func<string, string>> { ["value"] = value => value },
-            value => new TableRow(value, new Dictionary<string, ViewNode>()));
-        Assert.Equal(["", "0", "20", "100"], collection.Query(new QueryableCollectionQuery { SortColumn = "value" }).Rows.Select(row => row.Key));
-        Assert.Equal(["100", "20", "0", ""], collection.Query(new QueryableCollectionQuery { SortColumn = "value", Descending = true }).Rows.Select(row => row.Key));
-        Assert.Equal("", Assert.Single(collection.Query(new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["value"] = "" } }).Rows).Key);
+            value => "value/" + value, new Dictionary<string, Func<string, string>> { ["value"] = value => value },
+            value => new TableRow("value/" + value, new Dictionary<string, ViewNode>()));
+        Assert.Equal(["value/", "value/0", "value/20", "value/100"], collection.Query(new QueryableCollectionQuery { SortColumn = "value" }).Rows.Select(row => row.Key));
+        Assert.Equal(["value/100", "value/20", "value/0", "value/"], collection.Query(new QueryableCollectionQuery { SortColumn = "value", Descending = true }).Rows.Select(row => row.Key));
+        Assert.Equal("value/", Assert.Single(collection.Query(new QueryableCollectionQuery { Filters = new Dictionary<string, string> { ["value"] = "" } }).Rows).Key);
     }
 
     private static FieldNode Value(TableRow row) => Assert.Single(Assert.IsType<SectionNode>(row.Cells["value"]).Children.OfType<FieldNode>());

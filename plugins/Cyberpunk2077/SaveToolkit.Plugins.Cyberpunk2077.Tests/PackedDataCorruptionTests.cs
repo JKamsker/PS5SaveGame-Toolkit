@@ -5,27 +5,28 @@ namespace SaveToolkit.Plugins.Cyberpunk2077.Tests;
 public sealed class PackedDataCorruptionTests
 {
     [Theory]
-    [InlineData(new byte[] { 0x40 })]
-    [InlineData(new byte[] { 0x40, 0x80 })]
-    [InlineData(new byte[] { 0x40, 0x80, 0x80 })]
-    [InlineData(new byte[] { 0x40, 0x80, 0x80, 0x80, 0x80 })]
-    [InlineData(new byte[] { 0x7F, 0xFF, 0xFF, 0xFF, 0x7F })]
-    public void TruncatedOverlongAndOverflowedPackedIntegersUseFormatErrors(byte[] bytes)
+    [InlineData(new byte[] { 0x40 }, "CSAV range at 0x1 exceeds its containing data.", 2)]
+    [InlineData(new byte[] { 0x40, 0x80 }, "CSAV range at 0x2 exceeds its containing data.", 3)]
+    [InlineData(new byte[] { 0x40, 0x80, 0x80 }, "CSAV range at 0x3 exceeds its containing data.", 4)]
+    [InlineData(new byte[] { 0x40, 0x80, 0x80, 0x80, 0x80 }, "CSAV packed integer is too long.", 5)]
+    [InlineData(new byte[] { 0x7F, 0xFF, 0xFF, 0xFF, 0x7F }, "CSAV packed integer exceeds the supported range.", 5)]
+    public void TruncatedOverlongAndOverflowedPackedIntegersUseFormatErrors(byte[] bytes, string message, int finalPosition)
     {
         var position = 0;
-        Assert.Throws<SaveFormatException>(() => BinaryData.PackedInt(bytes, ref position));
+        Assert.Equal(message, Assert.Throws<SaveFormatException>(() => BinaryData.PackedInt(bytes, ref position)).Message);
+        Assert.Equal(finalPosition, position);
     }
 
     [Theory]
-    [InlineData(new byte[] { 1 })] // Unsupported wide-name encoding.
-    [InlineData(new byte[] { 0x82, (byte)'a' })] // Truncated ASCII name.
-    [InlineData(new byte[] { 0x81, 0x1F })] // Nonprintable byte.
-    [InlineData(new byte[] { 0x81, 0xFF })]
-    [InlineData(new byte[] { 0xC1, 0x10 })] // 1,025 ASCII bytes, above the cap.
-    public void InvalidNodeNamesUseFormatErrors(byte[] bytes)
+    [InlineData(new byte[] { 1 }, "Unsupported CSAV node name encoding or length.")]
+    [InlineData(new byte[] { 0x82, (byte)'a' }, "CSAV range at 0x1 exceeds its containing data.")]
+    [InlineData(new byte[] { 0x81, 0x1F }, "CSAV node name is not printable ASCII.")]
+    [InlineData(new byte[] { 0x81, 0xFF }, "CSAV node name is not printable ASCII.")]
+    [InlineData(new byte[] { 0xC1, 0x10 }, "Unsupported CSAV node name encoding or length.")]
+    public void InvalidNodeNamesUseFormatErrors(byte[] bytes, string message)
     {
         var position = 0;
-        Assert.Throws<SaveFormatException>(() => BinaryData.PackedName(bytes, ref position));
+        Assert.Equal(message, Assert.Throws<SaveFormatException>(() => BinaryData.PackedName(bytes, ref position)).Message);
     }
 
     [Fact]
