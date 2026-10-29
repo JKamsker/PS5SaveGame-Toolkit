@@ -4,8 +4,10 @@
 
 A local, web-based editor for **decrypted** PS5 save games. Drop a save dump (zip or folder),
 the toolkit detects the game, and a game plugin describes the data as an abstract view that the
-browser renders: stats, typed fields, tables, actions. Edits are validated, undoable, verified by
-re-opening the output, and exported in the same folder layout (including the console backup copy).
+browser renders: stats, typed fields, tables, actions. Edits are validated and can be undone within
+the [history limits](docs/PLUGIN_GUIDE.md#structural-edits-add--remove--reorder). Export verifies output
+by re-opening it and preserves the folder layout, with optional backup mirroring where the twin held
+the same original bytes and ownership permits it. Explicit document groups manage their own backups.
 
 The toolkit does not decrypt or re-sign PS5 save containers; use your save manager for that.
 **Edits are not console-validated. All game plugins are Experimental; the game may reject,
@@ -21,7 +23,7 @@ on a disposable spare slot. The owner validation work is tracked in
 - **F3 — Rich tables:** live search, filters, row selection, images, confidence and expandable details.
 - **F4 — Reference pickers:** searchable raw-ID choices with eligibility checks and source details.
 - **F5 — Structural undo:** reversible add/remove/reorder operations where a plugin implements them.
-- **F6 — Review before apply:** bulk-action previews, skipped rows, one-step undo and a Changes panel.
+- **F6 — Review before apply:** bulk-action previews, skipped rows, one-step undo within history limits and a Changes panel.
 - **F7 — Related files:** explicit document groups with coordinated edits, history and export.
 - **F8 — Large collections:** bounded server-side search/filter/sort and selection across unloaded pages.
 - **F9 — Maps and graphs:** read-only diagrams with text lists and external map links.

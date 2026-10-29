@@ -58,6 +58,9 @@ class DocumentationTests(unittest.TestCase):
                     self.assertEqual(maturity, rows[0].split("|")[2 if page == "README.md" else 3].strip())
                     if page == "docs/PLUGINS.md":
                         self.assertIn(f"`{plugin_id}`", rows[0])
+                        code = source(f"plugins/{name}/SaveToolkit.Plugins.{name}/{name}Plugin.cs")
+                        titles = set(re.findall(r'"(PPSA\d{5})"', code.split("Maturity =", 1)[0]))
+                        self.assertEqual(titles, set(re.findall(r"PPSA\d{5}", rows[0])))
             count = re.search(r"\*\*(\d+) game/format plugins\*\*", document("README.md"))
             self.assertIsNotNone(count)
             self.assertEqual(len(list(plugins())), int(count[1]))
@@ -144,6 +147,31 @@ class DocumentationTests(unittest.TestCase):
         introduction = document("docs/E2E_SMOKE_36.md").split("## Scope", 1)[0]
         self.assertIn("Historical run report", introduction)
         self.assertIn("#40", introduction)
+
+    def test_sample_file_sizes_match_supported_layouts(self):
+        text = document("docs/SAMPLES.md")
+        ff7 = source("plugins/FinalFantasy7/SaveToolkit.Plugins.FinalFantasy7/Ff7Schema.cs")
+        sizes = {"PPSA01911": int(re.search(r"RemakeFileLength = ([\d_]+)", ff7)[1].replace("_", "")),
+                 "PPSA08664": int(re.search(r"RebirthFileLength = ([\d_]+)", ff7)[1].replace("_", ""))}
+        fixture = source("plugins/EldenRing/SaveToolkit.Plugins.EldenRing.Tests/SyntheticSave.cs")
+        sizes["PPSA03169"] = int(re.search(r"FileSize = (0x[\da-fA-F]+)", fixture)[1], 16)
+        for title, size in sizes.items():
+            with self.subTest(title=title):
+                row = next(line for line in text.splitlines() if line.startswith(f"| {title} |"))
+                self.assertIn(f"{size:,} bytes", row)
+
+    def test_overview_qualifies_history_and_backup_guarantees(self):
+        text = document("README.md")
+        introduction = text.split("## Features", 1)[0]
+        self.assertIn("history limits", introduction)
+        self.assertIn("optional backup mirroring", introduction)
+        self.assertIn("original bytes", introduction)
+        self.assertIn("ownership", introduction)
+        # These conditions exist in Core; the overview must not promise unconditional behavior.
+        self.assertIn("MaxSnapshotBytes", source("src/SaveToolkit.Core/Sessions/EditHistory.cs"))
+        exporter = source("src/SaveToolkit.Core/Export/WorkspaceExporter.cs")
+        self.assertIn("if (options.MirrorBackups)", exporter)
+        self.assertIn("protectedPaths", exporter)
 
 
 

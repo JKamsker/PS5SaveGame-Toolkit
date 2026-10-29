@@ -23,21 +23,21 @@ roadmap live in [docs/formats/](formats/README.md). Entries marked `?` are still
 | PPSA01651 | YouTube (app) | `STARBOARD/*`, `memory.dat` | not a game |
 | PPSA01802 | Kena: Bridge of Spirits (from icon0.png key art) | `ue4savegame.dpx.sav` | Unreal |
 | PPSA01876 | Far Cry 6 | `profile.dat` | |
-| PPSA01911 | Final Fantasy VII Remake Intergrade | `ff7remake0xx` (9 MiB each) | |
+| PPSA01911 | Final Fantasy VII Remake Intergrade | `ff7remake0xx` (9,434,752 bytes each) | |
 | PPSA01982 | DOOM Eternal | `PROF` | |
 | PPSA02199 | STAR WARS Jedi: Fallen Order | `ue4savegame.dpx.sav` | Unreal |
 | PPSA02225 | Ghost of Tsushima | `suckerpunchUserN/dis.dat`, `memory.dat` | |
 | PPSA02343 | It Takes Two (EU) | `ProfileData/ue4savegame.dpx.sav` | JSON profile, not GVAS; GenericJson title overlay |
 | PPSA02530 | Pragmata | `data0xx*.bin` | RE Engine DSSS/Mandarin; analysis in `PRAGMATA_PS5_Save_Editor_Toolkit.zip` |
 | PPSA02745 | Tales of Arise | `SaveData_00x.sav`, `SystemSaveData.sav` | |
-| PPSA03169 | Elden Ring (JP) | `memory.dat` (29 MiB) | |
+| PPSA03169 | Elden Ring (JP) | `memory.dat` (28,967,040 bytes; about 27.6 MiB) | |
 | PPSA04018 | The Witcher 3 (Complete Edition) | `CheckPt.*.sav`, `Manual.*.sav`, `*.req` | |
 | PPSA04027 | Cyberpunk 2077 | `sav.dat`, `metadata.9.json`, `settings.json`, `user.gls` | |
 | PPSA06251 | Star Ocean: The Divine Force | `SAVEDATA_000xx.DAT`, `SYSDATA` | |
 | PPSA07696 | Ridge Racer 2 (PSP classic, UCES00422) | `DATA.BIN`, `imgui_emu_option.json` | emulated PSP save |
 | PPSA07821 | Overwatch 2 (settings) | `settings/data` | |
 | PPSA08330 | God of War Ragnarök | `GOWRSAVEn` | |
-| PPSA08664 | Final Fantasy VII Rebirth | `ff7rebirth0xx` (23 MiB) | |
+| PPSA08664 | Final Fantasy VII Rebirth | `ff7rebirth0xx` (23,381,104 bytes each) | |
 | PPSA10665 | Final Fantasy XVI | `FAITHDATAnnnn/game-save-data` | same family as PPSA13803 |
 | PPSA10695 | Atomic Heart (custom SaveExtension, not GVAS) | `ue4savegame.dpx.sav` | Unreal |
 | PPSA13803 | Final Fantasy XVI (demo) | `FAITHDATA*/game-save-data*` | |
