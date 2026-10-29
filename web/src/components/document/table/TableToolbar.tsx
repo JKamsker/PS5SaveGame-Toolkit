@@ -21,7 +21,6 @@ interface TableToolbarProps {
 /** Title, row/selection counts, free-text search and per-column category filters. */
 export function TableToolbar({ node, shown, selection, visibleSelected, query, onQuery, facetOptions, facets, onFacets, children }: TableToolbarProps) {
   const total = node.rows.length;
-  const filtersActive = Object.values(facets).some((v) => v !== "");
   return (
     <div className="table__toolbar">
       {node.title && <h3 className="table__title">{node.title}</h3>}
@@ -41,33 +40,38 @@ export function TableToolbar({ node, shown, selection, visibleSelected, query, o
           </button>
         )}
       </span>
-      {total > FILTER_THRESHOLD && (
-        <div className="table__filters">
-          {facetOptions.map((facet) => (
-            <label key={facet.key} className="table__facet">
-              <span className="visually-hidden">Filter by {facet.label}</span>
-              <select
-                className="input input--compact"
-                value={facets[facet.key] ?? ""}
-                onChange={(e) => onFacets({ ...facets, [facet.key]: e.target.value })}
-              >
-                <option value="">All {facet.label}</option>
-                {facet.values.map((v) => (
-                  <option key={v} value={v}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ))}
-          {filtersActive && (
-            <button type="button" className="btn btn--quiet btn--small" onClick={() => onFacets({})}>
-              Reset filters
-            </button>
-          )}
-          <input className="table__search" type="search" placeholder="Filter rows" aria-label="Filter rows" value={query} onChange={(e) => onQuery(e.target.value)} />
-        </div>
+      {total > FILTER_THRESHOLD && <TableFilters query={query} onQuery={onQuery} facetOptions={facetOptions} facets={facets} onFacets={onFacets} />}
+    </div>
+  );
+}
+
+function TableFilters({ query, onQuery, facetOptions, facets, onFacets }: Pick<TableToolbarProps, "query" | "onQuery" | "facetOptions" | "facets" | "onFacets">) {
+  const filtersActive = Object.values(facets).some((v) => v !== "");
+  return (
+    <div className="table__filters">
+      {facetOptions.map((facet) => (
+        <label key={facet.key} className="table__facet">
+          <span className="visually-hidden">Filter by {facet.label}</span>
+          <select
+            className="input input--compact"
+            value={facets[facet.key] ?? ""}
+            onChange={(e) => onFacets({ ...facets, [facet.key]: e.target.value })}
+          >
+            <option value="">All {facet.label}</option>
+            {facet.values.map((v) => (
+              <option key={v} value={v}>
+                {v}
+              </option>
+            ))}
+          </select>
+        </label>
+      ))}
+      {filtersActive && (
+        <button type="button" className="btn btn--quiet btn--small" onClick={() => onFacets({})}>
+          Reset filters
+        </button>
       )}
+      <input className="table__search" type="search" placeholder="Filter rows" aria-label="Filter rows" value={query} onChange={(e) => onQuery(e.target.value)} />
     </div>
   );
 }
