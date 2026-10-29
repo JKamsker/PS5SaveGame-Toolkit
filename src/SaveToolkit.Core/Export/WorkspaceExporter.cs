@@ -81,9 +81,10 @@ public static class WorkspaceExporter
 
         // Mirrored siblings can participate in plugin/group invariants too. Validate the
         // complete overlay that will be exported, after every automatic override is added.
+        var included = Select(set, overrides, options.Scope, cancellationToken);
+        PreflightIncludedOrdinarySessions(workspace, included, options.Scope, cancellationToken);
         DocumentOutputVerifier.Verify(workspace, dirty, overrides, cancellationToken);
 
-        var included = Select(set, overrides, options.Scope, cancellationToken);
         var files = new List<ExportedFile>(included.Count);
         foreach (var file in included)
         {
@@ -93,6 +94,21 @@ public static class WorkspaceExporter
                 reasons.GetValueOrDefault(file.RelativePath, "unchanged")));
         }
         return new ExportPlan(files, overrides, included);
+    }
+
+    private static void PreflightIncludedOrdinarySessions(Workspace workspace, IReadOnlyList<ISaveFile> included,
+        ExportScope scope, CancellationToken cancellationToken)
+    {
+        if (scope is not (ExportScope.Everything or ExportScope.ChangedDirectories)) return;
+        var groups = workspace.DocumentGroups;
+        foreach (var session in workspace.Documents)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (groups.Any(group => group.Session.Id == session.Id)) continue;
+            if (scope == ExportScope.ChangedDirectories
+                && !included.Any(file => file.Directory.Id == session.File.Directory.Id)) continue;
+            DocumentOutputVerifier.CheckFingerprints(session, cancellationToken);
+        }
     }
 
     public static void WriteZip(ExportPlan plan, Stream output) => WriteZip(plan, output, CancellationToken.None);

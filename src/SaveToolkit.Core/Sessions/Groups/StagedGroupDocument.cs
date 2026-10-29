@@ -35,7 +35,11 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
         _maxSnapshotBytes = maxSnapshotBytes;
         _current = open();
         try { _outputs = verify(_current); }
-        catch { _current.Dispose(); throw; }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(_current, failure, "Initial group verification and cleanup failed.");
+            throw;
+        }
     }
 
     public string Title => _current.Title;
@@ -102,10 +106,21 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
         cancellationToken.ThrowIfCancellationRequested();
         var memento = _current.CaptureMemento();
         cancellationToken.ThrowIfCancellationRequested();
-        using var candidate = CreateCandidate(memento, rebind: true, cancellationToken);
-        var plan = Planner(candidate).PlanAction(actionId, parameters, scope);
-        cancellationToken.ThrowIfCancellationRequested();
-        return plan;
+        var candidate = CreateCandidate(memento, rebind: true, cancellationToken);
+        try
+        {
+            var plan = Planner(candidate).PlanAction(actionId, parameters, scope);
+            cancellationToken.ThrowIfCancellationRequested();
+            var completed = candidate;
+            candidate = null!;
+            completed.Dispose();
+            return plan;
+        }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(candidate, failure, "Group action planning and cleanup failed.");
+            throw;
+        }
     }
 
     internal Action CancellationRollback()
@@ -141,7 +156,11 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
         var candidate = CreateCandidate(memento, rebind: false);
         IReadOnlyList<FileOutput> outputs;
         try { outputs = _verify(candidate); }
-        catch { candidate.Dispose(); throw; }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(candidate, failure, "Group restore verification and cleanup failed.");
+            throw;
+        }
         Publish(candidate, outputs);
         return inverse;
     }
@@ -156,7 +175,12 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
         {
             var outcome = mutation(candidate);
             if (!outcome.Succeeded || outcome.Changes.Count == 0 && !outcome.StructureChanged && outcome.Revert is null)
+            {
+                var discarded = candidate;
+                candidate = null;
+                discarded.Dispose();
                 return outcome;
+            }
             CheckSnapshotBudget(before);
             var outputs = _verify(candidate);
             // A group promises both undo and redo. Refuse the candidate before publication if
@@ -169,7 +193,12 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
             candidate = null;
             return outcome with { Revert = before, StructureChanged = true };
         }
-        finally { candidate?.Dispose(); }
+        catch (Exception failure)
+        {
+            if (candidate is not null)
+                SessionCleanup.DisposeAfterFailure(candidate, failure, "Group mutation verification and cleanup failed.");
+            throw;
+        }
     }
 
     private void CheckSnapshotBudget(DocumentMemento memento)
@@ -207,7 +236,11 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
                 }
             return candidate;
         }
-        catch { candidate.Dispose(); throw; }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(candidate, failure, "Group candidate construction and cleanup failed.");
+            throw;
+        }
     }
 
     private void Publish(IGroupedSaveDocument candidate, IReadOnlyList<FileOutput> outputs)

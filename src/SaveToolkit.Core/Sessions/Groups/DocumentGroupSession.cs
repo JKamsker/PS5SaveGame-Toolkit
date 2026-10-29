@@ -40,8 +40,19 @@ public sealed class DocumentGroupSession
                 throw new InvalidOperationException("A group input changed while it was being captured. Reimport the dump.");
         var input = Input(new OverlaySaveSet(set, frozen));
         IGroupedSaveDocument Open() => _groupPlugin.OpenGroup(input, references);
-        using (var declarationProbe = Open())
+        var declarationProbe = Open();
+        try
+        {
             _declaredOutputPaths = OutputOwnershipPolicy.Resolve(set.FindById(members[0].FileId)!, declarationProbe);
+            var completed = declarationProbe;
+            declarationProbe = null!;
+            completed.Dispose();
+        }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(declarationProbe, failure, "Group declaration probing and cleanup failed.");
+            throw;
+        }
         var staged = new StagedGroupDocument(Open, Verify, token => CheckFingerprints(token), limits.MaxSnapshotBytes);
         DocumentSession? created = null;
         try
@@ -121,10 +132,21 @@ public sealed class DocumentGroupSession
         {
             cancellationToken.ThrowIfCancellationRequested();
             var file = ((ISaveSet)overlay).FindFile(member.RelativePath)!;
-            using var reopened = _plugin.Open(file, _references);
-            cancellationToken.ThrowIfCancellationRequested();
-            _ = reopened.BuildView();
-            cancellationToken.ThrowIfCancellationRequested();
+            var reopened = _plugin.Open(file, _references);
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                _ = reopened.BuildView();
+                cancellationToken.ThrowIfCancellationRequested();
+                var completed = reopened;
+                reopened = null!;
+                completed.Dispose();
+            }
+            catch (Exception failure)
+            {
+                SessionCleanup.DisposeAfterFailure(reopened, failure, "Group role verification and cleanup failed.");
+                throw;
+            }
         }
     }
 

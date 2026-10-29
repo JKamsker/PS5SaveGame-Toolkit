@@ -8,16 +8,22 @@ namespace SaveToolkit.Core.Export;
 /// <summary>Verifies captured outputs in their complete staged save set, using pinned references.</summary>
 internal static class DocumentOutputVerifier
 {
-    public static void AddOutputs(Workspace workspace, DocumentSession session, IReadOnlyList<FileOutput> outputs,
-        Dictionary<string, ReadOnlyMemory<byte>> overrides, CancellationToken cancellationToken)
+    public static void CheckFingerprints(DocumentSession session, CancellationToken cancellationToken)
     {
         try { session.CheckOutputFingerprints(cancellationToken); }
-        catch (Exception ex) when (ex is InvalidOperationException or SaveFormatException)
+        catch (Exception ex) when (ex is InvalidOperationException or SaveFormatException or IOException)
         {
             throw new ExportException(ex.Message, ex);
         }
+    }
+
+    public static void AddOutputs(Workspace workspace, DocumentSession session, IReadOnlyList<FileOutput> outputs,
+        Dictionary<string, ReadOnlyMemory<byte>> overrides, CancellationToken cancellationToken)
+    {
+        CheckFingerprints(session, cancellationToken);
         var pending = new Dictionary<string, ReadOnlyMemory<byte>>(StringComparer.OrdinalIgnoreCase);
         var groups = workspace.DocumentGroups;
+        var grouped = groups.Any(group => group.Session.Id == session.Id);
         foreach (var output in outputs)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -33,13 +39,15 @@ internal static class DocumentOutputVerifier
                 throw new ExportException($"Two open documents both rewrite '{output.RelativePath}'. Close one of them.");
         }
 
-        if (session.RequiresCompleteOutputs && session.GetState(cancellationToken).IsDirty)
+        if (session.RequiresCompleteOutputs && !grouped && session.GetState(cancellationToken).IsDirty)
         {
             foreach (var expected in session.OwnedOutputPaths)
             {
                 if (!pending.ContainsKey(expected))
                     throw new ExportException($"Plugin '{session.Plugin.Info.Id}' did not serialize required output '{expected}'.");
             }
+            if (pending.Keys.Any(path => !session.OwnedOutputPaths.Contains(path, StringComparer.OrdinalIgnoreCase)))
+                throw new ExportException($"Plugin '{session.Plugin.Info.Id}' returned an output outside its declared ownership set.");
         }
 
         foreach (var (path, content) in pending)

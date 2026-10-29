@@ -297,7 +297,7 @@ public sealed class SystemOutputOwnershipTests
         store.Create("system output", [new ImportSource("dump.zip", () => new MemoryStream(
             TestZips.Build((Root + "slot.dat", [1]), (SfoPath, CreateSfo("Old"))))) ]);
 
-    private static Workspace CreateGroupWorkspace(WorkspaceStore store, GroupPlugin plugin) =>
+    internal static Workspace CreateGroupWorkspace(WorkspaceStore store, GroupPlugin plugin) =>
         store.Create("group system output", [new ImportSource("dump.zip", () => new MemoryStream(
             TestZips.Build((Root.Replace("99997", "99990") + "character.dat", GroupPlugin.Create("C", 1)),
                 (Root.Replace("99997", "99990") + "profile.dat", GroupPlugin.Create("P", 2)),
@@ -326,14 +326,14 @@ public sealed class SystemOutputOwnershipTests
         return session;
     }
 
-    private static void Tamper(ISaveFile file, byte[] bytes)
+    internal static void Tamper(ISaveFile file, byte[] bytes)
     {
         string path;
         using (var stream = (FileStream)file.OpenRead()) path = stream.Name;
         File.WriteAllBytes(path, bytes);
     }
 
-    private static void Delete(ISaveFile file)
+    internal static void Delete(ISaveFile file)
     {
         string path;
         using (var stream = (FileStream)file.OpenRead()) path = stream.Name;
@@ -374,10 +374,11 @@ public sealed class SystemOutputOwnershipTests
         public bool LastOpenedDisposed => LastOpened?.IsDisposed == true;
         public Func<IReadOnlyList<FileOutput>, IReadOnlyList<FileOutput>>? OutputTransform { get; set; }
         public bool ThrowOnDispose { get; set; }
+        public bool WriteSystemOutput { get; set; } = writeSystemOutput;
         public ProbeResult Probe(ISaveFile file) => ProbeResult.None;
         public ISaveDocument Open(ISaveFile file)
         {
-            var document = new OutputDocument(this, file, Declarations, writeSystemOutput);
+            var document = new OutputDocument(this, file, Declarations, WriteSystemOutput);
             LastOpened = document;
             AfterOpen?.Invoke();
             return document;

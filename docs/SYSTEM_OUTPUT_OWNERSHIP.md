@@ -38,6 +38,12 @@ exactly once while dirty. Missing or duplicate paths fail export and verified pr
 any overrides are published. Clean sessions keep the existing filtered empty-output behavior, and
 legacy documents without declarations may continue to serialize additional game files.
 
+For `Everything` and `ChangedDirectories` exports, immutable fingerprints are also checked for clean
+ordinary sessions whose directories are included. This validates source integrity without forcing
+clean sessions to produce overrides. The primary file is checked against its imported hash before
+the open binding is accepted, and source read failures identify the owned relative path through the
+export error.
+
 An overridden `sce_sys/param.sfo` is parsed again by `OverlaySaveSet` under a 1 MiB bound. Invalid
 or oversized metadata rejects verification, while an untouched directory retains its imported
 `ParamSfo` object. This validation is host-side and does not establish console acceptance.

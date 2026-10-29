@@ -21,6 +21,7 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
     private readonly bool _duplicateSystemOutput;
     private string? _subtitle;
     public bool IsDisposed { get; private set; }
+    public bool ThrowOnDispose { get; set; }
 
     public GroupDocument(DocumentGroupInput input, Func<bool> rejectApply, Func<bool> rejectRestore,
         string? systemPath = null, byte[]? systemBytes = null, bool omitSystemOutput = false,
@@ -154,7 +155,12 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
         _subtitle = state.Subtitle;
     }
 
-    void IDisposable.Dispose() => IsDisposed = true;
+    protected override void Dispose(bool disposing)
+    {
+        IsDisposed = true;
+        if (ThrowOnDispose) throw new IOException("Injected group cleanup failure.");
+        base.Dispose(disposing);
+    }
     private sealed class Item(int id, int value) { public int Id { get; } = id; public int Value { get; set; } = value; }
     private sealed class Container(string path, int balance, List<Item> items)
     { public string Path { get; } = path; public int Balance { get; set; } = balance; public List<Item> Items { get; set; } = items; }

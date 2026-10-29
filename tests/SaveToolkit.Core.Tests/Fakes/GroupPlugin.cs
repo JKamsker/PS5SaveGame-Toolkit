@@ -21,6 +21,8 @@ public sealed class GroupPlugin : IGamePlugin, IDocumentGroupPlugin
     public bool DeclareSystemOutput { get; set; }
     public bool OmitSystemOutput { get; set; }
     public bool DuplicateSystemOutput { get; set; }
+    public bool ThrowOnDispose { get; set; }
+    public bool ThrowRoleBuildView { get; set; }
     public FileOutput? AdditionalOutput { get; set; }
     public int? RequiredOutsideBalance { get; set; }
     public int RoleReopens { get; private set; }
@@ -28,6 +30,7 @@ public sealed class GroupPlugin : IGamePlugin, IDocumentGroupPlugin
     public Action? AfterRoleOpen { get; set; }
     public List<GroupDocument> Opened { get; } = [];
     public IReferenceContext? LastReferences { get; private set; }
+    private int _groupOpenCount;
 
     public ProbeResult Probe(ISaveFile file) => file.FileName is "character.dat" or "profile.dat"
         ? ProbeResult.Match(ProbeScore.Title) : ProbeResult.None;
@@ -39,7 +42,7 @@ public sealed class GroupPlugin : IGamePlugin, IDocumentGroupPlugin
         LastReferences = references;
         RoleReopens++;
         var (balance, _) = Read(file, file.FileName == "character.dat" ? "C" : "P");
-        var document = new SingleDocument(file, balance, () => AdditionalOutput);
+        var document = new SingleDocument(file, balance, () => AdditionalOutput, () => ThrowOnDispose, () => ThrowRoleBuildView);
         if (file.FileName == "profile.dat")
         {
             var callback = AfterRoleOpen;
@@ -74,8 +77,10 @@ public sealed class GroupPlugin : IGamePlugin, IDocumentGroupPlugin
         var system = DeclareSystemOutput
             ? input.Members[0].File.Directory.FindAnyFile("sce_sys/param.sfo")
             : null;
+        _groupOpenCount++;
         var document = new GroupDocument(input, () => RejectApply, () => RejectRestore,
             system?.RelativePath, system?.ReadAllBytes(), OmitSystemOutput, DuplicateSystemOutput);
+        document.ThrowOnDispose = ThrowOnDispose && _groupOpenCount > 1;
         Opened.Add(document);
         return document;
     }
@@ -91,14 +96,25 @@ public sealed class GroupPlugin : IGamePlugin, IDocumentGroupPlugin
         return (balance, parts[2].Length == 0 ? [] : parts[2].Split(',').Select(int.Parse).ToArray());
     }
 
-    private sealed class SingleDocument(ISaveFile file, int initial, Func<FileOutput?> additionalOutput) : BoundSaveDocument
+    private sealed class SingleDocument(ISaveFile file, int initial, Func<FileOutput?> additionalOutput,
+        Func<bool> throwOnDispose, Func<bool> throwBuildView) : BoundSaveDocument
     {
         private int _balance = initial;
         public override string Title => file.FileName;
-        public override ViewNode BuildView() => Field("balance", "Balance", IntegerSpec.Int32,
-            () => FieldValue.Of(_balance), value => _balance = value.AsInt32());
+        public override ViewNode BuildView()
+        {
+            if (throwBuildView()) throw new InvalidOperationException("Injected role view failure.");
+            return Field("balance", "Balance", IntegerSpec.Int32,
+                () => FieldValue.Of(_balance), value => _balance = value.AsInt32());
+        }
         public override IReadOnlyList<FileOutput> Serialize() => [new(file.RelativePath,
             Create(file.FileName == "character.dat" ? "C" : "P", _balance)),
             .. additionalOutput() is { } extra ? new[] { extra } : []];
+
+        protected override void Dispose(bool disposing)
+        {
+            if (throwOnDispose()) throw new IOException("Injected group role cleanup failure.");
+            base.Dispose(disposing);
+        }
     }
 }
