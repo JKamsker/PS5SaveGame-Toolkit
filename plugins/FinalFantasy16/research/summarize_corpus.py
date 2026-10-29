@@ -22,6 +22,54 @@ PACK = Path(__file__).resolve().parents[1] / "SaveToolkit.Plugins.FinalFantasy16
 NAMES = {int(row["id"]) for row in json.loads(PACK.read_text(encoding="utf-8"))["records"]}
 
 
+def scan_blocks(data, blocks):
+    position = HEADER
+    item_offset = None
+    while (kind := struct.unpack_from("<I", data, position)[0]):
+        _, size, version = struct.unpack_from("<IIQ", data, position)
+        assert size >= 24 and size % 8 == 0 and position + size - 8 <= len(data)
+        blocks[(kind, version, size - 24)] += 1
+        if kind == 6:
+            assert version == 2021110401 and size - 24 == 36448
+            item_offset = position + HEADER
+        position += size - 8
+    assert position == len(data) - 4
+    return item_offset
+
+
+def check_fixed_width_patch(data, item_offset):
+    # A regression test of the existing writer, not a console acceptance claim.
+    assert struct.unpack_from("<i", data, item_offset)[0] == 1
+    patched = bytearray(data)
+    old = struct.unpack_from("<i", data, item_offset + 4)[0]
+    struct.pack_into("<i", patched, item_offset + 4, old + 1)
+    struct.pack_into("<I", patched, 4, zlib.crc32(patched[HEADER:]))
+    assert all(a == b for i, (a, b) in enumerate(zip(data, patched))
+               if not (4 <= i < 8 or item_offset + 4 <= i < item_offset + 8))
+
+
+def inspect_main_inventory(data, item_offset, counts, ids):
+    size = struct.unpack_from("<Q", data, item_offset + ALLOCATION_METADATA)[0]
+    assert size <= MAIN_CAPACITY
+    ids.update(struct.unpack_from("<i", data, item_offset + index * RECORD_SIZE)[0] for index in range(size))
+    if size:
+        counts["populatedGameplay"] += 1
+        check_fixed_width_patch(data, item_offset)
+        counts["fixedWidthPatchChecks"] += 1
+
+
+def inspect_record(data, role, counts, blocks, ids):
+    assert struct.unpack_from("<I", data)[0] == HEADER
+    assert struct.unpack_from("<I", data, 4)[0] == zlib.crc32(data[HEADER:])
+    counts["records"] += 1
+    counts["crcValid"] += 1
+    counts[role] += 1
+    item_offset = scan_blocks(data, blocks)
+    counts["framingValid"] += 1
+    if item_offset is not None:
+        inspect_main_inventory(data, item_offset, counts, ids)
+
+
 def summarize(title):
     archive_path = ARTIFACTS / f"{title}_saves_dec.zip"
     counts = collections.Counter()
@@ -38,39 +86,8 @@ def summarize(title):
             data = archive.read(entry)
             digest = hashlib.sha256(data).hexdigest()
             contents.add(digest)
-            assert struct.unpack_from("<I", data)[0] == HEADER
-            assert struct.unpack_from("<I", data, 4)[0] == zlib.crc32(data[HEADER:])
-            counts["records"] += 1
-            counts["crcValid"] += 1
             role = "system" if name == "system-save-data" else "gameplay"
-            counts[role] += 1
-            position = HEADER
-            item_offset = None
-            while (kind := struct.unpack_from("<I", data, position)[0]):
-                _, size, version = struct.unpack_from("<IIQ", data, position)
-                assert size >= 24 and size % 8 == 0 and position + size - 8 <= len(data)
-                blocks[(kind, version, size - 24)] += 1
-                if kind == 6:
-                    assert version == 2021110401 and size - 24 == 36448
-                    item_offset = position + HEADER
-                position += size - 8
-            assert position == len(data) - 4
-            counts["framingValid"] += 1
-            if item_offset is not None:
-                size = struct.unpack_from("<Q", data, item_offset + ALLOCATION_METADATA)[0]
-                assert size <= MAIN_CAPACITY
-                ids.update(struct.unpack_from("<i", data, item_offset + index * RECORD_SIZE)[0] for index in range(size))
-                if size:
-                    counts["populatedGameplay"] += 1
-                    # A regression test of the existing writer, not a console acceptance claim.
-                    assert struct.unpack_from("<i", data, item_offset)[0] == 1
-                    patched = bytearray(data)
-                    old = struct.unpack_from("<i", data, item_offset + 4)[0]
-                    struct.pack_into("<i", patched, item_offset + 4, old + 1)
-                    struct.pack_into("<I", patched, 4, zlib.crc32(patched[HEADER:]))
-                    assert all(a == b for i, (a, b) in enumerate(zip(data, patched))
-                               if not (4 <= i < 8 or item_offset + 4 <= i < item_offset + 8))
-                    counts["fixedWidthPatchChecks"] += 1
+            inspect_record(data, role, counts, blocks, ids)
             records.append({"path": entry.filename, "occurrence": occurrences[entry.filename],
                             "role": role, "length": len(data), "sha256": digest})
             occurrences[entry.filename] += 1

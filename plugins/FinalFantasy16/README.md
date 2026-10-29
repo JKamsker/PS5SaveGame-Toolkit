@@ -437,6 +437,12 @@ python -I plugins/FinalFantasy16/research/verify_reference_audit.py
 python -I plugins/FinalFantasy16/research/measure_write_ranges.py
 ```
 
+Offline tooling regeneration has a separate [golden-test suite](research/tests/README.md):
+`python -I -B -m unittest discover -s plugins/FinalFantasy16/research/tests -v`.
+It compares all 13 generated reference JSON artifacts and corpus evidence bytes,
+using retained pinned MIT layouts and external private archives. See its input
+inventory and documented limits for the unavailable original media downloads.
+
 Tests cover conformance, every archive occurrence, CRC vectors, corruption,
 allocator gates, byte-identical no-op/undo, edits confined to stack/CRC, context
 values, schema length/version/duplicate rejection, independent skill flag arrays,

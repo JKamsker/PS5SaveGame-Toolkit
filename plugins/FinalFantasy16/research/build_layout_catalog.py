@@ -25,54 +25,76 @@ def write_json(name, data):
     return hashlib.sha256(content).hexdigest()
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("layouts", type=Path)
-    args = parser.parse_args()
+def validate_layouts(layouts):
     for filename, expected in LAYOUT_HASHES.items():
-        content = (args.layouts / filename).read_bytes().replace(b"\r\n", b"\n")
+        content = (layouts / filename).read_bytes().replace(b"\r\n", b"\n")
         if hashlib.sha256(content).hexdigest() != expected:
             raise ValueError(f"{filename} does not match reviewed revision {REVISION}")
-    PACK.mkdir(parents=True, exist_ok=True)
-    datasets = []
-    for filename, catalog, category in [("GameMap.layout", "ffxvi_maps", "map"),
-                                         ("SummonMode.layout", "ffxvi_summons", "summon")]:
-        rows = {}
-        for line in (args.layouts / filename).read_text(encoding="utf-8-sig").splitlines():
-            if not line.startswith("set_comment|"):
-                continue
-            _, key, subkey, _, label = line.split("|", 4)
-            row = rows.setdefault(key, {"id": key, "name": label.strip(), "category": category,
-                                        "source": SOURCE + filename, "attributes": {}})
-            if subkey:
-                row["attributes"][f"subrow_{subkey}"] = label.strip()
-        if catalog == "ffxvi_maps":
-            # Explicitly documented above the GameMap columns, rather than in set_comment.
-            rows["602000"] = {"id": "602000", "name": "Hideaway 2", "category": category,
-                              "source": SOURCE + filename, "attributes": {
-                                  "variantNote": "Subrow 1 selected for user situation 15020 (pink sky). Other subrows are not enumerated by this extract."}}
-        records = sorted(rows.values(), key=lambda row: int(row["id"]))
-        digest = write_json(f"{catalog}.json", {"records": records})
-        datasets.append({"id": catalog, "kind": "records", "title": f"Nex {category} research annotations",
-                         "files": [{"path": f"{catalog}.json", "sha256": digest}],
-                         "attribution": {"sourceUrl": SOURCE + filename, "author": "Nenkai and ffxvi-nex-layouts contributors",
-                                         "license": "MIT", "licenseUrl": SOURCE + "LICENSE", "retrieved": "2026-10-28",
-                                         "modifications": "Extracted set_comment identifiers and annotations; grouped subrows without inventing asset paths; added documented Hideaway variant note. Research labels remain Inferred."}})
-        print(f"{catalog}: {len(records)} records, {digest}")
+
+
+def annotation_records(layouts, filename, catalog, category):
+    rows = {}
+    for line in (layouts / filename).read_text(encoding="utf-8-sig").splitlines():
+        if not line.startswith("set_comment|"):
+            continue
+        _, key, subkey, _, label = line.split("|", 4)
+        row = rows.setdefault(key, {"id": key, "name": label.strip(), "category": category,
+                                    "source": SOURCE + filename, "attributes": {}})
+        if subkey:
+            row["attributes"][f"subrow_{subkey}"] = label.strip()
+    if catalog == "ffxvi_maps":
+        # Explicitly documented above the GameMap columns, rather than in set_comment.
+        rows["602000"] = {"id": "602000", "name": "Hideaway 2", "category": category,
+                          "source": SOURCE + filename, "attributes": {
+                              "variantNote": "Subrow 1 selected for user situation 15020 (pink sky). Other subrows are not enumerated by this extract."}}
+    return sorted(rows.values(), key=lambda row: int(row["id"]))
+
+
+def write_annotation_dataset(layouts, filename, catalog, category):
+    records = annotation_records(layouts, filename, catalog, category)
+    digest = write_json(f"{catalog}.json", {"records": records})
+    dataset = {"id": catalog, "kind": "records", "title": f"Nex {category} research annotations",
+               "files": [{"path": f"{catalog}.json", "sha256": digest}],
+               "attribution": {"sourceUrl": SOURCE + filename, "author": "Nenkai and ffxvi-nex-layouts contributors",
+                               "license": "MIT", "licenseUrl": SOURCE + "LICENSE", "retrieved": "2026-10-28",
+                               "modifications": "Extracted set_comment identifiers and annotations; grouped subrows without inventing asset paths; added documented Hideaway variant note. Research labels remain Inferred."}}
+    print(f"{catalog}: {len(records)} records, {digest}")
+    return dataset
+
+
+def skill_records(layouts):
     # These are Nex skill IDs, not demonstrated indices into a PS5 rank array.
-    skill_source = (args.layouts / "Skill.layout").read_text(encoding="utf-8-sig")
+    skill_source = (layouts / "Skill.layout").read_text(encoding="utf-8-sig")
     skills = [{"id": key, "name": name.strip(), "category": "skill-research", "source": SOURCE + "Skill.layout",
                "description": "Explicit upstream skill-ID annotation. No association to a saved rank byte, flag bit or AP cost has been established.",
                "attributes": {"confidence": "Inferred", "saveIndexMapping": "Unknown"}}
               for name, key in re.findall(r"^// - (.+?) \(skill (\d+)\)", skill_source, re.MULTILINE)]
     if len(skills) != 3 or len({row["id"] for row in skills}) != len(skills):
         raise ValueError("Pinned Skill.layout must contain exactly three distinct named skill annotations")
+    return skills
+
+
+def write_skill_dataset(layouts):
+    skills = skill_records(layouts)
     digest = write_json("ffxvi_skills.json", {"records": skills})
-    datasets.append({"id": "ffxvi_skills", "kind": "records", "title": "Nex skill-ID research (not save-rank indices)",
-                     "files": [{"path": "ffxvi_skills.json", "sha256": digest}],
-                     "attribution": {"sourceUrl": SOURCE + "Skill.layout", "author": "Nenkai and ffxvi-nex-layouts contributors",
-                                     "license": "MIT", "licenseUrl": SOURCE + "LICENSE", "retrieved": "2026-10-28",
-                                     "modifications": "Extracted three explicitly named skill IDs; no save index, rank, cost, prerequisite or Eikon assignment inferred."}})
+    return {"id": "ffxvi_skills", "kind": "records", "title": "Nex skill-ID research (not save-rank indices)",
+            "files": [{"path": "ffxvi_skills.json", "sha256": digest}],
+            "attribution": {"sourceUrl": SOURCE + "Skill.layout", "author": "Nenkai and ffxvi-nex-layouts contributors",
+                            "license": "MIT", "licenseUrl": SOURCE + "LICENSE", "retrieved": "2026-10-28",
+                            "modifications": "Extracted three explicitly named skill IDs; no save index, rank, cost, prerequisite or Eikon assignment inferred."}}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("layouts", type=Path)
+    args = parser.parse_args()
+    validate_layouts(args.layouts)
+    PACK.mkdir(parents=True, exist_ok=True)
+    datasets = []
+    for filename, catalog, category in [("GameMap.layout", "ffxvi_maps", "map"),
+                                       ("SummonMode.layout", "ffxvi_summons", "summon")]:
+        datasets.append(write_annotation_dataset(args.layouts, filename, catalog, category))
+    datasets.append(write_skill_dataset(args.layouts))
     write_json("pack.json", {"schema": 1, "id": "ffxvi.nex.en", "version": "1.1.0",
                             "title": "FFXVI Nex map/summon/skill annotations (MIT, Inferred)", "plugins": ["ffxvi"],
                             "titleIds": ["PPSA10665", "PPSA13803"], "gameBuilds": [], "locale": "en",
