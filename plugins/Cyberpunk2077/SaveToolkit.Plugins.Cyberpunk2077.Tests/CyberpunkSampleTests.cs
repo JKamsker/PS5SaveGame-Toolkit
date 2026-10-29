@@ -1,7 +1,7 @@
 using System.Buffers.Binary;
 using System.Diagnostics;
 using SaveToolkit.Sdk;
-using SaveToolkit.Sdk.Saves;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
@@ -14,7 +14,7 @@ public sealed class CyberpunkSampleTests(ITestOutputHelper output)
     public void EverySnapshotAndBackupMatchesKnownContainerAndInventory()
     {
         var plugin = new Cyberpunk2077Plugin();
-        var files = SampleFiles();
+        var files = ProgressionSampleTests.Files();
         Assert.NotEmpty(files);
         foreach (var file in files)
         {
@@ -50,7 +50,7 @@ public sealed class CyberpunkSampleTests(ITestOutputHelper output)
     public void MoneyEditChangesOnlyItsFourPayloadBytesAndPreservesAllOtherData()
     {
         var plugin = new Cyberpunk2077Plugin();
-        foreach (var file in SampleFiles())
+        foreach (var file in ProgressionSampleTests.Files())
         {
             var before = CsavContainer.Parse(file.ReadAllBytes());
             var tree = CsavTree.Parse(before);
@@ -90,7 +90,7 @@ public sealed class CyberpunkSampleTests(ITestOutputHelper output)
     [Fact]
     public void EditBatchIsAtomicAndReadBlobsAreIsolated()
     {
-        using var document = new Cyberpunk2077Plugin().Open(SampleFiles()[0]);
+        using var document = new Cyberpunk2077Plugin().Open(ProgressionSampleTests.Files()[0]);
         var field = Assert.Single(ExpandAll(document), field => field.ValueId == "inventory/39/quantity");
         var before = Assert.Single(document.Serialize()).Content.ToArray();
         Assert.False(document.ApplyEdits([new(field.ValueId, FieldValue.Of(99L)), new("missing", FieldValue.Of(1L))]).Succeeded);
@@ -111,11 +111,22 @@ public sealed class CyberpunkSampleTests(ITestOutputHelper output)
     [InlineData(21)] // Archive version.
     public void UnknownSchemaRetainsExplorerButDisablesEditing(int offset)
     {
-        var bytes = SampleFiles()[0].ReadAllBytes();
+        var bytes = ProgressionSampleTests.Files()[0].ReadAllBytes();
         bytes[offset] ^= 1;
         using var document = new Cyberpunk2077Plugin().Open(MemorySaveSet.SingleFile("sav.dat", bytes));
         Assert.False(document.CanEdit);
-        Assert.All(ExpandAll(document), field => Assert.True(field.Spec.ReadOnly));
+        Assert.Empty(ExpandAll(document)); // Unsupported inventory/progression exposes raw data instead of typed fields.
+        var root = Assert.IsType<TabsNode>(document.BuildView());
+        var raw = Assert.IsType<SectionNode>(root.Tabs.Single(tab => tab.Title == "Node tree").Children[0]);
+        Assert.Contains(document.ExpandNode(raw.LazyId!), node => node is HexNode);
+        var facts = Assert.IsAssignableFrom<IQueryableDocument>(document).Query("facts", new() { Limit = 200 });
+        Assert.Equal(200, facts.Rows.Count);
+        Assert.All(facts.Rows, row =>
+        {
+            var field = Assert.IsType<FieldNode>(row.Cells["value"]);
+            Assert.True(field.Spec.ReadOnly);
+            Assert.False(document.ApplyEdits([new(field.ValueId, FieldValue.Of(1L))]).Succeeded);
+        });
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 
@@ -123,12 +134,15 @@ public sealed class CyberpunkSampleTests(ITestOutputHelper output)
     public void ExcludesJsonAndCompanions()
     {
         var plugin = new Cyberpunk2077Plugin();
-        foreach (var file in SampleSaves.Load("PPSA04027").AllDiskFiles.Where(f => f.FileName != "sav.dat"))
+        var companions = SampleSaves.Load("PPSA04027").AllDiskFiles.Where(f => f.FileName != "sav.dat").ToArray();
+        Assert.NotEmpty(companions);
+        foreach (var file in companions)
         {
             Assert.False(plugin.Probe(file).IsMatch);
         }
     }
 
+    // Walk eager/lazy views only. F8 rows must be queried explicitly by their owning test.
     internal static IReadOnlyList<FieldNode> ExpandAll(ISaveDocument document)
     {
         var fields = new Dictionary<string, FieldNode>(StringComparer.Ordinal);
@@ -159,7 +173,4 @@ public sealed class CyberpunkSampleTests(ITestOutputHelper output)
 
         return fields.Values.ToArray();
     }
-
-    private static ISaveFile[] SampleFiles() => SampleSaves.Load("PPSA04027").AllDiskFiles
-        .Where(file => file.FileName == "sav.dat").Cast<ISaveFile>().ToArray();
 }
