@@ -25,9 +25,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 Round 2 source revision: c7bdd6d8228304b87dcdf15e57155d092eb06fd2.
-Metadata descriptions were added by the toolkit authors; they summarize the source
-classification and do not contain imported game effect text or artwork.
-No CC BY-SA wiki material or NC/unlicensed datamine content is included.
+The original Round 2 metadata descriptions summarized source classification without
+imported effect text or artwork. The later asset/text additions below supersede that
+historical scope; MIT terms cover the GTC metadata, not the publisher/guide material.
 
 Write-enable character XP curves and inferred Rebirth weapon-family grouping use the same
 pinned MIT resource.ts datasets. Source sidecar: Resources/character-curves.source.md.
@@ -36,9 +36,33 @@ Parser/dependency staging is independently implemented; no downloaded code was e
 Completion-round folio and crafting/minigame extracts use the same pinned template.ts,
 with utils.ts consulted for the global folio shift override. Hidden flags, dynamic
 offsets and duplicate addresses were excluded; Queen's Blood aliases were not duplicated.
-No prerequisites, SP costs, coordinates, game artwork or effect prose were imported.
+These MIT candidate extracts contain no prerequisites, SP costs, coordinates,
+game artwork or effect prose.
 Source sidecar: Resources/spatial-research.source.md.
-PowerPyx regional maps are linked externally only; their content is not redistributed.
+The initial PowerPyx map link-only decision was superseded by the asset round below.
 Completion also extracts 161 Remake and 230 Rebirth enemy indices/names and source
 groups from pinned MIT resource.ts, with read-only enemy record layouts, five Rebirth
 relationship words and one deliberately unclassified craftsmanship word from template.ts.
+
+Asset/text additions, retrieved 2026-10-29:
+- PowerPyx regional maps (published 2024-02-29), Square Enix rights holder:
+  https://www.powerpyx.com/final-fantasy-7-vii-rebirth-full-world-map-revealed/
+  Six regional backgrounds, downscaled to a 2048px maximum edge, WebP quality 65.
+  Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29.
+- Final Fantasy Wiki contributors, Square Enix rights holder:
+  https://finalfantasy.fandom.com/wiki/Category:Final_Fantasy_VII_Remake_item_images
+  Eight selected icons per pack, downscaled to 64x64 WebP and reused by catalogue rows.
+  Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29.
+- Gamer Guides consumables reference:
+  https://www.gamerguides.com/final-fantasy-vii-remake-intergrade/guide/appendix/items/consumables
+  Short attributed summaries for 21 common consumables; save-ID/effect joins unverified.
+  Rights reserved by Gamer Guides; used with attribution per owner decision 2026-10-29.
+- Square Enix materia guidance and PlayStation Blog weapon-ability guidance:
+  https://www.square-enix-games.com/en_US/news/final-fantasy-vii-remake-screenshots
+  https://blog.playstation.com/archive/2019/11/25/new-final-fantasy-vii-remake-screens-feature-moogles-weapon-abilities-materia-mini-games-and-more
+  Attributed paraphrases of publisher guidance; exact effects/save joins unverified.
+  Rights reserved by Square Enix; used with attribution per owner decision 2026-10-29.
+  Source publication credit: Square Enix / PlayStation Blog.
+
+Per-file asset hashes and publisher provenance are in ReferencePacks/*/pack.json;
+processing and source details are in the adjacent catalog.source.md sidecars.
