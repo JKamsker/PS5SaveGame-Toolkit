@@ -116,8 +116,8 @@ public sealed class AriseQuantitySelectionTests
 
         Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision,
             cancellationToken: TestContext.Current.CancellationToken).Ok);
-        // Query after apply: the second stack need not have been loaded to bind its exact field.
-        _ = session.QueryCollection(CollectionId, new() { Limit = 5, IncludeEmpty = true },
+        // Bind populated rows after apply; empty slots would fill this small ID-sorted page.
+        _ = session.QueryCollection(CollectionId, new() { Limit = 5, IncludeEmpty = false },
             expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(firstQuantity, document.GetValue(FirstRow).AsInt64());
         Assert.Equal(secondQuantity, document.GetValue(SecondRow).AsInt64());
