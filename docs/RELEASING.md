@@ -19,13 +19,36 @@ reliably calculate a release version. Dirty source changes do not automatically 
 `.github/workflows/ci.yml` validates pushes, pull requests and release candidates on Ubuntu and
 Windows. It builds with warnings as errors and runs **every** test project through `scripts/test.ps1`.
 Dependency-free PowerShell script regressions also run on Ubuntu, Windows and macOS. Run them
-locally with `./scripts/self-test.ps1 -ScratchDirectory <path>`. Only superseded pull-request
-validations cancel running CI; pushes (including main) and release validations finish their current run.
+locally with `./scripts/self-test.ps1 -ScratchDirectory <path>`. Superseded pull-request and non-main
+branch-push validations cancel running CI. Main pushes, tag pushes and reusable release validations
+have run-specific CI concurrency groups so even pending gate runs cannot replace one another.
+Release publication remains serialized by version and never cancels an in-progress run.
 Private samples are absent, so sample-dependent tests skip while synthetic tests still run.
 There is no sample download step. This validates the sample-free path, not gameplay or console
 compatibility. Web checks include ESLint, TypeScript, Vitest and the production build.
-NuGet/npm downloads are cached; per-project TRX and web JUnit results are uploaded even on failure,
-and the validation jobs write summaries.
+NuGet/npm downloads are cached; per-project TRX and web JUnit results are uploaded even on failure.
+Test-count summaries parse those reports and show passed/failed/skipped counts, or explicitly say
+when reports are unavailable. Script jobs retain their log/counts, and e2e retains JUnit counts.
+
+Actions → CI → Run workflow runs the same jobs manually. The optional `backend_filter` is a backend
+project path/name substring passed to `test.ps1 -Filter`; blank runs every backend project. Only a
+standalone CI dispatch accepts this filter: PRs, pushes and reusable release validation always run
+every project. Script, web and e2e gates always run. No path filters suppress required checks.
+
+All external actions use major-version pins; none are unpinned. Workflow permissions default to
+`contents: read`; only release publication has `contents: write`. Every runner job has an explicit
+timeout (reusable-call jobs inherit the called jobs' limits). OS/RID matrices use `fail-fast: false`
+so one failed platform does not hide the others' results.
+
+Every .NET job installs the SDK selected by `global.json`, including scaffold regressions.
+`setup-dotnet` caches the NuGet global-packages folder using explicit dependency paths:
+`Directory.Packages.props`, project files, `global.json`, build props/targets, the tool manifest and
+any `packages.lock.json`. There are currently no NuGet lockfiles; explicit paths avoid the action's
+root-lockfile requirement. `setup-node` caches npm downloads against `web/package-lock.json`.
+Restores and `npm ci` still run to resolve each job's own dependency graph; caches contain downloads,
+not build outputs. Independent OS/RID builds and the parallel e2e build remain intentional; backend
+tests already share one build per validation job. Sharing compiled outputs would couple those jobs
+and risk stale or platform-specific binaries.
 
 The API tests include the generated OpenAPI snapshot and hosting/schema regression
 checks in `tests/SaveToolkit.Api.Performance.Tests`. Contract drift fails normal CI;
@@ -67,6 +90,7 @@ The job IDs below are the workflow keys, rather than matrix-expanded display nam
 | [ci.yml](../.github/workflows/ci.yml) | `validate` | Ubuntu/Windows backend and web checks; .NET coverage on Windows, web coverage and documentation/actionlint checks on Linux. |
 | [ci.yml](../.github/workflows/ci.yml) | `script-tests` | PowerShell script/scaffold regressions on Ubuntu, Windows and macOS. |
 | [ci.yml](../.github/workflows/ci.yml) | `e2e` | Ubuntu Chromium tests against the built API/UI. |
+| [dependency-drift.yml](../.github/workflows/dependency-drift.yml) | `report` | Weekly/manual report-only NuGet/npm version drift; no secrets, updates or auto-merge. |
 | [nightly-fuzz.yml](../.github/workflows/nightly-fuzz.yml) | `fuzz` | Ubuntu scheduled/manual mutation sweep with synthetic seeds, reproducible seed/count overrides and metadata-only failure reports. |
 | [release.yml](../.github/workflows/release.yml) | `resolve` | Validate the requested tag/version and pin the source commit. |
 | [release.yml](../.github/workflows/release.yml) | `validate` | Call the complete reusable CI workflow, including script tests and e2e. |
@@ -107,7 +131,8 @@ are additional). All commands below run from the repository root in PowerShell 7
 
 ## Disk and scratch
 
-The backend runner builds a temporary solution containing the API and selected tests once, then
+The backend runner builds a temporary solution containing the API, every non-test project (so no
+project reference falls back to MSBuild's Debug default) and the selected tests once, then
 reuses the prebuilt outputs (`--no-build`). Test projects run in bounded batches of two by default; use
 `-MaxParallel 1` for serial execution or choose a value from 1 to 32 for the available CPU/RAM.
 Each worker is a separate process with its own sample/temp scratch folder. Parallel workers divide
@@ -316,7 +341,10 @@ The synthetic suite needs no private samples. The optional
 [reference-batch.e2e.ts](../web/e2e/reference-batch.e2e.ts) regression requires
 `SAVETOOLKIT_ARTIFACTS/PPSA08664_saves_dec.zip` and skips when that external Rebirth archive
 is unavailable, including in hosted CI. It reads the archive in place and uploads one selected
-entry from memory. Failures upload the Playwright HTML report with traces and screenshots.
+entry from memory. Failures upload the Playwright HTML report with traces and screenshots. Chromium
+binaries are cached by OS/architecture and the web lockfile hash, with no partial-key fallback.
+Linux system dependencies install on every run, including cache hits. Browser-cache speedups depend
+on runner download/restore time; installation remains authoritative after a cache miss.
 
 Unknown-layout export path preservation is covered by an active regression in
 [import.e2e.ts](../web/e2e/import.e2e.ts), and clearing a JSON-type column filter by one in
@@ -493,6 +521,12 @@ Two entry paths run the same validation and release pipeline:
    workflow, so this path does not depend on a second tag event. Existing tag names are rejected.
 
 Each RID is packaged and smoke-tested on its matching OS/architecture. Failure blocks publication.
+Package job summaries list archive names, byte sizes and SHA-256 values, alongside the recorded
+build/smoke-test outcome. Package workflow artifacts keep their `package-<rid>` names and seven-day
+retention; published release assets and notes are unchanged. Validation TRX/JUnit/timing artifacts
+(`test-results-<OS>`), script logs (`test-results-scripts-<OS>`), e2e JUnit
+(`test-results-e2e-Linux`) and failure-only `playwright-report` are retained for 14 days. Coverage
+remains in separate `coverage-<OS>` artifacts rather than being duplicated inside test results.
 Manual and tag release runs for the same version share a concurrency group, so publication is serialized.
 [git-cliff](https://git-cliff.org/docs/) uses `cliff.toml` to group conventional commits since the
 previous version tag, retain breaking-change markers, and include other commit subjects separately.
@@ -525,7 +559,15 @@ tag containing the correction or reverted code. Users can extract a prior known-
 different directory and use their untouched save backups. Preserve the old `data/` directory before
 switching versions; no automatic data downgrade is promised. Private saves never belong in releases.
 
-Dependabot proposes weekly grouped NuGet, npm and GitHub Actions version updates. Review and run
-the same CI before merging them. Container images and release-drafter are intentionally optional and
+Dependabot proposes weekly NuGet, npm (`/web`) and GitHub Actions version updates, grouping minor
+and patch updates per ecosystem while leaving major upgrades separate. The SQLitePCLRaw major-version
+compatibility exception remains in place. There is no auto-merge. Review and run the same CI before
+merging updates. The separate `dependency-drift.yml` report-only job runs Mondays at **05:41 UTC**
+or manually, queries stable NuGet and direct npm version drift, and retains JSON/logs/summary for
+14 days as `dependency-drift-<run_id>`. It restores all projects together once and installs the npm
+lockfile with lifecycle scripts disabled; it changes no dependency manifests. Available updates do
+not fail a gate; query/restore errors are reported as unavailable, never as zero drift. The job needs
+no secrets, requests only read access and cannot block CI or release. GitHub Actions version drift
+is covered by Dependabot. Container images and release-drafter are intentionally optional and
 are not part of this pipeline. The first real hosted CI/release run must be verified after pushing;
 local workflow/package checks cannot establish GitHub-side permissions or runner behavior.

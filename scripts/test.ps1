@@ -92,7 +92,18 @@ try {
     $env:TEMP = $buildTemp; $env:TMP = $buildTemp; $env:TMPDIR = $buildTemp
     # One solution build shares the dependency graph, including the API and every plugin. This
     # also avoids concurrent test builds writing to the same dependency outputs.
-    $buildProjects = @((Join-Path $root 'src/SaveToolkit.Api/SaveToolkit.Api.csproj')) + @($projects.FullName)
+    # Every non-test project is listed too: MSBuild builds project references that are absent from a
+    # solution with the default Debug configuration, so Release runs would otherwise test Debug
+    # dependencies such as SaveToolkit.Testing.
+    $repoSolution = Join-Path $root 'SaveToolkit.slnx'
+    $dependencyProjects = @()
+    if (Test-Path -LiteralPath $repoSolution) {
+        $dependencyProjects = @(([xml](Get-Content -LiteralPath $repoSolution -Raw)).SelectNodes('//Project') |
+            ForEach-Object { [IO.Path]::GetFullPath((Join-Path $root $_.GetAttribute('Path'))) } |
+            Where-Object { $_ -notlike '*.Tests.csproj' -and $_ -notlike '*[\/]benchmarks[\/]*' })
+    }
+    $apiProject = [IO.Path]::GetFullPath((Join-Path $root 'src/SaveToolkit.Api/SaveToolkit.Api.csproj'))
+    $buildProjects = @($apiProject) + @($dependencyProjects + $projects.FullName | Where-Object { $_ -ne $apiProject } | Sort-Object -Unique)
     $solution = @('<Solution>') + @($buildProjects | ForEach-Object {
         '  <Project Path="' + [Security.SecurityElement]::Escape($_) + '" />'
     }) + @('</Solution>')

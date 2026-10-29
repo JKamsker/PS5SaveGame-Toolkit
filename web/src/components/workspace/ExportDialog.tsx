@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useRef, type MouseEvent } from "react";
 import type { ExportPlan, ExportScope } from "../../api/protocol";
 import { formatBytes } from "../../lib/values";
 import { useExportDialog } from "./useExportDialog";
@@ -19,21 +19,29 @@ interface ExportDialogProps {
 export const ExportDialog = forwardRef<HTMLDialogElement, ExportDialogProps>(function ExportDialog({ workspaceId, open, onClose, onToast }, ref) {
   const controller = useExportDialog({ workspaceId, open, onClose, onToast });
   const { scope, plan, busy, download } = controller;
+  const title = useRef<HTMLHeadingElement>(null);
+  const retryPlan = (event: MouseEvent<HTMLButtonElement>) => {
+    if (document.activeElement === event.currentTarget) title.current?.focus();
+    void plan.refetch();
+  };
   return (
     <dialog ref={ref} className="dialog" onClose={onClose} aria-labelledby="export-title">
       <div className="dialog__body">
-        <h2 className="dialog__title" id="export-title">
+        <h2 ref={title} tabIndex={-1} className="dialog__title" id="export-title">
           Export edited saves
         </h2>
         <p className="section__description">Every edited file is re-opened by its plugin before it is packed. Keep your original dump as a backup.</p>
         <ExportOptions {...controller} />
-        <ExportFeedback {...controller} />
+        <ExportFeedback {...controller} onRetry={retryPlan} />
       </div>
       <div className="dialog__footer">
         <button type="button" className="btn btn--quiet" onClick={onClose}>
           Cancel
         </button>
-        <button type="button" className="btn btn--primary" disabled={busy || plan.isFetching || plan.isError || !plan.data || (plan.data.changedCount === 0 && scope !== "Everything")} onClick={() => void download()}>
+        <button type="button" className="btn btn--primary" disabled={busy || plan.isFetching || plan.isError || !plan.data || (plan.data.changedCount === 0 && scope !== "Everything")} onClick={event => {
+          if (document.activeElement === event.currentTarget) title.current?.focus();
+          void download();
+        }}>
           {busy ? "Packing…" : "Download zip"}
         </button>
       </div>
@@ -60,12 +68,12 @@ function ExportOptions({ scope, setScope, mirror, setMirror, busy }: Pick<Return
   </>;
 }
 
-function ExportFeedback({ plan, busy, downloadError }: Pick<ReturnType<typeof useExportDialog>, "plan" | "busy" | "downloadError">) {
+function ExportFeedback({ plan, busy, downloadError, onRetry }: Pick<ReturnType<typeof useExportDialog>, "plan" | "busy" | "downloadError"> & { onRetry: (event: MouseEvent<HTMLButtonElement>) => void }) {
   return <>
     <p role="status" aria-atomic="true">{busy ? "Packing edited saves…" : plan.isFetching ? "Checking current export…" : plan.data && !plan.isError ? `Export plan ready: ${plan.data.changedCount} changed files.` : ""}</p>
     {plan.isError && <div>
       <p role="alert" className="notice notice--Danger">{plan.error.message}</p>
-      <button type="button" className="btn btn--small" disabled={plan.isFetching} onClick={() => void plan.refetch()}>Retry export plan</button>
+      <button type="button" className="btn btn--small" disabled={plan.isFetching} onClick={onRetry}>Retry export plan</button>
     </div>}
     {downloadError && <p role="alert" className="notice notice--Danger">{downloadError}</p>}
     {plan.data && !plan.isFetching && !plan.isError && <ExportSummary plan={plan.data} />}

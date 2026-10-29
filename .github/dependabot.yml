@@ -12,6 +12,7 @@ updates:
     groups:
       nuget:
         patterns: ['*']
+        update-types: [minor, patch]
   - package-ecosystem: npm
     directory: /web
     schedule:
@@ -19,6 +20,7 @@ updates:
     groups:
       npm:
         patterns: ['*']
+        update-types: [minor, patch]
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -26,3 +28,4 @@ updates:
     groups:
       actions:
         patterns: ['*']
+        update-types: [minor, patch]

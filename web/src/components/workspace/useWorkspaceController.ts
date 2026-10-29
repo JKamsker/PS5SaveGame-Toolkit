@@ -24,7 +24,8 @@ export function useWorkspaceController() {
   const { busy: closing, run: closeTask } = useAsyncTask(workspaceId);
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const workspace = useQuery({ queryKey: ["workspace", workspaceId], queryFn: () => api.workspace(workspaceId), retry: false });
-  const focusHeading = useEntryFocus(`${workspaceId}:${documentId ?? "picker"}:${Boolean(workspace.data)}`);
+  const entryState = workspace.data ? "loaded" : workspace.status;
+  const focusHeading = useEntryFocus(`${workspaceId}:${documentId ?? "picker"}:${entryState}`);
 
   const notify = useCallback((text: string, isError = false) => setToast({ text, isError, at: Date.now() }), []);
   const select = useCallback((id: string) => setSearch({ doc: id }), [setSearch]);

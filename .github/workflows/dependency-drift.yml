@@ -1,0 +1,61 @@
+name: Dependency drift
+
+on:
+  schedule:
+    - cron: '41 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-drift-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  report:
+    name: Dependency drift (report-only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    steps:
+      - uses: actions/checkout@v7
+      - name: Configure scratch
+        run: |
+          scratch="$RUNNER_TEMP/dependency-drift"
+          mkdir -p "$scratch"
+          for variable in TEMP TMP TMPDIR; do echo "$variable=$scratch" >> "$GITHUB_ENV"; done
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            global.json
+            Directory.Packages.props
+            Directory.Build.props
+            Directory.Build.targets
+            .config/dotnet-tools.json
+            **/*.csproj
+            **/packages.lock.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Report available NuGet and npm updates
+        run: python3 -B .github/scripts/dependency_drift.py --output-directory "$RUNNER_TEMP/dependency-drift"
+      - name: Upload dependency drift reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: dependency-drift-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/dependency-drift/*.json
+            ${{ runner.temp }}/dependency-drift/*.log
+            ${{ runner.temp }}/dependency-drift/summary.md
+          if-no-files-found: warn
+          retention-days: 14

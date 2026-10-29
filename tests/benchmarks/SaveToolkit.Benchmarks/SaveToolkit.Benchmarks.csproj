@@ -7,6 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" />
+    <ProjectReference Include="../../../src/SaveToolkit.Api/SaveToolkit.Api.csproj" />
     <ProjectReference Include="../../../src/SaveToolkit.Core/SaveToolkit.Core.csproj" />
     <ProjectReference Include="../../../plugins/GenericJson/SaveToolkit.Plugins.GenericJson/SaveToolkit.Plugins.GenericJson.csproj" />
     <ProjectReference Include="../../../plugins/XorJson/SaveToolkit.Plugins.XorJson/SaveToolkit.Plugins.XorJson.csproj" />

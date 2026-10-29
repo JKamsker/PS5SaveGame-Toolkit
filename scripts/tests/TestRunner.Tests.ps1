@@ -6,7 +6,11 @@ foreach ($failure in @('none', 'build', 'test')) {
             New-Item -ItemType Directory -Path (Split-Path -Parent $project) -Force | Out-Null
             Set-Content -LiteralPath $project '<Project />'
         }
-        New-Item -ItemType Directory -Path (Join-Path $fixture 'plugins') | Out-Null
+        New-Item -ItemType Directory -Path (Join-Path $fixture 'plugins/Plug') -Force | Out-Null
+        Set-Content -LiteralPath (Join-Path $fixture 'plugins/Plug/Plug.csproj') '<Project />'
+        New-Item -ItemType Directory -Path (Join-Path $fixture 'src/Dep') -Force | Out-Null
+        Set-Content -LiteralPath (Join-Path $fixture 'src/Dep/Dep.csproj') '<Project />'
+        Set-Content -LiteralPath (Join-Path $fixture 'SaveToolkit.slnx') '<Solution><Project Path="src/Dep/Dep.csproj" /><Project Path="plugins/Plug/Plug.csproj" /><Project Path="tests/First/First.Tests.csproj" /></Solution>'
         $caller = Join-Path $fixture 'caller space'
         New-Item -ItemType Directory -Path $caller | Out-Null
         Set-Location -LiteralPath $caller
@@ -43,6 +47,7 @@ foreach ($failure in @('none', 'build', 'test')) {
         }
         Assert-True ($calls[0].Solution.Contains('SaveToolkit.Api.csproj') -and
             $calls[0].Solution.Contains('First.Tests.csproj') -and $calls[0].Solution.Contains('Second.Tests.csproj')) 'One build graph must contain the API and every selected project.'
+        Assert-True ($calls[0].Solution.Contains('Dep.csproj') -and $calls[0].Solution.Contains('Plug.csproj')) 'Every dependency project must be in the build graph, otherwise MSBuild builds it in Debug.'
         Assert-True ($env:TEMP -eq $savedTemp -and $env:TMP -eq $savedTmp -and $env:TMPDIR -eq 'original Unix temp') 'All temp variables must be restored.'
         Assert-True ([Console]::OutputEncoding.CodePage -eq $savedEncoding) 'The caller console encoding must be restored.'
         Assert-True ((Get-Location).Path -eq $caller) 'Caller location must be restored.'

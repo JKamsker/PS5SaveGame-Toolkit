@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { actionReview, type ActionPreview, type ActionScope } from "../../../api/actionReview";
 import type { ActionNode, FieldValue } from "../../../api/protocol";
 import { useDocument, useDocumentState } from "../../../state/documentStore";
@@ -13,8 +13,16 @@ function usePlannedActionState(node: ActionNode) {
   const parameters = useWritableActionParameters(node);
   const [values, setValues] = useState<Record<string, FieldValue>>(() => actionParameterDefaults(parameters));
   const [preview, setPreview] = useState<ActionPreview | null>(null);
-  const { busy, run: submit } = useAsyncTask(node.actionId);
+  const [dialogVersion, setDialogVersion] = useState(0);
+  const taskOwner = useMemo(() => ({ actionId: node.actionId, dialogVersion }), [node.actionId, dialogVersion]);
+  const { busy, run: submit } = useAsyncTask(taskOwner);
   const modal = useActionDialog(busy);
+  const onClose = () => {
+    // Native Escape can close a busy dialog. Retire its UI observer without cancelling
+    // a mutation: DocumentSession still accepts any server result for the document.
+    setDialogVersion(previous => previous + 1);
+    modal.onClose();
+  };
   const [error, setError] = useState("");
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const [formVersion, setFormVersion] = useState(0);
@@ -23,7 +31,7 @@ function usePlannedActionState(node: ActionNode) {
   const changesPage = useReviewPage(preview?.plan.changes ?? []);
   const skippedPage = useReviewPage(preview?.plan.skippedRows ?? []);
   const form = { parameters, values, setValues, errors, setErrors };
-  return { id, form, preview, setPreview, busy, submit, ...modal, error, setError,
+  return { id, form, preview, setPreview, busy, submit, ...modal, onClose, error, setError,
     formVersion, setFormVersion, previewScope, setPreviewScope, changesPage, skippedPage,
     invalid: Object.values(errors).some(Boolean) };
 }

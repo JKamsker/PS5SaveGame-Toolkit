@@ -5,6 +5,7 @@ import { afterEach, expect, it, vi } from "vitest";
 import { api, ApiError } from "../../api/client";
 import type { SaveDocument, Workspace } from "../../api/protocol";
 import { WorkspacePage } from "./WorkspacePage";
+import { deferred } from "../../test/deferred";
 
 const clients: QueryClient[] = [];
 afterEach(() => { cleanup(); clients.splice(0).forEach(client => client.clear()); vi.restoreAllMocks(); });
@@ -73,4 +74,27 @@ it.each([404, 503])("distinguishes an initial HTTP %s failure and retries in pla
   fireEvent.click(screen.getByRole("button", { name: "Retry workspace" }));
   await screen.findByText("Recovered dump");
   expect(api.workspace).toHaveBeenCalledTimes(2);
+});
+
+it.each([404, 503])("retains useful focus when retrying a workspace still returns HTTP %s", async status => {
+  const pending = deferred<Workspace>();
+  vi.spyOn(api, "workspace").mockRejectedValueOnce(new ApiError("Workspace unavailable", status))
+    .mockReturnValueOnce(pending.promise)
+    .mockResolvedValue({ id: "w", name: "Recovered dump", createdAt: "2026-10-29", titles: [], documents: [] });
+  mount();
+  const headingName = status === 404 ? "This workspace is gone" : "Could not load this workspace";
+  await screen.findByRole("heading", { name: headingName });
+  const retry = screen.getByRole("button", { name: "Retry workspace" });
+  retry.focus();
+  fireEvent.click(retry);
+  const loading = await screen.findByRole("status");
+  expect(loading.textContent).toBe("Loading…");
+  expect(document.activeElement).toBe(loading);
+  await act(async () => { pending.reject(new ApiError("Still unavailable. Try again.", status)); });
+  const again = await screen.findByRole("button", { name: "Retry workspace" });
+  expect(screen.getByRole("alert").textContent).toBe("Still unavailable. Try again.");
+  expect(document.activeElement).toBe(screen.getByRole("heading", { name: headingName }));
+  fireEvent.click(again);
+  await screen.findByText("Recovered dump");
+  expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Pick a save file" }));
 });
