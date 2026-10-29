@@ -1,0 +1,143 @@
+import { failures, test, expect, focusedControl } from "./failure-harness";
+import { actionPreview, resetAction, searchRow } from "./action-helpers";
+import { coinsField, editCoins, editedCoins, expectArchiveBytes, exportFiles, fixture, importSave,
+  loadJson, openJson, originalCoins, originalSave, savePath, withCoins, downloadedFiles } from "./helpers";
+
+for (const failure of failures) {
+  test(`query paging ${failure.name} preserves selection and retries the requested page`, async ({ page, faults }) => {
+    await importSave(page, { [savePath]: fixture("queryable.json") });
+    await openJson(page);
+    await page.getByRole("tab", { name: "Search", exact: true }).click();
+    const table = page.getByRole("table", { name: "Whole-tree search", exact: true });
+    await expect(table.getByRole("row")).toHaveCount(51);
+    await searchRow(page, "score_00").getByRole("checkbox").check();
+    const blocked = await faults.block(/\/collections\?.*(?:offset=50|cursor=)/, failure);
+    const pages = page.getByRole("navigation", { name: "Whole-tree search pages" });
+    await pages.getByRole("button", { name: "Next", exact: true }).click();
+    await expect(page.getByRole("alert")).toHaveText(failure.message, { timeout: 10_000 });
+    await expect(page.getByRole("status", { name: "Whole-tree search selection" })).toHaveText("1 selected");
+    await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
+    await focusedControl(page);
+    blocked.release();
+    await page.getByRole("button", { name: "Retry rows", exact: true }).click();
+    await expect(pages.getByText("Page 2", { exact: true })).toBeVisible();
+    await expect(table.getByRole("row")).toHaveCount(15);
+    await expect(page.getByRole("heading", { name: "Whole-tree search", exact: true })).toBeFocused();
+    await pages.getByRole("button", { name: "Previous", exact: true }).click();
+    await expect(searchRow(page, "score_00").getByRole("checkbox")).toBeChecked();
+    await expect(page.getByRole("alert")).toHaveCount(0);
+  });
+
+  test(`F8 review ${failure.name} retains saved edits and recovers with Retry changes`, async ({ page, faults }) => {
+    await importSave(page);
+    await openJson(page);
+    await loadJson(page);
+    await editCoins(page);
+    const blocked = await faults.block("**/changes", failure);
+    await page.getByText("Changes against original", { exact: true }).click();
+    const review = page.locator(".changes-panel");
+    await expect(review.getByRole("alert")).toHaveText(failure.message, { timeout: 10_000 });
+    await expect(coinsField(page)).toHaveValue(editedCoins);
+    await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeEnabled();
+    await focusedControl(page);
+    blocked.release();
+    await review.getByRole("button", { name: "Retry changes", exact: true }).click();
+    await expect(review.getByRole("status", { name: "Changes review" })).toHaveText("1 of 1 changed fields");
+    await expect(review.getByRole("row")).toHaveCount(2);
+    await expect(review.getByRole("searchbox", { name: "Find a changed field" })).toBeFocused();
+    await expect(review.getByRole("alert")).toHaveCount(0);
+    const revert = await faults.block("**/changes/revert", failure);
+    const reverting = review.getByRole("button", { name: /^Revert / });
+    await reverting.focus();
+    await page.keyboard.press("Enter");
+    await expect(review.getByRole("alert")).toHaveText(failure.message);
+    await expect(coinsField(page)).toHaveValue(editedCoins);
+    await expect(review.locator("summary")).toBeFocused();
+    await expect(reverting).toBeEnabled();
+    revert.release();
+    await reverting.click();
+    await expect(review.getByText("No semantic changes.", { exact: true })).toBeVisible();
+    await expect(coinsField(page)).toHaveValue(originalCoins);
+  });
+
+  test(`planned preview ${failure.name} keeps explicit row scope and retries without changing data`, async ({ page, faults }) => {
+    await importSave(page);
+    await openJson(page);
+    await loadJson(page);
+    await editCoins(page);
+    await page.getByRole("tab", { name: "Search", exact: true }).click();
+    await searchRow(page, "coins").getByRole("checkbox").check();
+    const blocked = await faults.block("**/actions/plan", failure);
+    const opener = searchRow(page, "coins").getByRole("button", { name: `${resetAction}: $["coins"]#1`, exact: true });
+    await opener.click();
+    const dialog = actionPreview(page);
+    await expect(dialog.getByRole("alert")).toHaveText(failure.message);
+    await expect(dialog.getByRole("alert")).toBeFocused();
+    await expect(dialog.getByText("1 selected row", { exact: true })).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Apply", exact: true })).toHaveCount(0);
+    blocked.release();
+    await dialog.getByRole("button", { name: "Preview", exact: true }).click();
+    await expect(dialog.getByRole("status")).toHaveText("1 field changes · 0 skipped rows · one undo step");
+    await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+    await expect(opener).toBeFocused();
+    await expect(searchRow(page, "coins").getByRole("checkbox")).toBeChecked();
+  });
+
+  test(`planned apply ${failure.name} discards the failed preview and requires a fresh preview`, async ({ page, faults }, testInfo) => {
+    await importSave(page);
+    await openJson(page);
+    await loadJson(page);
+    await editCoins(page);
+    await page.getByRole("tab", { name: "Overview", exact: true }).click();
+    await page.getByRole("button", { name: resetAction, exact: true }).click();
+    const dialog = actionPreview(page);
+    await expect(dialog.getByRole("button", { name: "Apply", exact: true })).toBeEnabled();
+    const blocked = await faults.block("**/actions/apply", failure);
+    await dialog.getByRole("button", { name: "Apply", exact: true }).click();
+    await expect(dialog.getByRole("alert")).toHaveText(failure.message);
+    await expect(dialog.getByRole("alert")).toBeFocused();
+    await expect(dialog.getByRole("button", { name: "Apply", exact: true })).toHaveCount(0);
+    blocked.release();
+    await dialog.getByRole("button", { name: "Preview", exact: true }).click();
+    await expect(dialog.getByRole("status")).toHaveText("1 field changes · 0 skipped rows · one undo step");
+    await dialog.getByRole("button", { name: "Apply", exact: true }).click();
+    await expect(dialog).not.toBeVisible();
+    await focusedControl(page);
+    expectArchiveBytes(await exportFiles(page, testInfo), originalSave);
+    await page.getByRole("button", { name: "Undo", exact: true }).click();
+    await loadJson(page);
+    await expect(coinsField(page)).toHaveValue(editedCoins);
+  });
+
+  test(`export plan and download ${failure.name} retain options and retry the edited bytes`, async ({ page, faults }, testInfo) => {
+    await importSave(page);
+    await openJson(page);
+    await loadJson(page);
+    await editCoins(page);
+    const plan = await faults.block("**/export/plan", failure);
+    const opener = page.getByRole("button", { name: /^Export/ });
+    await opener.click();
+    const dialog = page.getByRole("dialog", { name: "Export edited saves" });
+    await dialog.getByRole("radio", { name: /Whole dump/ }).check();
+    await expect(dialog.getByRole("alert")).toHaveText(failure.message);
+    await expect(dialog.getByRole("button", { name: "Download zip", exact: true })).toBeDisabled();
+    await focusedControl(page);
+    plan.release();
+    await dialog.getByRole("button", { name: "Retry export plan", exact: true }).click();
+    await expect(dialog.getByRole("button", { name: "Download zip", exact: true })).toBeEnabled();
+    await expect(dialog.getByRole("heading", { name: "Export edited saves", exact: true })).toBeFocused();
+    const download = await faults.block("**/export", failure);
+    await dialog.getByRole("button", { name: "Download zip", exact: true }).click();
+    await expect(dialog.getByRole("alert")).toHaveText(failure.message);
+    await expect(dialog.getByRole("radio", { name: /Whole dump/ })).toBeChecked();
+    await expect(dialog.getByRole("button", { name: "Download zip", exact: true })).toBeEnabled();
+    await focusedControl(page);
+    await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeEnabled();
+    download.release();
+    const downloading = page.waitForEvent("download");
+    await dialog.getByRole("button", { name: "Download zip", exact: true }).click();
+    expectArchiveBytes(await downloadedFiles(await downloading, testInfo), withCoins(originalSave, originalCoins, editedCoins));
+    await expect(dialog).not.toBeVisible();
+    await expect(opener).toBeFocused();
+  });
+}
