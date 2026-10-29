@@ -270,6 +270,7 @@ export interface ReferenceRecord {
   key: string;
   name: string;
   category?: string;
+  /** Nullable Int64 from the SDK/API; treat as display data when it exceeds JS safe integer range. */
   limit?: number;
   description?: string;
   assetId?: string;
