@@ -1,17 +1,21 @@
-# Completion audit — 2026-10-28
+# Historical completion audit — 2026-10-28
 
 Base: main `ab748cf` including F13. Issue #21 and all roadmap/write handoffs were
 reviewed. Historical round-2 statements describe that round; the current README
 and this audit supersede its read-only fields and unsupported inventory-query claims.
 The later [community-source unblock](unlicensed.md) restores five names and adds
 459 schema declarations plus 230 enum values with attribution; historical research
-notes here do not impose a licence-only exclusion.
+notes here do not impose a licence-only exclusion. The later
+[2026-10-29 asset report](assets.md) supersedes this audit's absent-artwork and
+external-only-map statements: 29 illustrated references and a local Cradle atlas
+with 26 community locations are now imported. Their association with saved item
+IDs/checkpoint hashes remains unproven; consult the plugin README for current scope.
 
 | Requirement | Final status | Evidence / remaining condition |
 | --- | --- | --- |
 | R1 versioned reference manifest | Agent work complete; owner-blocked mapping | 408 identifier names, 27 sections, 90 explicit Unknown item placeholders, six PC item-role links, now 43 attributed PC mission references. Localized ID/name/category mapping still needs an extraction with matching IDs. |
 | R2 legal limits/dependencies | Owner-blocked #31 | Typed fixed-at-open conservative bounds and warnings exist; float-range initialization corrected. Storage/observed bounds are not claimed legal caps. |
-| R3 assets | Agent work complete; owner data absent | Attributed F2 user-pack images already display in item details. No licensed ID-linked icon corpus found; do not invent one. |
+| R3 assets | Updated by asset round; save-ID mapping absent | 29 attributed illustrated references and a Cradle atlas are imported in pack 1.4.0. Item details also support attributed user-pack images. No exact numeric save-ID/icon crosswalk is established. |
 | R4 causal pairs | Owner-blocked #31 | Three independent one-event pairs per family and unchanged controls, including siblings. |
 | R5 broad corpus | Owner-blocked #31 | Actual empty/full/version/mode saves absent; synthetic 251-row inventory exercises software scale without claiming a real game layout. |
 | R6 runtime capture | Owner-blocked #31 | Runtime resolver API documented; owner must supply game access/extraction. |
@@ -22,8 +26,8 @@ notes here do not impose a licence-only exclusion.
 | R11 export/groups/diff | Agent work complete for supported operations | Serialize decrypts/reparses; F6 semantic review and single-file export. Coupled-file behavior remains owner-blocked; no proven dependency to claim via F7. |
 | R12 structural writes | Won't do in this round | No lossless resizing writer or layout-changing corpus. Unknown counts/alignment/padding must survive; fixed-size identity does not prove that. Future structural implementation requires #31 captures. |
 | R13 pickers/grid/bulk | Agent work complete | F3/F4 retained, F8 inventory above 200, #27 query resolution and exclusions; complete 251-row semantic review, binding preflight, group undo/reopen/byte-isolation regression. |
-| R14 graph/map/quests | Agent work complete for supported evidence | F9 item-to-mission DAG, Unknown states, navigable browse-only fields; bounded checkpoint map/list with navigable existing values and external map. No guessed coordinates or completion states. |
-| R15 embedding policy | Complete | Attributed MIT/CC0 packs; owner permits compatible data. No extra approval required. |
+| R14 graph/map/quests | Updated by asset round | F9 item-to-mission DAG and checkpoint field navigation remain. The atlas adds 26 attributed reference locations; stored hashes remain unpositioned and all saved states Unknown. |
+| R15 embedding policy | Complete; expanded by owner decisions | Attributed MIT/CC0, community facts, CC BY-SA adaptations and Capcom/Itemaps assets follow the 2026-10-28/29 owner policies. No extra permission gate; source attribution remains required. |
 | R16 RSA/new flags/outer layer | Owner-blocked / unsupported | Preserve unknown RSA trailer and warning; reject unsupported flags. No documented signing/outer algorithm to implement. |
 
 Acceptance criteria: all-12 byte-identical no-ops, intended fixed-size byte ranges,
@@ -41,14 +45,17 @@ All units now have an attributed F2 catalogue record; no reward count is used as
 an inventory cap. The six exact PS5-inventory overlaps retain only their Inferred
 PC opening-condition role. Runtime sources still resolve names at runtime rather
 than shipping a static ID dictionary; public repository/web searches found no
-additional licensed exact-ID/localized-name/cap dataset suitable to embed.
+additional exact-ID/localized-name/cap dataset suitable to embed. A missing licence
+alone is not a refusal under the later owner policy.
 
-The [itemaps community map](https://itemaps.com/maps/pragmata) was inspected as
-an external map reference (itemaps contributors; retrieved 2026-10-28; licence
+At the time of this audit, the [itemaps community map](https://itemaps.com/maps/pragmata)
+was inspected as an external map reference (itemaps contributors; retrieved 2026-10-28; licence
 unverified). No artwork, coordinates, marker text or totals were imported.
 Checkpoint labels come only from stored hashes and the MIT identifier spelling.
-Every marker remains Unknown and unpositioned. Its field target is independent
-of page ordering, and recursive navigation follows the same bounded paging policy.
+At that revision every marker was Unknown and unpositioned; the later asset round
+adds separately attributed reference coordinates while saved hashes stay unpositioned.
+Each saved marker's field target is independent of page ordering, and recursive
+navigation follows the same bounded paging policy.
 
 Downloads remain under `%TEMP%/pragmata-completion`; only SHA-pinned JSON inputs
 were processed with the local generator using `python -I`. No downloaded code

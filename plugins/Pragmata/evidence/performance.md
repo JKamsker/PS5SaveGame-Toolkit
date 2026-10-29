@@ -1,4 +1,4 @@
-# Performance review (#40)
+# Performance review (#40) — 2026-10-29
 
 Reviewed `plugins/Pragmata` from `c12d5148bbe345036f25f8e4adc19a304b3548b5`
 on `review/perf-pragmata`. Findings were posted on #40 before implementation.
