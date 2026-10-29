@@ -28,21 +28,7 @@ public sealed class CharacterCollectionTests
         Assert.Equal(9, attributes.TotalCount);
         var emeralds = Assert.Single(attributes.Rows, row => CellText(row.Cells["id"]) == "Emeralds");
         Assert.Equal("0", Assert.IsType<FieldNode>(emeralds.Cells["value"]).Value.AsExactNumber());
-        var inventory = session.QueryCollection("character/inventory", new());
-        Assert.Equal(5, inventory.TotalCount);
-        Assert.All(inventory.Rows, row =>
-        {
-            Assert.Contains("MIT", Assert.IsType<SectionNode>(row.Cells["name"]).Description!);
-            var id = Assert.IsType<FieldNode>(row.Cells["id"]);
-            Assert.IsType<ReferenceSpec>(id.Spec);
-            Assert.False(id.Spec.ReadOnly);
-            Assert.Equal(Confidence.Inferred, id.Confidence);
-            var details = Assert.IsType<SectionNode>(row.Cells["details"]);
-            Assert.NotEmpty(session.Expand(details.LazyId!));
-        });
-        var firstId = Assert.IsType<FieldNode>(inventory.Rows[0].Cells["id"]).ValueId;
-        Assert.True(session.ApplyEdits([new(firstId, JsonSerializer.SerializeToElement("SW.Item.Bow"))]).Ok);
-        Assert.True(session.Undo().Ok);
+        AssertInventoryReferencesAndUndo(session);
         var quests = session.QueryCollection("character/quests", new() { Filters = new Dictionary<string, string> { ["focused"] = "true" } });
         Assert.Equal(49, quests.TotalCount);
         var focused = Assert.Single(quests.Rows);
@@ -67,6 +53,25 @@ public sealed class CharacterCollectionTests
         }
         Assert.False(session.State.IsDirty);
         Assert.Equal(file.ReadAllBytes(), document.Serialize()[0].Content.ToArray());
+    }
+
+    private static void AssertInventoryReferencesAndUndo(DocumentSession session)
+    {
+        var inventory = session.QueryCollection("character/inventory", new());
+        Assert.Equal(5, inventory.TotalCount);
+        Assert.All(inventory.Rows, row =>
+        {
+            Assert.Contains("MIT", Assert.IsType<SectionNode>(row.Cells["name"]).Description!);
+            var id = Assert.IsType<FieldNode>(row.Cells["id"]);
+            Assert.IsType<ReferenceSpec>(id.Spec);
+            Assert.False(id.Spec.ReadOnly);
+            Assert.Equal(Confidence.Inferred, id.Confidence);
+            var details = Assert.IsType<SectionNode>(row.Cells["details"]);
+            Assert.NotEmpty(session.Expand(details.LazyId!));
+        });
+        var firstId = Assert.IsType<FieldNode>(inventory.Rows[0].Cells["id"]).ValueId;
+        Assert.True(session.ApplyEdits([new(firstId, JsonSerializer.SerializeToElement("SW.Item.Bow"))]).Ok);
+        Assert.True(session.Undo().Ok);
     }
 
     [Fact]

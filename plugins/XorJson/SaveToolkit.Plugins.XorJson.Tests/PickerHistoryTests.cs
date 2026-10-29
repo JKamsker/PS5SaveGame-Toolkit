@@ -4,6 +4,7 @@ using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
+using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -55,10 +56,15 @@ public sealed class PickerHistoryTests
         Assert.Equal(expected, document.Serialize()[0].Content.ToArray());
         using var reopened = XorJsonTests.Open(expected);
         Assert.Equal("SW.Item.Bow", XorJsonTests.Fields(reopened).Single(field => field.Label == "TypeTag").Value.AsString());
+        AssertHistoryRestoresExactBytes(session, document, bytes, expected);
+    }
+
+    private static void AssertHistoryRestoresExactBytes(DocumentSession session, ISaveDocument document, byte[] original, byte[] expected)
+    {
         var undo = session.Undo();
         Assert.True(undo.Ok);
         Assert.True(undo.StructureChanged);
-        Assert.Equal(bytes, document.Serialize()[0].Content.ToArray());
+        Assert.Equal(original, document.Serialize()[0].Content.ToArray());
         Assert.False(session.State.IsDirty);
         var redo = session.Redo();
         Assert.True(redo.Ok);
@@ -67,5 +73,4 @@ public sealed class PickerHistoryTests
     }
 
     private static IncomingEdit Incoming(string id, string value) => new(id, JsonSerializer.SerializeToElement(value));
-
 }
