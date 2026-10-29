@@ -6,7 +6,8 @@ revision `014107f0ca1cff867b5f7565cb79d6684f9b35df` (retrieved 2026-10-28):
 https://github.com/ClayAmore/ER-Save-Editor/tree/014107f0ca1cff867b5f7565cb79d6684f9b35df
 
 The adaptation adds bounds, output budgets and snapshot-specific BND flag/PARAM directory checks;
-it excludes unsafe PARAM field casting, explicitly restricted databases, game descriptions and artwork.
+it excludes unsafe PARAM field casting and explicitly restricted databases. Publisher text/art is
+separately attributed below under the owner decision of 2026-10-29.
 That project offers MIT and Apache-2.0 licences; the MIT option is used for this adaptation.
 
 The write-enable round also uses the same `src/save/common/save_slot.rs` and PlayStation
@@ -59,11 +60,29 @@ Original source-byte/pack hashes, authors, URLs, retrieval date (2026-10-29), ex
 and reproducible importer accompany the data in `community.source.md`. Dataset licences are separate
 from the MIT notice below. The README, `Info.References`, F2 Sources, fields and reference browsers
 retain provenance. Explicit NC/no-redistribution sources, including er-save-manager, remain excluded;
-game-extracted descriptions and artwork remain excluded as publisher assets.
+publisher assets are handled separately under the asset-round policy below.
 
 In v1.1.0 the JSON is minified. Dataset-wide source URLs, revisions, hashes, schema and uncertainty
 live in attribution/source sidecars; table layout metadata lives once per summary. Per-record source
 overrides are retained where different. This storage change does not change source ownership or terms.
+
+## Publisher assets and text (2026-10-29)
+
+Selected game content © FromSoftware / Bandai Namco, extracted and published by EthanShoeDev /
+elden-ring-compass contributors at revision `be49e96b0513d8e08d22806b5b3fee9654e3e9de`:
+https://github.com/EthanShoeDev/elden-ring-compass/tree/be49e96b0513d8e08d22806b5b3fee9654e3e9de.
+
+**Rights reserved by FromSoftware / Bandai Namco; used with attribution per owner decision 2026-10-29**.
+This is not a claim of publisher permission or MIT relicensing. Original ClayAmore names retain MIT.
+The combined catalogue declares publisher restrictions and explains the MIT identity-label contribution;
+image and coordinate datasets carry separate provenance. No Compass implementation was copied or run.
+
+Includes 1,245 exact ID/name-matched descriptions and illustrated catalogue records, 1,096 deduplicated
+64px icons, three 1312-square map backgrounds, and 597 inferred event-ID placements. Images total
+2,640,798 bytes. Source paths/hashes, transformation and calibration uncertainty are recorded in
+`ReferencePacks/eldenring.names.en/visuals.source.md` (inside the plugin project), the README and
+`Evidence/visual-inputs.json`. Attribution also appears in Info.References, Sources and the UI.
+The earlier notices' no-art/no-coordinate statements describe their original imports, not this addition.
 
 MIT License
 

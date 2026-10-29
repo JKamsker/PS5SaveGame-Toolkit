@@ -23,7 +23,8 @@ public sealed class ReferenceTests
         var generic = store.Pin(plugin, "PPSA03169");
         using (var document = plugin.Open(fixture.File(), generic))
         {
-            var page = ((IQueryableDocument)document).Query("catalog/items", new() { Text = "Rowa Fruit" });
+            var page = ((IQueryableDocument)document).Query("catalog/items", new()
+                { Filters = new Dictionary<string, string> { ["name"] = "Rowa Fruit" } });
             Assert.Equal("Rowa Fruit", Assert.IsType<TextNode>(Assert.Single(page.Rows).Cells["name"]).Text);
             Assert.Equal("eldenring.names.en", generic.CatalogForHost("eldenring-items")!.Pack.Id);
         }
@@ -38,20 +39,21 @@ public sealed class ReferenceTests
     }
 
     [Fact]
-    public void EmbeddedPack_IsVersionedAttributedAndIdentityOnlyAcrossSupportedTitles()
+    public void EmbeddedPack_IsVersionedAttributedAndEnrichedAcrossSupportedTitles()
     {
         var plugin = new EldenRingPlugin();
         var store = new ReferencePackStore([plugin]);
         Assert.Empty(store.LoadErrors);
         var pack = Assert.Single(store.Packs, pack => pack.Info.Id == "eldenring.names.en");
-        Assert.Equal("2.0.0", pack.Info.Version);
+        Assert.Equal("3.0.0", pack.Info.Version);
         var context = store.Pin(plugin, "PPSA03169");
         var catalog = Assert.IsAssignableFrom<IReferenceCatalog>(context.Catalog("eldenring-items"));
         Assert.Equal(5770, catalog.Count);
         var record = Assert.IsType<ReferenceRecord>(catalog.Find("0x400050F0"));
         Assert.Equal("Rowa Fruit", record.Name);
         Assert.Null(record.Limit);
-        Assert.Null(record.AssetId);
+        Assert.NotNull(record.AssetId);
+        Assert.NotNull(context.GetAsset(record.AssetId));
         Assert.Contains("MIT", record.AttributionText);
         Assert.Contains("Inferred on PS5", record.Description);
         Assert.All(plugin.Info.Games, game => Assert.Equal(5770, store.Pin(plugin, game.TitleId).Catalog("eldenring-items")!.Count));

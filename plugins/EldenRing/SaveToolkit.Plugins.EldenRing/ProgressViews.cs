@@ -6,11 +6,13 @@ using SaveToolkit.Sdk.Collections;
 namespace SaveToolkit.Plugins.EldenRing;
 
 internal sealed class ProgressViews(byte[] bytes, IReadOnlyList<SemanticCharacter> characters, IReferenceCatalog? catalog,
-    string catalogId = ProgressReferences.CatalogId, string sectionPrefix = "progress", string? parentSectionId = null)
+    string catalogId = ProgressReferences.CatalogId, string sectionPrefix = "progress", string? parentSectionId = null,
+    IReferenceContext? references = null)
 {
     public const string TabTitle = "World / progress";
     public const string MapUrl = "https://mapgenie.io/elden-ring/maps/the-lands-between";
     private readonly Lazy<ProgressIndex> _index = new(() => ProgressReferences.Read(catalog));
+    private readonly ProgressMapAssets _maps = new(references ?? IReferenceContext.Empty);
     private IReadOnlyList<QueryableColumn> Columns =>
     [new("name", "Source candidate", new ReferenceSpec(catalogId) { ReadOnly = true }),
         new("category", "Category"), new("region", "Source region"), new("event", "Source event ID"),
@@ -73,14 +75,14 @@ internal sealed class ProgressViews(byte[] bytes, IReadOnlyList<SemanticCharacte
         }).ToArray();
         return
         [
-            new MapNode(region.Title + " (external map; unpositioned candidates)", new(0, 0, 1, 1), markers,
+            _maps.Decorate(new MapNode(region.Title + " (external map; unpositioned candidates)", new(0, 0, 1, 1), markers,
                 $"{region.Entries.Count} named source candidates. All statuses Unknown; the table exposes the raw source bit and provenance. "
                 + "No coordinates/art imported, no geographic placement, completion count or quest prerequisites inferred.")
             {
                 CoordinateSpace = "External reference only; no embedded coordinates",
                 ExternalSource = new(MapUrl, "Open community map (Map Genie)",
                     "Map Genie contributors. Link only; reuse licence unverified. No art or coordinates imported."),
-            },
+            }, region),
             new TableNode(Columns.Select(column => new TableColumn(column.Key, column.Label)).ToArray(),
                 region.Entries.Select(entry => Row(character.Slot, entry, range, bind)).ToArray())
             { Title = region.Title + " · raw candidates", Description = ProgressReferences.Warning },

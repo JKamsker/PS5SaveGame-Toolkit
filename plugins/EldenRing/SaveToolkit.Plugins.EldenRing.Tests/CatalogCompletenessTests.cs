@@ -54,11 +54,11 @@ public sealed class CatalogCompletenessTests
             Assert.Equal($"https://github.com/ClayAmore/ER-Save-Editor/blob/{Revision}/src/db/{table}_name.rs", row.Source);
             Assert.Contains(row.Source!, plugin.Info.References);
             Assert.Contains("ClayAmore", row.AttributionText);
-            Assert.Equal("MIT", row.Dataset.Attribution.License);
-            Assert.Equal("2026-10-28", row.Dataset.Attribution.Retrieved.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            Assert.Equal(ProgressMapAssets.Rights, row.Dataset.Attribution.License);
+            Assert.Contains("names remain MIT", row.Dataset.Attribution.Modifications);
+            Assert.Equal("2026-10-29", row.Dataset.Attribution.Retrieved.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
             Assert.Equal(64, row.Attributes["sourceSha256"].Length);
             Assert.Null(row.Limit);
-            Assert.Null(row.AssetId);
             Assert.Equal(row.Attributes["upstreamName"] is "" ? row.Key : row.Attributes["upstreamName"], row.Name);
         }
         Assert.Equal(expectedHash, Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(originalPairs.ToString()))));
@@ -98,7 +98,8 @@ public sealed class CatalogCompletenessTests
         }
         Assert.Equal(5770, keys.Count);
         var variants = browser.Query("catalog/items", new() { Text = "Scimitar" });
-        Assert.Equal(13, variants.FilteredCount);
+        Assert.Equal(13, variants.Rows.Count(row => Assert.IsType<TextNode>(row.Cells["name"]).Text.Contains("Scimitar", StringComparison.Ordinal)));
+        Assert.True(variants.FilteredCount >= 13); // Official descriptions can now add relevant text-search matches.
         Assert.Contains(variants.Rows, row => Assert.IsType<TextNode>(row.Cells["name"]).Text == "Heavy Scimitar");
         Assert.True(fixture.Bytes.AsSpan().SequenceEqual(Assert.Single(document.Serialize()).Content.Span));
     }

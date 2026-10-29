@@ -22,7 +22,7 @@ internal sealed class CommunityReferences
         Items = references.Catalog(ItemsCatalogId, fingerprint);
         Layouts = references.Catalog(ParamLayoutsCatalogId, fingerprint);
         Progress = new(bytes, characters, references.Catalog(FlagsCatalogId, fingerprint), FlagsCatalogId, ProgressSectionId,
-            ProgressSectionId);
+            ProgressSectionId, references);
         _catalogs =
         [
             new("catalog/community-items", "Community item names and groups", Items),
