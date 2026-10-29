@@ -22,13 +22,16 @@ internal sealed class DdlSections
         {
             var strategy = Strategy(section.Tag);
             if (strategy is null) continue;
-            if (!_roots.TryAdd(section.Tag, new DdlReader(container, section, strategy.Value.Prefix, maxDepth).Read()))
+            var reader = new DdlReader(container, section, strategy.Value.Prefix, maxDepth);
+            if (!_roots.TryAdd(section.Tag, reader.Read()))
                 throw new SaveFormatException($"Duplicate DDL section 0x{section.Tag:X8}.");
+            DepthLimitExceeded |= reader.DepthLimitExceeded;
             _labels.Add(section.Tag, strategy.Value.Label);
         }
     }
 
     internal IReadOnlyDictionary<uint, IReadOnlyDictionary<string, DdlField>> Roots => _roots;
+    internal bool DepthLimitExceeded { get; }
     internal string Label(uint tag) => _labels.GetValueOrDefault(tag, $"0x{tag:X8}");
 
     private static (string Label, int Prefix)? Strategy(uint tag) => tag switch
