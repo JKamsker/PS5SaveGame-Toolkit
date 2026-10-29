@@ -16,6 +16,7 @@ internal static class DocumentOutputVerifier
         {
             throw new ExportException(ex.Message, ex);
         }
+        var pending = new Dictionary<string, ReadOnlyMemory<byte>>(StringComparer.OrdinalIgnoreCase);
         var groups = workspace.DocumentGroups;
         foreach (var output in outputs)
         {
@@ -28,9 +29,21 @@ internal static class DocumentOutputVerifier
             if (file.PathInDirectory.StartsWith("sce_sys/", StringComparison.OrdinalIgnoreCase)
                 && !session.OwnedOutputPaths.Contains(output.RelativePath, StringComparer.OrdinalIgnoreCase))
                 throw new ExportException($"Plugin '{session.Plugin.Info.Id}' tried to write undeclared system file '{output.RelativePath}'.");
-            if (!overrides.TryAdd(output.RelativePath, output.Content))
+            if (overrides.ContainsKey(output.RelativePath) || !pending.TryAdd(output.RelativePath, output.Content))
                 throw new ExportException($"Two open documents both rewrite '{output.RelativePath}'. Close one of them.");
         }
+
+        if (session.RequiresCompleteOutputs && session.GetState(cancellationToken).IsDirty)
+        {
+            foreach (var expected in session.OwnedOutputPaths)
+            {
+                if (!pending.ContainsKey(expected))
+                    throw new ExportException($"Plugin '{session.Plugin.Info.Id}' did not serialize required output '{expected}'.");
+            }
+        }
+
+        foreach (var (path, content) in pending)
+            overrides.Add(path, content);
     }
 
     public static void Verify(Workspace workspace, IReadOnlyList<DocumentSession> sessions,

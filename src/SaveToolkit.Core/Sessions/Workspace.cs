@@ -127,9 +127,13 @@ public sealed class Workspace : IDisposable
                 session = new DocumentSession($"doc{Interlocked.Increment(ref _documentCounter)}", file, plugin, document, references: references);
                 ThrowIfOutputPathOwned(session.OwnedOutputPaths);
             }
-            catch
+            catch (Exception failure) when (failure is not OutOfMemoryException)
             {
-                document.Dispose();
+                try { document.Dispose(); }
+                catch (Exception cleanup) when (cleanup is not OutOfMemoryException)
+                {
+                    throw new AggregateException("Document open and cleanup failed.", failure, cleanup);
+                }
                 throw;
             }
             _references[session.Id] = references;

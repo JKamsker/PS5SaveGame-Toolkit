@@ -84,6 +84,7 @@ public sealed partial class DocumentSession : IDisposable
     /// <summary>Full save-set paths reserved by this document, including exact declared system files.</summary>
     internal IReadOnlyList<string> OwnedOutputPaths => OutputOwnership.OwnedPaths;
     internal IReadOnlyList<string> DeclaredOutputPaths => OutputOwnership.DeclaredPaths;
+    internal bool RequiresCompleteOutputs => OutputOwnership.RequiresCompleteOutputs;
     internal void CheckOutputFingerprints(CancellationToken cancellationToken) => OutputOwnership.Check(cancellationToken);
 
     public DocumentState State => Locked(StateUnlocked);

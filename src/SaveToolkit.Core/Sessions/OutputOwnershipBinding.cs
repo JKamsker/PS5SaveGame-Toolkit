@@ -34,6 +34,7 @@ internal sealed class OutputOwnershipBinding
 
     public IReadOnlyList<string> DeclaredPaths { get; }
     public IReadOnlyList<string> OwnedPaths { get; }
+    public bool RequiresCompleteOutputs => DeclaredPaths.Count > 0;
 
     public void Check(CancellationToken cancellationToken)
     {

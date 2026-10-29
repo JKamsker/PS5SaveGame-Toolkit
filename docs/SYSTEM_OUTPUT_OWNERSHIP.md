@@ -33,6 +33,11 @@ source changed after a plugin read it cannot become the new baseline. Failed gro
 candidate verification dispose every staged document before returning the original error, leaving a
 clean replacement owner usable when one was being replaced.
 
+An opted-in ordinary document must serialize its opened primary file and every declared output
+exactly once while dirty. Missing or duplicate paths fail export and verified primary download before
+any overrides are published. Clean sessions keep the existing filtered empty-output behavior, and
+legacy documents without declarations may continue to serialize additional game files.
+
 An overridden `sce_sys/param.sfo` is parsed again by `OverlaySaveSet` under a 1 MiB bound. Invalid
 or oversized metadata rejects verification, while an untouched directory retains its imported
 `ParamSfo` object. This validation is host-side and does not establish console acceptance.

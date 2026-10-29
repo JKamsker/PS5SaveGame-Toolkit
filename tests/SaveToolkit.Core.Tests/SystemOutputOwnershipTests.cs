@@ -86,8 +86,7 @@ public sealed class SystemOutputOwnershipTests
 
         Assert.Contains("changed while the document was opening", error.Message, StringComparison.Ordinal);
         Assert.Empty(workspace.Documents);
-        Assert.NotNull(plugin.LastOpened);
-        Assert.True(plugin.LastOpened!.IsDisposed);
+        Assert.True(plugin.LastOpenedDisposed);
     }
 
     [Theory]
@@ -294,7 +293,7 @@ public sealed class SystemOutputOwnershipTests
         Assert.Equal(2, plan.Overrides.Count);
     }
 
-    private static Workspace CreateWorkspace(WorkspaceStore store, OutputPlugin plugin) =>
+    internal static Workspace CreateWorkspace(WorkspaceStore store, OutputPlugin plugin) =>
         store.Create("system output", [new ImportSource("dump.zip", () => new MemoryStream(
             TestZips.Build((Root + "slot.dat", [1]), (SfoPath, CreateSfo("Old"))))) ]);
 
@@ -318,7 +317,7 @@ public sealed class SystemOutputOwnershipTests
         return workspace.OpenGroup(offer.Token).Session;
     }
 
-    private static DocumentSession OpenAndEdit(Workspace workspace, OutputPlugin plugin)
+    internal static DocumentSession OpenAndEdit(Workspace workspace, OutputPlugin plugin)
     {
         var file = workspace.Set.AllDiskFiles.Single(f => f.FileName == "slot.dat" && !f.Directory.IsBackup);
         var session = workspace.Open(file.Id, plugin.Info.Id);
@@ -341,7 +340,7 @@ public sealed class SystemOutputOwnershipTests
         File.Delete(path);
     }
 
-    private static byte[] CreateSfo(string subtitle)
+    internal static byte[] CreateSfo(string subtitle)
     {
         byte[] key = Encoding.ASCII.GetBytes("SUBTITLE\0");
         byte[] value = Encoding.UTF8.GetBytes(subtitle + "\0");
@@ -365,49 +364,46 @@ public sealed class SystemOutputOwnershipTests
         return bytes;
     }
 
-    private sealed class OutputPlugin(bool declareSystemOutput, bool writeSystemOutput) : IGamePlugin
+    internal sealed class OutputPlugin(bool declareSystemOutput, bool writeSystemOutput) : IGamePlugin
     {
         public PluginInfo Info { get; } = new("test.system-output", "System output", "1.0.0");
         public IReadOnlyList<string> Declarations { get; set; } =
             declareSystemOutput ? ["sce_sys/param.sfo"] : [];
         public Action? AfterOpen { get; set; }
-        public OutputDocument? LastOpened { get; private set; }
+        private OutputDocument? LastOpened { get; set; }
+        public bool LastOpenedDisposed => LastOpened?.IsDisposed == true;
+        public Func<IReadOnlyList<FileOutput>, IReadOnlyList<FileOutput>>? OutputTransform { get; set; }
+        public bool ThrowOnDispose { get; set; }
         public ProbeResult Probe(ISaveFile file) => ProbeResult.None;
         public ISaveDocument Open(ISaveFile file)
         {
-            var document = new OutputDocument(file, Declarations, writeSystemOutput);
+            var document = new OutputDocument(this, file, Declarations, writeSystemOutput);
             LastOpened = document;
             AfterOpen?.Invoke();
             return document;
         }
     }
 
-    private sealed class OutputDocument : BoundSaveDocument, IAdditionalOutputOwner
+    private sealed class OutputDocument(OutputPlugin owner, ISaveFile file, IReadOnlyList<string> declarations, bool writeSystemOutput) : BoundSaveDocument, IAdditionalOutputOwner
     {
-        private readonly string _path;
-        private readonly bool _writeSystemOutput;
-        private byte _value;
-        private readonly byte[] _sfo;
+        private readonly string _path = file.RelativePath;
+        private readonly bool _writeSystemOutput = writeSystemOutput;
+        private byte _value = file.ReadAllBytes()[0];
+        private readonly byte[] _sfo = file.Directory.FindAnyFile("sce_sys/param.sfo")?.ReadAllBytes() ?? [];
 
         public bool IsDisposed { get; private set; }
 
-        public OutputDocument(ISaveFile file, IReadOnlyList<string> declarations, bool writeSystemOutput)
-        {
-            _path = file.RelativePath;
-            _value = file.ReadAllBytes()[0];
-            _writeSystemOutput = writeSystemOutput;
-            _sfo = file.Directory.FindAnyFile("sce_sys/param.sfo")?.ReadAllBytes() ?? [];
-            AdditionalOutputPaths = declarations;
-        }
-
-        public IReadOnlyList<string> AdditionalOutputPaths { get; }
+        public IReadOnlyList<string> AdditionalOutputPaths { get; } = declarations;
         public override string Title => "System output";
         public override ViewNode BuildView() => Field("value", "Value", IntegerSpec.UInt8,
             () => FieldValue.Of(_value), value => _value = (byte)value.AsInt32());
-        public override IReadOnlyList<FileOutput> Serialize() =>
-            _writeSystemOutput
-                ? [new(_path, new byte[] { _value }), new($"{_path[.._path.LastIndexOf('/')]}/sce_sys/param.sfo", ReplaceSubtitle())]
+        public override IReadOnlyList<FileOutput> Serialize()
+        {
+            var outputs = _writeSystemOutput
+                ? (IReadOnlyList<FileOutput>)[new(_path, new byte[] { _value }), new($"{_path[.._path.LastIndexOf('/')]}/sce_sys/param.sfo", ReplaceSubtitle())]
                 : [new(_path, new byte[] { _value })];
+            return owner.OutputTransform?.Invoke(outputs) ?? outputs;
+        }
 
         private byte[] ReplaceSubtitle()
         {
@@ -423,6 +419,7 @@ public sealed class SystemOutputOwnershipTests
         protected override void Dispose(bool disposing)
         {
             IsDisposed = true;
+            if (owner.ThrowOnDispose) throw new IOException("Injected output-document cleanup failure.");
             base.Dispose(disposing);
         }
     }
