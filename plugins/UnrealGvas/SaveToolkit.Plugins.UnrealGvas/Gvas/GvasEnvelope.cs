@@ -57,7 +57,7 @@ public sealed class GvasEnvelope
         using var reader = new BinaryReader(stream, System.Text.Encoding.UTF8, leaveOpen: true);
         // A root property name (possibly the None terminator) must follow the header.
         // Do not walk property tags or payloads: Probe stays independent of save-body size.
-        return GvasString.Read(reader).Length != 0;
+        return GvasBinary.ReadString(reader).Length != 0;
     }
 
     public static GvasEnvelope Open(byte[] original)

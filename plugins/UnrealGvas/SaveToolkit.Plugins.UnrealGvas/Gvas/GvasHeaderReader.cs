@@ -25,7 +25,7 @@ internal static class GvasHeaderReader
             var minor = reader.ReadUInt16();
             var patch = reader.ReadUInt16();
             var build = reader.ReadUInt32();
-            var branch = GvasString.Read(reader);
+            var branch = GvasBinary.ReadString(reader);
             if (major is < 4 or > 5) throw new SaveFormatException($"Unsupported Unreal engine version {major}.{minor}.");
             var count = 0;
             if (major >= 5 || minor >= 12)
@@ -37,7 +37,7 @@ internal static class GvasHeaderReader
                 if (count < 0 || count > GvasFile.MaxNodes) throw new SaveFormatException($"Invalid GVAS count {count}.");
                 SkipVersions(stream, count * CustomVersionEntryBytes);
             }
-            var saveClass = GvasString.Read(reader);
+            var saveClass = GvasBinary.ReadString(reader);
             var header = new GvasHeader(version, package, package5, major, minor, patch, build, branch, count, saveClass);
             if (header.CompleteTypeNames && reader.ReadByte() != 0)
                 throw new SaveFormatException("Unsupported UE5 root serialization control flags.");

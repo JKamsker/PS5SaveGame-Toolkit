@@ -1,4 +1,5 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Binary;
 
 namespace SaveToolkit.Plugins.UnrealGvas.Gvas;
 
@@ -12,8 +13,8 @@ internal sealed class GvasParser(byte[] bytes)
     {
         using var stream = new MemoryStream(bytes, writable: false);
         _header = GvasHeaderReader.Read(stream);
-        var reader = new GvasCursor(bytes, (int)stream.Position);
-        var nodes = ReadProperties(reader, 0);
+        var reader = new BoundedBinaryCursor(bytes, GvasBinary.Context, (int)stream.Position);
+        var nodes = ReadProperties(ref reader, 0);
         // Bytes after the None terminator belong to the game and are preserved verbatim.
         return new GvasFile(bytes, _header, nodes, _sizes.ToArray());
     }
@@ -21,17 +22,18 @@ internal sealed class GvasParser(byte[] bytes)
     public GvasFile ParseHeaderless(GvasHeader header)
     {
         _header = header;
-        var nodes = ReadProperties(new GvasCursor(bytes), 0);
+        var reader = new BoundedBinaryCursor(bytes, GvasBinary.Context);
+        var nodes = ReadProperties(ref reader, 0);
         return new GvasFile(bytes, header, nodes, _sizes.ToArray());
     }
 
-    internal IReadOnlyList<GvasNode> ReadProperties(GvasCursor reader, int depth)
+    internal IReadOnlyList<GvasNode> ReadProperties(ref BoundedBinaryCursor reader, int depth)
     {
         CheckDepth(depth);
         var nodes = new List<GvasNode>();
         while (true)
         {
-            var tag = GvasTag.Read(reader, _header);
+            var tag = GvasTag.Read(ref reader, _header);
             if (tag is null) return nodes;
             if (tag.Size > reader.Remaining) throw new SaveFormatException($"Truncated GVAS property '{tag.Name}'.");
             var start = reader.Position;
@@ -40,21 +42,25 @@ internal sealed class GvasParser(byte[] bytes)
             {
                 if (tag.Size != 0) throw new SaveFormatException("BoolProperty must have a zero-length payload.");
                 if (!_header.CompleteTypeNames)
-                    node.Scalar = GvasPrimitives.Read(new GvasCursor(bytes, boolOffset, boolOffset + 1), "BoolProperty");
+                {
+                    var boolean = new BoundedBinaryCursor(bytes, GvasBinary.Context, boolOffset, boolOffset + 1);
+                    node.Scalar = GvasPrimitives.Read(ref boolean, "BoolProperty");
+                }
                 else node.Scalar = new GvasScalar(GvasScalarKind.Boolean, boolOffset, 1, tag.BoolValue,
                     booleanMask: 16, booleanOriginal: bytes[boolOffset]);
             }
             else
             {
                 _sizes.Add(new SizeRegion(tag.SizeOffset, start, tag.Size));
-                ReadPayload(node, tag, new GvasCursor(bytes, start, start + tag.Size), depth + 1);
+                var payload = new BoundedBinaryCursor(bytes, GvasBinary.Context, start, start + tag.Size);
+                ReadPayload(node, tag, ref payload, depth + 1);
             }
             nodes.Add(node);
             reader.Position = start + tag.Size;
         }
     }
 
-    private void ReadPayload(GvasNode node, GvasTag tag, GvasCursor reader, int depth)
+    private void ReadPayload(GvasNode node, GvasTag tag, ref BoundedBinaryCursor reader, int depth)
     {
         var sizeCheckpoint = _sizes.Count;
         try
@@ -62,17 +68,17 @@ internal sealed class GvasParser(byte[] bytes)
             if (tag.Native && tag.Type == "StructProperty" && !IsKnownNativeStruct(tag.StructType))
                 throw new UnsupportedGvasValueException("UE5 native binary struct serialization.");
             if (tag.Type == "StructProperty")
-                node.Children = ReadStruct(reader, tag.StructType, depth);
+                node.Children = ReadStruct(ref reader, tag.StructType, depth);
             else if (tag.Type == "SoftObjectProperty")
-                node.Children = ReadSoftObject(reader, depth);
+                node.Children = ReadSoftObject(ref reader, depth);
             else if (tag.Type is "ArrayProperty" or "SetProperty" or "MapProperty")
-                ReadContainer(node, tag, reader, depth);
+                ReadContainer(node, tag, ref reader, depth);
             else if (tag.Type == "TextProperty")
-                node.Scalar = GvasPrimitives.ReadText(reader);
+                node.Scalar = GvasPrimitives.ReadText(ref reader);
             else if (tag.Type == "ByteProperty" && tag.InnerType != "None" && tag.InnerType is not null)
-                node.Scalar = GvasPrimitives.Read(reader, "StrProperty");
+                node.Scalar = GvasPrimitives.Read(ref reader, "StrProperty");
             else
-                node.Scalar = GvasPrimitives.Read(reader, tag.Type);
+                node.Scalar = GvasPrimitives.Read(ref reader, tag.Type);
             if (reader.Remaining != 0) throw new UnsupportedGvasValueException("Payload layout is not fully understood.");
         }
         catch (UnsupportedGvasValueException ex)
@@ -84,10 +90,10 @@ internal sealed class GvasParser(byte[] bytes)
         }
     }
 
-    private IReadOnlyList<GvasNode> ReadStruct(GvasCursor reader, string? type, int depth)
+    private IReadOnlyList<GvasNode> ReadStruct(ref BoundedBinaryCursor reader, string? type, int depth)
     {
         CheckDepth(depth);
-        if (type is "SoftObjectPath" or "SoftClassPath") return ReadSoftObject(reader, depth);
+        if (type is "SoftObjectPath" or "SoftClassPath") return ReadSoftObject(ref reader, depth);
         var components = type switch
         {
             "Vector" => new[] { "X", "Y", "Z" },
@@ -103,7 +109,7 @@ internal sealed class GvasParser(byte[] bytes)
         {
             // Custom native structs may not use tagged properties. Do not infer a schema from their bytes.
             var checkpoint = _sizes.Count;
-            try { return ReadProperties(reader, depth + 1); }
+            try { return ReadProperties(ref reader, depth + 1); }
             catch (SaveFormatException)
             {
                 _sizes.RemoveRange(checkpoint, _sizes.Count - checkpoint);
@@ -118,29 +124,32 @@ internal sealed class GvasParser(byte[] bytes)
             "LinearColor" => "FloatProperty",
             _ => _header.EngineMajor >= 5 ? "DoubleProperty" : "FloatProperty",
         };
-        return components.Select(name => ReadElement(reader, name, primitive, null, depth + 1)).ToArray();
+        var children = new GvasNode[components.Length];
+        for (var i = 0; i < components.Length; i++)
+            children[i] = ReadElement(ref reader, components[i], primitive, null, depth + 1);
+        return children;
     }
 
-    private void ReadContainer(GvasNode node, GvasTag tag, GvasCursor reader, int depth)
+    private void ReadContainer(GvasNode node, GvasTag tag, ref BoundedBinaryCursor reader, int depth)
     {
         CheckDepth(depth);
         if (tag.Type is "SetProperty" or "MapProperty")
         {
-            if (reader.Int32() != 0) throw new UnsupportedGvasValueException("Container has removed entries.");
+            if (reader.ReadInt32LE() != 0) throw new UnsupportedGvasValueException("Container has removed entries.");
         }
         var byteArray = tag.Type == "ArrayProperty" && tag.InnerType is "ByteProperty" or "UInt8Property";
-        var count = reader.Count(byteArray ? GvasFile.MaxFileLength : MaxNodesForRemainingBudget());
+        var count = reader.ReadCount(byteArray ? GvasFile.MaxFileLength : MaxNodesForRemainingBudget());
         if (tag.Type == "ArrayProperty" && tag.InnerType is "ByteProperty" or "UInt8Property")
         {
-            reader.Take(count);
-            node.Note = $"{count} raw bytes. {DescribeBlob(reader.Data.Span.Slice(node.Offset + 4, count))}";
+            var blob = reader.Take(count);
+            node.Note = $"{count} raw bytes. {DescribeBlob(blob)}";
             return;
         }
         string? structType = tag.ElementStructType;
         SizeRegion? innerSize = null;
         if (tag.Type == "ArrayProperty" && tag.InnerType == "StructProperty" && !_header.CompleteTypeNames && _header.HasPropertyGuid)
         {
-            var inner = GvasTag.Read(reader, _header);
+            var inner = GvasTag.Read(ref reader, _header);
             if (inner is null || inner.Type != "StructProperty") throw new SaveFormatException("Missing struct array inner tag.");
             structType = inner.StructType;
             if (inner.Size != reader.Remaining) throw new UnsupportedGvasValueException("Struct array inner size differs from payload length.");
@@ -153,33 +162,36 @@ internal sealed class GvasParser(byte[] bytes)
         var children = new List<GvasNode>();
         for (var i = 0; i < count; i++)
         {
-            children.Add(ReadElement(reader, $"[{i}]" + (tag.Type == "MapProperty" ? " Key" : ""), tag.InnerType!, structType, depth + 1));
-            if (tag.Type == "MapProperty") children.Add(ReadElement(reader, $"[{i}] Value", tag.ValueType!, null, depth + 1));
+            children.Add(ReadElement(ref reader, $"[{i}]" + (tag.Type == "MapProperty" ? " Key" : ""), tag.InnerType!, structType, depth + 1));
+            if (tag.Type == "MapProperty") children.Add(ReadElement(ref reader, $"[{i}] Value", tag.ValueType!, null, depth + 1));
         }
         node.Children = children;
         node.Container = new GvasContainerInfo(tag.Type, tag.InnerType!, tag.ValueType, tag.Type == "ArrayProperty" ? sizeof(int) : 2 * sizeof(int));
         if (innerSize is not null) _sizes.Add(innerSize);
     }
 
-    private GvasNode ReadElement(GvasCursor reader, string name, string type, string? structType, int depth)
+    private GvasNode ReadElement(ref BoundedBinaryCursor reader, string name, string type, string? structType, int depth)
     {
         CheckDepth(depth);
         var start = reader.Position;
         if (type is "StructProperty" or "SoftObjectProperty")
         {
-            var children = type == "SoftObjectProperty" ? ReadSoftObject(reader, depth + 1) : ReadStruct(reader, structType, depth + 1);
+            var children = type == "SoftObjectProperty" ? ReadSoftObject(ref reader, depth + 1) : ReadStruct(ref reader, structType, depth + 1);
             return NewNode(name, structType ?? type, start, reader.Position - start, children: children);
         }
-        var scalar = type == "TextProperty" ? GvasPrimitives.ReadText(reader) : GvasPrimitives.Read(reader, type);
+        var scalar = type == "TextProperty" ? GvasPrimitives.ReadText(ref reader) : GvasPrimitives.Read(ref reader, type);
         return NewNode(name, type, start, reader.Position - start, scalar);
     }
 
-    private IReadOnlyList<GvasNode> ReadSoftObject(GvasCursor reader, int depth)
+    private IReadOnlyList<GvasNode> ReadSoftObject(ref BoundedBinaryCursor reader, int depth)
     {
         var names = _header.PackageVersionUe5 >= 1007
             ? new[] { "AssetPathName", "PackageName", "AssetName" }
             : ["AssetPathName", "SubPathString"];
-        return names.Select(name => ReadElement(reader, name, "StrProperty", null, depth + 1)).ToArray();
+        var children = new GvasNode[names.Length];
+        for (var i = 0; i < names.Length; i++)
+            children[i] = ReadElement(ref reader, names[i], "StrProperty", null, depth + 1);
+        return children;
     }
 
     private GvasNode NewNode(string name, string type, int start, int length, GvasScalar? scalar = null, IReadOnlyList<GvasNode>? children = null)

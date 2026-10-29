@@ -28,7 +28,8 @@ public sealed class GvasFile
     public static GvasFile Parse(ReadOnlySpan<byte> bytes)
     {
         if (bytes.Length > MaxFileLength) throw new SaveFormatException("GVAS exceeds the 128 MiB safety limit.");
-        return new GvasParser(bytes.ToArray()).Parse();
+        try { return new GvasParser(bytes.ToArray()).Parse(); }
+        catch (SaveFormatException ex) { throw GvasBinary.LegacyError(ex); }
     }
 
     /// <summary>
@@ -39,7 +40,8 @@ public sealed class GvasFile
     public static GvasFile ParseHeaderless(ReadOnlySpan<byte> bytes, GvasHeader header)
     {
         if (bytes.Length > MaxFileLength) throw new SaveFormatException("Headerless property stream exceeds the 128 MiB safety limit.");
-        return new GvasParser(bytes.ToArray()).ParseHeaderless(header);
+        try { return new GvasParser(bytes.ToArray()).ParseHeaderless(header); }
+        catch (SaveFormatException ex) { throw GvasBinary.LegacyError(ex); }
     }
 
     public static IEnumerable<GvasNode> Descendants(IEnumerable<GvasNode> nodes)
