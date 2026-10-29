@@ -9,6 +9,7 @@ internal sealed class JsonTokenTree
 {
     internal const int MaxBytes = 16 * 1024 * 1024;
     internal const int MaxNodes = 250_000;
+    internal const int MaxDepth = 64;
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
 
     public List<JsonValueToken> Nodes { get; } = [];
@@ -36,11 +37,12 @@ internal sealed class JsonTokenTree
             throw new SaveFormatException("JSON files must be between 1 byte and 16 MiB.");
         }
 
+        long tokenOffset = 0;
         try
         {
             _ = StrictUtf8.GetCharCount(bytes);
             var bom = bytes.AsSpan().StartsWith("\uFEFF"u8) ? 3 : 0;
-            var reader = new Utf8JsonReader(bytes.AsSpan(bom), new JsonReaderOptions { MaxDepth = 64 });
+            var reader = new Utf8JsonReader(bytes.AsSpan(bom), new JsonReaderOptions { MaxDepth = MaxDepth });
             var tree = new JsonTokenTree();
             var parents = new Stack<JsonValueToken>();
             string? property = null;
@@ -48,6 +50,7 @@ internal sealed class JsonTokenTree
             var propertyLength = 0;
             while (reader.Read())
             {
+                tokenOffset = reader.TokenStartIndex + bom;
                 if (reader.TokenType == JsonTokenType.PropertyName)
                 {
                     property = reader.GetString();
@@ -102,10 +105,18 @@ internal sealed class JsonTokenTree
             tree.Reindex();
             return tree;
         }
-        catch (Exception ex) when (ex is JsonException or DecoderFallbackException or InvalidOperationException or FormatException)
+        catch (DecoderFallbackException ex)
         {
-            // Do not include input text: JSON may contain private settings.
-            throw new SaveFormatException("Invalid JSON or UTF-8 text (maximum depth: 64).", ex);
+            throw new SaveFormatException($"Invalid UTF-8 text at byte offset {ex.Index}.", ex);
+        }
+        catch (JsonException ex)
+        {
+            // Reader messages may contain input text; expose numeric locations only.
+            throw new SaveFormatException($"Invalid JSON at line {ex.LineNumber + 1}, byte position {ex.BytePositionInLine} (maximum depth: {MaxDepth}).", ex);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or FormatException)
+        {
+            throw new SaveFormatException($"Invalid JSON string or Unicode escape at byte offset {tokenOffset}.", ex);
         }
     }
 
