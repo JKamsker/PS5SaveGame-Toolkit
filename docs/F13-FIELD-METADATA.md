@@ -14,8 +14,9 @@ host rejects missing targets, cycles, contradictory specs, writable derived bind
 metadata before an edit or action plan reaches the plugin. Equal values, labels or specs never
 create an alias.
 
-Undo and redo replay each canonical primary once. Derived aliases remain reported consequences and
-are recomputed by the plugin's atomic setter. Structural restores clear bindings; the next
+Undo and redo replay each canonical primary once. Repeated transitions for one primary coalesce to
+the earliest original and latest current value; forward replay keeps publication order and undo
+reverses it. Derived aliases remain reported consequences and are recomputed by the plugin's atomic setter. Structural restores clear bindings; the next
 metadata resolution always targets the restored candidate model.
 
 ## Presentation annotations
@@ -37,7 +38,11 @@ When an edit or planned action explicitly affects an unloaded published ID, sema
 its original value and metadata from the pinned original document. Labels and real paths are retained
 in the change log. Missing, contradictory or over-budget descriptors make coverage incomplete and
 never appear as an invented unchanged value. Resolution is batched at
-`FieldMetadataLimits.MaxBatchSize` (200 IDs); no whole-document enumeration occurs.
+`FieldMetadataLimits.MaxBatchSize` (200 IDs); no whole-document enumeration occurs. Targeted metadata
+is resolved before a legacy view walk, and a failed or incomplete legacy walk cannot erase a valid
+targeted capture. Cache publication is transactional across batches, so a later resolver failure
+cannot expose an earlier partial batch. Re-entrant verification edits do not reopen an already
+captured target baseline.
 
 Legacy documents that do not implement `IFieldMetadataDocument` retain their existing view-walk and
 replay behavior.

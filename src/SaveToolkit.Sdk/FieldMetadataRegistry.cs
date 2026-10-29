@@ -70,6 +70,10 @@ internal sealed class FieldMetadataRegistry
                     throw new InvalidOperationException($"Only read-only derived fields may alias '{field.CanonicalValueId}'.");
                 if (!_fields.TryGetValue(field.CanonicalValueId, out var canonical))
                     throw new InvalidOperationException($"Canonical field '{field.CanonicalValueId}' is not published.");
+                var (canonicalBindingSpec, canonicalHasSetter) = lookup(canonical.ValueId);
+                if (canonical.BindingKind != FieldBindingKind.Primary || canonical.Spec.ReadOnly || !canonicalHasSetter
+                    || !FieldSpecMetadata.Agree(canonicalBindingSpec, canonical.Spec))
+                    throw new InvalidOperationException($"Canonical field '{field.CanonicalValueId}' is not a writable primary.");
                 if (!FieldSpecMetadata.Agree(field.Spec, canonical.Spec with { ReadOnly = true }))
                     throw new InvalidOperationException($"Alias '{field.ValueId}' disagrees with canonical field '{field.CanonicalValueId}'.");
                 Validate(canonical);

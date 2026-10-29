@@ -46,10 +46,14 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document)
 
     public void ResolveAll(IEnumerable<string> ids, CancellationToken cancellationToken = default)
     {
-        ResolveAll(ids, new HashSet<string>(StringComparer.Ordinal), cancellationToken);
+        var working = new Dictionary<string, FieldMetadata>(_fields, StringComparer.Ordinal);
+        ResolveAll(ids, working, new HashSet<string>(StringComparer.Ordinal), cancellationToken);
+        _fields.Clear();
+        foreach (var (id, field) in working) _fields.Add(id, field);
     }
 
-    private void ResolveAll(IEnumerable<string> ids, HashSet<string> resolving, CancellationToken cancellationToken)
+    private void ResolveAll(IEnumerable<string> ids, Dictionary<string, FieldMetadata> cache,
+        HashSet<string> resolving, CancellationToken cancellationToken)
     {
         if (document is not IFieldMetadataDocument source) return;
         var requestedIds = ids.Distinct(StringComparer.Ordinal).Where(resolving.Add).ToArray();
@@ -65,7 +69,7 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document)
                 foreach (var field in resolved)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    var normalized = field;
+                    var normalized = Normalize(field);
                     if (string.IsNullOrEmpty(normalized.ValueId) || !requested.Contains(normalized.ValueId)
                         || string.IsNullOrEmpty(normalized.Label) || normalized.Spec is null
                         || !Enum.IsDefined(normalized.BindingKind)
@@ -78,9 +82,9 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document)
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                foreach (var id in batch.Where(id => !next.ContainsKey(id))) _fields.Remove(id);
+                foreach (var id in batch.Where(id => !next.ContainsKey(id))) cache.Remove(id);
                 foreach (var (id, field) in next)
-                    if (!_fields.TryGetValue(id, out var previous) || !Agree(previous, field)) _fields[id] = Snapshot(field);
+                    if (!cache.TryGetValue(id, out var previous) || !Agree(previous, field)) cache[id] = Snapshot(field);
 
                 // Alias targets are resolved separately because the SDK contract returns only requested
                 // descriptors. This remains bounded and never enumerates the document.
@@ -90,8 +94,8 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document)
                     .Where(id => !next.ContainsKey(id))
                     .Distinct(StringComparer.Ordinal)
                     .ToArray();
-                if (canonicalIds.Length > 0) ResolveAll(canonicalIds, resolving, cancellationToken);
-                foreach (var field in next.Values) ValidateCanonical(field, new HashSet<string>(StringComparer.Ordinal));
+                if (canonicalIds.Length > 0) ResolveAll(canonicalIds, cache, resolving, cancellationToken);
+                foreach (var field in next.Values) ValidateCanonical(field, cache, new HashSet<string>(StringComparer.Ordinal));
             }
         }
         finally
@@ -100,24 +104,34 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document)
         }
     }
 
-    private void ValidateCanonical(FieldMetadata field, HashSet<string> visiting)
+    private static void ValidateCanonical(FieldMetadata field, IReadOnlyDictionary<string, FieldMetadata> cache,
+        HashSet<string> visiting)
     {
         var canonicalId = string.IsNullOrEmpty(field.CanonicalValueId) ? field.ValueId : field.CanonicalValueId;
-        if (canonicalId == field.ValueId) return;
+        if (canonicalId == field.ValueId)
+        {
+            if (field.BindingKind == FieldBindingKind.Primary && field.Spec.ReadOnly)
+                throw new InvalidOperationException($"Canonical primary '{field.ValueId}' is read-only.");
+            return;
+        }
         if (!visiting.Add(field.ValueId))
             throw new InvalidOperationException($"Canonical field alias cycle includes '{field.ValueId}'.");
         try
         {
             if (field.BindingKind != FieldBindingKind.Derived || !field.Spec.ReadOnly
-                || !_fields.TryGetValue(canonicalId, out var canonical)
+                || !cache.TryGetValue(canonicalId, out var canonical)
                 || canonical.BindingKind != FieldBindingKind.Primary
+                || canonical.Spec.ReadOnly
                 || (string.IsNullOrEmpty(canonical.CanonicalValueId) ? canonical.ValueId : canonical.CanonicalValueId) != canonical.ValueId
                 || !FieldSpecMetadata.Agree(field.Spec, canonical.Spec with { ReadOnly = true }))
                 throw new InvalidOperationException($"Invalid canonical alias '{field.ValueId}'.");
-            ValidateCanonical(canonical, visiting);
+            ValidateCanonical(canonical, cache, visiting);
         }
         finally { visiting.Remove(field.ValueId); }
     }
+
+    private static FieldMetadata Normalize(FieldMetadata field) =>
+        string.IsNullOrEmpty(field.CanonicalValueId) ? field with { CanonicalValueId = field.ValueId } : field;
 
     // Copy nested option/union lists too: plugin-owned mutable collections must not alter a preview.
     private static FieldMetadata Snapshot(FieldMetadata field) => field with

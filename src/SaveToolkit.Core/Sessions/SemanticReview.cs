@@ -2,6 +2,7 @@ using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Core.Editing;
 
 namespace SaveToolkit.Core.Sessions;
 
@@ -20,19 +21,23 @@ internal sealed class SemanticReview
     private bool _structureChanged;
     private bool _unreviewedReportedChanges;
     private readonly HashSet<string> _targeted = new(StringComparer.Ordinal);
+    private bool _targetedOnly;
+    private bool _capturingOriginal;
     private readonly SemanticSnapshotCapture _capture;
     private readonly long _maxBytes;
 
     // Preflight can populate the baseline, but cancellation must leave it uncached.
     public Action CancellationRollback()
     {
-        var original = _original;
+        var original = _original?.Clone();
         var targeted = _targeted.ToArray();
+        var targetedOnly = _targetedOnly;
         return () =>
         {
-            _original = original;
+            _original = original?.Clone();
             _targeted.Clear();
             _targeted.UnionWith(targeted);
+            _targetedOnly = targetedOnly;
         };
     }
 
@@ -113,16 +118,38 @@ internal sealed class SemanticReview
             return;
         }
 
-        if (_original is null)
+        if (_original is { } known && ids.All(known.Fields.ContainsKey)) return;
+
+        // Verification callbacks can re-enter a live session while the independent original is
+        // opening. Do not recursively open originals; the outer capture owns the baseline.
+        if (_capturingOriginal) return;
+        _capturingOriginal = true;
+        try
         {
+
+            if (_original is null)
+            {
             try
             {
                 using var original = openOriginal();
-                var snapshot = _capture.Capture(original, static _ => { }, static _ => { }, cancellationToken);
+                SemanticSnapshot snapshot;
                 if (original is IFieldMetadataDocument)
                 {
+                    // Targeted metadata is authoritative for an unloaded edit. Resolve it before
+                    // any legacy view/lazy/query walk so unrelated view failures cannot erase it.
+                    snapshot = new SemanticSnapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal),
+                        complete: true, bytes: 0);
                     CaptureTargeted(original, snapshot, ids, cancellationToken);
                     foreach (var id in ids) _targeted.Add(id);
+                    var walked = _capture.Capture(original, static _ => { }, static _ => { }, cancellationToken);
+                    if (walked.Complete)
+                        snapshot.Merge(walked, _maxBytes);
+                    else
+                        _targetedOnly = true;
+                }
+                else
+                {
+                    snapshot = _capture.Capture(original, static _ => { }, static _ => { }, cancellationToken);
                 }
                 _original = snapshot;
             }
@@ -133,24 +160,29 @@ internal sealed class SemanticReview
                 { QueryWarnings = [$"Targeted metadata capture failed: {ex.Message}"] };
             }
 
-            return;
-        }
+                return;
+            }
 
-        var existing = _original;
+            var existing = _original;
 
-        try
-        {
+            try
+            {
             using var original = openOriginal();
             if (original is not IFieldMetadataDocument)
                 return;
             foreach (var id in ids) _targeted.Add(id);
             CaptureTargeted(original, existing, ids, cancellationToken);
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                existing.Complete = false;
+                existing.QueryWarnings = [.. existing.QueryWarnings, $"Targeted metadata capture failed: {ex.Message}"];
+            }
         }
-        catch (OperationCanceledException) { throw; }
-        catch (Exception ex) when (ex is not OutOfMemoryException)
+        finally
         {
-            existing.Complete = false;
-            existing.QueryWarnings = [.. existing.QueryWarnings, $"Targeted metadata capture failed: {ex.Message}"];
+            _capturingOriginal = false;
         }
     }
 
@@ -178,6 +210,13 @@ internal sealed class SemanticReview
     {
         var original = _original ?? throw new InvalidOperationException("Capture the original before querying changes.");
         var current = _capture.Capture(document, index, expandedLazy, cancellationToken);
+        if (_targetedOnly)
+        {
+            current.Fields.Clear();
+            current.Bytes = 0;
+            current.Complete = true;
+            current.QueryWarnings = [];
+        }
         CaptureTargeted(document, current, _targeted, cancellationToken);
         foreach (var id in _reported.Where(id => !current.Fields.ContainsKey(id)))
         {
@@ -222,14 +261,16 @@ internal sealed class SemanticReview
     {
         var ids = valueIds.Where(id => !snapshot.Fields.ContainsKey(id)).Distinct(StringComparer.Ordinal).ToArray();
         if (ids.Length == 0) return;
-        if (document is not IFieldMetadataDocument metadata) { snapshot.Complete = false; return; }
+        if (document is not IFieldMetadataDocument) { snapshot.Complete = false; return; }
+        var index = new FieldMetadataIndex(document);
         foreach (var batch in ids.Chunk(FieldMetadataLimits.MaxBatchSize))
         {
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
                 var requested = batch.ToHashSet(StringComparer.Ordinal);
-                var descriptors = metadata.ResolveFieldMetadata(Array.AsReadOnly(batch));
+                index.ResolveAll(batch, cancellationToken);
+                var descriptors = batch.Select(index.Cached).Where(field => field is not null).Cast<FieldMetadata>().ToArray();
                 var seen = new HashSet<string>(StringComparer.Ordinal);
                 foreach (var field in descriptors)
                 {
@@ -262,6 +303,5 @@ internal sealed class SemanticReview
             }
         }
     }
-
 
 }

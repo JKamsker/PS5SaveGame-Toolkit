@@ -158,6 +158,28 @@ internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields,
     public bool Complete { get; set; } = complete;
     public long Bytes { get; set; } = bytes;
     public IReadOnlyList<string> QueryWarnings { get; set; } = [];
+    internal SemanticSnapshot Clone()
+    {
+        var copy = new SemanticSnapshot(Fields.ToDictionary(pair => pair.Key,
+            pair => pair.Value with { Path = pair.Value.Path.ToArray() }, StringComparer.Ordinal), Complete, Bytes)
+        { QueryWarnings = QueryWarnings.ToArray() };
+        return copy;
+    }
+
+    internal void Merge(SemanticSnapshot source, long maxBytes)
+    {
+        Complete &= source.Complete;
+        QueryWarnings = [.. QueryWarnings, .. source.QueryWarnings];
+        foreach (var field in source.Fields.Values)
+        {
+            if (Fields.ContainsKey(field.ValueId)) continue;
+            var cost = Estimate(field);
+            if (cost > maxBytes - Bytes) { Complete = false; continue; }
+            Bytes += cost;
+            Fields.Add(field.ValueId, field);
+        }
+    }
+
     internal static long Estimate(SemanticField field) => FieldOverheadBytes
         + 2L * (field.ValueId.Length + field.Label.Length + field.Value.ToString().Length + field.Path.Sum(p => p.Length)
             + (field.Target is { } target ? target.CollectionId.Length + target.RowKey.Length + (target.Query.Cursor?.Length ?? 0) : 0));

@@ -104,8 +104,9 @@ public sealed class SemanticReviewTests : IDisposable
         var zip = TestZips.Build(("PPSA99999/sdimg_SAVE/save.dat", new byte[] { 1 }));
         using var workspace = _store.Create("targeted review", [new ImportSource("dump.zip", () => new MemoryStream(zip))]);
         using var current = new TargetedMetadataDocument(1);
+        TargetedMetadataDocument? original = null;
         using var session = new DocumentSession("targeted", workspace.Set.AllDiskFiles.Single(),
-            new CounterPlugin(), current, openOriginal: () => new TargetedMetadataDocument(1));
+            new CounterPlugin(), current, openOriginal: () => original = new TargetedMetadataDocument(1, failView: true));
         _ = session.BuildView();
 
         Assert.True(session.ApplyEdits([new IncomingEdit("hidden", JsonSerializer.SerializeToElement(2))]).Ok);
@@ -115,6 +116,7 @@ public sealed class SemanticReviewTests : IDisposable
         Assert.True(change.CanRevert);
         Assert.Equal("1", change.OriginalValue.ToString());
         Assert.Equal("2", change.CurrentValue.ToString());
+        Assert.Equal(1, original!.BuildViews);
     }
 
     [Fact]
@@ -137,10 +139,13 @@ public sealed class SemanticReviewTests : IDisposable
     private sealed class TargetedMetadataDocument : BoundSaveDocument, IFieldMetadataDocument
     {
         private int _value;
+        private readonly bool _failView;
+        public int BuildViews { get; private set; }
 
-        public TargetedMetadataDocument(int value = 1)
+        public TargetedMetadataDocument(int value = 1, bool failView = false)
         {
             _value = value;
+            _failView = failView;
             RegisterField(new FieldMetadata("hidden", "Canonical quantity", IntegerSpec.Int32)
             {
                 Path = ["section:canonical"],
@@ -149,7 +154,12 @@ public sealed class SemanticReviewTests : IDisposable
         }
 
         public override string Title => "Targeted metadata";
-        public override ViewNode BuildView() => new TextNode("No rendered fields");
+        public override ViewNode BuildView()
+        {
+            BuildViews++;
+            if (_failView) throw new InvalidOperationException("Unrelated original view failure.");
+            return new TextNode("No rendered fields");
+        }
         public override IReadOnlyList<FileOutput> Serialize() => [new("save.dat", new byte[] { (byte)_value })];
     }
 }
