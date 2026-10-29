@@ -4,6 +4,8 @@
 synthetic XOR-1 JSON, plus Experimental existing-token and structural writes for
 the tested offline Minecraft Dungeons II character shape.
 Only an owner can promote console-tested features to Stable.
+The registered title is **Minecraft Dungeons II (`PPSA16064`)**; no other title
+ID or region is claimed. Generic obfuscated JSON is recognized by format.
 
 ## Coverage and evidence
 
@@ -28,10 +30,11 @@ JSON. Whether external integrity or console-side validation exists is
 
 | Write | Confidence | Evidence | Integrity status | Owner validation needed |
 | --- | --- | --- | --- | --- |
-| Existing scalar token edits in shifted settings | Unknown | One PS5 settings snapshot plus editor-generated F1 `masterVolume` differential | No checksum observed in decoded JSON; external checks are Unknown; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): spare-slot import, reload and rewritten-file comparison |
-| Existing scalar token edits in offline `FCharacterSaveV1` | Unknown | One PS5 SoftVersion 2 / FormatHash 3777917472 snapshot; field paths observed, gameplay meaning unproven | No checksum observed in decoded JSON; dependencies and console acceptance Unknown; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): validate each scalar on a disposable offline slot |
+| Existing scalar token edits in shifted settings and generic obfuscated JSON | Unknown; Inferred for a matching catalog record | One PS5 settings snapshot plus editor-generated F1 `masterVolume` differential; synthetic token/picker tests for both transforms | No checksum observed in decoded JSON; external checks are Unknown; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): spare-slot import, reload and rewritten-file comparison |
+| Existing scalar token edits in offline `FCharacterSaveV1`, including achievement/count and collection-tag fields | Unknown; Inferred for a matching catalog record | One PS5 SoftVersion 2 / FormatHash 3777917472 snapshot; field paths observed, gameplay meaning unproven | No checksum observed in decoded JSON; dependencies and console acceptance Unknown; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): validate each scalar on a disposable offline slot |
 | F5 add/remove/replace for valid JSON objects and arrays | Inferred | Token-preserving serializer, detached snapshots, bounded parse/reopen and undo tests | JSON validity is rechecked; game dependencies and external integrity Unknown; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): test one structural operation on a spare slot |
 | F6 planned scalar bulk set | Inferred | Deterministic preview/apply, skipped incompatible rows, bounded values and atomic tests | Same Unknown integrity status; preview and action warnings are retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): validate individual edits, scope and whole-action undo |
+| F6 stored-attribute, inventory-stack, item-ID and rarity actions | Inferred PC catalog policy; gameplay effects unverified | `CompletionTests` checks inferred attribute/stack bounds, merchant skips and Core query-scope apply/reopen/undo; `StackSentinelTests` checks exact `-1` variants | Only existing tokens change; no level/XP, reward, effect or slot dependency repair; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): controlled captures and spare-slot reload for each action |
 | F7 character + GlobalSaveDataDefault group edits | Unknown | Same-title, same-generation role validation; staged two-member outputs and memento tests | Each member is reparsed; shared dependencies and external integrity Unknown; warning is retained | [Issue #31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31): capture paired files and validate atomic reload |
 
 ## Framework feature adoption
@@ -51,6 +54,16 @@ JSON. Whether external integrity or console-side validation exists is
 | F11 shared codecs | N/A | XorJson is UTF-8 JSON with byte transforms; it has no Kraken, SQLite or Oodle payload. |
 | F12 decoder hook | Used: `XorJsonDecoder` | Added in `16679ae`: `ISaveDecoderProvider` exposes `xorjson.tokens`; F1 tests use `HookSaveDecoder`, with depth/value/byte bounds. |
 | F13 inspection / browse picker | Used | `json/inspect` is explicitly non-mutating; catalog pickers inherit browse search/category/sort from Core. Float duration: N/A — no evidenced float time unit. |
+
+Shared SDK use includes `BoundSaveDocument`, `ExactJsonNumber`, F7 group
+contracts and F8/F6 interfaces. Collection queries, plan revalidation, icon
+nodes and quest-catalog enumeration remain local implementations; this plugin
+does not use `InMemoryCollection<T>`, `ActionPlans`, `ReferenceViews.Icon`,
+`ReferenceInspection` or `ReferenceCatalogReader`. Binary cursor/FString/CRC
+helpers are N/A for this JSON layout without an observed checksum. The group
+member adapter and lossless JSON tree remain local pending SDK-04/SDK-06 below.
+F14 empty-slot presentation is N/A: no vacant-slot sentinel is established for
+these variable-length inventory records; the stack `-1` means non-stackable.
 
 The pack sidecars and this README document pinned sources, modifications, hashes and PS5 uncertainty. Game artwork and game descriptions are attributed under the owner decision of 2026-10-29; earlier community facts retain their 2026-10-28 policy basis. No saved-location coordinates or wiki text are imported.
 
@@ -105,7 +118,8 @@ Seven F8 server-backed tables cover stored attributes, inventory entries,
 quests, quest tasks, world records, achievements and collection records. Search
 and exact column filters cover the complete collection, including rows beyond
 the current page. Offset pages contain at most 200 rows; sorts are ordinal
-lexical (including number columns), with stable session-token IDs as tie-breaks.
+lexical (including number columns), with ascending numeric token allocation IDs
+as tie-breaks in both sort directions.
 No page offset or catalog ID is used as a row identity, so repeated IDs remain
 distinct. Only requested rows become view nodes. Raw details stay lazy.
 
@@ -119,7 +133,9 @@ show their parent quest, raw state and exact PartialProgress. World rows show
 stored tags, door/actor IDs where present, raw state and fog data lengths.
 Fog bytes, positions and sizes remain available in details; no map coordinates
 or exploration percentage are invented. Achievement completion/counts and
-collection membership are read-only storage observations, not reward evidence.
+collection membership are storage observations, not reward evidence. Existing
+completion/count cells and collection-tag scalars are editable under the same
+Experimental character gate; computed counts and catalog labels are display-only.
 
 The supplied character yields 9 attribute, 5 inventory, 49 quest, 425 task,
 2 world, 32 achievement and 3 collected-record rows. Empty lists stay empty;
@@ -144,14 +160,25 @@ Settings and tested offline characters expose warned F5 structural actions. Raw
 operations preserve unknown fields and reject root removal or ambiguous output,
 but they do not prove game dependencies. Inventory add/delete/equip, effect
 synthesis and quest/world semantics remain unproven even when existing tokens can
-be edited. No caps, reward behavior or integrity repair is guessed.
+be edited. No proven PS5 caps, reward behavior or integrity repair is claimed.
+Serialization rejects changes that alter the character format, the tested-version
+gate or offline status. Read-only characters still publish raw structural
+controls, but dispatch rejects writes; the non-mutating inspection remains usable.
+
+The quest graph uses PC catalog prerequisite relationships. Stored `Completed`
+maps to Unlocked, `Available`/`Active` to Available and `Unavailable` to Locked;
+absent, duplicate and unrecognized states remain Unknown. Graphs and maps show
+at most 512 items each, with text alternatives and links to existing fields
+(or format inspection when no unambiguous quest field exists). All other data
+remains in the tables/raw tree; no PS5 prerequisite mapping is proven.
 
 ## Reference catalogs and picker
 
 The embedded F2 pack `xorjson.community.en` version 1.4.0 contains **328 item**,
 **60 effect**, **30 enchantment**, **9 attribute**, **5 rarity** and **1,346 world/quest/task** records. Catalog
-IDs are `xorjson-items`, `xorjson-effects`, `xorjson-enchantments` and
-`xorjson-world`. This covers every base/unique item ID, effect/enchantment ID,
+IDs are `xorjson-items`, `xorjson-effects`, `xorjson-enchantments`,
+`xorjson-attributes`, `xorjson-rarities` and `xorjson-world`. This covers every
+base/unique item ID, effect/enchantment ID,
 quest ID/task ID, 42 short quest names and 502 short task labels in the pinned
 MIT source, plus the previous world identifiers. World labels without upstream
 names are mechanically expanded IDs, not official translations. All entries are **Inferred**, carry
@@ -180,6 +207,13 @@ warning. New F6 attribute, stack, item-ID and rarity plans only alter existing
 tokens, skip merchant/special rows and report unverified PC bounds/dependencies.
 Bulk stack actions also preserve every exact numeric spelling of the existing
 non-stackable `-1` sentinel, including fractional and exponent notation.
+Attribute plans use each catalog record's inferred minimum/maximum; non-XP
+attributes require integer spelling. Stack plans require integer spelling in
+`1..9999`. Item replacements must keep the original catalog category. All three
+inventory actions skip target-slot overrides other than `None`/empty, unknown items and
+Cosmetic/QuestItem/Currency categories. Attribute/item/rarity plans require the
+corresponding catalog; inventory eligibility also requires the item catalog.
+These action-specific bounds do not constrain individual raw scalar edits.
 The generic **Set selected scalar values** action uses F6
 `IActionPlanningDocument` preview/apply, including skipped incompatible rows and
 one atomic undo step; it does not synthesize game-aware presets.
@@ -247,6 +281,7 @@ notice is retained in the pack's `LICENSE.txt`; dataset modifications are in
 | Effect IDs, short names, categories | Same contributors, [effects.json](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json) | MIT; 60 effects, no tiers, numbers or tooltip prose. |
 | Effect summaries, compatible gear counts, tier display percentages | dungeons.tools community author, [effects](https://www.dungeons.tools/2/effects), retrieved 2026-10-29; PC 1.1.2.0 / Steam 25754144; snapshot SHA-256 `fce93f92b4d8fcaf99b9d95069a0de34d7dc0694d81009aea44a61e232f580b6` | No licence published; reused with attribution per owner decision 2026-10-28. 60 unique-name crosswalks; original summaries remain alongside newly appended official descriptions. MIT continues to cover identifiers. Dataset metadata, each record, UI and sidecar retain both sources. No display percentage becomes a write limit. |
 | Enchantment IDs / short names | Same contributors, [effects.json](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/effects.json) | MIT; 30 `enchantments` ID/name pairs, no strengths, points or tiers. |
+| Attribute and rarity catalogs | Same contributors, [hero.py](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py) | MIT; 9 attribute identifiers/labels with inferred PC bounds and 5 rarity identifiers/labels. Attribute bounds constrain F6 plans, not raw fields, and are not proven PS5 limits. |
 | World/quest/task IDs and labels | Same contributors, [world.json](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/data/world.json) | MIT; 420 original identifiers plus 926 task IDs. Quest/task short labels from `names`/`labels`; other labels expanded from IDs. No reward rules or coordinates. |
 | Shifted settings / plain character codec | Same project, [codec.py](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/codec.py) | MIT research corroboration; inspected as text, not executed. No downloaded Python implementation is shipped or executed. |
 | Character/quest/world paths | Same project, [hero.py](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/hero.py), [story.py](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/story.py), [world.py](https://github.com/IshiakiZ/mcd2-save-editor/blob/84ffee67b73e49d5b888e31257ce9767aa8ab826/dungeons2_editor/world.py) | MIT schema research, checked against PS5 bytes where populated. Empty PS5 lists do not prove PC door/actor/effect semantics. No implementation port. |
@@ -268,7 +303,13 @@ No GPL-2.0-only code or downloaded implementation was imported or executed.
 Run from the repository root (PowerShell):
 
 ```powershell
-$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'; dotnet test --project plugins/XorJson/SaveToolkit.Plugins.XorJson.Tests
+$env:SAVETOOLKIT_ARTIFACTS='C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts'
+$env:SAVETOOLKIT_TEST_TEMP='D:/Temp/saveeditor/test-scratch/docs/accuracy-xorjson'
+$env:TEMP=$env:SAVETOOLKIT_TEST_TEMP
+$env:TMP=$env:TEMP
+New-Item -ItemType Directory -Force -Path $env:TEMP | Out-Null
+dotnet test --project plugins/XorJson/SaveToolkit.Plugins.XorJson.Tests -c Release
+python docs/tests/test_documentation.py
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
 ```
 
@@ -351,6 +392,21 @@ dependencies remain Unknown.
   bypasses Core.
 - No new SDK gap blocks these views or writes. Game-specific dependency validation,
   integrity behavior and PS5 write acceptance still need owner evidence.
+- **Open: SDK-04 — shared group member adapter.** `XorJsonGroupMember` and
+  `XorJsonGroupDocument` still map role-prefixed field/action/lazy/collection/row
+  identities, navigation targets and F6 scopes locally. F7 supplies transactions
+  and mementos, not this composition helper. Preserve the current identity and
+  fresh-instance restore contracts when a shared adapter is delivered.
+- **Open: SDK-06 — shared lossless JSON tree/scalar patch substrate.**
+  `JsonTokenTree`, `JsonValueToken` and `JsonTokenWriter` remain plugin-local.
+  SDK `ExactJsonNumber` validates numeric lexemes; it does not supply the lexical
+  tree or byte-preserving writer. BOM/trivia, duplicate keys, exact numbers,
+  untouched spans and undo need preservation tests before migration; structural
+  identities and XOR/shift envelopes remain local policy.
+
+The dispositions above match [docs/SDK_REQUESTS.md](../../docs/SDK_REQUESTS.md):
+SDK-22 (F7 transactions) and SDK-23 (overlay preservation) are resolved;
+SDK-04 and SDK-06 remain open optional sharing requests.
 
 ## Performance review
 

@@ -14,7 +14,9 @@ by SHA-256 `fce93f92b4d8fcaf99b9d95069a0de34d7dc0694d81009aea44a61e232f580b6`.
 Licence: **No licence published; reused with attribution per owner decision 2026-10-28**.
 Terms/provenance URL: https://www.dungeons.tools/privacy (not a licence grant).
 Privacy HTML SHA-256: `829cb2ecaf92eeec62c6ef8a9da903ab2d7e639fa47a56fe0f53855e17ee877c`.
-No source HTML, game prose or downloaded images are redistributed.
+This pack-1.3.0 factual extraction redistributed no source HTML, game prose or
+downloaded images. Pack 1.4.0's separate game prose/image import is documented in
+`game-assets.source.md`; no source HTML is embedded.
 
 ## Separate identifier provenance
 

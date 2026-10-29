@@ -33,9 +33,11 @@ Every record links to its upstream dataset and records the pinned revision and
 Inferred PS5 applicability. The pack is not build-compatible evidence; its
 build-independent manifest means advisory text can be shown with the warning.
 
-No scripts from the upstream project were executed. No verbatim tooltip descriptions,
-long quest prose, icons, serialized effect strengths, coordinates or game assets
-were copied. Upstream credits MetaBot and community/player-read game data; the
+No scripts from the upstream project were executed. This MIT identifier conversion
+copied no verbatim tooltip descriptions, long quest prose, icons, serialized
+effect strengths, coordinates or game assets. Pack 1.4.0's separate game-asset
+import is documented in `game-assets.source.md`. Upstream credits MetaBot and
+community/player-read game data; the
 MIT notice covers the curated identifiers and short labels, not proprietary
 artwork or game prose. The complete upstream MIT notice remains alongside the data.
 
@@ -53,7 +55,12 @@ provenance. The F2 Sources panel exposes licence/author/modification metadata.
 
 ## Completion additions
 
-`attributes.json` and `rarities.json` are derived from the same pinned MIT `hero.py` mapping. Attribute bounds are conservative PC community observations, marked Inferred and never presented as PS5 legal limits. `world.json` retains only quest follows relationships as prerequisite metadata; coordinates, rewards and artwork are excluded.
+`attributes.json` (9 records) and `rarities.json` (5 records) are derived from the
+same pinned MIT `hero.py` mapping. Attribute bounds are PC community observations,
+marked Inferred and used to validate F6 attribute plans; raw scalar edits do not
+inherit them, and they are never presented as proven PS5 legal limits.
+`world.json` retains only quest follows relationships as prerequisite metadata;
+coordinates, rewards and artwork are excluded from that identifier dataset.
 
 ## Unlicensed-source additions (owner decision 2026-10-28)
 
@@ -61,6 +68,7 @@ provenance. The F2 Sources panel exposes licence/author/modification metadata.
 of factual behavior, compatible gear counts and tier display percentages from
 dungeons.tools. See [effect-notes.source.md](effect-notes.source.md) for the exact
 snapshot hash, author, licence status, extraction and provenance boundary.
-The manifest's effect dataset attributes both sources; the licence field records
-the unlicensed factual supplement, while this sidecar and `LICENSE.txt` preserve
-the MIT terms for the identifiers. No effect values became write validators.
+Pack 1.3.0's effect dataset attributed both sources and recorded the unlicensed
+factual supplement in its licence field. Pack 1.4.0's combined attribution now
+records publisher rights as well; this sidecar and `LICENSE.txt` preserve the MIT
+terms for the identifiers. No effect values became write validators.

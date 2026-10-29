@@ -1,4 +1,4 @@
-# XorJson evidence ledger (2026-10-28)
+# XorJson evidence ledger (2026-10-28/29)
 
 Only metadata and conclusions are recorded here. No sample bytes are included.
 
@@ -40,15 +40,19 @@ No independent capture exists, so it proves no field's gameplay semantics.
 ## Automated differential over the sample
 
 `SampleEvidenceTests.F1IdentifiesExactlyTheEditedSettingsTokenAndUndoRestoresSampleBytes`
-uses the F1 engine and a test-only transform decoder. It changes the existing
+uses the F1 engine and `HookSaveDecoder` wrapping the production
+`xorjson.tokens` hook. It changes the existing
 `masterVolume` lexeme from `50` to `49.000E+00`. The only semantic change is
 `blobs[name=Audio]/masterVolume`; the character and all other settings values are
 unchanged. Undo restores the exact source bytes. This is an editor-generated
 differential, **not** a console-generated before/after pair.
 
-The decoder uses blob names for F1 alignment and preserves exact numeric text.
-Its generic array fallback is positional; it is not evidence for inventory
-identity across captures. Future nested seed alignment needs actual paired saves.
+The decoder preserves exact numeric text and aligns arrays by the first
+candidate key present, scalar, non-null and unique in every row (`name`,
+`AttributeName`, `QuestName`, `TaskName`, `Tag`, then generic ID/name keys).
+This gives blob-name alignment for settings; arrays without a qualifying key
+fall back to positions. It does not use `GenesisRandomSeed`, and establishes no
+inventory identity across captures. Seed alignment needs actual paired saves.
 
 The Core fix `4532481` is now relied on directly. Round 2 removes the all-files
 override workaround. The F1 test supplies only the settings output, asserts the
@@ -57,8 +61,9 @@ file/token. No Core file is modified.
 
 ## Round-2 read projections and catalog coverage
 
-F8 tables were checked against the same PS5 bytes. Their values and labels remain
-inferred even though existing scalar cells are now writable:
+F8 tables were checked against the same PS5 bytes. Scalar fields are Unknown
+unless a matching catalog record supplies an Inferred label; existing scalar
+cells are writable under the tested offline gate:
 
 | Collection | Stored rows | Interpretation boundary |
 | --- | ---: | --- |
@@ -114,10 +119,12 @@ sample output, source/hash metadata, picker/field provenance, and synthetic
 effect edits/reopen/undo under both transforms with unrelated bytes preserved.
 No tier display value became a serialized strength, validator or gameplay limit.
 
-The lack of a published community licence is resolved under owner decision
-2026-10-28. Verbatim game descriptions and publisher icons/art stay excluded;
-MetaBot direct imports also remain excluded under its general NC terms. The
-README exclusions table and `effect-notes.source.md` preserve exact source pins,
+The lack of a published community licence was resolved under owner decision
+2026-10-28. This pack-1.3.0 round excluded verbatim game descriptions and publisher
+icons/art; the asset round below supersedes that exclusion under the
+2026-10-29 owner decision. MetaBot was not directly imported; equivalent content
+comes from dungeons.tools, while MetaBot's separate community-data terms remain
+recorded. The README exclusions table and `effect-notes.source.md` preserve exact source pins,
 attribution and alternatives. Write warnings and Experimental maturity remain.
 
 ## Asset round (2026-10-29)
@@ -159,7 +166,7 @@ allocation increases by 17,981 bytes per document; no document copies or decodes
 the image pack. Tests assert reference reuse across two documents. Making the
 host loader lazy would require a separate Core change outside this plugin.
 
-### Verification
+### Asset-round verification (historical)
 
 With SAVETOOLKIT_ARTIFACTS=C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts
 exported in the same shell:
@@ -173,7 +180,8 @@ exported in the same shell:
   image/text provenance, all catalog icons, byte budget, actual sample F3 images,
   cached asset reuse, map validation, missing-pack fallback and no-op bytes.
 
-All repository edits stay under plugins/XorJson/. The central licence register
-still has the prior publisher-asset refusal and needs the integrating agent's
-update; this worker does not edit docs/ because of the assigned plugin boundary.
+Those asset-round repository edits stayed under plugins/XorJson/. The
+[central licence register](../../docs/LICENCE_EXCLUSIONS.md) now records the
+community facts and publisher assets as imported, with MetaBot not used; the
+earlier register synchronization request is resolved.
 Console acceptance and populated PS5 effect evidence remain owner work (#31).
