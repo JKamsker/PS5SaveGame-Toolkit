@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SaveToolkit.Core;
 using SaveToolkit.Core.Editing;
+using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Testing;
 
