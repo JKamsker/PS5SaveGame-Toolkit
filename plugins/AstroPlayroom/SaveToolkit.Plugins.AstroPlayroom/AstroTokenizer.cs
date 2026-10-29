@@ -47,6 +47,13 @@ internal sealed class AstroTokenizer(byte[] bytes, int end)
         }
 
         Expect((byte)'>');
+        Content(node, depth);
+        return node;
+    }
+
+    private void Content(AstroElement node, int depth)
+    {
+        var name = node.Name;
         var children = new Dictionary<string, int>(StringComparer.Ordinal);
         var textCount = 0;
         while (Position < end)
@@ -61,19 +68,12 @@ internal sealed class AstroTokenizer(byte[] bytes, int end)
 
                 SkipWhitespace();
                 Expect((byte)'>');
-                return node;
+                return;
             }
 
             if (Starts("<!--"u8))
             {
-                Position += 4;
-                var length = bytes.AsSpan(Position, end - Position).IndexOf("-->"u8);
-                if (length < 0)
-                {
-                    throw Error("Unterminated comment.");
-                }
-
-                Position += length + 3;
+                Comment();
             }
             else if (bytes[Position] == '<')
             {
@@ -81,31 +81,48 @@ internal sealed class AstroTokenizer(byte[] bytes, int end)
             }
             else
             {
-                var start = Position;
-                while (Position < end && bytes[Position] != '<')
-                {
-                    Position++;
-                }
-
-                var stop = Position;
-                while (start < stop && IsWhitespace(bytes[start]))
-                {
-                    start++;
-                }
-
-                while (stop > start && IsWhitespace(bytes[stop - 1]))
-                {
-                    stop--;
-                }
-
-                if (stop > start)
-                {
-                    AddValue(node, new AstroValue($"{node.Id}/text[{textCount++}]", "Text", start, stop - start, false));
-                }
+                Text(node, ref textCount);
             }
         }
 
         throw Error($"Unclosed tag {name}.");
+    }
+
+    private void Comment()
+    {
+        Position += 4;
+        var length = bytes.AsSpan(Position, end - Position).IndexOf("-->"u8);
+        if (length < 0)
+        {
+            throw Error("Unterminated comment.");
+        }
+
+        Position += length + 3;
+    }
+
+    private void Text(AstroElement node, ref int textCount)
+    {
+        var start = Position;
+        while (Position < end && bytes[Position] != '<')
+        {
+            Position++;
+        }
+
+        var stop = Position;
+        while (start < stop && IsWhitespace(bytes[start]))
+        {
+            start++;
+        }
+
+        while (stop > start && IsWhitespace(bytes[stop - 1]))
+        {
+            stop--;
+        }
+
+        if (stop > start)
+        {
+            AddValue(node, new AstroValue($"{node.Id}/text[{textCount++}]", "Text", start, stop - start, false));
+        }
     }
 
     private void Attributes(AstroElement node)
