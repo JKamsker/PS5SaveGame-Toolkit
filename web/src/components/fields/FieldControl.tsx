@@ -85,6 +85,10 @@ function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labe
   const [draft, setDraft] = useState(() => String(toDraft(spec, value)));
   const previousValue = useRef(draft);
   const [localInvalid, setInvalid] = useState(false);
+  const pending = useRef<{ value: FieldValue; generation: number } | null>(null);
+  const generation = useRef(0);
+  const mounted = useRef(false);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const invalid = localInvalid || Boolean(parentInvalid);
   useEffect(() => {
     const previous = previousValue.current;
@@ -94,6 +98,18 @@ function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labe
     // Escape still explicitly restores the latest server value.
     setDraft(current => current === previous ? next : current);
   }, [spec, value]);
+
+  const submit = async (next: FieldValue) => {
+    if (pending.current && sameValue(pending.current.value, next)) return;
+    const request = { value: next, generation: ++generation.current };
+    pending.current = request;
+    try {
+      const accepted = await onCommit(next);
+      if (mounted.current && request.generation === generation.current) setInvalid(!accepted);
+    } finally {
+      if (pending.current === request) pending.current = null;
+    }
+  };
 
   const commit = async () => {
     const parsed = parseDraft(spec, draft);
@@ -105,11 +121,11 @@ function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labe
     setInvalid(false);
     onLocalError?.(undefined);
     if (sameValue(parsed.value, value)) return;
-    const accepted = await onCommit(parsed.value);
-    setInvalid(!accepted);
+    await submit(parsed.value);
   };
 
   const revert = () => {
+    generation.current++;
     setDraft(String(toDraft(spec, value)));
     setInvalid(false);
     onLocalError?.(undefined);
@@ -122,7 +138,7 @@ function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labe
     if (next < BigInt(spec.min) || next > BigInt(spec.max)) return;
     setDraft(next.toString());
     onLocalError?.(undefined);
-    setInvalid(!(await onCommit(next.toString())));
+    await submit(next.toString());
   };
 
   const className = ["input", spec.kind === "integer" || spec.kind === "float" || spec.kind === "exactNumber" ? "input--number" : "", compact ? "input--compact" : "", invalid ? "input--invalid" : ""]
@@ -135,7 +151,7 @@ function TextualControl({ id, spec, value, onCommit, compact, onLocalError, labe
     "aria-labelledby": labelledBy,
     "aria-describedby": [describedBy, spec.unit && !(spec.kind === "text" && spec.multiline) && `${id}-unit`].filter(Boolean).join(" ") || undefined,
     "aria-invalid": invalid,
-    onChange: (e: { target: { value: string } }) => setDraft(e.target.value),
+    onChange: (e: { target: { value: string } }) => { generation.current++; setDraft(e.target.value); },
     onBlur: () => void commit(),
   };
 
