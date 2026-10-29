@@ -8,6 +8,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.XorJson.Tests;
 
+[Collection(AllocationMeasurements.Name)]
 public sealed class CollectionLookupTests
 {
     [Fact]
@@ -78,4 +79,5 @@ public sealed class CollectionLookupTests
         public ReferenceRecord? Find(string key) { found(); return inner.Find(key); }
     }
 }
+
 

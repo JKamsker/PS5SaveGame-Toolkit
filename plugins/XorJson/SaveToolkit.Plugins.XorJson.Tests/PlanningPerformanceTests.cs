@@ -3,6 +3,7 @@ using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Plugins.XorJson.Tests;
 
+[Collection(AllocationMeasurements.Name)]
 public sealed class PlanningPerformanceTests
 {
     private const int RowCount = 10_000;
@@ -56,3 +57,4 @@ public sealed class PlanningPerformanceTests
         Assert.Equal(bytes, document.Serialize().Single().Content.ToArray());
     }
 }
+

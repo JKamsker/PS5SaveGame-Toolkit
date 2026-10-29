@@ -4,6 +4,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.XorJson.Tests;
 
+[Collection(AllocationMeasurements.Name)]
 public sealed class CollectionPerformanceTests
 {
     private const int RowCount = 10_000;
@@ -72,4 +73,5 @@ public sealed class CollectionPerformanceTests
     private static SaveToolkit.Sdk.ISaveDocument OpenRows() => XorJsonTests.Open(XorJsonTests.Encode(
         "{\"rows\":[" + string.Join(',', Enumerable.Range(0, RowCount)) + "]}"));
 }
+
 

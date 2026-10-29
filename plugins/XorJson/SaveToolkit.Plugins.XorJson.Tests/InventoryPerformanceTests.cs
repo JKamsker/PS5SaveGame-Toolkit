@@ -8,6 +8,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.XorJson.Tests;
 
+[Collection(AllocationMeasurements.Name)]
 public sealed class InventoryPerformanceTests
 {
     private const int RowCount = 1000;
@@ -86,3 +87,4 @@ public sealed class InventoryPerformanceTests
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
+

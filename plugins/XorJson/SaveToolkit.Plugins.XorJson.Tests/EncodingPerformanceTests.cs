@@ -3,6 +3,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.XorJson.Tests;
 
+[Collection(AllocationMeasurements.Name)]
 public sealed class EncodingPerformanceTests
 {
     [Theory]
@@ -26,3 +27,4 @@ public sealed class EncodingPerformanceTests
         Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
     }
 }
+
