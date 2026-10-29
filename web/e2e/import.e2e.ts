@@ -62,7 +62,7 @@ test("an unknown layout opens read-only in the raw file inspector", async ({ pag
 
 // #40: DiskSaveFile.RelativePath reconstructs paths with the UNKNOWN title instead
 // of retaining the imported relative path. Do not accept that rename as a baseline.
-test.fixme("unknown-layout export preserves the imported path (#40)", async ({ page }, testInfo) => {
+test("unknown-layout export preserves the imported path (#40)", async ({ page }, testInfo) => {
   const files = { "unrecognized-layout/mystery.dat": fixture("unknown.txt") };
   await home(page);
   await upload(page, archive(files));
