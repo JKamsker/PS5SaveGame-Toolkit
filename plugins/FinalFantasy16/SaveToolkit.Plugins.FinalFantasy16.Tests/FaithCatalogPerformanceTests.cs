@@ -1,8 +1,10 @@
 using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.References;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.FinalFantasy16.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class FaithCatalogPerformanceTests
 {
     [Fact]
@@ -72,15 +74,16 @@ public sealed class FaithCatalogPerformanceTests
         var catalog = new FaithCatalog(IReferenceContext.Empty);
         _ = catalog.Name(5);
         var provenance = catalog.Provenance(5);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        for (var repeat = 0; repeat < 100; repeat++)
+        var allocated = AllocationProbe.Measure(() =>
         {
-            _ = catalog.Name(5);
-            _ = catalog.Category(5);
-            _ = catalog.Provenance(5);
-        }
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.True(allocated < 4096, $"Repeated immutable item presentation allocated {allocated:N0} bytes.");
+            for (var repeat = 0; repeat < 100; repeat++)
+            {
+                _ = catalog.Name(5);
+                _ = catalog.Category(5);
+                _ = catalog.Provenance(5);
+            }
+        });
+        allocated.AssertLessThan(4096, $"Repeated immutable item presentation allocated {allocated.MinimumBytes:N0} bytes.");
         Assert.Contains("Mapping confidence: Inferred", provenance);
     }
 }

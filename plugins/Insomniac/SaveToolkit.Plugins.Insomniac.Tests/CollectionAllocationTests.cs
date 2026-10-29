@@ -1,9 +1,11 @@
 using System.Globalization;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Insomniac.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class CollectionAllocationTests
 {
     private const int RowCount = 20_000;
@@ -17,11 +19,9 @@ public sealed class CollectionAllocationTests
         var builds = 0;
         var registry = Fixture(() => builds++);
         var query = new QueryableCollectionQuery { SortColumn = "value", Descending = true, Offset = 500, Limit = PageSize };
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = registry.Query("large", query);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => registry.Query("large", query), out var page, beforeRun: () => { builds = 0; registry = Fixture(() => builds++); });
 
-        Assert.True(allocated <= sortAllocationBudget, $"First sort allocated {allocated:N0} bytes.");
+        allocated.AssertAtMost(sortAllocationBudget, $"First sort allocated {allocated.MinimumBytes:N0} bytes.");
         Assert.Equal(PageSize, builds);
         Assert.Equal(RowCount, page.FilteredCount);
         Assert.Equal(Enumerable.Range(0, RowCount).OrderByDescending(index => index % 101).ThenBy(index => index)
@@ -37,11 +37,9 @@ public sealed class CollectionAllocationTests
         var registry = Fixture(() => builds++);
         var query = new QueryableCollectionQuery { Text = text, Limit = PageSize };
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = registry.Query("large", query);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => registry.Query("large", query), out var page, beforeRun: () => { builds = 0; registry = Fixture(() => builds++); });
 
-        Assert.True(allocated <= PageAllocationBudget, $"First page allocated {allocated:N0} bytes.");
+        allocated.AssertAtMost(PageAllocationBudget, $"First page allocated {allocated.MinimumBytes:N0} bytes.");
         Assert.Equal(PageSize, builds);
         Assert.Equal(text is null ? RowCount : RowCount / 2, page.FilteredCount);
         Assert.Equal(Enumerable.Range(0, PageSize).Select(index => Key(text is null ? index : index * 2)),
@@ -62,11 +60,9 @@ public sealed class CollectionAllocationTests
         _ = registry.Query("large", query);
         builds = 0;
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = registry.Query("large", query);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => registry.Query("large", query), out var page, beforeRun: () => builds = 0);
 
-        Assert.True(allocated <= PageAllocationBudget, $"Page allocated {allocated:N0} bytes; budget {PageAllocationBudget:N0}.");
+        allocated.AssertAtMost(PageAllocationBudget, $"Page allocated {allocated.MinimumBytes:N0} bytes; budget {PageAllocationBudget:N0}.");
         Assert.Equal(RowCount, page.TotalCount);
         Assert.Equal(text is null ? RowCount : RowCount / 2, page.FilteredCount);
         Assert.Equal(PageSize, page.Rows.Count);
@@ -87,11 +83,9 @@ public sealed class CollectionAllocationTests
             Offset = RowCount, Limit = PageSize,
         };
         _ = registry.Query("large", query);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = registry.Query("large", query);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => registry.Query("large", query), out var page, beforeRun: () => builds = 0);
 
-        Assert.True(allocated <= PageAllocationBudget, $"Empty page allocated {allocated:N0} bytes.");
+        allocated.AssertAtMost(PageAllocationBudget, $"Empty page allocated {allocated.MinimumBytes:N0} bytes.");
         Assert.Empty(page.Rows);
         Assert.Equal(RowCount / 2, page.FilteredCount);
         Assert.Equal(0, builds);

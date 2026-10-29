@@ -2,9 +2,11 @@ using SaveToolkit.Plugins.Pragmata.Crypto;
 using SaveToolkit.Plugins.Pragmata.Editing;
 using SaveToolkit.Plugins.Pragmata.Format;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Pragmata.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class BoundsAllocationTests
 {
     [Fact]
@@ -14,9 +16,7 @@ public sealed class BoundsAllocationTests
         var container = new DsssContainer(SyntheticInventory.Create(count));
         var layout = new SaveLayout(container.Plaintext);
         _ = new ObservedEditBounds(layout, container.Plaintext);
-        var start = GC.GetAllocatedBytesForCurrentThread();
-        var bounds = new ObservedEditBounds(layout, container.Plaintext);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - start;
+        var allocated = AllocationProbe.Measure(() => new ObservedEditBounds(layout, container.Plaintext), out var bounds);
         foreach (var item in layout.Items)
         {
             var id = Assert.IsType<IntegerSpec>(bounds.Spec(item.Find(KnownHashes.ItemId)!));
@@ -27,7 +27,7 @@ public sealed class BoundsAllocationTests
             Assert.Equal(-2.5, floating.Min);
             Assert.Equal(4.75, floating.Max);
         }
-        Assert.True(allocated < 2_000_000, $"Bounds calculation allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(2_000_000, $"Bounds calculation allocated {allocated.MinimumBytes:N0} bytes.");
     }
 
     [Fact]

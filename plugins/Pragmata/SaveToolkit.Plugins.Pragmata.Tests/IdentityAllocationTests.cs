@@ -3,9 +3,11 @@ using SaveToolkit.Plugins.Pragmata.Format;
 using SaveToolkit.Plugins.Pragmata.Views;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Pragmata.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class IdentityAllocationTests
 {
     [Fact]
@@ -19,14 +21,14 @@ public sealed class IdentityAllocationTests
         var expected = leaf.Path;
         const int reads = 10_000;
         string? actual = null;
-        // Warm up first: tiered/OSR JIT work can allocate a few KB on this thread mid-loop.
-        for (var index = 0; index < reads; index++) actual = leaf.Path;
-        var start = GC.GetAllocatedBytesForCurrentThread();
-        for (var index = 0; index < reads; index++) actual = leaf.Path;
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - start;
+        // Warm the complete loop: tiered/OSR JIT work can allocate on the measured thread.
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            for (var index = 0; index < reads; index++) actual = leaf.Path;
+        });
         Assert.Equal(expected, actual);
-        // Any per-read string would cost tens of bytes per read; stay under one byte per read.
-        Assert.True(allocated < reads, $"Repeated immutable paths allocated {allocated:N0} bytes.");
+        // Keep main's allowance: any per-read string costs tens of bytes, so stay below one.
+        allocated.AssertLessThan(reads, $"Repeated immutable paths allocated {allocated.MinimumBytes:N0} bytes.");
         // Stored contents and presentation do not change physical identity.
         root.ClassHash = 42;
         array.Offset = 100;
@@ -46,16 +48,14 @@ public sealed class IdentityAllocationTests
         var scope = new ActionScope();
         for (var index = 0; index < 3; index++)
             _ = document.PlanAction(PragmataViews.QuantityAction, parameters, scope);
-        var start = GC.GetAllocatedBytesForCurrentThread();
-        var plan = document.PlanAction(PragmataViews.QuantityAction, parameters, scope);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - start;
+        var allocated = AllocationProbe.Measure(() => document.PlanAction(PragmataViews.QuantityAction, parameters, scope), out var plan);
         Assert.Empty(plan.Errors);
         Assert.Equal(count, plan.Changes.Count);
         Assert.All(plan.Changes, change => Assert.Equal(17, change.NewValue.AsInt32()));
         Assert.Equal(document.Layout.Items.Select(item => item.Find(KnownHashes.Quantity)!.Path), plan.Changes.Select(change => change.ValueId));
         // Tiered JIT allocations vary between isolated and full-suite runs (10.2–13.2 MB).
         // Leave headroom for both while rejecting the original 19.2 MB path-building behavior.
-        Assert.True(allocated < 14_000_000, $"Quantity preview allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(14_000_000, $"Quantity preview allocated {allocated.MinimumBytes:N0} bytes.");
         Assert.Equal(QuantityActions.RowKey(document.Layout.Items[0]), $"inventory/record-at-{document.Layout.Items[0].Offset:x}");
     }
 }

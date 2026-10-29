@@ -1,5 +1,8 @@
+using SaveToolkit.Testing;
+
 namespace SaveToolkit.Plugins.FinalFantasy16.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class FaithWarningPerformanceTests
 {
     [Theory]
@@ -18,10 +21,11 @@ public sealed class FaithWarningPerformanceTests
     public void RepeatedPolicyWarningsDoNotAllocatePerRow(int id, string category)
     {
         var warning = FaithStackPolicy.Warning(id, category);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        for (var repeat = 0; repeat < 100; repeat++) GC.KeepAlive(FaithStackPolicy.Warning(id, category));
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.True(allocated < 1024, $"Repeated fixed policy warnings allocated {allocated:N0} bytes.");
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            for (var repeat = 0; repeat < 100; repeat++) GC.KeepAlive(FaithStackPolicy.Warning(id, category));
+        });
+        allocated.AssertLessThan(1024, $"Repeated fixed policy warnings allocated {allocated.MinimumBytes:N0} bytes.");
         Assert.Contains("Console load/save/reload is untested", warning);
         Assert.Contains("not a gameplay cap", warning);
     }

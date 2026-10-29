@@ -1,8 +1,10 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class LsfPreflightTests
 {
     private const int HeaderSize = 64;
@@ -27,11 +29,9 @@ public sealed class LsfPreflightTests
         var bytes = new byte[HeaderSize + FirstSectionSize];
         ResourceFixture.Create().AsSpan(0, HeaderSize).CopyTo(bytes);
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(LsfLayout.MetadataOffset), FirstSectionSize);
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        var error = Record.Exception(() => LsfBinary.Read(bytes));
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
+        var allocated = AllocationProbe.Measure(() => Record.Exception(() => LsfBinary.Read(bytes)), out var error);
         Assert.IsType<SaveFormatException>(error);
-        Assert.True(allocated < 100_000, $"Truncated resource allocated {allocated:N0} bytes before checking all ranges.");
+        allocated.AssertLessThan(100_000, $"Truncated resource allocated {allocated.MinimumBytes:N0} bytes before checking all ranges.");
     }
 
     [Fact]

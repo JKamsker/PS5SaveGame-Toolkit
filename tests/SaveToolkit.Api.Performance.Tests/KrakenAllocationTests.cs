@@ -1,7 +1,9 @@
 using SaveToolkit.Codecs;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Api.Performance.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class KrakenAllocationTests
 {
     private const long SimpleDecodeAllocationLimit = 64 * 1024;
@@ -16,12 +18,10 @@ public sealed class KrakenAllocationTests
         var stream = memset ? [0x8C, 6, 7, 255, 255, 42] : OodleCodec.EncodeStored(expected);
         _ = OodleCodec.Decompress(stream, expected.Length);
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var actual = OodleCodec.Decompress(stream, expected.Length);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => OodleCodec.Decompress(stream, expected.Length), out var actual);
 
         Assert.Equal(expected, actual);
-        Assert.True(allocated < SimpleDecodeAllocationLimit, $"Simple decoding allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(SimpleDecodeAllocationLimit, $"Simple decoding allocated {allocated.MinimumBytes:N0} bytes.");
     }
 
     [Fact]

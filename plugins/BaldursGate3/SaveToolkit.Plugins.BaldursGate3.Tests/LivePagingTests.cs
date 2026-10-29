@@ -2,9 +2,11 @@ using System.Text.Json;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class LivePagingTests
 {
     private const int StatsRows = 2000;
@@ -58,10 +60,11 @@ public sealed class LivePagingTests
         using var document = LiveNewAgeFixture.Open(LsmfFixture.Create(("game.stats.v3.StatsComponent", StatsRowBytes, StatsRows, stats)));
         var query = new QueryableCollectionQuery { Offset = StatsRows * AbilitiesPerRow - 10, Limit = 10 };
         _ = document.Query("live/0/0/values", query);
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        for (var page = 0; page < 20; page++) _ = document.Query("live/0/0/values", query);
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
-        Assert.True(allocated < 1024 * 1024, $"Twenty ten-row pages allocated {allocated:N0} bytes.");
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            for (var page = 0; page < 20; page++) _ = document.Query("live/0/0/values", query);
+        });
+        allocated.AssertLessThan(1024 * 1024, $"Twenty ten-row pages allocated {allocated.MinimumBytes:N0} bytes.");
         var result = document.Query("live/0/0/values", query);
         Assert.Equal(StatsRows * AbilitiesPerRow, result.FilteredCount);
         Assert.Equal(10, result.Rows.Count);

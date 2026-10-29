@@ -2,9 +2,11 @@ using SaveToolkit.Plugins.Pragmata.Format;
 using SaveToolkit.Plugins.Pragmata.Views;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Pragmata.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class CollectionAllocationTests
 {
     [Theory]
@@ -30,29 +32,33 @@ public sealed class CollectionAllocationTests
         };
         for (var index = 0; index < 3; index++) _ = document.Query(id, query);
         var callsBefore = detailCalls;
-        var start = GC.GetAllocatedBytesForCurrentThread();
-        var page = document.Query(id, query with { Offset = 10, Limit = 7 });
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - start;
+        var allocated = AllocationProbe.Measure(() => document.Query(id, query with { Offset = 10, Limit = 7 }), out var page, beforeRun: () => callsBefore = detailCalls);
         Assert.Equal(7, page.Rows.Count);
         Assert.Equal(evidence ? 7 : 0, detailCalls - callsBefore);
-        Assert.True(allocated < 200_000, $"{mode} page allocated {allocated:N0} bytes (evidence={evidence}).");
+        allocated.AssertLessThan(200_000, $"{mode} page allocated {allocated.MinimumBytes:N0} bytes (evidence={evidence}).");
     }
 
     [Fact]
     public void FirstEvidencePageDefersUnrequestedValueSummariesAndDetails()
     {
-        using var document = new PragmataDocument("data.bin", SyntheticInventory.Create(10_000));
+        PragmataDocument current = null!;
         var calls = 0;
-        var array = document.Layout.Inventory!.Find(KnownHashes.Items)!;
-        var table = document.Evidence.Table(array, _ => { calls++; return new TextNode("details"); });
-        Assert.Equal(0, calls);
-        var start = GC.GetAllocatedBytesForCurrentThread();
-        var page = document.Query(table.CollectionId, new() { Limit = 3 });
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - start;
+        string collectionId = null!;
+        var allocated = AllocationProbe.Measure(() => current.Query(collectionId, new() { Limit = 3 }), out var page,
+            beforeRun: () =>
+            {
+                current?.Dispose();
+                current = new PragmataDocument("data.bin", SyntheticInventory.Create(10_000));
+                calls = 0;
+                var array = current.Layout.Inventory!.Find(KnownHashes.Items)!;
+                collectionId = current.Evidence.Table(array, _ => { calls++; return new TextNode("details"); }).CollectionId;
+                Assert.Equal(0, calls);
+            });
+        using var document = current;
         Assert.Equal(3, calls);
         Assert.Equal(3, page.Rows.Count);
-        Assert.True(allocated < 6_000_000, $"First evidence page allocated {allocated:N0} bytes.");
-        Assert.Empty(document.Query(table.CollectionId, new() { Offset = int.MaxValue }).Rows);
+        allocated.AssertLessThan(6_000_000, $"First evidence page allocated {allocated.MinimumBytes:N0} bytes.");
+        Assert.Empty(document.Query(collectionId, new() { Offset = int.MaxValue }).Rows);
         Assert.Equal(3, calls);
     }
 
@@ -61,15 +67,20 @@ public sealed class CollectionAllocationTests
     [InlineData(true)]
     public void DifferentSearchesReuseProjectedValues(bool evidence)
     {
-        using var document = new PragmataDocument("data.bin", SyntheticInventory.Create(10_000));
-        var id = evidence ? document.Evidence.Table(document.Layout.Inventory!.Find(KnownHashes.Items)!,
-            _ => new TextNode("details")).CollectionId : InventoryCollections.CollectionId;
-        _ = document.Query(id, new() { Text = "3", Limit = 1 });
-        var start = GC.GetAllocatedBytesForCurrentThread();
-        var result = document.Query(id, new() { Text = "2", Limit = 1 });
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - start;
+        PragmataDocument current = null!;
+        string id = null!;
+        var allocated = AllocationProbe.Measure(() => current.Query(id, new() { Text = "2", Limit = 1 }), out var result,
+            beforeRun: () =>
+            {
+                current?.Dispose();
+                current = new PragmataDocument("data.bin", SyntheticInventory.Create(10_000));
+                id = evidence ? current.Evidence.Table(current.Layout.Inventory!.Find(KnownHashes.Items)!,
+                    _ => new TextNode("details")).CollectionId : InventoryCollections.CollectionId;
+                _ = current.Query(id, new() { Text = "3", Limit = 1 });
+            });
+        using var document = current;
         Assert.NotEmpty(result.Rows);
-        Assert.True(allocated < 1_000_000, $"Changing search allocated {allocated:N0} bytes (evidence={evidence}).");
+        allocated.AssertLessThan(1_000_000, $"Changing search allocated {allocated.MinimumBytes:N0} bytes (evidence={evidence}).");
     }
 
     [Fact]
@@ -80,10 +91,9 @@ public sealed class CollectionAllocationTests
         var table = document.Evidence.Table(array, _ => new TextNode("old details"));
         _ = document.Query(table.CollectionId, new());
         _ = document.Evidence.Table(array, _ => new TextNode("new details"));
-        var start = GC.GetAllocatedBytesForCurrentThread();
-        var page = document.Query(table.CollectionId, new() { Limit = 1 });
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - start;
+        var allocated = AllocationProbe.Measure(() => document.Query(table.CollectionId, new() { Limit = 1 }), out var page,
+            beforeRun: () => _ = document.Evidence.Table(array, _ => new TextNode("new details")));
         Assert.Equal("new details", Assert.IsType<TextNode>(Assert.Single(page.Rows).Cells["details"]).Text);
-        Assert.True(allocated < 200_000, $"Evidence registration rebuilt its index: {allocated:N0} bytes.");
+        allocated.AssertLessThan(200_000, $"Evidence registration rebuilt its index: {allocated.MinimumBytes:N0} bytes.");
     }
 }

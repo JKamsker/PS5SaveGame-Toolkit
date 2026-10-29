@@ -1,9 +1,11 @@
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.EldenRing.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class CatalogSearchTests
 {
     [Fact]
@@ -17,18 +19,17 @@ public sealed class CatalogSearchTests
         var search = new ReferenceSearchText();
         foreach (var record in records) Assert.False(search.ContainsDetails(record, "no-match"));
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var first = search.ContainsDetails(records[0], "no-match");
-        var cachedAllocation = GC.GetAllocatedBytesForCurrentThread() - before;
+        var cachedAllocation = AllocationProbe.Measure(() => search.ContainsDetails(records[0], "no-match"), out var first);
         Assert.False(first);
-        Assert.InRange(cachedAllocation, 0, 1024); // Shared evidence at the start still benefits from caching.
+        cachedAllocation.AssertInRange(0, 1024); // Shared evidence at the start still benefits from caching.
 
-        before = GC.GetAllocatedBytesForCurrentThread();
-        foreach (var record in records) _ = search.ContainsDetails(record, "no-match");
-        var overflowAllocation = GC.GetAllocatedBytesForCurrentThread() - before;
+        var overflowAllocation = AllocationProbe.Measure(() =>
+        {
+            foreach (var record in records) _ = search.ContainsDetails(record, "no-match");
+        });
         // The oversized tail is deliberately formatted again instead of being retained in
         // the cache. An unbounded cache allocates almost nothing here and fails this test.
-        Assert.True(overflowAllocation > 64 * 1024, $"Expected uncached overflow, allocated {overflowAllocation} bytes.");
+        overflowAllocation.AssertGreaterThan(64 * 1024, $"Expected uncached overflow, allocated {overflowAllocation} bytes.");
     }
 
     [Theory]
@@ -42,15 +43,13 @@ public sealed class CatalogSearchTests
         var request = new QueryableCollectionQuery { Text = "no-such-item-match" };
         Assert.Empty(query(request).Rows); // Populate the immutable metadata index before measuring.
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var result = query(request);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => query(request), out var result);
 
         Assert.Empty(result.Rows);
         Assert.Equal(source.Count, result.TotalCount);
         // A zero-row response should scan existing strings, not allocate 20+ MB of
         // descriptions, dataset provenance and attribute labels on every keystroke.
-        Assert.InRange(allocated, 1, 1024 * 1024);
+        allocated.AssertInRange(1, 1024 * 1024);
     }
 
     [Theory]

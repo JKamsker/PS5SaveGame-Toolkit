@@ -1,8 +1,10 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.AtomicHeart.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AtomicHeartPlanningPerformanceTests
 {
     private static readonly int[] ExpectedOrdinals = [2, 30, 449];
@@ -15,11 +17,9 @@ public sealed class AtomicHeartPlanningPerformanceTests
         var state = PerformanceInventory.Create(10000);
         var scope = new ActionScope([state.Items[^1].Key]);
         _ = InventoryPlanning.Plan(state, InventoryPlanning.ActionId, Parameters, scope);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var plan = InventoryPlanning.Plan(state, InventoryPlanning.ActionId, Parameters, scope);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => InventoryPlanning.Plan(state, InventoryPlanning.ActionId, Parameters, scope), out var plan);
         Assert.Single(plan.Changes);
-        Assert.True(allocated < 10_000, $"Single selected preview allocated {allocated:N0} bytes.");
+        allocated.AssertLessThan(10_000, $"Single selected preview allocated {allocated.MinimumBytes:N0} bytes.");
     }
 
     [Fact]

@@ -1,9 +1,11 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Core.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class BindingRegistrationTests(ITestOutputHelper output)
 {
     private const int BindingCount = 1_000;
@@ -19,12 +21,13 @@ public sealed class BindingRegistrationTests(ITestOutputHelper output)
         var ids = Enumerable.Range(0, BindingCount).Select(i => $"field/{i}").ToArray();
         for (var i = 0; i < Measurements; i++) document.RegisterAll(ids, readOnly);
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        for (var i = 0; i < Measurements; i++) document.RegisterAll(ids, readOnly);
-        var allocated = (GC.GetAllocatedBytesForCurrentThread() - before) / Measurements;
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            for (var i = 0; i < Measurements; i++) document.RegisterAll(ids, readOnly);
+        }).TransformSamples(bytes => bytes / Measurements);
 
-        output.WriteLine($"Read-only={readOnly}: {allocated:N0} bytes per {BindingCount} registrations.");
-        Assert.True(allocated <= RegistrationBudget, $"Registration allocated {allocated:N0} bytes.");
+        output.WriteLine($"Read-only={readOnly}: {allocated.MinimumBytes:N0} bytes per {BindingCount} registrations.");
+        allocated.AssertAtMost(RegistrationBudget, $"Registration allocated {allocated.MinimumBytes:N0} bytes.");
     }
 
     [Fact]

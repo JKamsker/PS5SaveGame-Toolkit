@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="xunit.v3" />
+    <ProjectReference Include="../../src/SaveToolkit.Testing/SaveToolkit.Testing.csproj" />
     <ProjectReference Include="../../src/SaveToolkit.Codecs/SaveToolkit.Codecs.csproj" />
   </ItemGroup>
   <ItemGroup>

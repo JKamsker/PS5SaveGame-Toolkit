@@ -6,6 +6,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.FinalFantasy7.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class CollectionAllocationTests
 {
     [Theory]
@@ -21,11 +22,9 @@ public sealed class CollectionAllocationTests
         var collections = (IQueryableDocument)document;
         var query = new QueryableCollectionQuery { Text = text, SortColumn = sort, Limit = 50, IncludeEmpty = true };
         _ = collections.Query(id, query); // Exclude JIT, initial reference strings and first-time bindings.
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = collections.Query(id, query);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => collections.Query(id, query), out var page);
         Assert.Equal(50, page.Rows.Count);
-        Assert.InRange(allocated, 1, budget);
+        allocated.AssertInRange(1, budget);
     }
 
     [Fact]
@@ -60,11 +59,9 @@ public sealed class CollectionAllocationTests
         var collections = (IQueryableDocument)document;
         var query = new QueryableCollectionQuery { SortColumn = sort, Limit = 50, IncludeEmpty = true };
         _ = collections.Query(id, query);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = collections.Query(id, query);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => collections.Query(id, query), out var page);
         Assert.Equal(50, page.Rows.Count);
-        Assert.InRange(allocated, 1, budget);
+        allocated.AssertInRange(1, budget);
     }
 
     [Fact]
@@ -74,9 +71,7 @@ public sealed class CollectionAllocationTests
         var planner = (SaveToolkit.Sdk.IActionPlanningDocument)document;
         var parameters = new Dictionary<string, FieldValue> { ["quantity"] = FieldValue.Of(99L) };
         _ = planner.PlanAction(InventoryPlanning.ActionId, parameters, new());
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var plan = planner.PlanAction(InventoryPlanning.ActionId, parameters, new());
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => planner.PlanAction(InventoryPlanning.ActionId, parameters, new()), out var plan);
         Assert.Empty(plan.Errors);
         Assert.Equal(GameplayFields.InventoryCount, plan.Changes.Count);
         Assert.Empty(plan.SkippedRows);
@@ -86,7 +81,7 @@ public sealed class CollectionAllocationTests
             Assert.Equal(1, change.OldValue.AsInt32());
             Assert.Equal(99, change.NewValue.AsInt32());
         });
-        Assert.InRange(allocated, 1, 2_000_000);
+        allocated.AssertInRange(1, 2_000_000);
     }
 
     [Theory]

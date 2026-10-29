@@ -1,9 +1,11 @@
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Cyberpunk2077.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class FactCatalogPerformanceTests
 {
     private const long ConstructionBudget = 16 * 1024 * 1024;
@@ -19,20 +21,18 @@ public sealed class FactCatalogPerformanceTests
         var facts = tree.Nodes.Where(node => node.Name == "FactsTable").ToDictionary(node => node.Id,
             node => FactsReader.Read(container.Payload.AsSpan(node.Offset, node.Size)));
         var bound = 0;
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var catalog = FactCatalogInspection.Build(facts, references, bindRead: (id, label, spec, get) =>
+        var allocated = AllocationProbe.Measure(() => FactCatalogInspection.Build(facts, references, bindRead: (id, label, spec, get) =>
         {
             bound++;
             return new FieldNode(id, label, spec, get());
-        });
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        }), out var catalog);
 
         Assert.Equal(20_978, catalog.Metadata.TotalCount);
         Assert.Equal(20_978, catalog.View().TotalCount);
         Assert.Equal(0, bound);
         // Excludes the host's shared reference packs and the imported payload. A compact index
         // must not allocate a dictionary and formatted provenance for every catalog-only fact.
-        Assert.InRange(allocated, 0, ConstructionBudget);
+        allocated.AssertInRange(0, ConstructionBudget);
         var page = catalog.Query(new QueryableCollectionQuery { Limit = 3 });
         Assert.Equal(3, page.Rows.Count);
         Assert.Equal(3, bound);

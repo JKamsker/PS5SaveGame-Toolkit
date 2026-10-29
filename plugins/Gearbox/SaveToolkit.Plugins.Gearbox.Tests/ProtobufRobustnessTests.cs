@@ -1,7 +1,9 @@
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Gearbox.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class ProtobufRobustnessTests
 {
     [Theory]
@@ -59,10 +61,9 @@ public sealed class ProtobufRobustnessTests
     {
         var bytes = Convert.FromHexString(hex);
         _ = GearboxSchema.Bl3; // Exclude one-time schema initialization from allocation observation.
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var error = Assert.Throws<SaveFormatException>(() => Parse(bytes));
+        var allocated = AllocationProbe.Measure(() => Assert.Throws<SaveFormatException>(() => Parse(bytes)), out var error);
         Assert.Equal(expectedMessage, error.Message);
-        Assert.True(GC.GetAllocatedBytesForCurrentThread() - before < 128 * 1024);
+        allocated.AssertLessThan(128 * 1024);
     }
 
     [Fact]

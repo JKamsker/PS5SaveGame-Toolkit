@@ -2,9 +2,11 @@ using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.AtomicHeart.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AtomicHeartInventoryPerformanceTests
 {
     [Theory]
@@ -17,16 +19,9 @@ public sealed class AtomicHeartInventoryPerformanceTests
         var collection = PerformanceInventory.Collection(state);
         var query = new QueryableCollectionQuery { Text = text, SortColumn = sort, Limit = 1 };
         _ = collection.Query(query);
-        // Minimum of three measured runs: JIT tiering on Linux CI adds a few KB to single runs.
-        var allocated = long.MaxValue;
-        for (var run = 0; run < 3; run++)
-        {
-            var before = GC.GetAllocatedBytesForCurrentThread();
-            var page = collection.Query(query);
-            allocated = Math.Min(allocated, GC.GetAllocatedBytesForCurrentThread() - before);
-            Assert.Single(page.Rows);
-        }
-        Assert.True(allocated < 450_000, $"Inventory query allocated {allocated:N0} bytes.");
+        var allocated = AllocationProbe.Measure(() => collection.Query(query), out var page);
+        Assert.Single(page.Rows);
+        allocated.AssertLessThan(450_000, $"Inventory query allocated {allocated.MinimumBytes:N0} bytes.");
     }
 
     [Fact]

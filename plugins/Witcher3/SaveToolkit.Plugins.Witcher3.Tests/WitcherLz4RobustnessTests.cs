@@ -1,8 +1,10 @@
 using K4os.Compression.LZ4;
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Witcher3.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class WitcherLz4RobustnessTests
 {
     [Fact]
@@ -11,10 +13,11 @@ public sealed class WitcherLz4RobustnessTests
         const int declaredSize = 32 * 1024 * 1024;
         var bytes = RobustnessSave.StoredChunk([0xF0, 0xFF], declaredSize);
         _ = Assert.Throws<SaveFormatException>(() => WitcherContainer.Parse(bytes));
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        _ = Assert.Throws<SaveFormatException>(() => WitcherContainer.Parse(bytes));
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.True(allocated < 128 * 1024, $"Malformed block allocated {allocated:N0} bytes before rejection.");
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            _ = Assert.Throws<SaveFormatException>(() => WitcherContainer.Parse(bytes));
+        });
+        allocated.AssertLessThan(128 * 1024, $"Malformed block allocated {allocated.MinimumBytes:N0} bytes before rejection.");
     }
 
     [Fact]
@@ -24,9 +27,11 @@ public sealed class WitcherLz4RobustnessTests
         var second = SyntheticSave.HeaderSize + BinaryData.Int32(bytes, 16);
         bytes.AsSpan(second, BinaryData.Int32(bytes, 28)).Fill(0xFF);
         _ = Assert.Throws<SaveFormatException>(() => WitcherContainer.Parse(bytes));
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        _ = Assert.Throws<SaveFormatException>(() => WitcherContainer.Parse(bytes));
-        Assert.True(GC.GetAllocatedBytesForCurrentThread() - before < 128 * 1024);
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            _ = Assert.Throws<SaveFormatException>(() => WitcherContainer.Parse(bytes));
+        });
+        allocated.AssertLessThan(128 * 1024);
     }
 
     public static TheoryData<byte[], int> MalformedBlocks => new()

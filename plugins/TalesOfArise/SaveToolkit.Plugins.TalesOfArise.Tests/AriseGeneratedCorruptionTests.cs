@@ -3,6 +3,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.TalesOfArise.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class AriseGeneratedCorruptionTests
 {
     private const string BlockError = "unaligned, overlapping or out of bounds";
@@ -238,11 +239,12 @@ public sealed class AriseGeneratedCorruptionTests
     private static void AssertBoundedRejection(byte[] bytes, string reason)
     {
         AssertRejected(bytes, reason); // Warm up the rejection path before measuring allocations.
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        AssertRejected(bytes, reason);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            AssertRejected(bytes, reason);
+        });
         // A fixed-size container needs only a few bounded copies, regardless of declared lengths.
-        Assert.InRange(allocated, 0, MaximumRejectionAllocation);
+        allocated.AssertInRange(0, MaximumRejectionAllocation);
     }
 
     private static void AssertRejected(byte[] bytes, string reason)

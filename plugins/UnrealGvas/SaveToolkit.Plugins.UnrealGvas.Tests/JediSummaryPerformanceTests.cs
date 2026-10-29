@@ -4,6 +4,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.UnrealGvas.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class JediSummaryPerformanceTests
 {
     [Fact]
@@ -15,11 +16,9 @@ public sealed class JediSummaryPerformanceTests
         using var document = plugin.Open(sample);
         document.BuildView();
         var first = Assert.Single(document.ExpandNode("jedi/actors").OfType<TableNode>());
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        var repeated = Assert.Single(document.ExpandNode("jedi/actors").OfType<TableNode>());
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        var allocated = AllocationProbe.Measure(() => Assert.Single(document.ExpandNode("jedi/actors").OfType<TableNode>()), out var repeated);
         const int summaryBudget = 512 * 1024;
-        Assert.True(allocated < summaryBudget, $"Allocated {allocated:N0} bytes for a 100-row summary.");
+        allocated.AssertLessThan(summaryBudget, $"Allocated {allocated.MinimumBytes:N0} bytes for a 100-row summary.");
         Assert.Equal(100, repeated.Rows.Count);
         Assert.Equal("actors/0", repeated.Rows[0].Key);
         Assert.Equal(first.Rows.Select(row => row.Key), repeated.Rows.Select(row => row.Key));

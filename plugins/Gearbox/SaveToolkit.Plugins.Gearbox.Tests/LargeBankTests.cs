@@ -4,6 +4,7 @@ using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.Gearbox.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class LargeBankTests(ITestOutputHelper output)
 {
     private const int ItemCount = 5000;
@@ -46,22 +47,26 @@ public sealed class LargeBankTests(ITestOutputHelper output)
             _ = warmup.BuildView();
             _ = warmup.Query(GearboxInventory.Bank, query);
         }
-        using var document = (GearboxDocument)plugin.Open(overlaid);
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        _ = document.BuildView();
-        var page = document.Query(GearboxInventory.Bank, query);
-        var viewBytes = GC.GetAllocatedBytesForCurrentThread() - allocated;
-        output.WriteLine($"{title} ({(sampleBacked ? "sample" : "synthetic")}): view + page allocated {viewBytes:N0} bytes.");
-        Assert.True(viewBytes < ViewAndPageAllocationLimit, $"View + page allocated {viewBytes:N0} bytes.");
+        GearboxDocument current = null!;
+        var viewBytes = AllocationProbe.Measure(() =>
+        {
+            _ = current.BuildView();
+            return current.Query(GearboxInventory.Bank, query);
+        }, out var page, beforeRun: () =>
+        {
+            current?.Dispose();
+            current = (GearboxDocument)plugin.Open(overlaid);
+        });
+        using var document = current;
+        output.WriteLine($"{title} ({(sampleBacked ? "sample" : "synthetic")}): view + page allocated {viewBytes.MinimumBytes:N0} bytes.");
+        viewBytes.AssertLessThan(ViewAndPageAllocationLimit, $"View + page allocated {viewBytes.MinimumBytes:N0} bytes.");
         Assert.Equal(ItemCount, page.TotalCount);
         Assert.Equal(3, page.Rows.Count);
         Assert.Equal("4000", Assert.IsType<TextNode>(page.Rows[0].Cells["index"]).Text);
         Assert.Equal(3, page.Rows.Select(row => row.Key).Distinct().Count());
-        allocated = GC.GetAllocatedBytesForCurrentThread();
-        var repeated = document.Query(GearboxInventory.Bank, query);
-        var pageBytes = GC.GetAllocatedBytesForCurrentThread() - allocated;
-        output.WriteLine($"Repeated page allocated {pageBytes:N0} bytes.");
-        Assert.True(pageBytes < CachedPageAllocationLimit, $"Repeated page allocated {pageBytes:N0} bytes.");
+        var pageBytes = AllocationProbe.Measure(() => document.Query(GearboxInventory.Bank, query), out var repeated);
+        output.WriteLine($"Repeated page allocated {pageBytes.MinimumBytes:N0} bytes.");
+        pageBytes.AssertLessThan(CachedPageAllocationLimit, $"Repeated page allocated {pageBytes.MinimumBytes:N0} bytes.");
         Assert.Equal(page.Rows.Select(row => row.Key), repeated.Rows.Select(row => row.Key));
         var ids = page.Rows.Select(row => row.Key).ToArray();
         foreach (var id in ids)

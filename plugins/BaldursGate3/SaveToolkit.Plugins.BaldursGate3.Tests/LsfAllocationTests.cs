@@ -1,8 +1,10 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
+[Collection(typeof(AllocationTestCollection))]
 public sealed class LsfAllocationTests
 {
     private const int AttributeCount = 10_000;
@@ -13,10 +15,11 @@ public sealed class LsfAllocationTests
     {
         var attribute = new ResourceAttribute("Counter", LarianAttributeType.Int, new byte[sizeof(int)]);
         AttributeDecoder.Validate(attribute);
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        for (var index = 0; index < AttributeCount; index++) AttributeDecoder.Validate(attribute);
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
-        Assert.True(allocated < 1024, $"Successful validation allocated {allocated:N0} diagnostic bytes.");
+        var allocated = AllocationProbe.Measure(() =>
+        {
+            for (var index = 0; index < AttributeCount; index++) AttributeDecoder.Validate(attribute);
+        });
+        allocated.AssertLessThan(1024, $"Successful validation allocated {allocated.MinimumBytes:N0} diagnostic bytes.");
     }
 
     [Fact]
@@ -30,13 +33,10 @@ public sealed class LsfAllocationTests
         var values = new byte[AttributeCount * sizeof(int)];
         var names = new Dictionary<uint, string> { [0] = "Counter" };
         _ = LsfTables.Read(names, nodes, attributes, values, [], false);
-        var allocated = GC.GetAllocatedBytesForCurrentThread();
-        var model = LsfTables.Read(names, nodes, attributes, values, [], false);
-        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
+        var allocated = AllocationProbe.Measure(() => LsfTables.Read(names, nodes, attributes, values, [], false), out var model);
         Assert.Equal(AttributeCount, model.Attributes.Count);
         Assert.Equal(AttributeCount, model.Nodes[0].Attributes.Count);
-        Assert.True(allocated < AttributeCount * MaximumBytesPerAttribute,
-            $"Parsing allocated {allocated:N0} bytes; valid attributes must not format error messages.");
+        allocated.AssertLessThan(AttributeCount * MaximumBytesPerAttribute, $"Parsing allocated {allocated.MinimumBytes:N0} bytes; valid attributes must not format error messages.");
     }
 
     [Fact]

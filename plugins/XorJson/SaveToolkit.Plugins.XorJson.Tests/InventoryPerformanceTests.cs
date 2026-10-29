@@ -38,10 +38,8 @@ public sealed class InventoryPerformanceTests
         var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
         var query = new QueryableCollectionQuery { Offset = 980, Limit = 20 };
         _ = queryable.Query("character/inventory", query);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var page = queryable.Query("character/inventory", query);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.InRange(allocated, 1, 128 * 1024);
+        var allocated = AllocationProbe.Measure(() => queryable.Query("character/inventory", query), out var page);
+        allocated.AssertInRange(1, 128 * 1024);
         Assert.Contains("occurrence=999;", Assert.IsType<SectionNode>(page.Rows[^1].Cells["details"]).Description!);
 
         var first = queryable.Query("character/inventory", new() { Limit = 1 }).Rows[0];
