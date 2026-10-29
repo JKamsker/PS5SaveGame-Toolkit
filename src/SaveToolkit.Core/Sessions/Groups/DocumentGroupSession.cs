@@ -33,8 +33,7 @@ public sealed class DocumentGroupSession
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limits.MaxQueryActionRows);
         CheckFingerprints();
         // Freeze selected contents once. Overlay keeps all other files and directory metadata intact.
-        var frozen = members.ToDictionary(m => m.RelativePath,
-            m => (ReadOnlyMemory<byte>)set.FindById(m.FileId)!.ReadAllBytes(), StringComparer.OrdinalIgnoreCase);
+        var frozen = FreezeMembers(members, set.FindById, CancellationToken.None);
         foreach (var member in members)
             if (Convert.ToHexStringLower(SHA256.HashData(frozen[member.RelativePath].Span)) != member.Sha256)
                 throw new InvalidOperationException("A group input changed while it was being captured. Reimport the dump.");
@@ -162,4 +161,18 @@ public sealed class DocumentGroupSession
 
     private DocumentGroupInput Input(ISaveSet set) => new(Array.AsReadOnly(Members.Select(m =>
         new DocumentGroupFile(m.Role, set.FindFile(m.RelativePath)!)).ToArray()));
+
+    internal static Dictionary<string, ReadOnlyMemory<byte>> FreezeMembers(
+        IReadOnlyList<GroupMemberInfo> members, Func<string, ISaveFile?> findById,
+        CancellationToken cancellationToken)
+    {
+        return members.ToDictionary(member => member.RelativePath, member =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var file = findById(member.FileId)
+                ?? throw new InvalidOperationException(
+                    $"Owned output '{member.RelativePath}' could not be read. Close and reimport the dump.");
+            return (ReadOnlyMemory<byte>)OwnedSourceReader.ReadAllBytes(file, member.RelativePath, cancellationToken);
+        }, StringComparer.OrdinalIgnoreCase);
+    }
 }

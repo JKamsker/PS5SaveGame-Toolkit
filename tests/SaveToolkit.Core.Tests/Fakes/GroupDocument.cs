@@ -22,6 +22,7 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
     private string? _subtitle;
     public bool IsDisposed { get; private set; }
     public bool ThrowOnDispose { get; set; }
+    public Action? BeforeReject { get; set; }
 
     public GroupDocument(DocumentGroupInput input, Func<bool> rejectApply, Func<bool> rejectRestore,
         string? systemPath = null, byte[]? systemBytes = null, bool omitSystemOutput = false,
@@ -115,7 +116,11 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
     {
         var item = _containers["character"].Items[0];
         _containers["character"].Items.RemoveAt(0);
-        if (_rejectApply()) return EditOutcome.Rejected("", "Second member rejected after removal.");
+        if (_rejectApply())
+        {
+            BeforeReject?.Invoke();
+            return EditOutcome.Rejected("", "Second member rejected after removal.");
+        }
         // Preserve the identity of this duplicate; serialized item values alone cannot recover it.
         _containers["profile"].Items.Add(item);
         return new() { StructureChanged = true };

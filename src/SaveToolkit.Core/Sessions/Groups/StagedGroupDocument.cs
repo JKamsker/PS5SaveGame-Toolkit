@@ -178,8 +178,7 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
             {
                 var discarded = candidate;
                 candidate = null;
-                discarded.Dispose();
-                return outcome;
+                return DisposeDiscarded(discarded, outcome);
             }
             CheckSnapshotBudget(before);
             var outputs = _verify(candidate);
@@ -205,6 +204,22 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
     {
         if (memento.SizeBytes < 0 || memento.SizeBytes > _maxSnapshotBytes)
             throw new SaveFormatException("The group snapshot exceeds its undo budget. No changes were published.");
+    }
+
+    private static EditOutcome DisposeDiscarded(IGroupedSaveDocument candidate, EditOutcome outcome)
+    {
+        // EditOutcome is the only structured rejection channel; ActionOutcome has no error list.
+        // A discarded candidate therefore keeps the plugin errors and appends cleanup failure.
+        try
+        {
+            candidate.Dispose();
+            return outcome;
+        }
+        catch (Exception cleanup) when (cleanup is not OutOfMemoryException)
+        {
+            var error = new FieldError(string.Empty, $"Group candidate cleanup failed: {cleanup.Message}");
+            return outcome with { Errors = [.. outcome.Errors, error] };
+        }
     }
 
     private IGroupedSaveDocument CreateCandidate(DocumentMemento memento, bool rebind = true,

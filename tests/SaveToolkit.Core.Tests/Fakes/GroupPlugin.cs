@@ -22,6 +22,7 @@ public sealed class GroupPlugin : IGamePlugin, IDocumentGroupPlugin
     public bool OmitSystemOutput { get; set; }
     public bool DuplicateSystemOutput { get; set; }
     public bool ThrowOnDispose { get; set; }
+    public bool ThrowOnRejectedCandidateDispose { get; set; }
     public bool ThrowRoleBuildView { get; set; }
     public FileOutput? AdditionalOutput { get; set; }
     public int? RequiredOutsideBalance { get; set; }
@@ -80,6 +81,10 @@ public sealed class GroupPlugin : IGamePlugin, IDocumentGroupPlugin
         _groupOpenCount++;
         var document = new GroupDocument(input, () => RejectApply, () => RejectRestore,
             system?.RelativePath, system?.ReadAllBytes(), OmitSystemOutput, DuplicateSystemOutput);
+        document.BeforeReject = () =>
+        {
+            if (ThrowOnRejectedCandidateDispose) document.ThrowOnDispose = true;
+        };
         document.ThrowOnDispose = ThrowOnDispose && _groupOpenCount > 1;
         Opened.Add(document);
         return document;
