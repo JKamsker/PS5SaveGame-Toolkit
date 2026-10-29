@@ -13,5 +13,11 @@
   change or relicense those datasets. Collectible markers intentionally have no coordinates.
 - External guide: Gage / PowerPyx, 2020-11-17,
   https://www.powerpyx.com/astros-playroom-all-collectible-locations-artefacts-puzzle-pieces/
-  Rechecked 2026-10-28. No reuse grant established. Link only: no artwork, prose or coordinates
-  are copied. The UI exposes the host/author and opens the link only on user request.
+  The original 0.4.0 implementation (checked 2026-10-28) used an external link only.
+  Version 0.5.0 imports selected artifact screenshot thumbnails and short official captions under
+  owner decision 2026-10-29; `ReferencePacks/astro.catalogue.en/assets.source.md` records them.
+  The guide link itself opens only on user request. The original schematic still imports no art.
+- Added 2026-10-29: `AstroWorldMap.cs` publishes a separate optional world-selection background,
+  original manually digitized tile anchors, explicit pixel crop transform and matching-schema
+  guard. Source artwork and capture author: ActuGaming / Alexis, Sony Interactive Entertainment /
+  Team ASOBI. See `assets.source.md` for exact screenshot, rights, crop, uncertainty and fallback.

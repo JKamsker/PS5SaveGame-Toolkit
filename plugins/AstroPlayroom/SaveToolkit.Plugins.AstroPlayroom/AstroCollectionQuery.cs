@@ -13,6 +13,7 @@ internal sealed class AstroCollectionQuery(AstroSchema schema, AstroLocations lo
     private static readonly IReadOnlyList<QueryableColumn> Columns = [
         new("name", "Name / saved alias", new TextSpec()) { Width = ColumnWidth.Wide },
         new("key", "Exact saved key", new TextSpec()),
+        new("image", "Thumbnail") { Width = ColumnWidth.Narrow },
         new("status", "Saved ownership", new TextSpec()),
         new("category", "Category / candidate area", new TextSpec()),
         new("world", "Candidate world", new TextSpec()),
@@ -71,6 +72,7 @@ internal sealed class AstroCollectionQuery(AstroSchema schema, AstroLocations lo
             ["status"] = record.Ownership is not { } flag ? "Unknown" : current(flag).AsBool() ? "Owned" : "Missing",
             ["category"] = reference?.Category ?? "Unmapped",
             ["world"] = locations.World(record)?.Name ?? "Unmapped",
+            ["image"] = reference?.AssetId is null ? "No identified image" : "Candidate illustration",
             ["details"] = reference is null ? "No matching schema-qualified reference; exact raw key retained."
                 : $"{reference.Description} {reference.AttributionText}"
         };

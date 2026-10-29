@@ -8,7 +8,7 @@ namespace SaveToolkit.Plugins.AstroPlayroom.Tests;
 public sealed class AstroCatalogueTests
 {
     [Fact]
-    public void EmbeddedPackHasCompleteExactKeysAttributionAndNoInventedLimitsOrMedia()
+    public void EmbeddedPackHasCompleteExactKeysAttributionAndNoInventedLimits()
     {
         var (plugin, store, context) = AstroCatalogueTestData.References();
         var pack = Assert.Single(store.Packs);
@@ -30,7 +30,8 @@ public sealed class AstroCatalogueTests
             Assert.Equal(AstroCatalogueTestData.Fingerprint, record.Attributes["schemaFingerprint"]);
             Assert.Contains("2026-10-28", record.Attributes["sourceVersion"], StringComparison.Ordinal);
             Assert.Null(record.Limit);
-            Assert.Null(record.AssetId);
+            Assert.Equal(record.Key.StartsWith("Artifact/", StringComparison.Ordinal) || record.Key.StartsWith("Puzzle/", StringComparison.Ordinal),
+                record.AssetId is not null);
             Assert.NotEmpty(record.Dataset.Attribution.Modifications);
         }
     }

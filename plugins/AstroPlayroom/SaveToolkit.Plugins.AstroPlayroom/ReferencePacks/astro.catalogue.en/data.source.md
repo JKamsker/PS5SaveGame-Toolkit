@@ -47,5 +47,8 @@ from the wiki's licence and from gameplay verification.
 Modifications: selected factual names/categories; manually joined artifact names
 and candidate world keys to readable saved identifiers; authored original uncertainty notes;
 kept each puzzle prefix and ordinal verbatim, added an inferred `stageKey` for the
-internal prefix, and did not force physical 4/4 stage groups. No screenshots, icons, maps, walkthrough prose, executable code, game
-descriptions, limits, special-bot values or post-launch records are bundled.
+internal prefix, and did not force physical 4/4 stage groups. The original 1.0.0 dataset bundled no screenshots, icons, maps, walkthrough prose, executable code,
+game descriptions, limits, special-bot values or post-launch records. Version 1.1.0 adds assetId
+references to separately attributed publisher images and a separate official-caption dataset; see
+`assets.source.md`. Existing alias text and its CC BY-SA licence remain unchanged. JSON files were
+minified and manifest hashes updated; no save-ID mappings or ownership semantics were changed.

@@ -8,12 +8,16 @@ internal sealed class AstroReferences(IReferenceContext context, string fingerpr
 {
     public const string Collectibles = "astro_collectibles";
     public const string Worlds = "astro_worlds";
+    public const string Captions = "astro_captions";
     public const string InspectActionId = "collectibles/inspect";
     private readonly IReferenceCatalog? _collectibles = BuildAgnostic(context.Catalog(Collectibles));
     private readonly IReferenceCatalog? _worlds = BuildAgnostic(context.Catalog(Worlds));
+    private readonly IReferenceCatalog? _captions = BuildAgnostic(context.Catalog(Captions));
 
-    public ReferenceRecord? Collectible(string group, string key) => Compatible(_collectibles?.Find($"{group}/{key}"));
+    public ReferenceRecord? Collectible(string group, string key) => Describe(Compatible(_collectibles?.Find($"{group}/{key}")));
     public ReferenceRecord? World(string path) => Compatible(_worlds?.Find(path));
+    public AssetContent? Asset(string assetId) => context.GetAsset(assetId);
+    public ReferenceDatasetInfo? AssetProvenance(string assetId) => context.AssetProvenance(assetId);
 
     public bool Handles(string actionId) => actionId == InspectActionId;
 
@@ -29,9 +33,20 @@ internal sealed class AstroReferences(IReferenceContext context, string fingerpr
         return new ActionOutcome
         {
             Message = $"{record.Name} · {record.Key} · {record.Category ?? "Uncategorised"}\n" +
-                $"{record.Description}\n{record.AttributionText}\n" +
+                $"{Describe(record)?.Description}\n{record.AttributionText}\n" +
                 "Inspection only; saved ownership and gameplay effects remain unknown. No bytes changed."
         };
+    }
+
+    private ReferenceRecord? Describe(ReferenceRecord? record)
+    {
+        if (record is null) return null;
+        var description = record.Description;
+        if (_captions?.Find(record.Key) is { } caption)
+            description += $" Official in-game caption: {caption.Description} {caption.AttributionText}";
+        if (record.AssetId is { } asset && context.AssetProvenance(asset) is { } source)
+            description += $" Thumbnail: {source.Attribution.ToShortText()}";
+        return record with { Description = description };
     }
 
     private ReferenceRecord? Compatible(ReferenceRecord? record) =>
