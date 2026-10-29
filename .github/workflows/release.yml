@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: release-${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+  group: release-${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -83,7 +83,7 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ env.NUGET_PACKAGES }}
           key: nuget-package-${{ matrix.rid }}-${{ hashFiles('global.json', 'Directory.Packages.props', '**/*.csproj') }}
@@ -99,7 +99,7 @@ jobs:
         env:
           RELEASE_TAG: ${{ needs.resolve.outputs.tag }}
         run: ./scripts/smoke-package.ps1 -PackageDirectory "${{ runner.temp }}/packages" -Runtime '${{ matrix.rid }}' -ExpectedVersion $env:RELEASE_TAG.Substring(1) -ScratchDirectory "${{ runner.temp }}/package-smoke"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: package-${{ matrix.rid }}
           path: ${{ runner.temp }}/packages/*
@@ -120,7 +120,7 @@ jobs:
         with:
           ref: ${{ needs.resolve.outputs.sha }}
           fetch-depth: 0
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           pattern: package-*
           path: ${{ runner.temp }}/release-assets

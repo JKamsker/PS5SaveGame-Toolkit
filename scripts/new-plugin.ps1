@@ -15,15 +15,21 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $pluginDir = Join-Path $root "plugins/$Name"
 $project = "SaveToolkit.Plugins.$Name"
-if (Test-Path $pluginDir) { throw "plugins/$Name already exists." }
+if (Test-Path -LiteralPath $pluginDir) { throw "plugins/$Name already exists." }
+
+function ConvertTo-CSharpLiteral([string]$Value) {
+    # JSON string escapes are also valid in ordinary C# string literals.
+    return ConvertTo-Json -InputObject $Value -Compress
+}
 
 $src = New-Item -ItemType Directory -Force (Join-Path $pluginDir $project)
 $tests = New-Item -ItemType Directory -Force (Join-Path $pluginDir "$project.Tests")
 
-$games = ($TitleIds | ForEach-Object { "new GameTitle(`"$_`", `"$GameName`")" }) -join ', '
-$titleList = ($TitleIds | ForEach-Object { "`"$_`"" }) -join ', '
+$gameLiteral = ConvertTo-CSharpLiteral $GameName
+$games = ($TitleIds | ForEach-Object { "new GameTitle($(ConvertTo-CSharpLiteral $_), $gameLiteral)" }) -join ', '
+$titleList = ($TitleIds | ForEach-Object { ConvertTo-CSharpLiteral $_ }) -join ', '
 
-Set-Content (Join-Path $src "$project.csproj") @"
+Set-Content -LiteralPath (Join-Path $src "$project.csproj") @"
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>$project</RootNamespace>
@@ -35,7 +41,7 @@ Set-Content (Join-Path $src "$project.csproj") @"
 </Project>
 "@
 
-Set-Content (Join-Path $src "${Name}Plugin.cs") @"
+Set-Content -LiteralPath (Join-Path $src "${Name}Plugin.cs") @"
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Saves;
 
@@ -43,7 +49,7 @@ namespace $project;
 
 public sealed class ${Name}Plugin : IGamePlugin
 {
-    public PluginInfo Info { get; } = new("$Id", "$GameName", "0.1.0")
+    public PluginInfo Info { get; } = new("$Id", $gameLiteral, "0.1.0")
     {
         Description = "TODO",
         Games = [$games],
@@ -56,7 +62,7 @@ public sealed class ${Name}Plugin : IGamePlugin
 }
 "@
 
-Set-Content (Join-Path $tests "$project.Tests.csproj") @"
+Set-Content -LiteralPath (Join-Path $tests "$project.Tests.csproj") @"
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -75,7 +81,7 @@ Set-Content (Join-Path $tests "$project.Tests.csproj") @"
 </Project>
 "@
 
-Set-Content (Join-Path $tests "${Name}ConformanceTests.cs") @"
+Set-Content -LiteralPath (Join-Path $tests "${Name}ConformanceTests.cs") @"
 using SaveToolkit.Testing;
 
 namespace $project.Tests;
@@ -86,7 +92,7 @@ public sealed class ${Name}ConformanceTests : PluginConformanceTests<${Name}Plug
 }
 "@
 
-Set-Content (Join-Path $pluginDir 'README.md') @"
+Set-Content -LiteralPath (Join-Path $pluginDir 'README.md') @"
 # $GameName plugin (``$Id``)
 
 Titles: $($TitleIds -join ', ')

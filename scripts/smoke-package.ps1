@@ -14,8 +14,10 @@ if ($archives.Count -ne 1) { throw "Expected exactly one archive for $Runtime." 
 $archive = $archives[0]
 $checksum = ((Get-Content -LiteralPath "$($archive.FullName).sha256" -Raw) -split '  ', 2)[0]
 if ((Get-FileHash -LiteralPath $archive.FullName -Algorithm SHA256).Hash -ine $checksum) { throw 'Checksum mismatch.' }
-$scratch = [IO.Path]::GetFullPath($ScratchDirectory)
+$scratch = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ScratchDirectory)
 $extract = Join-Path $scratch ("smoke-" + [guid]::NewGuid().ToString('N'))
+$stdout = "$extract.stdout.log"
+$stderr = "$extract.stderr.log"
 New-Item -ItemType Directory -Force -Path $extract | Out-Null
 $process = $null
 try {
@@ -39,14 +41,14 @@ try {
         '--Toolkit:PackRoot', "`"$(Join-Path $extract 'packs')`"")
     $start = @{
         FilePath = $executable; ArgumentList = $arguments; WorkingDirectory = $bundle; PassThru = $true
-        RedirectStandardOutput = (Join-Path $scratch 'server.stdout.log')
-        RedirectStandardError = (Join-Path $scratch 'server.stderr.log')
+        RedirectStandardOutput = $stdout
+        RedirectStandardError = $stderr
     }
     if ($IsWindows) { $start.WindowStyle = 'Hidden' }
     $process = Start-Process @start
     $version = $null
     for ($attempt = 0; $attempt -lt 60; $attempt++) {
-        if ($process.HasExited) { throw "Packaged server exited with $($process.ExitCode). See $scratch/server.stderr.log." }
+        if ($process.HasExited) { throw "Packaged server exited with $($process.ExitCode). See $stderr." }
         try { $version = Invoke-RestMethod "$url/api/version" -TimeoutSec 2; break }
         catch { Start-Sleep -Milliseconds 500 }
     }
@@ -67,7 +69,7 @@ try {
 finally {
     if ($process -and !$process.HasExited) { Stop-Process -Id $process.Id -Force; $process.WaitForExit() }
     $resolved = (Resolve-Path -LiteralPath $extract).Path
-    if ([IO.Path]::GetDirectoryName($resolved) -ne $scratch.TrimEnd([IO.Path]::DirectorySeparatorChar)) {
+    if ([IO.Path]::GetDirectoryName($resolved) -ne [IO.Path]::TrimEndingDirectorySeparator($scratch)) {
         throw "Refusing to delete unexpected extraction directory: $resolved"
     }
     Remove-Item -LiteralPath $resolved -Recurse -Force

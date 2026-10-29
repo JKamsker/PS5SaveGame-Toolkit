@@ -18,6 +18,9 @@ reliably calculate a release version. Dirty source changes do not automatically 
 
 `.github/workflows/ci.yml` validates pushes, pull requests and release candidates on Ubuntu and
 Windows. It builds with warnings as errors and runs **every** test project through `scripts/test.ps1`.
+Dependency-free PowerShell script regressions also run on Ubuntu, Windows and macOS. Run them
+locally with `./scripts/self-test.ps1 -ScratchDirectory <path>`. Only superseded pull-request
+validations cancel running CI; pushes (including main) and release validations finish their current run.
 Private samples are absent, so sample-dependent tests skip while synthetic tests still run.
 There is no sample download step. This validates the sample-free path, not gameplay or console
 compatibility. Web checks include lint when configured, TypeScript, Vitest and the production build.
@@ -62,6 +65,9 @@ already built `wwwroot`; use this only when it matches the source being packaged
 are build-time requirements; bundle users do not need either installed. Supply an explicit output
 directory outside private saves. Staging publish directories are removed even after failures.
 Keep package archives for distribution or delete them when local verification is complete.
+Test runs isolate and restore `TEMP`, `TMP` and Unix `TMPDIR`; cleanup failures produce a warning
+with the directory to remove. Relative scratch and package output paths resolve from the caller's
+PowerShell location.
 
 Each zip (Windows) or tar.gz (Unix) contains a top-level version/RID directory, `wwwroot`,
 the platform `e_sqlite3` native library, launcher, README and licence notices. A missing native
@@ -74,7 +80,8 @@ Windows require `chmod +x start.sh SaveToolkit.Api`; releases package on their n
 `smoke-package.ps1` verifies the archive checksum, extracts into a unique scratch folder, starts
 the actual apphost on a free loopback port, checks `/api/version`, HTML and its JavaScript entry
 point, stops the server and removes the extraction. Supply `-ExpectedVersion 1.2.3` to require a
-particular SemVer (commit metadata is ignored for that comparison). Server logs remain in scratch.
+particular SemVer (commit metadata is ignored for that comparison). Each invocation retains uniquely
+named `smoke-<id>.stdout.log` and `smoke-<id>.stderr.log` files in scratch.
 
 ## Publish a release
 
@@ -95,6 +102,7 @@ Two entry paths run the same validation and release pipeline:
    workflow, so this path does not depend on a second tag event. Existing tag names are rejected.
 
 Each RID is packaged and smoke-tested on its matching OS/architecture. Failure blocks publication.
+Manual and tag release runs for the same version share a concurrency group, so publication is serialized.
 [git-cliff](https://git-cliff.org/docs/) uses `cliff.toml` to group conventional commits since the
 previous version tag, retain breaking-change markers, and include other commit subjects separately.
 Write commits as `feat(scope): ...`, `fix(scope): ...`, `ci(scope): ...`, etc. Give commit bodies the
