@@ -13,6 +13,48 @@ namespace SaveToolkit.Plugins.AtomicHeart.Tests;
 public sealed class AtomicHeartPlanningTests
 {
     [Fact]
+    public void BulkActionUsesSentenceCaseLabelsAndRetainsNativeAmountContract()
+    {
+        using var document = WriteTestData.Open(InventoryFixture.Create());
+        var tabs = Assert.IsType<TabsNode>(document.BuildView());
+        var inventory = Assert.Single(tabs.Tabs, tab => tab.Title == "Inventory inspection");
+        var action = Assert.Single(inventory.Children.OfType<ActionNode>(), node => node.ActionId == "inventory/set-amount");
+        Assert.Equal("Set existing quantities (preview)", action.Label);
+        var parameter = Assert.Single(action.Parameters);
+        Assert.Equal("amount", parameter.ValueId);
+        Assert.Equal("Target quantity (Amount)", parameter.Label);
+        Assert.Equal(new IntegerSpec(0, long.MaxValue), parameter.Spec);
+        Assert.Contains("Rows exceeding their observed container maximum are skipped.", action.Description, StringComparison.Ordinal);
+        Assert.All(WriteTestData.Table(document).Rows, row =>
+            Assert.Equal(action.Label, Assert.IsType<ActionNode>(row.Cells["action"]).Label));
+
+        var planner = Assert.IsAssignableFrom<IActionPlanningDocument>(document);
+        var error = Assert.Single(planner.PlanAction(action.ActionId, Parameters(-1), new()).Errors);
+        Assert.Equal("amount", error.ValueId);
+        Assert.Equal("Target quantity must be a nonnegative signed 64-bit integer.", error.Message);
+    }
+
+    [Fact]
+    public void InventoryWritesRetainConsoleWarningAndFormatQualifications()
+    {
+        const string opening = "Not validated on console. The game may reject or overwrite the edited save.";
+        using var document = WriteTestData.Open(InventoryFixture.Create());
+        var rows = WriteTestData.Table(document).Rows;
+        Assert.All(rows, row => Assert.StartsWith(opening, WriteTestData.Field(row, "amount").Warning, StringComparison.Ordinal));
+        Assert.All(rows, row => Assert.StartsWith(opening, WriteTestData.Field(row, "asset").Warning, StringComparison.Ordinal));
+        var planner = Assert.IsAssignableFrom<IActionPlanningDocument>(document);
+        var parameters = Parameters(1);
+        var plan = planner.PlanAction(InventoryPlanning.ActionId, parameters, new());
+        var warning = Assert.Single(plan.Warnings, warning => warning.StartsWith(opening, StringComparison.Ordinal));
+        Assert.Contains("Stored Kraken block acceptance and inner integrity remain unverified.", warning, StringComparison.Ordinal);
+        Assert.Contains("Gameplay effects, ownership and safe limits are unverified", warning, StringComparison.Ordinal);
+        Assert.Contains("Bounds are original per-container observed maxima, not proven stack limits.", plan.Warnings[1], StringComparison.Ordinal);
+        var outcome = planner.ApplyActionPlan(InventoryPlanning.ActionId, parameters, new(), plan);
+        Assert.True(outcome.Succeeded);
+        Assert.Contains(warning, outcome.Warnings);
+    }
+
+    [Fact]
     public void CatalogueInspectionUsesReadOnlyPickerAndPreservesSessionState()
     {
         var file = Assert.IsType<DiskSaveFile>(WriteTestData.Sample());
