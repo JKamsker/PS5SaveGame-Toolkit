@@ -67,13 +67,17 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
             return Reject("Selection contains an unknown inventory row.");
         }
 
-        var goodsOnly = actionId == ActionId;
+        return PlanQuantities(inventory.Records, target, selected, actionId == ActionId);
+    }
+
+    private ActionPlan PlanQuantities(IReadOnlyList<InventoryRecord> records, FieldValue target, HashSet<string>? selected, bool goodsOnly)
+    {
         var changes = new List<PlannedChange>();
         var mirrors = new List<PlannedChange>();
         var skipped = new List<SkippedActionRow>();
         var warnings = new List<string> { CapacityWarning };
         var checksum = Word(8);
-        foreach (var record in inventory.Records.Where(record => selected?.Contains(record.Name) ?? IsSupported(record, goodsOnly)))
+        foreach (var record in records.Where(record => selected?.Contains(record.Name) ?? IsSupported(record, goodsOnly)))
         {
             if (!IsSupported(record, goodsOnly))
             {
@@ -104,6 +108,12 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
             }
         }
 
+        AppendDerivedChanges(changes, mirrors, checksum);
+        return new ActionPlan { Changes = changes, SkippedRows = skipped, Warnings = warnings };
+    }
+
+    private void AppendDerivedChanges(List<PlannedChange> changes, List<PlannedChange> mirrors, uint checksum)
+    {
         if (changes.Count > 0)
         {
             changes.AddRange(mirrors);
@@ -113,14 +123,7 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
                 { Derived = true });
             }
         }
-
-        return new ActionPlan { Changes = changes, SkippedRows = skipped, Warnings = warnings };
     }
-
-    public static bool Matches(ActionPlan expected, ActionPlan supplied) =>
-        expected.Errors.Count == 0 && supplied.Errors.Count == 0 &&
-        expected.Changes.SequenceEqual(supplied.Changes) && expected.SkippedRows.SequenceEqual(supplied.SkippedRows) &&
-        expected.Warnings.SequenceEqual(supplied.Warnings);
 
     private static bool IsSupported(InventoryRecord record, bool goodsOnly) => goodsOnly
         ? record.Name is "Supplies" or "Flowers" or "Hide" : record.IsResource || record.IsAmmo;

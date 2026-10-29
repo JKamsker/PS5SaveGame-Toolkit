@@ -1,13 +1,12 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
+using static SaveToolkit.Plugins.SuckerPunch.Tests.QuantityPlanningTestData;
 
 namespace SaveToolkit.Plugins.SuckerPunch.Tests;
 
 public sealed class SyntheticPlanningTests
 {
-    private static Dictionary<string, FieldValue> Target(long value) => new() { ["quantity"] = FieldValue.Of(value) };
-
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

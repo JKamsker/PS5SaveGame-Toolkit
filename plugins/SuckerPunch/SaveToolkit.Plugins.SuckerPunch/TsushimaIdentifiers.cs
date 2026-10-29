@@ -30,7 +30,7 @@ internal static class TsushimaIdentifiers
             }
 
             var bytes = content.Slice(offset, (int)length);
-            if (!IsIdentifier(bytes))
+            if (!AsciiIdentifier.IsValid(bytes))
             {
                 continue;
             }
@@ -94,19 +94,5 @@ internal static class TsushimaIdentifiers
 
         group = default;
         return false;
-    }
-
-    private static bool IsIdentifier(ReadOnlySpan<byte> bytes)
-    {
-        foreach (var value in bytes)
-        {
-            if (!((value >= 'A' && value <= 'Z') || (value >= 'a' && value <= 'z') ||
-                  (value >= '0' && value <= '9') || value == '_'))
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 }

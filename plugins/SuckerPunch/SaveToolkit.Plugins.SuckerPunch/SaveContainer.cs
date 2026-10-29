@@ -42,11 +42,6 @@ internal sealed record SaveContainer(
             throw new SaveFormatException("Ghost of Tsushima container is empty.");
         }
 
-        if (bytes.Length < 16)
-        {
-            throw new SaveFormatException("Sucker Punch save is shorter than its header.");
-        }
-
         var magic = BinaryPrimitives.ReadUInt32LittleEndian(bytes);
         var word1 = BinaryPrimitives.ReadUInt32LittleEndian(bytes[4..]);
         var word2 = BinaryPrimitives.ReadUInt32LittleEndian(bytes[8..]);

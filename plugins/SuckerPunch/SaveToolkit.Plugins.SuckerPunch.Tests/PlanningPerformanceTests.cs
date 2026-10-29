@@ -1,5 +1,5 @@
 using SaveToolkit.Sdk;
-using SaveToolkit.Sdk.Values;
+using static SaveToolkit.Plugins.SuckerPunch.Tests.QuantityPlanningTestData;
 
 namespace SaveToolkit.Plugins.SuckerPunch.Tests;
 
@@ -76,6 +76,4 @@ public sealed class PlanningPerformanceTests
         Assert.Equal(yotei ? YoteiTestData.Checksum(final) : SuckerPunchTestData.Checksum(final),
             SuckerPunchTestData.Word(final, save.ChecksumOffset));
     }
-
-    private static Dictionary<string, FieldValue> Target(long value) => new() { ["quantity"] = FieldValue.Of(value) };
 }
