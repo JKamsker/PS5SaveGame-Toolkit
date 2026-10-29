@@ -52,7 +52,7 @@ public abstract class BoundSaveDocument : ISaveDocument
         Func<FieldValue, string?>? validate = null)
     {
         var effectiveSpec = set is null ? spec with { ReadOnly = true } : spec;
-        _bindings[valueId] = new Binding(effectiveSpec, get, set, validate);
+        _bindings[valueId] = new Binding(get, set, validate);
         return new FieldNode(valueId, label, effectiveSpec, get());
     }
 
@@ -225,5 +225,5 @@ public abstract class BoundSaveDocument : ISaveDocument
     {
     }
 
-    private sealed record Binding(FieldSpec Spec, Func<FieldValue> Get, Action<FieldValue>? Set, Func<FieldValue, string?>? Validate);
+    private sealed record Binding(Func<FieldValue> Get, Action<FieldValue>? Set, Func<FieldValue, string?>? Validate);
 }
