@@ -292,7 +292,7 @@ internal sealed class SemanticReview
                 }
                 _originalMetadataAttempted = metadata.Applied && _coverage.RetryIds.Count == 0;
             }
-            return Query(document, index, expandedLazy, revision, cancellationToken, openOriginal);
+            return Query(document, index, expandedLazy, revision, cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -306,7 +306,7 @@ internal sealed class SemanticReview
         => Query(document, index, expandedLazy, revision, CancellationToken.None);
 
     private SemanticChangeLog Query(ISaveDocument document, Action<FieldNode> index, Action<string> expandedLazy,
-        long revision, CancellationToken cancellationToken, Func<ISaveDocument>? openOriginal = null)
+        long revision, CancellationToken cancellationToken)
     {
         var baseline = _original ?? throw new InvalidOperationException("Capture the original before querying changes.");
         var original = _memberContext is null ? baseline : baseline.Clone();
@@ -346,12 +346,6 @@ internal sealed class SemanticReview
         }
         foreach (var id in targetedCaptured.IncompleteIds) current.Fields.Remove(id);
         SemanticChangedMetadataProjection.Apply(original, current, document, _maxBytes, cancellationToken);
-        if (openOriginal is not null && current.Fields.Values.Any(field => original.Fields.TryGetValue(field.ValueId, out var before)
-                && !before.MetadataPublished && before.Value != field.Value) && _originalMetadataAvailable == true)
-        {
-            using var freshOriginal = openOriginal();
-            SemanticChangedMetadataProjection.Apply(current, original, freshOriginal, _maxBytes, cancellationToken);
-        }
         foreach (var id in recoveryCaptured.IncompleteIds) current.Fields.Remove(id);
         // A retry ID already contributes one original-coverage omission. Do not count the
         // same known identity a second time when the current target is still unavailable.
