@@ -819,6 +819,27 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("StatusCodes.Status413PayloadTooLarge",
                       source("src/SaveToolkit.Api/Infrastructure/ApiRequestValidation.cs"))
 
+    def test_selective_helper_inventory_matches_production_calls(self):
+        section = markdown_section(document("docs/PLUGIN_GUIDE.md"), "### Selective helper adoption")
+        _, rows = markdown_table(section)
+        self.assertCountEqual([name for name, _, _ in plugins()], [row[0] for row in rows])
+        for name, calls, _ in rows:
+            for helper in re.findall(r"`([^`]+)`", calls):
+                with self.subTest(plugin=name, helper=helper):
+                    usage = subprocess.run(["git", "grep", "--quiet", "--fixed-strings", helper, CODE_REF,
+                        "--", f"plugins/{name}/SaveToolkit.Plugins.{name}/*.cs"], cwd=ROOT, check=False)
+                    self.assertEqual(0, usage.returncode, f"{helper} is not used in production code")
+
+        retained = {"GenericJson": ("ActionPlans", "InMemoryCollection"),
+                    "FinalFantasy16": ("RegisterField(", "IFieldMetadataDocument"),
+                    "UnrealGvas": ("OodleWorkspace",), "Insomniac": ("InMemoryCollection", "ActionPlans")}
+        for name, helpers in retained.items():
+            for helper in helpers:
+                with self.subTest(plugin=name, retained=helper):
+                    usage = subprocess.run(["git", "grep", "--quiet", "--fixed-strings", helper, CODE_REF,
+                        "--", f"plugins/{name}/SaveToolkit.Plugins.{name}/*.cs"], cwd=ROOT, check=False)
+                    self.assertEqual(1, usage.returncode, "Reassess the documented selective adoption")
+
     def test_selection_table_binding_matches_the_code_ref_contract(self):
         contract = markdown_section(document("docs/PLUGIN_GUIDE.md"),
                                     "### Selection-table binding and advisory conformance (#40)")
@@ -910,6 +931,11 @@ class DocumentationTests(unittest.TestCase):
         appendix = re.search(r"The (\d+) resolved rows", text)
         self.assertIsNotNone(appendix)
         self.assertEqual(counts["resolved"], int(appendix[1]))
+        roadmap = document("docs/plans/ROADMAP.md").split("## Original plan", 1)[0]
+        roadmap_summary = re.search(r"(\d+) SDK requests: (\d+) open, (\d+) partially resolved, "
+                                    r"(\d+) resolved, (\d+) obsolete", roadmap)
+        self.assertIsNotNone(roadmap_summary)
+        self.assertEqual(summary.groups(), roadmap_summary.groups())
 
     def test_documented_reference_and_action_routes_exist(self):
         guide = document("docs/PLUGIN_GUIDE.md")
@@ -963,9 +989,12 @@ class DocumentationTests(unittest.TestCase):
                 self.assertIn("../PLUGINS.md", introduction)
                 self.assertNotIn("## Current state (evidence)", text)
         proposal = document("docs/plans/F13-FIELD-SPEC-PUBLISHING.md")
-        self.assertIn("partially delivered proposal", proposal)
-        self.assertIn("That part of the proposal is done", proposal)
-        self.assertIn("remain proposed", proposal)
+        self.assertIn("delivered opt-in proposal", proposal)
+        self.assertIn("historical pre-SDK-02 design", proposal)
+        self.assertNotIn("remain proposed", proposal)
+        self.assertIn("CanonicalValueId", source("src/SaveToolkit.Sdk/FieldMetadata.cs"))
+        self.assertIn("ResolveFieldMetadata", source("src/SaveToolkit.Sdk/DocumentGroups/DocumentMemberAdapter.cs"))
+        self.assertIn("CaptureTargetedOriginals", source("src/SaveToolkit.Core/Sessions/SemanticReview.cs"))
         roadmap = document("docs/plans/ROADMAP.md").split("## Original plan", 1)[0]
         self.assertIn("F1–F14 are implemented", roadmap)
         self.assertNotIn("Yōtei remains read-only", roadmap)

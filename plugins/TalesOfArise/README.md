@@ -729,11 +729,11 @@ remain plugin policy. Fixed row actions encode their record key so
 `ResolveSelection` enforces it on Core's fresh inspection document. Catalog-wide
 pickers retain their action IDs and allow choosing other pinned records.
 
-Remaining request: bounded F8 traversal in Core semantic review. Its original/current
-view walk still does not query F8 collections. Quantity changes are listed by value
-ID, but query-only inventory fields have no semantic-review jump or individual Revert;
-use undo/redo or edit the loaded quantity field. F6 previews still include named
-old/new quantities and apply as one undo group. No duplicate eager editor is added.
+SDK-01 is resolved: Core’s original/current semantic review traverses bounded F8 pages,
+retains labels and revision-bound row/query targets, and supports individual Revert for eligible
+writable fields. `QueryableSemanticReviewTests` and `QueryableSemanticReviewApiTests` cover the host
+path. Row/page/byte cuts report incomplete coverage. This plugin retains its existing inventory
+collection and one-step F6 undo; no duplicate eager editor or SDK-02 opt-in is implied.
 
 SDK-05 is resolved and adopted: `AriseAssets.Icon` delegates to the five-argument
 `ReferenceViews.Icon` overload with the document's pinned context. `AssetIdOnly`

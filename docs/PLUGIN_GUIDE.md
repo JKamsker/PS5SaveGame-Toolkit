@@ -187,14 +187,19 @@ copies navigation paths but retains the spec and delegates. The document is not 
 direct callers must serialize registration/resolution with views, edits, planning and restores.
 Structural changes and memento restores clear both bindings and published metadata; resolve them
 again from stable logical identity. Do not capture objects from a model replaced by undo or group
-publication. Group implementations opting in must forward resolution to their current/staged members
-and map identities themselves; the group interfaces are unchanged.
+publication. Opt-in groups use `DocumentMemberAdapter.ResolveFieldMetadata` and
+`DocumentMemberRouter.ResolveFieldMetadata` to qualify field/canonical IDs and real paths against
+current members. Staged groups forward to the current candidate; group interfaces remain unchanged.
+Optional `IGroupedFieldContext` supplies the selected member’s actual role and relative path.
 
 `FieldBindingKind.Primary` is the default. A derived alias/consequence must use `Derived` and a
 `ReadOnly` spec, with no independent setter. Report primary and derived `ValueChange`s; setters
 recompute consequences atomically. Undo/redo re-resolves current metadata and replays writable
 primaries only. Read-only primary metadata is also permitted and is never replayed. This policy
 does not bypass dependency checks, custom validation, or format-integrity repair.
+`CanonicalValueId` explicitly joins a read-only derived alias to a published writable primary;
+an empty value is normalized to the field’s own ID. Core validates target/spec agreement and rejects
+cycles or contradictory aliases. Values, labels and ID prefixes never establish identity.
 
 Render a registered field later with `Field(id, label)`. Registered metadata takes precedence over
 view-learned metadata, and specs must agree in all properties, including nested options and hints;
@@ -214,10 +219,12 @@ resolver for selected quantities); Core cannot discover IDs that a rejected plan
 
 Existing documents do not opt in merely by inheriting `BoundSaveDocument` or using the older
 `RegisterField(id, spec, get, set, validate)` overload. Their view discovery, planning and replay
-behavior is preserved. Canonical labels and paths are published for consumers, but targeted semantic
-review of unloaded IDs is separate work; this API alone does not promise complete review coverage.
+behavior is preserved. Core captures affected originals before mutation and resolves current
+published IDs for review, retaining validated explicit aliases. Missing, invalid or over-budget metadata
+reports incomplete coverage; navigation requires a real current target. This remains bounded,
+opt-in coverage. See [F13 metadata](F13-FIELD-METADATA.md) and Core `SemanticReviewR*Tests.cs`.
 
-### Lossless JSON scalar patches (SDK-06 foundation)
+### Lossless JSON scalar patches (SDK-06 adoption)
 
 `SaveToolkit.Sdk.Json.LosslessJsonDocument` parses bounded strict UTF-8 while retaining the input
 bytes, BOM, trivia, duplicate property occurrences and exact scalar lexemes. `ReplaceScalar` may
@@ -229,9 +236,10 @@ and `tests/SaveToolkit.Core.Tests/LosslessJsonDocumentTests.cs`.
 
 This is a shared lexical substrate, not a structural JSON adapter. Keep native identities,
 duplicate-key policy, envelopes/XOR, checksums and complete output verification in the plugin. SDK-06
-remains open until **both GenericJson and XorJson consumers are merged on `main`** with their
-format-specific no-op, identity, envelope and reopen evidence. Do not mark a plugin adopted from
-the foundation or from a preparation branch.
+is resolved: both GenericJson and XorJson use shared parsing and unchanged-topology scalar patches.
+Their `JsonTokenTree` adapters retain local structural writers, identities, snapshots and envelopes.
+Consumer tests include GenericJson `JsonSubstrateHistoryTests.cs` and XorJson `Sdk06ResourceTests.cs`;
+this adoption does not establish gameplay or console acceptance.
 
 ### Canonical field references (SDK-08 foundation and UnrealGvas adoption)
 
@@ -269,10 +277,14 @@ and capacity overflow. See the [SFO substrate tutorial](../docs-site/tutorials/s
 and `tests/SaveToolkit.Core.Tests/ParamSfoPatchTests.cs`.
 
 This substrate is not an owned-system-output workflow by itself. The separate system-output ownership
-foundation is now on `main`, while the host/plugin still must apply its ownership, whole-output
-verification, history and export rules around any output. SDK-10 remains open until controlled
-whole-byte caption evidence and a later SuckerPunch consumer justify any `param.sfo SUBTITLE`
-synchronization. Preserve system metadata today; do not claim automatic caption updates.
+foundation and SuckerPunch’s manual Tsushima caption consumer are delivered. The consumer declares
+its existing SFO output, retains primary bytes and uses complete byte mementos for history.
+`TextSpec.MaxUtf8Bytes` is a logical payload limit; the caption uses
+`min(entry.MaximumLength, MaxEncodedValueBytes) - 1` to reserve the required SFO NUL byte.
+Field/action hints and strict host validation are delivered; see [text capacity](TEXT_CAPACITY.md),
+`CaptionSessionTests.cs`, `CaptionOwnershipTests.cs` and `CaptionMementoTests.cs` in the SuckerPunch tests.
+SDK-10 remains open for automatic timer/difficulty-to-`SUBTITLE` synchronization. Manual caption
+byte/history/browser tests do not establish that gameplay relationship or native acceptance.
 
 ## View vocabulary (src/SaveToolkit.Sdk/Views)
 
@@ -1199,7 +1211,8 @@ filter/sort and float duration hints. Storage-only `RegisterField` is also shipp
 supplies optional field metadata and canonical primary/derived policy independently of views (see
 above and the historical [F13 field-spec publishing design](plans/F13-FIELD-SPEC-PUBLISHING.md)).
 Keep plugin guards until the plugin adopts live binding resolution and verifies unloaded edits and
-exact undo/redo. Complete targeted semantic review remains a separate integration concern.
+exact undo/redo. Targeted original/current capture and explicit canonical aliases are delivered;
+coverage remains bounded by the metadata and review limits.
 
 ## Reference packs
 
@@ -1778,6 +1791,47 @@ and adjacent SDK-request notes describe their retained plugin policies.
 | SDK-05 | [BaldursGate3](../plugins/BaldursGate3/README.md#framework-feature-adoption) | Used | `ReferenceViews.Icon` with `RequireProvenance`. |
 | SDK-05 | [TalesOfArise](../plugins/TalesOfArise/README.md#framework-feature-adoption) | Used | `ReferenceViews.Icon` with `AssetIdOnly`, exact alt text and em-dash fallback. |
 
+### Preset adoption (SDK-07)
+
+Host-owned `PresetStore` and `PresetTransferService` keep versioned toolkit presets outside save
+bytes. FF7’s `IPresetDocument` adapter captures/resolves its five existing F6 actions with variant,
+pinned reference and owned-instance compatibility. Missing/Ambiguous/Unsupported targets remain
+explicit; stale previews require another preview. `Sdk07PresetAdapterTests.cs` covers this consumer;
+Core `PresetTransferCompositionTests.cs` covers transfer. Production browser coverage lives in
+`web/e2e/ff7-*.e2e.ts` and `preset-transfer*.e2e.ts`; execution is recorded separately in #81.
+This does not supply native socket/loadout allocation or direct weapon assignment.
+
+### Selective helper adoption
+
+Production helper use is listed for all 17 plugins; F1–F14 applicability remains in each README. A delivered helper does not require migration; change retained
+implementations only for concrete behavior or measured value. GenericJson’s whole-tree search,
+breadcrumbs, exact/null/union editing and reset, and shipped relationship views are existing features.
+
+| Plugin | Shared helpers used | Retained local scope |
+| --- | --- | --- |
+| AstroPlayroom | `InMemoryCollection`, `ActionPlans` | Text spans, icons and inspection |
+| AtomicHeart | `ActionPlans`, `BoundedBinaryCursor`, `FStringCodec`, `ReferenceInspection`, `OodleWorkspace` | Queries and FString writing |
+| BaldursGate3 | `BoundedBinaryCursor`, `ReferenceViews.Icon` | Container queries and dependency policy |
+| Cyberpunk2077 | `InMemoryCollection`, `ActionPlans`, `BoundedBinaryCursor` | Reference/icon joins and spatial paging |
+| EldenRing | `ActionPlans`, `ReferenceCatalogReader` | Inventory queries, primary item index and binary/icon/inspection code |
+| FinalFantasy16 | `ActionPlans`, `Crc32Ieee`, `EmbeddedReferenceContext` | Queries and full-Field binding registration; SDK-32 migration needs measured value |
+| FinalFantasy7 | `InMemoryCollection`, `ActionPlans`, `EmbeddedReferenceContext`, `ReferenceCatalogReader` | Native selectors, joins and icon policy |
+| Gearbox | `ActionPlans`, `BoundedBinaryCursor`, `FStringCodec`, `Crc32Ieee`, `ReferenceViews.Icon`, `DocumentMemberAdapter` | Queries, scalar transactions and structural lifecycle |
+| GenericJson | `LosslessJsonDocument`, `ExactJsonNumber` | Enum fallback, action revalidation, JSON queries and structural writer |
+| GodOfWarRagnarok | `InMemoryCollection`, `Crc32Ieee`, `EmbeddedReferenceContext`, `ReferenceCatalogReader` | Counter queries and binary readers |
+| Insomniac | None from this helper set | Binary readers, queries and action revalidation |
+| Pragmata | `ActionPlans` | Typed reader, collection indexes and reference/icon/inspection code |
+| SuckerPunch | `ActionPlans`, `ParamSfoDocument` | Queries, Yōtei plan comparison, parsers and byte-sum checksums |
+| TalesOfArise | `ActionPlans`, `ReferenceViews.Icon`, `ReferenceInspection` | Queries, linked binary traversal and catalog enumeration |
+| UnrealGvas | `BoundedBinaryCursor`, `FStringCodec` | Property/SQL queries and catalog paging; allocating Kraken overload, no SDK-31 workspace adoption |
+| Witcher3 | `ActionPlans` | Binary/query/catalog/icon/inspection code |
+| XorJson | `LosslessJsonDocument`, `DocumentMemberAdapter`, `ExactJsonNumber` | Structural writer, query/plan/icon/catalog policy and transformed envelopes |
+
+Metadata adoption is also selective: Pragmata quantities, Gearbox parsed fields/groups, XorJson
+scalars/groups, UnrealGvas scalars and SuckerPunch Tsushima fields/caption opt in. FF16’s existing
+unloaded bindings do not imply SDK-02 or storage-only SDK-32 adoption. Collection/catalog refactors
+remain choices, not reopened SDK gaps. Browser tests and native evidence remain separate from these calls.
+
 ## Action-owned effect metadata
 
 Actions that report absent/new records or action payloads may opt into `IActionEffectDocument` in
@@ -1809,3 +1863,9 @@ group candidate, and checks a member's structural token before replacing it with
 Optional float bounds may be absent independently, but supplied bounds must be finite and ordered.
 The preview's exact union copy is tagged JSON so opaque option IDs and nested typed values cannot
 collide with delimiter-containing text; scalar text copying remains complete and untruncated.
+
+The SDK/Core/API and synthetic preview renderer are delivered; no production plugin implements
+`IActionEffectDocument` in this checkout. Gearbox adoption and pure import/transfer planning remain
+[#81](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/81) work. Core `ActionEffect*Tests.cs`
+exercise the host contract; `web/e2e/action-effects.e2e.ts` intercepts responses and proves renderer
+behavior only. Neither establishes production Gearbox preview/apply or console acceptance.

@@ -634,16 +634,15 @@ unloaded-page guard is removed after exact-byte migration tests; resolver succes
 remains checked. Raw/F8/evidence quantity views reuse canonical IDs, eliminating the
 250 extra review entries in the 251-row regression. F8 all-matching selection,
 exclusions, stale-plan rejection and one undo unit remain covered. No SDK change is
-needed. This adoption does not claim targeted review beyond Core's bounded traversal
-or new canonicalization of non-quantity reference projections.
+needed. Core now also captures targeted original/current metadata for affected unloaded IDs;
+coverage remains bounded. Non-quantity reference projections are not newly canonicalized.
 
 The F13 follow-up explicitly publishes `CanonicalValueId` for the proven quantity
 projections above: each quantity path is self-canonical, while requested `raw/` and
 `inspect/value/` quantity metadata is read-only and points to that quantity path.
-This feature branch depends on the shared [PR58 foundation](https://github.com/JKamsker/PS5SaveGame-Toolkit/pull/58)
-and remains pending until the foundation and this Pragmata consumer are both merged
-into `main`; no aliases are declared for item IDs, catalogue references, or other
-primitive projections.
+The shared foundation and this consumer are merged on `main`.
+`QuantityMetadataTests` and `UnloadedQuantitySessionTests` cover the explicit aliases;
+no aliases are declared for item IDs, catalogue references or other primitive projections.
 
 F12 request resolved by [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32):
 `PragmataPlugin` implements the SDK's optional `ISaveDecoderProvider` and publishes

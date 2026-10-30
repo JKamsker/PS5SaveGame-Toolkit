@@ -1,22 +1,24 @@
-# F13: field specs independent of views — partially delivered proposal
+# F13: field specs independent of views — delivered opt-in proposal
 
-Issue #33 permits a design deliverable for this item. **Status — 2026-10-29:** storage-only
-binding registration shipped in `a1c08c0`, through `BoundSaveDocument.RegisterField(...)` and
-`Field(valueId, label)`. That part of the proposal is done. SDK-02 (`de78531`) also delivers
-`IFieldMetadataDocument`, canonical specs/labels, primary/derived classification, unloaded-edit
-and F6 preflight, and live replay bindings. Pragmata has adopted it while retaining its binding
-guard; opening quantity pages is no longer a prerequisite for planning or direct edits.
+**Status — 2026-10-30:** storage-only registration, SDK-02 metadata, targeted original/current
+semantic-review capture, explicit `CanonicalValueId` aliases and current-candidate group forwarding
+are delivered. The historical proposal below is superseded by the
+[shipped contract](../F13-FIELD-METADATA.md) and
+[plugin guide](../PLUGIN_GUIDE.md#field-metadata-without-rendering-a-page-sdk-02).
 
-The proposal remains partial because targeted original/current semantic-review metadata capture,
-generic cross-ID alias relationships and automatic group forwarding remain proposed. Pragmata's
-quantity projections already share canonical IDs; its 251-row regression expects 250 review
-entries for 250 edits. This does not establish a general cross-ID deduplication contract.
-See [the shipped SDK-02 contract](../PLUGIN_GUIDE.md#field-metadata-without-rendering-a-page-sdk-02)
-and [SDK-02 / SDK-32](../SDK_REQUESTS.md#prioritized-inventory).
+Pragmata publishes proven quantity aliases. Gearbox and XorJson publish current-member metadata
+and selected role/path context; UnrealGvas uses canonical scalar references; SuckerPunch publishes
+Tsushima quantity/timer/checksum and manual-caption metadata. These are selective integrations,
+not blanket metadata coverage. Gearbox has not adopted the separate action-effect contract.
 
-The design below preserves the **historical pre-SDK-02 problem and full proposed scope**.
-Its descriptions of missing metadata and future lifecycle work refer to that snapshot;
-the current contract and remaining integration limits above supersede them.
+`SemanticTargetedCapture`, `SemanticSnapshotComparison` and `DocumentMemberAdapter` implement the
+host/SDK path. Core `SemanticReviewR*Tests.cs` and `SemanticMemberContextCloseoutTests.cs`, Pragmata
+`UnloadedQuantitySessionTests.cs`, Gearbox `FieldMetadataR6SessionTests.cs` and XorJson
+`F13HostMatrixTests.cs` / `F13StructuralSessionTests.cs` cover it. Missing or over-budget metadata
+still reports incomplete coverage. Equal values, labels or prefixes never establish aliases.
+
+The remaining text is the **historical pre-SDK-02 design**, including its original verification
+requirements. Statements about absent APIs describe that snapshot.
 
 ## Historical problem before SDK-02
 
@@ -94,7 +96,5 @@ staging must resolve against the candidate model, never bindings from a previous
   incomplete coverage honestly when its bounded baseline cannot include them.
 - Grouped documents resolve/restage bindings correctly across members and publication boundaries.
 
-For current adoption, follow the shipped contract rather than treating this historical design as
-an absent API. Preserve plugin binding/dependency guards. Broader semantic-review and group
-integrations still need their own design, implementation and verification; SDK-02 delivery and
-Pragmata adoption do not complete every part of this proposal.
+For current adoption, follow the shipped contract and retain plugin binding/dependency guards.
+The capability is delivered; migration, bounded coverage and native/title evidence remain separate.

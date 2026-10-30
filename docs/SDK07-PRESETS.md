@@ -56,12 +56,13 @@ more than one action requires a plugin adapter and is rejected by the generic pa
 applying only part of it.
 
 The current web surface is a document-local Toolkit presets section. It exposes loading, empty, error,
-read-only, compatibility, preview, stale and apply states and keeps parameters local until Save is
-pressed. It is a foundation for a later native dialog/list and explicit owned-instance resolution UI.
-It does not imply a native loadout/socket writer: FF7 must first adopt `IPresetDocument` for supported
-F6 actions and provide variant/reference-pack identity and owned-instance candidate resolution.
+read-only, compatibility, preview, stale and apply states, typed action forms and explicit instance
+choices. Parameters stay local until Save is pressed. FF7 has adopted `IPresetDocument` for five
+existing F6 actions, with variant/reference identity and owned-instance resolution. Host preset
+transfer is also delivered; see [the transfer contract](SDK07-PRESET-TRANSFER.md).
+Native socket/loadout allocation and direct weapon assignment remain unsupported.
 
-For the planned FF7 adapter, the stable action identifiers and typed parameter contracts are:
+For the shipped FF7 adapter, the stable action identifiers and typed parameter contracts are:
 
 | action | parameters | supported semantic scopes |
 | --- | --- | --- |
