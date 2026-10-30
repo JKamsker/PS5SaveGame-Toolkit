@@ -52,9 +52,23 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
             switch (node)
             {
                 case FieldNode f:
-                    if (fields.ContainsKey(f.ValueId)) break;
                     var field = new SemanticField(f.ValueId, rowLabel is null ? f.Label : $"{rowLabel} / {f.Label}", path, f.Value, f.Spec.ReadOnly, target,
                         Spec: FieldSpecMetadata.Snapshot(f.Spec));
+                    if (fields.TryGetValue(f.ValueId, out var existing))
+                    {
+                        var merged = MergeNavigation(existing, field);
+                        var additional = SemanticSnapshot.Estimate(merged) - SemanticSnapshot.Estimate(existing);
+                        if (additional > limits.MaxOriginalBytes - bytes)
+                        {
+                            complete = false;
+                            queryCut |= target is not null;
+                            break;
+                        }
+
+                        bytes += additional;
+                        fields[f.ValueId] = merged;
+                        break;
+                    }
                     if (!SemanticSnapshot.TryEstimate(field, limits.MaxOriginalBytes - bytes, out var cost))
                     {
                         complete = false;
@@ -110,6 +124,17 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
             }
         }
 
+        static SemanticField MergeNavigation(SemanticField existing, SemanticField candidate)
+        {
+            var target = candidate.Target ?? existing.Target;
+            var path = candidate.Target is not null ? candidate.Path
+                : existing.Target is not null ? existing.Path
+                : existing.Path.Length == 0 && candidate.Path.Length > 0
+                ? candidate.Path
+                : existing.Path;
+            return existing with { Path = path, Target = target };
+        }
+
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -147,7 +172,12 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
 
         cancellationToken.ThrowIfCancellationRequested();
         return new SemanticSnapshot(fields, complete && queryTraversal.Warnings.Count == 0, bytes)
-        { QueryWarnings = queryTraversal.Warnings };
+        {
+            QueryWarnings = queryTraversal.Warnings,
+            ExaminedCount = fields.Count,
+            OmittedCount = 0,
+            OmittedCountIsLowerBound = !complete || queryTraversal.Warnings.Count > 0,
+        };
     }
 
 }
@@ -157,15 +187,17 @@ internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields,
     public Dictionary<string, SemanticField> Fields { get; } = fields;
     public bool Complete { get; set; } = complete;
     public long Bytes { get; set; } = bytes;
-    internal long OmittedCount { get; set; }
-    internal bool OmittedCountIsLowerBound { get; set; }
+    public long ExaminedCount { get; set; }
+    public long OmittedCount { get; set; }
+    public bool OmittedCountIsLowerBound { get; set; }
+    public bool MetadataPublished { get; set; }
     public IReadOnlyList<string> QueryWarnings { get; set; } = [];
     internal SemanticSnapshot Clone()
     {
         var copy = new SemanticSnapshot(Fields.ToDictionary(pair => pair.Key,
             pair => pair.Value with { Path = pair.Value.Path.ToArray() }, StringComparer.Ordinal), Complete, Bytes)
-        { QueryWarnings = QueryWarnings.ToArray(), OmittedCount = OmittedCount,
-            OmittedCountIsLowerBound = OmittedCountIsLowerBound };
+        { QueryWarnings = QueryWarnings.ToArray(), ExaminedCount = ExaminedCount, OmittedCount = OmittedCount,
+            OmittedCountIsLowerBound = OmittedCountIsLowerBound, MetadataPublished = MetadataPublished };
         return copy;
     }
 
@@ -176,20 +208,41 @@ internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields,
             Fields.Add(id, field with { Path = field.Path.ToArray() });
         Complete = source.Complete;
         Bytes = source.Bytes;
+        QueryWarnings = source.QueryWarnings.ToArray();
+        ExaminedCount = source.ExaminedCount;
         OmittedCount = source.OmittedCount;
         OmittedCountIsLowerBound = source.OmittedCountIsLowerBound;
-        QueryWarnings = source.QueryWarnings.ToArray();
+        MetadataPublished = source.MetadataPublished;
     }
 
     internal void Merge(SemanticSnapshot source, long maxBytes)
     {
         Complete &= source.Complete;
         QueryWarnings = [.. QueryWarnings, .. source.QueryWarnings];
+        ExaminedCount += source.ExaminedCount;
         OmittedCount += source.OmittedCount;
         OmittedCountIsLowerBound |= source.OmittedCountIsLowerBound;
+        MetadataPublished |= source.MetadataPublished;
         foreach (var field in source.Fields.Values)
         {
-            if (Fields.ContainsKey(field.ValueId)) continue;
+            if (Fields.TryGetValue(field.ValueId, out var existing))
+            {
+                var navigation = existing with
+                {
+                    Path = field.Path.Length == 0 ? existing.Path : field.Path,
+                    Target = field.Target ?? existing.Target,
+                };
+                var additional = Estimate(navigation) - Estimate(existing);
+                if (additional > maxBytes - Bytes)
+                {
+                    Complete = false;
+                    continue;
+                }
+
+                Bytes += additional;
+                Fields[field.ValueId] = navigation;
+                continue;
+            }
             var cost = Estimate(field);
             if (cost > maxBytes - Bytes) { Complete = false; continue; }
             Bytes += cost;

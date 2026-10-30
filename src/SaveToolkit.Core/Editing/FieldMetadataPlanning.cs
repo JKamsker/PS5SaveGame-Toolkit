@@ -9,7 +9,7 @@ public static class FieldMetadataPlanning
     // Matches DocumentSession's existing 5000-row action-scope policy. Semantic review keeps
     // its stricter 4096 retained-target cap, while atomic action preflight validates this
     // already-advertised scope without silently truncating it.
-    private const int MaxPlannedMetadataIds = 5000;
+    internal const int MaxPlannedMetadataIds = 5000;
 
     /// <summary>Legacy documents return no descriptors and retain their existing planning behavior.</summary>
     public static IReadOnlyList<FieldMetadata> Validate(ViewIndex index, ISaveDocument document, ActionPlan plan,

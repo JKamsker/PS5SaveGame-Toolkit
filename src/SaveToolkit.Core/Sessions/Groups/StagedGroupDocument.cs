@@ -2,6 +2,7 @@ using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Core.Editing;
 
 namespace SaveToolkit.Core.Sessions.Groups;
 
@@ -18,6 +19,7 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
     private readonly Action<CancellationToken> _preflight;
     private readonly long _maxSnapshotBytes;
     private readonly HashSet<string> _expanded = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _resolvedMetadataIds = new(StringComparer.Ordinal);
     private readonly Dictionary<string, (string Collection, QueryableCollectionQuery Query)> _queries = new(StringComparer.Ordinal);
     private IGroupedSaveDocument _current;
     private IReadOnlyList<FileOutput> _outputs;
@@ -51,9 +53,23 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
 
     internal bool MetadataEnabled => _current is IFieldMetadataDocument;
 
+    /// <summary>Forward only explicitly requested group ownership context from the current candidate.</summary>
+    internal IReadOnlyList<DocumentGroupFieldContext> ResolveFieldContext(IReadOnlyList<string> valueIds) =>
+        _current is IGroupedFieldContext context ? context.ResolveFieldContext(valueIds) : [];
+
     /// <summary>Forward bounded metadata to the currently published candidate.</summary>
-    public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds) =>
-        _current is IFieldMetadataDocument metadata ? metadata.ResolveFieldMetadata(valueIds) : [];
+    public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+    {
+        if (_current is not IFieldMetadataDocument metadata) return [];
+        var resolved = metadata.ResolveFieldMetadata(valueIds);
+        foreach (var field in resolved)
+        {
+            if (_resolvedMetadataIds.Count >= FieldMetadataLimits.MaxClosureIds) break;
+            _resolvedMetadataIds.Add(field.ValueId);
+        }
+
+        return resolved;
+    }
     public AssetContent? GetAsset(string assetId) => _current.GetAsset(assetId);
     public ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count) => _current.ReadBlob(blobId, offset, count);
 
@@ -78,7 +94,8 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         return page;
     }
 
-    public EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits) => Mutate(candidate => candidate.ApplyEdits(edits));
+    public EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits) =>
+        Mutate(candidate => candidate.ApplyEdits(edits), edits.Select(edit => edit.ValueId).ToArray());
 
     public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {
@@ -112,7 +129,8 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         cancellationToken.ThrowIfCancellationRequested();
         var memento = _current.CaptureMemento();
         cancellationToken.ThrowIfCancellationRequested();
-        var candidate = CreateCandidate(memento, rebind: true, cancellationToken);
+        var candidate = CreateCandidate(memento, out _, rebind: true, includeResolvedMetadata: true,
+            cancellationToken: cancellationToken);
         try
         {
             var plan = Planner(candidate).PlanAction(actionId, parameters, scope);
@@ -133,17 +151,21 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
     {
         var expanded = _expanded.ToArray();
         var queries = _queries.ToArray();
+        var metadataIds = _resolvedMetadataIds.ToArray();
         return () =>
         {
             _expanded.Clear();
             _expanded.UnionWith(expanded);
             _queries.Clear();
             foreach (var query in queries) _queries.Add(query.Key, query.Value);
+            _resolvedMetadataIds.Clear();
+            _resolvedMetadataIds.UnionWith(metadataIds);
         };
     }
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
-        Mutate(candidate => Planner(candidate).ApplyActionPlan(actionId, parameters, scope, plan));
+        Mutate(candidate => Planner(candidate).ApplyActionPlan(actionId, parameters, scope, plan),
+            plan.Changes.Select(change => change.ValueId).ToArray());
 
     public IReadOnlyList<FileOutput> Serialize() => SerializeForSnapshot(CancellationToken.None)
         .Select(output => output with { Content = output.Content.ToArray() }).ToArray();
@@ -159,7 +181,8 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
     public DocumentMemento RestoreMemento(DocumentMemento memento)
     {
         var inverse = _current.CaptureMemento();
-        var candidate = CreateCandidate(memento, rebind: false);
+        var candidate = CreateCandidate(memento, out var retiredMetadataIds, rebind: false,
+            includeResolvedMetadata: true);
         IReadOnlyList<FileOutput> outputs;
         try { outputs = _verify(candidate); }
         catch (Exception failure)
@@ -168,15 +191,20 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
             throw;
         }
         Publish(candidate, outputs);
+        RetireMetadataIds(retiredMetadataIds);
+        RetireMetadataIds(ResolveCandidateMetadata(candidate, includeResolvedMetadata: true, additionalIds: null,
+            CancellationToken.None));
         return inverse;
     }
 
     public void Dispose() => _current.Dispose();
 
-    private EditOutcome Mutate(Func<IGroupedSaveDocument, EditOutcome> mutation)
+    private EditOutcome Mutate(Func<IGroupedSaveDocument, EditOutcome> mutation,
+        IReadOnlyList<string>? metadataIds = null)
     {
         var before = _current.CaptureMemento();
-        var candidate = CreateCandidate(before);
+        var candidate = CreateCandidate(before, out var retiredMetadataIds,
+            includeResolvedMetadata: metadataIds is not null, metadataIds: metadataIds);
         try
         {
             var outcome = mutation(candidate);
@@ -194,7 +222,12 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
             // Check the new view before publication as well. Every committed group mutation is a
             // structural boundary, so all F8 pages/lazy views and F6 plans become stale together.
             _ = candidate.BuildView();
+            var postMutationRetired = ResolveCandidateMetadata(candidate, includeResolvedMetadata: true,
+                additionalIds: null, CancellationToken.None);
             Publish(candidate, outputs);
+            RetireMetadataIds(retiredMetadataIds);
+            RetireMetadataIds(postMutationRetired);
+            TrackMetadataIds(metadataIds);
             candidate = null;
             return outcome with { Revert = before, StructureChanged = true };
         }
@@ -228,7 +261,9 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         }
     }
 
-    private IGroupedSaveDocument CreateCandidate(DocumentMemento memento, bool rebind = true,
+    private IGroupedSaveDocument CreateCandidate(DocumentMemento memento,
+        out IReadOnlyList<string> retiredMetadataIds, bool rebind = true,
+        bool includeResolvedMetadata = false, IReadOnlyList<string>? metadataIds = null,
         CancellationToken cancellationToken = default)
     {
         _preflight(cancellationToken);
@@ -238,6 +273,8 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         {
             cancellationToken.ThrowIfCancellationRequested();
             _ = candidate.RestoreMemento(memento);
+            cancellationToken.ThrowIfCancellationRequested();
+            retiredMetadataIds = ResolveCandidateMetadata(candidate, includeResolvedMetadata, metadataIds, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             _ = candidate.BuildView();
             cancellationToken.ThrowIfCancellationRequested();
@@ -261,6 +298,42 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         {
             SessionCleanup.DisposeAfterFailure(candidate, failure, "Group candidate construction and cleanup failed.");
             throw;
+        }
+    }
+
+    private IReadOnlyList<string> ResolveCandidateMetadata(IGroupedSaveDocument candidate, bool includeResolvedMetadata,
+        IReadOnlyList<string>? additionalIds, CancellationToken cancellationToken)
+    {
+        if (candidate is not IFieldMetadataDocument) return [];
+        var ids = (includeResolvedMetadata ? _resolvedMetadataIds : [])
+            .Concat(additionalIds ?? [])
+            .Where(id => !string.IsNullOrEmpty(id)).Distinct(StringComparer.Ordinal).ToArray();
+        if (ids.Length == 0) return [];
+        if (ids.Length > FieldMetadataLimits.MaxClosureIds)
+            throw new InvalidOperationException($"Group candidate metadata exceeds the bounded limit of {FieldMetadataLimits.MaxClosureIds} IDs.");
+
+        var required = (additionalIds ?? []).Where(id => !string.IsNullOrEmpty(id))
+            .ToHashSet(StringComparer.Ordinal);
+        var index = new FieldMetadataIndex(candidate);
+        index.ResolveAll(ids, FieldMetadataLimits.MaxClosureIds, cancellationToken);
+        var retired = ids.Where(id => index.Cached(id) is null && !required.Contains(id)).ToArray();
+        if (ids.Any(id => index.Cached(id) is null && required.Contains(id)))
+            throw new InvalidOperationException("Group candidate metadata could not rebind every affected field.");
+        return retired;
+    }
+
+    private void RetireMetadataIds(IReadOnlyList<string> ids)
+    {
+        foreach (var id in ids) _resolvedMetadataIds.Remove(id);
+    }
+
+    private void TrackMetadataIds(IReadOnlyList<string>? ids)
+    {
+        if (ids is null) return;
+        foreach (var id in ids)
+        {
+            if (_resolvedMetadataIds.Count >= FieldMetadataLimits.MaxClosureIds) break;
+            if (!string.IsNullOrEmpty(id)) _resolvedMetadataIds.Add(id);
         }
     }
 

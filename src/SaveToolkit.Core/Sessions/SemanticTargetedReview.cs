@@ -11,7 +11,7 @@ internal static class SemanticTargetedReview
         CancellationToken cancellationToken)
     {
         if (valueIds.Count == 0) return new(true, [], []);
-        var result = capture.Capture(document, snapshot, valueIds, cancellationToken);
+        var result = capture.Capture(document, snapshot, valueIds, cancellationToken, markIncomplete: revokeOnFailure);
         if (result.IncompleteIds.Count > 0)
         {
             if (revokeOnFailure)

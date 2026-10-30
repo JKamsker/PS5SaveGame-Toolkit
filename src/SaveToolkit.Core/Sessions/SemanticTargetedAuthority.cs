@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SaveToolkit.Core.Editing;
+using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
@@ -7,11 +8,15 @@ using SaveToolkit.Sdk.Values;
 namespace SaveToolkit.Core.Sessions;
 
 internal sealed record CanonicalMetadataOutcome(bool Applied, IReadOnlyList<string> IncompleteIds,
-    string? Diagnostic = null);
+    string? Diagnostic = null, IReadOnlyList<string>? RecoveredIds = null)
+{
+    public IReadOnlyList<string> Recovered => RecoveredIds ?? [];
+}
 
 internal static class SemanticTargetedAuthority
 {
-    public static void Validate(SemanticSnapshot original, SemanticSnapshot current)
+    public static void Validate(SemanticSnapshot original, SemanticSnapshot current,
+        ReferenceFieldService references)
     {
         foreach (var (id, before) in original.Fields)
         {
@@ -19,13 +24,18 @@ internal static class SemanticTargetedAuthority
             if (string.Equals(before.CanonicalValueId, after.CanonicalValueId, StringComparison.Ordinal)
                 && before.BindingKind == after.BindingKind && before.ReadOnly == after.ReadOnly
                 && before.Spec is { } beforeSpec && after.Spec is { } afterSpec
-                && AuthoritySpecAgree(beforeSpec, afterSpec)) continue;
+                && AuthoritySpecAgree(beforeSpec, afterSpec)
+                && OriginalValueMatchesCurrentPolicy(before.Value, afterSpec, references)) continue;
             current.Fields.Remove(id);
             current.Complete = false;
             current.QueryWarnings = [.. current.QueryWarnings,
                 $"Targeted metadata coverage is incomplete: authority changed for '{id}'; revert is unavailable."];
         }
     }
+
+    private static bool OriginalValueMatchesCurrentPolicy(FieldValue value, FieldSpec spec,
+        ReferenceFieldService references) => FieldValueCoercer.Normalize(value, spec,
+            allowReadOnly: true, references).Ok;
 
     public static CanonicalMetadataOutcome ApplyCanonicalMetadata(ISaveDocument document, SemanticSnapshot snapshot,
         long maxBytes, CancellationToken cancellationToken)
@@ -35,7 +45,12 @@ internal static class SemanticTargetedAuthority
 
         var working = snapshot.Clone();
         var index = new FieldMetadataIndex(document, Math.Max(0, maxBytes - working.Bytes));
-        var ids = working.Fields.Keys.ToArray();
+        // Targeted capture already admitted these descriptors, including their current
+        // presentation. Re-resolving them here would spend the same review budget twice and
+        // could replace a current annotation with an older fallback. Only legacy fields need
+        // canonical authority enrichment.
+        var ids = working.Fields.Values.Where(field => !field.MetadataPublished)
+            .Select(field => field.ValueId).ToArray();
         foreach (var batch in ids.Chunk(FieldMetadataIndex.BatchSize))
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -62,7 +77,7 @@ internal static class SemanticTargetedAuthority
                     CanonicalValueId = string.IsNullOrEmpty(metadata.CanonicalValueId) ? id : metadata.CanonicalValueId,
                     BindingKind = metadata.BindingKind,
                     Spec = metadata.Spec,
-                    Presentation = metadata.Presentation,
+                    Presentation = metadata.Presentation, MetadataPublished = true,
                 };
                 if (!SemanticSnapshot.TryEstimate(updated, long.MaxValue, out var updatedCost)
                     || !SemanticSnapshot.TryEstimate(semantic, long.MaxValue, out var existingCost))

@@ -20,7 +20,8 @@ internal static class ActionReviewEndpoints
         doc.MapPost("/actions/apply", (DocumentRef d, ApplyActionPlanRequest request, CancellationToken ct) =>
             SessionEditResponse.Create(d.Value.ApplyActionPlan(request.PlanId, request.Revision, ct)))
             .Produces<SessionEditResult>().WithApiErrors(Status415UnsupportedMediaType);
-        doc.MapGet("/changes", (DocumentRef d, CancellationToken ct) => d.Value.GetChanges(ct));
+        doc.MapGet("/changes", (DocumentRef d, CancellationToken ct) => d.Value.GetChanges(ct))
+            .Produces<SemanticChangeLog>();
         doc.MapPost("/changes/revert", (DocumentRef d, RevertChangeRequest request, CancellationToken ct) =>
             SessionEditResponse.Create(d.Value.RevertChange(request.ValueId, request.Revision, ct)))
             .Produces<SessionEditResult>().WithApiErrors(Status415UnsupportedMediaType);
