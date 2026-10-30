@@ -8,9 +8,9 @@ namespace SaveToolkit.Core.Editing;
 /// <summary>Checks canonical binding policy before a preview is usable, and again before apply.</summary>
 public static class FieldMetadataPlanning
 {
-    // Canonical-only replay retains the current semantic 5000-row admission. Action planning
-    // uses its separate 2 * admitted exact-ID authority allowance below.
-    internal const int MaxPlannedMetadataIds = 5000;
+    // Replay must admit every authority that an accepted action can retain, including
+    // canonical targets reached through derived aliases. Selection row limits do not bound fields.
+    internal const int MaxPlannedMetadataIds = 2 * ActionPlanSnapshots.MaxPlanEntries;
 
     /// <summary>Legacy documents return no descriptors and retain their existing planning behavior.</summary>
     public static IReadOnlyList<FieldMetadata> Validate(ViewIndex index, ISaveDocument document, ActionPlan plan,

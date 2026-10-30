@@ -68,7 +68,7 @@ function useDocumentResult(workspaceId: string, documentId: string, session: Ses
       const diagnostics = currentStore.current.applyWithDiagnostics(result);
       if (result.structureChanged) { lifetime.generation++; await readSnapshot(); }
       if (!lifetime.active) return;
-      if (options?.failureFeedback !== "dialog") {
+      if (result.ok || options?.failureFeedback !== "dialog") {
         if (result.message) onToast(result.message);
         for (const w of result.warnings) onToast(w);
       }
