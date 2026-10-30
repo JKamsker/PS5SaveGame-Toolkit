@@ -6,7 +6,8 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.Gearbox;
 
-internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDocument, IActionPlanningDocument
+internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDocument, IActionPlanningDocument,
+    IFieldMetadataDocument, IGroupedFieldContext
 {
     private readonly IReferenceContext _references;
     private readonly MemberBytes[] _original;
@@ -49,6 +50,57 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
 
     public FieldValue GetValue(string valueId) => _router.Resolve(valueId).GetValue(valueId);
 
+    public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+    {
+        ArgumentNullException.ThrowIfNull(valueIds);
+        if (valueIds.Count > FieldMetadataLimits.MaxBatchSize)
+            throw new ArgumentOutOfRangeException(nameof(valueIds), valueIds.Count,
+                $"Request at most {FieldMetadataLimits.MaxBatchSize} field IDs per batch.");
+        foreach (var id in valueIds) ArgumentException.ThrowIfNullOrEmpty(id, nameof(valueIds));
+
+        // Unknown IDs follow the document contract and remain unavailable. A recognized identity
+        // must have exactly one owner; the router still validates member results and request order.
+        var owned = valueIds.Where(id =>
+        {
+            var matches = _members.Count(member => member.Owns(id));
+            if (matches > 1) throw new InvalidOperationException("The group identity matches multiple member policies.");
+            return matches == 1;
+        }).ToArray();
+        return owned.Length == 0 ? [] : _router.ResolveFieldMetadata(owned);
+    }
+
+    public IReadOnlyList<DocumentGroupFieldContext> ResolveFieldContext(IReadOnlyList<string> valueIds)
+    {
+        ArgumentNullException.ThrowIfNull(valueIds);
+        if (valueIds.Count > FieldMetadataLimits.MaxBatchSize)
+            throw new ArgumentOutOfRangeException(nameof(valueIds), valueIds.Count,
+                $"Request at most {FieldMetadataLimits.MaxBatchSize} field IDs per batch.");
+        foreach (var id in valueIds) ArgumentException.ThrowIfNullOrEmpty(id, nameof(valueIds));
+
+        var owners = new Dictionary<string, DocumentMemberAdapter>(StringComparer.Ordinal);
+        var ownedIds = new List<string>(valueIds.Count);
+        foreach (var id in valueIds.Distinct(StringComparer.Ordinal))
+        {
+            try
+            {
+                owners.Add(id, _router.Resolve(id));
+                ownedIds.Add(id);
+            }
+            catch (KeyNotFoundException) { }
+        }
+
+        if (owners.Count == 0) return [];
+        var metadata = _router.ResolveFieldMetadata(ownedIds);
+        var contexts = new List<DocumentGroupFieldContext>(metadata.Count);
+        foreach (var field in metadata)
+        {
+            if (!owners.TryGetValue(field.ValueId, out var owner)) continue;
+            var selected = _original.Single(member => member.Role == owner.Role);
+            contexts.Add(new DocumentGroupFieldContext(field.ValueId, owner.Role, selected.Path));
+        }
+        return contexts;
+    }
+
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => _router.Resolve(collectionId).Query(collectionId, query);
 
     public EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
@@ -59,6 +111,16 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
         {
             foreach (DocumentMemberEdits batch in _router.PartitionEdits(edits))
             {
+                // Staging replaces member documents before dispatch. Re-register every requested
+                // live binding on that candidate so unloaded item/account fields never retain an
+                // adapter or setter from the published model.
+                if (batch.Member.Document is GearboxDocument member)
+                {
+                    var localIds = batch.Edits.Select(edit => batch.Member.Local(edit.ValueId))
+                        .Distinct(StringComparer.Ordinal).ToArray();
+                    foreach (var chunk in localIds.Chunk(FieldMetadataLimits.MaxBatchSize))
+                        _ = member.ResolveFieldMetadata(chunk);
+                }
                 var outcome = batch.Member.ApplyEdits(batch.Edits);
                 if (!outcome.Succeeded)
                 {

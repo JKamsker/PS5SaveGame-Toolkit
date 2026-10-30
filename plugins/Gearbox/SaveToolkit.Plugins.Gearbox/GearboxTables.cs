@@ -37,14 +37,9 @@ internal sealed class GearboxTables(GearboxDocument document, GearboxLazyViews l
         var states = document.Root.All("game_state_save_data_for_playthrough").Count();
         for (var i = offset; i < Math.Min(states, offset + GearboxLazyViews.PageSize); i++)
         {
-            var index = i;
-            Func<ProtoMessage> get = () => document.Root.Children("game_state_save_data_for_playthrough").ElementAt(index);
-            nodes.Add(document.Integer($"world/{i}/difficulty", document.Root.Schema.Wonderlands ? $"Chaos level (playthrough {i})" : $"Mayhem level (playthrough {i})",
-                get, "mayhem_level", document.Root.Schema.Wonderlands ? 100 : 11, warning: SerialWrites.Warning) with
-                { Confidence = Confidence.Inferred, Description = "Existing playthrough difficulty only. Unlock challenges, modifier seeds and rewards are unchanged. " + SerialWrites.Warning });
+            nodes.Add(document.WorldDifficulty(i, false));
             if (document.Root.Schema.Wonderlands)
-                nodes.Add(document.Integer($"world/{i}/unlocked", $"Chaos unlocked (playthrough {i})", get, "mayhem_unlocked_level", 100, warning: SerialWrites.Warning) with
-                    { Confidence = Confidence.Inferred, Description = "Raw unlocked ceiling; trial milestones and rewards are unchanged. " + SerialWrites.Warning });
+                nodes.Add(document.WorldDifficulty(i, true));
         }
         if (offset + GearboxLazyViews.PageSize < states)
             nodes.Add(lazy.Register($"difficulty/{offset + GearboxLazyViews.PageSize}", "More playthroughs", () => Difficulty(offset + GearboxLazyViews.PageSize)));
@@ -87,10 +82,8 @@ internal sealed class GearboxTables(GearboxDocument document, GearboxLazyViews l
                 var current = document.Root.Children(list).ElementAt(index);
                 current.SetInteger("sdu_level", value);
                 var path = current.Text("sdu_data_path");
-                var inventory = path.Contains("SDU_Backpack.", StringComparison.Ordinal) ? GearboxInventory.Backpack :
-                    path.Contains("SDU_Bank.", StringComparison.Ordinal) ? GearboxInventory.Bank :
-                    path.Contains("SDU_LostLoot.", StringComparison.Ordinal) ? GearboxInventory.LostLoot : null;
-                if (inventory is not null) document.Inventory.EnsureCapacity(inventory, 0);
+                if (GearboxWritePolicies.StorageList(path) is { } inventory)
+                    document.Inventory.EnsureCapacity(inventory, 0);
             });
     }
 

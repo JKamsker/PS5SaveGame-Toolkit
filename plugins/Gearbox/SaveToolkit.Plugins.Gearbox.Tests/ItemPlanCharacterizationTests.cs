@@ -67,7 +67,7 @@ public sealed class ItemPlanCharacterizationTests
         Assert.Equal(RemovalIds, plan.Changes.Select(c => c.ValueId));
         Assert.Equal(new long[] { 1, 1, 0, 1, 2, 3 }, plan.Changes.Select(c => c.OldValue.AsInt64()));
         Assert.Equal(RemovedValues, plan.Changes.Select(c => c.NewValue.AsInt64()));
-        Assert.All(plan.Changes.Take(2), change => Assert.False(change.Derived));
+        Assert.All(plan.Changes.Take(2), change => Assert.True(change.Derived));
         Assert.All(plan.Changes.Skip(2), change => Assert.True(change.Derived));
         Assert.Equal(new[] { SerialWrites.Warning, StructuralWarning }, plan.Warnings);
         Assert.Equal(before, document.Serialize().Single().Content.ToArray());

@@ -8,7 +8,7 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Plugins.Gearbox;
 
 internal sealed class GearboxDocument(string relativePath, string titleId, GearboxContainer container, ProtoMessage root,
-    IReferenceContext references) : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
+    IReferenceContext references) : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument, IFieldMetadataDocument
 {
     private readonly Dictionary<string, Func<FieldValue>> _readers = new(StringComparer.Ordinal);
     private readonly GearboxLazyViews _lazy = new();
@@ -18,6 +18,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     private int _highestLevel = container.Profile ? 0 : root.Schema.Level(checked((int)root.Integer("experience_points")));
     private ItemBrowser? _items;
     private GearboxInventory? _inventory;
+    private GearboxProgressionBindings? _progression;
     internal GearboxInventory Inventory => _inventory ??= new(this);
     private GearboxItemActions? _actions;
     private GearboxItemActions Actions => _actions ??= new(this);
@@ -47,6 +48,13 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     public override string Title => Profile ? "Gearbox profile" : Root.Text("preferred_character_name");
     public override AssetContent? GetAsset(string assetId) => references.GetAsset(assetId);
 
+    /// <summary>Resolve only requested parsed fields; no view, lazy section or collection page is built.</summary>
+    public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds) =>
+        GearboxMetadata.Resolve(this, valueIds);
+
+    internal IReadOnlyList<FieldMetadata> ResolveRegistered(IReadOnlyList<string> valueIds) =>
+        base.ResolveFieldMetadata(valueIds);
+
     public override ViewNode BuildView()
     {
         var overview = new GearboxOverview(this);
@@ -65,23 +73,78 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _lazy.Expand(lazyId);
 
     internal FieldNode InspectionField(string id, string label, string value, Confidence confidence, string? source) =>
-        Bind(id, label, new TextSpec { ReadOnly = true, Multiline = true }, () => FieldValue.Of(value), null)
+        Bind(id, label, new TextSpec { ReadOnly = true, Multiline = true }, () => FieldValue.Of(value), null,
+            confidence: confidence, description: source)
             with { Confidence = confidence, Description = source };
 
     internal FieldNode InspectionReference(string id, string label, string value, string catalog, Confidence confidence, string? source) =>
-        Bind(id, label, new ReferenceSpec(catalog) { ReadOnly = true }, () => FieldValue.Of(value), null)
+        Bind(id, label, new ReferenceSpec(catalog) { ReadOnly = true }, () => FieldValue.Of(value), null,
+            confidence: confidence, description: source)
             with { Confidence = confidence, Description = source };
 
-    internal FieldNode ItemNumber(string id, string label, int minimum, int maximum, Func<int> get, Action<int> set) =>
+    internal FieldNode ItemNumber(string id, string label, int minimum, int maximum, Func<int> get, Action<int> set,
+        string? warning = null, string? description = null) =>
         Bind(id, label, new IntegerSpec(Math.Min(minimum, get()), Math.Max(maximum, get())), () => FieldValue.Of(get()),
             value => set(value.AsInt32()), value => value.Kind != FieldValueKind.Integer || value.AsInteger() < minimum || value.AsInteger() > maximum
-                ? "Value is outside the supported editor policy." : null, SerialWrites.Warning)
-            with { Confidence = Confidence.Inferred, Description = SerialWrites.Warning };
+                ? "Value is outside the supported editor policy." : null, warning ?? SerialWrites.Warning,
+            Confidence.Inferred, description ?? SerialWrites.Warning);
+
+    internal FieldNode DerivedItemNumber(string id, string canonicalId, string label, int minimum, int maximum, Func<int> get)
+    {
+        var field = Field(id, label, new IntegerSpec(Math.Min(minimum, get()), Math.Max(maximum, get())), () => FieldValue.Of(get()));
+        RegisterField(new FieldMetadata(id, label, field.Spec)
+        {
+            BindingKind = FieldBindingKind.Derived,
+            CanonicalValueId = canonicalId,
+            Presentation = new FieldPresentation
+            {
+                Confidence = Confidence.Inferred,
+                Description = SerialWrites.Warning,
+                Warning = SerialWrites.Warning,
+            },
+        }, () => FieldValue.Of(get()));
+        return field with { Confidence = Confidence.Inferred, Description = SerialWrites.Warning, Warning = SerialWrites.Warning };
+    }
+
+    internal FieldNode RawFlags(string id, Func<ProtoMessage> parent) =>
+        ActionObservation(id, "Item flags", IntegerSpec.UInt32,
+            () => FieldValue.Of(parent().Integer("flags")),
+            "Existing parsed flags are inspectable only. Mark actions change mask 6 and preserve unknown bits; arbitrary raw flag writes are unavailable.");
+
+    internal FieldNode MythPoints(string id, Func<ProtoMessage?> get, int position, int maximum, string description)
+    {
+        if (!Coordinated)
+            return InspectionField(id, "Stored points", GearboxAccountViews.TryIntegerAt(get()!,
+                "points_spent_by_index_order", position, out var observed, bounded: false)
+                ? observed.ToString(System.Globalization.CultureInfo.InvariantCulture) : "Absent",
+                Confidence.Inferred, description);
+        return ItemNumber(id, "Stored points", 0, maximum,
+            () => GearboxAccountViews.TryIntegerAt(get()!, "points_spent_by_index_order", position,
+                out var value, bounded: false) ? value : throw new SaveFormatException("The indexed Myth allocation is absent."),
+            next => ProtoArrayEdits.Set(get()!, "points_spent_by_index_order", position, next),
+            description: description);
+    }
 
     internal FieldNode PartReference(string id, Func<string> get, Action<string> set, Func<ReferenceRecord, ReferenceEligibility> assess, string source) =>
         Bind(id, "Serial part", new ReferenceSpec(ItemCatalogs.Indices) { Assess = assess }, () => FieldValue.Of(get()),
-            value => set(value.AsString()), value => value.Kind == FieldValueKind.Text ? null : "Choose a serial part ID.", SerialParts.Warning)
-            with { Confidence = Confidence.Inferred, Description = SerialParts.Warning + source };
+            value => set(value.AsString()), value => value.Kind == FieldValueKind.Text ? null : "Choose a serial part ID.",
+            SerialParts.Warning, Confidence.Inferred, SerialParts.Warning + source);
+
+    internal FieldNode ActionObservation(string id, string label, FieldSpec spec, Func<FieldValue> get, string description) {
+        var field = Field(id, label, spec with { ReadOnly = true }, get);
+        RegisterField(new FieldMetadata(id, label, field.Spec)
+        {
+            BindingKind = FieldBindingKind.Derived,
+            CanonicalValueId = id,
+            Presentation = new FieldPresentation
+            {
+                Confidence = Confidence.Inferred,
+                Description = description,
+                Warning = SerialWrites.Warning,
+            },
+        }, get);
+        return field with { Confidence = Confidence.Inferred, Description = description, Warning = SerialWrites.Warning };
+    }
 
     internal FieldNode AssetLabel(string id, string label, string path)
     {
@@ -90,15 +153,78 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
             record is null ? Confidence.Unknown : Confidence.Verified, record is null ? null : record.Name + ". " + record.AttributionText);
     }
 
+    internal FieldNode Presence(string id, Func<FieldValue> get)
+    {
+        var field = Bind(id, "Item presence", new IntegerSpec(0, 2), get, null,
+            warning: "Item presence is changed only by its structural action.", confidence: Confidence.Inferred,
+            description: "Current item identity is present. Duplicate and removal are structural actions; direct field edits are unavailable.");
+        RegisterField(new FieldMetadata(id, field.Label, field.Spec)
+        {
+            BindingKind = FieldBindingKind.Derived,
+            CanonicalValueId = id,
+            Presentation = new FieldPresentation
+            {
+                Confidence = field.Confidence,
+                Description = field.Description,
+                Warning = field.Warning,
+            },
+        }, get);
+        return field;
+    }
+
+    internal FieldNode DerivedInteger(string id, string label, Func<ProtoMessage> parent, string name, long maximum, long minimum = -1)
+    {
+        var field = Bind(id, label, new IntegerSpec(minimum, Math.Max(maximum, parent().Integer(name))),
+            () => FieldValue.Of(parent().Integer(name)), null,
+            value => value.Kind != FieldValueKind.Integer || value.AsInteger() < minimum || value.AsInteger() > maximum
+                ? "Value is outside the supported range." : null);
+        RegisterField(new FieldMetadata(id, field.Label, field.Spec)
+        {
+            BindingKind = FieldBindingKind.Derived,
+            CanonicalValueId = id,
+            Presentation = new FieldPresentation
+            {
+                Confidence = field.Confidence,
+                Description = field.Description,
+                Warning = field.Warning,
+            },
+        }, () => FieldValue.Of(parent().Integer(name)));
+        return field;
+    }
+
     internal FieldNode Integer(string id, string label, Func<ProtoMessage> parent, string name,
-        long max = int.MaxValue, bool writable = true, string? warning = null)
+        long max = int.MaxValue, bool writable = true, string? warning = null,
+        Confidence confidence = Confidence.Verified, string? description = null)
     {
         var current = parent().Integer(name);
         return Bind(id, label, new IntegerSpec(Math.Min(0, current), Math.Max(max, current)), () => FieldValue.Of(parent().Integer(name)),
             writable && current >= 0 && current <= max ? v => parent().SetInteger(name, v.AsInt64()) : null,
             v => v.Kind != FieldValueKind.Integer || v.AsInteger() < 0 || v.AsInteger() > max ? "Value is outside the supported range." : null,
-            warning);
+            warning, confidence, description);
     }
+
+    internal FieldNode AccountNumber(string id, string label, Func<ProtoMessage> get, string name,
+        long maximum, bool writable = true, string? description = null, string? warning = null) =>
+        Integer(id, label, get, name, maximum, Coordinated && writable, warning ?? SerialWrites.Warning,
+            Confidence.Inferred, description ?? "Existing raw stored value; observed range plus conservative editor bound. Point budgets, mirror precedence and derived rewards are not inferred. " + SerialWrites.Warning);
+
+    internal FieldNode WorldDifficulty(int index, bool unlocked, bool boundedDiscovery = false)
+    {
+        var wonderlands = Root.Schema.Wonderlands;
+        var label = unlocked ? $"Chaos unlocked (playthrough {index})" :
+            wonderlands ? $"Chaos level (playthrough {index})" : $"Mayhem level (playthrough {index})";
+        var description = unlocked ? "Raw unlocked ceiling; trial milestones and rewards are unchanged. " + SerialWrites.Warning :
+            "Existing playthrough difficulty only. Unlock challenges, modifier seeds and rewards are unchanged. " + SerialWrites.Warning;
+        return Integer($"world/{index}/{(unlocked ? "unlocked" : "difficulty")}", label,
+            () => GearboxMetadataLookup.RequireChild(Root, "game_state_save_data_for_playthrough", index, boundedDiscovery),
+            unlocked ? "mayhem_unlocked_level" : "mayhem_level", wonderlands ? 100 : 11,
+            warning: SerialWrites.Warning, confidence: Confidence.Inferred, description: description);
+    }
+
+    internal bool EnsureProgressionBindings(bool boundedDiscovery = false)
+        => (_progression ??= new(this)).Ensure(boundedDiscovery);
+
+    private static bool Has(ProtoMessage message, string name) => message.Fields.Any(field => field.Spec?.Name == name);
 
     internal FieldNode Text(string id, string label, Func<ProtoMessage> parent, string name, bool writable = false, int limit = 64)
     {
@@ -142,9 +268,13 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         v => v.Kind != FieldValueKind.Integer || v.AsInteger() < 0 || v.AsInteger() > int.MaxValue ? "Unsupported XP value." : null,
         "Changing XP can change level. Values beyond the supported level cap remain experimental.");
 
-    internal FieldNode Category(string list, uint hash, string label, long maximum, string id)
+    internal FieldNode Category(string list, uint hash, string label, long maximum, string id, bool boundedDiscovery = false)
     {
-        var current = Root.CategoryQuantity(list, hash);
+        var current = boundedDiscovery
+            ? GearboxMetadataLookup.TryFindMessage(Root, list,
+                category => category.Integer("base_category_definition_hash") == hash, out var category)
+                ? category.Integer("quantity") : 0
+            : Root.CategoryQuantity(list, hash);
         return Bind(id, label, new IntegerSpec(Math.Min(0, current), Math.Max(maximum, current)),
             () => FieldValue.Of(Root.CategoryQuantity(list, hash)),
             current >= 0 && current <= maximum ? v => Root.SetCategoryQuantity(list, hash, v.AsInt64()) : null,
@@ -153,15 +283,28 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     }
 
     private FieldNode Bind(string id, string label, FieldSpec spec, Func<FieldValue> get, Action<FieldValue>? set,
-        Func<FieldValue, string?>? validate = null, string? warning = null)
+        Func<FieldValue, string?>? validate = null, string? warning = null,
+        Confidence confidence = Confidence.Verified, string? description = null)
     {
         _readers[id] = get;
-        return Field(id, label, spec, get, set, validate) with
+        var field = Field(id, label, spec, get, set, validate) with
         {
-            Confidence = Confidence.Verified,
-            Description = GearboxWriteWarnings.SchemaEvidence,
+            Confidence = confidence,
+            Description = description ?? GearboxWriteWarnings.SchemaEvidence,
             Warning = set is null ? warning : GearboxWriteWarnings.ForWrite(warning),
         };
+        RegisterField(new FieldMetadata(id, label, field.Spec)
+        {
+            BindingKind = FieldBindingKind.Primary,
+            CanonicalValueId = id,
+            Presentation = new FieldPresentation
+            {
+                Confidence = field.Confidence,
+                Description = field.Description,
+                Warning = field.Warning,
+            },
+        }, get, set, validate);
+        return field;
     }
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
@@ -184,6 +327,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
             if (changes.Length == 0) return result with { Changes = changes };
             // Scalar edits retain their bindings: direct SDK callers may edit again before rebuilding.
             _items = null;
+            _inventory?.Invalidate();
             var outcome = result with { Changes = changes, StructureChanged = true, Revert = snapshot };
             committed = true;
             return outcome;
@@ -225,6 +369,8 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     internal void InvalidateItems()
     {
         _items = null;
+        _inventory?.Invalidate();
+        _progression?.Invalidate();
         _readers.Clear();
     }
     private void SetExperience(int experience)

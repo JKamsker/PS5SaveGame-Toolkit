@@ -33,9 +33,10 @@ public sealed class GroupStructuralSelectionTests
         var scope = new ActionScope([row]) { QueryScope = query };
         var plan = group.PlanAction(action.ActionId, Empty, scope);
         Assert.Empty(plan.Errors);
-        var primary = Assert.Single(plan.Changes, change => !change.Derived);
-        Assert.Equal(role + "/" + localId + "/presence", primary.ValueId);
-        Assert.Equal(FieldValue.Of(actionId == "items/remove" ? 0 : 2), primary.NewValue);
+        var presence = Assert.Single(plan.Changes, change => change.ValueId.EndsWith("/presence", StringComparison.Ordinal));
+        Assert.True(presence.Derived);
+        Assert.Equal(role + "/" + localId + "/presence", presence.ValueId);
+        Assert.Equal(FieldValue.Of(actionId == "items/remove" ? 0 : 2), presence.NewValue);
         Assert.DoesNotContain(plan.Changes, change => change.ValueId.StartsWith(role == "character" ? "profile/" : "character/", StringComparison.Ordinal));
         SelectionTestData.AssertBytes(group, before);
         Assert.False(group.ApplyActionPlan(action.ActionId, Empty, scope, plan with { Changes = [] }).Succeeded);

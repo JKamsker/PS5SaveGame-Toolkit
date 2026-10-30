@@ -49,7 +49,7 @@ internal sealed class GearboxOverview(GearboxDocument document)
         }
         var statIndex = root.Children("game_stats_data").ToList().FindIndex(s => s.Text("stat_path") == CharacterProgression.LevelStat(root.Schema.Wonderlands));
         if (statIndex >= 0)
-            nodes.Add(document.Integer("character/recorded-level", "Recorded level statistic", () => document.Root.Children("game_stats_data").ElementAt(statIndex), "stat_value",
+            nodes.Add(document.Integer(GearboxProgressionBindings.RecordedLevelId(0), "Recorded level statistic", () => document.Root.Children("game_stats_data").ElementAt(statIndex), "stat_value",
                 warning: "Updated with XP; this statistic alone does not change level."));
         nodes.AddRange(Currencies("inventory_category_list", "currency", false));
     }
