@@ -216,6 +216,27 @@ public sealed class SemanticAdmissionCloseoutTests(ITestOutputHelper output)
         output.WriteLine($"ENTRY={limit}; protected original and current retained; context {(cancel ? "cancellation" : "insufficient capacity")} publishes no trimming or uncharged context.");
     }
 
+    [Fact]
+    public void PartialContextAndInsufficientCapacityCountEachMissingIdentityOnce()
+    {
+        var a = Field("A", canonical: true);
+        var b = Field("B", canonical: true);
+        var original = Snapshot(a, b);
+        var current = Snapshot(a with { Value = FieldValue.Of(2) }, b with { Value = FieldValue.Of(2) });
+        var changes = new[] { a, b }.Select(field => new SemanticChange(field.ValueId, field.Label, [],
+            FieldValue.Of(1), FieldValue.Of(2), true, true, true) { CanonicalValueId = field.ValueId }).ToArray();
+
+        var result = SemanticContextAdmission.Resolve(_ => new Dictionary<string, SemanticMemberContext>
+        { ["A"] = new("character", "character.dat") }, changes, original, current, original.Bytes, CancellationToken.None);
+
+        Assert.False(result.Complete);
+        Assert.Empty(result.Contexts);
+        Assert.Equal(2, result.OmittedCount);
+        Assert.Equal(0, result.AcceptedBytes);
+        Assert.Equal(2, original.Fields.Count);
+        Assert.Equal(2, current.Fields.Count);
+    }
+
     private static SemanticField Field(string id, bool canonical) => new(id, id, [], FieldValue.Of(1), false,
         CanonicalValueId: canonical ? id : null, Spec: IntegerSpec.Int32, MetadataPublished: canonical);
 

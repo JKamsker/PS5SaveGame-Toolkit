@@ -35,8 +35,8 @@ internal static class SemanticContextAdmission
         }
         var bounded = SemanticMemberContextResolver.Resolve(_ => candidate.Contexts, changes,
             usedBytes, maxBytes, cancellationToken);
+        // This pass counts every missing identity, including those absent from the staged response.
         return bounded with { Complete = candidate.Complete && bounded.Complete,
-            OmittedCount = candidate.OmittedCount + bounded.OmittedCount,
             Diagnostic = candidate.Diagnostic ?? bounded.Diagnostic };
     }
 }
