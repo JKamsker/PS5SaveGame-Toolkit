@@ -148,6 +148,7 @@ describe("server table retained reads", () => {
     vi.spyOn(api, "queryCollection").mockResolvedValue(editable);
     const { client, generation } = setup();
     const input = await screen.findByRole<HTMLInputElement>("textbox", { name: /Quantity/ });
+    const viewport = screen.getByRole("region", { name: "Items rows" });
     const selected = screen.getByRole<HTMLInputElement>("checkbox", { name: "Select 2" });
     fireEvent.click(selected);
     fireEvent.change(input, { target: { value: "9" } });
@@ -158,6 +159,7 @@ describe("server table retained reads", () => {
     expect(input.isConnected).toBe(true);
     expect(input.value).toBe("9");
     expect(selected.checked).toBe(true);
+    expect(viewport.hasAttribute("inert")).toBe(newGeneration);
     if (newGeneration) expect(input.closest("[inert]")).not.toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Retry rows" }));
     await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
@@ -165,6 +167,7 @@ describe("server table retained reads", () => {
     expect(input.value).toBe("9");
     expect(selected.checked).toBe(true);
     expect(input.closest("[inert]")).toBeNull();
+    expect(screen.getByRole("region", { name: "Items rows" })).toBe(viewport);
     client.clear();
   });
 

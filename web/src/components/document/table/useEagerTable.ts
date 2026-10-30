@@ -8,9 +8,9 @@ import { usePublishTableSelection } from "./selectionBindings";
 import { useTableRows, type FacetSelection } from "./useTableRows";
 import { columnTrack, numericColumns } from "./presentation";
 import { uniformConfidence } from "./columnConfidence";
+import { ROW_HEIGHT } from "./keyboardScroll";
 
-/** Must match `.table__cell` height in table.css. Detail rows are measured. */
-export const ROW_HEIGHT = 41;
+export { ROW_HEIGHT } from "./keyboardScroll";
 const DETAIL_ESTIMATE = 240;
 const CONTROL_COLUMN = "36px";
 type Entry = { kind: "row"; row: TableRow } | { kind: "detail"; row: TableRow };

@@ -13,7 +13,9 @@ test("preset capture, compatibility summary and preview remain reachable", async
   await expect(panel.getByRole("heading", { name: "Saved presets", exact: true })).toBeVisible();
   await panel.getByLabel("Name", { exact: true }).fill("Browser preset");
   await panel.getByRole("button", { name: "Save preset", exact: true }).click();
-  await expect(panel.getByRole("status", { name: "Preset save result" })).toHaveText("Saved “Browser preset”.");
+  const saved = panel.getByRole("status", { name: "Preset save result", exact: true });
+  await expect(saved).toHaveCount(1);
+  await expect(saved).toHaveText("Saved “Browser preset”.");
 
   const row = panel.getByRole("listitem").filter({ hasText: "Browser preset" }).first();
   await expect(row.getByRole("button", { name: "Preview", exact: true })).toBeEnabled();
