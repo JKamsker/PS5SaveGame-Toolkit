@@ -24,13 +24,13 @@ internal sealed class CharacterPlanning(Ff7Schema schema, CharacterView characte
         {
             SupportsPlanning = true,
             SelectionTableId = SelectionTableId,
-            Description = RecoveryWarning + "Preview selected rows, or all seven displayed records when no selection is supplied. " + EmbeddedCatalogs.Attribution,
+            Description = RecoveryWarning + "Follow the characters table selection when rows are selected; with no selection, preview all seven displayed records. " + EmbeddedCatalogs.Attribution,
         },
         new ActionNode(LevelActionId, "Set selected character levels")
         {
             SupportsPlanning = true,
             SelectionTableId = SelectionTableId,
-            Description = LevelWarning + "Preview selected rows, or all seven displayed records when no selection is supplied. Invalid records and ambiguous source tiers are skipped.",
+            Description = LevelWarning + "Follow the characters table selection when rows are selected; with no selection, preview all seven displayed records. Invalid records and ambiguous source tiers are skipped.",
             Parameters = [new("level", "Target level", IntegerSpec.UInt8 with { Min = 1, Max = _curves.Max(curve => curve.Length) }, FieldValue.Of(25L))],
         },
     ];

@@ -65,6 +65,8 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
     {
         ArgumentNullException.ThrowIfNull(instances);
         ArgumentNullException.ThrowIfNull(choices);
+        if (_readOnly)
+            return new(instances.Select(ReadOnlyResolution).ToArray());
         var results = new List<PresetInstanceResolution>(instances.Count);
         var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var requested in instances)
@@ -112,6 +114,10 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
         }
         return new(results);
     }
+
+    private static PresetInstanceResolution ReadOnlyResolution(PresetInstanceReference? requested) =>
+        new(requested ?? new PresetInstanceReference("ff7.invalid", "ff7:invalid"),
+            PresetInstanceResolutionStatus.Unsupported, [], "common-file-read-only");
 
     public ActionPlan PlanPreset(IReadOnlyList<PresetAction> actions, SdkPresetResolution resolution)
     {

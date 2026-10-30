@@ -23,13 +23,13 @@ internal static class FinalFantasy7PresetIdentity
     {
         target = default!;
         var parts = reference.StableId.Split('/');
-        if (reference.Kind is "ff7.item-type" or "ff7.item-type.all-matches" or "ff7.materia-type.all-copies" or "ff7.character-index")
+        if (reference.Kind is "ff7.item-type" or "ff7.materia-type.all-copies" or "ff7.character-index")
         {
             if (parts.Length != 2 || !uint.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var id)) return false;
-            if (reference.Kind is "ff7.item-type" or "ff7.item-type.all-matches")
+            if (reference.Kind == "ff7.item-type")
             {
                 if (parts[0] != "ff7:item-type") return false;
-                target = new(PresetIdentityDomain.ItemType, id, AllMatches: reference.Kind.EndsWith("all-matches", StringComparison.Ordinal));
+                target = new(PresetIdentityDomain.ItemType, id);
             }
             else if (reference.Kind == "ff7.materia-type.all-copies")
             {
