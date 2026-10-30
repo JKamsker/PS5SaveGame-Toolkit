@@ -296,7 +296,7 @@ typecheck, Vitest and build commands; the locale mocks restore themselves after 
 using the MTP/xUnit `--filter-method '*MutationFuzz'` filter, on Ubuntu with coverage disabled.
 The default nightly seed is the UTC run date as a decimal `YYYYMMDD` integer. The summary records
 both its decimal and hexadecimal forms, mutation count, and actual per-plugin seed/case coverage.
-The nightly count is **5,000 mutations per seed**. A **60-second per-plugin wall-clock cap**
+The nightly count is **5,000 mutations per seed**. A **180-second per-plugin wall-clock cap**
 (including worker startup/preparation) and a **30-minute job timeout** bound the run. Exceeding a
 cap fails the test and kills the isolated worker; it never silently passes an incomplete run.
 
@@ -327,27 +327,27 @@ facts also query collections. No private bytes or extracted save data are embedd
 | XorJson | 2 | XOR-1 and byte-minus-one JSON. |
 
 No plugin requires a rejection-only seed. A small accepted Elden Ring file is infeasible because
-its probe requires the full fixed allocation. A local Windows preflight with seed `20261029` and
-5,000 requested mutations exceeded the 60-second cap near index 1,852; this is a run-budget failure,
-not evidence of a parser exception. Cyberpunk's two-seed run also exceeded that cap near the end
-of its second seed (index 4,756). The workflow's cap is unchanged. All 17 plugins now have
-sample-free inputs, but a complete green nightly run within that cap is not established.
+its probe requires the full fixed allocation, which sets the cap. The original 60-second cap failed
+depending on host speed: hosted runs at seed `0x013528A6` stopped Elden Ring at index 4,242 once and
+completed it in 49.6 seconds another time (a different commit, 180-second cap, whole job 4m17s), and a
+local Windows preflight at seed `20261029` stopped it near index 1,852 and Cyberpunk near index 4,756.
+Those were run-budget failures, not parser exceptions.
 FF7 uses small common files because `CoverageFixture` is sample-backed; its authored gameplay
 fixtures require 9-23 MiB each and remain in focused tests. Pragmata's synthetic integrity proves
 parser acceptance only, not authentic signing or console acceptance. See each plugin README's
 fuzz/testing notes for provenance and limitations. Local runs additionally use selected real samples.
-The workflow's introductory summary still mentions its original two built-in formats; use its actual
-per-plugin result table for coverage. The seed inventory above describes the current conformance hooks.
+Use the workflow's per-plugin result table for coverage. The seed inventory above describes the
+current conformance hooks.
 
 The sample-free Windows verification at seed `20261029` completed **135,000 mutations** across
 the 27 seeds then authored (the second Ragnarök seed came later): **21,527 opens**, **113,473 rejections**, zero unexpected or quarantined failures.
 An open means the complete probe/open/view/first-collection-pages/dispose lifecycle succeeded;
-rejections include nonmatching probes and documented format exceptions. The two cap failures
-were rerun with a 300-second local budget: Cyberpunk completed in 48.7 seconds and Elden Ring
+rejections include nonmatching probes and documented format exceptions. The two plugins that
+exceeded the original 60-second cap were rerun with a 300-second local budget: Cyberpunk completed in 48.7 seconds and Elden Ring
 in 107.7 seconds. The 17 completed runs totalled 369.8 seconds including build/runner overhead,
 with 154.9 seconds of parser work. These local timings vary with host load and do not establish
 hosted Ubuntu performance. Outcome counters were collected using scratch-only MSBuild
-instrumentation; the committed harness and nightly cap are unchanged.
+instrumentation; the committed harness is unchanged.
 
 The harness accepts these optional environment overrides; **unset** variables retain existing
 plugin defaults (normally seed `0x40C0FFEE`, 200 mutations per selected file, no overall plugin cap):

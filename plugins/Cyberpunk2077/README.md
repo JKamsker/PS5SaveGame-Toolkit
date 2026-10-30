@@ -786,7 +786,7 @@ container, chunk and node parsing; their opaque nodes do not claim gameplay-inve
 or progression coverage. No private sample bytes are embedded.
 
 A sample-free Windows run with seed `20261029` and 5,000 mutations per seed hit the
-60-second plugin cap near index 4,756 of the LZ4 seed. A 300-second-budget rerun
+original 60-second plugin cap near index 4,756 of the LZ4 seed. A 300-second-budget rerun
 completed all 10,000 cases in 48.7 seconds: 820 opens, 9,180 documented/probe
 rejections and no parser failures. The cap result depends on host load; its last
-checkpoint is not a crashing mutation. The nightly cap is unchanged.
+checkpoint is not a crashing mutation. The nightly cap is now 180 seconds.

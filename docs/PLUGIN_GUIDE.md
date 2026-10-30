@@ -1653,7 +1653,7 @@ seeds** without private samples. Shared defaults cover GenericJson (one) and Xor
 15 plugins reuse authored builders in their test projects. See the [per-plugin coverage table and
 limits](RELEASING.md#nightly-mutation-fuzz): FF7 covers common containers, Pragmata has parser-valid
 integrity without authentic RSA signing, and Elden Ring requires a large fixed allocation that
-exceeded the local 60-second nightly budget. No plugin has a rejection-only baseline.
+sets the 180-second nightly budget. No plugin has a rejection-only baseline.
 Override `MutationFuzzSyntheticSeeds` to supply small valid
 `ISaveFile`s, including required siblings, for sample-free CI. With neither samples nor synthetic
 seeds the fact reports a real skip. Environment overrides can select a different seed/count and
