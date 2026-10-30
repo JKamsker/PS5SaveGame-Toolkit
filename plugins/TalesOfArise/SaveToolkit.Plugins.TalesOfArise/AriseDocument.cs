@@ -241,7 +241,7 @@ internal sealed class AriseDocument(string path, string fileName, AriseSave save
         var valueId = AriseInventoryActions.RowKey(row);
         var idField = Field($"inventory/{row.Index}/id", $"0x{id:X4}",
             new ReferenceSpec(AriseReferences.ItemsCatalogId) { ReadOnly = true, AllowCustom = true },
-            () => FieldValue.Of(id.ToString())) with
+            () => FieldValue.Of(id.ToString(System.Globalization.CultureInfo.InvariantCulture))) with
             {
                 Confidence = row.IsEmpty || name is null ? Confidence.Unknown : Confidence.Inferred,
                 Description = row.IsEmpty ? "Zero item ID marks an empty slot; raw slot bytes are preserved."

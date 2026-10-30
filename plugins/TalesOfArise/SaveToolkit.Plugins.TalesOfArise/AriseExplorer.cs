@@ -1,3 +1,4 @@
+using System.Globalization;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.TalesOfArise;
@@ -10,7 +11,7 @@ internal static class AriseExplorer
     public static IReadOnlyList<ViewNode> Expand(string lazyId, AriseSave save, Func<int, FieldNode> word)
     {
         var parts = lazyId.Split('/');
-        if (parts.Length is < 2 or > 3 || !int.TryParse(parts[1], out var sectionIndex)
+        if (parts.Length is < 2 or > 3 || !int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var sectionIndex)
             || sectionIndex < 0 || sectionIndex >= save.Sections.Count)
         {
             throw new KeyNotFoundException($"Unknown explorer node '{lazyId}'.");
@@ -31,7 +32,7 @@ internal static class AriseExplorer
             return children;
         }
 
-        if (parts[0] != "page" || parts.Length != 3 || !int.TryParse(parts[2], out var pageOffset)
+        if (parts[0] != "page" || parts.Length != 3 || !int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var pageOffset)
             || pageOffset < 0 || pageOffset >= section.Size || pageOffset % PageBytes != 0)
         {
             throw new KeyNotFoundException($"Unknown explorer page '{lazyId}'.");
