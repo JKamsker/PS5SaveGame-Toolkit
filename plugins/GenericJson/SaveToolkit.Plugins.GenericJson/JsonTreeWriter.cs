@@ -12,6 +12,11 @@ internal static class JsonTreeWriter
 
     public static byte[] Write(JsonTokenTree tree)
     {
+        if (JsonScalarPatches.TryWrite(tree, out var patched, out var changed))
+        {
+            if (changed) JsonTokenValidation.Validate(patched, tree);
+            return patched;
+        }
         if (tree.Nodes.Select(n => n.Source).Distinct().Sum(b => (long)b.Length) > MaxRetainedSourceBytes)
             throw new SaveFormatException("Structural edits retain too much source data (32 MiB limit); reopen the exported file first.");
         using var output = new MemoryStream();

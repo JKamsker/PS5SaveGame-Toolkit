@@ -53,7 +53,8 @@ public sealed partial class DocumentSession
         }
 
         query = query with { IncludeEmpty = query.IncludeEmpty ?? collection.EmptyRows?.HideByDefault != true };
-        return PublishView(staged => PreparePage(staged, queryable, collection, query, prepareResponse, cancellationToken), cancellationToken);
+        return PublishView(staged => PreparePage(staged, queryable, collection, query, prepareResponse, cancellationToken),
+            cancellationToken: cancellationToken);
     }, cancellationToken), cancellationToken);
 
     private T PreparePage<T>(Editing.ViewIndex staged, IQueryableDocument queryable, QueryableCollection collection,

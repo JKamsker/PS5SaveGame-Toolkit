@@ -22,6 +22,15 @@ The SDK reference comes from the current `SaveToolkit.Sdk` assembly and its XML 
 
 The [first plugin tutorial](../tutorials/first-plugin.md) connects these types in a working example. The [plugin guide](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/PLUGIN_GUIDE.md) owns contribution and data-integrity rules.
 
+Shipped preservation and projection contracts have focused tutorials tied to committed tests:
+[lossless JSON](../tutorials/lossless-json.md), [canonical field references](../tutorials/field-references.md),
+and the [ParamSfo substrate](../tutorials/sfo-substrate.md). The generated pages for
+`LosslessJsonDocument`, `FieldReferenceNode`, `FieldPresentation`, and `ParamSfoDocument` remain
+the exact member reference. The UnrealGvas consumer for SDK-08 is now on `main`: eligible
+non-generic Jedi/Sackboy scalar projections use canonical references, while generic summaries,
+wide strings, actor observations and opaque values retain bounded/read-only fallbacks. SDK-06,
+SDK-07 and SDK-10 remain open under the central ledger.
+
 ## Local HTTP API · OpenAPI 3.1
 
 Open the [rendered HTTP reference](http.md) for operation parameters, request bodies, response statuses and schemas. Its schema is exported from the current API's `/openapi/v1.json` using empty, isolated workspace and reference-pack roots, then compared with the existing reviewed contract. Only the variable server origin is replaced with the local default.

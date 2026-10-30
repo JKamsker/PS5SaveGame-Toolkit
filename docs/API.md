@@ -13,6 +13,34 @@ The endpoint headings below are an executable inventory:
 `ApiDocumentationTests` compares them in both directions with ASP.NET Core's real
 `EndpointDataSource`, including aliases. SPA/static-file routes are outside this API.
 
+## SDK preservation and projection boundaries
+
+The shipped SDK foundations are documented in the public site tutorials: [lossless JSON scalar
+patches](../docs-site/tutorials/lossless-json.md), [canonical field references](../docs-site/tutorials/field-references.md),
+and the [existing-entry SFO substrate](../docs-site/tutorials/sfo-substrate.md). They are pure,
+bounded building blocks. The host still owns document revisions, undo/redo, complete output
+verification and export.
+
+Field references are normalized to ordinary fields before a view, lazy expansion or collection page
+is returned. The normalized response is bounded to 2 MiB and an over-limit result is 413 without a
+partial response. An unresolved reference remains unavailable; clients must not invent a path,
+spec, confidence label or write permission from its opaque ID. Canonical `FieldPresentation` values
+preserve `null` (unspecified) versus an explicit empty presentation, and a read-only/derived
+projection cannot override the primary binding.
+
+The shipped UnrealGvas consumer uses this contract for eligible non-generic Jedi/Sackboy scalar
+projections and keeps generic summaries, wide strings, actor observations and opaque values on
+bounded/read-only fallbacks. See the [consumer characterization](../plugins/UnrealGvas/SaveToolkit.Plugins.UnrealGvas.Tests/GvasFieldReferenceTests.cs)
+and the [canonical field-reference tutorial](../docs-site/tutorials/field-references.md). This
+adoption does not establish gameplay semantics for other titles.
+
+`ParamSfoDocument` only patches an existing UTF-8 entry in its reserved slot. It does not create or
+resize keys and does not itself establish ownership of `param.sfo` or a save-manager caption. The
+separate system-output ownership foundation is now on `main`; SDK-10 remains evidence-blocked until
+controlled whole-byte caption evidence and a later SuckerPunch consumer justify synchronization.
+See [the SDK request ledger](SDK_REQUESTS.md#prioritized-inventory) for foundation versus native
+adoption gates.
+
 ## OpenAPI contract and regression guard
 
 `GET /openapi/v1.json` publishes the machine-readable **OpenAPI 3.1** contract using
@@ -466,7 +494,10 @@ conflicting ownership/rewrites: 409 or export-domain 422 as appropriate. Export
 is idempotent with respect to workspace/document state and exported paths/bytes:
 it does not write back to imports, consume history, clear dirty state or change
 revision. Repeating an unchanged request produces the same entry contents; ZIP
-entry timestamps may differ, so whole-archive bytes are not a stable checksum.
+entry timestamps use the canonical `1980-01-01T00:00:00+00:00` value. Repeated
+requests therefore produce repeatable whole-archive bytes in the same runtime;
+callers should not use those bytes as a cross-runtime or cross-platform checksum,
+because compression and other container metadata may vary.
 There is no workspace ETag or cross-document revision snapshot guarantee.
 
 ## Reference packs and document lookups

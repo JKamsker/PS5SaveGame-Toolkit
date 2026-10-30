@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Json;
 
 namespace SaveToolkit.Plugins.XorJson;
 
@@ -9,6 +10,7 @@ internal sealed class JsonEditModel
 {
     private const int EstimatedNodeBytes = 256;
     private int _nextId;
+    private readonly LosslessJsonDocument _losslessDocument;
     private Dictionary<int, JsonValueToken>? _index;
     private IReadOnlyList<JsonValueToken>? _nodes;
     public JsonValueToken Root { get; private set; }
@@ -18,6 +20,7 @@ internal sealed class JsonEditModel
     public JsonEditModel(JsonTokenTree tree)
     {
         Root = tree.Nodes[0];
+        _losslessDocument = tree.Lossless;
         _nextId = tree.Nodes.Count;
         _nodes = tree.Nodes;
     }
@@ -104,14 +107,22 @@ internal sealed class JsonEditModel
     public JsonModelSnapshot Snapshot()
     {
         var nodes = Walk(Root).ToArray();
-        var sourceBytes = nodes.Select(n => n.Source).Distinct().Sum(b => b.LongLength);
+        var sources = new Dictionary<byte[], byte[]>(ReferenceEqualityComparer.Instance);
+        var snapshotRoot = Clone(Root, null, sources);
+        var sourceBytes = sources.Values.Sum(b => b.LongLength);
         var textBytes = nodes.Where(n => !n.IsContainer).Sum(n => (long)n.Current.ToString().Length * sizeof(char));
-        return new(Clone(Root, null), _nextId, sourceBytes + nodes.Length * (long)EstimatedNodeBytes + textBytes);
+        var replacements = Root.SdkDocument?.CaptureSnapshot().Replacements
+            .ToDictionary(pair => pair.Key, pair => pair.Value) ?? [];
+        var replacementBytes = replacements.Sum(pair => 32L + pair.Key.ToString().Length * 2L + pair.Value.Length * 2L);
+        return new(snapshotRoot, _nextId,
+            sourceBytes + nodes.Length * (long)EstimatedNodeBytes + textBytes + replacementBytes, replacements);
     }
 
     public void Restore(JsonModelSnapshot state)
     {
-        Root = Clone(state.Root, null);
+        Root = Clone(state.Root, null, new Dictionary<byte[], byte[]>(ReferenceEqualityComparer.Instance));
+        BindSdkModel(Root);
+        _ = JsonTokenWriter.Write(Root, state.LosslessReplacements);
         _index = null;
         _nodes = null;
         // Never reuse an id allocated by a later, now-undone operation.
@@ -125,16 +136,36 @@ internal sealed class JsonEditModel
         node.OriginalChildren = node.Children.Select(n => n.Index).ToArray();
     }
 
-    private static JsonValueToken Clone(JsonValueToken node, JsonValueToken? parent)
+    private static JsonValueToken Clone(JsonValueToken node, JsonValueToken? parent,
+        Dictionary<byte[], byte[]> sources)
     {
+        if (!sources.TryGetValue(node.Source, out var source))
+            sources.Add(node.Source, source = node.Source.ToArray());
         var copy = new JsonValueToken(node.Index, node.Label, node.Kind, node.Offset, node.Length)
         {
-            Source = node.Source, EntryOffset = node.EntryOffset, LeadingOffset = node.LeadingOffset,
+            Source = source, EntryOffset = node.EntryOffset, LeadingOffset = node.LeadingOffset,
             Parent = parent, Segment = node.Segment, Spec = node.Spec, Current = node.Current,
             Original = node.Original, Warning = node.Warning, OriginalChildren = node.OriginalChildren.ToArray(),
         };
-        foreach (var child in node.Children) copy.Children.Add(Clone(child, copy));
+        foreach (var child in node.Children) copy.Children.Add(Clone(child, copy, sources));
         return copy;
+    }
+
+    private void BindSdkModel(JsonValueToken root)
+    {
+        foreach (var node in Walk(root))
+        {
+            node.SdkDocument = ReferenceEquals(node, root) ? _losslessDocument : null;
+            node.SdkNode = null;
+            if (node.Offset < 0 || node.Length < 0 || node.Offset > _losslessDocument.OriginalBytes.Length - node.Length ||
+                node.Offset > node.Source.Length - node.Length)
+                continue;
+            if (!_losslessDocument.TryGetNode(node.Index, out var candidate) || candidate is null ||
+                candidate.OriginalSpan.Offset != node.Offset || candidate.OriginalSpan.Length != node.Length ||
+                !_losslessDocument.OriginalBytes.Span.Slice(node.Offset, node.Length).SequenceEqual(node.Source.AsSpan(node.Offset, node.Length)))
+                continue;
+            node.SdkNode = candidate;
+        }
     }
 
     internal static IEnumerable<JsonValueToken> Walk(JsonValueToken node)
@@ -145,4 +176,5 @@ internal sealed class JsonEditModel
     }
 }
 
-internal sealed record JsonModelSnapshot(JsonValueToken Root, int NextId, long SizeBytes);
+internal sealed record JsonModelSnapshot(JsonValueToken Root, int NextId, long SizeBytes,
+    IReadOnlyDictionary<int, string> LosslessReplacements);

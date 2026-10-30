@@ -54,6 +54,26 @@ public sealed class ViewIndex
 
     internal ViewIndex Copy(CancellationToken cancellationToken) => new(this, cancellationToken);
 
+    /// <summary>
+    /// Identifies expansion output that cannot change the index. The caller may return this output
+    /// without staging a copy because these node kinds have no bindings, metadata, or selection state.
+    /// Unknown node types stay on the transactional path so future SDK nodes remain safe by default.
+    /// </summary>
+    internal static bool IsIndexNeutral(IEnumerable<ViewNode> nodes)
+    {
+        foreach (var node in nodes)
+            if (!IsIndexNeutral(node)) return false;
+        return true;
+    }
+
+    private static bool IsIndexNeutral(ViewNode node) => node switch
+    {
+        TextNode or StatsNode => true,
+        SectionNode { LazyId: null } section => IsIndexNeutral(section.Children),
+        TabsNode tabs => tabs.Tabs.All(tab => IsIndexNeutral(tab.Children)),
+        _ => false,
+    };
+
     private static void Copy<T>(Dictionary<string, T> source, Dictionary<string, T> destination, CancellationToken cancellationToken)
     {
         destination.EnsureCapacity(source.Count);

@@ -1,6 +1,7 @@
 using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.Json;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -152,6 +153,12 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
                 return EditOutcome.Rejected(edit.ValueId, "Unknown or retired scalar value.");
             _ = NodeView(node); // Register primary bindings even for unloaded F8 rows and history replay.
         }
+        // JsonTokenWriter commits scalar lexemes to the SDK document before Serialize can
+        // validate the transformed envelope and title/profile. Keep that SDK state in the
+        // same transaction as the bound plugin values so a rejected write cannot leave a
+        // hidden replacement map behind the visible model.
+        var sdkDocument = _model.Root.SdkDocument;
+        LosslessJsonSnapshot? sdkBefore = sdkDocument?.CaptureSnapshot();
         var outcome = base.ApplyEdits(edits);
         if (!outcome.Succeeded || edits.Count == 0) return outcome;
         try
@@ -160,10 +167,18 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
             InvalidateProjections();
             return outcome with { Warnings = [WriteWarning], StructureChanged = outcome.Changes.Any(c => c.OldValue != c.NewValue) };
         }
-        catch (Exception ex) when (ex is SaveFormatException or ArgumentException)
+        catch (Exception ex) when (ex is SaveFormatException or ArgumentException or InvalidOperationException)
         {
-            // Scalar rollback keeps the same objects/bindings and their original escape spellings.
-            _ = base.ApplyEdits(outcome.Changes.Reverse().Select(c => new ValueEdit(c.ValueId, c.OldValue)).ToArray());
+            try
+            {
+                if (sdkDocument is not null && sdkBefore is not null)
+                    sdkDocument.RestoreSnapshot(sdkBefore);
+            }
+            finally
+            {
+                // Scalar rollback keeps the same objects/bindings and their original escape spellings.
+                _ = base.ApplyEdits(outcome.Changes.Reverse().Select(c => new ValueEdit(c.ValueId, c.OldValue)).ToArray());
+            }
             return EditOutcome.Rejected(edits[0].ValueId, ex.Message);
         }
     }

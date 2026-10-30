@@ -31,19 +31,31 @@ mutation fuzzing are also delivered. The [field-metadata proposal](F13-FIELD-SPE
 canonical field metadata, primary/derived binding policy, unloaded-edit preflight and live replay
 integration, and Pragmata has adopted it. Targeted original/current semantic-review metadata capture,
 generic cross-ID alias relationships and automatic group forwarding remain separate integrations.
-The four open SDK requests are lossless JSON sharing (SDK-06, large), versioned preset storage
-(SDK-07, large), a field-reference presentation node (SDK-08, medium; needs a concrete consumer),
-and SFO subtitle synchronization (SDK-10; blocked on evidence). See the backlog for their scope.
+Three SDK requests remain open: lossless JSON consumer adoption (SDK-06, large), versioned preset
+storage (SDK-07, large), and SFO subtitle ownership/synchronization (SDK-10; blocked on evidence).
+SDK-08 is resolved for the production UnrealGvas consumer now on `main`; its eligible non-generic
+Jedi/Sackboy projections use canonical references with bounded fallbacks and consumer tests. The
+remaining gates are recorded in the [current backlog](../SDK_REQUESTS.md#prioritized-inventory).
+The open rows retain their foundation/adoption boundaries; no foundation alone closes them.
 
 The backend quality pass [#34](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/34) and web quality
 pass [#35](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/35) have also landed. Their reported
 fixes/tests are delivered; this does not promise further unperformed review. GitHub issue state is
 separate from implementation status.
 
-The delivered baseline above was rechecked at `8d6a261c4afc539224996eb4f67d5a8cc0b4f1e4`.
-As of this reconciliation, the subsequent functionality/UX improvement wave is unmerged and awaits
-integration validation and review. Local implementation handoffs do not mark that wave shipped or
-close the remaining gameplay, format and owner-evidence gaps below.
+The delivered baseline above was rechecked against `201dd690a48a93bf496f1825246bc6954cc5ec52`,
+which includes merged PR56 ownership, PR59 C# size guard, PR66 UnrealGvas adoption and PR70 idle-race
+test fix. Three open SDK requests retain a clearer foundation/adoption split:
+| Request | Foundation on `main` | Adoption/evidence gate still open |
+| --- | --- | --- |
+| SDK-06 lossless JSON | `LosslessJsonDocument`, bounded limits, scalar replacement and snapshots, with Core characterization tests | Both GenericJson and XorJson consumers must land on `main`; their structural IDs and XOR envelopes remain plugin-owned. |
+| SDK-07 presets | No host preset store yet; existing F6 plans remain usable | Host storage plus title/build and owned-instance resolution, then the FinalFantasy7 and transfer use cases. |
+| SDK-08 canonical references | `FieldReferenceNode`, `FieldPresentation`, metadata resolution and bounded normalization, plus production UnrealGvas projections and consumer tests | Resolved for eligible non-generic Jedi/Sackboy projections; other titles still need their own evidence and gameplay semantics remain unproven. |
+| SDK-10 SFO caption ownership | `ParamSfoDocument`, identity-bound pure plans, strict UTF-8/capacity/NUL checks and tests | Reviewed ownership plus controlled whole-byte caption evidence and a later SuckerPunch consumer. |
+
+The functionality/UX improvement wave remains unmerged and awaits integration validation and review.
+This table does not close any ledger row, change the historical F1–F14 baseline, or close gameplay,
+format and owner-evidence gaps below.
 
 ### Plugin rounds
 
