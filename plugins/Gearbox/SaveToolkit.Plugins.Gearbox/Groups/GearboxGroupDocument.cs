@@ -6,7 +6,8 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.Gearbox;
 
-internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDocument, IActionPlanningDocument, IFieldMetadataDocument
+internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDocument, IActionPlanningDocument,
+    IFieldMetadataDocument, IGroupedFieldContext
 {
     private readonly IReferenceContext _references;
     private readonly MemberBytes[] _original;
@@ -66,6 +67,33 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
             return matches == 1;
         }).ToArray();
         return owned.Length == 0 ? [] : _router.ResolveFieldMetadata(owned);
+    }
+
+    public IReadOnlyList<DocumentGroupFieldContext> ResolveFieldContext(IReadOnlyList<string> valueIds)
+    {
+        ArgumentNullException.ThrowIfNull(valueIds);
+        if (valueIds.Count > FieldMetadataLimits.MaxBatchSize)
+            throw new ArgumentOutOfRangeException(nameof(valueIds), valueIds.Count,
+                $"Request at most {FieldMetadataLimits.MaxBatchSize} field IDs per batch.");
+        foreach (var id in valueIds) ArgumentException.ThrowIfNullOrEmpty(id, nameof(valueIds));
+
+        var owners = new Dictionary<string, DocumentMemberAdapter>(StringComparer.Ordinal);
+        foreach (var id in valueIds.Distinct(StringComparer.Ordinal))
+        {
+            try { owners.Add(id, _router.Resolve(id)); }
+            catch (KeyNotFoundException) { }
+        }
+
+        if (owners.Count == 0) return [];
+        var metadata = _router.ResolveFieldMetadata(owners.Keys.ToArray());
+        var contexts = new List<DocumentGroupFieldContext>(metadata.Count);
+        foreach (var field in metadata)
+        {
+            if (!owners.TryGetValue(field.ValueId, out var owner)) continue;
+            var selected = _original.Single(member => member.Role == owner.Role);
+            contexts.Add(new DocumentGroupFieldContext(field.ValueId, owner.Role, selected.Path));
+        }
+        return contexts;
     }
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => _router.Resolve(collectionId).Query(collectionId, query);

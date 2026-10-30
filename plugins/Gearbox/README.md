@@ -788,6 +788,17 @@ fresh-snapshot restoration. Planned coordinated actions use F6 planning and F7 s
 structural snapshots. F12's `ISaveDecoderProvider` / `gearbox-evidence` and F13 inspection/browse
 contracts are also adopted. Shared binary/string/CRC and reference-icon helpers are implemented
 as listed under Framework feature adoption; these are resolved integrations, not SDK requests.
+**GEARBOX-F13 / grouped field context: optional published adoption.** The published PR68 SDK contract
+adds `IGroupedFieldContext.ResolveFieldContext(IReadOnlyList<string>)` and the authoritative
+`DocumentGroupFieldContext(ValueId, Role, RelativePath, Provenance?)` record ([source at the
+published contract commit](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/e0a66cd90241d33c1a766ee38e26c28ec3fe0254/src/SaveToolkit.Sdk/DocumentGroups/DocumentGroupFieldContext.cs)).
+Gearbox implements this bounded, observation-only capability for at most the shared 200 requested IDs:
+it routes exact known current group-qualified IDs through `DocumentMemberRouter`/`DocumentMemberAdapter`,
+returns the selected member role and save-set relative path, preserves first-seen request order, omits
+unknown/foreign/retired IDs and duplicates, and leaves provenance null because no authoritative plugin
+provenance is published. It does not infer ownership from prefixes, labels, values, bytes or filenames,
+and does not build a view, query, serialize output, dirty state or history. The implementation is
+plugin-owned; production adoption of any future action-effect descriptor remains a separate framework gate.
 **GEARBOX-F13 / action-effect metadata: framework landing gate.** The independently reviewed
 action-effect contract is complete, while a separate framework writer owns its opt-in pre-capture,
 memento and inline-descriptor implementation. Against the currently published dependency,

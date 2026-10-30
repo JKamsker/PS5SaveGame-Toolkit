@@ -303,4 +303,3 @@ public sealed class FieldMetadataTests
         Assert.False(original[0].AsSpan().SequenceEqual(group.Serialize().First().Content.Span));
     }
 }
-
