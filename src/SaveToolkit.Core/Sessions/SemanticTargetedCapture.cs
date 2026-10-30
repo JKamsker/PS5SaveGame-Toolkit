@@ -11,7 +11,7 @@ internal sealed record TargetedCaptureResult(bool Succeeded, IReadOnlyList<strin
 internal sealed class SemanticTargetedCapture(long maxBytes)
 {
     public TargetedCaptureResult Capture(ISaveDocument document, SemanticSnapshot snapshot,
-        IReadOnlyList<string> valueIds, CancellationToken cancellationToken)
+        IReadOnlyList<string> valueIds, CancellationToken cancellationToken, bool markIncomplete = true)
     {
         if (valueIds.Count == 0) return new(true, [], []);
         if (document is not IFieldMetadataDocument)
@@ -21,7 +21,7 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
         var captured = new HashSet<string>(StringComparer.Ordinal);
         try
         {
-            CaptureCore(document, working, valueIds, captured, cancellationToken);
+            CaptureCore(document, working, valueIds, captured, markIncomplete, cancellationToken);
             snapshot.ReplaceWith(working);
             var incomplete = valueIds.Where(id => !captured.Contains(id)).ToArray();
             return new(true, captured.ToArray(), incomplete,
@@ -37,7 +37,7 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
     }
 
     private void CaptureCore(ISaveDocument document, SemanticSnapshot snapshot, IReadOnlyList<string> ids,
-        ISet<string> captured, CancellationToken cancellationToken)
+        ISet<string> captured, bool markIncomplete, CancellationToken cancellationToken)
     {
         var index = new FieldMetadataIndex(document, Math.Max(0, maxBytes - snapshot.Bytes));
         for (var offset = 0; offset < ids.Count && snapshot.Bytes < maxBytes; offset += FieldMetadataLimits.MaxBatchSize)
@@ -69,7 +69,7 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                         || !SemanticSnapshot.TryEstimate(existing, long.MaxValue, out var existingCost)
                         || candidateCost - existingCost > maxBytes - snapshot.Bytes)
                     {
-                        snapshot.Complete = false;
+                        if (markIncomplete) snapshot.Complete = false;
                         continue;
                     }
 
@@ -85,8 +85,7 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                     Spec: field.Spec, Presentation: field.Presentation, MetadataPublished: true);
                 if (!SemanticSnapshot.TryEstimate(semantic, maxBytes - snapshot.Bytes, out var cost))
                 {
-                    snapshot.Complete = false;
-                    snapshot.OmittedCount++;
+                    if (markIncomplete) snapshot.Complete = false;
                     continue;
                 }
 
@@ -95,11 +94,7 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                 captured.Add(field.ValueId);
             }
 
-            if (seen.Count != requested.Count)
-            {
-                snapshot.Complete = false;
-                snapshot.OmittedCount += requested.Count - seen.Count;
-            }
+            if (markIncomplete && seen.Count != requested.Count) snapshot.Complete = false;
         }
     }
 }
