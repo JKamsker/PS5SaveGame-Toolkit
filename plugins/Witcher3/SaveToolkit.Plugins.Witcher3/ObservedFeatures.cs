@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Views;
@@ -94,7 +95,7 @@ internal sealed class ObservedFeatures
             return new AbilityGraphs(Abilities, _names, _abilities, SkillEdits).Build(lazyId["ability-graph/".Length..]);
         }
         var parts = lazyId.Split('/');
-        if (parts.Length == 3 && parts[0] == "ability" && int.TryParse(parts[2], out var start) &&
+        if (parts.Length == 3 && parts[0] == "ability" && int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var start) &&
             Abilities.SingleOrDefault(a => a.Name == parts[1]) is { } array && start >= 0 && start <= array.Entries.Count)
         {
             // Separate raw field groups keep F9 navigation independent of which F8 rows have been loaded.

@@ -55,8 +55,8 @@ internal sealed class SavedWorldViews(SavedWorldData data, IReferenceCatalog? it
     public IReadOnlyList<ViewNode> Expand(string id)
     {
         var parts = id.Split('/');
-        if (parts.Length != 3 || !int.TryParse(parts[2], out var start) || start < 0) { throw new KeyNotFoundException(id); }
-        if (parts[0] == "fact" && int.TryParse(parts[1], out var index) && data.Facts is { } facts && index >= 0 && index < facts.Count && start <= facts[index].Entries.Count)
+        if (parts.Length != 3 || !int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var start) || start < 0) { throw new KeyNotFoundException(id); }
+        if (parts[0] == "fact" && int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var index) && data.Facts is { } facts && index >= 0 && index < facts.Count && start <= facts[index].Entries.Count)
         {
             var fact = facts[index];
             return [new TextNode($"{fact.Name}: opaque word 0x{fact.OpaqueWord:X4}; name payload {fact.NameBytes.Length} bytes, opaque={fact.OpaqueName}. " +
