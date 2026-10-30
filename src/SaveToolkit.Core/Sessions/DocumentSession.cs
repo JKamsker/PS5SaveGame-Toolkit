@@ -107,6 +107,8 @@ public sealed partial class DocumentSession : IDisposable
 
     private (PresetCapability? Capability, PresetCapabilityAdmission Admission, string? Error) ReadPresetCapability()
     {
+        if (_unusable)
+            return (null, PresetCapabilityAdmission.Absent, "The document session is unusable; reopen it before using presets.");
         if (Document is not IPresetDocument adapter)
             return (null, PresetCapabilityAdmission.Absent, null);
         try
@@ -303,6 +305,7 @@ public sealed partial class DocumentSession : IDisposable
     {
         _unusable = true;
         _pendingAction = null;
+        _pendingPreset = null;
         _history.Clear(irreversible: true);
         _groupBroken = true;
     }

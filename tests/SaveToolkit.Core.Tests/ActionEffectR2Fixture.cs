@@ -33,7 +33,7 @@ internal sealed class ActionEffectR2Plugin(ActionEffectR2Document? document = nu
     public ISaveDocument Open(ISaveFile file) => document ?? new ActionEffectR2Document();
 }
 
-internal sealed class ActionEffectR2Document : BoundSaveDocument, IActionEffectDocument
+internal sealed class ActionEffectR2Document : BoundSaveDocument, IActionEffectDocument, IPresetDocument
 {
     public int Value { get; private set; }
     public int RestoreCalls { get; private set; }
@@ -42,6 +42,16 @@ internal sealed class ActionEffectR2Document : BoundSaveDocument, IActionEffectD
     public int ResolverCalls { get; private set; }
     public bool OversizedInverse { get; set; }
     public bool FailRebindAfterRestore { get; set; }
+    public bool FailRestore { get; set; }
+    public int PresetValue { get; private set; }
+    public int CapabilityReads { get; private set; }
+    public int PresetResolveCalls { get; private set; }
+    public int PresetPlanCalls { get; private set; }
+    public int PresetApplyCalls { get; private set; }
+    public PresetCapability PresetCapability
+    {
+        get { CapabilityReads++; return new("1", null, [new("set", "Set", [])]); }
+    }
     public FieldSpec EffectSpec { get; set; } = IntegerSpec.Int32 with { ReadOnly = true };
     public Func<ActionPlan, EditOutcome>? Outcome { get; set; }
     public Func<ActionPlan>? Preview { get; set; }
@@ -52,6 +62,7 @@ internal sealed class ActionEffectR2Document : BoundSaveDocument, IActionEffectD
         return new SectionNode(Title,
         [
             Field("live", "Live", IntegerSpec.Int32, () => FieldValue.Of(Value), value => Value = value.AsInt32()),
+            Field("preset", "Preset", IntegerSpec.Int32, () => FieldValue.Of(PresetValue), value => PresetValue = value.AsInt32()),
             new ActionNode("change", "Change") { SupportsPlanning = true },
         ]);
     }
@@ -60,6 +71,7 @@ internal sealed class ActionEffectR2Document : BoundSaveDocument, IActionEffectD
     public override DocumentMemento RestoreMemento(DocumentMemento token)
     {
         RestoreCalls++;
+        if (FailRestore) throw new InvalidOperationException("standalone restore failed");
         var snapshot = (RelativeSnapshot)token;
         var inverse = new RelativeSnapshot(Value, OversizedInverse ? 2048 : 8);
         // This legal consumed-token model exposes double rollback: applying the same inverse
@@ -85,6 +97,22 @@ internal sealed class ActionEffectR2Document : BoundSaveDocument, IActionEffectD
         };
     }
     public override IReadOnlyList<FileOutput> Serialize() => [new("save.dat", new byte[] { (byte)Value })];
+    public PresetResolution ResolvePresetInstances(IReadOnlyList<PresetInstanceReference> instances)
+    {
+        PresetResolveCalls++;
+        return new(instances.Select(instance => new PresetInstanceResolution(instance,
+            PresetInstanceResolutionStatus.Resolved, [instance])).ToArray());
+    }
+    public ActionPlan PlanPreset(IReadOnlyList<PresetAction> actions, PresetResolution resolution)
+    {
+        PresetPlanCalls++;
+        return new() { Changes = [new("preset", "Preset", FieldValue.Of(PresetValue), FieldValue.Of(9))] };
+    }
+    public EditOutcome ApplyPreset(IReadOnlyList<PresetAction> actions, PresetResolution resolution, ActionPlan plan)
+    {
+        PresetApplyCalls++;
+        return ApplyEdits([new ValueEdit("preset", FieldValue.Of(9))]);
+    }
     private sealed class RelativeSnapshot(int target, long size) : DocumentMemento
     {
         public int Target { get; } = target;

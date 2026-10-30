@@ -56,6 +56,8 @@ public sealed partial class DocumentSession
         ArgumentNullException.ThrowIfNull(preset);
         _pendingPreset = null;
         var emptyResolution = new PresetResolution([]);
+        if (_unusable)
+            return Error(preset, emptyResolution, "The document session is unusable; reopen it before planning or applying presets.");
         if (StaleCheck(expectedRevision, [preset.Id]) is { } stale)
             return new(null, _revision, preset, emptyResolution, new ActionPlan { Errors = stale.Errors }) { Stale = true };
         if (Document is not IPresetDocument planner || PresetCapability is not { } capability)
@@ -108,6 +110,8 @@ public sealed partial class DocumentSession
     private SessionEditResult ApplyPresetCore(string planId, long expectedRevision, Action startApply,
         string? expectedPresetId, string? expectedPresetFingerprint, CancellationToken cancellationToken)
     {
+        if (_unusable)
+            return Rejected("preset", "The document session is unusable; reopen it before planning or applying presets.");
         var pending = _pendingPreset;
         _pendingPreset = null;
         if (pending is null || pending.Id != planId || pending.Revision != expectedRevision || expectedRevision != _revision

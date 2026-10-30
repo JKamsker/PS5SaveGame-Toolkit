@@ -117,7 +117,8 @@ internal static class SemanticTargetedAuthority
     {
         if (FieldSpecMetadata.Agree(first, second)) return true;
         if (first.GetType() != second.GetType()
-            || !JsonSerializer.SerializeToUtf8Bytes(first).AsSpan().SequenceEqual(JsonSerializer.SerializeToUtf8Bytes(second)))
+            || !JsonSerializer.SerializeToUtf8Bytes(first, MetadataJson.Options).AsSpan()
+                .SequenceEqual(JsonSerializer.SerializeToUtf8Bytes(second, MetadataJson.Options)))
             return false;
 
         return (first, second) switch

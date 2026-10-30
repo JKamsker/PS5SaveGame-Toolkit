@@ -340,7 +340,9 @@ internal sealed class SemanticReview
         }
         else
         {
-            current.Merge(walked, _maxBytes);
+            // Without targeted state, reuse the bounded walk instead of copying every field.
+            if (_targeted.Count == 0 && recoveryIds.Length == 0) current = walked;
+            else current.Merge(walked, _maxBytes);
             var metadata = SemanticTargetedAuthority.ApplyCanonicalMetadata(document, current, _maxBytes, cancellationToken);
             if (!metadata.Applied)
             {
