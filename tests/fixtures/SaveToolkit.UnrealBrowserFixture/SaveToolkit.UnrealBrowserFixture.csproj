@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Reuse the plugin's pure, authored binary writer; never load sample archives. -->
+    <Compile Include="../../../plugins/UnrealGvas/SaveToolkit.Plugins.UnrealGvas.Tests/GvasFixture.cs" Link="GvasFixture.cs" />
+  </ItemGroup>
+</Project>

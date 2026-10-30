@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <Using Include="Xunit" />
+    <ProjectReference Include="../../src/SaveToolkit.Testing/SaveToolkit.Testing.csproj" />
+    <ProjectReference Include="../../src/SaveToolkit.Core/SaveToolkit.Core.csproj" />
+    <ProjectReference Include="../../plugins/UnrealGvas/SaveToolkit.Plugins.UnrealGvas/SaveToolkit.Plugins.UnrealGvas.csproj" />
+    <ProjectReference Include="../fixtures/SaveToolkit.UnrealBrowserFixture/SaveToolkit.UnrealBrowserFixture.csproj" />
+  </ItemGroup>
+</Project>

@@ -84,6 +84,7 @@ public sealed partial class DocumentSession : IDisposable
     /// <summary>Full save-set paths reserved by this document, including exact declared system files.</summary>
     internal IReadOnlyList<string> OwnedOutputPaths => OutputOwnership.OwnedPaths;
     internal IReadOnlyList<string> DeclaredOutputPaths => OutputOwnership.DeclaredPaths;
+    internal string? OutputSetError(IEnumerable<string> outputPaths) => OutputOwnership.OutputSetError(outputPaths);
     internal bool RequiresCompleteOutputs => OutputOwnership.RequiresCompleteOutputs;
     internal void CheckOutputFingerprints(CancellationToken cancellationToken) => OutputOwnership.Check(cancellationToken);
 
@@ -205,6 +206,9 @@ public sealed partial class DocumentSession : IDisposable
         }
 
         EnsureOriginal(cancellationToken);
+        var scalarProof = ScalarEditEffectiveness.Capture(Document, edits, cancellationToken);
+        if (scalarProof is not null && OutputSetError(scalarProof.Select(output => output.RelativePath)) is not null)
+            scalarProof = null;
         // Point of no return: mutation and history/revision publication must finish together.
         startApply();
         var outcome = CallPlugin(() => Document.ApplyEdits(edits), edits.FirstOrDefault()?.ValueId);
@@ -212,6 +216,8 @@ public sealed partial class DocumentSession : IDisposable
         {
             return FromOutcome(outcome);
         }
+
+        outcome = ScalarEditEffectiveness.Complete(Document, edits, scalarProof, outcome);
 
         var warnings = outcome.Revert is { } revert
             ? Record(new MementoStep(revert))
