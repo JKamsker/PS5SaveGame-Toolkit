@@ -65,7 +65,7 @@ for (const width of [375, 768, 1024, 1440]) {
     await expect(panel.getByRole("list", { name: "Saved toolkit presets" }).getByRole("listitem")).toHaveCount(1);
     await tabTo(page, row.getByRole("button", { name: "Rename", exact: true }));
     await page.keyboard.press("Enter");
-    const longName = `FF7 ${width} ${"authored-long-name ".repeat(4)}`;
+    const longName = `FF7 ${width} ${"authored-long-name ".repeat(4)}`.trimEnd();
     const nameInput = panel.getByRole("textbox", { name: "Preset name", exact: true });
     await nameInput.fill(longName);
     await nameInput.press("Enter");
