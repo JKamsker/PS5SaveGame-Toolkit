@@ -80,7 +80,7 @@ public sealed class SuckerPunchFormatTests
             foreach (var file in SampleSaves.Load(title).AllDiskFiles.Where(f => plugin.Probe(f).Score == ProbeScore.Title))
             {
                 using var document = plugin.Open(file);
-                var output = Assert.Single(document.Serialize());
+                var output = SuckerPunchTestData.PrimaryOutput(document);
                 Assert.Equal(file.RelativePath, output.RelativePath);
                 Assert.True(output.Content.Span.SequenceEqual(file.ReadAllBytes()), file.RelativePath);
             }

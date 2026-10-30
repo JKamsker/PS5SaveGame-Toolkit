@@ -45,6 +45,9 @@ internal static class SuckerPunchTestData
     internal static void RepairChecksum(byte[] bytes) =>
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(8), Checksum(bytes));
 
+    internal static FileOutput PrimaryOutput(ISaveDocument document) => Assert.Single(document.Serialize(),
+        output => !output.RelativePath.EndsWith("/sce_sys/param.sfo", StringComparison.OrdinalIgnoreCase));
+
     internal static TableNode Inventory(ISaveDocument document) =>
         (TableNode)((TabsNode)document.BuildView()).Tabs.Single(tab => tab.Title == "Inventory").Children[1];
 

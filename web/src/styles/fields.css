@@ -1,4 +1,20 @@
 /* Field controls chosen by spec kind */
+.textual-control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.text-capacity { overflow-wrap: anywhere; }
+.textual-control--compact { flex-direction: row; align-items: center; width: 100%; }
+.textual-control--compact > .control { flex: 1; }
+.textual-control--compact > .text-capacity {
+  flex: none;
+  max-width: 65%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .variant-control,
 .enum-control {
   display: flex;

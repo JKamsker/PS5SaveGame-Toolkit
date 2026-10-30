@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import type { SaveDocument } from "../src/api/protocol";
 import {
   coinsField, editCoins, editedCoins, expectArchiveBytes, expectFiles, exportFiles, importSave,
   fixture, loadJson, openJson, originalCoins, originalFiles, originalSave, savePath, withCoins,
@@ -160,9 +161,23 @@ test("F6 empty table selection means no rows; the action outside the table retai
   const edited = withCoins(originalSave, originalCoins, editedCoins);
   await page.getByRole("tab", { name: "Search", exact: true }).click();
   await expect(searchTable(page).getByRole("checkbox", { checked: true })).toHaveCount(0);
+  const location = new URL(page.url());
+  const documentUrl = `/api/workspaces/${location.pathname.split("/").at(-1)}/documents/${location.searchParams.get("doc")}`;
+  const beforeResponse = await page.request.get(documentUrl);
+  expect(beforeResponse.ok()).toBe(true);
+  const before = await beforeResponse.json() as SaveDocument;
+  expect(before.state.revision).toEqual(expect.any(Number));
+  expect(before.state.canUndo).toBe(true);
+  let applies = 0;
+  page.on("request", request => { if (request.url().endsWith("/actions/apply")) applies++; });
   await openTableReset(page, "coins");
   await expectPreview(page, "0 selected rows", []);
-  await closePreview(page, "Apply");
+  await closePreview(page, "Cancel");
+  expect(applies).toBe(0);
+  const afterResponse = await page.request.get(documentUrl);
+  expect(afterResponse.ok()).toBe(true);
+  const after = await afterResponse.json() as SaveDocument;
+  expect(after.state).toEqual(before.state);
   expectArchiveBytes(await exportFiles(page, testInfo, "empty-selection.zip"), edited);
   await loadJson(page);
   await expect(coinsField(page)).toHaveValue(editedCoins);
@@ -170,6 +185,7 @@ test("F6 empty table selection means no rows; the action outside the table retai
   await page.getByRole("button", { name: action, exact: true }).click();
   await expectPreview(page, "Whole document", [{ key: "coins", before: `number: ${editedCoins}`, after: `number: ${originalCoins}` }]);
   await closePreview(page, "Apply");
+  expect(applies).toBe(1);
   expectArchiveBytes(await exportFiles(page, testInfo, "document-scope.zip"), originalSave);
   await loadJson(page);
   await expect(coinsField(page)).toHaveValue(originalCoins);

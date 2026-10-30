@@ -6,7 +6,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.UnrealGvas;
 
-internal sealed class UnrealGvasDocument : BoundSaveDocument
+internal sealed class UnrealGvasDocument : BoundSaveDocument, IFieldMetadataDocument
 {
     private const int PageSize = 100;
     private const string ConsoleWarning = "Not validated on console. The game may reject or overwrite the edited save.";
@@ -50,6 +50,26 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
     public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
     internal JediActorStream? ActorStream => _actorStream;
     internal GvasFile CurrentFile => _envelope.File;
+
+    public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+    {
+        ArgumentNullException.ThrowIfNull(valueIds);
+        if (valueIds.Count > FieldMetadataLimits.MaxBatchSize)
+            throw new ArgumentOutOfRangeException(nameof(valueIds), valueIds.Count,
+                $"Request at most {FieldMetadataLimits.MaxBatchSize} field IDs per batch.");
+        foreach (var valueId in valueIds) ArgumentException.ThrowIfNullOrEmpty(valueId, nameof(valueIds));
+
+        foreach (var valueId in valueIds.Distinct(StringComparer.Ordinal))
+        {
+            if (!_nodes.TryGetValue(valueId, out var node) || node.Scalar is null) continue;
+            var binding = ScalarBinding(node);
+            RegisterField(new FieldMetadata(valueId, FieldLabel(node), binding.Spec)
+                { Presentation = CanonicalPresentation(node) },
+                binding.Get, binding.Set, binding.Validate);
+        }
+
+        return base.ResolveFieldMetadata(valueIds);
+    }
 
     public override ViewNode BuildView()
     {
@@ -151,7 +171,9 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
     {
         var rows = nodes.Skip(start).Take(PageSize).Select(node => new TableRow(_ids[node], new Dictionary<string, ViewNode>
         {
-            ["name"] = new TextNode(node.Name), ["type"] = new TextNode(node.Type), ["value"] = Bind(node),
+            ["name"] = new TextNode(node.Name), ["type"] = new TextNode(node.Type),
+            ["value"] = _schema.Kind == UnrealGvasSchemaKind.Generic
+                ? Bind(node) : GvasFieldReferenceFactory.Value(_ids[node], node),
         })).ToArray();
         var result = new List<ViewNode> { new TableNode([new("name", "Property"), new("type", "Type"), new("value", "Value")], rows) };
         if (start + PageSize < nodes.Count)
@@ -161,20 +183,26 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument
 
     private FieldNode Bind(GvasNode node)
     {
-        var scalar = node.Scalar!;
-        var actorLength = _schema.Kind == UnrealGvasSchemaKind.JediGameplay && node.Name == "UncompressedActorRecordsSize";
-        var writable = CanEdit && !IsIntegrityNode(node) && !actorLength;
-        return Field(_ids[node], $"{node.Name} · {node.Type}", GvasScalarField.Spec(scalar), () => GvasScalarField.ToFieldValue(scalar),
-            writable ? value => GvasScalarField.SetScalar(scalar, value) : null, value => GvasScalarField.Validate(scalar, value)) with
+        var binding = ScalarBinding(node);
+        var presentation = CanonicalPresentation(node);
+        return Field(_ids[node], FieldLabel(node), binding.Spec, binding.Get, binding.Set, binding.Validate) with
         {
-            Confidence = _integrityWarning is null ? Confidence.Verified : Confidence.Inferred,
-            Description = _integrityWarning is null
-                ? "Raw serialized property; the name and storage type are confirmed by its tag."
-                : "Existing serialized field observed in supplied title captures; gameplay meaning and integrity coverage remain unproven.",
-            Warning = actorLength ? "Read-only length of the preserved compressed actor stream. " + _integrityWarning
-                : _readOnlyReason ?? _integrityWarning ?? EditWarning,
+            Confidence = presentation.Confidence,
+            Description = presentation.Description,
+            Warning = presentation.Warning,
         };
     }
+
+    private FieldPresentation CanonicalPresentation(GvasNode node) =>
+        GvasScalarBindingPolicy.Presentation(node, _schema, _integrityWarning, _readOnlyReason, EditWarning);
+
+    private GvasScalarBinding ScalarBinding(GvasNode node) =>
+        GvasScalarBindingPolicy.Create(node, CanEdit, IsIntegrityNode(node), IsActorLength(node));
+
+    private string FieldLabel(GvasNode node) => $"{node.Name} · {node.Type}";
+
+    private bool IsActorLength(GvasNode node) =>
+        _schema.Kind == UnrealGvasSchemaKind.JediGameplay && node.Name == "UncompressedActorRecordsSize";
 
     public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {

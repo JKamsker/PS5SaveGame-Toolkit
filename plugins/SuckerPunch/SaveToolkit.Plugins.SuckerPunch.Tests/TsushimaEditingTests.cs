@@ -34,7 +34,7 @@ public sealed class TsushimaEditingTests
 
             var outcome = document.ApplyEdits(edits);
             Assert.True(outcome.Succeeded);
-            var output = Assert.Single(document.Serialize());
+            var output = SuckerPunchTestData.PrimaryOutput(document);
             var bytes = output.Content.ToArray();
             Assert.Equal(Checksum(bytes), Word(bytes, 8));
             Assert.Equal(file.RelativePath, output.RelativePath);
@@ -79,7 +79,7 @@ public sealed class TsushimaEditingTests
         Assert.True(outcome.Succeeded);
         Assert.True(document.ApplyEdits(outcome.Changes.Where(change => change.ValueId is SuppliesId or ArrowId)
             .Reverse().Select(change => new ValueEdit(change.ValueId, change.OldValue)).ToArray()).Succeeded);
-        Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(original, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Theory]
@@ -92,7 +92,7 @@ public sealed class TsushimaEditingTests
         var result = document.ApplyEdits([Edit(SuppliesId, 86), Edit(ArrowId, badQuantity)]);
         Assert.False(result.Succeeded);
         Assert.Empty(result.Changes);
-        Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(file.ReadAllBytes(), SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Fact]
@@ -108,7 +108,7 @@ public sealed class TsushimaEditingTests
         using var inconsistent = Open(WithBytes(bytes));
         Assert.True(Quantity(inconsistent, "ArrowNormal").Spec.ReadOnly);
         Assert.False(inconsistent.ApplyEdits([Edit(ArrowId, 1)]).Succeeded);
-        Assert.Equal(bytes, Assert.Single(inconsistent.Serialize()).Content.ToArray());
+        Assert.Equal(bytes, SuckerPunchTestData.PrimaryOutput(inconsistent).Content.ToArray());
     }
 
     [Fact]
@@ -118,12 +118,12 @@ public sealed class TsushimaEditingTests
         bytes[^1] = 0xA5;
         using var document = Open(WithBytes(bytes));
         WriteAssertions.FlipReturnedByte(document.ReadBlob("content", 7, 32));
-        Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(bytes, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         Assert.True(document.ApplyEdits([Edit(SuppliesId, 86)]).Succeeded);
-        var output = Assert.Single(document.Serialize()).Content.ToArray();
+        var output = SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
         Assert.Equal(0xA5, output[^1]);
         Assert.Equal((uint)0x14E, Word(output, 0));
-        WriteAssertions.FlipReturnedByte(Assert.Single(document.Serialize()).Content);
-        Assert.Equal(output, Assert.Single(document.Serialize()).Content.ToArray());
+        WriteAssertions.FlipReturnedByte(SuckerPunchTestData.PrimaryOutput(document).Content);
+        Assert.Equal(output, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 }

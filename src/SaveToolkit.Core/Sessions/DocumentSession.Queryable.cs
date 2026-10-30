@@ -17,7 +17,11 @@ public sealed partial class DocumentSession
         QueryCollection(collectionId, query, expectedRevision, CancellationToken.None);
 
     public QueryableCollectionPage QueryCollection(string collectionId, QueryableCollectionQuery query, long? expectedRevision,
-        CancellationToken cancellationToken) => Locked(() => RunPreflight(_ =>
+        CancellationToken cancellationToken) => QueryCollection(collectionId, query, expectedRevision, static page => page, cancellationToken);
+
+    /// <summary>Prepares a host response before publishing page bindings; preparation failures retain the prior index.</summary>
+    public T QueryCollection<T>(string collectionId, QueryableCollectionQuery query, long? expectedRevision,
+        Func<QueryableCollectionPage, T> prepareResponse, CancellationToken cancellationToken) => Locked(() => RunPreflight(_ =>
     {
         if (Document is not IQueryableDocument queryable)
         {
@@ -49,24 +53,35 @@ public sealed partial class DocumentSession
         }
 
         query = query with { IncludeEmpty = query.IncludeEmpty ?? collection.EmptyRows?.HideByDefault != true };
+        return PublishView(staged => PreparePage(staged, queryable, collection, query, prepareResponse, cancellationToken), cancellationToken);
+    }, cancellationToken), cancellationToken);
+
+    private T PreparePage<T>(Editing.ViewIndex staged, IQueryableDocument queryable, QueryableCollection collection,
+        QueryableCollectionQuery query, Func<QueryableCollectionPage, T> prepareResponse, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(prepareResponse);
         cancellationToken.ThrowIfCancellationRequested();
-        var page = queryable.Query(collectionId, query);
+        var page = queryable.Query(collection.Id, query);
         cancellationToken.ThrowIfCancellationRequested();
         if (page is null)
         {
             throw new InvalidOperationException($"Collection '{collection.Id}' returned no page.");
         }
         ValidatePage(collection, page, query);
-        _index.AddAll(page.Rows.SelectMany(r => r.Cells.Values), cancellationToken);
+        staged.AddAll(page.Rows.SelectMany(r => r.Cells.Values), cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
-        return page with
+        var resolved = page with
         {
+            Rows = ((TableNode)staged.ResolveFieldReferences(Document,
+                new TableNode(page.Columns.Select(column => new TableColumn(column.Key, column.Label)).ToArray(), page.Rows), cancellationToken)).Rows,
             CollectionId = collection.Id,
             Columns = collection.Columns,
             TotalCount = collection.TotalCount,
             Revision = _revision,
         };
-    }, cancellationToken), cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        return prepareResponse(resolved);
+    }
 
     private static void ValidateQuery(string collectionId, QueryableCollectionQuery query)
     {

@@ -8,7 +8,7 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.SuckerPunch;
 
-internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDocument, IQueryableDocument
+internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDocument, IQueryableDocument, IAdditionalOutputOwner, IFieldMetadataDocument
 {
     private const string InventoryBlockId = "blocks/inventory";
     private const string ProgressBlockId = "blocks/progress";
@@ -24,7 +24,9 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
     private readonly TsushimaSpatialViews _spatialViews;
     private readonly TsushimaQueryableCollections _queryableCollections;
     private readonly TsushimaQuantityPlanning _quantityPlanning;
-    private readonly string? _subtitle;
+    private readonly SuckerPunchCaption _caption;
+    private readonly SuckerPunchCaptionEditing _captionEditing;
+    private readonly TsushimaFieldMetadata _fieldMetadata;
     private readonly SuckerPunchOverview _overview;
     private readonly TsushimaPlayTime? _playTime;
 
@@ -34,7 +36,6 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
         _bytes = bytes;
         _container = container;
         _references = references;
-        _subtitle = file.Directory.ParamSfo?.SubTitle;
         if (container.Kind == ContainerKind.Tsushima)
         {
             var content = bytes.AsSpan(0, (int)container.Word1);
@@ -54,15 +55,20 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
             _playTime = new TsushimaPlayTime(bytes, _progress.PlayTimeOffset, seconds);
         }
 
+        _caption = SuckerPunchCaption.Open(file, container, CanEdit);
+        _captionEditing = new SuckerPunchCaptionEditing(file, bytes, _caption);
+        _fieldMetadata = new TsushimaFieldMetadata(bytes, _inventory, _playTime);
         _views = new TsushimaReferenceViews(references, _identifiers, BindReadOnly);
         _spatialViews = new TsushimaSpatialViews(references, _identifiers);
         _queryableCollections = new TsushimaQueryableCollections(_views, _identifiers.Count > 0);
         _quantityPlanning = new TsushimaQuantityPlanning(bytes, container, _inventory);
     }
 
-    public override string Title => string.IsNullOrWhiteSpace(_subtitle)
+    public override string Title => string.IsNullOrWhiteSpace(_caption.Text ?? _file.Directory.ParamSfo?.SubTitle)
         ? $"{_file.Directory.TitleId} · {_file.FileName}"
-        : $"{_file.Directory.TitleId} · {_subtitle}";
+        : $"{_file.Directory.TitleId} · {_caption.Text ?? _file.Directory.ParamSfo?.SubTitle}";
+
+    public IReadOnlyList<string> AdditionalOutputPaths => _caption.AdditionalOutputPaths;
 
     public override bool CanEdit => _inventory is not null;
 
@@ -74,7 +80,9 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
 
     public override ViewNode BuildView()
     {
-        var overview = _overview.Build((id, label, spec, get) => Field(id, label, spec, get)).ToList();
+        var overview = _overview.Build((id, label, spec, get) => Field(id, label, spec, get), _caption.Available).ToList();
+        overview.AddRange(_caption.View());
+        BindCaption();
         if (_playTime is { } timer)
         {
             overview.Add(Field(TsushimaPlayTime.ValueId, "Play time", timer.Spec, timer.Read, timer.Write, timer.Validate) with
@@ -91,7 +99,8 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
             tabs.Add(new Tab("Inventory", [new TextNode(
                 TsushimaWriteWarnings.Console + " Experimental edits: only existing unlocked records can change. " +
                 "Ammo updates both count copies. The game may clamp quantities to its capacity limits.") { Tone = Tone.Warning },
-                _views.Inventory(_inventory, QuantityField, MirrorField), TsushimaQuantityPlanning.View, TsushimaQuantityPlanning.InventoryView,
+                _views.Inventory(_inventory, record => _fieldMetadata.Quantity(record, _items, RegisterField),
+                    record => _fieldMetadata.Mirror(record, RegisterField)), TsushimaQuantityPlanning.View, TsushimaQuantityPlanning.InventoryView,
                 TsushimaQuantityPlanning.RestoreAmmoView, TsushimaReferenceViews.ResourceGuide]));
             if (_identifiers.Count > 0)
             {
@@ -122,14 +131,14 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
     }
 
     public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope)
-        => _quantityPlanning.Plan(actionId, parameters, scope);
+        => actionId == SuckerPunchCaption.ActionId ? _caption.Plan(parameters, scope) : _quantityPlanning.Plan(actionId, parameters, scope);
     public IReadOnlyList<QueryableCollection> Collections => _queryableCollections.Collections;
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query)
         => _queryableCollections.Query(collectionId, query);
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
         ActionPlans.ApplyScalar(plan, () => PlanAction(actionId, parameters, scope),
-            new(actionId, "The quantity preview is stale or does not match the request. Preview again."),
+            new(actionId, "The action preview is stale or does not match the request. Preview again."),
             _ => { BuildView(); },
             current => current.Changes.Where(change => !change.Derived)
                 .Select(change => new ValueEdit(change.ValueId, change.NewValue)).ToArray(),
@@ -165,6 +174,7 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
 
     public override EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits)
     {
+        if (edits.Any(edit => edit.ValueId == SuckerPunchCaption.ValueId)) return _captionEditing.Apply(edits);
         var outcome = base.ApplyEdits(edits);
         // Raw blocks contain snapshot text; rebuild them and the current timer value after edits.
         var warnings = new List<string>(outcome.Warnings);
@@ -197,11 +207,12 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
             }
         }
 
-        return [new FileOutput(_file.RelativePath, output)];
+        return _caption.Available ? [new(_file.RelativePath, output), _caption.Serialize()] : [new(_file.RelativePath, output)];
     }
 
     public override IReadOnlyList<ViewNode> ExpandNode(string lazyId) => lazyId switch
     {
+        SuckerPunchCaption.DetailsId when _caption.Available => [_caption.FieldView],
         InventoryBlockId when _inventory is not null => [TsushimaReferenceViews.RawInventory(_inventory, ReadWord)],
         _ when lazyId.StartsWith(TsushimaIds.GuidePrefix, StringComparison.Ordinal) && _inventory is not null => _views.ExpandGuide(lazyId),
         ProgressBlockId when _progress is not null => [new TextNode(
@@ -229,40 +240,11 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
 
     public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
 
-    private FieldNode QuantityField(InventoryRecord record)
-    {
-        var quantity = ReadWord(record.QuantityOffset);
-        var editable = record.CanEdit(_bytes);
-        var reference = _items?.Find(record.Name);
-        return Field(record.ValueId, reference?.Name ?? record.Name, new IntegerSpec(0,
-            Math.Max(quantity, InventoryRecord.MaximumQuantity)),
-            () => FieldValue.Of((ulong)ReadWord(record.QuantityOffset)),
-            editable ? value => record.WriteQuantity(_bytes, value.AsUInt32()) : null,
-            value => value.Kind != FieldValueKind.Integer || value.AsInteger() < 0 ||
-                value.AsInteger() > InventoryRecord.MaximumQuantity ? "Quantity must be between 0 and 32767." : null) with
-        {
-            Confidence = record.IsAmmo ? Confidence.Verified : Confidence.Inferred,
-            Description = $"Named record at 0x{record.Start:X}; count at 0x{record.QuantityOffset:X}. Not validated on console. " +
-                (record.IsAmmo ? "Apollo/Save Wizard targets these two count words." :
-                "Resource count inferred from the named record and consistent slot values; raw identifier retained.") +
-                (reference is null ? "" : $" {reference.Description} {reference.AttributionText}"),
-            Warning = editable ? TsushimaQuantityPlanning.CapacityWarning :
-                "Unmapped, locked, oversized, or inconsistent record: inspection only.",
-        };
-    }
-
     private FieldNode BindReadOnly(FieldNode node)
     {
         _ = Field(node.ValueId, node.Label, node.Spec, () => node.Value);
         return node;
     }
-
-    private FieldNode MirrorField(InventoryRecord record) => Field(record.MirrorValueId, $"{record.Name} count copy",
-        IntegerSpec.UInt32, () => FieldValue.Of((ulong)ReadWord(record.QuantityOffset + sizeof(uint)))) with
-    {
-        Confidence = Confidence.Verified,
-        Description = "Apollo targets both count words; equal in all supplied samples. Derived from quantity edits; not validated on console.",
-    };
 
     private IReadOnlyList<ViewNode> BuildBlocks()
     {
@@ -279,6 +261,30 @@ internal sealed class SuckerPunchDocument : BoundSaveDocument, IActionPlanningDo
 
         return nodes;
     }
+
+    public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+    {
+        ArgumentNullException.ThrowIfNull(valueIds);
+        if (valueIds.Count > FieldMetadataLimits.MaxBatchSize) throw new ArgumentOutOfRangeException(nameof(valueIds));
+        foreach (var id in valueIds) ArgumentException.ThrowIfNullOrEmpty(id);
+        BindCaption();
+        _fieldMetadata.Bind(valueIds, RegisterField);
+        return base.ResolveFieldMetadata(valueIds);
+    }
+
+    private void BindCaption()
+    {
+        if (_caption.Available) RegisterField(_caption.Metadata, _caption.Read, _caption.Write, _caption.Validate);
+    }
+
+    public override DocumentMemento RestoreMemento(DocumentMemento memento)
+    {
+        try { return base.RestoreMemento(memento); }
+        finally { BindCaption(); }
+    }
+
+    protected override DocumentMemento? CaptureSnapshot() => _captionEditing.Capture();
+    protected override void LoadSnapshot(DocumentMemento snapshot) => _captionEditing.Restore(snapshot);
 
     private uint ReadWord(int offset) => BinaryPrimitives.ReadUInt32LittleEndian(_bytes.AsSpan(offset));
     private void WriteWord(int offset, uint value) => BinaryPrimitives.WriteUInt32LittleEndian(_bytes.AsSpan(offset), value);

@@ -94,7 +94,7 @@ public sealed class TsushimaReferenceTests
 
             Assert.NotEmpty(equipmentPage.Rows);
             Assert.All(equipmentPage.Rows, row => Assert.Equal("Unknown", Assert.IsType<TextNode>(row.Cells["state"]).Text));
-            Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+            Assert.Equal(file.ReadAllBytes(), SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         }
     }
 
@@ -129,7 +129,7 @@ public sealed class TsushimaReferenceTests
             Assert.Contains("CC-BY-SA-3.0", name.Description);
             Assert.False(document.ApplyEdits([new(name.ValueId, FieldValue.Of("wiki:other"))]).Succeeded);
         });
-        Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(file.ReadAllBytes(), SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Fact]

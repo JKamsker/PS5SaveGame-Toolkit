@@ -61,8 +61,8 @@ function OpenDocument({ session, focusHeading, workspaceId, documentId, file, on
       <ReviewNavigationProvider>
         <article className="editor">
           <DocumentHeader document={doc} file={file} focusHeading={focusHeading} onSwitchPlugin={onSwitchPlugin} />
-          {query.isError && <div className="read-error">
-            <p role="alert" className="notice notice--Danger">Could not refresh the document: {query.error.message}</p>
+          {context.snapshotError && <div className="read-error">
+            <p role={context.snapshotErrorInDialog ? undefined : "alert"} className="notice notice--Danger">Could not refresh the document: {context.snapshotError}</p>
             <button type="button" className="btn btn--small" disabled={query.isFetching} onClick={() => void refresh()}>Refresh document</button>
           </div>}
           <DocumentGroupControls document={doc} onClosed={onClosed} onOpenGroup={onOpenGroup} />

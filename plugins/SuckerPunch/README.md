@@ -1,7 +1,7 @@
 # Sucker Punch save plugin (`suckerpunch`)
 
 Titles: **PPSA02225** (Ghost of Tsushima, Director's Cut) and **PPSA26344** (Ghost of Yōtei).
-Version 0.9.0 is **Experimental**: Tsushima inventory/play-time and Yōtei existing-quantity edits pass
+Version 0.10.0 is **Experimental**: Tsushima inventory/play-time and Yōtei existing-quantity edits pass
 conformance and exact byte-difference tests, but have not been tested in-game. Yōtei now decodes
 48 inventory records, 33 statistics and a bounded 1,037-name gear registry. No sample bytes,
 extracted saves, or third-party implementation code are included in this plugin.
@@ -56,7 +56,72 @@ Still disabled for structural safety:
 - **Difficulty and structural add/remove:** general difficulty changes alter string lengths; enclosing
   sizes, offsets and references cannot be updated safely by the current fixed-width model. Item
   insertion/removal likewise has no understood enclosing structure or acquisition side effects.
-  No F5/F7 transaction is exposed because no safe structural or sibling-file mutation is defined.
+  No structural inventory writer or F7 group is exposed; the independent manual caption uses whole-byte F5 history below.
+
+### Experimental manual Tsushima save caption (SDK-10)
+
+`metadata/set-save-caption` accepts exactly one typed user-authored `caption` string and document
+scope. It is available only for **PPSA02225**, recognized editable inventory, observed container
+**v47–v49**, and root `dis.dat` / `memory.dat`. Yōtei and nested game-state roles are deferred.
+This is a metadata-only override: no timer, difficulty, title, locale or filename derives the text.
+Game acceptance and the native layout/timer relationship remain **Inferred/Unknown**.
+
+The same directory must contain exactly one existing `sce_sys/param.sfo` and a unique existing
+`SUBTITLE` in strict UTF-8 format `0x0204` or `0x0004`. The shared SDK `ParamSfoDocument` parses,
+plans and applies every patch. No binary parser, complete SFO writer, new key, resize or plugin I/O
+was added. Missing, duplicate, malformed, unsupported, oversized, invalid-encoding and already
+writer-over-limit sources remain untouched with a bounded unavailable reason. Existing CR/LF
+captions also disable the action, writable caption metadata and additional SFO ownership;
+their source bytes are preserved without stripping or normalization. Display-only
+`Directory.ParamSfo` never grants write authority or causes another directory to be selected.
+
+The text hint is `min(entry.MaximumLength, MaxEncodedValueBytes) - 1`: the SDK default global
+encoded cap is **4096 including storage NUL**, so the maximum logical hint is **4095 bytes**.
+The entry may impose a smaller bound. Empty text is allowed; embedded NUL, lone surrogates,
+CR/LF and over-capacity values reject without mutation. Literal U+FEFF consumes three payload
+bytes. `MaxLength` is not supplied: UTF-16 length is a separate concept, not the SFO capacity.
+The existing shared action UI can show used/capacity/remaining; server validation remains authoritative.
+
+Preview publishes exact canonical `metadata/sce_sys/param.sfo/SUBTITLE` old/new values, the exact
+SFO path, encoded byte usage, Experimental/native-rejection warnings and source/entry SHA-256
+identities. The fingerprints participate in deterministic replanning, including when the text
+returns to its former value but reserved bytes differ. No IDs or saved state are allocated on
+preview. The lazy **Caption value and provenance** section publishes the real canonical field
+through the existing binding path, so semantic review/Changes and individual value reversion can
+find it; its scalar edits use the same whole-byte transaction as the F6 action. This is not parsed
+action-payload metadata. Existing inventory primaries and derived ammo/checksum metadata are
+also explicitly registered through `IFieldMetadataDocument`, preserving host authority for those actions.
+
+Every real caption edit returns a bounded memento containing **all primary and SFO bytes**. Undo
+and redo reparse the SFO, refresh bindings and restore reserved suffix/tail bytes exactly. A text
+inverse alone cannot restore bytes overwritten by a longer caption. Snapshot restoration preserves
+fixed-width gameplay offsets and immutable opening-ammo/timer bounds. Mixed direct gameplay/caption
+batches reject atomically; this action deliberately changes metadata alone. An exact no-op has no
+revision, dirty flag or history step.
+
+`IAdditionalOutputOwner` declares only the exact existing directory-relative SFO path. The opened
+primary is implicitly owned by the host; `Serialize()` returns that primary and the full-path SFO
+**exactly once each**, even clean or after no-op/undo/redo. Unchanged primary bytes are retained.
+The host separately filters clean sessions to zero export overrides. ChangedFiles carries both
+owned outputs; ChangedDirectories includes remaining directory files; Everything includes the
+whole imported set. Host ownership collisions, immutable imported-source fingerprints, strict
+overlays, and identical/unowned console-twin mirroring retain the published ownership rules.
+Unrelated files, other directories and different-title twins are never selected by this action.
+
+Evidence for this adoption is synthetic exact-byte testing, not a new private-sample or console
+claim: [`CaptionPlanningTests`](SaveToolkit.Plugins.SuckerPunch.Tests/CaptionPlanningTests.cs),
+[`CaptionMementoTests`](SaveToolkit.Plugins.SuckerPunch.Tests/CaptionMementoTests.cs),
+[`CaptionEligibilityTests`](SaveToolkit.Plugins.SuckerPunch.Tests/CaptionEligibilityTests.cs),
+[`CaptionSessionTests`](SaveToolkit.Plugins.SuckerPunch.Tests/CaptionSessionTests.cs) and
+[`CaptionOwnershipTests`](SaveToolkit.Plugins.SuckerPunch.Tests/CaptionOwnershipTests.cs).
+The underlying SDK contract is pinned by
+[`ParamSfoPatchTests`](../../tests/SaveToolkit.Core.Tests/ParamSfoPatchTests.cs),
+[`SystemOutputOwnershipTests`](../../tests/SaveToolkit.Core.Tests/SystemOutputOwnershipTests.cs), and
+[`TextCapacityTests`](../../tests/SaveToolkit.Core.Tests/TextCapacityTests.cs).
+Actual browser/keyboard/screen-reader/responsive acceptance is separately owned; unit tests do
+not establish it. Automatic synchronization stays blocked on the unchanged-control, timer-only,
+difficulty-only, native-resave/reload, role/sibling, independent-repeat and reversible owner captures
+in [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
 
 ## Supported behavior
 
@@ -137,7 +202,7 @@ Still disabled for structural safety:
   use shared category sorting, while wiki IDs remain separate from saved IDs and cannot be committed.
 * Opening copies the input; exports and hex pages are isolated copies. No-op exports are byte-identical,
   including unknown data, console metadata and padding. Only the selected document's file is returned;
-  sibling saves, backup slots and `param.sfo` are preserved.
+  sibling saves and backup slots are preserved. `param.sfo` changes only through the explicit manual caption workflow below; host export may mirror an identical unowned console twin.
 
 ## Malformed-input handling
 
@@ -173,9 +238,9 @@ additional production correctness defect requiring a parser change.
 | F2 reference packs | Used | Embedded `suckerpunch.tsushima` v3.0.0 catalogs and four art datasets are loaded through `IReferenceContext`; per-record and UI descriptions carry attribution and the Sources panel exposes each dataset. Yōtei pack adds 48 raw item references, 10 technique guides, 16 location guides and four attributed assets. |
 | F3 rich table cells | Used | Inventory, equipment, technique and world tables expose raw IDs, descriptions, mapping-confidence cells, warning tones and F6 action controls. SDK-41 gives both eager inventories stable selection IDs and binds their sibling target controls. Tsushima inventory cells publish selection-scoped ammo restoration alongside an explicitly document-wide standalone control. Equipment/technique tables and lazy guides show local attributed ImageNode cells (106 unique icons/thumbnails, 158 catalogue bindings); the SDK has no separate detail-cell node. Yōtei adds inventory symbols, read-only reference cells, raw statistics, warning/confidence metadata and F6 controls. |
 | F4 reference pickers | Used | Every catalog-backed inventory, equipment and technique ID is a read-only `ReferenceSpec` field with raw-ID fallback, category/description metadata and attribution. Yōtei item/technique/location catalog IDs are browse-only with raw fallback and provenance; no gear-name catalogue join is invented. |
-| F5 structural edits | N/A | No safe add/remove/reorder writer exists: enclosing sizes, references, ownership and acquisition side effects are unproven, so a plugin-local structural substitute would risk data loss. |
-| F6 planned actions | Used | Existing resource/ammo target actions and Tsushima restore-imported-ammo provide pure previews, skipped rows, derived ammo/checksum changes, stale-plan rejection and one Core undo/redo group. Target controls use SDK-41 selected rows (including hidden selections), falling back to document scope when nothing is selected; explicit empty API scopes remain no-ops. Restore uses each eligible row's opening count only when lower and retains its distinct cell/document controls. Query scopes are rejected because the writable inventory is a bounded fixed table and the equipment collection is read-only. Yōtei adds one target-quantity action with per-row observed bounds and the same atomic preview/apply guarantees. |
-| F7 document groups | N/A | No controlled capture proves that `memory.dat`, `dis.dat`, `param.sfo` or a backup must change with a supported edit; the safe contract rewrites only the selected file. |
+| F5 structural edits / mementos | Used | The manual caption captures complete primary/SFO bytes for one-step exact undo/redo, including overwritten reserved suffixes. No add/remove/reorder writer: No safe add/remove/reorder writer exists: enclosing sizes, references, ownership and acquisition side effects are unproven, so a plugin-local structural substitute would risk data loss. |
+| F6 planned actions | Used | SDK-10 adds document-scoped `metadata/set-save-caption`, one typed `caption` parameter, exact canonical old/new text, source/entry fingerprints, byte capacity and Experimental warnings. Inventory/query scopes reject. Existing actions: Existing resource/ammo target actions and Tsushima restore-imported-ammo provide pure previews, skipped rows, derived ammo/checksum changes, stale-plan rejection and one Core undo/redo group. Target controls use SDK-41 selected rows (including hidden selections), falling back to document scope when nothing is selected; explicit empty API scopes remain no-ops. Restore uses each eligible row's opening count only when lower and retains its distinct cell/document controls. Query scopes are rejected because the writable inventory is a bounded fixed table and the equipment collection is read-only. Yōtei adds one target-quantity action with per-row observed bounds and the same atomic preview/apply guarantees. |
+| F7 document groups | N/A | No controlled capture proves that `memory.dat`, `dis.dat`, `param.sfo` or a backup must change with a supported edit; gameplay edits preserve metadata. Manual caption edits explicitly own the same directory’s existing SFO, retain the selected primary bytes, and do not imply gameplay coupling. |
 | F8 queryable collections | Used | The per-save equipment identifier view is `equipment/identifiers`, with stable IDs, bounded pages, search, filters and deterministic sorting. Small inventory/technique/world views remain eager because they are below the paging threshold. Yōtei adds `yotei/gear-registry` (1,037 entries); its 33 statistics remain a bounded eager table. |
 | F9 maps and graphs | Used | Techniques publish a validated read-only `GraphNode` with field targets and a text alternative; World publishes a validated `MapNode` with attributed whole-island art, row targets, Unknown statuses and unpositioned markers because alignment is unverified; the schematic/list fallback remains. Yōtei adds a 10-node Unknown technique graph and 16-location map/table; only Horizon View is placed on its local screenshot excerpt. |
 | F10 exact numbers and nullable/union specs | N/A | Supported edits are fixed-width uint32 quantities and an observed float32 timer; no save field carries an exact JSON number lexeme, nullable value or union that this plugin could preserve. |
@@ -433,6 +498,21 @@ in original words; no verified source established official effect text tied to t
 IDs, so that join remains owner-blocked. No third-party code was downloaded and executed.
 
 ## Sources and attribution
+
+Caption-adoption research, **2026-10-30**: read the actual published SDK/Core sources at main
+`201dd690a48a93bf496f1825246bc6954cc5ec52` and PR60
+`5109db8af09ce2effe19ff6c0897de15fd9a0d5d`, their tests and contract documentation before
+implementation. Rechecked KOVRlN’s technical notes and RPCS3’s PSF loader as primary format
+comparisons. Those upstream sources do not establish a PS5 metadata/gameplay dependency.
+No downloaded code was copied, executed or ported, no dataset was added, and no private sample
+was read for this adoption.
+
+| Caption source / revision | Author / rights holder | Licence / use |
+| --- | --- | --- |
+| [SDK-10 substrate at 201dd690](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/201dd690a48a93bf496f1825246bc6954cc5ec52/docs/SDK10-SFO-SUBSTRATE.md), [ownership contract](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/201dd690a48a93bf496f1825246bc6954cc5ec52/docs/SYSTEM_OUTPUT_OWNERSHIP.md), and tests linked above | PS5 Save Game Toolkit contributors | Repository GPL-3.0-or-later; compose public SDK helpers unchanged. |
+| [PR60 logical text capacity at 5109db8a](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/5109db8af09ce2effe19ff6c0897de15fd9a0d5d/docs/TEXT_CAPACITY.md) | PS5 Save Game Toolkit contributors | Repository GPL-3.0-or-later; use logical byte hint; storage NUL remains SDK writer policy. |
+| [KOVRlN technical notes](https://github.com/KOVRlN/ghostoftsushima-save-converter/blob/main/TECHNICAL.md), retrieved 2026-10-30; existing pinned revision 519bb466 below | KOVRlN | Existing attributed format research; no code or new data imported. |
+| [RPCS3 PSF loader](https://github.com/RPCS3/rpcs3/blob/master/rpcs3/Loader/PSF.cpp), retrieved 2026-10-30 | RPCS3 contributors | GPL-2.0-or-later; comparison only, no copied implementation. Existing-entry writer authority is the SDK, not RPCS3 game semantics. |
 
 | Dataset | Entries | Pinned source | License |
 | --- | ---: | --- | --- |
@@ -704,7 +784,23 @@ whole-save copies; paged collections retain one document-local result index with
 
 ## SDK requests
 
-No current blocking SDK request.
+No current blocking SDK request. Published PR60 (`5109db8a`) supplies `TextSpec.MaxUtf8Bytes`;
+**LAND PR60 FIRST**, then retarget this consumer from `t3/utf8-capacity-caption-ux` to main.
+
+Testing follow-up: `PluginConformanceTests.Serialize_WithoutEdits_IsByteIdentical` still uses
+game-only `ISaveSet.FindFile`, so its sample-backed path rejects a declared SFO. The shared Testing
+owner must replace that lookup with `FindAnyFile` before claiming sample-backed conformance for
+this consumer. The inherited fact remains intact and skips normally without samples; a plugin-local
+synthetic companion checks all bytes, duplicates and complete declared cardinality using the public
+any-file contract. No shared test was disabled or framework code changed.
+
+Presentation limitation: the published `ActionNode` has no disabled/reason property. Unavailable
+captions therefore show a bounded Overview warning and publish no actionable control. A future
+framework-owned disabled-action property would improve discoverability; no invented wire metadata
+or plugin-local UI substitutes are used. The host snapshot budget is configurable but not exposed
+to plugins: each caption token retains at most 555,008 + 1,048,576 payload bytes plus small overhead,
+well below the default 256 MiB history budget. A host configured below that bound applies its ordinary
+history eviction/warning policy; the plugin cannot promise undo under an arbitrarily lower host budget.
 
 - **Resolved — shared SaveDiff discovery:** the former `ffxvi` hook/view collision no longer occurs.
   The FinalFantasy16 hook is `ffxvi-evidence`; the full CLI lists `suckerpunch` (view) and
@@ -718,9 +814,8 @@ No current blocking SDK request.
 
 F2/F4/F6/F8/F9/F12/F13 need no plugin-local substitute. F8 query actions are N/A because both large
 collections are read-only and the writable inventories are bounded eager tables. F5/F7 need field and
-relationship evidence, not a new SDK contract. A future metadata-edit contract could clarify whether
-play-time/difficulty edits should update `param.sfo SUBTITLE`; no such writer is implemented or requested
-as a prerequisite for the current fixed-width edits. The optional shared helper adoption gaps are
+relationship evidence, not a new SDK contract. The landed SDK-10 substrate and system-output ownership support the independent manual caption.
+Automatic timer/difficulty synchronization still requires controlled native evidence; no SDK API can establish that relationship. The optional shared helper adoption gaps are
 listed under [Framework feature adoption](#framework-feature-adoption).
 
 ## Synthetic mutation fuzz testing (#40)

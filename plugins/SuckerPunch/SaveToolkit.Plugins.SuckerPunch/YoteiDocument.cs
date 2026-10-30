@@ -53,6 +53,8 @@ internal sealed class YoteiDocument : BoundSaveDocument, IActionPlanningDocument
                 new Stat("Checksum", _container.ChecksumValid ? "Candidate matches; tail coverage unknown" : "Candidate does not match")]),
             new SectionNode("Container header", header),
             new TextNode(YoteiFormat.Warning) { Tone = Tone.Warning },
+            new TextNode("Save caption unavailable: manual caption editing supports Tsushima PPSA02225 only; Yōtei role evidence is deferred.")
+                { Tone = Tone.Warning },
         };
         if (_state is not null)
             overview.Add(new TextNode($"Inventory at 0x{_state.InventoryStart:X}; secondary table at 0x{_state.RegistryStart:X}. " +

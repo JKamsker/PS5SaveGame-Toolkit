@@ -8,20 +8,51 @@ namespace SaveToolkit.Core.Export;
 /// <summary>Verifies captured outputs in their complete staged save set, using pinned references.</summary>
 internal static class DocumentOutputVerifier
 {
-    public static void AddOutputs(Workspace workspace, DocumentSession session, IReadOnlyList<FileOutput> outputs,
+    public static void CheckFingerprints(DocumentSession session, CancellationToken cancellationToken)
+    {
+        try { session.CheckOutputFingerprints(cancellationToken); }
+        catch (Exception ex) when (ex is InvalidOperationException or SaveFormatException or IOException)
+        {
+            throw new ExportException(ex.Message, ex);
+        }
+    }
+
+    public static void AddOutputs(Workspace workspace, DocumentSession session, DocumentOutputCapture capture,
         Dictionary<string, ReadOnlyMemory<byte>> overrides, CancellationToken cancellationToken)
     {
+        var outputs = capture.Outputs;
+        CheckFingerprints(session, cancellationToken);
+        var pending = new Dictionary<string, ReadOnlyMemory<byte>>(StringComparer.OrdinalIgnoreCase);
         var groups = workspace.DocumentGroups;
+        var grouped = groups.Any(group => group.Session.Id == session.Id);
         foreach (var output in outputs)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (groups.Any(g => g.Session.Id != session.Id && g.Owns(output.RelativePath)))
                 throw new ExportException($"'{output.RelativePath}' is owned by another document group.");
-            if (((ISaveSet)workspace.Set).FindFile(output.RelativePath) is null)
+            var file = ((ISaveSet)workspace.Set).FindAnyFile(output.RelativePath);
+            if (file is null)
                 throw new ExportException($"Plugin '{session.Plugin.Info.Id}' tried to write unknown file '{output.RelativePath}'.");
-            if (!overrides.TryAdd(output.RelativePath, output.Content))
+            if (file.PathInDirectory.StartsWith("sce_sys/", StringComparison.OrdinalIgnoreCase)
+                && !session.OwnedOutputPaths.Contains(output.RelativePath, StringComparer.OrdinalIgnoreCase))
+                throw new ExportException($"Plugin '{session.Plugin.Info.Id}' tried to write undeclared system file '{output.RelativePath}'.");
+            if (overrides.ContainsKey(output.RelativePath) || !pending.TryAdd(output.RelativePath, output.Content))
                 throw new ExportException($"Two open documents both rewrite '{output.RelativePath}'. Close one of them.");
         }
+
+        if (session.RequiresCompleteOutputs && !grouped && capture.IsDirty)
+        {
+            foreach (var expected in session.OwnedOutputPaths)
+            {
+                if (!pending.ContainsKey(expected))
+                    throw new ExportException($"Plugin '{session.Plugin.Info.Id}' did not serialize required output '{expected}'.");
+            }
+            if (pending.Keys.Any(path => !session.OwnedOutputPaths.Contains(path, StringComparer.OrdinalIgnoreCase)))
+                throw new ExportException($"Plugin '{session.Plugin.Info.Id}' returned an output outside its declared ownership set.");
+        }
+
+        foreach (var (path, content) in pending)
+            overrides.Add(path, content);
     }
 
     public static void Verify(Workspace workspace, IReadOnlyList<DocumentSession> sessions,
@@ -30,7 +61,15 @@ internal static class DocumentOutputVerifier
         cancellationToken.ThrowIfCancellationRequested();
         if (overrides.Count == 0) return;
 
-        var overlay = new OverlaySaveSet(workspace.Set, overrides, cancellationToken);
+        OverlaySaveSet overlay;
+        try
+        {
+            overlay = new OverlaySaveSet(workspace.Set, overrides, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException or ExportException))
+        {
+            throw new ExportException($"Overlay verification failed: {ex.Message}", ex);
+        }
         foreach (var session in sessions)
         {
             cancellationToken.ThrowIfCancellationRequested();

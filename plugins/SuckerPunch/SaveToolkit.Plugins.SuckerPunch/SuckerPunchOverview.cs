@@ -10,7 +10,7 @@ internal delegate FieldNode ReadOnlyField(string id, string label, FieldSpec spe
 /// <summary>Read-only container and correlation evidence, separate from the document's editable bindings.</summary>
 internal sealed class SuckerPunchOverview(ISaveFile file, byte[] bytes, SaveContainer container, TsushimaProgress? progress)
 {
-    public IReadOnlyList<ViewNode> Build(ReadOnlyField field)
+    public IReadOnlyList<ViewNode> Build(ReadOnlyField field, bool strictCaption = false)
     {
         var isTsushima = container.Kind == ContainerKind.Tsushima;
         var format = container.Kind switch
@@ -31,7 +31,7 @@ internal sealed class SuckerPunchOverview(ISaveFile file, byte[] bytes, SaveCont
             ]),
             new SectionNode("Container header", Header(isTsushima, field)),
         };
-        if (file.Directory.ParamSfo?.SubTitle is { Length: > 0 } subtitle)
+        if (!strictCaption && file.Directory.ParamSfo?.SubTitle is { Length: > 0 } subtitle)
         {
             nodes.Add(new TextNode($"param.sfo SUBTITLE: {subtitle}") { Tone = Tone.Info });
         }

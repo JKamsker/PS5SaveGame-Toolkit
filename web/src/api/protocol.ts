@@ -25,7 +25,7 @@ export interface FloatSpec extends SpecBase {
   kind: "float"; min?: number; max?: number; singlePrecision?: boolean;
   format?: "Decimal" | "Duration"; unitsPerSecond?: number;
 }
-interface TextSpec extends SpecBase { kind: "text"; maxLength?: number; multiline?: boolean }
+interface TextSpec extends SpecBase { kind: "text"; maxLength?: number; maxUtf8Bytes?: number | null; multiline?: boolean }
 interface EnumOption { value: string; label: string; description?: string }
 export interface EnumSpec extends SpecBase { kind: "enum"; options: EnumOption[]; allowCustom?: boolean }
 interface FlagBit { bit: number; label: string; description?: string }
@@ -69,6 +69,13 @@ export interface FieldNode {
   confidence?: Confidence;
   warning?: string;
 }
+/** Unavailable canonical presentation. The server sends resolved targets as ordinary FieldNodes. */
+export interface FieldReferenceNode {
+  type: "fieldReference";
+  targetValueId: string;
+  label?: string;
+  description?: string;
+}
 export interface TableColumn { key: string; label: string; description?: string; width?: "Narrow" | "Normal" | "Wide" }
 export interface EmptyRowPresentation { labelColumnKey: string; pluralLabel?: string; hideByDefault?: boolean }
 export interface TableRow { key: string; cells: Record<string, ViewNode>; isEmpty?: boolean }
@@ -106,7 +113,7 @@ export interface QueryableTableNode {
   description?: string;
 }
 
-export type ViewNode = SectionNode | TabsNode | FieldNode | TableNode | TextNode | StatsNode | ImageNode | ActionNode | HexNode | QueryableTableNode | GraphNode | MapNode;
+export type ViewNode = SectionNode | TabsNode | FieldNode | FieldReferenceNode | TableNode | TextNode | StatsNode | ImageNode | ActionNode | HexNode | QueryableTableNode | GraphNode | MapNode;
 
 // ---- API contracts ----
 

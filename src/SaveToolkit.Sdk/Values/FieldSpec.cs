@@ -106,11 +106,26 @@ public sealed record FloatSpec : FieldSpec
     public static FloatSpec Double => new();
 }
 
-/// <summary>A text field with an optional UTF-16 length bound and explicit line-break policy.</summary>
+/// <summary>A text field with independent optional UTF-16 and UTF-8 bounds and an explicit line-break policy.</summary>
 public sealed record TextSpec : FieldSpec
 {
+    /// <summary>Smallest UTF-8 capacity: only the empty logical value fits.</summary>
+    public const int MinimumUtf8ByteCapacity = 0;
+
+    /// <summary>Largest representable UTF-8 capacity, in bytes.</summary>
+    public const int MaximumUtf8ByteCapacity = int.MaxValue;
+
     /// <summary>Maximum length in UTF-16 code units, or null for unbounded.</summary>
     public int? MaxLength { get; init; }
+
+    /// <summary>
+    /// Optional inclusive UTF-8 byte limit for the logical value, excluding storage terminators and any
+    /// encoding preamble. A literal U+FEFF in the value counts as three bytes. Must be nonnegative;
+    /// zero accepts only empty text. When present, edits must contain valid Unicode scalar sequences.
+    /// No normalization, replacement, or truncation is performed. Independent of <see cref="MaxLength"/>.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? MaxUtf8Bytes { get; init; }
 
     /// <summary>Allows carriage returns and line feeds; false requires a single line.</summary>
     public bool Multiline { get; init; }

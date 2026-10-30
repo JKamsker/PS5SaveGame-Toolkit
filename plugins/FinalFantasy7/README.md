@@ -632,6 +632,54 @@ title/build compatibility and explicit missing/ambiguous owned-instance resoluti
 writer must first have a complete socket/owner model; a plugin performing filesystem I/O to store
 profiles would violate the contract. F5/F7 exist already and need no replacement API.
 
+### Semantic preset preparation (SDK-07)
+
+The plugin now has an **internal, pure consumer foundation**, without a public SDK-07 capability
+or preset storage/UI integration. `SemanticPresets` captures typed parameters for exactly the five
+existing F6 actions: `inventory/restock-existing`, `materia/set-ap-within-tier`, `materia/set-stars`,
+`character/recover-current-vitals`, and `character/set-level`. It retains explicit document,
+all-eligible, all-copies and selected semantics. Only scopes supported by the operation are accepted;
+an empty selected scope remains empty. Preview re-enters `DocumentPlanning`; the existing F6
+planners, validation, derived AP/star or level/XP changes and history remain authoritative.
+
+Selected inventory targets retain raw catalog type IDs and source provenance. A current unique
+stack can move to a different slot; multiple matching stacks require an explicit current candidate
+choice or an explicitly captured all-matches policy. Character targets retain canonical schema
+indexes, guarded by the exact captured title ID and `Ff7Variant`. Retail Rebirth and Demo reject
+interchange despite equal dimensions. Common/system documents publish no preset actions.
+
+Rebirth selected materia targets retain the native owned instance **and** catalog type. Resolution
+joins the current owned inventory to the current AP-editable detail row; those physical indexes
+are different domains. Missing/duplicate details, duplicate inventory instances, mismatched detail
+types and owned counts other than one remain unresolved with stable reasons and all relevant
+candidate placements. Nothing repairs those relationships or silently selects a first match.
+All-copies scope uses current owned joins; unowned detail records are not promoted to owned copies.
+Remake selected-materia capture rejects because its current model has no proven owned-instance
+identity; its existing type-wide all-copies planner remains available. Summon and incoherent
+AP/star eligibility remains the F6 planner's decision.
+
+`SemanticPresetTests`, `SemanticMateriaPresetTests`, `SemanticPresetCompatibilityTests`, and
+`SemanticPresetHistoryTests` exercise authored synthetic framing/rows, moved targets, zero/one/many
+matches, malformed duplicate joins, pure preview, retained skips, tampered/rescoped F6 plans and
+one-unit byte-exact apply/undo/redo across all three variants. These are consumer/helper tests,
+not UI, persistence, console-validation or native-loadout evidence. Existing framing, owned
+projection, research-quality and planning regressions remain unchanged.
+
+Remaining SDK-07 integration: consume the shared optional capture/resolution capability after it
+lands, round-trip its typed wire payload, and test the complete plugin/version/build/reference-pack
+compatibility matrix. Actual console patch/build remains **unknown**; a pack's display/build label
+cannot establish it. Compatibility needs the pinned pack ID/version/locale **and actual content
+fingerprint**, including imported overrides; current `ReferencePackInfo`/`ReferenceDatasetInfo`
+does not expose dataset file hashes. Storage, import/export, revision tokens, choice UI and host
+compatibility gates remain framework-owned. No direct weapon edit, socket/materia movement,
+allocation, owner/detail repair or complete native loadout is added.
+
+This foundation reuses the existing source-qualified mappings and curves documented under
+[enabled writes](#enabled-writes-and-their-evidence), the pinned
+[Rebirth catalog source](SaveToolkit.Plugins.FinalFantasy7/ReferencePacks/ff7r.rebirth.en/catalog.source.md)
+and [character-curve source](SaveToolkit.Plugins.FinalFantasy7/Resources/character-curves.source.md).
+It introduces no new gameplay schema or reference dataset.
+
 ## Sources and attribution
 
 | Dataset | Pinned source | Licence / modifications |

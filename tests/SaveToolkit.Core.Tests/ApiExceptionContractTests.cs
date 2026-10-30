@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using SaveToolkit.Api.Infrastructure;
 using SaveToolkit.Core.Export;
+using SaveToolkit.Core.Editing;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
@@ -24,6 +25,7 @@ public sealed class ApiExceptionContractTests
     [InlineData("stale", 409)]
     [InlineData("request", 400)]
     [InlineData("size", 413)]
+    [InlineData("projection-size", 413)]
     [InlineData("unexpected", 500)]
     public async Task Every_exception_mapping_retains_consistent_problem_fields(string failure, int status)
     {
@@ -40,6 +42,7 @@ public sealed class ApiExceptionContractTests
             "stale" => new StaleViewException(),
             "request" => new BadHttpRequestException(diagnostic),
             "size" => new BadHttpRequestException(diagnostic, StatusCodes.Status413PayloadTooLarge),
+            "projection-size" => new FieldReferenceResponseLimitException(diagnostic),
             _ => new NotSupportedException(diagnostic),
         };
         using var services = new ServiceCollection().BuildServiceProvider();

@@ -31,7 +31,7 @@ public sealed class TsushimaPlanningTests
             var scope = new ActionScope(["Supplies", "Flowers", "Hide", "TestItem", "ArrowNormal"]);
             var plan = planner.PlanAction(ActionId, parameters, scope);
             Assert.Empty(plan.Errors);
-            Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+            Assert.Equal(original, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
             Assert.Contains(plan.SkippedRows, row => row.RowKey == "TestItem");
             Assert.Contains(plan.SkippedRows, row => row.RowKey == "ArrowNormal");
             Assert.Contains("not a capacity refill", Assert.Single(plan.Warnings));
@@ -54,7 +54,7 @@ public sealed class TsushimaPlanningTests
             }
 
             RepairChecksum(expected);
-            var edited = Assert.Single(document.Serialize()).Content.ToArray();
+            var edited = SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
             Assert.Equal(expected, edited);
             using var reopened = Open(WithBytes(edited));
             foreach (var change in plan.Changes)
@@ -64,7 +64,7 @@ public sealed class TsushimaPlanningTests
 
             Assert.True(document.ApplyEdits(plan.Changes.Where(change => !change.Derived)
                 .Select(change => new ValueEdit(change.ValueId, change.OldValue)).ToArray()).Succeeded);
-            Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+            Assert.Equal(original, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         }
     }
 
@@ -83,23 +83,23 @@ public sealed class TsushimaPlanningTests
         Assert.False(session.State.CanUndo);
         Assert.Equal(3, preview.Plan.Changes.Count);
         Assert.True(preview.Plan.Changes.Single(change => change.ValueId == "container/word2").Derived);
-        Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(file.ReadAllBytes(), SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
-        var edited = Assert.Single(document.Serialize()).Content.ToArray();
+        var edited = SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
         Assert.NotEqual(file.ReadAllBytes(), edited);
         Assert.Equal(3, session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes.Count);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.CanUndo);
         Assert.Empty(session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes);
-        Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(file.ReadAllBytes(), SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(edited, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(edited, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
         var stale = session.PlanAction(ActionId, parameters, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(session.ApplyEdits([new IncomingEdit(SuppliesId, JsonSerializer.SerializeToElement("8"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
-        var beforeRejectedApply = Assert.Single(document.Serialize()).Content.ToArray();
+        var beforeRejectedApply = SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
         Assert.True(session.ApplyActionPlan(stale.PlanId!, stale.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
-        Assert.Equal(beforeRejectedApply, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(beforeRejectedApply, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Theory]
@@ -108,13 +108,13 @@ public sealed class TsushimaPlanningTests
     public void InvalidTargetsRejectAtomically(long value)
     {
         using var document = Open(Slot("suckerpunchUser1"));
-        var original = Assert.Single(document.Serialize()).Content.ToArray();
+        var original = SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
         var planner = (IActionPlanningDocument)document;
         var parameters = Target(value);
         var plan = planner.PlanAction(ActionId, parameters, new ActionScope());
         Assert.NotEmpty(plan.Errors);
         Assert.False(planner.ApplyActionPlan(ActionId, parameters, new ActionScope(), plan).Succeeded);
-        Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(original, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Fact]
@@ -147,7 +147,7 @@ public sealed class TsushimaPlanningTests
         Assert.Empty(plan.Changes);
         Assert.Equal(4, plan.SkippedRows.Count);
         Assert.True(planner.ApplyActionPlan(ActionId, Target(7), scope, plan).Succeeded);
-        Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(bytes, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Fact]
@@ -171,9 +171,9 @@ public sealed class TsushimaPlanningTests
         var plan = planner.PlanAction(ActionId, Target(7), scope);
         Assert.False(planner.ApplyActionPlan(ActionId, Target(7), scope, plan with { Changes = [] }).Succeeded);
         Assert.True(document.ApplyEdits([Edit(SuppliesId, 86)]).Succeeded);
-        var before = Assert.Single(document.Serialize()).Content.ToArray();
+        var before = SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
         Assert.False(planner.ApplyActionPlan(ActionId, Target(7), scope, plan).Succeeded);
-        Assert.Equal(before, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(before, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Fact]
@@ -187,7 +187,7 @@ public sealed class TsushimaPlanningTests
         var plan = planner.PlanAction(ActionId, Target(7), new ActionScope());
         Assert.NotEmpty(plan.Errors);
         Assert.False(planner.ApplyActionPlan(ActionId, Target(7), new ActionScope(), new ActionPlan()).Succeeded);
-        Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(bytes, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Fact]
@@ -205,7 +205,7 @@ public sealed class TsushimaPlanningTests
             Assert.NotEmpty(plan.Errors);
             Assert.False(planner.ApplyActionPlan(ActionId, Target(7), new ActionScope(), new ActionPlan()).Succeeded);
             Assert.False(document.ApplyEdits([Edit(SuppliesId, 7)]).Succeeded);
-            Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+            Assert.Equal(file.ReadAllBytes(), SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         }
     }
 }

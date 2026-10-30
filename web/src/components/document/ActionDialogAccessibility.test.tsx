@@ -9,7 +9,7 @@ import { ActionButton } from "./ActionButton";
 const parameter = { type: "field" as const, valueId: "count", label: "Target count", value: "1",
   spec: { kind: "integer" as const, min: "0", max: "99" } };
 const preview: ActionPreview = { revision: 1, planId: "plan", scope: {}, plan: {
-  changes: [], skippedRows: [], errors: [], warnings: [],
+  changes: [{ valueId: "count", label: "Count", oldValue: "1", newValue: "3", oldExists: true, newExists: true, derived: false }], skippedRows: [], errors: [], warnings: [],
 } };
 const result: EditResult = { ok: true, errors: [], changes: [], warnings: [], structureChanged: false,
   state: { canUndo: true, canRedo: false, isDirty: true, revision: 2 } };
@@ -47,7 +47,7 @@ it("keeps focus in the action dialog through keyboard editing, planning, paramet
   expect(document.activeElement).toBe(heading);
   await act(async () => { finish(preview); });
   expect(document.activeElement).toBe(heading);
-  expect(within(dialog).getByRole("status").textContent).toContain("0 field changes");
+  expect(within(dialog).getByRole("status").textContent).toContain("1 field changes");
   expect(within(dialog).getByRole("region", { name: "Preview changes" }).tabIndex).toBe(0);
   expect(actionReview.plan).toHaveBeenCalledWith("w", "d", "refill", { count: "3" }, {}, 1);
   fireEvent.click(within(dialog).getByRole("button", { name: "Change parameters" }));
