@@ -5,7 +5,7 @@ namespace SaveToolkit.Core.Sessions;
 
 internal sealed record MemberContextResolution(
     IReadOnlyDictionary<string, SemanticMemberContext> Contexts, int OmittedCount, string? Diagnostic,
-    long AcceptedBytes = 0);
+    long AcceptedBytes = 0, bool Complete = true);
 
 internal static class SemanticMemberContextResolver
 {
@@ -31,7 +31,8 @@ internal static class SemanticMemberContextResolver
         var diagnostics = omitted == 0 ? null
             : $"Group member context is bounded: omitted at least {omitted} canonical changed IDs.";
         var requested = ids.ToHashSet(StringComparer.Ordinal);
-        var occurrences = changes.GroupBy(change => change.CanonicalValueId,
+        var occurrences = changes.Where(change => change.CanonicalValueId is { } id && requested.Contains(id))
+            .GroupBy(change => change.CanonicalValueId,
                 StringComparer.Ordinal)
             .ToDictionary(group => group.Key!, group => Math.Max(1,
                 group.Sum(change => 1 + (change.Aliases?.Count ?? 0))), StringComparer.Ordinal);
@@ -65,7 +66,7 @@ internal static class SemanticMemberContextResolver
             diagnostics = diagnostics is null
                 ? "Group member context is incomplete: the resolver omitted or returned malformed canonical context."
                 : diagnostics + " Group member context was retained only within the review budget.";
-        return new(mapped, omitted, diagnostics, acceptedBytes);
+        return new(mapped, omitted, diagnostics, acceptedBytes, !malformed && omitted == 0);
 
         void Admit(IEnumerable<KeyValuePair<string, SemanticMemberContext>> values)
         {

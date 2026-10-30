@@ -29,6 +29,7 @@ public sealed class GroupPlugin : IGamePlugin, IDocumentGroupPlugin
     public int RoleReopens { get; private set; }
     public Func<ISaveFile, IReadOnlyList<DocumentGroupProposal>>? Proposals { get; set; }
     public Action? AfterRoleOpen { get; set; }
+    public Func<IReadOnlyList<DocumentGroupFieldContext>, IReadOnlyList<DocumentGroupFieldContext>>? ContextResponse { get; set; }
     public List<GroupDocument> Opened { get; } = [];
     public IReferenceContext? LastReferences { get; private set; }
     private int _groupOpenCount;
@@ -86,6 +87,7 @@ public sealed class GroupPlugin : IGamePlugin, IDocumentGroupPlugin
             if (ThrowOnRejectedCandidateDispose) document.ThrowOnDispose = true;
         };
         document.ThrowOnDispose = ThrowOnDispose && _groupOpenCount > 1;
+        document.ContextResponse = ContextResponse;
         Opened.Add(document);
         return document;
     }

@@ -24,6 +24,7 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
     public List<string[]> ContextRequests { get; } = [];
     public bool ThrowOnDispose { get; set; }
     public Action? BeforeReject { get; set; }
+    public Func<IReadOnlyList<DocumentGroupFieldContext>, IReadOnlyList<DocumentGroupFieldContext>>? ContextResponse { get; set; }
 
     public GroupDocument(DocumentGroupInput input, Func<bool> rejectApply, Func<bool> rejectRestore,
         string? systemPath = null, byte[]? systemBytes = null, bool omitSystemOutput = false,
@@ -147,11 +148,12 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
         ContextRequests.Add(valueIds.ToArray());
         var known = _containers.Keys.SelectMany(role => new[] { $"{role}/balance", $"{role}/raw/balance" })
             .ToHashSet(StringComparer.Ordinal);
-        return valueIds.Where(known.Contains).Select(id =>
+        var contexts = valueIds.Where(known.Contains).Select(id =>
         {
             var role = _containers.Keys.Single(role => id == $"{role}/balance" || id == $"{role}/raw/balance");
             return new DocumentGroupFieldContext(id, role, _containers[role].Path, "synthetic group input");
         }).ToArray();
+        return ContextResponse?.Invoke(contexts) ?? contexts;
     }
 
     private IReadOnlyList<ViewNode> MetadataView() => _systemPath is null ? [] : [Field("metadata/subtitle", "Subtitle",

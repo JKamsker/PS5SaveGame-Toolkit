@@ -374,7 +374,7 @@ internal sealed class SemanticReview
         cancellationToken.ThrowIfCancellationRequested();
 
         var complete = original.Complete && current.Complete && !_unreviewedReportedChanges
-            && !_coverage.HasFailures && _coverage.OmittedCount == 0 && contextResolution.OmittedCount == 0;
+            && !_coverage.HasFailures && _coverage.OmittedCount == 0 && contextResolution.Complete;
         IReadOnlyList<string> warnings = complete ? [] : ["Semantic review is incomplete: the original could not be opened, a view exceeded its memory or traversal limit, a lazy section could not be read, or an internal field could not be matched after a structural change. Only proven changes are listed."];
         var queryWarnings = original.QueryWarnings.Concat(current.QueryWarnings)
             .Select(SemanticDiagnostics.Bound).Distinct(StringComparer.Ordinal);
