@@ -22,12 +22,16 @@ export function useWorkspaceController() {
   const exportDialog = useRef<HTMLDialogElement>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const { busy: closing, run: closeTask } = useAsyncTask(workspaceId);
-  const [toast, setToast] = useState<ToastMessage | null>(null);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const toast = toasts[0] ?? null;
+  const dismissToast = useCallback(() => setToasts(previous => previous.slice(1)), []);
   const workspace = useQuery({ queryKey: ["workspace", workspaceId], queryFn: () => api.workspace(workspaceId), retry: false });
   const entryState = workspace.data ? "loaded" : workspace.status;
   const focusHeading = useEntryFocus(`${workspaceId}:${documentId ?? "picker"}:${entryState}`);
 
-  const notify = useCallback((text: string, isError = false) => setToast({ text, isError, at: Date.now() }), []);
+  const notify = useCallback((text: string, isError = false) => {
+    setToasts(previous => [...previous, { text, isError, at: Date.now() }]);
+  }, []);
   const select = useCallback((id: string) => setSearch({ doc: id }), [setSearch]);
   const open = useOpenDocument(workspaceId, beginSelection, select, notify);
 
@@ -49,5 +53,5 @@ export function useWorkspaceController() {
   }, [exportOpen]);
 
   return { workspace, documentId, activity, beginSelection, exportDialog, exportOpen, setExportOpen,
-    closing, toast, setToast, focusHeading, notify, open, close, clearSelection: () => setSearch({}), select };
+    closing, toast, dismissToast, focusHeading, notify, open, close, clearSelection: () => setSearch({}), select };
 }

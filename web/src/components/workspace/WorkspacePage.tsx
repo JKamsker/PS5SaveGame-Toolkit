@@ -20,7 +20,7 @@ function findActiveFile(workspace: Workspace, fileId: string | undefined) {
 
 export function WorkspacePage() {
   const controller = useWorkspaceController();
-  const { workspace, activity, beginSelection, closing, close, open, exportDialog, exportOpen, setExportOpen, notify, toast, setToast, focusHeading } = controller;
+  const { workspace, activity, beginSelection, closing, close, open, exportDialog, exportOpen, setExportOpen, notify, toast, dismissToast, focusHeading } = controller;
   if (workspace.isError && !workspace.data) return <WorkspaceError controller={controller} />;
   if (!workspace.data) return <div ref={focusHeading} tabIndex={-1} role="status" className="empty">Loading…</div>;
   const ws = workspace.data;
@@ -32,7 +32,7 @@ export function WorkspacePage() {
       <SlotRail workspace={ws} activeFileId={activeDoc?.fileId} onOpen={file => { if (!closing) void open(file); }} />
       <WorkspaceMain controller={controller} workspace={ws} />
       <ExportDialog ref={exportDialog} workspaceId={ws.id} open={exportOpen} onClose={() => setExportOpen(false)} onToast={notify} />
-      {toast && <Toast message={toast} onDone={() => setToast(null)} />}
+      {toast && <Toast message={toast} onDone={dismissToast} />}
     </div></WorkspaceSelectionContext.Provider></WorkspaceActivityContext.Provider>
   );
 }
