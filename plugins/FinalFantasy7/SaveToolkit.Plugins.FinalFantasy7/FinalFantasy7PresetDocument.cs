@@ -134,7 +134,6 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
             return Error("preset", exception.Message);
         }
     }
-
     public EditOutcome ApplyPreset(IReadOnlyList<PresetAction> actions, SdkPresetResolution resolution, ActionPlan plan)
     {
         try
