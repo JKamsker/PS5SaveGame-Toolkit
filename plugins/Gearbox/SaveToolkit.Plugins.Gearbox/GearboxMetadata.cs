@@ -216,9 +216,9 @@ internal static class GearboxMetadata
             "myth-mirror" => "profile_cloud_data",
             _ => null,
         };
-        if (name is null || !GearboxMetadataLookup.TryChildAt(document.Root, name, 0, out var parent)) return null;
+        if (name is null || document.Root.Child(name) is not { } parent) return null;
         if (role != "myth-mirror") return parent;
-        return GearboxMetadataLookup.TryChildAt(parent, "player_prestige", 0, out var mirror) ? mirror : null;
+        return parent.Child("player_prestige");
     }
 
     private static bool TryItem(GearboxDocument document, string id)
@@ -291,27 +291,9 @@ internal static class GearboxMetadata
         return value is > 0 and <= 128 ? (int)value : 32;
     }
 
-    private static bool Has(ProtoMessage message, string name)
-    {
-        var visited = 0;
-        foreach (var field in message.Fields)
-        {
-            if (++visited > GearboxInventory.DirectLookupWorkLimit) return false;
-            if (field.Spec?.Name == name) return true;
-        }
-        return false;
-    }
+    private static bool Has(ProtoMessage message, string name) => message.Last(name) is not null;
 
-    private static bool IntegerField(ProtoMessage message, string name)
-    {
-        var visited = 0;
-        foreach (var field in message.Fields)
-        {
-            if (++visited > GearboxInventory.DirectLookupWorkLimit) return false;
-            if (field.Spec?.Name == name && field.Value is ulong or long or uint or int) return true;
-        }
-        return false;
-    }
+    private static bool IntegerField(ProtoMessage message, string name) => message.Last(name)?.Value is ulong or long or uint or int;
 
     private static bool TryCanonicalUInt(string token, out uint value)
     {

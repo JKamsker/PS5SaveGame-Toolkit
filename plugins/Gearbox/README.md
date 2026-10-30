@@ -805,8 +805,11 @@ reference-pack label/attribution overrides cannot grant a larger write range. On
 explicit Guardian, Hero and Myth scalar names are editable. Container count observations belong to
 the actual character backpack or profile bank/lost-loot role, including empty owned lists. Cold
 nested allocation lookup charges every visited field/packed value against the existing finite work
-budget. Established inventory identities retain direct field positions across root clones and
-restore; structural actions rebuild those positions at their existing identity lifecycle boundary.
+budget. The parsed model maintains known-tag field indexes during construction, cloning and
+mutation. Scalar reads select the actual last occurrence (including name-limit policy inputs), and
+established inventory identities use direct per-list ordinals on the current model. Removing a
+session-created currency category cannot shift an item identity to its sibling. No index is built
+by metadata observation; structural actions retain their existing identity lifecycle boundary.
 The first matching level statistic uses `character/recorded-level`; later records use distinct
 `character/recorded-level/1`, `/2`, etc., without a second `/0` writable primary.
 
