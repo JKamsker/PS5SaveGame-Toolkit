@@ -1,3 +1,4 @@
+using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -114,7 +115,7 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument,
         }
 
         var parts = lazyId.Split('/');
-        if (parts.Length == 2 && parts[0] == "node" && int.TryParse(parts[1], out var nodeId) &&
+        if (parts.Length == 2 && parts[0] == "node" && int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var nodeId) &&
             nodeId >= 0 && nodeId < _tree.Nodes.Count)
         {
             var node = _tree.Nodes[nodeId];
@@ -124,7 +125,7 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument,
                 .. TreePage(node.Id, 0)];
         }
 
-        if (parts.Length == 3 && int.TryParse(parts[1], out var id) && int.TryParse(parts[2], out var start) && start >= 0)
+        if (parts.Length == 3 && int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var id) && int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var start) && start >= 0)
         {
             if (parts[0] == "tree" && id >= -1 && id < _tree.Nodes.Count)
             {
@@ -236,7 +237,7 @@ internal sealed class CyberpunkDocument : BoundSaveDocument, IQueryableDocument,
 
     private ReadOnlyMemory<byte> NodeBlob(string id)
     {
-        if (id.StartsWith("node/", StringComparison.Ordinal) && int.TryParse(id.AsSpan(5), out var index) && index >= 0 && index < _tree.Nodes.Count)
+        if (id.StartsWith("node/", StringComparison.Ordinal) && int.TryParse(id.AsSpan(5), NumberStyles.Integer, CultureInfo.InvariantCulture, out var index) && index >= 0 && index < _tree.Nodes.Count)
         {
             var node = _tree.Nodes[index];
             return _edited.AsMemory(node.Offset, node.Size);

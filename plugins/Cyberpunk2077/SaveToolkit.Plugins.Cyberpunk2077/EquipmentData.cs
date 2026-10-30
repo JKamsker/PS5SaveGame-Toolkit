@@ -18,7 +18,7 @@ internal sealed record ItemIdentity(ulong TweakId, uint Seed, ushort Counter, by
 internal sealed record EquipmentSlot(string Area, int Index, bool Active, ItemIdentity? Item, InventoryItem? Inventory,
     string Match, ulong SlotId, bool HasPrerequisite)
 {
-    public string Key => $"equipment/{Area}/{Index}";
+    public string Key => FormattableString.Invariant($"equipment/{Area}/{Index}");
     public bool Cyberware => Area.EndsWith("CW", StringComparison.Ordinal);
     // Index -1 is an omitted slot array, not a vacant stored slot.
     public bool IsEmpty => Index >= 0 && Item is null;
