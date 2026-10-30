@@ -6,11 +6,18 @@ namespace SaveToolkit.Core.Sessions;
 /// <summary>Serializes retained planning data without first allocating an unbounded byte array.</summary>
 internal static class BoundedJson
 {
+    private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.General)
+    {
+        // Effect specs admit the SDK's bounded depth (128); the serializer needs headroom for
+        // the enclosing plan/descriptor graph without turning this into an unbounded walker.
+        MaxDepth = 256,
+    };
+
     public static byte[] Serialize<T>(T value, int maximum)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maximum);
         var writer = new CappedWriter(maximum);
-        using (var json = new Utf8JsonWriter(writer)) JsonSerializer.Serialize(json, value);
+        using (var json = new Utf8JsonWriter(writer)) JsonSerializer.Serialize(json, value, Options);
         return writer.ToArray();
     }
 

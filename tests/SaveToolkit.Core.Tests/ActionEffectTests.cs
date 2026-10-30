@@ -155,7 +155,48 @@ public sealed class ActionEffectTests : IDisposable
         Assert.Contains(result.Errors, error => error.Message.Contains("could not restore", StringComparison.OrdinalIgnoreCase));
         Assert.False(session.CanEdit);
         Assert.False(session.ApplyEdits([new IncomingEdit("live", JsonSerializer.SerializeToElement(2))]).Ok);
+        Assert.False(session.Undo().Ok);
+        Assert.False(session.Redo().Ok);
+        Assert.Null(session.PlanAction("toggle", new Dictionary<string, JsonElement>()).PlanId);
         Assert.Throws<InvalidOperationException>(() => session.Serialize());
+    }
+
+    [Fact]
+    public void OversizedRedoSnapshotIsRejectedWithoutCorruptingUndoOrBindings()
+    {
+        using var session = Open();
+        _plugin.Opened!.Mode = EffectPlanMode.RedoSnapshotTooLarge;
+        var preview = session.PlanAction("toggle", new Dictionary<string, JsonElement>());
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.Equal(1, _plugin.Opened.Value);
+
+        var undo = session.Undo();
+
+        Assert.False(undo.Ok);
+        Assert.Contains(undo.Errors, error => error.Message.Contains("snapshot", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(1, _plugin.Opened.Value);
+        Assert.True(session.State.CanUndo);
+        Assert.False(session.State.CanRedo);
+        Assert.Equal(FieldValue.Of(1), _plugin.Opened.GetValue("live"));
+        Assert.Equal(new byte[] { 1 }, _plugin.Opened.Serialize().Single().Content.ToArray());
+    }
+
+    [Fact]
+    public void CancellationInjectedAfterStartApplyCompletesTheAtomicEffect()
+    {
+        using var session = Open();
+        using var cancellation = new CancellationTokenSource();
+        _plugin.Opened!.CancelDuringApply = cancellation;
+        var preview = session.PlanAction("toggle", new Dictionary<string, JsonElement>());
+
+        var result = session.ApplyActionPlan(preview.PlanId!, preview.Revision, cancellation.Token);
+
+        Assert.True(result.Ok);
+        Assert.True(cancellation.IsCancellationRequested);
+        Assert.Equal(1, _plugin.Opened.Value);
+        Assert.True(session.State.CanUndo);
+        Assert.True(session.Undo().Ok);
+        Assert.Equal(0, _plugin.Opened.Value);
     }
 
     [Fact]
@@ -214,6 +255,37 @@ public sealed class ActionEffectTests : IDisposable
         Assert.Equal(0, _plugin.Opened.ResolverCalls);
     }
 
+    [Theory]
+    [InlineData(128, 0, true)]
+    [InlineData(129, 0, false)]
+    [InlineData(0, 4_095, true)]
+    [InlineData(0, 4_096, false)]
+    public void EffectSpecAdmissionStopsAtDepthAndNodeBoundsBeforeAuthorityOrGetters(
+        int depth, int unionOptions, bool accepted)
+    {
+        using var session = Open();
+        _plugin.Opened!.Mode = EffectPlanMode.BoundedSpec;
+        _plugin.Opened.DeepSpecDepth = depth;
+        _plugin.Opened.DeepSpecNodes = unionOptions;
+        var resolverCalls = _plugin.Opened.ResolverCalls;
+        var getterCalls = _plugin.Opened.LiveGetterCalls;
+        FieldSpec probe = unionOptions > 0
+            ? new UnionSpec(Enumerable.Range(0, unionOptions).Select(index => new UnionOption($"option-{index}", $"Option {index}", IntegerSpec.Int32)).ToArray())
+            : new IntegerSpec(0, 10);
+        for (var index = 0; index < depth; index++) probe = new NullableSpec(probe);
+        Assert.Equal(accepted, FieldSpecMetadata.TryEstimate(probe, 4 * 1024 * 1024, out _));
+
+        var preview = session.PlanAction("toggle", new Dictionary<string, JsonElement>());
+
+        Assert.True(accepted == (preview.PlanId is not null), string.Join(" | ", preview.Plan.Errors.Select(error => error.Message)));
+        if (!accepted)
+        {
+            Assert.Contains(preview.Plan.Errors, error => error.Message.Contains("bounded", StringComparison.OrdinalIgnoreCase));
+            Assert.Equal(resolverCalls, _plugin.Opened.ResolverCalls);
+            Assert.Equal(getterCalls, _plugin.Opened.LiveGetterCalls);
+        }
+    }
+
     private DocumentSession Open()
     {
         var zip = TestZips.Build(("PPSA99999/sdimg_SAVE/save.dat", new byte[] { 0 }));
@@ -238,9 +310,13 @@ public sealed class ActionEffectTests : IDisposable
         public EffectPlanMode Mode { get; set; }
         public int BulkCount { get; set; }
         public int ResolverCalls { get; set; }
+        public int LiveGetterCalls { get; set; }
+        public int DeepSpecDepth { get; set; }
+        public int DeepSpecNodes { get; set; }
+        public CancellationTokenSource? CancelDuringApply { get; set; }
         public override string Title => "Effects";
         public override ViewNode BuildView() => new SectionNode("Save", [
-            Field("live", "Live", IntegerSpec.Int32, () => FieldValue.Of(Value), value => Value = value.AsInt32()),
+            Field("live", "Live", IntegerSpec.Int32, () => { LiveGetterCalls++; return FieldValue.Of(Value); }, value => Value = value.AsInt32()),
             new ActionNode("toggle", "Toggle") { SupportsPlanning = true },
         ]);
         public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
@@ -266,6 +342,13 @@ public sealed class ActionEffectTests : IDisposable
             {
                 Effect = Effect(ActionEffectKind.Observation, FieldValue.Of(Value), FieldValue.Of(Value + 1)) with { Source = new string('x', 2_001) },
             }],
+            EffectPlanMode.BoundedSpec => [new PlannedChange("bounded", "Bounded", BoundedValue(Value), BoundedValue(Value + 1))
+            {
+                Effect = Effect(ActionEffectKind.StructuralMemento, FieldValue.Of(Value), FieldValue.Of(Value + 1)) with
+                {
+                    Spec = BoundedSpec(DeepSpecDepth, DeepSpecNodes),
+                },
+            }],
             EffectPlanMode.CanonicalShadow or EffectPlanMode.CanonicalOmission => [new PlannedChange("live", "Live", FieldValue.Of(Value), FieldValue.Of(Value + 1))
             {
                 Effect = Effect(ActionEffectKind.Observation, FieldValue.Of(Value), FieldValue.Of(Value + 1)),
@@ -289,10 +372,25 @@ public sealed class ActionEffectTests : IDisposable
         private static ActionEffectDescriptor Effect(ActionEffectKind kind, FieldValue oldValue, FieldValue newValue) =>
             new(kind, new IntegerSpec(0, 10) { ReadOnly = true });
 
+        private static FieldSpec BoundedSpec(int depth, int unionOptions)
+        {
+            if (unionOptions > 0)
+                return new UnionSpec(Enumerable.Range(0, unionOptions)
+                    .Select(index => new UnionOption($"option-{index}", $"Option {index}", IntegerSpec.Int32)).ToArray())
+                { ReadOnly = true };
+            FieldSpec spec = new IntegerSpec(0, 10);
+            for (var index = 0; index < depth; index++) spec = new NullableSpec(spec);
+            return spec with { ReadOnly = true };
+        }
+
+        private FieldValue BoundedValue(int value) => DeepSpecNodes > 0
+            ? FieldValue.Union("option-0", FieldValue.Of(value)) : FieldValue.Of(value);
+
         public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
         {
             var before = CaptureSnapshot()!;
             Value++;
+            CancelDuringApply?.Cancel();
             if (Mode is EffectPlanMode.ThrowAfterMutation or EffectPlanMode.BrokenRestore)
                 throw new InvalidOperationException("writer failed after mutation");
             if (Mode == EffectPlanMode.MissingRevert)
@@ -315,6 +413,14 @@ public sealed class ActionEffectTests : IDisposable
         public override IReadOnlyList<FileOutput> Serialize() => [new("save.dat", new[] { (byte)Value })];
         protected override DocumentMemento CaptureSnapshot() => DocumentMemento.Snapshot(Value,
             Mode == EffectPlanMode.AfterSnapshotTooLarge && Value > 0 ? 512 * 1024 * 1024 : 8);
+        public override DocumentMemento RestoreMemento(DocumentMemento snapshot)
+        {
+            var inverse = base.RestoreMemento(snapshot);
+            return Mode == EffectPlanMode.RedoSnapshotTooLarge
+                ? DocumentMemento.Snapshot(((SnapshotMemento<int>)inverse).State, 512 * 1024 * 1024)
+                : inverse;
+        }
+
         protected override void LoadSnapshot(DocumentMemento snapshot)
         {
             if (Mode == EffectPlanMode.BrokenRestore)
@@ -338,5 +444,7 @@ public sealed class ActionEffectTests : IDisposable
         ThrowAfterMutation,
         BrokenRestore,
         ObservationNoToken,
+        BoundedSpec,
+        RedoSnapshotTooLarge,
     }
 }

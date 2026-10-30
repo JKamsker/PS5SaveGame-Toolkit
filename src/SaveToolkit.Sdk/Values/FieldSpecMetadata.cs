@@ -37,103 +37,57 @@ public static class FieldSpecMetadata
         ArgumentNullException.ThrowIfNull(spec);
         bytes = 0;
         if (limit < 0) return false;
-
         if (spec is not (NullableSpec or UnionSpec))
             return TryEstimateLeaf(spec, limit, ref bytes);
 
-        var pending = new Stack<SpecFrame>();
-        pending.Push(new(spec, 0));
+        var active = new HashSet<FieldSpec>(ReferenceEqualityComparer.Instance);
         var nodes = 0;
-        while (pending.Count > 0)
-        {
-            var frame = pending.Pop();
-            if (frame.Depth > FieldMetadataLimits.MaxSpecDepth || ++nodes > FieldMetadataLimits.MaxClosureIds)
-                return false;
+        return TryEstimateNode(spec, 0, active, ref nodes, ref bytes, limit);
 
-            if (frame.NextUnionOption > 0 && frame.Spec is UnionSpec continuation)
+        static bool TryEstimateNode(FieldSpec current, int depth, HashSet<FieldSpec> active,
+            ref int nodes, ref long total, long maximum)
+        {
+            if (depth > FieldMetadataLimits.MaxSpecDepth
+                || ++nodes > FieldMetadataLimits.MaxClosureIds
+                || !active.Add(current)) return false;
+            try
             {
-                var index = frame.NextUnionOption - 1;
-                if (index < continuation.Options.Count)
+                if (!AddString(ref total, current.Unit, maximum)) return false;
+                switch (current)
                 {
-                    var option = continuation.Options[index];
-                    if (!Add(ref bytes, 40, limit) || !AddString(ref bytes, option.Id, limit)
-                        || !AddString(ref bytes, option.Label, limit)) return false;
-                    pending.Push(frame with { NextUnionOption = frame.NextUnionOption + 1 });
-                    pending.Push(new(option.Spec, frame.Depth + 1));
+                    case EnumSpec choice:
+                        if (choice.Options.Count > FieldMetadataLimits.MaxClosureIds) return false;
+                        foreach (var option in choice.Options)
+                            if (!Add(ref total, 40, maximum) || !AddString(ref total, option.Value, maximum)
+                                || !AddString(ref total, option.Label, maximum)
+                                || !AddString(ref total, option.Description, maximum)) return false;
+                        return true;
+                    case FlagsSpec flags:
+                        if (flags.Bits.Count > FieldMetadataLimits.MaxClosureIds) return false;
+                        foreach (var bit in flags.Bits)
+                            if (!Add(ref total, 32, maximum) || !AddString(ref total, bit.Label, maximum)
+                                || !AddString(ref total, bit.Description, maximum)) return false;
+                        return true;
+                    case ExactNumberSpec exact:
+                        return AddString(ref total, exact.Min, maximum) && AddString(ref total, exact.Max, maximum);
+                    case ReferenceSpec reference:
+                        return AddString(ref total, reference.CatalogId, maximum);
+                    case NullableSpec nullable:
+                        return TryEstimateNode(nullable.Inner, depth + 1, active, ref nodes, ref total, maximum);
+                    case UnionSpec union:
+                        if (union.Options.Count > FieldMetadataLimits.MaxClosureIds) return false;
+                        foreach (var option in union.Options)
+                        {
+                            if (!Add(ref total, 40, maximum) || !AddString(ref total, option.Id, maximum)
+                                || !AddString(ref total, option.Label, maximum)
+                                || !TryEstimateNode(option.Spec, depth + 1, active, ref nodes, ref total, maximum)) return false;
+                        }
+                        return true;
+                    default:
+                        return true;
                 }
-                continue;
             }
-
-            if (!AddString(ref bytes, frame.Spec.Unit, limit)) return false;
-            switch (frame.Spec)
-            {
-                case EnumSpec choice:
-                    if (choice.Options.Count > FieldMetadataLimits.MaxClosureIds) return false;
-                    foreach (var option in choice.Options)
-                    {
-                        if (!Add(ref bytes, 40, limit) || !AddString(ref bytes, option.Value, limit)
-                            || !AddString(ref bytes, option.Label, limit)
-                            || !AddString(ref bytes, option.Description, limit)) return false;
-                    }
-                    break;
-                case FlagsSpec flags:
-                    if (flags.Bits.Count > FieldMetadataLimits.MaxClosureIds) return false;
-                    foreach (var bit in flags.Bits)
-                    {
-                        if (!Add(ref bytes, 32, limit) || !AddString(ref bytes, bit.Label, limit)
-                            || !AddString(ref bytes, bit.Description, limit)) return false;
-                    }
-                    break;
-                case ExactNumberSpec exact:
-                    if (!AddString(ref bytes, exact.Min, limit) || !AddString(ref bytes, exact.Max, limit)) return false;
-                    break;
-                case ReferenceSpec reference:
-                    if (!AddString(ref bytes, reference.CatalogId, limit)) return false;
-                    break;
-                case NullableSpec nullable:
-                    pending.Push(new(nullable.Inner, frame.Depth + 1));
-                    break;
-                case UnionSpec union:
-                    if (union.Options.Count > FieldMetadataLimits.MaxClosureIds) return false;
-                    if (union.Options.Count > 0)
-                        pending.Push(new(union, frame.Depth, 1));
-                    break;
-            }
-        }
-
-        return true;
-
-        static bool TryEstimateLeaf(FieldSpec leaf, long maximum, ref long total)
-        {
-            if (!AddString(ref total, leaf.Unit, maximum)) return false;
-            switch (leaf)
-            {
-                case EnumSpec choice:
-                    if (choice.Options.Count > FieldMetadataLimits.MaxClosureIds) return false;
-                    foreach (var option in choice.Options)
-                    {
-                        if (!Add(ref total, 40, maximum) || !AddString(ref total, option.Value, maximum)
-                            || !AddString(ref total, option.Label, maximum)
-                            || !AddString(ref total, option.Description, maximum)) return false;
-                    }
-                    break;
-                case FlagsSpec flags:
-                    if (flags.Bits.Count > FieldMetadataLimits.MaxClosureIds) return false;
-                    foreach (var bit in flags.Bits)
-                    {
-                        if (!Add(ref total, 32, maximum) || !AddString(ref total, bit.Label, maximum)
-                            || !AddString(ref total, bit.Description, maximum)) return false;
-                    }
-                    break;
-                case ExactNumberSpec exact:
-                    if (!AddString(ref total, exact.Min, maximum) || !AddString(ref total, exact.Max, maximum)) return false;
-                    break;
-                case ReferenceSpec reference:
-                    if (!AddString(ref total, reference.CatalogId, maximum)) return false;
-                    break;
-            }
-
-            return true;
+            finally { active.Remove(current); }
         }
 
         static bool Add(ref long total, long value, long maximum)
@@ -145,6 +99,35 @@ public static class FieldSpecMetadata
 
         static bool AddString(ref long total, string? value, long maximum) =>
             value is null || (value.Length <= (maximum - total) / 2 && Add(ref total, 2L * value.Length, maximum));
+
+        static bool TryEstimateLeaf(FieldSpec leaf, long maximum, ref long total)
+        {
+            if (!AddString(ref total, leaf.Unit, maximum)) return false;
+            switch (leaf)
+            {
+                case EnumSpec choice:
+                    if (choice.Options.Count > FieldMetadataLimits.MaxClosureIds) return false;
+                    foreach (var option in choice.Options)
+                        if (!Add(ref total, 40, maximum) || !AddString(ref total, option.Value, maximum)
+                            || !AddString(ref total, option.Label, maximum)
+                            || !AddString(ref total, option.Description, maximum)) return false;
+                    break;
+                case FlagsSpec flags:
+                    if (flags.Bits.Count > FieldMetadataLimits.MaxClosureIds) return false;
+                    foreach (var bit in flags.Bits)
+                        if (!Add(ref total, 32, maximum) || !AddString(ref total, bit.Label, maximum)
+                            || !AddString(ref total, bit.Description, maximum)) return false;
+                    break;
+                case ExactNumberSpec exact:
+                    if (!AddString(ref total, exact.Min, maximum) || !AddString(ref total, exact.Max, maximum)) return false;
+                    break;
+                case ReferenceSpec reference:
+                    if (!AddString(ref total, reference.CatalogId, maximum)) return false;
+                    break;
+            }
+
+            return true;
+        }
     }
 
     /// <summary>Compares all wire properties structurally and reference callbacks by delegate equality.</summary>
@@ -166,5 +149,4 @@ public static class FieldSpecMetadata
         _ => first.GetType() == second.GetType(),
     };
 
-    private readonly record struct SpecFrame(FieldSpec Spec, int Depth, int NextUnionOption = 0);
 }

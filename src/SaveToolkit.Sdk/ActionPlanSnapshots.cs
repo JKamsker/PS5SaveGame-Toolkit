@@ -101,7 +101,12 @@ public static class ActionPlanSnapshots
     private static void Add(ref long remaining, FieldSpec spec)
     {
         if (!FieldSpecMetadata.TryEstimate(spec, remaining, out var cost))
-            throw new InvalidOperationException("Action plan exceeds its bounded budget.");
+        {
+            var reason = FieldSpecMetadata.TryEstimate(spec, long.MaxValue, out _)
+                ? "Action plan exceeds its bounded budget."
+                : "Action effect spec exceeds bounded depth or node limit.";
+            throw new InvalidOperationException(reason);
+        }
         remaining -= cost;
     }
 

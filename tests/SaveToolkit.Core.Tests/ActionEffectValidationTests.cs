@@ -86,6 +86,20 @@ public sealed class ActionEffectValidationTests
         Assert.Throws<InvalidOperationException>(() => ActionPlanSnapshots.Snapshot(badConfidence));
     }
 
+    [Fact]
+    public void CyclicEffectSpecIsRejectedAsBoundedBeforeSnapshotCopy()
+    {
+        var options = new List<UnionOption>();
+        var cyclic = new UnionSpec(options) { ReadOnly = true };
+        options.Add(new UnionOption("loop", "Loop", cyclic));
+        var plan = EffectPlan(cyclic, FieldValue.Union("loop", FieldValue.Of(1)),
+            FieldValue.Union("loop", FieldValue.Of(2)));
+
+        var error = Assert.Throws<InvalidOperationException>(() => ActionPlanSnapshots.Snapshot(plan));
+
+        Assert.Contains("bounded", error.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
     private static ActionPlan EffectPlan(FieldSpec spec, FieldValue oldValue, FieldValue newValue) => new()
     {
         Changes = [new PlannedChange("effect", "Effect", oldValue, newValue)

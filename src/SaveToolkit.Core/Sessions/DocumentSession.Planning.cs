@@ -133,6 +133,11 @@ public sealed partial class DocumentSession
         {
             return Reject([new FieldError(actionId, "Preview is too large; narrow its scope.")]);
         }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Field spec", StringComparison.Ordinal)
+            || ex.Message.Contains("effect spec", StringComparison.Ordinal))
+        {
+            return Reject([new FieldError(actionId, "Action effect spec exceeds its bounded depth or node limit.")]);
+        }
         catch (Exception ex) when (ex is not OutOfMemoryException and not OperationCanceledException)
         {
             return Reject([new FieldError(actionId, $"Planning failed: {ex.Message}")]);

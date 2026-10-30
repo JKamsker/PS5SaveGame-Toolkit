@@ -8,9 +8,8 @@ namespace SaveToolkit.Core.Editing;
 /// <summary>Checks canonical binding policy before a preview is usable, and again before apply.</summary>
 public static class FieldMetadataPlanning
 {
-    // Matches DocumentSession's existing 5000-row action-scope policy. Semantic review keeps
-    // its stricter 4096 retained-target cap, while atomic action preflight validates this
-    // already-advertised scope without silently truncating it.
+    // Canonical-only replay retains the current semantic 5000-row admission. Action planning
+    // uses its separate 2 * admitted exact-ID authority allowance below.
     internal const int MaxPlannedMetadataIds = 5000;
 
     /// <summary>Legacy documents return no descriptors and retain their existing planning behavior.</summary>
@@ -32,12 +31,16 @@ public static class FieldMetadataPlanning
         if (effects.Length > 0 && !effectEnabled)
             throw new InvalidOperationException("Action effects require an opted-in document capability.");
         if (!index.HasFieldMetadata && effects.Length == 0) return [];
-        var canonicalIds = plan.Changes.Where(change => change.Effect is null).Select(change => change.ValueId);
-        // Effect-only plans still probe the canonical resolver for a bounded prefix so an
-        // authority failure cannot be mistaken for absence. Large effect plans remain independent
-        // of the canonical 5000-row metadata allowance.
-        var resolverIds = canonicalIds.Concat(plan.Changes.Where(change => change.Effect is not null)
-            .Take(FieldMetadataIndex.BatchSize).Select(change => change.ValueId)).Distinct(StringComparer.Ordinal);
+        // Resolve every exact row identity, including Effect rows, in <=200-ID batches. The
+        // authority budget is intentionally independent of selection (5000), semantic closure
+        // (4096), descriptor graph (4096 nodes) and plan entries (65536): one explicit row may
+        // schedule itself plus one declared canonical target, hence at most 2 * admitted IDs.
+        var exactIds = plan.Changes.Select(change => change.ValueId).ToArray();
+        if (exactIds.Distinct(StringComparer.Ordinal).Count() != exactIds.Length)
+            throw new InvalidOperationException("Duplicate planned field identities are not allowed.");
+        var resolverIds = exactIds.Distinct(StringComparer.Ordinal).ToArray();
+        var authorityBudget = checked((int)Math.Min(2L * ActionPlanSnapshots.MaxPlanEntries,
+            Math.Max(1L, 2L * resolverIds.Length)));
         // The aggregate request/plan wire budget is checked before this call and again against
         // the capped metadata serialization below. FieldMetadataIndex's optional retained graph
         // budget is intentionally disabled here: its UTF-16 estimate is a different unit and
@@ -45,7 +48,7 @@ public static class FieldMetadataPlanning
         index.SetMetadataBudget(null);
         try
         {
-            index.ResolveMetadata(resolverIds, cancellationToken, MaxPlannedMetadataIds);
+            index.ResolveMetadata(resolverIds, cancellationToken, authorityBudget);
         }
         finally
         {
