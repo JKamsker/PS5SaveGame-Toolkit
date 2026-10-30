@@ -20,6 +20,8 @@ async function assertUsableFocus(target: Locator, testInfo: TestInfo, name: stri
       clips.push(clip);
       if (clipX || parent.tagName === "DIALOG") { bounds.left = Math.max(bounds.left, clip.left); bounds.right = Math.min(bounds.right, clip.right); }
       if (clipY || parent.tagName === "DIALOG") { bounds.top = Math.max(bounds.top, clip.top); bounds.bottom = Math.min(bounds.bottom, clip.bottom); }
+      // A modal is in the top layer: document ancestors cannot clip its rendered descendants.
+      if (parent.matches(":modal")) break;
     }
     return { rect: { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height }, bounds, clips };
   });
