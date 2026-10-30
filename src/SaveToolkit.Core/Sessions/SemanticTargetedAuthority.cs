@@ -52,11 +52,10 @@ internal static class SemanticTargetedAuthority
     public static CanonicalMetadataOutcome ApplyCanonicalMetadata(ISaveDocument document, SemanticSnapshot snapshot,
         long maxBytes, CancellationToken cancellationToken)
     {
-        if (document is not IFieldMetadataDocument || snapshot.Fields.Count == 0)
-            return new(true, []);
+        var index = new FieldMetadataIndex(document, Math.Max(0, maxBytes - snapshot.Bytes));
+        if (!index.Enabled || snapshot.Fields.Count == 0) return new(true, []);
 
         var working = snapshot.Clone();
-        var index = new FieldMetadataIndex(document, Math.Max(0, maxBytes - working.Bytes));
         // Targeted capture already admitted these descriptors, including their current
         // presentation. Re-resolving them here would spend the same review budget twice and
         // could replace a current annotation with an older fallback. Only legacy fields need

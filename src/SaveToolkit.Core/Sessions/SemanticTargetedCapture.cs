@@ -71,7 +71,8 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                         Path = existing.Path,
                         MetadataPublished = true,
                     };
-                    if (!SemanticSnapshot.TryEstimate(candidate, long.MaxValue, out var candidateCost)
+                    var replacementPath = field.Path ?? existing.Path;
+                    if (!SemanticMetadataBudget.TryEstimate(candidate, replacementPath, long.MaxValue, out var candidateCost)
                         || !SemanticSnapshot.TryEstimate(existing, long.MaxValue, out var existingCost)
                         || candidateCost - existingCost > maxBytes - snapshot.Bytes)
                     {

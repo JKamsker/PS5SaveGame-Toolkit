@@ -13,13 +13,16 @@ internal static class SemanticMetadataBudget
     private const int InlinePathReferences = 1;
     internal const int MaxPathSegments = FieldMetadataLimits.MaxClosureIds;
 
-    public static bool TryEstimate(SemanticField field, long limit, out long bytes)
+    public static bool TryEstimate(SemanticField field, long limit, out long bytes) =>
+        TryEstimate(field, field.Path, limit, out bytes);
+
+    internal static bool TryEstimate(SemanticField field, IReadOnlyList<string>? path, long limit, out long bytes)
     {
         bytes = FieldOverheadBytes;
         if (limit < 0 || !AddString(ref bytes, field.ValueId, limit)
             || !AddString(ref bytes, field.Label, limit)
             || !AddString(ref bytes, field.CanonicalValueId, limit)) return false;
-        if (!TryAddPath(ref bytes, field.Path, limit)) return false;
+        if (!TryAddPath(ref bytes, path, limit)) return false;
         if (field.Target is { } target
             && (!AddString(ref bytes, target.CollectionId, limit)
                 || !AddString(ref bytes, target.RowKey, limit)

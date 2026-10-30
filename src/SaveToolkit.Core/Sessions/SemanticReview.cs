@@ -202,7 +202,7 @@ internal sealed class SemanticReview
                     {
                         _coverage.RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
                     }
-                    if (metadata.Applied) _coverage.ClearRecovered(snapshot);
+                    if (metadata.Applied) CompleteOriginalRecovery(snapshot);
                     SemanticPresentationProjection.Apply(original, snapshot, _maxBytes, cancellationToken);
                     _originalMetadataAvailable = true;
                     _originalMetadataAttempted = _coverage.RetryIds.Count == 0;
@@ -247,7 +247,7 @@ internal sealed class SemanticReview
             if (!metadata.Applied)
                 _coverage.RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
             else
-                _coverage.ClearRecovered(existing);
+                CompleteOriginalRecovery(existing);
             SemanticPresentationProjection.Apply(original, existing, _maxBytes, cancellationToken);
             _originalMetadataAttempted = _coverage.RetryIds.Count == 0;
             }
@@ -278,19 +278,13 @@ internal sealed class SemanticReview
                 var metadata = SemanticOriginalMetadata.Enrich(openOriginal, baseline, _maxBytes,
                     _coverage.RetryIds.ToArray(), _coverage.HasPendingMetadataAttempt,
                     ref _capturingOriginal, cancellationToken);
-                var publication = PublishRecoveredTargets(metadata.Recovered);
-                if (publication.Rejected.Count > 0)
-                    _coverage.RecordOriginalFailures(publication.Rejected,
-                        "Recovered original metadata could not be admitted to the bounded target set.");
+                var publication = CompleteOriginalRecovery(baseline, metadata.Applied ? null : metadata.Recovered);
                 if (!metadata.Applied)
                     _coverage.RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
-                _coverage.ClearRecovered(baseline, publication.Accepted);
                 if (metadata.Applied && publication.Rejected.Count == 0)
                 {
                     _coverage.ClearMetadataAttemptFailure();
                 }
-                foreach (var id in publication.Accepted)
-                    if (_reported.Remove(id)) _recoveredReported.Add(id);
                 _originalMetadataAttempted = metadata.Applied && _coverage.RetryIds.Count == 0;
             }
             return Query(document, index, expandedLazy, revision, cancellationToken);
@@ -361,7 +355,8 @@ internal sealed class SemanticReview
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                var field = original.Fields[id] with { Value = document.GetValue(id) };
+                // A reported old value alone cannot establish current metadata authority.
+                var field = original.Fields[id] with { Value = document.GetValue(id), ReadOnly = true };
                 var cost = SemanticSnapshot.Estimate(field);
                 if (cost > _maxBytes - current.Bytes) { current.Complete = false; continue; }
                 current.Bytes += cost;
@@ -446,6 +441,22 @@ internal sealed class SemanticReview
         return ids.ToArray();
     }
 
+    private RecoveryPublication CompleteOriginalRecovery(SemanticSnapshot snapshot,
+        IReadOnlyList<string>? recoveredIds = null)
+    {
+        var recovered = (recoveredIds ?? _coverage.RetryIds.ToArray())
+            .Where(id => snapshot.Fields.TryGetValue(id, out var field) && SemanticOriginalMetadata.HasMetadata(field))
+            .Distinct(StringComparer.Ordinal).ToArray();
+        var publication = PublishRecoveredTargets(recovered);
+        if (publication.Rejected.Count > 0)
+            _coverage.RecordOriginalFailures(publication.Rejected,
+                "Recovered original metadata could not be admitted to the bounded target set.");
+        foreach (var id in publication.Accepted)
+            if (_reported.Remove(id)) _recoveredReported.Add(id);
+        _coverage.ClearRecovered(snapshot, publication.Accepted);
+        return publication;
+    }
+
     private RecoveryPublication PublishRecoveredTargets(IReadOnlyList<string> recoveredIds)
     {
         var pending = recoveredIds.Where(id => !_targeted.Contains(id))
@@ -458,7 +469,7 @@ internal sealed class SemanticReview
         {
             _targeted.Add(id);
         }
-        return new(pending, []);
+        return new(recoveredIds, []);
     }
 
 }
