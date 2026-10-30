@@ -1,0 +1,78 @@
+{
+  "complete": true,
+  "warnings": [],
+  "coverage": {
+    "examinedCount": 4,
+    "omittedCount": 0,
+    "budgetBytes": 65536,
+    "usedBytes": 1536,
+    "omittedReasons": []
+  },
+  "changes": [
+    {
+      "valueId": "character/balance",
+      "label": "Character balance — 長い名前",
+      "path": ["section:character", "section:balance"],
+      "originalValue": 12345,
+      "currentValue": 54321,
+      "originalExists": true,
+      "currentExists": true,
+      "canRevert": true,
+      "canonicalValueId": "character/balance",
+      "bindingKind": "Primary",
+      "presentation": {
+        "confidence": "Verified",
+        "description": "Authoritative group metadata"
+      },
+      "member": {
+        "role": "character",
+        "relativePath": "PPSA00000/sdimg_E2E/character.dat",
+        "groupTitle": "Character + profile",
+        "provenance": "synthetic group input"
+      },
+      "canNavigate": true,
+      "navigationTarget": {
+        "path": ["section:character", "section:balance"],
+        "available": true
+      },
+      "aliases": [
+        {
+          "valueId": "character/raw/balance",
+          "label": "Raw balance",
+          "path": ["section:character", "section:raw"],
+          "bindingKind": "Derived",
+          "changed": true,
+          "member": {
+            "role": "character",
+            "relativePath": "PPSA00000/sdimg_E2E/character.dat",
+            "groupTitle": "Character + profile",
+            "provenance": "synthetic group input"
+          }
+        }
+      ]
+    },
+    {
+      "valueId": "profile/removed",
+      "label": "Profile removed field",
+      "path": ["section:profile"],
+      "originalValue": "old",
+      "currentValue": null,
+      "originalExists": true,
+      "currentExists": false,
+      "canRevert": false,
+      "revertReason": "The reviewed target is unavailable; use Undo for this structural change.",
+      "member": {
+        "role": "profile",
+        "relativePath": "PPSA00000/sdimg_E2E/profile.dat",
+        "groupTitle": "Character + profile",
+        "provenance": "synthetic group input"
+      },
+      "canNavigate": false,
+      "navigationTarget": {
+        "path": ["section:profile"],
+        "available": false,
+        "unavailableReason": "The profile section is no longer present in the current view."
+      }
+    }
+  ]
+}

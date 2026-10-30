@@ -771,6 +771,13 @@
         ],
         "type": "object"
       },
+      "FieldBindingKind": {
+        "enum": [
+          "Primary",
+          "Derived",
+          null
+        ]
+      },
       "FieldError": {
         "description": "A user-facing rejection associated with a field or action ID; an empty ID denotes a general error.",
         "properties": {
@@ -884,6 +891,71 @@
           "label",
           "spec",
           "value"
+        ],
+        "type": "object"
+      },
+      "FieldPresentation": {
+        "description": "Complete canonical field annotations for presentation without loading its view. An empty instance\nexplicitly declares no annotations; null FieldMetadata.Presentation means annotations are unspecified.\nDoes not grant write permission or replace the canonical spec or binding kind.",
+        "properties": {
+          "confidence": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Confidence",
+                "description": "Canonical evidence label. Null retains the canonical field\u0027s absence of a label."
+              }
+            ]
+          },
+          "description": {
+            "description": "Canonical explanation or attribution, before any contextual reference description.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "warning": {
+            "description": "Canonical caution that must accompany every editor, including unloaded projections.",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "FieldReferenceNode": {
+        "additionalProperties": false,
+        "description": "Another presentation of a canonical field, never a new binding or catalog reference.\nThe host resolves the target through loaded fields or targeted IFieldMetadataDocument discovery.\nAvailable targets are sent as ordinary FieldNodes; unresolved targets remain unavailable references.",
+        "properties": {
+          "description": {
+            "description": "Optional contextual explanation, appended to any canonical explanation.",
+            "maxLength": 4096,
+            "minLength": 0,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "label": {
+            "description": "Optional contextual label. Canonical spec, confidence and warning are retained.",
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetValueId": {
+            "description": "Direct canonical value ID. References cannot target other presentation nodes.",
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "targetValueId"
         ],
         "type": "object"
       },
@@ -3143,8 +3215,39 @@
       },
       "SemanticChange": {
         "properties": {
+          "aliases": {
+            "items": {
+              "$ref": "#/components/schemas/SemanticProjection"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "bindingKind": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FieldBindingKind"
+              }
+            ]
+          },
+          "canNavigate": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
           "canRevert": {
             "type": "boolean"
+          },
+          "canonicalValueId": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "currentExists": {
             "type": "boolean"
@@ -3154,6 +3257,26 @@
           },
           "label": {
             "type": "string"
+          },
+          "member": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SemanticMemberContext"
+              }
+            ]
+          },
+          "navigationTarget": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SemanticNavigationTarget"
+              }
+            ]
           },
           "originalExists": {
             "type": "boolean"
@@ -3166,6 +3289,22 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "presentation": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FieldPresentation"
+              }
+            ]
+          },
+          "revertReason": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "target": {
             "oneOf": [
@@ -3203,6 +3342,16 @@
           },
           "complete": {
             "type": "boolean"
+          },
+          "coverage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SemanticReviewCoverage"
+              }
+            ]
           },
           "revision": {
             "format": "int64",
@@ -3243,6 +3392,177 @@
           "collectionId",
           "rowKey",
           "query"
+        ],
+        "type": "object"
+      },
+      "SemanticMemberContext": {
+        "properties": {
+          "groupTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provenance": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "relativePath": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "relativePath"
+        ],
+        "type": "object"
+      },
+      "SemanticNavigationTarget": {
+        "properties": {
+          "available": {
+            "default": true,
+            "type": "boolean"
+          },
+          "collection": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SemanticCollectionTarget"
+              }
+            ]
+          },
+          "path": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "unavailableReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "type": "object"
+      },
+      "SemanticProjection": {
+        "properties": {
+          "bindingKind": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FieldBindingKind"
+              }
+            ]
+          },
+          "changed": {
+            "default": false,
+            "type": "boolean"
+          },
+          "label": {
+            "type": "string"
+          },
+          "member": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SemanticMemberContext"
+              }
+            ]
+          },
+          "path": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "presentation": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FieldPresentation"
+              }
+            ]
+          },
+          "valueId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "valueId",
+          "label",
+          "path"
+        ],
+        "type": "object"
+      },
+      "SemanticReviewCoverage": {
+        "properties": {
+          "budgetBytes": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "examinedCount": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "omittedCount": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "omittedCountIsLowerBound": {
+            "default": false,
+            "type": "boolean"
+          },
+          "omittedReasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "usedBytes": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "examinedCount",
+          "omittedCount",
+          "budgetBytes",
+          "usedBytes",
+          "omittedReasons"
         ],
         "type": "object"
       },
@@ -3771,6 +4091,9 @@
             "$ref": "#/components/schemas/ViewNodeFieldNode"
           },
           {
+            "$ref": "#/components/schemas/ViewNodeFieldReferenceNode"
+          },
+          {
             "$ref": "#/components/schemas/ViewNodeTableNode"
           },
           {
@@ -3803,6 +4126,7 @@
           "mapping": {
             "action": "#/components/schemas/ViewNodeActionNode",
             "field": "#/components/schemas/ViewNodeFieldNode",
+            "fieldReference": "#/components/schemas/ViewNodeFieldReferenceNode",
             "graph": "#/components/schemas/ViewNodeGraphNode",
             "hex": "#/components/schemas/ViewNodeHexNode",
             "image": "#/components/schemas/ViewNodeImageNode",
@@ -3850,6 +4174,25 @@
           "type": {
             "enum": [
               "field"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
+      "ViewNodeFieldReferenceNode": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FieldReferenceNode"
+          }
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "fieldReference"
             ],
             "type": "string"
           }
@@ -4843,6 +5186,16 @@
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          },
           "415": {
             "content": {
               "application/json": {
@@ -5073,6 +5426,16 @@
               }
             },
             "description": "Precondition Failed"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
           },
           "422": {
             "content": {
@@ -6928,6 +7291,16 @@
             },
             "description": "Precondition Failed"
           },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -8681,6 +9054,16 @@
               }
             },
             "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
           },
           "415": {
             "content": {

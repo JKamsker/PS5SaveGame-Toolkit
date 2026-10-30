@@ -233,6 +233,11 @@ atomically. An existing clean owner may be explicitly released. Missing token:
 ## Documents, editing and binary reads
 
 All document routes below resolve both path IDs, returning 404 when either is absent.
+Views, lazy expansions and collection pages containing canonical field references are normalized
+to ordinary fields before delivery. Their complete normalized JSON is bounded to 2 MiB; oversized
+canonical values, annotations or combined projections return 413 without partial output. Opening
+an independent or grouped document can likewise return 413 for an oversized reference-bearing
+root view. Existing views without references keep their behavior. See [the field-reference contract](FIELD_REFERENCES.md).
 
 ### `GET /api/workspaces/{workspaceId}/documents/{documentId}`
 
@@ -372,10 +377,18 @@ Transport/header rejection happens before invoking the domain operation.
 
 ### `GET /api/workspaces/{workspaceId}/documents/{documentId}/changes`
 
-No parameters. Returns `{changes,complete,warnings,revision}`. Each change has
-`valueId,label,path,originalValue,currentValue,originalExists,currentExists,
-canRevert`, plus optional `target` for fields reached through current F8 queryable
-rows. Eager/lazy changes retain their existing JSON shape. `target` contains
+No parameters. Returns `{changes,complete,warnings,revision,coverage?}`. Each change has
+ `valueId,label,path,originalValue,currentValue,originalExists,currentExists,
+ canRevert`, plus optional `target` for fields reached through current F8 queryable
+ rows. Eager/lazy changes retain their existing JSON shape. Metadata-backed changes may
+ additionally carry `canonicalValueId`, `bindingKind`, `presentation`, `aliases`,
+ `member`, `navigationTarget`, `canNavigate`, and `revertReason`. The effective
+ canonical ID is emitted only when the server has an explicit published identity;
+ aliases contain label/path/raw ID projections without duplicate value payloads.
+ `member` is authoritative group context (`role`, `relativePath`, optional `groupTitle`
+ and `provenance`) returned by the host's bounded `IGroupedFieldContext` resolver.
+ `navigationTarget` and `canNavigate` are server-owned; clients must not infer a target
+ from an ID, caption or path. Eager/lazy changes retain their existing JSON shape. `target` contains
 `{collectionId,rowKey,query}`: the exact unfiltered page query (including
 `includeEmpty:true`, `limit`, and either `offset` or `cursor`). Open the enclosing
 sections/tabs from `path`, query the opaque `collectionId` through the query-string
@@ -398,7 +411,10 @@ The navigation target is a Core/HTTP review contract, separate from SDK `ViewTar
 metadata discovery. Clients must not synthesize a target from an ID prefix or reuse its page query
 after the log revision changes.
 
-`complete:false` means bounded traversal/baseline coverage is partial; do not
+`coverage`, when present, contains `{examinedCount,omittedCount,budgetBytes,usedBytes,
+ omittedReasons,omittedCountIsLowerBound}`. The lower-bound flag is true when the server
+ could not establish an exact omitted set, including bounded group-context resolution or
+ truncated traversal. `complete:false` means bounded traversal/baseline coverage is partial; do not
 infer missing changes or field additions/removals from unvisited data. F8 budget
 cuts and invalid/failed paging add explicit **truncated** warnings identifying the
 collection/reason. Display these warnings even when `changes` is empty; never show
@@ -406,6 +422,13 @@ collection/reason. Display these warnings even when `changes` is empty; never sh
 history eviction. Existing `canRevert` governs individual revert, including F8
 fields; derived/read-only fields and structural additions/removals cannot revert
 individually.
+
+The framework's Generic JSON browser fixture provides synthetic protocol coverage for
+canonical/alias search, member context, unavailable navigation, incomplete coverage,
+retry, revert focus handoff and responsive keyboard access. It does not prove that a
+Pragmata or Gearbox/XorJson production adapter has implemented `IGroupedFieldContext`;
+those adapters must publish their real member role and relative path before production
+member provenance can be shown.
 
 ### `POST /api/workspaces/{workspaceId}/documents/{documentId}/changes/revert`
 

@@ -13,6 +13,7 @@ namespace SaveToolkit.Sdk.Views;
 [JsonDerivedType(typeof(SectionNode), "section")]
 [JsonDerivedType(typeof(TabsNode), "tabs")]
 [JsonDerivedType(typeof(FieldNode), "field")]
+[JsonDerivedType(typeof(FieldReferenceNode), "fieldReference")]
 [JsonDerivedType(typeof(TableNode), "table")]
 [JsonDerivedType(typeof(TextNode), "text")]
 [JsonDerivedType(typeof(StatsNode), "stats")]

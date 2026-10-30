@@ -1,6 +1,6 @@
 # Contributing
 
-Read [AGENTS.md](AGENTS.md) for repository scope and coding rules. Start with the
+Read [AGENTS.md](AGENTS.md) for repository scope and coding rules. The [C# source-size guard](docs/CSHARP_SIZE_GUARD.md) explains the staged hook, CI range check and legacy policy. Start with the
 [user guide](docs/USER_GUIDE.md) for app behavior, the [API reference](docs/API.md)
 for HTTP contracts, and the [plugin guide](docs/PLUGIN_GUIDE.md) before plugin work.
 
@@ -65,6 +65,7 @@ The linked pages own each tool's options, prerequisites and review procedure.
 | --- | --- |
 | [`scripts/test.ps1`](scripts/test.ps1) | API build and backend test projects; [parameters and coverage](docs/RELEASING.md#script-parameters). |
 | [`scripts/self-test.ps1`](scripts/self-test.ps1) | Script/scaffold regressions; [parameters](docs/RELEASING.md#script-parameters). |
+| [`scripts/check_csharp_size.py`](scripts/check_csharp_size.py) | C# source-size audit; [hook, CI and policy guidance](docs/CSHARP_SIZE_GUARD.md). |
 | [`scripts/build-docs.ps1`](scripts/build-docs.ps1) | Curated DocFX site, generated SDK/OpenAPI references and link checks; [local build and Pages deployment](docs-site/README.md). |
 | [`scripts/bench.ps1`](scripts/bench.ps1) | Opt-in synthetic timing/allocation baselines; [benchmark guide](docs/PERFORMANCE.md). |
 | [`scripts/release-notes.ps1`](scripts/release-notes.ps1) | Draft notes from merged work; [curation workflow](docs/RELEASING.md#prepare-curated-notes-and-check-the-candidate). |

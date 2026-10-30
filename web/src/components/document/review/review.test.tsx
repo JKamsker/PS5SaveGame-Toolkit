@@ -181,6 +181,28 @@ describe("action preview", () => {
 });
 
 describe("semantic changes panel", () => {
+  it("searches canonical and alias identities and explains derived context", async () => {
+    vi.spyOn(actionReview, "changes").mockResolvedValue({ ...log, changes: [{ ...change,
+      canonicalValueId: "quantity", bindingKind: "Primary", member: { role: "character", relativePath: "profile.dat", groupTitle: "Group", provenance: "router" },
+      aliases: [
+        { valueId: "raw/quantity", label: "Raw quantity", path: ["section:Raw", "row:legacy"], bindingKind: "Derived", changed: true,
+          member: { role: "character", relativePath: "profile.dat", groupTitle: "Group", provenance: "router" } },
+      ], canNavigate: true }] });
+    renderDocument(<ChangesPanel />);
+    fireEvent.click(screen.getByText("Changes against original"));
+    await screen.findByText("Potion quantity");
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "raw/quantity" } });
+    expect(screen.getByText("Also shown as 1 projection")).toBeTruthy();
+    fireEvent.click(screen.getByText("Also shown as 1 projection"));
+    expect(screen.getByText("Raw quantity")).toBeTruthy();
+    expect(screen.getByText("Changed projection")).toBeTruthy();
+    for (const value of ["row:legacy", "profile.dat", "router"]) {
+      fireEvent.change(screen.getByRole("searchbox"), { target: { value } });
+      expect(screen.getByText("Also shown as 1 projection")).toBeTruthy();
+    }
+    expect(screen.getByRole("region", { name: "Changed fields table" })).toBeTruthy();
+  });
+
   it("retries a failed changes load while retaining the search", async () => {
     vi.spyOn(actionReview, "changes").mockRejectedValueOnce(new Error("Change log unavailable")).mockResolvedValue(log);
     renderDocument(<ChangesPanel />);

@@ -149,7 +149,6 @@ public sealed partial class DocumentSession
             return Rejected(pending.ActionId, "This document does not support planning.");
         }
 
-        EnsureOriginal(cancellationToken);
         try
         {
             if (pending.Scope.QueryScope is { } queryScope
@@ -180,6 +179,7 @@ public sealed partial class DocumentSession
             // Point of no return: the plugin mutation and its undo/revision bookkeeping must
             // finish together. The request token is deliberately not observed after this check.
             cancellationToken.ThrowIfCancellationRequested();
+            _semantic.CaptureTargetedOriginals(_openOriginal, fresh.Changes.Select(change => change.ValueId), cancellationToken);
             startApply();
             return RunGroup(_ =>
             {

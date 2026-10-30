@@ -15,6 +15,8 @@ public sealed class DocumentGroupSession
     private readonly IGamePlugin _plugin;
     private readonly IDocumentGroupPlugin _groupPlugin;
     private readonly ReferenceContext _references;
+    private DocumentSession? _session;
+    private IReadOnlyList<string> _declaredOutputPaths = [];
 
     internal DocumentGroupSession(string id, string title, DiskSaveSet set, IGamePlugin plugin,
         IReadOnlyList<GroupMemberInfo> members, ReferenceContext references, DocumentSessionOptions? options = null)
@@ -31,24 +33,68 @@ public sealed class DocumentGroupSession
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limits.MaxQueryActionRows);
         CheckFingerprints();
         // Freeze selected contents once. Overlay keeps all other files and directory metadata intact.
-        var frozen = members.ToDictionary(m => m.RelativePath,
-            m => (ReadOnlyMemory<byte>)set.FindById(m.FileId)!.ReadAllBytes(), StringComparer.OrdinalIgnoreCase);
+        var frozen = FreezeMembers(members, set.FindById, CancellationToken.None);
         foreach (var member in members)
             if (Convert.ToHexStringLower(SHA256.HashData(frozen[member.RelativePath].Span)) != member.Sha256)
                 throw new InvalidOperationException("A group input changed while it was being captured. Reimport the dump.");
         var input = Input(new OverlaySaveSet(set, frozen));
-        IGroupedSaveDocument Open() => _groupPlugin.OpenGroup(input, references);
+        IGroupedSaveDocument Open()
+        {
+            // Group plugins commonly publish metadata while building their view. Opened
+            // originals are used by targeted semantic capture before the first live walk,
+            // so initialize that bounded publication point on every candidate as well.
+            var document = _groupPlugin.OpenGroup(input, references);
+            _ = document.BuildView();
+            return document;
+        }
+        var declarationProbe = Open();
+        try
+        {
+            _declaredOutputPaths = OutputOwnershipPolicy.Resolve(set.FindById(members[0].FileId)!, declarationProbe);
+            var completed = declarationProbe;
+            declarationProbe = null!;
+            completed.Dispose();
+        }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(declarationProbe, failure, "Group declaration probing and cleanup failed.");
+            throw;
+        }
         var staged = new StagedGroupDocument(Open, Verify, token => CheckFingerprints(token), limits.MaxSnapshotBytes);
-        Session = new DocumentSession(id, set.FindById(members[0].FileId)!, plugin, staged,
-            options: limits, openOriginal: Open, references: references);
+        DocumentSession? created = null;
+        try
+        {
+            created = new DocumentSession(id, set.FindById(members[0].FileId)!, plugin, staged,
+                options: limits, openOriginal: Open, references: references,
+                memberContext: ids => ResolveFieldContext(staged, ids));
+            _session = created;
+            CheckFingerprints();
+            Session = created;
+        }
+        catch (Exception failure) when (failure is not OutOfMemoryException)
+        {
+            try
+            {
+                if (created is not null) created.Dispose();
+                else staged.Dispose();
+            }
+            catch (Exception cleanup) when (cleanup is not OutOfMemoryException)
+            {
+                throw new AggregateException("Group construction and cleanup failed.", failure, cleanup);
+            }
+            throw;
+        }
     }
 
     public string Title { get; }
     public IReadOnlyList<GroupMemberInfo> Members { get; }
     public DocumentSession Session { get; }
     internal ReferenceContext References => _references;
+    internal IReadOnlyList<string> OwnedOutputPaths =>
+        [.. Members.Select(member => member.RelativePath), .. _declaredOutputPaths];
 
-    public bool Owns(string relativePath) => Members.Any(m => string.Equals(m.RelativePath, relativePath, StringComparison.OrdinalIgnoreCase));
+    public bool Owns(string relativePath) => OwnedOutputPaths.Any(path =>
+        string.Equals(path, relativePath, StringComparison.OrdinalIgnoreCase));
 
     public void CheckFingerprints() => CheckFingerprints(CancellationToken.None);
 
@@ -58,11 +104,13 @@ public sealed class DocumentGroupSession
         foreach (var member in Members)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            using var stream = _set.FindById(member.FileId)!.OpenRead();
-            var actual = OperationCancellation.HashSha256(stream, cancellationToken);
+            var file = _set.FindById(member.FileId)
+                ?? throw new InvalidOperationException($"Owned output '{member.RelativePath}' could not be read. Close and reimport the dump.");
+            var actual = OwnedSourceReader.Hash(file, member.RelativePath, cancellationToken);
             if (!string.Equals(actual, member.Sha256, StringComparison.Ordinal))
                 throw new InvalidOperationException($"Group input '{member.RelativePath}' changed since selection. Close and reimport the dump.");
         }
+        _session?.CheckOutputFingerprints(cancellationToken);
     }
 
     /// <summary>Validate all outputs together, then reopen each in its own file role.</summary>
@@ -80,8 +128,10 @@ public sealed class DocumentGroupSession
     internal void VerifyOutputs(IReadOnlyDictionary<string, ReadOnlyMemory<byte>> outputs, ISaveSet? finalSet, CancellationToken cancellationToken)
     {
         CheckFingerprints(cancellationToken);
-        if (outputs.Count != Members.Count || outputs.Keys.Any(path => !Owns(path)))
-            throw new SaveFormatException("A document group must serialize every owned member exactly once and cannot write unowned files.");
+        var expected = OwnedOutputPaths;
+        if (outputs.Count != expected.Count || outputs.Keys.Any(path => !Owns(path))
+            || expected.Any(path => !outputs.ContainsKey(path)))
+            throw new SaveFormatException("A document group must serialize every owned output exactly once and cannot write unowned files.");
         var overlay = new OverlaySaveSet(finalSet ?? _set, outputs, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
         var errors = _groupPlugin.ValidateGroup(Input(overlay), _references);
@@ -91,10 +141,21 @@ public sealed class DocumentGroupSession
         {
             cancellationToken.ThrowIfCancellationRequested();
             var file = ((ISaveSet)overlay).FindFile(member.RelativePath)!;
-            using var reopened = _plugin.Open(file, _references);
-            cancellationToken.ThrowIfCancellationRequested();
-            _ = reopened.BuildView();
-            cancellationToken.ThrowIfCancellationRequested();
+            var reopened = _plugin.Open(file, _references);
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                _ = reopened.BuildView();
+                cancellationToken.ThrowIfCancellationRequested();
+                var completed = reopened;
+                reopened = null!;
+                completed.Dispose();
+            }
+            catch (Exception failure)
+            {
+                SessionCleanup.DisposeAfterFailure(reopened, failure, "Group role verification and cleanup failed.");
+                throw;
+            }
         }
     }
 
@@ -109,4 +170,53 @@ public sealed class DocumentGroupSession
 
     private DocumentGroupInput Input(ISaveSet set) => new(Array.AsReadOnly(Members.Select(m =>
         new DocumentGroupFile(m.Role, set.FindFile(m.RelativePath)!)).ToArray()));
+
+    private IReadOnlyDictionary<string, SemanticMemberContext> ResolveFieldContext(
+        StagedGroupDocument staged, IReadOnlyList<string> valueIds)
+    {
+        var requested = valueIds.Distinct(StringComparer.Ordinal).ToHashSet(StringComparer.Ordinal);
+        var members = Members.ToDictionary(member => (member.Role, member.RelativePath));
+        var mapped = new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal);
+        long responseBytes = 0;
+        foreach (var batch in requested.Chunk(SemanticContextBudget.MaxBatchCount))
+        {
+            var response = staged.ResolveFieldContext(batch);
+            if (response is null || response.Count > batch.Length)
+                throw new SemanticContextResolutionException(mapped, "The group returned more context rows than requested.");
+            foreach (var context in response)
+            {
+                if (context is null || string.IsNullOrWhiteSpace(context.ValueId)
+                    || string.IsNullOrWhiteSpace(context.Role) || string.IsNullOrWhiteSpace(context.RelativePath)
+                    || !requested.Contains(context.ValueId) || !members.ContainsKey((context.Role, context.RelativePath)))
+                    throw new SemanticContextResolutionException(mapped, "The group returned foreign field context.");
+                if (context.Role.Length > SemanticContextBudget.MaxStringLength
+                    || context.RelativePath.Length > SemanticContextBudget.MaxStringLength
+                    || context.Provenance is { Length: > SemanticContextBudget.MaxStringLength })
+                    throw new SemanticContextResolutionException(mapped, "The group returned oversized context strings.");
+                var semantic = new SemanticMemberContext(context.Role, context.RelativePath, Title, context.Provenance);
+                if (!SemanticContextBudget.TryEstimate(semantic, out var bytes)
+                    || responseBytes > SemanticContextBudget.MaxResponseBytes - bytes)
+                    throw new SemanticContextResolutionException(mapped, "The group context response exceeded its bounded byte budget.");
+                responseBytes += bytes;
+                if (!mapped.TryAdd(context.ValueId, semantic))
+                    throw new SemanticContextResolutionException(mapped, "The group returned duplicate field context.");
+            }
+        }
+
+        return mapped;
+    }
+
+    internal static Dictionary<string, ReadOnlyMemory<byte>> FreezeMembers(
+        IReadOnlyList<GroupMemberInfo> members, Func<string, ISaveFile?> findById,
+        CancellationToken cancellationToken)
+    {
+        return members.ToDictionary(member => member.RelativePath, member =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var file = findById(member.FileId)
+                ?? throw new InvalidOperationException(
+                    $"Owned output '{member.RelativePath}' could not be read. Close and reimport the dump.");
+            return (ReadOnlyMemory<byte>)OwnedSourceReader.ReadAllBytes(file, member.RelativePath, cancellationToken);
+        }, StringComparer.OrdinalIgnoreCase);
+    }
 }

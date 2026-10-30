@@ -168,6 +168,35 @@ public sealed class DocumentGroupTests : IDisposable
     }
 
     [Fact]
+    public void SemanticReviewPublishesAuthoritativeMemberContextForRenderedGroupFields()
+    {
+        var session = Open(Create()).Session;
+        Assert.True(session.ApplyEdits([Edit("character/balance", 11)], 0).Ok);
+
+        var changes = session.GetChanges().Changes;
+        var change = Assert.Single(changes, item => item.ValueId == "character/balance");
+        Assert.Equal("character", change.Member?.Role);
+        Assert.Equal(Root + "character.dat", change.Member?.RelativePath);
+        Assert.Equal("Character + profile", change.Member?.GroupTitle);
+        Assert.Equal("synthetic group input", change.Member?.Provenance);
+        var projectedAlias = Assert.Single(change.Aliases!);
+        Assert.Equal("character/raw/balance", projectedAlias.ValueId);
+        Assert.Equal("character", projectedAlias.Member?.Role);
+        Assert.Equal(Root + "character.dat", projectedAlias.Member?.RelativePath);
+        var live = _plugin.Opened.Last(document => !document.IsDisposed);
+        Assert.NotEmpty(live.ContextRequests);
+        Assert.DoesNotContain(live.ContextRequests.SelectMany(request => request), id => id.Contains("/raw/", StringComparison.Ordinal));
+        Assert.Contains(live.ContextRequests.SelectMany(request => request), id => id == "character/balance");
+        foreach (var alias in changes.Where(item => item.ValueId is "character/raw/balance" or "profile/raw/balance"))
+        {
+            Assert.Equal(alias.ValueId.StartsWith("character/", StringComparison.Ordinal) ? "character" : "profile",
+                alias.Member?.Role);
+            Assert.Equal(alias.ValueId.StartsWith("character/", StringComparison.Ordinal)
+                ? Root + "character.dat" : Root + "profile.dat", alias.Member?.RelativePath);
+        }
+    }
+
+    [Fact]
     public void QueryScopedPlan_ResolvesStableKeysThroughGroupAdapter()
     {
         var session = Open(Create()).Session;
@@ -229,6 +258,44 @@ public sealed class DocumentGroupTests : IDisposable
         Assert.False(result.Ok);
         Assert.False(session.State.IsDirty);
         Assert.Equal(0, session.State.Revision);
+        AssertOriginalLiveModel(workspace);
+    }
+
+    [Fact]
+    public void RejectedPlannedApply_PreservesPluginErrorWhenCandidateCleanupFails()
+    {
+        var workspace = Create();
+        var session = Open(workspace).Session;
+        var preview = session.PlanAction("transfer", new Dictionary<string, JsonElement>());
+        _plugin.RejectApply = true;
+        _plugin.ThrowOnRejectedCandidateDispose = true;
+
+        var result = session.ApplyActionPlan(preview.PlanId!, preview.Revision);
+
+        Assert.False(result.Ok);
+        Assert.Contains(result.Errors, error => error.Message.Contains("Second member rejected", StringComparison.Ordinal));
+        Assert.Contains(result.Errors, error => error.Message.Contains("candidate cleanup", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(0, session.State.Revision);
+        Assert.False(session.State.IsDirty);
+        AssertOriginalLiveModel(workspace);
+    }
+
+    [Fact]
+    public void NoOpAction_PreservesNoOpStateWhenCandidateCleanupSucceedsAndReportsFailureWhenItDoesNot()
+    {
+        var workspace = Create();
+        var session = Open(workspace).Session;
+        Assert.True(session.InvokeAction("inspect", new Dictionary<string, JsonElement>()).Ok);
+        Assert.Equal(0, session.State.Revision);
+        Assert.False(session.State.IsDirty);
+
+        _plugin.ThrowOnDispose = true;
+        var result = session.InvokeAction("inspect", new Dictionary<string, JsonElement>());
+
+        Assert.False(result.Ok);
+        Assert.Contains(result.Errors, error => error.Message.Contains("candidate cleanup", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(0, session.State.Revision);
+        Assert.False(session.State.IsDirty);
         AssertOriginalLiveModel(workspace);
     }
 

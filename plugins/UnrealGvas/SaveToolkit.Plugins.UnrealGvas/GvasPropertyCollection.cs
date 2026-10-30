@@ -8,7 +8,7 @@ namespace SaveToolkit.Plugins.UnrealGvas;
 internal sealed class GvasPropertyCollection
 {
     // Even maximally escaped strings must fit the host's 2 MiB / 200-row response budget.
-    private const int CellLimit = 192;
+    internal const int CellLimit = 192;
     private static readonly IReadOnlyList<QueryableColumn> Columns = [
         new("name", "Property"), new("path", "Serialized path"), new("type", "Storage type"),
         new("value", "Saved value / payload"), new("id", "Canonical raw identity"),
@@ -16,16 +16,19 @@ internal sealed class GvasPropertyCollection
     ];
     private readonly IReadOnlyList<GvasPropertyEntry> _entries;
     private readonly IReadOnlyList<IReferenceCatalog> _catalogs;
+    private readonly Func<GvasPropertyEntry, ViewNode>? _valueCell;
     private readonly Dictionary<string, ReferenceRecord?> _records = new(StringComparer.Ordinal);
     private readonly Dictionary<(string Name, string Type), Caption> _captions = [];
 
     public GvasPropertyCollection(string id, string title, IReadOnlyList<GvasPropertyEntry> entries,
-        IReadOnlyList<IReferenceCatalog> catalogs, string description)
+        IReadOnlyList<IReferenceCatalog> catalogs, string description,
+        Func<GvasPropertyEntry, ViewNode>? valueCell = null)
     {
         // Identities do not change during scalar edits. Keep the existing ordinal page order
         // once, while reading values live for every search and explicit sort.
         _entries = entries.OrderBy(entry => entry.Id, StringComparer.Ordinal).ToArray();
         _catalogs = catalogs;
+        _valueCell = valueCell;
         Metadata = new(id, title, Columns, entries.Count) { Description = description };
     }
 
@@ -45,9 +48,7 @@ internal sealed class GvasPropertyCollection
                 : filtered.OrderBy(entry => Cell(entry, column), StringComparer.Ordinal).ThenBy(entry => entry.Id, StringComparer.Ordinal)
             : filtered;
         var rows = ordered.Skip(query.Offset).Take(query.Limit).Select(entry => new TableRow(entry.Id,
-            Columns.ToDictionary(column => column.Key, column => (ViewNode)new TextNode(
-                column.Key is "id" or "source" ? Cell(entry, column.Key)
-                    : GvasPropertyEntry.Clip(Cell(entry, column.Key), CellLimit)), StringComparer.Ordinal))).ToArray();
+            Columns.ToDictionary(column => column.Key, column => CellNode(entry, column.Key), StringComparer.Ordinal))).ToArray();
         return new(Metadata.Id, Columns, rows, _entries.Count, filtered.Count, query.Offset, query.Limit);
     }
 
@@ -73,6 +74,13 @@ internal sealed class GvasPropertyCollection
             "source" => GetCaption(entry).Source,
             _ => throw new ArgumentException($"Unknown property column '{key}'."),
         };
+
+    private ViewNode CellNode(GvasPropertyEntry entry, string key)
+    {
+        if (key == "value" && _valueCell is not null) return _valueCell(entry);
+        var text = Cell(entry, key);
+        return new TextNode(key is "id" or "source" ? text : GvasPropertyEntry.Clip(text, CellLimit));
+    }
 
     private Caption GetCaption(GvasPropertyEntry entry)
     {

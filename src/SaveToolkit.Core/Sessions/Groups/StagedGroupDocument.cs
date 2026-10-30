@@ -9,7 +9,8 @@ namespace SaveToolkit.Core.Sessions.Groups;
 /// Runs mutations and restores on independent candidates. The owning DocumentSession serializes calls
 /// and supplies F5 history/F6 plans. A failed plugin call never reaches the published group model.
 /// </summary>
-internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocument, IQueryableDocument
+internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocument, IActionPlanningDocument,
+    IQueryableDocument, IAdditionalOutputOwner
 {
     private const int MaxRememberedQueries = 256;
     private readonly Func<IGroupedSaveDocument> _open;
@@ -17,6 +18,7 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
     private readonly Action<CancellationToken> _preflight;
     private readonly long _maxSnapshotBytes;
     private readonly HashSet<string> _expanded = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _resolvedMetadataIds = new(StringComparer.Ordinal);
     private readonly Dictionary<string, (string Collection, QueryableCollectionQuery Query)> _queries = new(StringComparer.Ordinal);
     private IGroupedSaveDocument _current;
     private IReadOnlyList<FileOutput> _outputs;
@@ -34,13 +36,39 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
         _maxSnapshotBytes = maxSnapshotBytes;
         _current = open();
         try { _outputs = verify(_current); }
-        catch { _current.Dispose(); throw; }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(_current, failure, "Initial group verification and cleanup failed.");
+            throw;
+        }
     }
 
     public string Title => _current.Title;
     public bool CanEdit => _current.CanEdit;
+    public IReadOnlyList<string> AdditionalOutputPaths =>
+        _current is IAdditionalOutputOwner owner ? owner.AdditionalOutputPaths : [];
     public ViewNode BuildView() => _current.BuildView();
     public FieldValue GetValue(string valueId) => _current.GetValue(valueId);
+
+    internal bool MetadataEnabled => _current is IFieldMetadataDocument;
+
+    /// <summary>Forward only explicitly requested group ownership context from the current candidate.</summary>
+    internal IReadOnlyList<DocumentGroupFieldContext> ResolveFieldContext(IReadOnlyList<string> valueIds) =>
+        _current is IGroupedFieldContext context ? context.ResolveFieldContext(valueIds) : [];
+
+    /// <summary>Forward bounded metadata to the currently published candidate.</summary>
+    public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+    {
+        if (_current is not IFieldMetadataDocument metadata) return [];
+        var resolved = metadata.ResolveFieldMetadata(valueIds);
+        foreach (var field in resolved)
+        {
+            if (_resolvedMetadataIds.Count >= FieldMetadataLimits.MaxClosureIds) break;
+            _resolvedMetadataIds.Add(field.ValueId);
+        }
+
+        return resolved;
+    }
     public AssetContent? GetAsset(string assetId) => _current.GetAsset(assetId);
     public ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count) => _current.ReadBlob(blobId, offset, count);
 
@@ -65,7 +93,8 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
         return page;
     }
 
-    public EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits) => Mutate(candidate => candidate.ApplyEdits(edits));
+    public EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits) =>
+        Mutate(candidate => candidate.ApplyEdits(edits), edits.Select(edit => edit.ValueId).ToArray());
 
     public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {
@@ -99,10 +128,22 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
         cancellationToken.ThrowIfCancellationRequested();
         var memento = _current.CaptureMemento();
         cancellationToken.ThrowIfCancellationRequested();
-        using var candidate = CreateCandidate(memento, rebind: true, cancellationToken);
-        var plan = Planner(candidate).PlanAction(actionId, parameters, scope);
-        cancellationToken.ThrowIfCancellationRequested();
-        return plan;
+        var candidate = CreateCandidate(memento, rebind: true, includeResolvedMetadata: true,
+            cancellationToken: cancellationToken);
+        try
+        {
+            var plan = Planner(candidate).PlanAction(actionId, parameters, scope);
+            cancellationToken.ThrowIfCancellationRequested();
+            var completed = candidate;
+            candidate = null!;
+            completed.Dispose();
+            return plan;
+        }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(candidate, failure, "Group action planning and cleanup failed.");
+            throw;
+        }
     }
 
     internal Action CancellationRollback()
@@ -119,7 +160,8 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
     }
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
-        Mutate(candidate => Planner(candidate).ApplyActionPlan(actionId, parameters, scope, plan));
+        Mutate(candidate => Planner(candidate).ApplyActionPlan(actionId, parameters, scope, plan),
+            plan.Changes.Select(change => change.ValueId).ToArray());
 
     public IReadOnlyList<FileOutput> Serialize() => SerializeForSnapshot(CancellationToken.None)
         .Select(output => output with { Content = output.Content.ToArray() }).ToArray();
@@ -135,25 +177,35 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
     public DocumentMemento RestoreMemento(DocumentMemento memento)
     {
         var inverse = _current.CaptureMemento();
-        var candidate = CreateCandidate(memento, rebind: false);
+        var candidate = CreateCandidate(memento, rebind: false, includeResolvedMetadata: true);
         IReadOnlyList<FileOutput> outputs;
         try { outputs = _verify(candidate); }
-        catch { candidate.Dispose(); throw; }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(candidate, failure, "Group restore verification and cleanup failed.");
+            throw;
+        }
         Publish(candidate, outputs);
         return inverse;
     }
 
     public void Dispose() => _current.Dispose();
 
-    private EditOutcome Mutate(Func<IGroupedSaveDocument, EditOutcome> mutation)
+    private EditOutcome Mutate(Func<IGroupedSaveDocument, EditOutcome> mutation,
+        IReadOnlyList<string>? metadataIds = null)
     {
         var before = _current.CaptureMemento();
-        var candidate = CreateCandidate(before);
+        var candidate = CreateCandidate(before, includeResolvedMetadata: metadataIds is not null,
+            metadataIds: metadataIds);
         try
         {
             var outcome = mutation(candidate);
             if (!outcome.Succeeded || outcome.Changes.Count == 0 && !outcome.StructureChanged && outcome.Revert is null)
-                return outcome;
+            {
+                var discarded = candidate;
+                candidate = null;
+                return DisposeDiscarded(discarded, outcome);
+            }
             CheckSnapshotBudget(before);
             var outputs = _verify(candidate);
             // A group promises both undo and redo. Refuse the candidate before publication if
@@ -166,7 +218,12 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
             candidate = null;
             return outcome with { Revert = before, StructureChanged = true };
         }
-        finally { candidate?.Dispose(); }
+        catch (Exception failure)
+        {
+            if (candidate is not null)
+                SessionCleanup.DisposeAfterFailure(candidate, failure, "Group mutation verification and cleanup failed.");
+            throw;
+        }
     }
 
     private void CheckSnapshotBudget(DocumentMemento memento)
@@ -175,7 +232,24 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
             throw new SaveFormatException("The group snapshot exceeds its undo budget. No changes were published.");
     }
 
+    private static EditOutcome DisposeDiscarded(IGroupedSaveDocument candidate, EditOutcome outcome)
+    {
+        // EditOutcome is the only structured rejection channel; ActionOutcome has no error list.
+        // A discarded candidate therefore keeps the plugin errors and appends cleanup failure.
+        try
+        {
+            candidate.Dispose();
+            return outcome;
+        }
+        catch (Exception cleanup) when (cleanup is not OutOfMemoryException)
+        {
+            var error = new FieldError(string.Empty, $"Group candidate cleanup failed: {cleanup.Message}");
+            return outcome with { Errors = [.. outcome.Errors, error] };
+        }
+    }
+
     private IGroupedSaveDocument CreateCandidate(DocumentMemento memento, bool rebind = true,
+        bool includeResolvedMetadata = false, IReadOnlyList<string>? metadataIds = null,
         CancellationToken cancellationToken = default)
     {
         _preflight(cancellationToken);
@@ -202,9 +276,33 @@ internal sealed class StagedGroupDocument : ISaveDocument, IActionPlanningDocume
                     if (queryable.Collections.Any(c => c.Id == collection)) _ = queryable.Query(collection, query);
                     cancellationToken.ThrowIfCancellationRequested();
                 }
+            ResolveCandidateMetadata(candidate, includeResolvedMetadata, metadataIds, cancellationToken);
             return candidate;
         }
-        catch { candidate.Dispose(); throw; }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(candidate, failure, "Group candidate construction and cleanup failed.");
+            throw;
+        }
+    }
+
+    private void ResolveCandidateMetadata(IGroupedSaveDocument candidate, bool includeResolvedMetadata,
+        IReadOnlyList<string>? additionalIds, CancellationToken cancellationToken)
+    {
+        if (candidate is not IFieldMetadataDocument metadata) return;
+        var ids = (includeResolvedMetadata ? _resolvedMetadataIds : [])
+            .Concat(additionalIds ?? [])
+            .Where(id => !string.IsNullOrEmpty(id)).Distinct(StringComparer.Ordinal).ToArray();
+        if (ids.Length > FieldMetadataLimits.MaxClosureIds)
+            throw new InvalidOperationException($"Group candidate metadata exceeds the bounded limit of {FieldMetadataLimits.MaxClosureIds} IDs.");
+        foreach (var batch in ids.Chunk(FieldMetadataLimits.MaxBatchSize))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var resolved = metadata.ResolveFieldMetadata(Array.AsReadOnly(batch));
+            if (resolved.Count != batch.Length || resolved.Select(field => field.ValueId)
+                .Distinct(StringComparer.Ordinal).Count() != batch.Length)
+                throw new InvalidOperationException("Group candidate metadata could not rebind every affected field.");
+        }
     }
 
     private void Publish(IGroupedSaveDocument candidate, IReadOnlyList<FileOutput> outputs)
