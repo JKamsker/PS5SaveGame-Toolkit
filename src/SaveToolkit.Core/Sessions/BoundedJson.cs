@@ -16,6 +16,10 @@ internal static class BoundedJson
 
     private sealed class CappedWriter(int maximum) : IBufferWriter<byte>
     {
+        // Utf8JsonWriter asks for the complete escaped span of a large UTF-16 string even when
+        // the resulting UTF-8 payload remains within the cap. Keep a bounded request cushion;
+        // Advance still enforces the actual retained-byte ceiling.
+        private const int BufferSlack = 16 * 1024 * 1024;
         private readonly ArrayBufferWriter<byte> _inner = new(Math.Min(maximum, 4096));
         private readonly int _maximum = maximum;
 
@@ -29,20 +33,20 @@ internal static class BoundedJson
         public Memory<byte> GetMemory(int sizeHint = 0)
         {
             Validate(sizeHint);
-            return _inner.GetMemory(Math.Max(sizeHint, 1));
+            return _inner.GetMemory(Math.Max(Math.Min(sizeHint, _maximum - _inner.WrittenCount + BufferSlack), 1));
         }
 
         public Span<byte> GetSpan(int sizeHint = 0)
         {
             Validate(sizeHint);
-            return _inner.GetSpan(Math.Max(sizeHint, 1));
+            return _inner.GetSpan(Math.Max(Math.Min(sizeHint, _maximum - _inner.WrittenCount + BufferSlack), 1));
         }
 
         public byte[] ToArray() => _inner.WrittenSpan.ToArray();
 
         private void Validate(int sizeHint)
         {
-            if (sizeHint < 0 || sizeHint > _maximum - _inner.WrittenCount)
+            if (sizeHint < 0)
                 throw new InvalidOperationException("Serialized action data exceeds its bounded budget.");
         }
     }

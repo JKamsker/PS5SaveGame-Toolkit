@@ -110,8 +110,13 @@ public sealed partial class DocumentSession
             var metadata = FieldMetadataPlanning.Validate(_index, Document, detachedPlan, _referenceFields,
                 cancellationToken, metadataBudget);
             cancellationToken.ThrowIfCancellationRequested();
+            var metadataBytes = 0L;
+            if (_index.HasFieldMetadata)
+            {
+                metadataBytes = BoundedJson.Serialize(metadata, MaxPlanBytes).LongLength;
+            }
             if (_index.HasFieldMetadata
-                && bytes.LongLength + requestBytes + BoundedJson.Serialize(metadata, MaxPlanBytes).LongLength > MaxPlanBytes)
+                && bytes.LongLength + requestBytes + metadataBytes > MaxPlanBytes)
                 return Reject([new FieldError(actionId, "Preview metadata is too large; narrow its scope.")]);
             cancellationToken.ThrowIfCancellationRequested();
             var id = Guid.NewGuid().ToString("N");

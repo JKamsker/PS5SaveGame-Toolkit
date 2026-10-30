@@ -38,7 +38,11 @@ public static class FieldMetadataPlanning
         // of the canonical 5000-row metadata allowance.
         var resolverIds = canonicalIds.Concat(plan.Changes.Where(change => change.Effect is not null)
             .Take(FieldMetadataIndex.BatchSize).Select(change => change.ValueId)).Distinct(StringComparer.Ordinal);
-        index.SetMetadataBudget(metadataBudget ?? 4 * 1024 * 1024);
+        // The aggregate request/plan wire budget is checked before this call and again against
+        // the capped metadata serialization below. FieldMetadataIndex's optional retained graph
+        // budget is intentionally disabled here: its UTF-16 estimate is a different unit and
+        // would reject exact inclusive wire plans before the capped writer can measure them.
+        index.SetMetadataBudget(null);
         try
         {
             index.ResolveMetadata(resolverIds, cancellationToken, MaxPlannedMetadataIds);
