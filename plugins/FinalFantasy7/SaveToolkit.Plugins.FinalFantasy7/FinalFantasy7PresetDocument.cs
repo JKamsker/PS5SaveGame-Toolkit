@@ -134,7 +134,6 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
             return Error("preset", exception.Message);
         }
     }
-
     public EditOutcome ApplyPreset(IReadOnlyList<PresetAction> actions, SdkPresetResolution resolution, ActionPlan plan)
     {
         try
@@ -188,7 +187,7 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
         }
     }
 
-    private static IReadOnlyDictionary<string, FieldValue> ReadParameters(string actionId, IReadOnlyDictionary<string, JsonElement> values)
+    private IReadOnlyDictionary<string, FieldValue> ReadParameters(string actionId, IReadOnlyDictionary<string, JsonElement> values)
     {
         ArgumentNullException.ThrowIfNull(values);
         var expected = actionId switch
@@ -209,6 +208,8 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
             result[id] = id == "type" ? FieldValue.Of(ReadCatalogType(value))
                 : FieldValue.Of(ReadInteger(value, id));
         }
+        if (PresetSelectors.IsMateria(actionId) && !_semantic.IsMateriaTypeEligible(ReadType(result)))
+            throw new ArgumentException("Materia type is not currently eligible for AP or star editing.");
         return result;
     }
 

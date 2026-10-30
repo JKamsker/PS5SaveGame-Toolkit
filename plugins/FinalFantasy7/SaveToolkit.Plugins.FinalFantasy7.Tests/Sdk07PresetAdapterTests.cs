@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Buffers.Binary;
-using SaveToolkit.Core.Presets;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 
@@ -23,7 +22,7 @@ public sealed class Sdk07PresetAdapterTests
     }
 
     [Fact]
-    public void EveryPublishedActionCapturesTypedParametersWithoutAliases()
+    public void EveryPublishedActionCapturesTypedParametersThroughPinnedSession()
     {
         using var fixture = new BulkSelectionFixture("PPSA08664", MateriaPlanning.ActionId);
         var adapter = (IPresetDocument)fixture.Document;
@@ -41,25 +40,23 @@ public sealed class Sdk07PresetAdapterTests
         };
         foreach (var request in requests)
         {
-            Assert.Null(PresetContractValidation.ValidateCapture(adapter.PresetCapability, request));
-            var action = adapter.CapturePreset(request);
-            Assert.Null(PresetContractValidation.ValidateCapturedAction(adapter.PresetCapability, request, action));
+            var action = fixture.Session.CapturePreset(request);
+            Assert.Equal(request.ActionId, action.ActionId);
+            Assert.Equal(request.ScopeKind, action.ScopeKind);
         }
     }
 
     [Fact]
-    public void UnknownMateriaIdPassesHostShapeButPluginRejectsBeforeAnyPlanOrWrite()
+    public void UnknownMateriaIdIsRejectedByPinnedHostBeforeAnyPlanOrWrite()
     {
         using var fixture = new BulkSelectionFixture("PPSA08664", MateriaPlanning.ActionId);
-        var adapter = (IPresetDocument)fixture.Document;
         var request = new PresetCaptureRequest(MateriaPlanning.ActionId,
             new Dictionary<string, JsonElement>
             {
                 ["type"] = JsonSerializer.SerializeToElement("999999"),
                 ["ap"] = JsonSerializer.SerializeToElement("20"),
             });
-        Assert.Null(PresetContractValidation.ValidateCapture(adapter.PresetCapability, request));
-        Assert.Throws<ArgumentException>(() => adapter.CapturePreset(request));
+        Assert.Throws<ArgumentException>(() => fixture.Session.CapturePreset(request));
         Assert.Equal(fixture.Original, fixture.Bytes());
     }
 

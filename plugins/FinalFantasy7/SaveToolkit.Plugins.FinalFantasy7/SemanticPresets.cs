@@ -14,6 +14,8 @@ internal sealed class SemanticPresets(DocumentPlanning planning, PresetSelectors
     public IReadOnlyList<ActionNode> Actions => readOnly ? [] :
         [planning.InventoryView(), .. planning.MateriaViews().Cast<ActionNode>(), .. planning.CharacterViews()];
 
+    public bool IsMateriaTypeEligible(uint type) => planning.IsMateriaTypeEligible(type);
+
     public Ff7ActionPreset Capture(string actionId, IReadOnlyDictionary<string, FieldValue> parameters,
         PresetScopeKind scopeKind, IReadOnlyList<string>? selectedRows = null, bool allMatches = false)
     {

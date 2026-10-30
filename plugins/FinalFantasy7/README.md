@@ -657,10 +657,12 @@ joins the current owned inventory to the current AP-editable detail row; those p
 are different domains. Missing/duplicate details, duplicate inventory instances, mismatched detail
 types and owned counts other than one remain unresolved with stable reasons and all relevant
 candidate placements. Nothing repairs those relationships or silently selects a first match.
-The public SDK resolution keeps candidate lists for genuinely ambiguous targets and for a
-transiently chosen candidate only; Resolved targets without a choice carry no candidate list, and
-Missing/Unsupported targets carry stable reasons without candidates so the host can reject the
-whole preset deterministically. Internal F6 relation diagnostics retain the detailed join status.
+The public SDK resolution has exact cardinality: Missing and Unsupported targets have zero
+candidates; a normal Resolved target has exactly one current transient candidate; genuine Ambiguous
+targets have at least two; and a valid transient choice re-resolves to one Resolved candidate.
+All-copies exposes one transient aggregate candidate fingerprinting the current validated set.
+Candidate IDs and choices remain transient, while internal F6 relation diagnostics retain detailed
+join status.
 All-copies scope uses current owned joins; unowned detail records are not promoted to owned copies.
 Remake selected-materia capture rejects because its current model has no proven owned-instance
 identity; its existing type-wide all-copies planner remains available. Summon and incoherent
@@ -678,13 +680,13 @@ current-slot movement, explicit empty selection, duplicate/missing owned joins, 
 compatibility variants, host preview/apply, and one-unit undo/redo. Actual console patch/build
 remains **unknown**; a pack's display/build label cannot establish it. The host's pinned
 content identity (including locale/origin and validated content fingerprints) is authoritative.
-The published host contract now passes its document-pinned `ReferenceFieldService` and
-`ReferenceContext` through capture, plan coercion and summaries. The materia descriptors still
-set `ReferenceSpec.AllowCustom` for the two raw IDs, so the descriptor layer remains permissive;
+The published host contract passes its document-pinned `ReferenceFieldService` and
+`ReferenceContext` through capture, plan coercion and summaries. Both materia preset descriptors
+now use the same closed `ff7r-materia` catalog policy as the live AP/star controls
+(`ReferenceSpec.AllowCustom = false`); the host rejects IDs absent from the pinned catalog, while
 FF7 canonical invariant-decimal parsing, known-ID/current-eligibility checks and the existing F6
-planner reject unknown or ineligible IDs before planning, mutation or history. This is a
-host/adopter validation seam, not permission to acquire items or bypass the pinned picker/catalog
-when it is available. The earlier pre-R4 `ReferenceContext.None` behavior is historical only.
+planner remain authoritative for every write. This does not widen picker acquisition or weaken host
+validation. The earlier pre-R4 `ReferenceContext.None` behavior is historical only.
 Browser acceptance against a running host and private sample-backed validation are outside this
 plugin-only change and remain pending. No direct weapon edit, socket/materia movement, allocation,
 owner/detail repair or complete native loadout is added.
