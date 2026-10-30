@@ -200,6 +200,42 @@ checking its writer. Content-based JSON overlays do not register extra title IDs
 listed with `None` can still contain editable JSON. Consult the
 [user guide's per-file limits](USER_GUIDE.md#supported-titles-and-write-limits).
 
+### `POST /api/presets/transfer/export`
+
+JSON `{ids:[...]}` exports an explicit selection of 1–256 host presets as a version-1
+package download. No save bytes or paths are included. See [preset transfer](SDK07-PRESET-TRANSFER.md).
+
+### `POST /api/presets/transfer/preview`
+
+Upload raw package JSON, bounded to 512 KiB/depth 16 before typed deserialization.
+Returns `PresetImportPreview` with schema/provenance, every record and all ID/name
+conflicts; no persistence occurs. Invalid/future packages return typed 422, size 413.
+
+### `POST /api/workspaces/{workspaceId}/documents/{documentId}/presets/transfer/compatibility`
+
+JSON `{token}` returns indexed `PresetImportCompatibilityDto` server summaries for
+staged records relative to the document, using the same mapper as document preset rows.
+Informational only: no save mutation or plugin apply occurs; unknown plugins may be stored
+for later. Expired tokens return 409. Document routes declare revision failures as 412.
+
+### `POST /api/presets/transfer/resolve`
+
+JSON `{token,choices:[{index,decision,replaceId?}]}` resolves every imported record.
+`decision` is `keepBoth` or `replace` with an explicit target. Returns a fresh preview
+token and all resulting names/replacements for confirmation. No persistence occurs.
+
+### `POST /api/presets/transfer/commit`
+
+JSON `{token}` commits a resolved, reviewed preview as one host-storage transaction.
+Returns `{imported:[{id,name}]}`. Concurrent CRUD/durable-file changes reject stale
+previews with 409. Storage failure returns 503 and leaves disk/memory unchanged.
+
+### `DELETE /api/presets/transfer/previews/{token}`
+
+Cancels read-only staging, returning 204. Preview tokens expire after ten minutes;
+at most eight are retained. Control bodies are at most 258 KiB (derived from the full 256-record/128-unit escaped-ID domain). Transfer never changes
+open documents, dirty state or history. All failures use stable typed API problems.
+
 ### `GET /api/presets`
 
 Returns the host-owned `ToolkitPreset[]` list. Presets contain schema version, name,

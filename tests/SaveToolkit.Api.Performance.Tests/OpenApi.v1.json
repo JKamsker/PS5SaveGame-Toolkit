@@ -2739,6 +2739,215 @@
         ],
         "type": "object"
       },
+      "PresetExportRequest": {
+        "properties": {
+          "ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "ids"
+        ],
+        "type": "object"
+      },
+      "PresetImportChoice": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "index": {
+            "format": "int32",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "replaceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "index",
+          "decision"
+        ],
+        "type": "object"
+      },
+      "PresetImportCommit": {
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "type": "object"
+      },
+      "PresetImportCompatibilityDto": {
+        "properties": {
+          "compatibility": {
+            "$ref": "#/components/schemas/PresetCompatibilitySummaryDto"
+          },
+          "index": {
+            "format": "int32",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "index",
+          "compatibility"
+        ],
+        "type": "object"
+      },
+      "PresetImportItem": {
+        "properties": {
+          "actionCount": {
+            "format": "int32",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "compatibility": {
+            "$ref": "#/components/schemas/PresetCompatibility"
+          },
+          "conflicts": {
+            "items": {
+              "$ref": "#/components/schemas/PresetImportTarget"
+            },
+            "type": "array"
+          },
+          "index": {
+            "format": "int32",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "repeatedPackageName": {
+            "default": false,
+            "type": "boolean"
+          },
+          "replacesName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resultingName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "index",
+          "name",
+          "compatibility",
+          "actionCount",
+          "conflicts"
+        ],
+        "type": "object"
+      },
+      "PresetImportPreview": {
+        "properties": {
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PresetImportItem"
+            },
+            "type": "array"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/PresetPackageProvenance"
+          },
+          "readyToCommit": {
+            "type": "boolean"
+          },
+          "schemaVersion": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "schemaVersion",
+          "provenance",
+          "items",
+          "readyToCommit",
+          "expiresAt"
+        ],
+        "type": "object"
+      },
+      "PresetImportResolution": {
+        "properties": {
+          "choices": {
+            "items": {
+              "$ref": "#/components/schemas/PresetImportChoice"
+            },
+            "type": "array"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "choices"
+        ],
+        "type": "object"
+      },
+      "PresetImportResult": {
+        "properties": {
+          "imported": {
+            "items": {
+              "$ref": "#/components/schemas/PresetImportTarget"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "imported"
+        ],
+        "type": "object"
+      },
+      "PresetImportTarget": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object"
+      },
       "PresetInstanceReference": {
         "description": "A semantic instance reference. Stable ids are supplied by a plugin; session ids are forbidden.",
         "properties": {
@@ -2782,6 +2991,306 @@
         "required": [
           "kind",
           "stableId"
+        ],
+        "type": "object"
+      },
+      "PresetPackageActionDto": {
+        "additionalProperties": false,
+        "properties": {
+          "actionId": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "instances": {
+            "items": {
+              "$ref": "#/components/schemas/PresetPackageInstanceDto"
+            },
+            "maxItems": 256,
+            "type": "array"
+          },
+          "parameters": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FieldValue"
+            },
+            "description": "At most 128 parameter IDs (1\u2013256 UTF-16 units, nonblank, no controls). Numbers retain exact JSON lexemes; strings and tagged values are bounded to 4096 units. Arrays and loose save objects are rejected.",
+            "maxProperties": 128,
+            "type": "object"
+          },
+          "scopeKind": {
+            "pattern": "^(document|allCopies|allEligible|selected)$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "actionId",
+          "parameters",
+          "instances",
+          "scopeKind"
+        ],
+        "type": "object"
+      },
+      "PresetPackageCompatibilityDto": {
+        "additionalProperties": false,
+        "properties": {
+          "capabilitySchemaVersion": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fileRole": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "formatVariant": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "gameBuild": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pluginId": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "pluginVersion": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "presetKind": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "referencePackIdentity": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requiresExplicitInstanceResolution": {
+            "type": "boolean"
+          },
+          "schemaFingerprint": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "titleIds": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 32,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "pluginId",
+          "pluginVersion",
+          "titleIds",
+          "gameBuild",
+          "formatVariant",
+          "referencePackIdentity",
+          "requiresExplicitInstanceResolution",
+          "presetKind",
+          "schemaFingerprint",
+          "fileRole",
+          "capabilitySchemaVersion"
+        ],
+        "type": "object"
+      },
+      "PresetPackageDto": {
+        "additionalProperties": false,
+        "properties": {
+          "presets": {
+            "items": {
+              "$ref": "#/components/schemas/PresetPackageRecordDto"
+            },
+            "maxItems": 256,
+            "minItems": 1,
+            "type": "array"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/PresetPackageProvenanceDto"
+          },
+          "schemaVersion": {
+            "pattern": "^1$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "provenance",
+          "presets"
+        ],
+        "type": "object"
+      },
+      "PresetPackageInstanceDto": {
+        "additionalProperties": false,
+        "properties": {
+          "build": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "kind": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "path": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provenance": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "role": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "stableId": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "stableId"
+        ],
+        "type": "object"
+      },
+      "PresetPackageProvenance": {
+        "properties": {
+          "exportedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "producer": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "producer",
+          "exportedAt"
+        ],
+        "type": "object"
+      },
+      "PresetPackageProvenanceDto": {
+        "additionalProperties": false,
+        "properties": {
+          "exportedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "producer": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "producer",
+          "exportedAt"
+        ],
+        "type": "object"
+      },
+      "PresetPackageRecordDto": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/PresetPackageActionDto"
+            },
+            "maxItems": 32,
+            "minItems": 1,
+            "type": "array"
+          },
+          "compatibility": {
+            "$ref": "#/components/schemas/PresetPackageCompatibilityDto"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "schemaVersion": {
+            "pattern": "^1$",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "id",
+          "name",
+          "compatibility",
+          "actions",
+          "createdAt",
+          "updatedAt"
         ],
         "type": "object"
       },
@@ -5410,6 +5919,395 @@
         },
         "tags": [
           "SaveToolkit.Api"
+        ]
+      }
+    },
+    "/api/presets/transfer/commit": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresetImportCommit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetImportResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "tags": [
+          "PresetTransferEndpoints"
+        ]
+      }
+    },
+    "/api/presets/transfer/export": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresetExportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "tags": [
+          "PresetTransferEndpoints"
+        ]
+      }
+    },
+    "/api/presets/transfer/preview": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresetPackageDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetImportPreview"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "tags": [
+          "PresetTransferEndpoints"
+        ]
+      }
+    },
+    "/api/presets/transfer/previews/{token}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "tags": [
+          "SaveToolkit.Api"
+        ]
+      }
+    },
+    "/api/presets/transfer/resolve": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresetImportResolution"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetImportPreview"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "tags": [
+          "PresetTransferEndpoints"
         ]
       }
     },
@@ -8597,6 +9495,134 @@
         ]
       }
     },
+    "/api/workspaces/{workspaceId}/documents/{documentId}/presets/transfer/compatibility": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "documentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional strong revision ETag precondition. Malformed syntax returns 400; mismatch returns 412.",
+            "in": "header",
+            "name": "If-Match",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresetImportCommit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PresetImportCompatibilityDto"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Precondition Failed"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "tags": [
+          "PresetTransferEndpoints"
+        ]
+      }
+    },
     "/api/workspaces/{workspaceId}/documents/{documentId}/presets/{presetId}/apply": {
       "post": {
         "parameters": [
@@ -10627,6 +11653,9 @@
     },
     {
       "name": "PresetEndpoints"
+    },
+    {
+      "name": "PresetTransferEndpoints"
     },
     {
       "name": "ReferenceEndpoints"

@@ -31,6 +31,7 @@ builder.Services.AddSingleton(sp => new ReferencePackStore(
     sp.GetRequiredService<IOptions<ToolkitOptions>>().Value.ToPackOptions()));
 builder.Services.AddSingleton(sp => new PresetStore(
     sp.GetRequiredService<IOptions<ToolkitOptions>>().Value.ToPresetOptions()));
+builder.Services.AddSingleton<PresetTransferService>();
 builder.Services.AddSingleton(sp => new WorkspaceStore(
     sp.GetRequiredService<PluginCatalog>(),
     sp.GetRequiredService<IOptions<ToolkitOptions>>().Value.ToWorkspaceOptions(),
@@ -55,6 +56,7 @@ app.UseRouting();
 app.UseMiddleware<PresetRequestBodyLimitMiddleware>();
 app.MapToolkitApi();
 app.MapPresetApi();
+app.MapPresetTransferApi();
 app.MapReferenceApi();
 app.MapVersionApi();
 app.MapOpenApi();

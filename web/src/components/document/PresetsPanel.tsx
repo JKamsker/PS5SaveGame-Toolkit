@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError, api, isStaleError } from "../../api/client";
 import type { ActionPreview } from "../../api/actionReview";
@@ -14,9 +14,9 @@ const PresetDeleteDialog = lazy(() => import("./PresetDeleteDialog").then(module
 
 const filterReferenceTime = Date.now();
 
-interface PresetsPanelProps { document: SaveDocument; onToast: (message: string, isError?: boolean) => void }
+interface PresetsPanelProps { document: SaveDocument; onToast: (message: string, isError?: boolean) => void; children?: ReactNode }
 
-export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
+export function PresetsPanel({ document, onToast, children }: PresetsPanelProps) {
   const context = useDocument();
   const client = useQueryClient();
   const actions = useMemo(() => collectActions(document.view), [document.view]);
@@ -216,13 +216,14 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
       {presets.isPending && actions.length > 0 && <p aria-live="polite" aria-atomic="true">Loading presets…</p>}
       {actions.length === 0 && <p className="notice notice--Muted">This document has no planned preset actions. Import and export remain available from the document toolbar.</p>}
       <h3 ref={heading} tabIndex={-1}>Saved presets</h3>
+      {children}
       {presets.isError && <><p role="alert">{messageIsError && message ? message : `Could not load presets: ${presets.error.message}`}</p><button type="button" className="btn btn--small" onClick={() => void reloadPresets().catch(error => showMessage(error instanceof Error ? error.message : "Could not reload presets.", true))}>Retry loading presets</button></>}
       {presets.data?.length === 0 && <p className="notice notice--Muted">No presets saved for this toolkit yet.</p>}
       {presets.data && <><div className="presets-filters"><label>Filter presets <input className="input" value={filter} onChange={event => setFilter(event.target.value)} placeholder="Name or action" /></label><label>Title <input className="input" value={titleFilter} onChange={event => setTitleFilter(event.target.value)} placeholder="Title id" /></label><label>Build <input className="input" value={buildFilter} onChange={event => setBuildFilter(event.target.value)} placeholder="Build" /></label><label>Plugin <input className="input" value={pluginFilter} onChange={event => setPluginFilter(event.target.value)} placeholder="Plugin id or version" /></label><label>Compatibility <select className="input" value={compatFilter} onChange={event => setCompatFilter(event.target.value)}><option value="all">All</option><option value="ready">Ready to apply</option><option value="attention">Needs attention</option></select></label><label>Updated <select className="input" value={dateFilter} onChange={event => setDateFilter(event.target.value)}><option value="all">Any date</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select></label></div><p className="presets-meta" role="status" aria-live="polite">{filteredPresets.length} matching preset{filteredPresets.length === 1 ? "" : "s"}{filteredPresets.length > 50 ? "; showing the first 50" : ""}.</p>{refreshBlocked && <p className="presets-meta" role="status" aria-live="polite">Refreshing the document before another preset preview…</p>}<Suspense fallback={<p aria-live="polite">Loading saved preset rows…</p>}><PresetRows rows={visiblePresets} busy={apply.isPending || rename.isPending} onPreview={loadPreview} onDelete={preset => setPendingDelete(preset)} onRename={(id, value) => rename.mutateAsync({ id, value }).then(() => undefined)} /></Suspense>{visiblePresets.length === 0 && <p className="notice notice--Muted">No presets match this filter.</p>}</>}
       {pendingDelete && <Suspense fallback={<p aria-live="polite">Loading delete confirmation…</p>}><PresetDeleteDialog preset={pendingDelete} onDelete={() => void confirmDelete()} onCancel={() => setPendingDelete(undefined)} /></Suspense>}
       {retryPresetId && <button type="button" className="btn btn--small" onClick={() => void loadPreview(retryPresetId)}>Retry preview</button>}
       {create.isError && <button type="button" className="btn btn--small" onClick={() => create.mutate()}>Retry saving preset</button>}
-      {preview && <Suspense fallback={<p aria-live="polite">Loading preset preview…</p>}><PresetPreview key={`${preview.preset.id}:${preview.preview.planId ?? "none"}:${preview.preview.revision}:${resolutionGeneration}:${stale ? "stale" : "current"}`} preview={preview.preview} busy={apply.isPending} stale={stale} refreshError={refreshError} refreshPending={context.refreshState === "pending"} applyError={applyError} canApply={document.canEdit && !applyBlocked} onApply={() => void apply.mutate()} onCancel={closePreview} onPreviewAgain={choices => loadPreview(preview.preset.id, choices)} /></Suspense>}
+      {preview && <Suspense fallback={<p aria-live="polite">Loading preset preview…</p>}><PresetPreview key={`${preview.preset.id}:${preview.preview.planId ?? "none"}:${preview.preview.revision}:${resolutionGeneration}:${stale ? "stale" : "current"}`} preview={preview.preview} busy={apply.isPending} stale={stale} refreshError={context.refreshState === "ready" ? undefined : context.refreshError ?? refreshError} refreshPending={context.refreshState === "pending"} applyError={applyError} canApply={document.canEdit && !applyBlocked} onApply={() => void apply.mutate()} onCancel={closePreview} onPreviewAgain={choices => loadPreview(preview.preset.id, choices)} /></Suspense>}
       {message && !presets.isError && <p role={messageIsError ? "alert" : "status"} aria-label="Preset save result" className="notice notice--Warning">{message}</p>}
       <form className="presets-create" onSubmit={event => { event.preventDefault(); clearMessage(); try { create.mutate(); } catch (error) { showMessage(error instanceof Error ? error.message : "Invalid preset JSON.", true); } }}>
         <h3>Save an action preset</h3>

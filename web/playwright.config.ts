@@ -55,7 +55,7 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: `dotnet run --project src/SaveToolkit.Api --configuration Release --no-build --no-launch-profile --urls ${baseURL} -- --Toolkit:DataRoot="${path.join(runDirectory, "workspaces")}" --Toolkit:PackRoot="${path.join(runDirectory, "reference-packs")}"`,
+    command: `dotnet run --project src/SaveToolkit.Api --configuration Release --no-build --no-launch-profile --urls ${baseURL} -- --Toolkit:DataRoot="${path.join(runDirectory, "workspaces")}" --Toolkit:PackRoot="${path.join(runDirectory, "reference-packs")}" --Toolkit:PresetRoot="${path.join(runDirectory, "presets")}"`,
     cwd: repositoryRoot,
     url: `${baseURL}/api/version`,
     reuseExistingServer: false,

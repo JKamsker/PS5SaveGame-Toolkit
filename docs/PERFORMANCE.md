@@ -83,6 +83,25 @@ dependency or unexpectedly retained barrel import was confirmed. `fflate` is use
 only and is absent from production chunks. The analysis used existing Vite APIs on D: scratch;
 no visualizer, analysis artifact or dependency was added to the repository.
 
+The published preset foundation plus transfer composition was remeasured on 2026-10-30.
+Initial JavaScript is 120132 gzip bytes and CSS is 9943 bytes. PresetsPanel is
+5510 bytes JavaScript and 419 bytes CSS, within its unchanged 5800/580 limits.
+The generic `PresetRows` leaf is 1195 bytes JavaScript and 289 bytes CSS, using the
+foundation's 1320/320 budgets. The shared renderer, preview and delete leaves retain
+accessible loading boundaries; capture, filter and preview state remain in the panel.
+The transfer toolbar is supplied through the Saved presets child slot by the
+already-lazy DocumentEditor (42935 bytes), without another provider or toolbar chunk.
+
+Transfer dialogs use server-owned informational compatibility summaries. Import is
+2348 bytes, including explicit reload-and-repreview recovery and memoized conflict
+rows. Its 2600-byte budget (10.7% headroom) replaces the earlier 2370-byte measurement
+before those required recovery/capability states and full-library interaction checks.
+Export is 1128 bytes; the shared native dialog/request helper is 933 bytes. Existing
+initial, editor, panel and transfer limits stay unchanged. The table retains original
+split baselines for existing chunks and measured transfer entries; the combined
+measurements in this paragraph identify the current composition. No runtime dependency
+was added.
+
 ### Enforced gzip limits
 
 `web/bundle-budgets.json` owns these limits, with approximately 10% headroom over the after result.
@@ -108,6 +127,10 @@ output-directory behavior, so the check never removes or rewrites output.
 | PresetRows.css | 289 | 320 |
 | PresetPreview.js | 1650 | 1820 |
 | PresetDeleteDialog.js | 538 | 600 |
+| ImportPresetDialog.js | 2348 | 2600 |
+| ExportPresetDialog.js | 1128 | 1250 |
+| TransferDialog.js | 933 | 1030 |
+| TransferDialog.css | 473 | 520 |
 | jsx-runtime.js | 3328 | 3650 |
 | documentStore.js | 1035 | 1130 |
 | values.js | 5391 | 6000 |
@@ -115,6 +138,13 @@ output-directory behavior, so the check never removes or rewrites output.
 | MapView.js | 2141 | 2350 |
 | SpatialShared.js | 1787 | 1970 |
 | SpatialShared.css | 911 | 1010 |
+
+The preset-transfer follow-up adds explicit lazy import/export dialogs and shared native-modal
+code/styles. These new chunks load only on the corresponding toolbar action; the existing
+PresetsPanel CSS and all existing limits stay unchanged. Vite extracts a shared JSX runtime
+initial dependency (3328 gzip bytes), with measured aggregate initial JS around 120.1 kB,
+still within its existing 130500-byte limit. New transfer limits retain approximately 10%
+headroom; they do not exempt any emitted chunk from checking.
 
 CI `validate` runs `npm run check:bundle` immediately after its production build on **both Ubuntu
 and Windows**. Synthetic Vitest regressions cover shared imports/cycles, lazy JS/CSS, aggregate
