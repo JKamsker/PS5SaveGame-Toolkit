@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SaveToolkit.Core.Editing;
+using SaveToolkit.Core.Presets;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
@@ -87,8 +88,11 @@ public sealed partial class DocumentSession : IDisposable
     private PresetCapability? EffectivePresetCapability()
     {
         if (Document is not IPresetDocument adapter) return null;
-        if (adapter.PresetCapability is not { } capability) return null;
-        return capability with { ReferencePackIdentity = ((IReferenceContext)_references).ContentIdentity };
+        PresetCapability? capability;
+        try { capability = adapter.PresetCapability; }
+        catch (Exception ex) when (ex is not OutOfMemoryException and not OperationCanceledException) { return null; }
+        if (!PresetContractValidation.TryDetach(capability, out var detached, out _)) return null;
+        return detached! with { ReferencePackIdentity = ((IReferenceContext)_references).ContentIdentity };
     }
 
     private ISaveDocument Document { get; }

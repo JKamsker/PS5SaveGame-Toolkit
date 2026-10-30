@@ -80,6 +80,23 @@ public sealed class PresetDocumentTests
     }
 
     [Fact]
+    public void InvalidPublishedCapabilityIsDetachedBeforeDocumentPublication()
+    {
+        var document = new PresetFixtureDocument
+        {
+            CapabilityOverride = new PresetCapability("1", "r19", [new PresetActionCapability("set", "Set", ["value"],
+                ParameterSpecs: [new FlagsSpec([], -1)])]),
+        };
+        using var fixture = new MutationSessionFixture(document);
+
+        var dto = SaveToolkit.Api.Contracts.DtoMapper.ToDto(fixture.Session);
+
+        Assert.Null(dto.PresetCapability);
+        Assert.NotNull(fixture.Session.PresetDocument);
+        Assert.Equal(0, document.ResolveCalls);
+    }
+
+    [Fact]
     public void AggregateInstanceBoundRejectsBeforeAdapterResolution()
     {
         var document = new PresetFixtureDocument();
@@ -174,11 +191,12 @@ public sealed class PresetDocumentTests
         public int ResolveCalls { get; private set; }
         public IReadOnlyList<string>? CapturedSelection { get; private set; }
         public bool ThrowOnResolve { get; init; }
+        public PresetCapability? CapabilityOverride { get; init; }
         public ResolutionShape Shape { get; init; }
         public PresetInstanceResolutionStatus Resolution { get; init; } = PresetInstanceResolutionStatus.Resolved;
         public string? GameBuild { get; init; } = "r19";
         public override string Title => "Preset fixture";
-        public PresetCapability PresetCapability => new("1", GameBuild, [new("set", "Set", [])], 4, "fixture", "pack");
+        public PresetCapability PresetCapability => CapabilityOverride ?? new("1", GameBuild, [new("set", "Set", [])], 4, "fixture", "pack");
         public PresetAction CapturePreset(PresetCaptureRequest request)
         {
             CapturedSelection = request.SelectedRowKeys;

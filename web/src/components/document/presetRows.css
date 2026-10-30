@@ -1,0 +1,7 @@
+.presets-list { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.presets-list__item { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3); border: 1px solid var(--rule); border-radius: var(--radius-control); background: var(--surface-sunk); }
+.presets-list__item > div:first-child { min-width: 0; }
+@media (max-width: 600px) {
+  .presets-list__item { align-items: stretch; flex-direction: column; }
+  .presets-list__item .bar__actions { justify-content: flex-start; flex-wrap: wrap; }
+}

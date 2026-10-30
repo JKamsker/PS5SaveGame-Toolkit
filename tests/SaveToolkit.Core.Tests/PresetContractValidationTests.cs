@@ -58,6 +58,29 @@ public sealed class PresetContractValidationTests
     }
 
     [Fact]
+    public void CapabilityAdmissionRejectsUnsafeFlagsAndRecursiveGraphs()
+    {
+        var invalidFlags = Capability(new PresetActionCapability("set", "Set", ["value"],
+            ParameterSpecs: [new FlagsSpec([], -1)]));
+        var oversizedFlags = Capability(new PresetActionCapability("set", "Set", ["value"],
+            ParameterSpecs: [new FlagsSpec([], PresetContractValidation.MaxFlagWidth + 1)]));
+        var badBits = Capability(new PresetActionCapability("set", "Set", ["value"],
+            ParameterSpecs: [new FlagsSpec([new FlagBit(4, "Duplicate"), new FlagBit(4, "Duplicate")], 4)]));
+
+        var options = new List<UnionOption>();
+        var cycle = new UnionSpec(options);
+        options.Add(new UnionOption("self", "Self", cycle));
+        var deep = (FieldSpec)new BoolSpec();
+        for (var index = 0; index < PresetContractValidation.MaxCapabilityDepth + 2; index++) deep = new NullableSpec(deep);
+        var recursive = Capability(new PresetActionCapability("set", "Set", ["value"], ParameterSpecs: [cycle, deep]));
+
+        Assert.False(PresetContractValidation.TryDetach(invalidFlags, out _, out _));
+        Assert.False(PresetContractValidation.TryDetach(oversizedFlags, out _, out _));
+        Assert.False(PresetContractValidation.TryDetach(badBits, out _, out _));
+        Assert.False(PresetContractValidation.TryDetach(recursive, out _, out _));
+    }
+
+    [Fact]
     public void ResolutionBoundsRejectOversizedCandidateGraphsWithoutReturningThem()
     {
         var requested = new PresetInstanceReference("owned", "target");
