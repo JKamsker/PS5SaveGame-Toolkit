@@ -477,6 +477,15 @@
               }
             ]
           },
+          "presetCapabilityReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "presetCapabilityStatus": {
+            "type": "string"
+          },
           "state": {
             "$ref": "#/components/schemas/DocumentState"
           },

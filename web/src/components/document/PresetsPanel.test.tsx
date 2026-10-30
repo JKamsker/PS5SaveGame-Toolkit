@@ -49,6 +49,15 @@ it("shows a truthful no-actions state without a never-ending loading message", a
   expect(presets).not.toHaveBeenCalled();
 });
 
+it("does not expose generic capture when the server reports malformed capability", async () => {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([]);
+  renderSpatial(<PresetsPanel document={{ ...document, presetCapabilityStatus: "malformed", presetCapabilityReason: "capabilityMalformed" }} onToast={vi.fn()} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  expect((await screen.findByRole("alert")).textContent).toContain("capabilityMalformed");
+  expect(screen.queryByRole("option", { name: "Capture" })).toBeNull();
+  expect(screen.queryByRole("button", { name: "Save preset" })?.hasAttribute("disabled")).toBe(true);
+});
+
 it("filters capture actions to published scopes and starts on the first scope", async () => {
   vi.spyOn(api, "documentPresets").mockResolvedValue([]);
   const unpublished = { ...action, actionId: "unpublished", label: "Unpublished" };
@@ -99,6 +108,17 @@ it("resets capture state when a live action descriptor changes without remountin
   expect((screen.getByLabelText("Scope") as HTMLSelectElement).value).toBe("allEligible");
   fireEvent.click(screen.getByRole("button", { name: "Save preset" }));
   await waitFor(() => expect(capture).toHaveBeenCalledWith("w1", "d1", "Current", expect.objectContaining({ actionId: "next", parameters: { fresh: 2 }, scopeKind: "allEligible" })));
+});
+
+it("normalizes legacy scope descriptors before live reset", async () => {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([]);
+  const initial = { ...document, presetCapability: { schemaVersion: "1", maxActions: 1, actions: [{ actionId: "capture", label: "Capture", parameterIds: [], scopeKind: "document" }] } };
+  const updated = { ...document, presetCapability: { schemaVersion: "1", maxActions: 1, actions: [{ actionId: "capture", label: "Capture", parameterIds: [], scopeKind: "allEligible" }] } };
+  const rendered = renderSpatial(<PresetsPanel document={initial} onToast={vi.fn()} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  await screen.findByRole("button", { name: "Save preset" });
+  rendered.rerender(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><DocumentContext.Provider value={rendered.context}><ReviewNavigationProvider><PresetsPanel document={updated} onToast={vi.fn()} /></ReviewNavigationProvider></DocumentContext.Provider></QueryClientProvider>);
+  await waitFor(() => expect((screen.getByLabelText("Scope") as HTMLSelectElement).value).toBe("allEligible"));
 });
 
 it("shows server-owned saved and current compatibility boundaries", async () => {

@@ -33,6 +33,26 @@ public sealed class PresetContractValidationTests
     }
 
     [Fact]
+    public void ExactNumberAdmissionUsesSharedSdkLimitsAndRangeGrammar()
+    {
+        var valid = Capability(new PresetActionCapability("set", "Set", ["amount"],
+            ParameterSpecs: [new ExactNumberSpec()]));
+        Assert.Null(PresetContractValidation.ValidateCapability(valid));
+        var request = new PresetCaptureRequest("set", new Dictionary<string, JsonElement>
+        {
+            ["amount"] = JsonDocument.Parse("1e1000000").RootElement.Clone(),
+        });
+        Assert.Null(PresetContractValidation.ValidateCapture(valid, request));
+
+        var tooLong = Capability(new PresetActionCapability("set", "Set", ["amount"],
+            ParameterSpecs: [new ExactNumberSpec { MaxLength = ExactJsonNumber.HardMaxLength + 1 }]));
+        var reversed = Capability(new PresetActionCapability("set", "Set", ["amount"],
+            ParameterSpecs: [new ExactNumberSpec { Min = "2", Max = "1" }]));
+        Assert.Contains("malformed", PresetContractValidation.ValidateCapability(tooLong), StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("malformed", PresetContractValidation.ValidateCapability(reversed), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void DescriptorListMayAdvertiseFiveActionsWhenOneActionIsPersisted()
     {
         var actions = Enumerable.Range(0, 5)

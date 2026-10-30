@@ -20,7 +20,8 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
   const context = useDocument();
   const client = useQueryClient();
   const actions = useMemo(() => collectActions(document.view), [document.view]);
-  const captureActions = useMemo(() => uniqueCaptureActions(actions, document.presetCapability), [actions, document.presetCapability]);
+  const capabilityMalformed = document.presetCapabilityStatus === "malformed";
+  const captureActions = useMemo(() => capabilityMalformed ? [] : uniqueCaptureActions(actions, document.presetCapability), [actions, capabilityMalformed, document.presetCapability]);
   // A view without planned actions has no meaningful preset surface. Keep the
   // panel mounted for consistent layout, but avoid an unnecessary global store
   // request (and its error state) in read-only/document-only views.
@@ -43,6 +44,7 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
   const [dateFilter, setDateFilter] = useState("all");
   const [pendingDelete, setPendingDelete] = useState<ToolkitPreset>();
   const [retryPresetId, setRetryPresetId] = useState<string>();
+  const [previewOpener, setPreviewOpener] = useState<HTMLElement | null>(null);
   const showMessage = (text: string, isError = false) => { setMessage(text); setMessageIsError(isError); };
   const clearMessage = () => { setMessage(undefined); setMessageIsError(false); };
   const heading = useRef<HTMLHeadingElement>(null);
@@ -62,7 +64,7 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
       label: action.label,
       parameterIds: action.parameterIds,
       parameterSpecs: action.parameterSpecs,
-      scopeKinds: action.scopeKinds,
+      scopeKinds: supportedScopeKinds(action, document.presetCapability),
       supportsCapture: action.supportsCapture,
     })),
   }), [captureActions, document.presetCapability]);
@@ -81,6 +83,8 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
     if (result.error) throw result.error;
   };
   const loadPreview = async (presetId: string, choices?: Record<string, string>) => {
+    if (!preview || preview.preset.id !== presetId)
+      setPreviewOpener(globalThis.document.activeElement instanceof HTMLElement ? globalThis.document.activeElement : null);
     try {
       const result = await api.presetPreview(context.workspaceId, context.documentId, presetId, context.store.state.revision, choices);
       setPreview(result); setStale(Boolean(result.preview.stale)); setRefreshError(undefined); clearMessage();
@@ -121,23 +125,28 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
     try { await api.deletePreset(pendingDelete.id); setPendingDelete(undefined); if (preview?.preset.id === pendingDelete.id) setPreview(undefined); void client.invalidateQueries({ queryKey: ["presets"] }); requestAnimationFrame(() => heading.current?.focus()); }
     catch (error) { showMessage(error instanceof Error ? error.message : "Could not delete preset.", true); }
   };
-  const refreshAfterStale = async () => {
+  const refreshAfterStale = async (refreshFailed = false) => {
     setStale(true); setRefreshError(undefined);
-    try { await context.refresh(); }
-    catch (error) { setRefreshError(error instanceof Error ? `The current document could not be refreshed: ${error.message}` : "The current document could not be refreshed."); }
+    if (refreshFailed) setRefreshError("The current document could not be refreshed. Retry the document read before previewing again.");
   };
   const apply = useMutation({
-    mutationFn: () => api.presetApply(context.workspaceId, context.documentId, preview!.preset.id, preview!.preview.planId!, preview!.preview.revision),
+    mutationFn: () => context.mutate(
+      () => api.presetApply(context.workspaceId, context.documentId, preview!.preset.id, preview!.preview.planId!, preview!.preview.revision),
+      { failureFeedback: "dialog" }),
     onSuccess: async result => {
-      await context.acceptResult(result);
       if (result.stale) {
-        await refreshAfterStale();
+        if (!result.refreshCompleted && !result.refreshFailed) {
+          await context.refresh().then(() => refreshAfterStale()).catch(() => refreshAfterStale(true));
+        } else await refreshAfterStale(result.refreshFailed);
         return;
       }
       if (result.ok) { setPreview(undefined); onToast("Preset applied. Use Undo to reverse this one history step."); }
       else onToast(result.message ?? "Preset was not applied.", true);
     },
-    onError: error => { if (isStaleError(error)) void refreshAfterStale(); else onToast(error instanceof Error ? error.message : "Could not apply preset.", true); },
+    onError: error => {
+      if (!isStaleError(error)) { onToast(error instanceof Error ? error.message : "Could not apply preset.", true); return; }
+      void context.refresh().then(() => refreshAfterStale()).catch(() => refreshAfterStale(true));
+    },
   });
   const selectAction = (id: string) => {
     const next = captureActions.find(action => action.actionId === id);
@@ -168,14 +177,14 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
       {pendingDelete && <Suspense fallback={<p aria-live="polite">Loading delete confirmation…</p>}><PresetDeleteDialog preset={pendingDelete} onDelete={() => void confirmDelete()} onCancel={() => setPendingDelete(undefined)} /></Suspense>}
       {retryPresetId && <button type="button" className="btn btn--small" onClick={() => void loadPreview(retryPresetId)}>Retry preview</button>}
       {create.isError && <button type="button" className="btn btn--small" onClick={() => create.mutate()}>Retry saving preset</button>}
-      {preview && <Suspense fallback={<p aria-live="polite">Loading preset preview…</p>}><PresetPreview preview={preview.preview} busy={apply.isPending} stale={stale} refreshError={refreshError} canApply={document.canEdit} onApply={() => void apply.mutate()} onCancel={() => setPreview(undefined)} onPreviewAgain={choices => loadPreview(preview.preset.id, choices)} /></Suspense>}
-      {message && !presets.isError && <p role={messageIsError ? "alert" : "status"} className="notice notice--Warning">{message}</p>}
+      {preview && <Suspense fallback={<p aria-live="polite">Loading preset preview…</p>}><PresetPreview key={`${preview.preset.id}:${preview.preview.planId ?? "none"}:${preview.preview.revision}:${stale ? "stale" : "current"}`} opener={previewOpener} preview={preview.preview} busy={apply.isPending} stale={stale} refreshError={refreshError} canApply={document.canEdit} onApply={() => void apply.mutate()} onCancel={() => setPreview(undefined)} onPreviewAgain={choices => loadPreview(preview.preset.id, choices)} /></Suspense>}
+      {message && !presets.isError && <p role={messageIsError ? "alert" : "status"} aria-label="Preset save result" className="notice notice--Warning">{message}</p>}
       <form className="presets-create" onSubmit={event => { event.preventDefault(); clearMessage(); try { create.mutate(); } catch (error) { showMessage(error instanceof Error ? error.message : "Invalid preset JSON.", true); } }}>
         <h3>Save an action preset</h3>
         {!document.canEdit && <p className="notice notice--Muted">This document is read-only; presets can be reviewed but not created or applied.</p>}
         <label>Name <input className="input" value={name} onChange={event => setName(event.target.value)} required maxLength={100} disabled={!document.canEdit || create.isPending} /></label>
         <p className="presets-meta">The host records the current title, plugin, variant, build and reference-pack boundary when the plugin publishes them.</p>
-        {document.presetCapability && captureActions.length === 0 && <p className="notice notice--Muted">No published capture actions are available for this document.</p>}
+        {capabilityMalformed ? <p className="notice notice--Danger" role="alert">{document.presetCapabilityReason ?? "Preset capability metadata is malformed; capture is disabled."}</p> : document.presetCapability && captureActions.length === 0 && <p className="notice notice--Muted">No published capture actions are available for this document.</p>}
         <label>Action <select className="input" value={activeActionId} onChange={event => selectAction(event.target.value)} disabled={!document.canEdit || create.isPending || captureActions.length === 0}>{captureActions.map(action => <option key={action.actionId} value={action.actionId}>{action.label}</option>)}</select></label>
         <label>Scope <select className="input" value={scopeKind} onChange={event => setScopeKind(event.target.value)} disabled={!document.canEdit || create.isPending || captureActions.length === 0}>{supportedScopes.map(scope => <option key={scope} value={scope}>{scopeLabel(scope)}</option>)}</select></label>
         {scopeKind === "selected" && <p className="presets-meta" role="status">{selectedScopeUnavailable ? (binding.unavailable ? "This action has no reachable selection table." : "Clear the whole-query selection before capturing selected rows.") : `${selection?.count ?? 0} selected row${selection?.count === 1 ? "" : "s"} will be captured explicitly.`}</p>}

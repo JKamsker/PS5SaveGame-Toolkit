@@ -53,6 +53,8 @@ internal static class DtoMapper
         {
             GroupMembers = workspace?.DocumentGroups.FirstOrDefault(g => g.Session.Id == d.Id)?.Members,
             PresetCapability = d.PresetCapability,
+            PresetCapabilityStatus = d.PresetCapabilityAdmission.ToString().ToLowerInvariant(),
+            PresetCapabilityReason = d.PresetCapabilityError,
             TitleId = d.File.Directory.TitleId,
         };
     }
