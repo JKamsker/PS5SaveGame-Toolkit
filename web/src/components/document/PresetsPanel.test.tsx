@@ -62,6 +62,23 @@ it("filters capture actions to published scopes and starts on the first scope", 
   expect(screen.queryByRole("option", { name: "Unpublished" })).toBeNull();
 });
 
+it("deduplicates repeated action nodes and rejects conflicting action contexts", async () => {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([]);
+  const repeated = { ...action };
+  const duplicateDocument = { ...document, view: { ...view, children: [action, repeated, view.children[1]!] } };
+  const first = renderSpatial(<PresetsPanel document={duplicateDocument} onToast={vi.fn()} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  await screen.findByRole("button", { name: "Save preset" });
+  expect(screen.getAllByRole("option", { name: "Capture" })).toHaveLength(1);
+  first.unmount();
+
+  const conflicting = { ...action, parameters: [{ type: "field" as const, valueId: "other", label: "Other", spec: { kind: "text" as const, maxLength: 4 }, value: "x" }] };
+  const conflictingDocument = { ...document, view: { ...view, children: [action, conflicting, view.children[1]!] }, presetCapability: { schemaVersion: "1", maxActions: 1, actions: [{ actionId: "capture", label: "Capture", parameterIds: [], scopeKinds: ["document"] }] } };
+  renderSpatial(<PresetsPanel document={conflictingDocument} onToast={vi.fn()} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  await waitFor(() => expect(screen.queryByRole("option", { name: "Capture" })).toBeNull());
+});
+
 it("resets capture state when a live action descriptor changes without remounting", async () => {
   vi.spyOn(api, "documentPresets").mockResolvedValue([]);
   const capture = vi.spyOn(api, "capturePreset").mockResolvedValue({
@@ -135,14 +152,33 @@ it("retires a preview and refreshes the document when apply returns an accepted 
   await waitFor(() => expect(screen.getByRole("heading", { name: "Preset preview is stale" })).not.toBeNull());
   expect(screen.getByRole("button", { name: "Apply preset" }).hasAttribute("disabled")).toBe(true);
   expect(rendered.context.refresh).toHaveBeenCalledTimes(1);
-  expect(toast).toHaveBeenCalledWith(expect.stringMatching(/stale/i), true);
+  expect(screen.getAllByRole("alert")).toHaveLength(1);
+  expect(toast).not.toHaveBeenCalled();
 });
 
 it("renders storage failures as one actionable alert", async () => {
-  vi.spyOn(api, "documentPresets").mockRejectedValue(new Error("The external preset library could not be read."));
+  vi.spyOn(api, "documentPresets").mockRejectedValue(new Error("Preset storage is temporarily unavailable. Retry the operation."));
   renderSpatial(<PresetsPanel document={document} onToast={vi.fn()} />);
   fireEvent.click(screen.getByText("Toolkit presets"));
   const alert = await screen.findByRole("alert");
-  expect(alert.textContent).toMatch(/external preset library could not be read/i);
+  expect(alert.textContent).toMatch(/Preset storage is temporarily unavailable/i);
   expect(screen.getAllByRole("alert")).toHaveLength(1);
+});
+
+it("closes the inline preview on Escape and restores the Preview opener", async () => {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([{
+    preset: { schemaVersion: "1", id: "p", name: "Saved", compatibility: { pluginId: "test", pluginVersion: "1", titleIds: ["PPSA00001"] },
+      actions: [{ actionId: "capture", parameters: {}, scopeKind: "document" }], createdAt: "", updatedAt: "" },
+    compatibility: { compatible: true, readOnly: false, canPreview: true, canApply: true, presetKind: "toolkit.action-parameters", savedPluginVersion: "1", currentPluginVersion: "1", unsupportedActions: [] },
+  }]);
+  vi.spyOn(api, "presetPreview").mockResolvedValue({ preset: {} as never, preview: { planId: "plan", revision: 0, scope: {}, plan: { changes: [], skippedRows: [], warnings: [], errors: [] } } });
+  renderSpatial(<PresetsPanel document={document} onToast={vi.fn()} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  const opener = await screen.findByRole("button", { name: "Preview" });
+  opener.focus();
+  fireEvent.click(opener);
+  const heading = await screen.findByRole("heading", { name: "Preset preview" });
+  fireEvent.keyDown(heading, { key: "Escape" });
+  await waitFor(() => expect(screen.queryByRole("heading", { name: "Preset preview" })).toBeNull());
+  await waitFor(() => expect(globalThis.document.activeElement).toBe(opener));
 });

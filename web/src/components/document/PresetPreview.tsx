@@ -7,21 +7,28 @@ export interface PresetPreviewProps {
   preview: Preview;
   busy: boolean;
   stale: boolean;
+  refreshError?: string;
   canApply: boolean;
   onApply: () => void;
   onCancel: () => void;
   onPreviewAgain: (choices: Record<string, string>) => Promise<void>;
 }
 
-export function PresetPreview({ preview, busy, stale, canApply, onApply, onCancel, onPreviewAgain }: PresetPreviewProps) {
+export function PresetPreview({ preview, busy, stale, refreshError, canApply, onApply, onCancel, onPreviewAgain }: PresetPreviewProps) {
   const [choices, setChoices] = useState<Record<string, string>>({});
   const heading = useRef<HTMLHeadingElement>(null);
-  useEffect(() => { heading.current?.focus(); }, [preview.planId, preview.revision, stale]);
+  const opener = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    heading.current?.focus();
+    return () => { requestAnimationFrame(() => opener.current?.focus()); };
+  }, [preview.planId, preview.revision, stale]);
   const ambiguous = preview.resolution?.instances.filter(item => item.status === "Ambiguous") ?? [];
   const unresolved = preview.resolution?.instances.filter(item => item.status !== "Resolved") ?? [];
   const choicesRequired = ambiguous.some(item => (item.candidates?.length ?? 0) > 0 && !choices[item.requested.stableId]);
   const ready = !choicesRequired;
-  return <div className="presets-preview" aria-live="polite"><h3 ref={heading} tabIndex={-1}>{stale ? "Preset preview is stale" : "Preset preview"}</h3>{stale && <p className="notice notice--Warning" role="alert">The document changed. Preview again before applying; no preset changes were written.</p>} {!canApply && <p className="notice notice--Muted">You can review this preset, but this document is read-only.</p>}{unresolved.length > 0 && <div className="presets-resolution"><strong>Owned-instance resolution</strong>{unresolved.map(item => <fieldset key={item.requested.stableId}><legend>{item.requested.label ?? "Target"} ({item.status.toLowerCase()})</legend><p>{item.message ?? "This target cannot be resolved on the current document."}</p>{item.status === "Ambiguous" && item.candidates?.length ? <><p className="presets-meta">Choices are revision-bound and are never saved in the preset.</p>{item.candidates.map(candidate => <label key={candidate.stableId}><input type="radio" name={`preset-${item.requested.stableId}`} checked={choices[item.requested.stableId] === candidate.stableId} onChange={() => setChoices(current => ({ ...current, [item.requested.stableId]: candidate.stableId }))} /> {candidate.label ?? "Current candidate"} · {candidate.role ?? candidate.kind ?? "owned"}{candidate.path && ` · ${candidate.path}`} {candidate.build && ` · ${candidate.build}`}<details><summary>Technical provenance</summary><code>{candidate.stableId}</code>{candidate.provenance && <span> · {candidate.provenance}</span>}</details></label>)}</> : <p className="presets-meta">No selectable current candidate is available; applying the preset is blocked.</p>}</fieldset>)}</div>}{preview.resolution && unresolved.length === 0 && <p role="status">All semantic targets resolved.</p>}<p>{preview.plan.changes.length} change{preview.plan.changes.length === 1 ? "" : "s"}; revision {preview.revision}.</p>
+  // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+  return <div className="presets-preview" role="region" tabIndex={-1} aria-label="Preset preview" aria-live="polite" onKeyDown={event => { if (event.key === "Escape") { event.preventDefault(); onCancel(); } }}><h3 ref={heading} tabIndex={-1}>{stale ? "Preset preview is stale" : "Preset preview"}</h3>{stale && <p className="notice notice--Warning" role="alert">{refreshError ?? "The document changed. Preview again before applying; no preset changes were written."}</p>} {!canApply && <p className="notice notice--Muted">You can review this preset, but this document is read-only.</p>}{unresolved.length > 0 && <div className="presets-resolution"><strong>Owned-instance resolution</strong>{unresolved.map(item => <fieldset key={item.requested.stableId}><legend>{item.requested.label ?? "Target"} ({item.status.toLowerCase()})</legend><p>{item.message ?? "This target cannot be resolved on the current document."}</p>{item.status === "Ambiguous" && item.candidates?.length ? <><p className="presets-meta">Choices are revision-bound and are never saved in the preset.</p>{item.candidates.map(candidate => <label key={candidate.stableId}><input type="radio" name={`preset-${item.requested.stableId}`} checked={choices[item.requested.stableId] === candidate.stableId} onChange={() => setChoices(current => ({ ...current, [item.requested.stableId]: candidate.stableId }))} /> {candidate.label ?? "Current candidate"} · {candidate.role ?? candidate.kind ?? "owned"}{candidate.path && ` · ${candidate.path}`} {candidate.build && ` · ${candidate.build}`}<details><summary>Technical provenance</summary><code>{candidate.stableId}</code>{candidate.provenance && <span> · {candidate.provenance}</span>}</details></label>)}</> : <p className="presets-meta">No selectable current candidate is available; applying the preset is blocked.</p>}</fieldset>)}</div>}{preview.resolution && unresolved.length === 0 && <p role="status">All semantic targets resolved.</p>}<p>{preview.plan.changes.length} change{preview.plan.changes.length === 1 ? "" : "s"}; revision {preview.revision}.</p>
     {preview.plan.warnings.map((warning, index) => <p className="notice notice--Warning" key={index}>{warning}</p>)}
     {preview.plan.errors.map(error => <p role="alert" key={error.valueId}>{error.message}</p>)}
     {/* The bounded region is intentionally focusable so keyboard users can scroll the review. */}

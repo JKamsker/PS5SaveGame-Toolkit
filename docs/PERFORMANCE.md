@@ -31,11 +31,12 @@ DocumentEditor CSS chunk without CSS source changes.
 | index.css | 37478 | 9943 | 37478 | 9943 |
 | WorkspacePage.js | 156784 | 45486 | 14267 | 5131 |
 | DocumentEditor.js (new split) | — | — | 143127 | 41652 |
-| PresetsPanel.js (lazy preset flow) | — | — | 15934 | 5213 |
-| PresetsPanel.css (lazy preset flow) | — | — | 1252 | 419 |
+| PresetsPanel.js (lazy preset flow) | — | — | 15898 | 5242 |
+| PresetsPanel.css (lazy preset flow) | — | — | 1252 | 523 |
 | PresetRows.js (lazy saved rows) | — | — | 3931 | 1195 |
 | PresetRows.css (lazy saved rows) | — | — | 511 | 289 |
-| PresetPreview.js (lazy review) | — | — | 4211 | 1553 |
+| PresetPreview.js (lazy review) | — | — | 4426 | 1650 |
+| PresetDeleteDialog.js (lazy confirmation) | — | — | 978 | 538 |
 | jsx-runtime.js (shared runtime) | — | — | 8784 | 3328 |
 | documentStore.js (shared lazy dependency) | — | — | 2802 | 1015 |
 | values.js (shared initial dependency) | — | — | 13967 | 5391 |
@@ -55,7 +56,7 @@ DocumentEditor CSS chunk without CSS source changes.
   JS for home plus the empty workspace falls from **164181 to 123718 gzip bytes** (24.6%).
 - Selecting a document, or opening a `?doc=...` deep link, additionally loads DocumentEditor JS
   (**42502 gzip bytes**) and its CSS (**1504**). Saved preset rows and preview are loaded as
-  separate accessible Suspense leaves (**1195-byte** rows JS/**289-byte** CSS and **1553-byte**
+  separate accessible Suspense leaves (**1195-byte** rows JS/**289-byte** CSS and **1650-byte**
   preview JS); the shared JSX runtime is **3328 bytes**. The existing
   Opening status covers the editor code load.
   Eager/queryable tables, hex virtualization, the reference picker and TanStack Virtual stay together
@@ -101,13 +102,14 @@ output-directory behavior, so the check never removes or rewrites output.
 | WorkspacePage.js | 5131 | 5700 |
 | DocumentEditor.js | 41652 | 45900 |
 | DocumentEditor.css | 1504 | 1660 |
-| PresetsPanel.js | 5213 | 5800 |
-| PresetsPanel.css | 419 | 580 |
+| PresetsPanel.js | 5242 | 5800 |
+| PresetsPanel.css | 523 | 580 |
 | PresetRows.js | 1195 | 1320 |
 | PresetRows.css | 289 | 320 |
-| PresetPreview.js | 1552 | 1700 |
+| PresetPreview.js | 1650 | 1820 |
+| PresetDeleteDialog.js | 538 | 600 |
 | jsx-runtime.js | 3328 | 3650 |
-| documentStore.js | 1039 | 1130 |
+| documentStore.js | 1035 | 1130 |
 | values.js | 5391 | 6000 |
 | GraphView.js | 1746 | 1930 |
 | MapView.js | 2141 | 2350 |
