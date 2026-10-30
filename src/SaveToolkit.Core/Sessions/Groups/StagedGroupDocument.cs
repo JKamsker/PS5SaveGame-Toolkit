@@ -14,6 +14,8 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
     IQueryableDocument, IAdditionalOutputOwner
 {
     private const int MaxRememberedQueries = 256;
+    // Admit the planned authority closure plus remembered fields and their canonical targets.
+    private const int MaxCandidateMetadataIds = FieldMetadataPlanning.MaxPlannedMetadataIds + 2 * FieldMetadataLimits.MaxClosureIds;
     private readonly Func<IGroupedSaveDocument> _open;
     private readonly Func<IGroupedSaveDocument, IReadOnlyList<FileOutput>> _verify;
     private readonly Action<CancellationToken> _preflight;
@@ -344,13 +346,13 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
             .Concat(additionalIds ?? [])
             .Where(id => !string.IsNullOrEmpty(id)).Distinct(StringComparer.Ordinal).ToArray();
         if (ids.Length == 0) return new([], []);
-        if (ids.Length > FieldMetadataLimits.MaxClosureIds)
-            throw new InvalidOperationException($"Group candidate metadata exceeds the bounded limit of {FieldMetadataLimits.MaxClosureIds} IDs.");
+        if (ids.Length > MaxCandidateMetadataIds)
+            throw new InvalidOperationException($"Group candidate metadata exceeds the bounded limit of {MaxCandidateMetadataIds} IDs.");
 
         var required = (additionalIds ?? []).Where(id => !string.IsNullOrEmpty(id))
             .ToHashSet(StringComparer.Ordinal);
         var index = new FieldMetadataIndex(candidate);
-        index.ResolveAll(ids, FieldMetadataLimits.MaxClosureIds, cancellationToken);
+        index.ResolveAll(ids, MaxCandidateMetadataIds, cancellationToken);
         var retired = ids.Where(id => index.Cached(id) is null && !required.Contains(id)).ToArray();
         var missing = ids.Where(id => index.Cached(id) is null && required.Contains(id)).ToArray();
         if (missing.Length > 0 && (!allowExposedRetry || missing.Any(id => !_resolvedMetadataIds.Contains(id))))
