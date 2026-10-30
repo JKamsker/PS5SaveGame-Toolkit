@@ -122,6 +122,7 @@ public sealed class SemanticMemberContextCloseoutTests
 
         public override string Title => "Mixed metadata and legacy context";
         public override ViewNode BuildView() => new SectionNode(Title, [Field("canonical", "Canonical"),
+            Field("unresolved", "Unresolved unchanged field", IntegerSpec.Int32, () => FieldValue.Of(0)),
             Field("legacy", "Legacy dependent value", IntegerSpec.Int32, () => FieldValue.Of(_value * 2))]);
         public override IReadOnlyList<FileOutput> Serialize() => [new("save.dat", new[] { (byte)_value })];
     }
