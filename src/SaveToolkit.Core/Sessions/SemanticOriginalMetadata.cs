@@ -9,9 +9,10 @@ internal static class SemanticOriginalMetadata
         && !string.IsNullOrEmpty(field.CanonicalValueId);
 
     public static CanonicalMetadataOutcome Enrich(Func<ISaveDocument> openOriginal, SemanticSnapshot snapshot,
-        long maxBytes, IReadOnlyList<string> retryIds, ref bool capturing, CancellationToken cancellationToken)
+        long maxBytes, IReadOnlyList<string> retryIds, bool forceAttempt, ref bool capturing,
+        CancellationToken cancellationToken)
     {
-        if ((retryIds.Count == 0 && snapshot.Fields.Values.All(HasMetadata)) || capturing)
+        if ((!forceAttempt && retryIds.Count == 0 && snapshot.Fields.Values.All(HasMetadata)) || capturing)
             return new(true, []);
         capturing = true;
         try
@@ -32,7 +33,7 @@ internal static class SemanticOriginalMetadata
                 var outcome = SemanticTargetedAuthority.ApplyCanonicalMetadata(original, snapshot, maxBytes, cancellationToken);
                 return outcome with { RecoveredIds = recovered };
             }
-            return new(true, []);
+            return new(false, [], "Original canonical metadata is unavailable for the retry document.");
         }
         catch (OperationCanceledException) { throw; }
         catch (Exception ex) when (ex is not OutOfMemoryException)

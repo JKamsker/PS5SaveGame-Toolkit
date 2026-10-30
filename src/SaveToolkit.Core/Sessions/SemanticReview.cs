@@ -255,16 +255,24 @@ internal sealed class SemanticReview
         try
         {
             EnsureOriginal(openOriginal, cancellationToken);
-            if (hadBaseline && (!_originalMetadataAttempted || _coverage.RetryIds.Count > 0)
+            if (hadBaseline && (!_originalMetadataAttempted || _coverage.RetryIds.Count > 0
+                    || _coverage.HasPendingMetadataAttempt)
                 && _originalMetadataAvailable != false && _original is { } baseline)
             {
                 var metadata = SemanticOriginalMetadata.Enrich(openOriginal, baseline, _maxBytes,
-                    _coverage.RetryIds.ToArray(), ref _capturingOriginal, cancellationToken);
-                PublishRecoveredTargets(metadata.Recovered);
+                    _coverage.RetryIds.ToArray(), _coverage.HasPendingMetadataAttempt,
+                    ref _capturingOriginal, cancellationToken);
+                var publication = PublishRecoveredTargets(metadata.Recovered);
+                if (publication.Rejected.Count > 0)
+                    _coverage.RecordOriginalFailures(publication.Rejected,
+                        "Recovered original metadata could not be admitted to the bounded target set.");
                 if (!metadata.Applied)
                     _coverage.RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
-                else
-                    _coverage.ClearRecovered(baseline, metadata.Recovered);
+                _coverage.ClearRecovered(baseline, publication.Accepted);
+                if (metadata.Applied && publication.Rejected.Count == 0)
+                {
+                    _coverage.ClearMetadataAttemptFailure();
+                }
                 _originalMetadataAttempted = metadata.Applied && _coverage.RetryIds.Count == 0;
             }
             return Query(document, index, expandedLazy, revision, cancellationToken);
@@ -285,6 +293,13 @@ internal sealed class SemanticReview
         var original = _original ?? throw new InvalidOperationException("Capture the original before querying changes.");
         var current = new SemanticSnapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal), true, 0);
         var targetedCaptured = CaptureTargeted(document, current, _targeted.ToArray(), revokeOnFailure: true, cancellationToken);
+        var recoveryIds = _coverage.RetryIds.Where(id => !_targeted.Contains(id)).ToArray();
+        var recoveryCaptured = CaptureTargeted(document, current, recoveryIds, revokeOnFailure: true, cancellationToken);
+        foreach (var id in targetedCaptured.CapturedIds.Concat(recoveryCaptured.CapturedIds))
+        {
+            if (original.Fields.TryGetValue(id, out var before) && string.IsNullOrEmpty(before.CanonicalValueId))
+                current.Fields.Remove(id);
+        }
         var walked = _capture.Capture(document, index, expandedLazy, cancellationToken);
         if (_targetedOnly)
         {
@@ -309,6 +324,7 @@ internal sealed class SemanticReview
         }
         foreach (var id in targetedCaptured.IncompleteIds) current.Fields.Remove(id);
         SemanticChangedMetadataProjection.Apply(original, current, document, _maxBytes, cancellationToken);
+        foreach (var id in recoveryCaptured.IncompleteIds) current.Fields.Remove(id);
         SemanticTargetedAuthority.Validate(original, current, _references);
         foreach (var id in _reported.Where(id => !current.Fields.ContainsKey(id)))
         {
@@ -396,13 +412,21 @@ internal sealed class SemanticReview
         return ids.ToArray();
     }
 
-    private void PublishRecoveredTargets(IReadOnlyList<string> recoveredIds)
+    private RecoveryPublication PublishRecoveredTargets(IReadOnlyList<string> recoveredIds)
     {
-        foreach (var id in recoveredIds)
+        var pending = recoveredIds.Where(id => !_targeted.Contains(id))
+            .Distinct(StringComparer.Ordinal).ToArray();
+        var available = FieldMetadataLimits.MaxClosureIds - _targeted.Count;
+        if (pending.Length > available)
+            return new([], pending);
+
+        foreach (var id in pending)
         {
-            if (_targeted.Count >= FieldMetadataLimits.MaxClosureIds) break;
             _targeted.Add(id);
         }
+        return new(pending, []);
     }
 
 }
+
+internal sealed record RecoveryPublication(IReadOnlyList<string> Accepted, IReadOnlyList<string> Rejected);
