@@ -68,9 +68,9 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                     {
                         ReadOnly = field.Spec.ReadOnly, CanonicalValueId = canonical, BindingKind = field.BindingKind,
                         Spec = field.Spec, Presentation = field.Presentation, Label = field.Label,
-                        Path = existing.Path,
                     };
-                    if (!SemanticSnapshot.TryEstimate(candidate, long.MaxValue, out var candidateCost)
+                    var replacementPath = field.Path ?? existing.Path;
+                    if (!SemanticMetadataBudget.TryEstimate(candidate, replacementPath, long.MaxValue, out var candidateCost)
                         || !SemanticSnapshot.TryEstimate(existing, long.MaxValue, out var existingCost)
                         || candidateCost - existingCost > maxBytes - snapshot.Bytes)
                     {

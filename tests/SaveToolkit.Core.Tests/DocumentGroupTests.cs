@@ -159,6 +159,10 @@ public sealed class DocumentGroupTests : IDisposable
         var changes = session.GetChanges();
         Assert.Contains(changes.Changes, change => change.ValueId == "character/balance");
         Assert.Contains(changes.Changes, change => change.ValueId == "profile/balance");
+        var character = Assert.Single(changes.Changes, change => change.ValueId == "character/balance");
+        var profile = Assert.Single(changes.Changes, change => change.ValueId == "profile/balance");
+        Assert.Equal(("10", "11"), (character.OriginalValue.ToString(), character.CurrentValue.ToString()));
+        Assert.Equal(("20", "19"), (profile.OriginalValue.ToString(), profile.CurrentValue.ToString()));
         Assert.True(session.RevertChange("profile/balance", changes.Revision).Ok);
         Assert.Equal(GroupPlugin.Create("P", 20, 9), Bytes(session)[Root + "profile.dat"]);
         Assert.Equal(GroupPlugin.Create("C", 11, 7, 7), Bytes(session)[Root + "character.dat"]);
