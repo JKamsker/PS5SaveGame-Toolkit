@@ -19,7 +19,7 @@ internal sealed class ResourceExplorer(IReadOnlyList<DocumentEntry> entries, Fun
         var parts = id.Split('/');
         var paged = parts is ["entries" or "resources", _, _] or ["roots", _, _, _] or
             ["children" or "attributes", _, _, _, _];
-        if (paged && int.TryParse(parts[^1], out var pageCount) && pageCount > PageSize)
+        if (paged && int.TryParse(parts[^1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var pageCount) && pageCount > PageSize)
         {
             var pageStart = Index(parts[^2]);
             if (pageStart < 0 || pageCount > BinaryData.MaxRecords || pageStart > BinaryData.MaxRecords - pageCount)
@@ -62,7 +62,7 @@ internal sealed class ResourceExplorer(IReadOnlyList<DocumentEntry> entries, Fun
     internal bool TryEntryAsset(string id, out DocumentEntry entry)
     {
         entry = null!;
-        if (id.Split('/') is ["image", var index] && int.TryParse(index, out var i) && i >= 0 && i < entries.Count && IsWebP(entries[i]))
+        if (id.Split('/') is ["image", var index] && int.TryParse(index, NumberStyles.Integer, CultureInfo.InvariantCulture, out var i) && i >= 0 && i < entries.Count && IsWebP(entries[i]))
         {
             entry = entries[i];
             return true;
