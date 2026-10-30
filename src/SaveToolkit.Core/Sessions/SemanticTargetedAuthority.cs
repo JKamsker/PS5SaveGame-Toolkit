@@ -55,7 +55,7 @@ internal static class SemanticTargetedAuthority
             }
             catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
             {
-                return Failure(batch, $"Canonical metadata coverage is incomplete: {ex.Message}");
+                return Failure(batch, SemanticDiagnostics.Exception("Canonical metadata coverage is incomplete", ex));
             }
 
             foreach (var id in batch)

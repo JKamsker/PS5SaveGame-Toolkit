@@ -38,7 +38,7 @@ internal static class SemanticOriginalMetadata
         catch (OperationCanceledException) { throw; }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            return new(false, [], $"Original canonical metadata coverage is incomplete: {ex.Message}");
+            return new(false, [], SemanticDiagnostics.Exception("Original canonical metadata coverage is incomplete", ex));
         }
         finally { capturing = false; }
     }
