@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { expect, it, vi } from "vitest";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -183,16 +183,35 @@ it("records absent versus intentionally filtered-out and launches only selected 
 
 it("launches every valid selected suite while retaining thrown, signal, nonzero and teardown failures", () => {
   const { manifest, inventories, ids, discover } = discoveryFixture();
+  const directory = mkdtempSync(path.join(tmpdir(), "savetoolkit-e2e-discovery-"));
+  const discoveryPath = path.join(directory, "discovery.json");
   const attempted = [];
   const launch = vi.fn().mockImplementation(suite => {
     attempted.push(suite);
+    expect(existsSync(discoveryPath)).toBe(true);
+    const persisted = JSON.parse(readFileSync(discoveryPath, "utf8"));
+    expect(persisted.all.filteredSelectedIDs).toEqual(["synthetic-canonical", "synthetic-capacity", "synthetic-ff7"]);
     if (suite === "canonical") throw new Error("synthetic launch error");
     if (suite === "capacity") return { status: null, signal: "SIGTERM" };
     if (suite === "ff7") return { status: 1 };
     return { status: 0 };
   });
-  const result = orchestrateSuites({ manifest, inventories, args: [], discover, launch, reportError: vi.fn() });
-  expect(result.exitCode).toBe(1);
-  expect(attempted).toEqual(["canonical", "capacity", "ff7"]);
-  expect(ids).toEqual({ canonical: ["synthetic-canonical"], capacity: ["synthetic-capacity"], ff7: ["synthetic-ff7"] });
+  try {
+    const result = orchestrateSuites({ manifest, inventories, args: [], discover, launch, reportError: vi.fn(),
+      beforeExecute: result => writeFileSync(discoveryPath, JSON.stringify(result.discovery)) });
+    expect(result.exitCode).toBe(1);
+    expect(attempted).toEqual(["canonical", "capacity", "ff7"]);
+    expect(ids).toEqual({ canonical: ["synthetic-canonical"], capacity: ["synthetic-capacity"], ff7: ["synthetic-ff7"] });
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+it("fails persistence before launching any valid suite", () => {
+  const { manifest, inventories, discover } = discoveryFixture();
+  const launch = vi.fn();
+  expect(() => orchestrateSuites({ manifest, inventories, args: [], discover, launch, reportError: vi.fn(),
+    beforeExecute: () => { throw new Error("synthetic discovery persistence failure"); } }))
+    .toThrow(/synthetic discovery persistence failure/);
+  expect(launch).not.toHaveBeenCalled();
 });

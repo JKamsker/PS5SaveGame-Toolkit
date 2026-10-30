@@ -120,8 +120,10 @@ export function composeDiscovery({ manifest, inventories, args: discoveryArgs, d
   };
 }
 
-export function orchestrateSuites({ manifest, inventories, args: discoveryArgs, discover, launch, reportError, execute = true }) {
+export function orchestrateSuites({ manifest, inventories, args: discoveryArgs, discover, launch, reportError,
+  beforeExecute, execute = true }) {
   const result = composeDiscovery({ manifest, inventories, args: discoveryArgs, discover });
+  beforeExecute?.(result);
   if (!execute) return { ...result, exitCode: 0 };
   const exitCode = runSelectedSuites(result.selectedSuites.map(part => [part.id, part.ids]), launch, reportError);
   return { ...result, exitCode };
@@ -162,10 +164,12 @@ export function run() {
       launch: suite => spawnSync(process.execPath, [cli, "test", ...args],
         { env: environment(invocation, scratch, suite), stdio: "inherit" }),
       reportError: message => console.error(message),
+      beforeExecute: result => {
+        writeFileSync(path.join(invocation, "discovery.json"), JSON.stringify(result.discovery, null, 2));
+        console.log(`E2E discovery: ${result.discovery.all.filteredSelectedCount} selected across ${result.selectedSuites.length} suites. Reports: ${invocation}`);
+      },
       execute: !args.includes("--list"),
     });
-    writeFileSync(path.join(invocation, "discovery.json"), JSON.stringify(result.discovery, null, 2));
-    console.log(`E2E discovery: ${result.discovery.all.filteredSelectedCount} selected across ${result.selectedSuites.length} suites. Reports: ${invocation}`);
     process.exitCode = result.exitCode;
   } catch (error) {
     console.error(`E2E failed: ${error instanceof Error ? error.message : String(error)}`);
