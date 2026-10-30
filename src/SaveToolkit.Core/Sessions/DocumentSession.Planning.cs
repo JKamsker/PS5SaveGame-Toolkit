@@ -95,7 +95,8 @@ public sealed partial class DocumentSession
             var requestBytes = BoundedJson.Serialize(readOnlyValues, MaxPlanBytes).LongLength
                 + BoundedJson.Serialize(requested, MaxPlanBytes).LongLength;
             cancellationToken.ThrowIfCancellationRequested();
-            if (bytes.LongLength + requestBytes > MaxPlanBytes)
+            var metadataBudget = MaxPlanBytes - bytes.LongLength - requestBytes;
+            if (metadataBudget < 0)
             {
                 return Reject([new FieldError(actionId, "Preview is too large; narrow its scope.")]);
             }
@@ -106,7 +107,8 @@ public sealed partial class DocumentSession
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            var metadata = FieldMetadataPlanning.Validate(_index, Document, detachedPlan, _referenceFields, cancellationToken);
+            var metadata = FieldMetadataPlanning.Validate(_index, Document, detachedPlan, _referenceFields,
+                cancellationToken, metadataBudget);
             cancellationToken.ThrowIfCancellationRequested();
             if (_index.HasFieldMetadata
                 && bytes.LongLength + requestBytes + BoundedJson.Serialize(metadata, MaxPlanBytes).LongLength > MaxPlanBytes)
@@ -181,10 +183,17 @@ public sealed partial class DocumentSession
                 return new SessionEditResult { Errors = detachedFresh.Errors, Warnings = detachedFresh.Warnings, State = StateUnlocked() };
 
             cancellationToken.ThrowIfCancellationRequested();
-            var metadata = FieldMetadataPlanning.Validate(_index, Document, detachedFresh, _referenceFields, cancellationToken);
+            var freshBytes = BoundedJson.Serialize(detachedFresh, MaxPlanBytes);
+            var requestBytes = BoundedJson.Serialize(pending.Parameters, MaxPlanBytes).LongLength
+                + BoundedJson.Serialize(pending.Scope, MaxPlanBytes).LongLength;
+            var metadataBudget = MaxPlanBytes - freshBytes.LongLength - requestBytes;
+            if (metadataBudget < 0)
+                return Rejected(pending.ActionId, "Preview is too large; narrow its scope.");
+            var metadata = FieldMetadataPlanning.Validate(_index, Document, detachedFresh, _referenceFields,
+                cancellationToken, metadataBudget);
             cancellationToken.ThrowIfCancellationRequested();
             if (!FieldMetadataPlanning.Agree(pending.Metadata, metadata)
-                || !pending.PlanBytes.AsSpan().SequenceEqual(BoundedJson.Serialize(detachedFresh, MaxPlanBytes)))
+                || !pending.PlanBytes.AsSpan().SequenceEqual(freshBytes))
             {
                 return Rejected(pending.ActionId, "The action's effects changed. Preview it again.") with { Stale = true };
             }

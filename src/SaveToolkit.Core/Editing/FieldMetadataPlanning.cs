@@ -19,7 +19,7 @@ public static class FieldMetadataPlanning
         => Validate(index, document, plan, references, CancellationToken.None);
 
     internal static IReadOnlyList<FieldMetadata> Validate(ViewIndex index, ISaveDocument document, ActionPlan plan,
-        ReferenceFieldService? references, CancellationToken cancellationToken)
+        ReferenceFieldService? references, CancellationToken cancellationToken, long? metadataBudget = null)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var effects = plan.Changes.Where(change => change.Effect is not null).ToArray();
@@ -38,7 +38,7 @@ public static class FieldMetadataPlanning
         // of the canonical 5000-row metadata allowance.
         var resolverIds = canonicalIds.Concat(plan.Changes.Where(change => change.Effect is not null)
             .Take(FieldMetadataIndex.BatchSize).Select(change => change.ValueId)).Distinct(StringComparer.Ordinal);
-        index.SetMetadataBudget(4 * 1024 * 1024);
+        index.SetMetadataBudget(metadataBudget ?? 4 * 1024 * 1024);
         try
         {
             index.ResolveMetadata(resolverIds, cancellationToken, MaxPlannedMetadataIds);
@@ -134,31 +134,27 @@ public static class FieldMetadataPlanning
     {
         if (depth > FieldMetadataLimits.MaxSpecDepth || !seen.Add(spec)
             || !FieldSpecMetadata.TryEstimate(spec, 4 * 1024 * 1024, out _)) return false;
-        switch (spec)
+        var valid = spec switch
         {
-            case IntegerSpec integer:
-                if (integer.Min > integer.Max || !Enum.IsDefined(integer.Format)
-                    || integer.Format == IntegerFormat.Duration && integer.UnitsPerSecond is <= 0) return false;
-                break;
-            case FloatSpec floating:
-                if (!Enum.IsDefined(floating.Format) || !double.IsFinite(floating.UnitsPerSecond)
-                    || floating.UnitsPerSecond <= 0 || floating.Min > floating.Max) return false;
-                break;
-            case TextSpec text when text.MaxLength is < 0: return false;
-            case EnumSpec choice:
-                if (choice.Options.Count == 0 || choice.Options.Select(option => option.Value).Distinct(StringComparer.Ordinal).Count() != choice.Options.Count) return false;
-                break;
-            case FlagsSpec flags when flags.BitWidth is < 1 or > 127: return false;
-            case ExactNumberSpec exact when exact.MaxLength is < 1 or > ExactJsonNumber.HardMaxLength
-                || exact.MaxAbsoluteExponent is < 0 or > ExactJsonNumber.HardMaxAbsoluteExponent: return false;
-            case ReferenceSpec reference when reference.Assess is not null: return false;
-            case NullableSpec nullable:
-                return ValidateSpec(nullable.Inner, depth + 1, seen);
-            case UnionSpec union:
-                if (union.Options.Count == 0 || union.Options.Select(option => option.Id).Distinct(StringComparer.Ordinal).Count() != union.Options.Count) return false;
-                return union.Options.All(option => ValidateSpec(option.Spec, depth + 1, seen));
-        }
-        return true;
+            IntegerSpec integer => integer.Min <= integer.Max && Enum.IsDefined(integer.Format)
+                && (integer.Format != IntegerFormat.Duration || integer.UnitsPerSecond is > 0),
+            FloatSpec floating => Enum.IsDefined(floating.Format) && double.IsFinite(floating.UnitsPerSecond)
+                && floating.UnitsPerSecond > 0 && floating.Min <= floating.Max,
+            TextSpec text => text.MaxLength is not < 0,
+            EnumSpec choice => choice.Options.Count > 0
+                && choice.Options.Select(option => option.Value).Distinct(StringComparer.Ordinal).Count() == choice.Options.Count,
+            FlagsSpec flags => flags.BitWidth is >= 1 and <= 127,
+            ExactNumberSpec exact => exact.MaxLength is >= 1 and <= ExactJsonNumber.HardMaxLength
+                && exact.MaxAbsoluteExponent is >= 0 and <= ExactJsonNumber.HardMaxAbsoluteExponent,
+            ReferenceSpec reference => reference.Assess is null,
+            NullableSpec nullable => ValidateSpec(nullable.Inner, depth + 1, seen),
+            UnionSpec union => union.Options.Count > 0
+                && union.Options.Select(option => option.Id).Distinct(StringComparer.Ordinal).Count() == union.Options.Count
+                && union.Options.All(option => ValidateSpec(option.Spec, depth + 1, seen)),
+            _ => true,
+        };
+        seen.Remove(spec);
+        return valid;
     }
 
     private static FieldValueCoercer.Result ValidateTypedValue(FieldValue value, FieldSpec spec) => spec switch
@@ -167,12 +163,19 @@ public static class FieldMetadataPlanning
             ? new(value, null) : new(FieldValue.Null, "Expected reference text."),
         NullableSpec nullable when value.IsNull => new(value, null),
         NullableSpec nullable => ValidateTypedValue(value, nullable.Inner),
-        UnionSpec union when value.Kind == FieldValueKind.Union => union.Options.SingleOrDefault(option => option.Id == value.AsUnion().Type) is { } option
-            ? ValidateTypedValue(value.AsUnion().Value, option.Spec) is { Ok: true } ? new(value, null) : ValidateTypedValue(value.AsUnion().Value, option.Spec)
-            : new(FieldValue.Null, "Unknown union option."),
+        UnionSpec union when value.Kind == FieldValueKind.Union => ValidateUnionValue(value, union),
         UnionSpec => new(FieldValue.Null, "Expected a union value."),
         _ => FieldValueCoercer.Normalize(value, spec, allowReadOnly: true, references: null),
     };
+
+    private static FieldValueCoercer.Result ValidateUnionValue(FieldValue value, UnionSpec spec)
+    {
+        var selected = value.AsUnion();
+        var option = spec.Options.SingleOrDefault(candidate => candidate.Id == selected.Type);
+        if (option is null) return new(FieldValue.Null, "Unknown union option.");
+        var result = ValidateTypedValue(selected.Value, option.Spec);
+        return result.Ok ? new(value, null) : result;
+    }
 
     private static bool ExactShape(FieldValue value, FieldSpec spec) => spec switch
     {
