@@ -63,9 +63,10 @@ test("FF7 preview cancel, one F6 history group, whole download and real UI reimp
   const rows = page.getByRole("region", { name: "Inventory rows", exact: true });
   await contained(page, rows, 1280);
   const beforeScroll = await snapshot(page.request, reopenedPath);
+  await page.getByRole("button", { name: "Show empty slots", exact: true }).click();
+  await expect.poll(() => rows.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true);
   await tabTo(page, rows);
   await expect(rows).toBeFocused();
-  expect(await rows.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true);
   await page.keyboard.press("PageDown");
   expect(await rows.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
   await expect(rows).toBeFocused();
