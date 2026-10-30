@@ -1,3 +1,4 @@
+using System.Globalization;
 using SaveToolkit.Plugins.UnrealGvas.Gvas;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
@@ -292,7 +293,8 @@ internal sealed class UnrealGvasDocument : BoundSaveDocument, IFieldMetadataDocu
         if (actors.Length != 1 || sizes.Length != 1) return null;
         var actor = actors[0];
         var size = sizes[0].Scalar?.Value;
-        if (size is null || !int.TryParse(size.ToString(), out var declared) || actor.Length < sizeof(int)) return null;
+        if (size is null || !int.TryParse(Convert.ToString(size, CultureInfo.InvariantCulture),
+            NumberStyles.Integer, CultureInfo.InvariantCulture, out var declared) || actor.Length < sizeof(int)) return null;
         var original = _envelope.File.Original.Span;
         if (actor.Offset < 0 || actor.Offset > original.Length - actor.Length) return null;
         var count = BitConverter.ToInt32(original.Slice(actor.Offset, sizeof(int)));
