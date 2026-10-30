@@ -11,6 +11,9 @@ internal static class SemanticSnapshotComparison
         ISaveDocument document, IReadOnlyDictionary<string, SemanticMemberContext> memberContext,
         CancellationToken cancellationToken)
     {
+        if (!HasPublishedMetadata(original) && !HasPublishedMetadata(current))
+            return CompareLegacy(original, originalComplete, current, currentComplete, document, cancellationToken);
+
         var associations = CanonicalAssociations(original, current);
         var beforeGroups = Groups(original, associations);
         var afterGroups = Groups(current, associations);
@@ -71,6 +74,36 @@ internal static class SemanticSnapshotComparison
             });
         }
     }
+
+    private static IReadOnlyList<SemanticChange> CompareLegacy(
+        IReadOnlyDictionary<string, SemanticField> original, bool originalComplete,
+        IReadOnlyDictionary<string, SemanticField> current, bool currentComplete,
+        ISaveDocument document, CancellationToken cancellationToken)
+    {
+        var changes = new List<SemanticChange>();
+        foreach (var (id, before) in original)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            current.TryGetValue(id, out var after);
+            if (after is null && !currentComplete || after is not null && before.Value == after.Value) continue;
+            changes.Add(new SemanticChange(id, after?.Label ?? before.Label, after?.Path ?? before.Path,
+                before.Value, after?.Value ?? FieldValue.Null, true, after is not null,
+                after is { ReadOnly: false } && document.CanEdit) { Target = after?.Target });
+        }
+
+        foreach (var (id, after) in current)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (original.ContainsKey(id)) continue;
+            if (!originalComplete) continue;
+            changes.Add(new SemanticChange(id, after.Label, after.Path, FieldValue.Null, after.Value,
+                false, true, false) { Target = after.Target });
+        }
+        return changes;
+    }
+
+    private static bool HasPublishedMetadata(IReadOnlyDictionary<string, SemanticField> fields) =>
+        fields.Values.Any(field => field.MetadataPublished);
 
     private static bool ProjectionChanged(string id, SemanticFieldGroup? before, SemanticFieldGroup? after,
         bool originalComplete, bool currentComplete)
