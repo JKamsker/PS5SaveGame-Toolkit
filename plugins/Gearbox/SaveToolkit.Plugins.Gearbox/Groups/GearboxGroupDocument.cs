@@ -78,14 +78,19 @@ internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDoc
         foreach (var id in valueIds) ArgumentException.ThrowIfNullOrEmpty(id, nameof(valueIds));
 
         var owners = new Dictionary<string, DocumentMemberAdapter>(StringComparer.Ordinal);
+        var ownedIds = new List<string>(valueIds.Count);
         foreach (var id in valueIds.Distinct(StringComparer.Ordinal))
         {
-            try { owners.Add(id, _router.Resolve(id)); }
+            try
+            {
+                owners.Add(id, _router.Resolve(id));
+                ownedIds.Add(id);
+            }
             catch (KeyNotFoundException) { }
         }
 
         if (owners.Count == 0) return [];
-        var metadata = _router.ResolveFieldMetadata(owners.Keys.ToArray());
+        var metadata = _router.ResolveFieldMetadata(ownedIds);
         var contexts = new List<DocumentGroupFieldContext>(metadata.Count);
         foreach (var field in metadata)
         {
