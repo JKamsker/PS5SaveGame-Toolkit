@@ -123,6 +123,15 @@ async function assertEffectPreview(dialog: Locator, effectRegion: Locator, autho
   return { firstIds, secondIds, initialScroll, pagedScrollTop, clipboardWrites };
 }
 
+async function tabToFooter(page: Page, dialog: Locator, apply: Locator) {
+  const tabStops = await dialog.locator("summary, button:not(:disabled), [tabindex='0']").count();
+  for (let tabs = 1; tabs <= tabStops + 1; tabs++) {
+    await page.keyboard.press("Tab");
+    if (await apply.evaluate(element => element === document.activeElement)) return tabs;
+  }
+  throw new Error(`Apply was not keyboard-reachable within ${tabStops + 1} native Tab presses.`);
+}
+
 async function assertResponsivePreview(page: Page, testInfo: TestInfo, dialog: Locator, effectRegion: Locator) {
   const screenshots: string[] = [];
   const measurements = [];
@@ -149,7 +158,7 @@ async function assertResponsivePreview(page: Page, testInfo: TestInfo, dialog: L
     const populatedScreenshot = testInfo.outputPath(`synthetic-effects-${width}-region.png`);
     await page.screenshot({ path: populatedScreenshot, fullPage: true });
     screenshots.push(populatedScreenshot);
-    await page.keyboard.press("Shift+Tab");
+    const nativeTabs = await tabToFooter(page, dialog, apply);
     await expect(apply).toBeFocused();
     const applyBox = await apply.boundingBox();
     expect(applyBox).toBeTruthy();
@@ -158,7 +167,7 @@ async function assertResponsivePreview(page: Page, testInfo: TestInfo, dialog: L
     expect(applyBox!.x + applyBox!.width).toBeLessThanOrEqual(viewport.width);
     expect(applyBox!.y + applyBox!.height).toBeLessThanOrEqual(viewport.height);
     await apply.click({ trial: true });
-    measurements.push({ width, viewport, dialogBox, regionBox, applyBox, overflow, pageOverflow });
+    measurements.push({ width, viewport, dialogBox, regionBox, applyBox, overflow, pageOverflow, nativeTabs });
     const screenshot = testInfo.outputPath(`synthetic-effects-${width}.png`);
     await page.screenshot({ path: screenshot, fullPage: true });
     screenshots.push(screenshot);
