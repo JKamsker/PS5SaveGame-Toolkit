@@ -91,7 +91,14 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
       setRetryPresetId(undefined);
     } catch (error) {
       const rejectedPreview = previewFromError(error);
-      if (rejectedPreview) { setPreview(rejectedPreview); setStale(Boolean(rejectedPreview.preview.stale)); }
+      if (rejectedPreview) {
+        const isStalePreview = Boolean(rejectedPreview.preview.stale);
+        setPreview(rejectedPreview); setStale(isStalePreview); setRefreshError(undefined);
+        if (isStalePreview) {
+          try { await context.refresh(); }
+          catch (refreshFailure) { setRefreshError(refreshFailure instanceof Error ? `The current document could not be refreshed: ${refreshFailure.message}` : "The current document could not be refreshed."); }
+        }
+      }
       else { setRetryPresetId(presetId); showMessage(error instanceof Error ? error.message : "Could not preview preset.", true); }
     }
   };
