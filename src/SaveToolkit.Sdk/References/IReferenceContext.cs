@@ -29,9 +29,10 @@ public interface IReferenceContext
 
     /// <summary>
     /// Deterministic identity of the pinned pack contents, suitable for a host compatibility
-    /// boundary. It is null when no pack is pinned; plugins must not manufacture it from file I/O.
+    /// boundary. It is null when no pack is pinned or any pack lacks a content fingerprint;
+    /// plugins must not manufacture it from file I/O.
     /// </summary>
-    string? ContentIdentity => Packs.Count == 0 ? null : string.Join("|", [
+    string? ContentIdentity => Packs.Count == 0 || Packs.Any(pack => pack.ContentFingerprint is null) ? null : string.Join("|", [
         $"selection:v1;locales={string.Join(",", PreferredLocales.Select(locale => locale ?? "unknown"))};origin=user-over-embedded;build=exact-over-neutral",
         .. Packs
         .OrderBy(pack => pack.Id, StringComparer.Ordinal)

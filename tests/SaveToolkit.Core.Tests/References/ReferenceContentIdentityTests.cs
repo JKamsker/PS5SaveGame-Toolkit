@@ -7,6 +7,21 @@ namespace SaveToolkit.Core.Tests.References;
 public sealed class ReferenceContentIdentityTests
 {
     [Fact]
+    public void DefaultIdentityRequiresEveryPackFingerprint()
+    {
+        var known = new ReferencePackInfo("known", "1", "Known", ReferencePackOrigin.User)
+        {
+            ContentFingerprint = "sha256:" + new string('a', 64),
+        };
+        var unknown = known with { Id = "unknown", ContentFingerprint = null };
+
+        Assert.Null(new SnapshotContext([], []).Identity);
+        Assert.Null(new SnapshotContext([unknown], ["en"]).Identity);
+        Assert.Null(new SnapshotContext([known, unknown], ["en"]).Identity);
+        Assert.NotNull(new SnapshotContext([known], ["en"]).Identity);
+    }
+
+    [Fact]
     public void SameDisplayMetadataWithDifferentContentGetsDifferentFingerprint()
     {
         var options = new ReferencePackOptions { StorageRoot = TestZips.TempDir() };
