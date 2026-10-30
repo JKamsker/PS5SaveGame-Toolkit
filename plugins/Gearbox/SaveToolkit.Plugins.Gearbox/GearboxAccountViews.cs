@@ -205,7 +205,7 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         var key = "myth:" + position.ToString(CultureInfo.InvariantCulture);
         var upstreamCap = SerialDatabase.For(true).Find(GearboxWorldCatalog.CatalogId, key)?.Attributes.GetValueOrDefault("upstreamCap");
         var attribution = document.World.Find(key)?.AttributionText;
-        if (!document.Coordinated || !int.TryParse(upstreamCap, out var cap) || value < 0)
+        if (!document.Coordinated || !int.TryParse(upstreamCap, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cap) || value < 0)
             return document.InspectionField($"{id}/{position}/points", "Stored points", value.ToString(CultureInfo.InvariantCulture), Confidence.Inferred, attribution);
         var maximum = cap == 0 ? Math.Max(value, 1000) : cap;
         var description = (attribution is null ? "" : attribution + " ") +
