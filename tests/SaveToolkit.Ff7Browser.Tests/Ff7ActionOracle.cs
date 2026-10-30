@@ -21,6 +21,7 @@ internal static class Ff7ActionOracle
         }
         Assert.NotEmpty(changes);
         var selected = scope == "selected" ? Ff7Actions.Selected(action).Single() : null;
+        AssertTargetSet(fixture, action, selected, changes);
         foreach (var change in changes)
         {
             var id = change!["valueId"]!.GetValue<string>();
@@ -65,4 +66,32 @@ internal static class Ff7ActionOracle
     }
 
     public static uint Value(JsonNode value) => uint.Parse(value.ToString(), NumberStyles.None, CultureInfo.InvariantCulture);
+
+    private static void AssertTargetSet(Ff7Binary fixture, string action, string? selected, JsonArray changes)
+    {
+        string[] rows = selected is not null ? [selected] : action switch
+        {
+            Ff7Actions.Restock => ["inventory/0", "inventory/1", "inventory/200"],
+            Ff7Actions.Ap or Ff7Actions.Stars => fixture.TitleId == Ff7Actions.Titles[0]
+                ? ["materia/0", "materia/1", "materia/200"] : ["materia/0"],
+            _ => fixture.FieldOffsets.Keys.Where(id => id.StartsWith("character/", StringComparison.Ordinal)
+                    && id.EndsWith("/level", StringComparison.Ordinal)).Select(id => id[..^"/level".Length]).ToArray(),
+        };
+        string[] suffixes = action switch
+        {
+            Ff7Actions.Restock => ["quantity"],
+            Ff7Actions.Ap => ["ap"],
+            Ff7Actions.Stars => ["ap", "level"],
+            Ff7Actions.Recover => ["hp", "mp"],
+            Ff7Actions.Level => ["level"],
+            _ => throw new InvalidOperationException("Unknown action."),
+        };
+        var actual = changes.Select(change => change!["valueId"]!.GetValue<string>()).ToArray();
+        Assert.Equal(actual.Length, actual.Distinct(StringComparer.Ordinal).Count());
+        // Some characters have zero XP at this target level. The plugin's independent curve tests
+        // own that derived oracle; every intended level/vital/inventory/materia target is exact here.
+        var primary = action == Ff7Actions.Level ? actual.Where(id => id.EndsWith("/level", StringComparison.Ordinal)) : actual;
+        Assert.Equal(rows.SelectMany(row => suffixes.Select(suffix => row + "/" + suffix)).Order(StringComparer.Ordinal),
+            primary.Order(StringComparer.Ordinal));
+    }
 }

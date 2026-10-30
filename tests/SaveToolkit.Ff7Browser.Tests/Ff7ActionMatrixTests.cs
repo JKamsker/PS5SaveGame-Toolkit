@@ -8,12 +8,16 @@ public sealed class Ff7ActionMatrixTests(Ff7ApiHost host)
     public static IEnumerable<object[]> Cases()
     {
         foreach (var title in Ff7Actions.Titles)
-            foreach (var action in Ff7Actions.All) yield return [title, action, "document", false];
-        foreach (var action in Ff7Actions.All)
         {
-            yield return [Ff7Actions.Titles[1], action, action is Ff7Actions.Ap or Ff7Actions.Stars ? "allCopies" : "allEligible", false];
-            yield return [Ff7Actions.Titles[1], action, "selected", false];
-            yield return [Ff7Actions.Titles[1], action, "selected", true];
+            foreach (var action in Ff7Actions.All)
+            {
+                yield return [title, action, "document", false];
+                yield return [title, action, action is Ff7Actions.Ap or Ff7Actions.Stars ? "allCopies" : "allEligible", false];
+                // Remake has no proven owned materia instance identity; Selected is not advertised there.
+                if (title == Ff7Actions.Titles[0] && action is Ff7Actions.Ap or Ff7Actions.Stars) continue;
+                yield return [title, action, "selected", false];
+                yield return [title, action, "selected", true];
+            }
         }
     }
 
