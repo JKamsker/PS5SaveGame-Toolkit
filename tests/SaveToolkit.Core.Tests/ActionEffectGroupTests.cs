@@ -15,7 +15,7 @@ public sealed class ActionEffectGroupTests
         using var staged = Open(control);
         control.VerifyCalls = 0;
         var plan = staged.PlanAction("transfer", new Dictionary<string, FieldValue>(), new());
-        Assert.Equal(["member-a/value", "member-b/value"], plan.Changes.Select(change => change.ValueId));
+        Assert.Equal(["member-a/effect", "member-b/effect"], plan.Changes.Select(change => change.ValueId));
 
         Assert.Throws<InvalidOperationException>(() => staged.ApplyActionPlan("transfer",
             new Dictionary<string, FieldValue>(), new(), plan));
@@ -42,6 +42,52 @@ public sealed class ActionEffectGroupTests
             new Dictionary<string, FieldValue>(), new(), cancellation.Token));
         Assert.Equal([1, 2], Values(staged));
         Assert.Equal(0, control.VerifyCalls);
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(5)]
+    public void EffectDiagnosticsAndInnerProviderTokenAreAdmittedBeforeGroupVerifyOrPublish(int mode)
+    {
+        var control = new GroupControl { OutcomeMode = mode };
+        using var staged = Open(control);
+        var plan = staged.PlanAction("transfer", new Dictionary<string, FieldValue>(), new());
+        control.VerifyCalls = 0;
+
+        Assert.ThrowsAny<Exception>(() => staged.ApplyActionPlan("transfer", new Dictionary<string, FieldValue>(), new(), plan));
+
+        Assert.Equal(0, control.VerifyCalls);
+        Assert.Equal([1, 2], Values(staged));
+        Assert.Equal(FieldValue.Of(1), staged.GetValue("member-a/value"));
+        Assert.True(control.DisposedCandidates > 0);
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(4)]
+    [InlineData(5)]
+    public void FullSessionGroupMalformedDiagnosticsKeepBothPublishedMembersAndHistory(int mode)
+    {
+        using var fixture = new ActionEffectR2Fixture();
+        var control = new GroupControl();
+        using var staged = Open(control);
+        using var session = new SaveToolkit.Core.Sessions.DocumentSession("group-effect-r2", fixture.Session.File,
+            fixture.Session.Plugin, staged, openOriginal: () => new GroupEffectDocument(control, 1, 2));
+        _ = session.BuildView();
+        var preview = session.PlanAction("transfer", new Dictionary<string, System.Text.Json.JsonElement>());
+        Assert.NotNull(preview.PlanId);
+        control.OutcomeMode = mode;
+
+        var result = session.ApplyActionPlan(preview.PlanId!, preview.Revision);
+
+        Assert.False(result.Ok);
+        Assert.Equal([1, 2], Values(staged));
+        Assert.False(session.State.CanUndo);
+        Assert.True(session.CanEdit);
+        Assert.Equal(FieldValue.Of(2), staged.GetValue("member-b/value"));
     }
 
     [Fact]
@@ -85,6 +131,7 @@ public sealed class ActionEffectGroupTests
         public int DisposedCandidates { get; set; }
         public bool BrokenRestore { get; set; }
         public int RestoreFailures { get; set; }
+        public int OutcomeMode { get; set; }
     }
 
     private sealed class GroupEffectDocument : BoundSaveDocument, IGroupedSaveDocument,
@@ -130,8 +177,8 @@ public sealed class ActionEffectGroupTests
         {
             Changes =
             [
-                EffectChange("member-a/value", _first),
-                EffectChange("member-b/value", _second),
+                EffectChange("member-a/effect", _first),
+                EffectChange("member-b/effect", _second),
             ],
         };
 
@@ -147,7 +194,12 @@ public sealed class ActionEffectGroupTests
             {
                 Changes = plan.Changes.Select(change => new ValueChange(change.ValueId, change.OldValue, change.NewValue)).ToArray(),
                 StructureChanged = true,
-                Revert = before,
+                Revert = _control.OutcomeMode switch { 4 => new InvalidSizeToken(-1), 5 => new InvalidSizeToken(1025), _ => before },
+                Warnings = _control.OutcomeMode switch
+                {
+                    1 => null!, 2 => [new string('x', 4097)],
+                    3 => new MiscountedList<string>(0, ["unreported"]), _ => [],
+                },
             };
         }
 
@@ -178,5 +230,9 @@ public sealed class ActionEffectGroupTests
         };
 
         private sealed record GroupState(int First, int Second);
+        private sealed class InvalidSizeToken(long bytes) : DocumentMemento
+        {
+            public override long SizeBytes => bytes;
+        }
     }
 }

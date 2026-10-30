@@ -139,6 +139,10 @@ public sealed class ViewIndex
 
     internal void SetMetadataBudget(long? bytes) => _metadata.SetBudget(bytes);
 
+    internal IReadOnlyList<FieldMetadata> ResolvePlanningMetadata(IReadOnlyList<string> ids, int maximumIds,
+        long allowance, CancellationToken cancellationToken) =>
+        _metadata.ResolveForPlanning(ids, maximumIds, allowance, cancellationToken);
+
     public bool HasFieldMetadata => _metadata.Enabled;
 
     public void ResolveMetadata(IEnumerable<string> valueIds)

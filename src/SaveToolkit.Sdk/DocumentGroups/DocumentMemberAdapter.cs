@@ -137,10 +137,12 @@ public sealed class DocumentMemberAdapter
     }
 
     /// <summary>Qualify a local plan. A skipped-row key is opaque and uses the ordinary identity policy.</summary>
-    public ActionPlan ToGroupPlan(ActionPlan plan) => MapPlan(plan, Prefix, MapGroupPath);
+    public ActionPlan ToGroupPlan(ActionPlan plan, CancellationToken cancellationToken = default) =>
+        MapPlan(plan, Prefix, path => MapPath(path, toGroup: true, cancellationToken), cancellationToken);
 
     /// <summary>Invert plan identity mapping, preserving empty general errors and every plan flag.</summary>
-    public ActionPlan ToLocalPlan(ActionPlan plan) => MapPlan(plan, Local, MapLocalPath);
+    public ActionPlan ToLocalPlan(ActionPlan plan, CancellationToken cancellationToken = default) =>
+        MapPlan(plan, Local, path => MapPath(path, toGroup: false, cancellationToken), cancellationToken);
 
     /// <summary>Qualify changes and errors; retain member warnings, flags and the member-local Revert token.</summary>
     public EditOutcome ToGroupOutcome(EditOutcome outcome) => outcome with
@@ -156,42 +158,33 @@ public sealed class DocumentMemberAdapter
     };
 
     private static ActionPlan MapPlan(ActionPlan plan, Func<string, string> map,
-        Func<IReadOnlyList<string>, IReadOnlyList<string>> mapPath) => plan with
+        Func<IReadOnlyList<string>, IReadOnlyList<string>> mapPath, CancellationToken cancellationToken) => plan with
     {
-        Changes = plan.Changes.Select(change => change with
+        Changes = BoundedMetadataCollections.Enumerate(plan.Changes, ActionPlanSnapshots.MaxPlanEntries, cancellationToken).Select(change => change with
         {
             ValueId = map(change.ValueId),
             Effect = change.Effect is { Path: { } path } effect
                 ? effect with { Path = Array.AsReadOnly(mapPath(path).ToArray()) }
                 : change.Effect,
         }).ToArray(),
-        SkippedRows = plan.SkippedRows.Select(row => row with { RowKey = map(row.RowKey) }).ToArray(),
-        Errors = plan.Errors.Select(error => MapError(error, map)).ToArray(),
+        SkippedRows = BoundedMetadataCollections.Enumerate(plan.SkippedRows, ActionPlanSnapshots.MaxPlanEntries, cancellationToken)
+            .Select(row => row with { RowKey = map(row.RowKey) }).ToArray(),
+        Errors = BoundedMetadataCollections.Enumerate(plan.Errors, ActionPlanSnapshots.MaxPlanEntries, cancellationToken)
+            .Select(error => MapError(error, map)).ToArray(),
     };
 
-    private IReadOnlyList<string> MapGroupPath(IReadOnlyList<string> path)
+    private IReadOnlyList<string> MapPath(IReadOnlyList<string> path, bool toGroup, CancellationToken cancellationToken)
     {
-        var mapped = _policy.NavigationPath(Role, path);
-        ValidateMappedPath(mapped);
-        if (!path.SequenceEqual(_policy.LocalNavigationPath(Role, mapped), StringComparer.Ordinal))
+        var input = BoundedMetadataCollections.Path(path, cancellationToken);
+        var forward = toGroup ? _policy.NavigationPath : _policy.LocalNavigationPath;
+        var reverse = toGroup ? _policy.LocalNavigationPath : _policy.NavigationPath;
+        cancellationToken.ThrowIfCancellationRequested();
+        var mapped = BoundedMetadataCollections.Path(forward(Role, input), cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        var inverse = BoundedMetadataCollections.Path(reverse(Role, mapped), cancellationToken);
+        if (!input.SequenceEqual(inverse, StringComparer.Ordinal))
             throw new InvalidOperationException($"Navigation path codec is not stable for member '{Role}'.");
         return mapped;
-    }
-
-    private IReadOnlyList<string> MapLocalPath(IReadOnlyList<string> path)
-    {
-        var mapped = _policy.LocalNavigationPath(Role, path);
-        ValidateMappedPath(mapped);
-        if (!path.SequenceEqual(_policy.NavigationPath(Role, mapped), StringComparer.Ordinal))
-            throw new InvalidOperationException($"Navigation path codec is not stable for member '{Role}'.");
-        return mapped;
-    }
-
-    private static void ValidateMappedPath(IReadOnlyList<string> path)
-    {
-        if (path.Count > ActionPlanSnapshots.MaxEffectPathParts
-            || path.Any(part => part is null || part.Length > ActionPlanSnapshots.MaxEffectPathPartLength))
-            throw new InvalidOperationException("Action effect navigation path exceeds its bounded limit.");
     }
 
     private static FieldError MapError(FieldError error, Func<string, string> map) =>

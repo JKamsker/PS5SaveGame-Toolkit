@@ -21,6 +21,7 @@ public static class FieldMetadataPlanning
         ReferenceFieldService? references, CancellationToken cancellationToken, long? metadataBudget = null)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ActionPlanSnapshots.Validate(plan, cancellationToken);
         var effects = plan.Changes.Where(change => change.Effect is not null).ToArray();
         var effectEnabled = document switch
         {
@@ -41,20 +42,8 @@ public static class FieldMetadataPlanning
         var resolverIds = exactIds.Distinct(StringComparer.Ordinal).ToArray();
         var authorityBudget = checked((int)Math.Min(2L * ActionPlanSnapshots.MaxPlanEntries,
             Math.Max(1L, 2L * resolverIds.Length)));
-        // The aggregate request/plan wire budget is checked before this call and again against
-        // the capped metadata serialization below. FieldMetadataIndex's optional retained graph
-        // budget is intentionally disabled here: its UTF-16 estimate is a different unit and
-        // would reject exact inclusive wire plans before the capped writer can measure them.
-        index.SetMetadataBudget(null);
-        try
-        {
-            index.ResolveMetadata(resolverIds, cancellationToken, authorityBudget);
-        }
-        finally
-        {
-            index.SetMetadataBudget(null);
-        }
-        var result = new List<FieldMetadata>(plan.Changes.Count);
+        var closure = index.ResolvePlanningMetadata(resolverIds, authorityBudget,
+            metadataBudget ?? 4 * 1024 * 1024, cancellationToken);
         var ids = new HashSet<string>(StringComparer.Ordinal);
         foreach (var change in plan.Changes)
         {
@@ -86,9 +75,8 @@ public static class FieldMetadataPlanning
                     allowReadOnly: change.Derived, references: references);
                 if (!validated.Ok) throw new InvalidOperationException($"Invalid planned field '{change.ValueId}': {validated.Error}");
             }
-            result.Add(metadata);
         }
-        return result;
+        return closure;
     }
 
     private static void ValidateEffect(PlannedChange change)
@@ -146,7 +134,10 @@ public static class FieldMetadataPlanning
             IntegerSpec integer => integer.Min <= integer.Max && Enum.IsDefined(integer.Format)
                 && (integer.Format != IntegerFormat.Duration || integer.UnitsPerSecond is > 0),
             FloatSpec floating => Enum.IsDefined(floating.Format) && double.IsFinite(floating.UnitsPerSecond)
-                && floating.UnitsPerSecond > 0 && floating.Min <= floating.Max,
+                && floating.UnitsPerSecond > 0
+                && (floating.Min is null || double.IsFinite(floating.Min.Value))
+                && (floating.Max is null || double.IsFinite(floating.Max.Value))
+                && (floating.Min is null || floating.Max is null || floating.Min <= floating.Max),
             TextSpec text => text.MaxLength is not < 0,
             EnumSpec choice => choice.Options.Count > 0
                 && choice.Options.Select(option => option.Value).Distinct(StringComparer.Ordinal).Count() == choice.Options.Count,

@@ -65,3 +65,26 @@ it("preserves nullable null, text, integer and union distinctions", () => {
   expect(screen.getAllByText('text: null').length).toBeGreaterThan(0);
   expect(screen.getAllByText("count: integer: 9007199254740993").length).toBeGreaterThan(0);
 });
+
+it("copies distinct structured union tags through the rendered exact-copy controls", async () => {
+  const writeText = vi.fn().mockResolvedValue(undefined);
+  Object.assign(navigator, { clipboard: { writeText } });
+  const change: PlannedChange = {
+    valueId: "opaque", label: "Opaque tags", derived: false, oldExists: true, newExists: true,
+    oldValue: { kind: "union", type: "a", value: "text: x" },
+    newValue: { kind: "union", type: "a: text", value: "x" },
+    effect: { kind: "Observation", spec: { kind: "union", options: [
+      { id: "a", label: "A", spec: { kind: "text" } },
+      { id: "a: text", label: "Opaque", spec: { kind: "text" } },
+    ] } },
+  };
+  render(<ActionPreviewChanges action={action([change])} />);
+  expect(screen.getByText('a: text: text: x')).toBeTruthy();
+  expect(screen.getByText('"a: text": text: x')).toBeTruthy();
+  const buttons = screen.getAllByRole("button", { name: "Copy exact" });
+  fireEvent.click(buttons[0]!);
+  fireEvent.click(buttons[1]!);
+  await waitFor(() => expect(writeText).toHaveBeenCalledTimes(2));
+  expect(JSON.parse(writeText.mock.calls[0]![0] as string)).toEqual({ kind: "union", type: "a", value: { kind: "text", value: "text: x" } });
+  expect(JSON.parse(writeText.mock.calls[1]![0] as string)).toEqual({ kind: "union", type: "a: text", value: { kind: "text", value: "x" } });
+});

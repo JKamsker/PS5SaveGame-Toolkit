@@ -187,19 +187,21 @@ public sealed partial class DocumentSession
                         try
                         {
                             _ = Document.RestoreMemento(inverse);
-                            _ = RebuildIndex(forceNewRevision: false);
+                            var rebindWarnings = RebuildIndex(forceNewRevision: false);
+                            if (rebindWarnings.Count > 0)
+                                throw new InvalidOperationException(ActionEffectOutcomes.Bound(rebindWarnings[0]));
                         }
                         catch (Exception restore) when (restore is not OutOfMemoryException)
                         {
                             MarkUnusable();
                             return new HistoryReplay.StepResult(EditOutcome.Rejected(string.Empty,
-                                $"History replay exceeded its snapshot budget and could not restore the document: {restore.Message}"),
+                                $"History replay exceeded its snapshot budget and could not restore the document: {ActionEffectOutcomes.Diagnostic(restore)}"),
                                 memento, Rebuilt: false);
                         }
                     }
                     // The document rolled itself back, but may have replaced model objects: re-index.
                     return new HistoryReplay.StepResult(EditOutcome.Rejected(string.Empty,
-                        $"History replay rejected an oversized snapshot: {ex.Message}") with { StructureChanged = true },
+                        $"History replay rejected an oversized snapshot: {ActionEffectOutcomes.Diagnostic(ex)}") with { StructureChanged = true },
                         memento, Rebuilt: false);
                 }
 
@@ -231,7 +233,7 @@ public sealed partial class DocumentSession
                 _structuralRevision = ++_revision;
             }
 
-            return [$"The view could not be rebuilt: {ex.Message}"];
+            return [$"The view could not be rebuilt: {ActionEffectOutcomes.Diagnostic(ex)}"];
         }
 
         var before = _index.BindingIds.ToHashSet(StringComparer.Ordinal);

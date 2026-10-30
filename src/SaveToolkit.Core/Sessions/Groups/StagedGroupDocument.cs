@@ -229,8 +229,12 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         try
         {
             var outcome = mutation(candidate);
-            if (outcome.Succeeded && plan is { Changes.Count: > 0 } && plan.Changes.Any(change => change.Effect is not null))
-                ActionEffectOutcomeValidation.Validate(plan, outcome);
+            if (plan is not null && plan.Changes.Any(change => change.Effect is not null))
+            {
+                outcome = ActionEffectOutcomes.Snapshot(outcome);
+                if (outcome.Revert is { } providerRevert) CheckSnapshotBudget(providerRevert);
+                if (outcome.Succeeded) ActionEffectOutcomeValidation.Validate(plan, outcome);
+            }
             if (!outcome.Succeeded || outcome.Changes.Count == 0 && !outcome.StructureChanged && outcome.Revert is null)
             {
                 var discarded = candidate;
@@ -279,7 +283,7 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         }
         catch (Exception cleanup) when (cleanup is not OutOfMemoryException)
         {
-            var error = new FieldError(string.Empty, $"Group candidate cleanup failed: {cleanup.Message}");
+            var error = new FieldError(string.Empty, $"Group candidate cleanup failed: {ActionEffectOutcomes.Bound(cleanup.Message)}");
             return outcome with { Errors = [.. outcome.Errors, error] };
         }
     }

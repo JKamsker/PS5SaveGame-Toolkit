@@ -30,6 +30,17 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
     }
     public FieldMetadata? Cached(string id) => _fields.GetValueOrDefault(id);
 
+    internal IReadOnlyList<FieldMetadata> ResolveForPlanning(IReadOnlyList<string> ids, int maximumIds,
+        long allowance, CancellationToken cancellationToken)
+    {
+        if (document is null || !Enabled) return [];
+        var closure = PlanningMetadataAdmission.Resolve(document, ids, maximumIds, allowance, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        foreach (var id in ids) _fields.Remove(id);
+        foreach (var field in closure) _fields[field.ValueId] = field;
+        return closure;
+    }
+
     public FieldMetadata? Resolve(string id)
     {
         ResolveAll([id]);
@@ -166,7 +177,7 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
     private static bool HasAvailableTarget(FieldMetadata field, IReadOnlySet<string> fetched) =>
         Normalize(field).CanonicalValueId == field.ValueId || fetched.Contains(Normalize(field).CanonicalValueId);
 
-    private static void ValidateCanonical(FieldMetadata field, IReadOnlyDictionary<string, FieldMetadata> cache)
+    internal static void ValidateCanonical(FieldMetadata field, IReadOnlyDictionary<string, FieldMetadata> cache)
     {
         var canonicalId = Normalize(field).CanonicalValueId;
         if (canonicalId == field.ValueId)
@@ -212,7 +223,7 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
             ? bytes : throw new InvalidOperationException("Field metadata exceeds bounded snapshot limits.");
 
     // Copy nested option/union lists too: plugin-owned mutable collections must not alter a preview.
-    private static FieldMetadata Snapshot(FieldMetadata field) => field with
+    internal static FieldMetadata Snapshot(FieldMetadata field) => field with
     {
         Spec = FieldSpecMetadata.Snapshot(field.Spec),
         Path = field.Path is { } path ? Array.AsReadOnly(path.ToArray()) : null,
@@ -225,5 +236,5 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
         first.Count == second.Count && first.Zip(second).All(pair => Agree(pair.First, pair.Second));
 
     private static bool WireAgree<T>(T first, T second) =>
-        JsonSerializer.SerializeToUtf8Bytes(first).AsSpan().SequenceEqual(JsonSerializer.SerializeToUtf8Bytes(second));
+        JsonSerializer.SerializeToUtf8Bytes(first, MetadataJson.Options).AsSpan().SequenceEqual(JsonSerializer.SerializeToUtf8Bytes(second, MetadataJson.Options));
 }

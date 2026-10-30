@@ -1794,3 +1794,14 @@ redo, including observation-only plans. Do not register action payload IDs as pa
 effect-specific setters. `Path` is a bounded document-relative navigation path and `Source` is
 provenance text, never an output ownership or fetch key. The host retains a detached bounded snapshot;
 mutating plugin-owned spec/path lists after planning cannot alter a reviewed plan.
+
+Planning shares one inclusive 4 MiB UTF-8 allowance across the request, complete ordered plan and
+every canonical dependency resolved for its rows. The whole canonical closure is admitted before
+live getters, metadata comparison or detached graph copies. Selection limits do not truncate effects:
+plans retain up to 65,536 ordered entries, with independent per-spec limits of 4,096 nodes and depth128.
+Provider collections must report their actual finite cardinality; inconsistent counts are rejected.
+The host freezes complete outcome changes and diagnostics before recording history or publishing a
+group candidate, and checks a member's structural token before replacing it with a group snapshot.
+Optional float bounds may be absent independently, but supplied bounds must be finite and ordered.
+The preview's exact union copy is tagged JSON so opaque option IDs and nested typed values cannot
+collide with delimiter-containing text; scalar text copying remains complete and untruncated.
