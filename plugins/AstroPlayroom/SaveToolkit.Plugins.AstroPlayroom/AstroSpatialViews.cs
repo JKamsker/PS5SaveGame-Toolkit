@@ -1,3 +1,4 @@
+using System.Globalization;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -37,7 +38,7 @@ internal sealed class AstroSpatialViews(AstroSchema schema, IReadOnlyList<AstroF
                 : [new TextNode("Reference screenshot: its crowns and artwork are static. Only overlay markers reflect this save. Stage anchors are Inferred; use the original schematic or text list when uncertain."), artwork];
         }
         var parts = lazyId[LazyPrefix.Length..].Split(':');
-        if (parts.Length != 2 || !int.TryParse(parts[1], out var page) || page < 0)
+        if (parts.Length != 2 || !int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var page) || page < 0)
             throw new KeyNotFoundException("Unknown ASTRO map page.");
 
         var markers = parts[0] switch
