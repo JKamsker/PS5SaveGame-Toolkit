@@ -128,6 +128,9 @@ async function assertResponsivePreview(page: Page, testInfo: TestInfo, dialog: L
   const measurements = [];
   for (const width of widths) {
     await page.setViewportSize({ width, height: 800 });
+    await effectRegion.focus();
+    await expect(effectRegion).toBeFocused();
+    await expect(effectRegion).toBeInViewport({ ratio: 0.5 });
     const viewport = page.viewportSize()!;
     const dialogBox = await dialog.boundingBox();
     const regionBox = await effectRegion.boundingBox();
@@ -143,9 +146,9 @@ async function assertResponsivePreview(page: Page, testInfo: TestInfo, dialog: L
     const apply = dialog.getByRole("button", { name: "Apply", exact: true });
     await expect(apply).toBeVisible();
     await expect(apply).toBeEnabled();
-    await expect(effectRegion).toBeInViewport();
-    await effectRegion.focus();
-    await expect(effectRegion).toBeFocused();
+    const populatedScreenshot = testInfo.outputPath(`synthetic-effects-${width}-region.png`);
+    await page.screenshot({ path: populatedScreenshot, fullPage: true });
+    screenshots.push(populatedScreenshot);
     await page.keyboard.press("Shift+Tab");
     await expect(apply).toBeFocused();
     const applyBox = await apply.boundingBox();
