@@ -30,7 +30,7 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
         catch (OperationCanceledException) { throw; }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            return Failure($"Targeted metadata coverage is incomplete: {ex.Message}", valueIds);
+            return Failure(SemanticDiagnostics.Exception("Targeted metadata coverage is incomplete", ex), valueIds);
         }
 
         TargetedCaptureResult Failure(string message, IReadOnlyList<string> ids) => new(false, [], ids, message);

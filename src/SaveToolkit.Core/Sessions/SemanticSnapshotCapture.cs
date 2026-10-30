@@ -53,7 +53,7 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
             {
                 case FieldNode f:
                     var field = new SemanticField(f.ValueId, rowLabel is null ? f.Label : $"{rowLabel} / {f.Label}", path, f.Value, f.Spec.ReadOnly, target,
-                        Spec: FieldSpecMetadata.Snapshot(f.Spec));
+                        Spec: f.Spec);
                     if (fields.TryGetValue(f.ValueId, out var existing))
                     {
                         var merged = MergeNavigation(existing, field);
@@ -78,7 +78,9 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
 
                     index(f);
                     bytes += cost;
-                    fields[f.ValueId] = field;
+                    fields[f.ValueId] = RequiresSpecSnapshot(f.Spec)
+                        ? field with { Spec = FieldSpecMetadata.Snapshot(f.Spec) }
+                        : field;
                     break;
                 case SectionNode s:
                     var sectionPath = path.Append("section:" + (s.LazyId ?? s.Title)).ToArray();
@@ -179,6 +181,8 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
             OmittedCountIsLowerBound = !complete || queryTraversal.Warnings.Count > 0,
         };
     }
+
+    private static bool RequiresSpecSnapshot(FieldSpec spec) => spec is EnumSpec or FlagsSpec or NullableSpec or UnionSpec;
 
 }
 

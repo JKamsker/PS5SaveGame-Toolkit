@@ -42,13 +42,13 @@ internal sealed class SemanticReviewCoverageTracker
     {
         if (_failures.ContainsKey(id))
         {
-            _failures[id] = diagnostic;
+            _failures[id] = SemanticDiagnostics.Bound(diagnostic);
             return;
         }
 
         if (_failures.Count < FieldMetadataLimits.MaxClosureIds)
         {
-            _failures[id] = diagnostic;
+            _failures[id] = SemanticDiagnostics.Bound(diagnostic);
             if (_failedOmissionIds.Add(id)) _omittedCount++;
         }
         else
@@ -104,6 +104,7 @@ internal sealed class SemanticReviewCoverageTracker
 
     private void RecordMetadataAttemptFailure(string diagnostic)
     {
+        if (_pendingMetadataAttempt) return;
         _pendingMetadataAttempt = true;
         RecordOmissions(1, diagnostic);
     }
@@ -111,7 +112,7 @@ internal sealed class SemanticReviewCoverageTracker
     public void RecordOmissions(int count, string reason)
     {
         _omittedCount = count > int.MaxValue - _omittedCount ? int.MaxValue : _omittedCount + count;
-        _omissionReason ??= reason;
+        _omissionReason ??= SemanticDiagnostics.Bound(reason);
         _omittedCountIsLowerBound = true;
     }
 
