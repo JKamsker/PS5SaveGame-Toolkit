@@ -1,4 +1,6 @@
 using SaveToolkit.Core.Plugins;
+using SaveToolkit.Core.Presets;
+using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
@@ -48,7 +50,101 @@ internal static class DtoMapper
     {
         var snapshot = initialView ?? d.CaptureView();
         return new(d.Id, d.File.Id, d.File.RelativePath, snapshot.Title, d.Plugin.ToDto(), snapshot.CanEdit, snapshot.State, snapshot.View)
-        { GroupMembers = workspace?.DocumentGroups.FirstOrDefault(g => g.Session.Id == d.Id)?.Members };
+        {
+            GroupMembers = workspace?.DocumentGroups.FirstOrDefault(g => g.Session.Id == d.Id)?.Members,
+            PresetCapability = d.PresetCapability,
+            PresetCapabilityStatus = d.PresetCapabilityAdmission.ToString().ToLowerInvariant(),
+            PresetCapabilityReason = d.PresetCapabilityError,
+            TitleId = d.File.Directory.TitleId,
+        };
+    }
+
+    public static PresetDto ToDto(this ToolkitPreset preset) => new(
+        preset.SchemaVersion, preset.Id, preset.Name, preset.Compatibility, preset.Actions, preset.CreatedAt, preset.UpdatedAt);
+
+    public static DocumentPresetDto ToDocumentDto(this ToolkitPreset preset, DocumentSession document)
+    {
+        var check = PresetStore.CheckCompatibility(preset, document);
+        var capability = document.PresetCapability;
+        var unsupported = new List<string>();
+        string? previewCode = null;
+        string? previewReason = null;
+        if (capability is null && document.PresetDocument is not null)
+        {
+            unsupported.Add("capability");
+            previewCode = "capabilityMalformed";
+            previewReason = "The semantic preset capability is malformed.";
+        }
+        else if (capability is null)
+        {
+            if (preset.Actions.Count != 1)
+            {
+                unsupported.Add("generic:action-count");
+                previewCode = "genericShapeUnsupported";
+                previewReason = "Generic preview requires exactly one action.";
+            }
+            else if (preset.Actions[0].ScopeKind != PresetScopeKinds.Document || preset.Actions[0].Instances is { Count: > 0 })
+            {
+                unsupported.Add(preset.Actions[0].ActionId);
+                previewCode = "genericShapeUnsupported";
+                previewReason = "Generic preview requires one document-scope action without semantic targets.";
+            }
+            else if (document.GenericPresetActionError(preset.Actions[0].ActionId) is { } actionError)
+            {
+                unsupported.Add(preset.Actions[0].ActionId);
+                previewCode = "actionUnsupported";
+                previewReason = actionError;
+            }
+        }
+        else if (PresetContractValidation.ValidateCapability(capability) is { } capabilityError)
+        {
+            unsupported.Add("capability");
+            previewCode = "capabilityMalformed";
+            previewReason = capabilityError;
+        }
+        else if (PresetContractValidation.ValidateActions(capability, preset.Actions,
+            document.PinnedReferences is ReferenceContext pinned ? new ReferenceFieldService(pinned) : null) is { } actionError)
+        {
+            unsupported.AddRange(preset.Actions.Select(action => action.ActionId).Distinct(StringComparer.Ordinal));
+            previewCode = "actionUnsupported";
+            previewReason = actionError;
+        }
+        var canPreview = check.Compatible && unsupported.Count == 0;
+        if (!check.Compatible) { previewCode = check.Code; previewReason = check.Message; }
+        var summary = new PresetCompatibilitySummaryDto(
+            check.Compatible,
+            check.Code,
+            check.Message,
+            !document.CanEdit,
+            canPreview,
+            previewCode,
+            previewReason,
+            preset.Compatibility.PresetKind,
+            preset.Compatibility.PluginVersion,
+            document.Plugin.Info.Version,
+            preset.Compatibility.GameBuild,
+            capability?.GameBuild,
+            preset.Compatibility.FormatVariant,
+            capability?.FormatVariant,
+            preset.Compatibility.ReferencePackIdentity,
+            capability?.ReferencePackIdentity,
+            preset.Compatibility.SchemaFingerprint,
+            capability?.SchemaFingerprint,
+            preset.Compatibility.FileRole,
+            capability?.FileRole,
+            preset.Compatibility.CapabilitySchemaVersion,
+            capability?.SchemaVersion,
+            unsupported)
+        {
+            SavedTitleIds = preset.Compatibility.TitleIds,
+            CurrentTitleId = document.File.Directory.TitleId,
+            CurrentPresetKind = capability?.PresetKind ?? "toolkit.action-parameters",
+            CanApply = canPreview && document.CanEdit,
+            Readiness = !check.Compatible ? "incompatible"
+                : unsupported.Count > 0 ? "unsupported"
+                : !document.CanEdit ? "readOnly" : "ready",
+        };
+        return new DocumentPresetDto(preset.ToDto(), summary);
     }
 
     private static DirectoryDto ToDto(Workspace ws, DiskSaveDirectory dir, Dictionary<string, string> openByFile)

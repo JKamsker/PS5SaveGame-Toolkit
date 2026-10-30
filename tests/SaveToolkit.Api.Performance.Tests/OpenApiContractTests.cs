@@ -45,5 +45,6 @@ public sealed class OpenApiContractTests
             .UseEnvironment(environment)
             .UseSetting("Toolkit:DataRoot", Path.Combine(TestScratch.ProcessFolder, "openapi", Guid.NewGuid().ToString("N"), "workspaces"))
             .UseSetting("Toolkit:PackRoot", Path.Combine(TestScratch.ProcessFolder, "openapi", Guid.NewGuid().ToString("N"), "packs"))
+            .UseSetting("Toolkit:PresetRoot", Path.Combine(TestScratch.ProcessFolder, "openapi", Guid.NewGuid().ToString("N"), "presets"))
             .ConfigureLogging(logging => logging.ClearProviders()));
 }

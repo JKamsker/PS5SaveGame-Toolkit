@@ -23,16 +23,37 @@ public sealed partial class DocumentSession
     private PendingAction? _pendingAction;
     private Action? _startAtomicApply;
 
+    /// <summary>Checks the same indexed planning policy used by PlanAction without invoking a plugin.</summary>
+    public string? GenericPresetActionError(string actionId) => Locked(() =>
+    {
+        if (_index.Action(actionId) is not { } action)
+            return "The saved action is not present in the current document view.";
+        if (!action.SupportsPlanning)
+            return "The saved action is inspection-only and cannot be previewed as a preset.";
+        if (!action.Mutates)
+            return "The saved action does not mutate the document and cannot be applied as a preset.";
+        if (Document is not IActionPlanningDocument)
+            return "The current document does not support action planning.";
+        return null;
+    });
+
     public ActionPreview PlanAction(string actionId, IReadOnlyDictionary<string, JsonElement> parameters,
         ActionScope? scope = null, long? expectedRevision = null) =>
         PlanAction(actionId, parameters, scope, expectedRevision, CancellationToken.None);
 
     public ActionPreview PlanAction(string actionId, IReadOnlyDictionary<string, JsonElement> parameters,
-        ActionScope? scope, long? expectedRevision, CancellationToken cancellationToken) => Locked(() =>
-        RunPreflight(_ => PlanActionCore(actionId, parameters, scope, expectedRevision, cancellationToken), cancellationToken), cancellationToken);
+        ActionScope? scope, long? expectedRevision, CancellationToken cancellationToken,
+        string? presetId = null, string? presetFingerprint = null) =>
+        PlanAction(actionId, parameters, scope, expectedRevision, presetId, presetFingerprint, cancellationToken);
+
+    public ActionPreview PlanAction(string actionId, IReadOnlyDictionary<string, JsonElement> parameters,
+        ActionScope? scope, long? expectedRevision, string? presetId, string? presetFingerprint,
+        CancellationToken cancellationToken) => Locked(() =>
+        RunPreflight(_ => PlanActionCore(actionId, parameters, scope, expectedRevision, presetId, presetFingerprint, cancellationToken), cancellationToken), cancellationToken);
 
     private ActionPreview PlanActionCore(string actionId, IReadOnlyDictionary<string, JsonElement> parameters,
-        ActionScope? scope, long? expectedRevision, CancellationToken cancellationToken)
+        ActionScope? scope, long? expectedRevision, string? presetId, string? presetFingerprint,
+        CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         _pendingAction = null;
@@ -109,7 +130,7 @@ public sealed partial class DocumentSession
                 return Reject([new FieldError(actionId, "Preview metadata is too large; narrow its scope.")]);
             cancellationToken.ThrowIfCancellationRequested();
             var id = Guid.NewGuid().ToString("N");
-            _pendingAction = new PendingAction(id, _revision, actionId, readOnlyValues, requested, bytes, metadata);
+            _pendingAction = new PendingAction(id, _revision, actionId, readOnlyValues, requested, bytes, metadata, presetId, presetFingerprint);
             return new ActionPreview(id, _revision, requested, plan);
         }
         catch (StaleViewException ex)
@@ -125,16 +146,22 @@ public sealed partial class DocumentSession
     public SessionEditResult ApplyActionPlan(string planId, long expectedRevision) =>
         ApplyActionPlan(planId, expectedRevision, CancellationToken.None);
 
-    public SessionEditResult ApplyActionPlan(string planId, long expectedRevision, CancellationToken cancellationToken) => Locked(() =>
-        RunPreflight(startApply => ApplyActionPlanCore(planId, expectedRevision, startApply, cancellationToken), cancellationToken), cancellationToken);
+    public SessionEditResult ApplyActionPlan(string planId, long expectedRevision, CancellationToken cancellationToken,
+        string? expectedPresetId = null, string? expectedPresetFingerprint = null) =>
+        ApplyActionPlan(planId, expectedRevision, expectedPresetId, expectedPresetFingerprint, cancellationToken);
+
+    public SessionEditResult ApplyActionPlan(string planId, long expectedRevision, string? expectedPresetId,
+        string? expectedPresetFingerprint, CancellationToken cancellationToken) => Locked(() =>
+        RunPreflight(startApply => ApplyActionPlanCore(planId, expectedRevision, startApply, expectedPresetId, expectedPresetFingerprint, cancellationToken), cancellationToken), cancellationToken);
 
     private SessionEditResult ApplyActionPlanCore(string planId, long expectedRevision,
-        Action startApply, CancellationToken cancellationToken)
+        Action startApply, string? expectedPresetId, string? expectedPresetFingerprint, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var pending = _pendingAction;
         _pendingAction = null; // Single use, including failed validation.
-        if (pending is null || pending.Id != planId || pending.Revision != expectedRevision || expectedRevision != _revision)
+        if (pending is null || pending.Id != planId || pending.Revision != expectedRevision || expectedRevision != _revision
+            || expectedPresetId is not null && (pending.PresetId != expectedPresetId || pending.PresetFingerprint != expectedPresetFingerprint))
         {
             return Rejected(string.Empty, "The preview is stale. Preview the action again.") with { Stale = true };
         }
@@ -245,7 +272,7 @@ public sealed partial class DocumentSession
 
     private sealed record PendingAction(string Id, long Revision, string ActionId,
         IReadOnlyDictionary<string, FieldValue> Parameters, ActionScope Scope, byte[] PlanBytes,
-        IReadOnlyList<FieldMetadata> Metadata);
+        IReadOnlyList<FieldMetadata> Metadata, string? PresetId, string? PresetFingerprint);
 
     private ActionScope ResolveActionQuery(ActionQueryScope scope, CancellationToken cancellationToken)
     {

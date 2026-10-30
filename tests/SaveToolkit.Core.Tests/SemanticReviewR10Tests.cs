@@ -112,7 +112,7 @@ public sealed class SemanticReviewR10Tests : IDisposable
         var aggregate = new AggregateException(
             new InvalidOperationException(string.Concat(Enumerable.Repeat("😀", 400))),
             new InvalidOperationException(new string('C', 10_000)));
-        var coverage = new SemanticReviewCoverage();
+        var coverage = new SemanticReviewCoverageTracker();
         coverage.RecordOriginalFailures([], SemanticDiagnostics.Exception("capture failed", aggregate));
 
         var warnings = current.QueryWarnings.Concat(coverage.Diagnostics()).ToArray();

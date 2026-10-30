@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using SaveToolkit.Api.Contracts;
 using SaveToolkit.Core.Export;
+using SaveToolkit.Core.Presets;
 using SaveToolkit.Core.Editing;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
@@ -35,12 +36,15 @@ internal sealed partial class ToolkitExceptionHandler(ILogger<ToolkitExceptionHa
         var (status, message) = exception switch
         {
             FieldReferenceResponseLimitException e => (StatusCodes.Status413PayloadTooLarge, e.Message),
+            PresetStorageException e => (StatusCodes.Status503ServiceUnavailable, e.Message),
             KeyNotFoundException e => (StatusCodes.Status404NotFound, e.Message),
             SaveFormatException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
             ImportException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
             ExportException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
             ReferencePackException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
             InvalidDataException e => (StatusCodes.Status422UnprocessableEntity, $"Invalid data: {e.Message}"),
+            InvalidOperationException e when e.Message.Contains("configured size limit", StringComparison.Ordinal) => (StatusCodes.Status422UnprocessableEntity, e.Message),
+            ArgumentException e => (StatusCodes.Status400BadRequest, e.Message),
             InvalidOperationException e => (StatusCodes.Status409Conflict, e.Message),
             BadHttpRequestException e => (e.StatusCode, e.Message),
             _ => (StatusCodes.Status500InternalServerError, "Unexpected server error. See the server log for details."),
@@ -51,7 +55,8 @@ internal sealed partial class ToolkitExceptionHandler(ILogger<ToolkitExceptionHa
             LogUnhandled(logger, exception, context.Request.Path);
         }
 
-        await ApiProblem.WriteAsync(context, status, new ErrorDto(message), cancellationToken);
+        var code = exception is PresetStorageException ? "presetStorageUnavailable" : null;
+        await ApiProblem.WriteAsync(context, status, new ErrorDto(message, code), cancellationToken);
         return true;
     }
 

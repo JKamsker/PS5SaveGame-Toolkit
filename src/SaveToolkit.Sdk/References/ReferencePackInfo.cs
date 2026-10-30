@@ -61,6 +61,10 @@ public sealed record ReferenceDatasetInfo(string PackId, string Id, ReferenceDat
 /// <summary>Identity of a loaded reference pack.</summary>
 public sealed record ReferencePackInfo(string Id, string Version, string Title, ReferencePackOrigin Origin)
 {
+    /// <summary>SHA-256 identity of the validated manifest and every listed file hash.</summary>
+    /// <remarks>This is content identity, not a display-name, locale or source-path identity.</remarks>
+    public string? ContentFingerprint { get; init; }
+
     /// <summary>Optional explanation of the pack's contents and limitations.</summary>
     public string? Description { get; init; }
 

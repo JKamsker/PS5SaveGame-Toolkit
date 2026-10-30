@@ -159,14 +159,20 @@ export interface DocumentContextValue {
   structureVersion: number;
   /** Refetches the view (and bumps `structureVersion`), e.g. after a stale-id rejection. */
   refresh: () => Promise<void>;
+  /** Current-lifetime proof state for callers that must wait for an installed snapshot. */
+  refreshState?: "ready" | "pending" | "failed";
+  refreshError?: string;
   commit: (valueId: string, value: FieldValue) => Promise<boolean>;
   /** Same serialized/deduplicated commit, with proof of any diagnostic that its result installed. */
   commitWithDiagnostics?: (valueId: string, value: FieldValue) => Promise<FieldCommitOutcome>;
   acceptResult: (result: EditResult) => Promise<void>;
   /** Serialize a mutation with other writes/history and accept its result before the next starts. */
-  mutate: (call: () => Promise<EditResult>) => Promise<EditResult>;
+  mutate: (call: () => Promise<EditResult>, options?: DocumentMutationOptions) => Promise<EditResult>;
   runAction: (actionId: string, parameters: Record<string, FieldValue>) => Promise<EditResult>;
 }
+
+/** Optional caller-owned feedback for mutations that render a focused inline result. */
+export interface DocumentMutationOptions { failureFeedback?: "toast" | "dialog" }
 
 export const DocumentContext = createContext<DocumentContextValue | null>(null);
 
