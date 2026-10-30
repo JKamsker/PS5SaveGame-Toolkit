@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -9,6 +9,7 @@ import {
   allFeaturePatterns,
   complementSuite,
   featureSuites,
+  normalizedTestFile,
   readSuiteManifest,
   validateFeatureInventory,
 } from "./e2e-suite-manifest.mjs";
@@ -21,7 +22,7 @@ const scratch = path.resolve(process.env.SAVETOOLKIT_E2E_SCRATCH ?? (process.pla
   ? "D:/Temp/saveeditor/test-scratch/e2e-smoke"
   : path.join(tmpdir(), "saveeditor/test-scratch/e2e-smoke")));
 
-export function identities(report) {
+export function identities(report, rootDirectory = testDirectory) {
   if (!report || !Array.isArray(report.suites)) throw new Error("E2E discovery returned malformed JSON.");
   const result = [];
   function visit(suites) {
@@ -34,14 +35,47 @@ export function identities(report) {
         for (const test of spec.tests) {
           if (!test || typeof test.projectName !== "string")
             throw new Error("E2E discovery returned a malformed test identity.");
-          result.push(`${spec.id}:${test.projectName}`);
+          if (typeof spec.file !== "string") throw new Error("E2E discovery returned a malformed test file.");
+          const sourceFile = spec.file.replaceAll("\\", "/");
+          const relativeFile = path.isAbsolute(sourceFile)
+            ? path.relative(realpathSync(rootDirectory), realpathSync(sourceFile)) : sourceFile;
+          result.push({ id: `${spec.id}:${test.projectName}`, file: normalizedTestFile(relativeFile) });
         }
       }
       visit(suite.suites);
     }
   }
   visit(report.suites);
-  return result.sort();
+  return result.sort((left, right) => left.id.localeCompare(right.id));
+}
+
+function normalizeDiscovery(label, tests) {
+  if (!Array.isArray(tests)) throw new Error(`E2E ${label} discovery returned malformed IDs.`);
+  const ids = normalizeIds(label, tests.map(test => test?.id));
+  const records = tests.map(test => {
+    if (typeof test.file !== "string") throw new Error(`E2E ${label} discovery returned a malformed test file.`);
+    return { id: test.id, file: normalizedTestFile(test.file) };
+  });
+  return { ids, tests: records.sort((left, right) => left.id.localeCompare(right.id)) };
+}
+
+function assertFileCoverage(inventory, tests) {
+  const matched = new Set(inventory.matched);
+  const discovered = new Set(tests.map(test => test.file));
+  for (const file of discovered) {
+    if (!matched.has(file))
+      throw new Error(`E2E suite '${inventory.suite.id}' discovered an unexpected file '${file}'.`);
+  }
+  for (const file of matched) {
+    if (!discovered.has(file))
+      throw new Error(`E2E suite '${inventory.suite.id}' matched file '${file}' has no unfiltered discoverable tests.`);
+  }
+}
+
+function assertFileAssociations(label, all, parts) {
+  const files = new Map(all.map(test => [test.id, test.file]));
+  if (parts.some(test => files.get(test.id) !== test.file))
+    throw new Error(`E2E ${label} discovery has inconsistent test-file ownership.`);
 }
 
 function normalizeIds(label, ids) {
@@ -58,7 +92,9 @@ export function assertPartition(name, all, parts) {
     throw new Error(`E2E ${name} suites must partition every selected test exactly once.`);
 }
 
-export function suiteRecord(inventory, availableIDs, selectedIDs) {
+export function suiteRecord(inventory, available, selected) {
+  const availableIDs = available.ids;
+  const selectedIDs = selected.ids;
   const state = inventory?.state === "absent"
     ? "absent"
     : selectedIDs.length ? "selected" : "filtered-out";
@@ -68,6 +104,8 @@ export function suiteRecord(inventory, availableIDs, selectedIDs) {
     declaredFiles: inventory?.declared ?? [],
     matchedFiles: inventory?.matched ?? [],
     optionalFiles: inventory?.suite?.optionalFiles ?? [],
+    availableTests: available.tests,
+    selectedTests: selected.tests,
     availableIDs,
     selectedIDs,
     availableCount: availableIDs.length,
@@ -80,48 +118,51 @@ export function composeDiscovery({ manifest, inventories, args: discoveryArgs, d
   const features = featureSuites(manifest);
   const inventoryById = new Map(inventories.map(inventory => [inventory.suite.id, inventory]));
   const suiteIds = [complement.id, ...features.map(feature => feature.id)];
-  const availableAll = normalizeIds("available", discover("", []));
-  const selectedAll = normalizeIds("filtered", discover("", discoveryArgs));
-  const available = new Map([[complement.id, normalizeIds(complement.id, discover(complement.id, []))]]);
-  const selected = new Map([[complement.id, normalizeIds(complement.id, discover(complement.id, discoveryArgs))]]);
-  if (!available.get(complement.id).length)
-    throw new Error(`E2E suite '${complement.id}' is present but has no discoverable tests.`);
-
-  for (const feature of features) {
-    const inventory = inventoryById.get(feature.id);
-    if (!inventory) throw new Error(`E2E suite '${feature.id}' has no validated inventory record.`);
+  const availableAll = normalizeDiscovery("available", discover("", []));
+  const selectedAll = normalizeDiscovery("filtered", discover("", discoveryArgs));
+  const available = new Map();
+  const selected = new Map();
+  for (const id of suiteIds) {
+    const inventory = inventoryById.get(id);
+    if (!inventory) throw new Error(`E2E suite '${id}' has no validated inventory record.`);
     if (inventory.state === "absent") {
-      available.set(feature.id, []);
-      selected.set(feature.id, []);
+      available.set(id, { ids: [], tests: [] });
+      selected.set(id, { ids: [], tests: [] });
       continue;
     }
-    const availableIDs = normalizeIds(feature.id, discover(feature.id, []));
-    if (!availableIDs.length) throw new Error(`E2E suite '${feature.id}' is present but has no discoverable tests.`);
-    available.set(feature.id, availableIDs);
-    selected.set(feature.id, normalizeIds(feature.id, discover(feature.id, discoveryArgs)));
+    const unfiltered = normalizeDiscovery(id, discover(id, []));
+    if (!unfiltered.ids.length) throw new Error(`E2E suite '${id}' is present but has no discoverable tests.`);
+    available.set(id, unfiltered);
+    selected.set(id, normalizeDiscovery(id, discover(id, discoveryArgs)));
   }
 
-  const availableParts = suiteIds.map(id => ({ id, ids: available.get(id) ?? [] }));
-  const selectedParts = suiteIds.map(id => ({ id, ids: selected.get(id) ?? [] }));
-  assertPartition("available", availableAll, availableParts);
-  assertPartition("filtered", selectedAll, selectedParts);
+  const availableParts = suiteIds.map(id => ({ id, ids: available.get(id).ids }));
+  const selectedParts = suiteIds.map(id => ({ id, ids: selected.get(id).ids }));
+  assertPartition("available", availableAll.ids, availableParts);
+  assertPartition("filtered", selectedAll.ids, selectedParts);
   for (const { id, ids } of selectedParts) {
-    const availableIDs = new Set(available.get(id));
+    const availableIDs = new Set(available.get(id).ids);
     if (ids.some(testID => !availableIDs.has(testID)))
       throw new Error(`E2E suite '${id}' selected IDs outside its unfiltered availability.`);
+    assertFileCoverage(inventoryById.get(id), available.get(id).tests);
+    assertFileAssociations(`suite '${id}' filtered`, available.get(id).tests, selected.get(id).tests);
   }
+  assertFileAssociations("available", availableAll.tests, suiteIds.flatMap(id => available.get(id).tests));
+  assertFileAssociations("filtered", selectedAll.tests, suiteIds.flatMap(id => selected.get(id).tests));
 
   const records = Object.fromEntries(suiteIds.map(id => [id,
-    suiteRecord(inventoryById.get(id), available.get(id) ?? [], selected.get(id) ?? [])]));
+    suiteRecord(inventoryById.get(id), available.get(id), selected.get(id))]));
   return {
     discovery: {
       manifestVersion: manifest.version,
       featurePatterns: allFeaturePatterns(manifest),
       all: {
-        availableIDs: availableAll,
-        filteredSelectedIDs: selectedAll,
-        availableCount: availableAll.length,
-        filteredSelectedCount: selectedAll.length,
+        availableIDs: availableAll.ids,
+        filteredSelectedIDs: selectedAll.ids,
+        availableTests: availableAll.tests,
+        filteredSelectedTests: selectedAll.tests,
+        availableCount: availableAll.ids.length,
+        filteredSelectedCount: selectedAll.ids.length,
       },
       suites: records,
     },

@@ -434,6 +434,10 @@ composed; when present, all its actual registrations participate in canonical di
 Optional means declared absence is allowed, never that a present file or its IDs may be skipped.
 Discovery records the full declared-file, matched-file and pattern inventory together with unfiltered
 available IDs, filtered selected IDs and each suite's `absent`, `filtered-out` or `selected` state.
+Each opaque ID also retains its normalized spec-file association. Every matched case file must
+contribute unfiltered IDs in its owner partition, including optional canonical files once installed;
+unexpected or inconsistent file associations fail before persistence or launch. Developer filters may
+legitimately exclude any otherwise covered file.
 It verifies exact disjoint unions against complete unfiltered and filtered discovery, rejects malformed
 or empty required-present partitions and fails an empty global selection before launch. Any suite
 launch, nonzero/signal, or teardown failure fails the command while later selected suites are still
