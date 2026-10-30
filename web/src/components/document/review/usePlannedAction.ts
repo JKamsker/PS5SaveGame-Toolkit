@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { actionReview, type ActionPreview, type ActionScope } from "../../../api/actionReview";
-import { isStaleError } from "../../../api/client";
+import { editFailureText, isStaleError } from "../../../api/client";
 import type { ActionNode, FieldValue } from "../../../api/protocol";
 import { useDocument, useDocumentState } from "../../../state/documentStore";
 import { useActionDialog } from "../../ui/useActionDialog";
@@ -124,8 +124,7 @@ function createActionApply(state: PlannedState, selection: PlannedScope) {
         state.setPreview(null);
         state.setRejectedStale(Boolean(result.stale));
         state.setRefreshError(result.snapshotError ?? "");
-        state.setError([...result.errors.map(error => error.message), result.message, ...result.warnings]
-          .filter(Boolean).join(" ") || "Apply failed. Preview the action again.");
+        state.setError(editFailureText(result, "Apply failed. Preview the action again."));
         state.requestFocus("error");
       }
     } catch (failure) {

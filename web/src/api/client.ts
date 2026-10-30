@@ -56,6 +56,10 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
 }
 
+/** Everything a rejected edit reported, so rollback and history warnings are not dropped. */
+export const editFailureText = (result: EditResult, fallback: string) =>
+  [...result.errors.map(error => error.message), result.message, ...result.warnings].filter(Boolean).join(" ") || fallback;
+
 export const api = {
   plugins: () => request<Plugin[]>("/plugins"),
   workspaces: () => request<WorkspaceSummary[]>("/workspaces"),
