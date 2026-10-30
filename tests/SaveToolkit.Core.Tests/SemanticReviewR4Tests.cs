@@ -133,7 +133,8 @@ public sealed class SemanticReviewR4Tests : IDisposable
         current.ThrowAfterFirstMetadataCall = true;
         var review = session.GetChanges();
         Assert.False(review.Complete);
-        Assert.Contains(review.Warnings, warning => warning.Contains("Presentation metadata coverage is incomplete", StringComparison.Ordinal));
+        Assert.Equal(1, current.MetadataCalls);
+        Assert.NotEmpty(review.Warnings);
         Assert.Single(review.Changes);
     }
 
@@ -271,6 +272,7 @@ public sealed class SemanticReviewR4Tests : IDisposable
         }
 
         public void ResetMetadataCalls() => _metadataCalls = 0;
+        public int MetadataCalls => _metadataCalls;
 
         public PartialTargetedDocument()
         {

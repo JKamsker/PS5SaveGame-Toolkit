@@ -12,14 +12,17 @@ internal sealed class SemanticReviewCoverageTracker
     private int _omittedCount;
     private string? _omissionReason;
     private bool _omittedCountIsLowerBound;
+    private bool _pendingMetadataAttempt;
 
     public IReadOnlyCollection<string> RetryIds => _retryIds;
     public int OmittedCount => _omittedCount;
     public bool OmittedCountIsLowerBound => _omittedCountIsLowerBound;
     public bool HasFailures => _failures.Count != 0;
+    public bool HasPendingMetadataAttempt => _pendingMetadataAttempt;
 
     public SemanticReviewCoverageState CaptureState() => new(_retryIds.ToArray(), _failures.ToArray(),
-        _failedOmissionIds.ToArray(), _omittedCount, _omissionReason, _omittedCountIsLowerBound);
+        _failedOmissionIds.ToArray(), _omittedCount, _omissionReason,
+        _omittedCountIsLowerBound, _pendingMetadataAttempt);
 
     public void Restore(SemanticReviewCoverageState state)
     {
@@ -32,6 +35,7 @@ internal sealed class SemanticReviewCoverageTracker
         _omittedCount = state.OmittedCount;
         _omissionReason = state.OmissionReason;
         _omittedCountIsLowerBound = state.OmittedCountIsLowerBound;
+        _pendingMetadataAttempt = state.PendingMetadataAttempt;
     }
 
     public void RecordFailure(string id, string diagnostic)
@@ -70,7 +74,7 @@ internal sealed class SemanticReviewCoverageTracker
     {
         if (ids.Count == 0)
         {
-            RecordOmissions(1, diagnostic);
+            RecordMetadataAttemptFailure(diagnostic);
             return;
         }
 
@@ -91,6 +95,19 @@ internal sealed class SemanticReviewCoverageTracker
         }
     }
 
+    public void ClearMetadataAttemptFailure()
+    {
+        if (!_pendingMetadataAttempt) return;
+        _pendingMetadataAttempt = false;
+        if (_omittedCount > 0) _omittedCount--;
+    }
+
+    private void RecordMetadataAttemptFailure(string diagnostic)
+    {
+        _pendingMetadataAttempt = true;
+        RecordOmissions(1, diagnostic);
+    }
+
     public void RecordOmissions(int count, string reason)
     {
         _omittedCount = count > int.MaxValue - _omittedCount ? int.MaxValue : _omittedCount + count;
@@ -108,4 +125,5 @@ internal sealed class SemanticReviewCoverageTracker
 
 internal sealed record SemanticReviewCoverageState(IReadOnlyList<string> RetryIds,
     IReadOnlyList<KeyValuePair<string, string>> Failures, IReadOnlyList<string> FailedOmissionIds,
-    int OmittedCount, string? OmissionReason, bool OmittedCountIsLowerBound);
+    int OmittedCount, string? OmissionReason, bool OmittedCountIsLowerBound,
+    bool PendingMetadataAttempt);

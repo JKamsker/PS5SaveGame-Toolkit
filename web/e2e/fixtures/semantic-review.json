@@ -42,6 +42,11 @@
           "path": ["section:character", "section:raw"],
           "bindingKind": "Derived",
           "changed": true,
+          "presentation": {
+            "confidence": "Inferred",
+            "warning": "Alias annotation is current and read-only",
+            "description": "Current raw projection"
+          },
           "member": {
             "role": "character",
             "relativePath": "PPSA00000/sdimg_E2E/character.dat",

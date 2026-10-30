@@ -46,6 +46,60 @@ public sealed class GroupDocument : BoundSaveDocument, IGroupedSaveDocument, IAc
 
     public override string Title => "Grouped containers";
     public IReadOnlyList<string> AdditionalOutputPaths => _systemPath is null ? [] : ["sce_sys/param.sfo"];
+
+    public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+    {
+        foreach (var id in valueIds) EnsureMetadataBinding(id);
+        return base.ResolveFieldMetadata(valueIds);
+    }
+
+    private void EnsureMetadataBinding(string id)
+    {
+        if (id == "metadata/subtitle" && _systemPath is not null)
+        {
+            RegisterField(new FieldMetadata(id, "Subtitle", new TextSpec { MaxLength = 16 }),
+                () => FieldValue.Of(_subtitle ?? ""), value => _subtitle = value.AsString());
+            return;
+        }
+        if (id is "character/balance" or "profile/balance")
+        {
+            var role = id[..id.IndexOf('/')];
+            RegisterField(new FieldMetadata(id, $"{role} balance", IntegerSpec.Int32)
+            { Path = [$"section:{role}"], Presentation = new FieldPresentation { Confidence = Confidence.Verified } },
+                () => FieldValue.Of(_containers[role].Balance), value => _containers[role].Balance = value.AsInt32());
+            return;
+        }
+        if (id is "character/raw/balance" or "profile/raw/balance")
+        {
+            var role = id[..id.IndexOf('/')];
+            RegisterField(new FieldMetadata(id, $"{role} raw balance", IntegerSpec.Int32 with { ReadOnly = true })
+            { BindingKind = FieldBindingKind.Derived, CanonicalValueId = $"{role}/balance" },
+                () => FieldValue.Of(_containers[role].Balance));
+            return;
+        }
+        if (id is "character/items" or "profile/items")
+        {
+            var role = id[..id.IndexOf('/')];
+            RegisterField(new FieldMetadata(id, $"{role} item count", IntegerSpec.Int32),
+                () => FieldValue.Of(_containers[role].Items.Count), _ => { });
+            return;
+        }
+        if (id == "profile/lazy")
+        {
+            RegisterField(new FieldMetadata(id, "Profile lazy balance", IntegerSpec.Int32),
+                () => FieldValue.Of(_containers["profile"].Balance),
+                value => _containers["profile"].Balance = value.AsInt32());
+            return;
+        }
+        if (!id.StartsWith("item/", StringComparison.Ordinal)
+            || !int.TryParse(id.AsSpan("item/".Length), out var itemId)) return;
+        var item = _containers.Values.SelectMany(container => container.Items)
+            .SingleOrDefault(candidate => candidate.Id == itemId);
+        if (item is null) return;
+        RegisterField(new FieldMetadata(id, "Item", IntegerSpec.Int32),
+            () => FieldValue.Of(item.Value), value => item.Value = value.AsInt32());
+    }
+
     public override ViewNode BuildView() => new SectionNode(Title,
     [
         ItemMetadata("character"), ItemMetadata("profile"),
