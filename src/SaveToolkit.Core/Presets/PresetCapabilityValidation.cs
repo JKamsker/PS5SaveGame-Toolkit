@@ -139,8 +139,7 @@ internal static class PresetCapabilityValidation
                     return Fail("The preset reference specification is malformed.", out error);
                 case TextSpec item when item.MaxLength is < 0 or > PresetContractValidation.MaxRequestBytes:
                     return Fail("The preset text specification is malformed.", out error);
-                case ExactNumberSpec item when item.MaxLength is < 1 or > PresetContractValidation.MaxRequestBytes
-                    || item.MaxAbsoluteExponent is < 0 or > PresetContractValidation.MaxRequestBytes
+                case ExactNumberSpec item when ExactJsonNumber.ValidateSpec(item) is not null
                     || TooLong(item.Min) || TooLong(item.Max):
                     return Fail("The preset number specification is malformed.", out error);
                 case IntegerSpec item when item.Min > item.Max:

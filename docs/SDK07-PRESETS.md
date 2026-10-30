@@ -122,6 +122,10 @@ capability is reported as disabled (`capabilityMalformed` at the API boundary); 
 the generic semantic path and never invokes capture, resolution, planning, or apply. When a refreshed
 document publishes a different action descriptor or parameter contract, the panel resets to that
 descriptor's first advertised scope and fresh typed defaults while preserving an unrelated draft.
+The document DTO carries an explicit `presetCapabilityStatus` of `absent`, `valid`, or `malformed`;
+only `absent` permits the generic document action fallback. Apply uses the document session's
+serialized mutation controller and owns one feedback surface, so stale responses refresh the
+authoritative snapshot before another preview and a failed refresh keeps retry blocked.
 
 The panel presents the server-owned current title, preset kind, readiness and apply state. Saved
 presets can be filtered by name/action, title, build, plugin, compatibility and update age; the

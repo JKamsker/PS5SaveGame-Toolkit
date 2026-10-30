@@ -74,16 +74,18 @@ public sealed partial class DocumentSession
         {
             cancellationToken.ThrowIfCancellationRequested();
             var instances = preset.Actions.SelectMany(action => action.Instances ?? []).ToArray();
-            resolution = planner.ResolvePresetInstances(instances, new Dictionary<string, string>(StringComparer.Ordinal));
-            if (PresetContractValidation.ValidateResolution(resolution, instances, null, false, out var resolutionBytes) is { } resolutionError)
+            var candidateResolution = planner.ResolvePresetInstances(instances, new Dictionary<string, string>(StringComparer.Ordinal));
+            if (PresetContractValidation.ValidateResolution(candidateResolution, instances, null, false, out var resolutionBytes) is { } resolutionError)
                 return Error(preset, emptyResolution, resolutionError);
+            resolution = candidateResolution;
             if (selected.Count > 0)
             {
                 if (PresetContractValidation.ValidateResolution(resolution, instances, selected, false, out _) is { } resolutionChoiceError)
                     return Error(preset, resolution, resolutionChoiceError);
-                resolution = planner.ResolvePresetInstances(instances, selected);
-                if (PresetContractValidation.ValidateResolution(resolution, instances, selected, true, out resolutionBytes) is { } chosenError)
+                candidateResolution = planner.ResolvePresetInstances(instances, selected);
+                if (PresetContractValidation.ValidateResolution(candidateResolution, instances, selected, true, out resolutionBytes) is { } chosenError)
                     return Error(preset, resolution, chosenError);
+                resolution = candidateResolution;
             }
             if (!resolution.Succeeded)
                 return new(null, _revision, preset, resolution, new ActionPlan { Errors = ResolutionErrors(resolution) });
