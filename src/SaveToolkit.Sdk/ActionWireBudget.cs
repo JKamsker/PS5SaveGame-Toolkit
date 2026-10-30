@@ -151,7 +151,14 @@ public sealed class ActionWireBudget(long maximumBytes, CancellationToken cancel
     private void Text(string? text) { Spend(2); Content(text); }
     private void Content(string? text)
     {
-        if (text is not null) Spend(Encoding.UTF8.GetByteCount(text));
+        if (text is null) return;
+        cancellationToken.ThrowIfCancellationRequested();
+        // UTF-8 needs at least one byte per UTF-16 code unit, including replacement
+        // fallback (three bytes per unpaired surrogate; four per valid two-unit pair).
+        // Reject an impossible fit in O(1) before scanning provider-owned text.
+        if (text.Length > _remaining)
+            throw new InvalidOperationException("Action metadata exceeds its bounded budget.");
+        Spend(Encoding.UTF8.GetByteCount(text));
     }
     private void Spend(long bytes)
     {
