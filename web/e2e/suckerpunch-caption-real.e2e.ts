@@ -235,9 +235,17 @@ test("real caption apply, Changes revert, undo/redo, all export scopes and reimp
   // Header fields are proven legacy values, but this plugin does not publish canonical
   // metadata for all of them. Zero proven changes must not claim complete coverage.
   expect(review).toMatchObject({ revision: 2, changes: [], complete: false });
-  expect(review.coverage!.examinedCount).toBeGreaterThan(0);
-  expect(review.coverage!.omittedCount).toBeGreaterThan(0);
-  expect(review.warnings).toContain("Canonical metadata coverage is incomplete: no descriptor was published for 'container/word0'.");
+  expect(review.coverage).toMatchObject({ examinedCount: 285, omittedCount: 2,
+    omittedCountIsLowerBound: true, budgetBytes: 16 * 1024 * 1024 });
+  const expectedWarnings = [
+    "Semantic review is incomplete: the original could not be opened, a view exceeded its memory or traversal limit, a lazy section could not be read, or an internal field could not be matched after a structural change. Only proven changes are listed.",
+    "Targeted metadata coverage is incomplete for one or more affected IDs.",
+    "Targeted metadata coverage was bounded. Omitted entries: 1.",
+    "Targeted metadata coverage is incomplete for one or more affected IDs.",
+    "Canonical metadata coverage is incomplete: no descriptor was published for 'container/word0'.",
+  ];
+  expect(review.warnings).toEqual(expectedWarnings);
+  expect(review.coverage!.omittedReasons).toEqual(expectedWarnings);
   await expect(page.getByRole("status", { name: "Changes review", exact: true })).toHaveText("0 of 0 changed fields");
   await expect(page.getByText("No proven changes in the reviewed portion.", { exact: true })).toBeVisible();
   await expect(page.getByText("No semantic changes.", { exact: true })).toHaveCount(0);
