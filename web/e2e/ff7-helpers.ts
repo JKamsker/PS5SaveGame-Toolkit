@@ -53,7 +53,8 @@ export async function openFf7(page: Page, binary: Ff7Fixture, file = binary.game
   const document = await response.json() as SaveDocument;
   expect(document.plugin.id).toBe("ff7r");
   expect(document.titleId).toBe(binary.titleId);
-  expect(document.presetCapability?.actions).toHaveLength(file === binary.commonName ? 0 : 5);
+  expect(document.presetCapability?.actions ?? []).toHaveLength(file === binary.commonName ? 0 : 5);
+  if (file === binary.commonName) expect(document.canEdit).toBe(false);
   await expect(page.getByRole("heading", { name: document.title, exact: true })).toBeVisible();
   await page.locator(".presets-panel > summary").click();
   return new URL(response.url()).pathname.replace(/\/files\/[^/]+\/open$/, `/documents/${document.id}`);
