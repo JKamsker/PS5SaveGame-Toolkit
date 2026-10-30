@@ -70,7 +70,9 @@ The same directory must contain exactly one existing `sce_sys/param.sfo` and a u
 `SUBTITLE` in strict UTF-8 format `0x0204` or `0x0004`. The shared SDK `ParamSfoDocument` parses,
 plans and applies every patch. No binary parser, complete SFO writer, new key, resize or plugin I/O
 was added. Missing, duplicate, malformed, unsupported, oversized, invalid-encoding and already
-writer-over-limit sources remain untouched with a bounded unavailable reason. Display-only
+writer-over-limit sources remain untouched with a bounded unavailable reason. Existing CR/LF
+captions also disable the action, writable caption metadata and additional SFO ownership;
+their source bytes are preserved without stripping or normalization. Display-only
 `Directory.ParamSfo` never grants write authority or causes another directory to be selected.
 
 The text hint is `min(entry.MaximumLength, MaxEncodedValueBytes) - 1`: the SDK default global

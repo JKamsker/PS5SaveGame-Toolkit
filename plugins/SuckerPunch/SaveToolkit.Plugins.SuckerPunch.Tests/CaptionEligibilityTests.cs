@@ -1,11 +1,48 @@
 using System.Buffers.Binary;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Saves;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.SuckerPunch.Tests;
 
 public sealed class CaptionEligibilityTests
 {
+    [Theory]
+    [InlineData("Moon\rslot", "dis.dat", 0x0204)]
+    [InlineData("Moon\nslot", "dis.dat", 0x0204)]
+    [InlineData("Moon\rslot", "memory.dat", 0x0004)]
+    [InlineData("Moon\nslot", "memory.dat", 0x0004)]
+    public void ExistingLineBreaksPreserveSourcesWithoutCaptionCapability(string caption, string role, int format)
+    {
+        var save = new SyntheticSave(false);
+        var sfo = CaptionTestData.Sfo(caption, format: (ushort)format);
+        var originalPrimary = save.Bytes.ToArray();
+        var originalSfo = sfo.ToArray();
+        var file = CaptionTestData.File(sfo, save, role);
+        using var document = SuckerPunchTestData.Open(file);
+        var overview = ((TabsNode)document.BuildView()).Tabs[0].Children;
+        Assert.DoesNotContain(overview.OfType<ActionNode>(), action => action.ActionId == CaptionTestData.ActionId);
+        Assert.Contains(overview.OfType<TextNode>(), node => node.Text ==
+            "Save caption unavailable: the existing SUBTITLE contains CR/LF; single-line captions are required; metadata is preserved.");
+        Assert.Empty(((IFieldMetadataDocument)document).ResolveFieldMetadata([CaptionTestData.ValueId]));
+        Assert.Empty(((IAdditionalOutputOwner)document).AdditionalOutputPaths);
+        foreach (var text in new[] { caption, "replacement" })
+        {
+            Assert.NotEmpty(CaptionTestData.Plan(document, text).Errors);
+            var rejected = CaptionTestData.Apply(document, text);
+            Assert.False(rejected.Succeeded);
+            Assert.Empty(rejected.Changes);
+            Assert.Null(rejected.Revert);
+        }
+        var output = Assert.Single(document.Serialize());
+        Assert.Equal(file.RelativePath, output.RelativePath);
+        Assert.Equal(originalPrimary, output.Content.ToArray());
+        Assert.Equal(originalPrimary, file.ReadAllBytes());
+        Assert.Equal(originalSfo, file.Directory.FindAnyFile(CaptionTestData.SfoPath)!.ReadAllBytes());
+        Assert.Equal(originalSfo, sfo);
+        Assert.Equal(caption, CaptionTestData.Text(sfo));
+    }
+
     [Theory]
     [InlineData("missing")]
     [InlineData("malformed")]

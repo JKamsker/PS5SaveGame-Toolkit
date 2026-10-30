@@ -76,6 +76,8 @@ internal sealed class SuckerPunchCaption
         {
             return new("SUBTITLE is not strict UTF-8 with a single final NUL, or has no terminator capacity; metadata is preserved.");
         }
+        if (initial.OriginalText.Contains('\r', StringComparison.Ordinal) || initial.OriginalText.Contains('\n', StringComparison.Ordinal))
+            return new("the existing SUBTITLE contains CR/LF; single-line captions are required; metadata is preserved.");
         var capacity = Math.Min(entry.MaximumLength, ParamSfoPatchLimits.Default.MaxEncodedValueBytes) - 1;
         if (StrictUtf8.GetByteCount(initial.OriginalText) > capacity)
             return new("the existing SUBTITLE exceeds the writer limit.");
