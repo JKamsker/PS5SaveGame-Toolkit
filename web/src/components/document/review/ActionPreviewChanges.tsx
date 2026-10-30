@@ -5,11 +5,12 @@ import { ReviewPager } from "./paging";
 export function ActionPreviewChanges({ action }: { action: ReturnType<typeof usePlannedAction> }) {
   const { preview, changesPage, effectsPage, skippedPage } = action;
   if (!preview) return null;
+  const effectCount = effectsPage.total;
   return <>
     {preview.plan.errors.map((error, index) => <p role="alert" tabIndex={-1} key={index}>{error.valueId}: {error.message}</p>)}
     {preview.plan.warnings.map((warning, index) => <p className="notice notice--Warning" key={index}>{warning}</p>)}
-    {preview.plan.changes.some(change => change.effect) && <>
-      <p className="notice notice--Info">{preview.plan.changes.filter(change => change.effect).length} action effects · {preview.plan.changes.length} total ordered rows · one whole-action undo</p>
+    {effectCount > 0 && <>
+      <p className="notice notice--Info">{effectCount} action effects · {preview.plan.changes.length} total ordered rows · one whole-action undo</p>
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Keyboard users must be able to inspect all effect rows. */}
       <div className="review-scroll" role="region" aria-label="Action effects" tabIndex={0}><table className="review-table" aria-label="Action effects">
         <thead><tr><th>Effect</th><th>Before</th><th>After</th><th>Evidence</th></tr></thead>
@@ -35,16 +36,17 @@ export function ActionPreviewChanges({ action }: { action: ReturnType<typeof use
 
 function EffectRow({ change }: { change: ReturnType<typeof usePlannedAction>["effectsPage"]["items"][number] }) {
   const effect = change.effect!;
-  const evidence = [effect.kind, effect.presentation?.confidence ?? "Unspecified", effect.source,
+  const presentation = effect.presentation;
+  const evidence = [effect.kind, presentation?.confidence ?? "Unspecified", effect.source,
     effect.path?.join(" / ")].filter(Boolean).join(" · ");
   return <tr>
     <th scope="row">{change.label}<small>{effect.kind} · {change.valueId}</small>
-      {effect.presentation?.warning && <small className="notice--Warning">{effect.presentation.warning}</small>}
-      {effect.presentation?.description && <small>{effect.presentation.description}</small>}
+      {presentation?.warning && <small className="notice--Warning">{presentation.warning}</small>}
+      {presentation?.description && <small>{presentation.description}</small>}
     </th>
     <td><Payload value={change.oldValue} exists={change.oldExists} spec={effect.spec} /></td>
     <td><Payload value={change.newValue} exists={change.newExists} spec={effect.spec} /></td>
-    <td>{evidence || "Unspecified"}</td>
+    <td>{evidence}</td>
   </tr>;
 }
 

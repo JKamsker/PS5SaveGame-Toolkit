@@ -5,7 +5,7 @@ import type { ActionPreview, PlannedChange } from "../../../api/actionReview";
 import type { FieldError } from "../../../api/protocol";
 import type { usePlannedAction } from "./usePlannedAction";
 
-const page = <T,>(items: T[]) => ({ items, page: 0, pages: 1, setPage: vi.fn() });
+const page = <T,>(items: T[]) => ({ items, total: items.length, page: 0, pages: 1, setPage: vi.fn() });
 const action = (changes: PlannedChange[], errors: FieldError[] = []): ReturnType<typeof usePlannedAction> => ({
   preview: { revision: 1, planId: "p", scope: {}, plan: { changes, skippedRows: [], warnings: [], errors } } as ActionPreview,
   changesPage: page(changes), effectsPage: page(changes.filter(change => change.effect)), skippedPage: page([]),
@@ -44,7 +44,7 @@ it("pages every ordered effect row without changing the ordinary change list", (
     effect: { kind: "Observation", spec: { kind: "integer", min: "0", max: "9" } },
   }));
   const state = action(changes);
-  state.effectsPage = { items: changes.slice(0, 100), page: 0, pages: 2, setPage: vi.fn() };
+  state.effectsPage = { items: changes.slice(0, 100), total: changes.length, page: 0, pages: 2, setPage: vi.fn() };
   render(<ActionPreviewChanges action={state} />);
   expect(screen.getByText("101 action effects · 101 total ordered rows · one whole-action undo")).toBeTruthy();
   expect(screen.getByRole("row", { name: /effect-0/ })).toBeTruthy();

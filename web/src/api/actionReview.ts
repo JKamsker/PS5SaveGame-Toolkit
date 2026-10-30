@@ -81,24 +81,22 @@ export function reviewValue(value: FieldValue, exists = true): string {
 
 /** Formats an effect with its published spec so null, scalar and union wire types remain visible. */
 export function reviewEffectValue(value: FieldValue, exists: boolean, spec: FieldSpec): string {
-  if (!exists) return "(absent)";
-  return formatTypedValue(value, spec);
+  return exists ? formatTypedValue(value, spec) : "(absent)";
 }
 
 /** Lossless union evidence: opaque tags and nested scalar kinds have explicit JSON boundaries. */
 export function reviewEffectExactValue(value: FieldValue, exists: boolean, spec: FieldSpec): string {
-  if (!exists || !containsUnion(value)) return reviewEffectValue(value, exists, spec);
-  return JSON.stringify(typedEvidence(value, spec));
+  if (!exists) return "(absent)";
+  return containsUnion(value) ? JSON.stringify(typedEvidence(value, spec)) : formatTypedValue(value, spec);
 }
 
-function containsUnion(value: FieldValue): boolean {
-  return value !== null && typeof value === "object" && value.kind === "union";
+function containsUnion(value: FieldValue): value is Extract<FieldValue, { kind: "union" }> {
+  return typeof value === "object" && value?.kind === "union";
 }
 
 function typedEvidence(value: FieldValue, spec: FieldSpec): unknown {
-  if (spec.kind === "nullable") return value === null
-    ? { kind: "null", value: null } : typedEvidence(value, spec.inner);
-  if (spec.kind === "union" && value !== null && typeof value === "object" && value.kind === "union") {
+  if (spec.kind === "nullable" && value !== null) return typedEvidence(value, spec.inner);
+  if (spec.kind === "union" && containsUnion(value)) {
     const option = spec.options.find(candidate => candidate.id === value.type);
     return { kind: "union", type: value.type, value: option ? typedEvidence(value.value, option.spec) : value.value };
   }
@@ -107,19 +105,17 @@ function typedEvidence(value: FieldValue, spec: FieldSpec): unknown {
 
 /** Plain text for any wire value, including tagged exact numbers and union choices (F10). */
 function formatValue(value: FieldValue): string {
-  if (value === null) return "null";
-  if (typeof value !== "object") return String(value);
+  if (value === null || typeof value !== "object") return String(value);
   return value.kind === "exactNumber" ? value.text : `${value.type}: ${formatValue(value.value)}`;
 }
 
 function formatTypedValue(value: FieldValue, spec: FieldSpec): string {
-  if (value === null) return spec.kind === "nullable" ? "null (explicit)" : "null";
-  if (spec.kind === "nullable") return formatTypedValue(value, spec.inner);
-  if (spec.kind === "union" && typeof value === "object" && value.kind === "union") {
+  if (spec.kind === "nullable") return value === null ? "null (explicit)" : formatTypedValue(value, spec.inner);
+  if (value === null) return "null";
+  if (spec.kind === "union" && containsUnion(value)) {
     const option = spec.options.find(candidate => candidate.id === value.type);
     const tag = /^[\w-]+$/.test(value.type) ? value.type : JSON.stringify(value.type);
     return `${tag}: ${option ? formatTypedValue(value.value, option.spec) : formatValue(value.value)}`;
   }
-  if (typeof value === "object") return `${spec.kind}: ${formatValue(value)}`;
-  return `${spec.kind}: ${String(value)}`;
+  return `${spec.kind}: ${formatValue(value)}`;
 }
