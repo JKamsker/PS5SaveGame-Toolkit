@@ -15,6 +15,7 @@ internal sealed class DocumentPlanning(Ff7Schema schema, GameplayFields gameplay
     public ActionNode InventoryView() => _inventory.View();
     public IReadOnlyList<ViewNode> MateriaViews() => [_materia.View(), _materia.View(stars: true)];
     public IReadOnlyList<ActionNode> CharacterViews() => _characters.Views();
+    public bool IsMateriaTypeEligible(uint type) => _materia.IsTypeEligible(type);
 
     public ActionPlan Plan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
         CharacterPlanning.Handles(actionId) ? _characters.Plan(actionId, parameters, scope) :

@@ -52,7 +52,8 @@ unloaded pages. Select-all-matching retains the exact server query, empty-slot v
 exclusions. With no selection these sibling buttons use document scope (all eligible stacks, or
 all eligible owned copies of the chosen materia type). Explicit empty scopes, zero matches and
 fully excluded queries change nothing. Unmounting the table resets its selection and disables
-the bound control until the table is mounted again. Character controls retain their existing scopes.
+the bound control until the table is mounted again. Character controls follow the eager seven-row
+table selection, with document scope only when no rows are selected.
 `BulkSelectionDeclarationTests`, `BulkSelectionPlanningTests` and `BulkSelectionConformanceTests`
 add synthetic regression coverage; these new tests have not yet been executed in this implementation
 worker. Browser request wiring and sample-backed validation are assigned to independent validation.
@@ -63,7 +64,8 @@ The **Characters** tab provides **Recover selected characters' current HP/MP** a
 **Set selected character levels**. Both use F6 previews with old/new values, skipped-row reasons,
 source attribution and the common console/integrity warning. Select rows and use either action in
 the character table to send those explicit row keys; an empty table selection changes nothing.
-The separate controls above the table use document scope and target all seven displayed records.
+The controls above the table follow its selection when rows are selected; with no selection they use
+document scope and target all seven displayed records.
 Character queries and foreign/noncanonical keys cannot broaden that scope. Records outside these
 seven mapped slots, including unqualified guest/past records, are not targets. Original out-of-curve
 levels remain locked. Recovery never changes maxima, XP, equipment or status effects. Level targets
@@ -93,9 +95,9 @@ multi-row apply/undo/redo, scope/curve limits, locked and unknown rows, stale/ta
 exact write offsets and export/reopen framing. Internal integrity remains unconfirmed; no checksum
 or signature algorithm is asserted. `CharacterActionRegressionTests` covers repeated apply/undo/redo
 of coherent and inconsistent opening pairs (including unchanged target XP), table-cell action placement,
-Cloud-only changes, document scope and explicit empty selections. Six additional React checks ran
+Cloud-only changes, selection-following controls, and explicit empty selections. Six additional React checks ran
 from task scratch against the plugin's actual synthetic Characters view: both table controls sent
-only Cloud's key or an empty selection, and both separate controls retained document scope.
+only Cloud's key or an empty selection, and the separate controls followed that same selection contract.
 The full Release API build passed with **0 warnings and 0 errors**.
 
 ## Framework feature adoption
@@ -107,7 +109,7 @@ The full Release API build passed with **0 warnings and 0 errors**.
 | F3 rich table cells | Used | Inventory/catalog row-detail sections retain attributed official descriptions and imported `ImageNode` icons. Bound numeric cells carry confidence/warnings. Tested detail nodes, imported image identity and `GetAsset` routing. |
 | F4 reference pickers | Used | Both AP/star actions use an owned-eligible materia `ReferenceSpec`. Inventory/materia type IDs publish browse-only `ReferenceSpec`s. Main Owned items F8 tables display type IDs as text; only retained legacy owned-page endpoints bind browse-only weapon/materia type fields. Writable weapon references remain **instance IDs**, while catalog keys are **type IDs**; substituting that catalog would select the wrong domain. |
 | F5 reversible structure | N/A | No safe allocation/removal/reorder writer exists: free-slot initialization, serial uniqueness, acquisition order and all inventory/detail/owner dependencies remain unknown. Current writers patch fixed-size existing values. Owner acquisition/discard/capacity pairs are required before a structural transaction can be implemented. |
-| F6 planning / #27 scopes | Used | Existing AP/star/restock presets plus current-HP/MP recovery and character-level targets with derived XP; pure previews, warnings, skipped rows, full-content revalidation through shared `ActionPlans`, and one undo group. Inventory/materia sibling controls bind to their corresponding F8 tables through SDK-41 and support explicit/document/Core-resolved query scopes; seven-row character actions retain their explicit eager-table or document scopes. `MateriaPlanningTests`, `PresetPlanningTests`, `CharacterCoverageTests`, `BulkSelectionDeclarationTests`, `BulkSelectionPlanningTests`, tab-scoped opt-in `BulkSelectionConformanceTests`. |
+| F6 planning / #27 scopes | Used | Existing AP/star/restock presets plus current-HP/MP recovery and character-level targets with derived XP; pure previews, warnings, skipped rows, full-content revalidation through shared `ActionPlans`, and one undo group. Inventory/materia sibling controls bind to their corresponding F8 tables through SDK-41 and support explicit/document/Core-resolved query scopes; seven-row character actions follow the eager table selection and use document scope only when no rows are selected. `MateriaPlanningTests`, `PresetPlanningTests`, `CharacterCoverageTests`, `BulkSelectionDeclarationTests`, `BulkSelectionPlanningTests`, tab-scoped opt-in `BulkSelectionConformanceTests`. |
 | F7 document groups | N/A | No implemented operation changes more than the primary gameplay file; common and prior-state RESD dependencies are unmapped. Grouping them would claim a coupling that has not been established. Existing backup mirroring remains framework-owned. |
 | F8 queryable tables | Used | Complete inventories, materia, catalogs, cards, progress, owned relationships, linked-header index (including common files), named enemy records (161 Remake / 230 Rebirth) and the 388-row research collection. `GameplayCollection` and `CollectionQuery` use SDK `InMemoryCollection<T>` with `ToTableNode`; whole-model search/filter/sort precedes page-only rendering. Legacy raw-word/lazy endpoints remain bounded. |
 | F9 graphs / maps | Used | Six attributed Rebirth regional backgrounds with local field targets and distinct bit domains; unverified coordinates remain list-only; seven read-only folio candidate graphs (238 bits) and seven Rebirth equipment-reference graphs. Accessible text alternatives, bounded/lazy groups, JSON/SDK validation and Core edit/undo refresh tests. No fabricated prerequisite edges, socket links, capacity, coordinates or weapon-upgrade grid. |
@@ -627,15 +629,17 @@ the current helper. Full-model key validation, empty counts and ordinal tie brea
 no repeated catalogue traversal was found in paging/search/sort/planning. This documentation pass
 does not change SDK code or remeasure the historical performance table.
 
-R19 remains a framework-owned request: versioned toolkit preset storage outside save bytes with
-title/build compatibility and explicit missing/ambiguous owned-instance resolution. A later loadout
-writer must first have a complete socket/owner model; a plugin performing filesystem I/O to store
-profiles would violate the contract. F5/F7 exist already and need no replacement API.
+SDK-07 versioned preset storage and the pure `IPresetDocument` contract are now consumed by the
+FFVII adapter. The adapter publishes exact title/variant/schema/file-role boundaries, leaves the
+actual game build unknown, uses the host-pinned reference content identity, and persists only
+domain-qualified semantic targets. Host storage, revision tokens, compatibility gates and choice UI
+remain framework-owned; the plugin performs no I/O. Import/export and native loadout presets remain
+open follow-ups. F5/F7 exist already and need no replacement API.
 
-### Semantic preset preparation (SDK-07)
+### Semantic presets and SDK-07 adoption
 
-The plugin now has an **internal, pure consumer foundation**, without a public SDK-07 capability
-or preset storage/UI integration. `SemanticPresets` captures typed parameters for exactly the five
+The plugin now has an internal foundation plus a thin, pure SDK-07 `IPresetDocument` adapter.
+`SemanticPresets` captures typed parameters for exactly the five
 existing F6 actions: `inventory/restock-existing`, `materia/set-ap-within-tier`, `materia/set-stars`,
 `character/recover-current-vitals`, and `character/set-level`. It retains explicit document,
 all-eligible, all-copies and selected semantics. Only scopes supported by the operation are accepted;
@@ -653,26 +657,39 @@ joins the current owned inventory to the current AP-editable detail row; those p
 are different domains. Missing/duplicate details, duplicate inventory instances, mismatched detail
 types and owned counts other than one remain unresolved with stable reasons and all relevant
 candidate placements. Nothing repairs those relationships or silently selects a first match.
+The public SDK resolution has exact cardinality: Missing and Unsupported targets have zero
+candidates; a normal Resolved target has exactly one current transient candidate; genuine Ambiguous
+targets have at least two; and a valid transient choice re-resolves to one Resolved candidate.
+All-copies exposes one transient aggregate candidate fingerprinting the current validated set.
+Candidate IDs and choices remain transient, while internal F6 relation diagnostics retain detailed
+join status.
 All-copies scope uses current owned joins; unowned detail records are not promoted to owned copies.
 Remake selected-materia capture rejects because its current model has no proven owned-instance
 identity; its existing type-wide all-copies planner remains available. Summon and incoherent
 AP/star eligibility remains the F6 planner's decision.
 
-`SemanticPresetTests`, `SemanticMateriaPresetTests`, `SemanticPresetCompatibilityTests`, and
+`SemanticPresetTests`, `SemanticMateriaPresetTests`, `SemanticPresetCompatibilityTests`,
 `SemanticPresetHistoryTests` exercise authored synthetic framing/rows, moved targets, zero/one/many
 matches, malformed duplicate joins, pure preview, retained skips, tampered/rescoped F6 plans and
 one-unit byte-exact apply/undo/redo across all three variants. These are consumer/helper tests,
 not UI, persistence, console-validation or native-loadout evidence. Existing framing, owned
 projection, research-quality and planning regressions remain unchanged.
 
-Remaining SDK-07 integration: consume the shared optional capture/resolution capability after it
-lands, round-trip its typed wire payload, and test the complete plugin/version/build/reference-pack
-compatibility matrix. Actual console patch/build remains **unknown**; a pack's display/build label
-cannot establish it. Compatibility needs the pinned pack ID/version/locale **and actual content
-fingerprint**, including imported overrides; current `ReferencePackInfo`/`ReferenceDatasetInfo`
-does not expose dataset file hashes. Storage, import/export, revision tokens, choice UI and host
-compatibility gates remain framework-owned. No direct weapon edit, socket/materia movement,
-allocation, owner/detail repair or complete native loadout is added.
+`Sdk07PresetAdapterTests` additionally exercise the public capture/resolution path, typed payloads,
+current-slot movement, explicit empty selection, duplicate/missing owned joins, exact retail/demo
+compatibility variants, host preview/apply, and one-unit undo/redo. Actual console patch/build
+remains **unknown**; a pack's display/build label cannot establish it. The host's pinned
+content identity (including locale/origin and validated content fingerprints) is authoritative.
+The published host contract passes its document-pinned `ReferenceFieldService` and
+`ReferenceContext` through capture, plan coercion and summaries. Both materia preset descriptors
+now use the same closed `ff7r-materia` catalog policy as the live AP/star controls
+(`ReferenceSpec.AllowCustom = false`); the host rejects IDs absent from the pinned catalog, while
+FF7 canonical invariant-decimal parsing, known-ID/current-eligibility checks and the existing F6
+planner remain authoritative for every write. This does not widen picker acquisition or weaken host
+validation. The earlier pre-R4 `ReferenceContext.None` behavior is historical only.
+Browser acceptance against a running host and private sample-backed validation are outside this
+plugin-only change and remain pending. No direct weapon edit, socket/materia movement, allocation,
+owner/detail repair or complete native loadout is added.
 
 This foundation reuses the existing source-qualified mappings and curves documented under
 [enabled writes](#enabled-writes-and-their-evidence), the pinned
