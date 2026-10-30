@@ -21,8 +21,8 @@ public static class FieldValueCoercer
     {
         if (spec.ReadOnly) return Fail("Field is read-only.");
         if (spec is NullableSpec nullable && json.ValueKind != JsonValueKind.Null)
-            return FromJson(json, nullable.Inner);
-        if (spec is UnionSpec union) return UnionValueCoercer.FromJson(json, union);
+            return FromJson(json, nullable.Inner, references);
+        if (spec is UnionSpec union) return UnionValueCoercer.FromJson(json, union, references);
         if (json.ValueKind is JsonValueKind.Undefined) return Fail("An edit value is required; missing is not null.");
         if (json.ValueKind is JsonValueKind.Array) return Fail("Expected a scalar field value.");
         if (json.ValueKind is JsonValueKind.Object || spec is ExactNumberSpec && json.ValueKind == JsonValueKind.Number)
@@ -32,7 +32,7 @@ public static class FieldValueCoercer
                 var value = json.ValueKind == JsonValueKind.Number
                     ? FieldValue.ExactNumber(json.GetRawText())
                     : json.Deserialize<FieldValue>();
-                return Normalize(value, spec);
+                return Normalize(value, spec, references: references);
             }
             catch (Exception ex) when (ex is JsonException or ArgumentException)
             {
@@ -70,8 +70,8 @@ public static class FieldValueCoercer
             FlagsSpec s => Integer(raw, 0, s.BitWidth >= 127 ? Int128.MaxValue : (Int128.One << s.BitWidth) - 1),
             DateTimeSpec s => DateTimeValue(raw, s),
             ExactNumberSpec s => ExactNumber(raw, s),
-            NullableSpec s => raw.IsNull ? Ok(raw) : Normalize(raw, s.Inner, allowReadOnly),
-            UnionSpec s => UnionValueCoercer.Normalize(raw, s, allowReadOnly),
+            NullableSpec s => raw.IsNull ? Ok(raw) : Normalize(raw, s.Inner, allowReadOnly, references),
+            UnionSpec s => UnionValueCoercer.Normalize(raw, s, allowReadOnly, references),
             _ => Fail($"Unsupported field kind {spec.GetType().Name}."),
         };
     }
