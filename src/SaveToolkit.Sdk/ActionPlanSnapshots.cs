@@ -27,6 +27,7 @@ public static class ActionPlanSnapshots
         ArgumentNullException.ThrowIfNull(plan);
         var total = checked((long)plan.Changes.Count + plan.SkippedRows.Count + plan.Warnings.Count + plan.Errors.Count);
         if (total > MaxPlanEntries) throw new InvalidOperationException("The action plan exceeds the bounded entry limit.");
+        Admit(plan);
         return plan with
         {
             Changes = Array.AsReadOnly(plan.Changes.Select(Snapshot).ToArray()),
@@ -45,9 +46,49 @@ public static class ActionPlanSnapshots
 
     private static PlannedChange Snapshot(PlannedChange change)
     {
-        if (change.ValueId.Length > MaxEffectIdLength || change.Label.Length > MaxEffectLabelLength)
+        if (change.Effect is not null && (change.ValueId.Length > MaxEffectIdLength || change.Label.Length > MaxEffectLabelLength))
             throw new InvalidOperationException("Action plan identity or label exceeds its bounded limit.");
         return change with { Effect = Snapshot(change.Effect) };
+    }
+
+    private static void Admit(ActionPlan plan)
+    {
+        long budget = 4 * 1024 * 1024;
+        foreach (var change in plan.Changes)
+        {
+            if (change.Effect is { } effect)
+            {
+                Add(ref budget, effect.Spec);
+                Add(ref budget, change.ValueId);
+                Add(ref budget, change.Label);
+                Add(ref budget, effect.Source);
+                if (effect.Path is { } path)
+                {
+                    Add(ref budget, path.Count * 16L);
+                    foreach (var part in path) Add(ref budget, part);
+                }
+                if (effect.Presentation is { } presentation)
+                {
+                    Add(ref budget, presentation.Warning);
+                    Add(ref budget, presentation.Description);
+                }
+            }
+        }
+    }
+
+    private static void Add(ref long remaining, FieldSpec spec)
+    {
+        if (!FieldSpecMetadata.TryEstimate(spec, remaining, out var cost))
+            throw new InvalidOperationException("Action plan exceeds its bounded budget.");
+        remaining -= cost;
+    }
+
+    private static void Add(ref long remaining, string? value)
+    {
+        if (value is null) return;
+        var cost = checked(value.Length * 2L);
+        if (cost > remaining) throw new InvalidOperationException("Action plan exceeds its bounded budget.");
+        remaining -= cost;
     }
 
     private static ActionEffectDescriptor? Snapshot(ActionEffectDescriptor? effect)

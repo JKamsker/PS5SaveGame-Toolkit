@@ -84,6 +84,8 @@ public sealed class ViewIndex
             throw new InvalidOperationException($"Rendered canonical field annotations conflict for field '{valueId}'.");
         return _fields.GetValueOrDefault(valueId);
     }
+
+    internal bool HasRenderedField(string valueId) => ShownField(valueId) is not null;
     internal bool RequiresMetadata(string valueId) => _registeredFields.Contains(valueId);
 
     /// <summary>

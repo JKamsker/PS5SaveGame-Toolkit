@@ -41,10 +41,12 @@ public static class FieldMetadataPlanning
             cancellationToken.ThrowIfCancellationRequested();
             if (!ids.Add(change.ValueId)) throw new InvalidOperationException($"Duplicate planned field '{change.ValueId}'.");
             var metadata = index.ResolvedMetadata(change.ValueId);
-            var rendered = index.Spec(change.ValueId);
+            // Spec() is a resolver entry point. It can intentionally hide a registered
+            // field after a later omission, so it cannot establish rendered authority.
+            var rendered = index.HasRenderedField(change.ValueId);
             if (change.Effect is not null)
             {
-                if (metadata is not null || rendered is not null)
+                if (metadata is not null || rendered)
                     throw new InvalidOperationException($"Action effect cannot shadow canonical field '{change.ValueId}'.");
                 ValidateEffect(change);
                 continue;
@@ -75,10 +77,8 @@ public static class FieldMetadataPlanning
         if (effect.Kind is not (ActionEffectKind.Observation or ActionEffectKind.StructuralMemento)
             || !effect.Spec.ReadOnly || effect.Path is { Count: > ActionPlanSnapshots.MaxEffectPathParts })
             throw new InvalidOperationException($"Invalid action effect descriptor for '{change.ValueId}'.");
-        if (!FieldSpecMetadata.TryEstimate(effect.Spec, 4 * 1024 * 1024, out _))
+        if (!ValidDescriptor(effect))
             throw new InvalidOperationException($"Action effect spec exceeds its bounded limit for '{change.ValueId}'.");
-        if (effect.Spec is ReferenceSpec { Assess: not null })
-            throw new InvalidOperationException($"Action effect reference policy must be display-only for '{change.ValueId}'.");
         if (change.OldExists == change.NewExists && change.OldExists && change.OldValue == change.NewValue
             || !change.OldExists && !change.NewExists)
             throw new InvalidOperationException($"Action effect '{change.ValueId}' does not describe a change.");
@@ -96,19 +96,69 @@ public static class FieldMetadataPlanning
             return;
         }
         if (!ExactShape(value, spec)) throw new InvalidOperationException($"Effect value type does not match '{id}'.");
-        if (ContainsReference(spec)) return;
-        var result = FieldValueCoercer.Normalize(value, spec, allowReadOnly: true,
-            references: null);
-        if (!result.Ok || result.Value != value)
-            throw new InvalidOperationException($"Effect value is invalid for '{id}': {result.Error ?? "type normalization changed the value"}.");
+        var result = ValidateTypedValue(value, spec);
+        if (!result.Ok)
+            throw new InvalidOperationException($"Effect value is invalid for '{id}': {result.Error}.");
     }
 
-    private static bool ContainsReference(FieldSpec spec) => spec switch
+    private static bool ValidDescriptor(ActionEffectDescriptor effect)
     {
-        ReferenceSpec => true,
-        NullableSpec nullable => ContainsReference(nullable.Inner),
-        UnionSpec union => union.Options.Any(option => ContainsReference(option.Spec)),
-        _ => false,
+        if (!Enum.IsDefined(effect.Kind) || !effect.Spec.ReadOnly
+            || effect.Path is { Count: > ActionPlanSnapshots.MaxEffectPathParts }
+            || effect.Path?.Any(part => part is null || part.Length > ActionPlanSnapshots.MaxEffectPathPartLength) == true
+            || effect.Source?.Length > ActionPlanSnapshots.MaxEffectSourceLength
+            || effect.Presentation?.Warning?.Length > ActionPlanSnapshots.MaxPresentationTextLength
+            || effect.Presentation?.Description?.Length > ActionPlanSnapshots.MaxPresentationTextLength
+            || effect.Presentation?.Confidence is { } confidence && !Enum.IsDefined(confidence)) return false;
+        try
+        {
+            return ValidateSpec(effect.Spec, 0, new HashSet<FieldSpec>(ReferenceEqualityComparer.Instance));
+        }
+        catch (Exception) when (true) { return false; }
+    }
+
+    private static bool ValidateSpec(FieldSpec spec, int depth, HashSet<FieldSpec> seen)
+    {
+        if (depth > FieldMetadataLimits.MaxSpecDepth || !seen.Add(spec)
+            || !FieldSpecMetadata.TryEstimate(spec, 4 * 1024 * 1024, out _)) return false;
+        switch (spec)
+        {
+            case IntegerSpec integer:
+                if (integer.Min > integer.Max || !Enum.IsDefined(integer.Format)
+                    || integer.Format == IntegerFormat.Duration && integer.UnitsPerSecond is <= 0) return false;
+                break;
+            case FloatSpec floating:
+                if (!Enum.IsDefined(floating.Format) || !double.IsFinite(floating.UnitsPerSecond)
+                    || floating.UnitsPerSecond <= 0 || floating.Min > floating.Max) return false;
+                break;
+            case TextSpec text when text.MaxLength is < 0: return false;
+            case EnumSpec choice:
+                if (choice.Options.Count == 0 || choice.Options.Select(option => option.Value).Distinct(StringComparer.Ordinal).Count() != choice.Options.Count) return false;
+                break;
+            case FlagsSpec flags when flags.BitWidth is < 1 or > 127: return false;
+            case ExactNumberSpec exact when exact.MaxLength is < 1 or > ExactJsonNumber.HardMaxLength
+                || exact.MaxAbsoluteExponent is < 0 or > ExactJsonNumber.HardMaxAbsoluteExponent: return false;
+            case ReferenceSpec reference when reference.Assess is not null: return false;
+            case NullableSpec nullable:
+                return ValidateSpec(nullable.Inner, depth + 1, seen);
+            case UnionSpec union:
+                if (union.Options.Count == 0 || union.Options.Select(option => option.Id).Distinct(StringComparer.Ordinal).Count() != union.Options.Count) return false;
+                return union.Options.All(option => ValidateSpec(option.Spec, depth + 1, seen));
+        }
+        return true;
+    }
+
+    private static FieldValueCoercer.Result ValidateTypedValue(FieldValue value, FieldSpec spec) => spec switch
+    {
+        ReferenceSpec => value.Kind == FieldValueKind.Text
+            ? new(value, null) : new(FieldValue.Null, "Expected reference text."),
+        NullableSpec nullable when value.IsNull => new(value, null),
+        NullableSpec nullable => ValidateTypedValue(value, nullable.Inner),
+        UnionSpec union when value.Kind == FieldValueKind.Union => union.Options.SingleOrDefault(option => option.Id == value.AsUnion().Type) is { } option
+            ? ValidateTypedValue(value.AsUnion().Value, option.Spec) is { Ok: true } ? new(value, null) : ValidateTypedValue(value.AsUnion().Value, option.Spec)
+            : new(FieldValue.Null, "Unknown union option."),
+        UnionSpec => new(FieldValue.Null, "Expected a union value."),
+        _ => FieldValueCoercer.Normalize(value, spec, allowReadOnly: true, references: null),
     };
 
     private static bool ExactShape(FieldValue value, FieldSpec spec) => spec switch

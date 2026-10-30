@@ -9,19 +9,21 @@ internal static class ActionEffectOutcomeValidation
     {
         var effects = plan.Changes.Where(change => change.Effect is not null).ToArray();
         if (effects.Length == 0) return;
-        if (outcome.Revert is null || !outcome.StructureChanged)
-            throw new InvalidOperationException("An action with effects must return a structural revert token.");
-        var cursor = 0;
-        foreach (var expected in effects)
+        if (outcome.Errors.Count > 0 || outcome.Changes.Count != plan.Changes.Count)
+            throw new InvalidOperationException("An action effect outcome must report the complete reviewed change projection.");
+        var providerStructural = outcome.StructureChanged || outcome.Revert is not null;
+        for (var i = 0; i < plan.Changes.Count; i++)
         {
-            var actual = outcome.Changes.Skip(cursor).FirstOrDefault(change => change.ValueId == expected.ValueId);
-            if (actual is null || actual.OldValue != expected.OldValue || actual.NewValue != expected.NewValue)
-                throw new InvalidOperationException($"Action outcome omitted or changed effect '{expected.ValueId}'.");
-            var next = -1;
-            for (var i = cursor; i < outcome.Changes.Count; i++)
-                if (ReferenceEquals(outcome.Changes[i], actual)) { next = i; break; }
-            if (next < 0) throw new InvalidOperationException("Action outcome effect order is invalid.");
-            cursor = next + 1;
+            var expected = plan.Changes[i];
+            var actual = outcome.Changes[i];
+            if (actual.ValueId != expected.ValueId || actual.OldValue != expected.OldValue || actual.NewValue != expected.NewValue)
+                throw new InvalidOperationException($"Action outcome omitted, reordered or changed '{expected.ValueId}'.");
         }
+        var requiresProviderToken = effects.Any(change => change.Effect!.Kind == ActionEffectKind.StructuralMemento
+            || change.OldExists != change.NewExists);
+        if (requiresProviderToken && (outcome.Revert is null || !outcome.StructureChanged))
+            throw new InvalidOperationException("A structural action effect must return a structural revert token.");
+        if (providerStructural && outcome.Revert is null)
+            throw new InvalidOperationException("A structurally changed action effect must return a revert token.");
     }
 }

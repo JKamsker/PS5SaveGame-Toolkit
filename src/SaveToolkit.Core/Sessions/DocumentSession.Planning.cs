@@ -192,6 +192,8 @@ public sealed partial class DocumentSession
                 || effectDocument is StagedGroupDocument staged && !staged.EffectEnabled))
                 return Rejected(pending.ActionId, "This document no longer supports action effects.");
             DocumentMemento? before = null;
+            var restoreAttempted = false;
+            var historyRecorded = false;
             if (effectDocument is not null)
             {
                 before = effectDocument.CaptureMemento();
@@ -207,12 +209,14 @@ public sealed partial class DocumentSession
                     var outcome = planner.ApplyActionPlan(pending.ActionId, pending.Parameters, pending.Scope, detachedFresh);
                     if (!outcome.Succeeded)
                     {
+                        restoreAttempted = true;
                         RestoreFailedEffect(effectDocument, before);
                         return FromOutcome(outcome);
                     }
                     if (pending.HasEffects)
                     {
                         ActionEffectOutcomeValidation.Validate(detachedFresh, outcome);
+                        if (outcome.Revert is { } providerRevert) CheckSnapshotBudget(providerRevert);
                         var after = effectDocument!.CaptureMemento();
                         CheckSnapshotBudget(after);
                     }
@@ -224,19 +228,24 @@ public sealed partial class DocumentSession
                         ? outcome.Changes.Where(change => detachedFresh.Changes.Any(planned => planned.Effect is null
                             && planned.ValueId == change.ValueId)).ToArray()
                         : outcome.Changes;
+                    historyRecorded = pending.HasEffects || outcome.Revert is not null || outcome.Changes.Count > 0;
                     return AfterChange(FromOutcome(outcome), pending.HasEffects || outcome.StructureChanged || outcome.Revert is not null,
-                        warnings, semanticChanges);
+                        warnings, semanticChanges, pending.HasEffects);
                 }
                 catch
                 {
-                    RestoreFailedEffect(effectDocument, before);
+                    if (!historyRecorded && !restoreAttempted)
+                    {
+                        restoreAttempted = true;
+                        RestoreFailedEffect(effectDocument, before);
+                    }
                     throw;
                 }
             });
         }
         catch (Exception ex) when (ex is not OutOfMemoryException and not OperationCanceledException)
         {
-            var warnings = RebuildIndex(forceNewRevision: false);
+            var warnings = _unusable ? [] : RebuildIndex(forceNewRevision: false);
             return Rejected(pending.ActionId, $"Action failed: {ex.Message}") with { Warnings = warnings, State = StateUnlocked() };
         }
     }

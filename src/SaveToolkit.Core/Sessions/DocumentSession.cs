@@ -51,6 +51,7 @@ public sealed partial class DocumentSession : IDisposable
     private readonly long _maxSnapshotBytes;
     private bool _disposed;
     private bool _idleRetired;
+    private bool _unusable;
 
     public DocumentSession(string id, DiskSaveFile file, IGamePlugin plugin, ISaveDocument document,
         DocumentSessionOptions? options = null, Func<ISaveDocument>? openOriginal = null, ReferenceContext? references = null)
@@ -78,7 +79,7 @@ public sealed partial class DocumentSession : IDisposable
     public DiskSaveFile File { get; }
     public IGamePlugin Plugin { get; }
     public string Title => Locked(() => Document.Title);
-    public bool CanEdit => Locked(() => Document.CanEdit);
+    public bool CanEdit => Locked(() => !_unusable && Document.CanEdit);
 
     private ISaveDocument Document { get; }
     private OutputOwnershipBinding OutputOwnership { get; }
@@ -147,6 +148,7 @@ public sealed partial class DocumentSession : IDisposable
 
     public SessionEditResult ApplyEdits(IReadOnlyList<IncomingEdit> incoming, long? expectedRevision, CancellationToken cancellationToken) => Locked(() => RunPreflight(startApply =>
     {
+        if (_unusable) return Rejected(incoming.FirstOrDefault()?.ValueId ?? string.Empty, "The document session is unusable; reopen it before editing or exporting.");
         if (!Document.CanEdit)
         {
             return Rejected(incoming.FirstOrDefault()?.ValueId ?? string.Empty, "This document is read-only.");
@@ -223,10 +225,19 @@ public sealed partial class DocumentSession : IDisposable
     internal DocumentOutputCapture CaptureOutputs(CancellationToken cancellationToken) =>
         Locked(() =>
         {
+            if (_unusable) throw new InvalidOperationException("The document session is unusable; reopen it before exporting.");
             var state = StateUnlocked();
             var outputs = state.IsDirty ? DocumentOutputSnapshot.Capture(Document, cancellationToken) : [];
             return new DocumentOutputCapture(outputs, state.IsDirty, state.Revision);
         }, cancellationToken);
+
+    internal void MarkUnusable()
+    {
+        _unusable = true;
+        _pendingAction = null;
+        _history.Clear(irreversible: true);
+        _groupBroken = true;
+    }
 
     public AssetContent? GetAsset(string assetId) => Locked(() =>
         _index.KnowsAsset(assetId) && Document.GetAsset(assetId) is { } asset
