@@ -74,21 +74,15 @@ public sealed partial class DocumentSession
         {
             cancellationToken.ThrowIfCancellationRequested();
             var instances = preset.Actions.SelectMany(action => action.Instances ?? []).ToArray();
-            var candidateResolution = planner.ResolvePresetInstances(instances, new Dictionary<string, string>(StringComparer.Ordinal));
-            if (PresetContractValidation.ValidateResolution(candidateResolution, instances, null, false, out _) is { } resolutionError)
+            if (ResolvePresetReferences(planner, instances, null, out var initialResolution, out var resolutionBytes) is { } resolutionError)
                 return Error(preset, emptyResolution, resolutionError);
-            if (PresetContractValidation.DetachResolution(candidateResolution, out var initialResolution, out var resolutionBytes) is { } detachError)
-                return Error(preset, emptyResolution, detachError);
             resolution = initialResolution!;
             if (selected.Count > 0)
             {
                 if (PresetContractValidation.ValidateResolution(resolution, instances, selected, false, out _) is { } resolutionChoiceError)
                     return Error(preset, resolution, resolutionChoiceError);
-                candidateResolution = planner.ResolvePresetInstances(instances, selected);
-                if (PresetContractValidation.ValidateResolution(candidateResolution, instances, selected, true, out _) is { } chosenError)
+                if (ResolvePresetReferences(planner, instances, selected, out var chosenResolution, out resolutionBytes) is { } chosenError)
                     return Error(preset, resolution, chosenError);
-                if (PresetContractValidation.DetachResolution(candidateResolution, out var chosenResolution, out resolutionBytes) is { } chosenDetachError)
-                    return Error(preset, resolution, chosenDetachError);
                 resolution = chosenResolution!;
             }
             if (!resolution.Succeeded)
@@ -128,21 +122,15 @@ public sealed partial class DocumentSession
                 return Rejected("preset", actionError);
             cancellationToken.ThrowIfCancellationRequested();
             var instances = pending.Preset.Actions.SelectMany(action => action.Instances ?? []).ToArray();
-            var candidateResolution = planner.ResolvePresetInstances(instances, new Dictionary<string, string>(StringComparer.Ordinal));
-            if (PresetContractValidation.ValidateResolution(candidateResolution, instances, null, false, out _) is { } resolutionError)
+            if (ResolvePresetReferences(planner, instances, null, out var detachedResolution, out var freshResolutionBytes) is { } resolutionError)
                 return Rejected("preset", resolutionError) with { Stale = true };
-            if (PresetContractValidation.DetachResolution(candidateResolution, out var detachedResolution, out var freshResolutionBytes) is { } detachError)
-                return Rejected("preset", detachError) with { Stale = true };
             var resolution = detachedResolution!;
             if (pending.Choices.Count > 0)
             {
                 if (PresetContractValidation.ValidateResolution(resolution, instances, pending.Choices, false, out _) is { } choiceError)
                     return Rejected("preset", choiceError) with { Stale = true };
-                candidateResolution = planner.ResolvePresetInstances(instances, pending.Choices);
-                if (PresetContractValidation.ValidateResolution(candidateResolution, instances, pending.Choices, true, out _) is { } chosenError)
+                if (ResolvePresetReferences(planner, instances, pending.Choices, out var chosenResolution, out freshResolutionBytes) is { } chosenError)
                     return Rejected("preset", chosenError) with { Stale = true };
-                if (PresetContractValidation.DetachResolution(candidateResolution, out var chosenResolution, out freshResolutionBytes) is { } chosenDetachError)
-                    return Rejected("preset", chosenDetachError) with { Stale = true };
                 resolution = chosenResolution!;
             }
             if (!resolution.Succeeded) return new SessionEditResult { Errors = ResolutionErrors(resolution), State = StateUnlocked() };
@@ -165,6 +153,24 @@ public sealed partial class DocumentSession
         {
             return Rejected("preset", $"Preset apply failed: {ex.Message}") with { State = StateUnlocked() };
         }
+    }
+
+    // Callback inputs are disposable copies. The original targets and user choices remain
+    // host authority even if an adapter casts its IReadOnly inputs back to mutable collections.
+    private static string? ResolvePresetReferences(IPresetDocument planner,
+        IReadOnlyList<PresetInstanceReference> requested, IReadOnlyDictionary<string, string>? choices,
+        out PresetResolution? resolution, out byte[]? serialized)
+    {
+        var callbackTargets = requested.Select(reference => reference with { }).ToArray();
+        var callbackChoices = choices is null ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : new Dictionary<string, string>(choices, StringComparer.Ordinal);
+        var candidate = planner.ResolvePresetInstances(callbackTargets, callbackChoices);
+        if (PresetContractValidation.DetachResolution(candidate, out resolution, out serialized) is { } error)
+            return error;
+        var validationError = PresetContractValidation.ValidateResolution(resolution, requested, choices,
+            choices is { Count: > 0 }, out serialized);
+        if (validationError is not null) resolution = null;
+        return validationError;
     }
 
     private static IReadOnlyList<FieldError> ResolutionErrors(PresetResolution resolution) =>

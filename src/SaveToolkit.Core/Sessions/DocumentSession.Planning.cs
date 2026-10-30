@@ -340,6 +340,7 @@ public sealed partial class DocumentSession
         if (!cancellationToken.CanBeCanceled && _startAtomicApply is null)
             return operation(static () => { });
         var previous = _pendingAction;
+        var previousPreset = _pendingPreset;
         var previousIndex = _index;
         var previousExpanded = new HashSet<string>(_expanded, StringComparer.Ordinal);
         var restoreGroup = (Document as StagedGroupDocument)?.CancellationRollback();
@@ -364,6 +365,7 @@ public sealed partial class DocumentSession
         catch (OperationCanceledException) when (!applying)
         {
             _pendingAction = previous;
+            _pendingPreset = previousPreset;
             _index = previousIndex;
             _expanded = previousExpanded;
             restoreGroup?.Invoke();
