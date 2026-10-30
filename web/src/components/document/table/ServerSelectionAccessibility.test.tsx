@@ -51,3 +51,30 @@ it("keeps an atomic selection status mounted through first, query and cleared se
   expect(status.textContent).toBe("No rows selected");
   expect(screen.getByRole("status", { name: "Items selection" })).toBe(status);
 });
+
+it("provides a named keyboard viewport without consuming child editing or selection keys", async () => {
+  await setup();
+  const viewport = screen.getByRole("region", { name: "Items rows" });
+  Object.defineProperties(viewport, {
+    clientHeight: { configurable: true, value: 560 },
+    scrollHeight: { configurable: true, value: 2000 },
+  });
+  expect(viewport.tabIndex).toBe(0);
+  expect(viewport.hasAttribute("inert")).toBe(false);
+  viewport.focus();
+  expect(document.activeElement).toBe(viewport);
+  expect(fireEvent.keyDown(viewport, { key: "PageDown" })).toBe(false);
+  expect(viewport.scrollTop).toBe(560);
+  fireEvent.keyDown(viewport, { key: "End" });
+  expect(viewport.scrollTop).toBe(1440);
+  fireEvent.keyDown(viewport, { key: "Home" });
+  expect(viewport.scrollTop).toBe(0);
+  expect(fireEvent.keyDown(viewport, { key: "PageDown", ctrlKey: true })).toBe(true);
+  const checkbox = screen.getByRole("checkbox", { name: "Select Potion" });
+  checkbox.focus();
+  expect(fireEvent.keyDown(checkbox, { key: "ArrowDown" })).toBe(true);
+  expect(viewport.scrollTop).toBe(0);
+  expect(document.activeElement).toBe(checkbox);
+  fireEvent.click(checkbox);
+  expect((checkbox as HTMLInputElement).checked).toBe(true);
+});
