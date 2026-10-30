@@ -61,7 +61,7 @@ it("records published ownership without requiring future feature files to be abs
     "actions.e2e.ts", "bundle.e2e.ts", "failure-document.e2e.ts", "failure-lifetimes.e2e.ts",
     "failure-reference.e2e.ts", "failure-review-export.e2e.ts", "field-reference.e2e.ts", "import.e2e.ts",
     "keyboard.e2e.ts", "map-accessibility.e2e.ts", "presets.e2e.ts", "reference-batch.e2e.ts",
-    "review.e2e.ts", "selection-binding.e2e.ts",
+    "review.e2e.ts", "selection-binding.e2e.ts", "semantic-review-ux.e2e.ts",
     "smoke.e2e.ts", "table.e2e.ts", "workspace.e2e.ts",
   ]);
   expect(featureSuites(manifest).map(suite => suite.id)).toEqual([
@@ -92,6 +92,8 @@ it("records published ownership without requiring future feature files to be abs
     "canonical", "unreal", "text-capacity", "ff7", "transfer", "caption", "action-effects",
   ]);
   expect(inventory[0]).toMatchObject({ state: "present", declared: complementSuite(manifest).files });
+  expect(inventory[0].matched).toContain("semantic-review-ux.e2e.ts");
+  expect(complementSuite(manifest).optionalFiles).not.toContain("semantic-review-ux.e2e.ts");
   expect(inventory[0].matched).toEqual(complementSuite(manifest).files.filter(file => existsSync(path.join(webRoot, "e2e", file))));
   for (const entry of inventory.slice(1)) {
     expect(["absent", "present"]).toContain(entry.state);

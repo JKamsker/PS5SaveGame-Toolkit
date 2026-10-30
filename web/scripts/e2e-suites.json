@@ -21,6 +21,7 @@
         "reference-batch.e2e.ts",
         "review.e2e.ts",
         "selection-binding.e2e.ts",
+        "semantic-review-ux.e2e.ts",
         "smoke.e2e.ts",
         "table.e2e.ts",
         "workspace.e2e.ts"

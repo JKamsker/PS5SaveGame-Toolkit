@@ -8,10 +8,11 @@ internal static class SemanticTargetedReview
 {
     public static TargetedCaptureOutcome Capture(SemanticTargetedCapture capture, ISaveDocument document, SemanticSnapshot snapshot,
         IReadOnlyList<string> valueIds, bool revokeOnFailure, Action<string, string> recordFailure,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken, IReadOnlySet<string>? protectedIds = null)
     {
         if (valueIds.Count == 0) return new(true, [], []);
-        var result = capture.Capture(document, snapshot, valueIds, cancellationToken, markIncomplete: revokeOnFailure);
+        var result = capture.Capture(document, snapshot, valueIds, cancellationToken,
+            markIncomplete: revokeOnFailure, protectedIds: protectedIds);
         if (result.IncompleteIds.Count > 0)
         {
             if (revokeOnFailure)

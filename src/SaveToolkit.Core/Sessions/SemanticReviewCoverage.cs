@@ -8,6 +8,7 @@ namespace SaveToolkit.Core.Sessions;
 internal sealed class SemanticReviewCoverageTracker
 {
     private readonly HashSet<string> _retryIds = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _affectedOriginalIds = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _failures = new(StringComparer.Ordinal);
     private readonly HashSet<string> _failedOmissionIds = new(StringComparer.Ordinal);
     private int _omittedCount;
@@ -17,6 +18,11 @@ internal sealed class SemanticReviewCoverageTracker
     private bool _pendingMetadataAttempt;
 
     public IReadOnlyCollection<string> RetryIds => _retryIds;
+    public IReadOnlySet<string> AffectedOriginalIds => _affectedOriginalIds;
+    public IReadOnlySet<string> ProtectedOriginalIds(IEnumerable<string> targeted, IEnumerable<string> reported) =>
+        _affectedOriginalIds.Concat(targeted).Concat(reported).ToHashSet(StringComparer.Ordinal);
+    public void TransferAffectedOriginals(IEnumerable<string> publishedTargets) =>
+        _affectedOriginalIds.ExceptWith(publishedTargets);
     public int OmittedCount => _omittedCount;
     public bool OmittedCountIsLowerBound => _omittedCountIsLowerBound;
     public bool HasFailures => _failures.Count != 0;
@@ -24,12 +30,14 @@ internal sealed class SemanticReviewCoverageTracker
 
     public SemanticReviewCoverageState CaptureState() => new(_retryIds.ToArray(), _failures.ToArray(),
         _failedOmissionIds.ToArray(), _omittedCount, _omissionReason, _pendingMetadataReason,
-        _omittedCountIsLowerBound, _pendingMetadataAttempt);
+        _omittedCountIsLowerBound, _pendingMetadataAttempt, _affectedOriginalIds.ToArray());
 
     public void Restore(SemanticReviewCoverageState state)
     {
         _retryIds.Clear();
         _retryIds.UnionWith(state.RetryIds);
+        _affectedOriginalIds.Clear();
+        _affectedOriginalIds.UnionWith(state.AffectedOriginalIds);
         _failures.Clear();
         foreach (var (id, diagnostic) in state.Failures) _failures[id] = diagnostic;
         _failedOmissionIds.Clear();
@@ -39,6 +47,22 @@ internal sealed class SemanticReviewCoverageTracker
         _pendingMetadataReason = state.PendingMetadataReason;
         _omittedCountIsLowerBound = state.OmittedCountIsLowerBound;
         _pendingMetadataAttempt = state.PendingMetadataAttempt;
+    }
+
+    // Only explicit affected requests/reports acquire ownership. Whole-view metadata failures
+    // are retryable diagnostics, not a reason to pin unrelated optional legacy evidence.
+    public void ProtectAffectedOriginals(IEnumerable<string> ids)
+    {
+        foreach (var id in ids)
+        {
+            if (string.IsNullOrEmpty(id) || _affectedOriginalIds.Contains(id)) continue;
+            if (_affectedOriginalIds.Count >= FieldMetadataLimits.MaxClosureIds)
+            {
+                RecordOmissions(1, "Affected original ownership exceeded its bounded limit.");
+                break;
+            }
+            _affectedOriginalIds.Add(id);
+        }
     }
 
     public void RecordFailure(string id, string diagnostic)
@@ -136,4 +160,4 @@ internal sealed class SemanticReviewCoverageTracker
 internal sealed record SemanticReviewCoverageState(IReadOnlyList<string> RetryIds,
     IReadOnlyList<KeyValuePair<string, string>> Failures, IReadOnlyList<string> FailedOmissionIds,
     int OmittedCount, string? OmissionReason, string? PendingMetadataReason, bool OmittedCountIsLowerBound,
-    bool PendingMetadataAttempt);
+    bool PendingMetadataAttempt, IReadOnlyList<string> AffectedOriginalIds);

@@ -12,7 +12,10 @@ internal sealed record SemanticField(string ValueId, string Label, string[] Path
     FieldBindingKind BindingKind = FieldBindingKind.Primary, FieldSpec? Spec = null,
     FieldPresentation? Presentation = null, bool MetadataPublished = false);
 internal sealed record SemanticReviewState(SemanticSnapshot? Original,
-    IReadOnlyList<string> TargetedIds, IReadOnlyList<string> CaptureDiagnostics);
+    IReadOnlyList<string> TargetedIds, IReadOnlyList<string> CaptureDiagnostics)
+{
+    public IReadOnlyList<string> AffectedOriginalIds { get; init; } = [];
+}
 
 /// <summary>
 /// A separate original-value baseline survives history eviction. Both baseline and current walks
@@ -80,7 +83,8 @@ internal sealed class SemanticReview
         _references = references ?? new ReferenceFieldService(ReferenceContext.None);
     }
     internal SemanticReviewState CaptureState() => new(
-        _original?.Clone(), _targeted.ToArray(), _coverage.Diagnostics());
+        _original?.Clone(), _targeted.ToArray(), _coverage.Diagnostics())
+        { AffectedOriginalIds = _coverage.AffectedOriginalIds.ToArray() };
     public void Observe(IReadOnlyList<ValueChange> changes, bool structural, Func<string, bool> indexed,
         bool effectCoverage = false)
     {
@@ -92,6 +96,7 @@ internal sealed class SemanticReview
         }
         foreach (var change in changes)
         {
+            if (!_targeted.Contains(change.ValueId)) _coverage.ProtectAffectedOriginals([change.ValueId]);
             if (original.Fields.ContainsKey(change.ValueId)) continue;
             // OldValue proves the original for previously unexposed fields only before any
             // structural mutation could have created that identity.
@@ -157,6 +162,8 @@ internal sealed class SemanticReview
         ArgumentNullException.ThrowIfNull(openOriginal);
         ArgumentNullException.ThrowIfNull(valueIds);
         var ids = CollectTargetIds(valueIds, out var omittedCount);
+        cancellationToken.ThrowIfCancellationRequested();
+        _coverage.ProtectAffectedOriginals(ids);
         if (omittedCount > 0)
             _coverage.RecordOmissions(omittedCount, "The bounded targeted metadata aggregate limit was reached.");
         if (ids.Length == 0)
@@ -190,6 +197,7 @@ internal sealed class SemanticReview
                     var outcome = CaptureTargeted(original, snapshot, ids, revokeOnFailure: false, cancellationToken);
                     _coverage.RegisterRetryIds(outcome.IncompleteIds);
                     _targeted.UnionWith(outcome.CapturedIds);
+                    _coverage.TransferAffectedOriginals(outcome.CapturedIds);
                     var walked = _capture.Capture(original, static _ => { }, static _ => { }, cancellationToken);
                     if (walked.Complete)
                         snapshot.Merge(walked, _maxBytes);
@@ -246,6 +254,7 @@ internal sealed class SemanticReview
             var outcome = CaptureTargeted(original, existing, ids, revokeOnFailure: false, cancellationToken);
             _coverage.RegisterRetryIds(outcome.IncompleteIds);
             _targeted.UnionWith(outcome.CapturedIds);
+            _coverage.TransferAffectedOriginals(outcome.CapturedIds);
             var metadata = SemanticTargetedAuthority.ApplyCanonicalMetadata(original, existing, _maxBytes, cancellationToken);
             if (!metadata.Applied)
                 _coverage.RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
@@ -282,7 +291,7 @@ internal sealed class SemanticReview
             {
                 var metadata = SemanticOriginalMetadata.Enrich(openOriginal, baseline, _maxBytes,
                     _coverage.RetryIds.ToArray(), _coverage.HasPendingMetadataAttempt,
-                    ref _capturingOriginal, cancellationToken);
+                    ref _capturingOriginal, cancellationToken, _coverage.ProtectedOriginalIds(_targeted, _reported));
                 var publication = CompleteOriginalRecovery(baseline, metadata.Applied ? null : metadata.Recovered);
                 if (!metadata.Applied)
                     _coverage.RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
@@ -378,7 +387,7 @@ internal sealed class SemanticReview
         var uncontextualized = SemanticSnapshotComparison.Compare(original.Fields, original.Complete,
             current.Fields, current.Complete, document, noContext, cancellationToken);
         var contextResolution = SemanticContextAdmission.Resolve(_memberContext, uncontextualized,
-            original, current, _maxBytes, cancellationToken, _targeted, _reported);
+            original, current, _maxBytes, cancellationToken, _coverage.ProtectedOriginalIds(_targeted, _reported));
         var changes = contextResolution.Contexts.Count == 0
             ? uncontextualized
             : SemanticSnapshotComparison.Compare(original.Fields, original.Complete,
@@ -421,7 +430,8 @@ internal sealed class SemanticReview
     private TargetedCaptureOutcome CaptureTargeted(ISaveDocument document, SemanticSnapshot snapshot,
         IReadOnlyList<string> valueIds, bool revokeOnFailure, CancellationToken cancellationToken) => SemanticTargetedReview.Capture(
             _targetedCapture, document, snapshot, valueIds, revokeOnFailure,
-            _coverage.RecordFailure, cancellationToken);
+            _coverage.RecordFailure, cancellationToken,
+            valueIds.Count == 0 ? null : _coverage.ProtectedOriginalIds(_targeted, _reported));
 
     private string[] CollectTargetIds(IEnumerable<string> valueIds, out int omittedCount)
     {
@@ -455,6 +465,7 @@ internal sealed class SemanticReview
             .Where(id => snapshot.Fields.TryGetValue(id, out var field) && SemanticOriginalMetadata.HasMetadata(field))
             .Distinct(StringComparer.Ordinal).ToArray();
         var publication = PublishRecoveredTargets(recovered);
+        _coverage.TransferAffectedOriginals(publication.Accepted);
         if (publication.Rejected.Count > 0)
             _coverage.RecordOriginalFailures(publication.Rejected,
                 "Recovered original metadata could not be admitted to the bounded target set.");

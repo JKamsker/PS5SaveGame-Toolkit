@@ -10,7 +10,7 @@ internal static class SemanticOriginalMetadata
 
     public static CanonicalMetadataOutcome Enrich(Func<ISaveDocument> openOriginal, SemanticSnapshot snapshot,
         long maxBytes, IReadOnlyList<string> retryIds, bool forceAttempt, ref bool capturing,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken, IReadOnlySet<string>? protectedIds = null)
     {
         if ((!forceAttempt && retryIds.Count == 0 && snapshot.Fields.Values.All(HasMetadata)) || capturing)
             return new(true, []);
@@ -24,7 +24,8 @@ internal static class SemanticOriginalMetadata
                 if (retryIds.Count > 0)
                 {
                     var targeted = new SemanticTargetedCapture(maxBytes).Capture(
-                        original, snapshot, retryIds, cancellationToken, markIncomplete: false);
+                        original, snapshot, retryIds, cancellationToken, markIncomplete: false,
+                        protectedIds: protectedIds);
                     recovered.AddRange(targeted.CapturedIds);
                     if (targeted.IncompleteIds.Count > 0)
                         return new(false, targeted.IncompleteIds, targeted.Diagnostic, recovered);
