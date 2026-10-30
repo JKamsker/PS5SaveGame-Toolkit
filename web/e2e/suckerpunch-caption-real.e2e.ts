@@ -1,5 +1,5 @@
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
-import type { ActionPreview } from "../src/api/actionReview";
+import type { ActionPreview, SemanticChangeLog } from "../src/api/actionReview";
 import type { EditResult } from "../src/api/protocol";
 import {
   assertCaptionServerNoop, captionCompanionPath, captionLabel, captionPrimaryPath, captionSfoPath, captionValueId, captionWarning,
@@ -223,8 +223,24 @@ test("real caption apply, Changes revert, undo/redo, all export scopes and reimp
   await expect(changes).toContainText(editedCaption);
   const revert = changes.getByRole("button", { name: `Revert ${captionLabel}`, exact: true });
   await expect(revert).toBeEnabled();
+  const reverting = page.waitForResponse(response => response.url().endsWith("/changes/revert") && response.request().method() === "POST");
   await revert.click();
-  await expect(page.getByText("No semantic changes.", { exact: true })).toBeVisible();
+  const reverted = await reverting;
+  expect(reverted.status()).toBe(200);
+  expect((await reverted.json() as EditResult).ok).toBe(true);
+  const reviewResponse = await page.request.get(`${documentPath}/changes`);
+  expect(reviewResponse.status()).toBe(200);
+  const review = await reviewResponse.json() as SemanticChangeLog;
+  await testInfo.attach("caption-reverted-review.json", { body: JSON.stringify(review, null, 2), contentType: "application/json" });
+  // Header fields are proven legacy values, but this plugin does not publish canonical
+  // metadata for all of them. Zero proven changes must not claim complete coverage.
+  expect(review).toMatchObject({ revision: 2, changes: [], complete: false });
+  expect(review.coverage!.examinedCount).toBeGreaterThan(0);
+  expect(review.coverage!.omittedCount).toBeGreaterThan(0);
+  expect(review.warnings).toContain("Canonical metadata coverage is incomplete: no descriptor was published for 'container/word0'.");
+  await expect(page.getByRole("status", { name: "Changes review", exact: true })).toHaveText("0 of 0 changed fields");
+  await expect(page.getByText("No proven changes in the reviewed portion.", { exact: true })).toBeVisible();
+  await expect(page.getByText("No semantic changes.", { exact: true })).toHaveCount(0);
   expect((await documentSnapshot(page, documentPath)).state).toMatchObject({ revision: 2, canUndo: true, canRedo: false, isDirty: true });
   expectFiles(await exportCaptionScope(page, testInfo, /Whole dump/, "caption-reverted.zip"), fixture.files);
 

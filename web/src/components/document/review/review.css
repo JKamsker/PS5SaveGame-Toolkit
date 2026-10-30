@@ -21,5 +21,6 @@
 
 @media (max-width: 640px) {
   .review-table { min-width: 620px; }
+  .review-dialog .review-table { min-width: 0; }
   .review-actions { flex-direction: column; }
 }

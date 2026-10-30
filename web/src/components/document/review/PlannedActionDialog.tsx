@@ -32,7 +32,7 @@ function PlannedActionBody({ node, action }: PlannedDialogProps) {
     <p>{scopeLabel}</p>
     {node.confirm && <p className="notice notice--Warning">{node.confirm}</p>}
     {!preview && <ActionParameterFields form={form} formVersion={formVersion} idPrefix={id} actionId={node.actionId} busy={busy} variant="planned" />}
-    <p role="status" aria-atomic="true">{pending ? "Refreshing the document before another preview…" : busy ? "Working…" : preview && !preview.plan.errors.length
+    <p role="status" aria-atomic="true">{pending ? "Refreshing the document before another preview…" : busy ? "Working…" : preview
       ? preview.plan.changes.length ? `${preview.plan.changes.length} field changes · ${preview.plan.skippedRows.length} skipped rows · one undo step`
         : "No changes. No undo step will be created."
       : ""}</p>
