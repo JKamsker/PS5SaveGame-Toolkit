@@ -23,6 +23,29 @@ public sealed class RetiredBindingsMutationEffectivenessTests
     }
 
     [Fact]
+    public void EmptyLazyExpansionsHaveLinearAllocationGrowth()
+    {
+        var smaller = MeasureEmptyExpansionAllocations(4_000);
+        var larger = MeasureEmptyExpansionAllocations(8_000);
+
+        // The expansion work itself is linear in the request count. A copied index would add
+        // every previously remembered id on each request and exceed this deliberately generous bound.
+        Assert.InRange(larger, 0, checked(smaller * 2 + 1_000_000));
+    }
+
+    private static long MeasureEmptyExpansionAllocations(int count)
+    {
+        using var fixture = new MutationSessionFixture(new RememberedLazyDocument(count));
+        fixture.Session.BuildView();
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        for (var i = 0; i < count; i++) fixture.Session.Expand($"lazy/{i}");
+        return GC.GetAllocatedBytesForCurrentThread() - before;
+    }
+
+    [Fact]
     public void RetiredIdsAreRetainedAtTheExactCapAndDiscardedOnlyBeyondIt()
     {
         using var fixture = new MutationSessionFixture(new RetiringDocument());
