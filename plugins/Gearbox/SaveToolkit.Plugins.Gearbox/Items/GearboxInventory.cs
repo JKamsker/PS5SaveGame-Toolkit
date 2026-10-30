@@ -11,10 +11,7 @@ internal sealed class GearboxInventory
     public const string LostLoot = "lost_loot_inventory_list";
     internal const int DirectLookupWorkLimit = 4096;
     private readonly GearboxDocument _document;
-    private readonly Dictionary<string, List<string>> _ids;
-    private readonly Dictionary<string, (string List, int Index)> _locations = new(StringComparer.Ordinal);
-    private bool _identitiesInitialized;
-    private int _nextId;
+    private readonly GearboxInventoryIdentities _identity;
     private ProtoMessage? _indexedRoot;
     private ProtoMessage? _directRoot;
     private InventoryEntry[] _entries = [];
@@ -30,8 +27,7 @@ internal sealed class GearboxInventory
     public GearboxInventory(GearboxDocument document)
     {
         _document = document;
-        _ids = (document.Profile ? new[] { Bank, LostLoot } : [Backpack])
-            .ToDictionary(list => list, _ => new List<string>(), StringComparer.Ordinal);
+        _identity = new(document);
     }
 
     public IEnumerable<InventoryEntry> Entries { get { Index(); return _entries; } }
@@ -57,7 +53,15 @@ internal sealed class GearboxInventory
         if (_directEntries.TryGetValue(id, out var cached)) { entry = cached; return true; }
         // A scalar can remove another root tag between setters. The model maintains each tag's
         // own ordinals during that mutation, so a category cannot shift an inventory identity.
-        if (_locations.TryGetValue(id, out var location))
+        var located = _identity.TryLocation(id, out var location);
+        if (!located && !_identity.Initialized && _byId.TryGetValue(id, out var opening))
+        {
+            // Warm opening rows remain directly addressable across scalar root clones without
+            // turning a read cache into persistent identity allocation.
+            location = (opening.List, opening.Index);
+            located = true;
+        }
+        if (located)
         {
             var field = _document.Root.FieldAt(location.List, location.Index);
             if (field is null) return false;
@@ -72,10 +76,10 @@ internal sealed class GearboxInventory
         if (!TryCanonicalItemId(id, out var number))
             return false;
         // Cold targeted lookup uses the stable numeric identity directly. Full identity lists are
-        // materialized only by view/structural paths; this keeps one unloaded request bounded.
-        if (!_identitiesInitialized && !_document.Profile && number < DirectLookupWorkLimit)
+        // reserved only by structural mutations; this keeps one unloaded request bounded.
+        if (!_identity.Initialized && !_document.Profile && number < DirectLookupWorkLimit)
             return TryEntry(Backpack, number, out entry, id);
-        if (!_identitiesInitialized && _document.Profile && number < DirectLookupWorkLimit)
+        if (!_identity.Initialized && _document.Profile && number < DirectLookupWorkLimit)
         {
             var bankCount = CountBounded(Bank);
             if (bankCount < 0) return false;
@@ -108,7 +112,7 @@ internal sealed class GearboxInventory
             if (seen++ == index) { field = candidate; break; }
         }
         if (field is null) return false;
-        entry = new InventoryEntry(identity ?? _ids[list][index], list, index, field);
+        entry = new InventoryEntry(identity ?? _identity.At(list, index), list, index, field);
         _directEntries[entry.Id] = entry;
         _directRoot = _document.Root;
         return true;
@@ -116,22 +120,20 @@ internal sealed class GearboxInventory
 
     private void Index()
     {
-        EnsureIdentities();
         if (ReferenceEquals(_indexedRoot, _document.Root)) return;
-        _entries = _ids.SelectMany(pair => _document.Root.All(pair.Key)
-            .Select((record, index) => new InventoryEntry(pair.Value[index], pair.Key, index, record))).ToArray();
+        // Cold views/plans use positional opening identities without reserving them. Only a
+        // committed structural mutation materializes persistent lists and advances the counter.
+        var next = _identity.NextId;
+        _entries = _identity.Lists.SelectMany(list => _document.Root.All(list)
+            .Select((record, index) => new InventoryEntry(_identity.Initialized ? _identity.At(list, index)
+                : "item-" + (next++).ToString(CultureInfo.InvariantCulture), list, index, record))).ToArray();
         _byId = _entries.ToDictionary(entry => entry.Id, StringComparer.Ordinal);
         _directEntries.Clear();
         foreach (var entry in _entries) _directEntries[entry.Id] = entry;
         _indexedRoot = _document.Root;
         _directRoot = _document.Root;
     }
-    public InventoryIdentity Capture()
-    {
-        return new(_identitiesInitialized
-            ? _ids.ToDictionary(p => p.Key, p => p.Value.ToArray(), StringComparer.Ordinal)
-            : _ids.ToDictionary(p => p.Key, _ => Array.Empty<string>(), StringComparer.Ordinal), _nextId, _identitiesInitialized);
-    }
+    public InventoryIdentity Capture() => _identity.Capture();
     public SerialInfo Info(string id)
     {
         var serial = Find(id).Serial;
@@ -142,31 +144,13 @@ internal sealed class GearboxInventory
     }
     public void Restore(InventoryIdentity identity)
     {
-        if (!identity.Initialized)
-        {
-            foreach (var list in _ids.Keys.ToArray()) _ids[list].Clear();
-            _nextId = identity.NextId;
-            _identitiesInitialized = false;
-            _locations.Clear();
-            _indexedRoot = null;
-            _directRoot = null;
-            _directEntries.Clear();
-            _serials.Clear();
-            return;
-        }
-        EnsureIdentities();
-        if (!_ids.Keys.Order().SequenceEqual(identity.Lists.Keys.Order()) ||
-            identity.Lists.Any(p => p.Value.Length != _document.Root.All(p.Key).Count()) ||
-            identity.Lists.SelectMany(p => p.Value).Distinct().Count() != identity.Lists.Sum(p => p.Value.Length))
-            throw new InvalidOperationException("Invalid Gearbox inventory identity snapshot.");
-        foreach (var (list, ids) in identity.Lists) _ids[list] = ids.ToList();
-        _nextId = identity.NextId;
-        _identitiesInitialized = true;
-        _indexedRoot = null;
-        _directRoot = null;
-        _directEntries.Clear();
-        _serials.Clear();
-        RebuildLocations();
+        _identity.Restore(identity);
+        _byId.Clear();
+        _entries = [];
+        Invalidate();
+        // Restore is an explicit full-state boundary. Rebuild transient locations so already
+        // established late rows bind to the restored model without reserving persistent IDs.
+        Index();
     }
 
     public void SetSerial(string id, byte[] serial)
@@ -186,7 +170,7 @@ internal sealed class GearboxInventory
 
     public void Remove(string id)
     {
-        EnsureIdentities();
+        _identity.Initialize();
         var entry = Find(id);
         if (entry.List == Backpack)
         {
@@ -198,8 +182,7 @@ internal sealed class GearboxInventory
             }
         }
         _document.Root.Remove(entry.Field);
-        _ids[entry.List].RemoveAt(entry.Index);
-        RebuildLocations();
+        _identity.Remove(entry.List, entry.Index);
         _serials.Remove(id);
         _indexedRoot = null;
         _directRoot = null;
@@ -208,11 +191,9 @@ internal sealed class GearboxInventory
 
     public string Append(string list, ProtoField source, string? movedId = null)
     {
-        EnsureIdentities();
         EnsureCapacity(list, 1);
         ValidateDestination(list, source);
-        if (movedId is not null && _ids.Values.SelectMany(ids => ids).Contains(movedId))
-            throw new SaveFormatException("The destination already owns this item identity.");
+        ValidateMovedIdentity(movedId);
         var root = _document.Root;
         var spec = root.Schema.Spec(root.Type, list);
         ProtoMessage? message = null;
@@ -234,21 +215,13 @@ internal sealed class GearboxInventory
                 message.SetInteger("pickup_order_index", pickup + 1);
             }
         }
+        _identity.Initialize();
         root.Add(new ProtoField(root.Schema.Tag(root.Type, list), 2, spec, [], serial, message));
-        var id = movedId ?? "item-" + _nextId++;
-        _ids[list].Add(id);
-        RebuildLocations();
+        var id = _identity.Append(list, movedId);
         _indexedRoot = null;
         _directRoot = null;
         _directEntries.Clear();
         return id;
-    }
-
-    private void RebuildLocations()
-    {
-        _locations.Clear();
-        foreach (var (list, ids) in _ids)
-            for (var index = 0; index < ids.Count; index++) _locations[ids[index]] = (list, index);
     }
 
     private int CountBounded(string list)
@@ -291,6 +264,7 @@ internal sealed class GearboxInventory
 
     public void ValidateDestination(string list, ProtoField source)
     {
+        ValidateList(list);
         var root = _document.Root;
         var spec = root.Schema.Spec(root.Type, list);
         if (!root.Schema.IsMessage(spec.Type) && source.Message is { } original && original.Fields.Any(f => f.Spec?.Name switch
@@ -304,41 +278,22 @@ internal sealed class GearboxInventory
 
     public void EnsureCapacity(string list, int additional)
     {
-        EnsureIdentities();
-        if (list == Backpack && additional > 0 && _document.Root.Children(Backpack)
-            .Select(m => m.Integer("pickup_order_index")).DefaultIfEmpty(0).Max() > int.MaxValue - additional)
-            throw new SaveFormatException("Destination pickup order would overflow.");
-        var count = _ids[list].Count;
-        var path = list == Backpack ? "Backpack" : list == Bank ? "Bank" : "LostLoot";
-        var sdus = _document.Root.Children(_document.Profile ? "profile_sdu_list" : "sdu_list")
-            .Where(m => m.Text("sdu_data_path").Contains("SDU_" + path + ".", StringComparison.OrdinalIgnoreCase)).ToArray();
-        if (sdus.Length == 0 && !_document.Root.Children(_document.Profile ? "profile_sdu_list" : "sdu_list").Any())
-        {
-            var baseline = GearboxWritePolicies.Capacity(list, 0);
-            if (count + additional <= baseline) return;
-            throw new SaveFormatException($"No SDU record; destination growth is limited to the base-capacity policy ({baseline}).");
-        }
-        // Conservative editor policy from the pinned upstream SDU definitions; unknown paths reject growth.
-        if (sdus.Length != 1) throw new SaveFormatException("Cannot establish the destination capacity from its existing SDU record.");
-        var tier = sdus[0].Integer("sdu_level");
-        var capacity = GearboxWritePolicies.Capacity(list, tier);
-        var max = GearboxWritePolicies.SduMaximum(sdus[0].Text("sdu_data_path"), _document.Root.Schema.Wonderlands);
-        if (tier < 0 || max is null || tier > max || count + additional > capacity)
-            throw new SaveFormatException($"Destination capacity policy ({capacity}) would be exceeded; no items were discarded.");
+        ValidateList(list);
+        GearboxInventoryCapacity.Ensure(_document, list, additional);
     }
 
-    private void EnsureIdentities()
+    internal void ValidateMovedIdentity(string? movedId)
     {
-        if (_identitiesInitialized) return;
-        foreach (var list in _ids.Keys.ToArray())
-            _ids[list] = Enumerable.Range(0, _document.Root.All(list).Count())
-                .Select(_ => "item-" + _nextId++).ToList();
-        _identitiesInitialized = true;
-        RebuildLocations();
+        if (movedId is not null && Entries.Any(entry => entry.Id == movedId))
+            throw new SaveFormatException("The destination already owns this item identity.");
+    }
+
+    private void ValidateList(string list)
+    {
+        if (!_identity.Owns(list)) throw new SaveFormatException("The destination container does not belong to this document.");
     }
 }
 
-internal sealed record InventoryIdentity(Dictionary<string, string[]> Lists, int NextId, bool Initialized);
 internal sealed record InventoryEntry(string Id, string List, int Index, ProtoField Field)
 {
     public byte[] Serial => SerialOf(Field);

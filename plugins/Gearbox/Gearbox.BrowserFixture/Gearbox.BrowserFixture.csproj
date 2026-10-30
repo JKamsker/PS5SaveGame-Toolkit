@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <StartupObject>Gearbox.BrowserFixture.Program</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SaveToolkit.Plugins.Gearbox.Tests/SaveToolkit.Plugins.Gearbox.Tests.csproj" />
+  </ItemGroup>
+</Project>

@@ -19,6 +19,7 @@ internal sealed class SelectionGroupObserver : IGamePlugin, IDocumentGroupPlugin
 
     private readonly GearboxPlugin _plugin = new();
     private readonly HashSet<ObservedGroup> _open = [];
+    internal Func<EditOutcome, EditOutcome>? TransformActionOutcome { get; set; }
     internal GearboxGroupDocument Current => Assert.Single(_open).Document;
     public PluginInfo Info => _plugin.Info;
     public ProbeResult Probe(ISaveFile file) => _plugin.Probe(file);
@@ -35,7 +36,7 @@ internal sealed class SelectionGroupObserver : IGamePlugin, IDocumentGroupPlugin
     }
 
     private sealed class ObservedGroup(SelectionGroupObserver owner, GearboxGroupDocument document)
-        : IGroupedSaveDocument, IQueryableDocument, IActionPlanningDocument
+        : IGroupedSaveDocument, IQueryableDocument, IActionEffectDocument, IGroupedFieldContext
     {
         internal GearboxGroupDocument Document => document;
         public string Title => document.Title;
@@ -44,13 +45,17 @@ internal sealed class SelectionGroupObserver : IGamePlugin, IDocumentGroupPlugin
         public ViewNode BuildView() => document.BuildView();
         public IReadOnlyList<ViewNode> ExpandNode(string lazyId) => document.ExpandNode(lazyId);
         public FieldValue GetValue(string valueId) => document.GetValue(valueId);
+        public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> ids) => document.ResolveFieldMetadata(ids);
+        public IReadOnlyList<DocumentGroupFieldContext> ResolveFieldContext(IReadOnlyList<string> ids) => document.ResolveFieldContext(ids);
         public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => document.Query(collectionId, query);
         public EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits) => document.ApplyEdits(edits);
         public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters) => document.InvokeAction(actionId, parameters);
         public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) =>
             document.PlanAction(actionId, parameters, scope);
         public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
-            document.ApplyActionPlan(actionId, parameters, scope, plan);
+            owner.TransformActionOutcome is { } transform
+                ? transform(document.ApplyActionPlan(actionId, parameters, scope, plan))
+                : document.ApplyActionPlan(actionId, parameters, scope, plan);
         public IReadOnlyList<FileOutput> Serialize() => document.Serialize();
         public DocumentMemento CaptureMemento() => document.CaptureMemento();
         public DocumentMemento RestoreMemento(DocumentMemento memento) => document.RestoreMemento(memento);

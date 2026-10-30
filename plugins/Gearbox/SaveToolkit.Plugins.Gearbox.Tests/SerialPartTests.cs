@@ -71,7 +71,7 @@ public sealed class SerialPartTests
         var entry = document.Inventory.Entries.First(e => document.Inventory.Info(e.Id) is { Complete: true, Parts.Count: > 0 });
         _ = session.QueryCollection(entry.List, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         var detail = session.Expand("detail/" + entry.Id);
-        var field = Assert.IsType<TableNode>(detail.Last()).Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>()
+        var field = Assert.Single(detail.OfType<TableNode>()).Rows.SelectMany(row => row.Cells.Values).OfType<FieldNode>()
             .First(f => f.Spec is ReferenceSpec && Alternative(SerialDatabase.For(title == "PPSA01493"), SerialParts.Slot(document.Inventory.Info(entry.Id),
                 int.Parse(f.ValueId.Split('/').Last(), CultureInfo.InvariantCulture))) is not null);
         var slotIndex = int.Parse(field.ValueId.Split('/').Last(), CultureInfo.InvariantCulture);

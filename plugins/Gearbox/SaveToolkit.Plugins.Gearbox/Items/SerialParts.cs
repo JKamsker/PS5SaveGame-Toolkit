@@ -18,7 +18,7 @@ internal static class SerialParts
         return slot < info.Parts.Count ? info.Parts[slot] : info.GenericParts[slot - info.Parts.Count];
     }
 
-    private static SerialAsset Candidate(SerialDatabase database, SerialAsset current, string key)
+    internal static SerialAsset Candidate(SerialDatabase database, SerialAsset current, string key)
     {
         // The immutable binary database is authoritative; host label overrides cannot grant eligibility.
         var record = database.Find(ItemCatalogs.Indices, key);
@@ -43,14 +43,9 @@ internal static class SerialParts
 
     public static FieldNode Field(GearboxDocument document, string itemId, int slot, string source)
     {
-        var database = SerialDatabase.For(document.Root.Schema.Wonderlands);
         return document.PartReference(itemId + "/part/" + slot,
             () => Slot(document.Inventory.Info(itemId), slot).Key,
             key => document.Inventory.SetSerial(itemId, Set(document.Inventory.Find(itemId).Serial, document.Root.Schema.Wonderlands, slot, key)),
-            record =>
-            {
-                try { _ = Candidate(database, Slot(document.Inventory.Info(itemId), slot), record.Key); return new(); }
-                catch (SaveFormatException ex) { return new() { Eligible = false, Reasons = [ex.Message] }; }
-            }, source);
+            document.PartBindings.Assessor(itemId, slot), source);
     }
 }

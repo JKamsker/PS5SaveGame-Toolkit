@@ -4,7 +4,7 @@ namespace SaveToolkit.Plugins.Gearbox.Tests;
 internal static class SyntheticItem
 {
     public static byte[] Payload(bool wonderlands, int customizations = 0, bool invalidPart = false,
-        int? partIndex = null, int? genericPartIndex = null)
+        int? partIndex = null, int? genericPartIndex = null, int additionalData = 0)
     {
         var db = SerialDatabase.For(wonderlands);
         var balance = db.Records("serial-indices").First(r => r.Category == "InventoryBalanceData"
@@ -17,7 +17,9 @@ internal static class SyntheticItem
         if (invalidPart || partIndex.HasValue) fields.Add((invalidPart ? 0 : partIndex!.Value, db.Width(partKey, db.MaximumVersion)));
         fields.Add((genericPartIndex.HasValue ? 1 : 0, 4));
         if (genericPartIndex.HasValue) fields.Add((genericPartIndex.Value, db.Width("InventoryGenericPartData", db.MaximumVersion)));
-        fields.AddRange([(0, 8), (customizations, 4), (3, 8)]);
+        fields.Add((additionalData, 8));
+        for (var index = 0; index < additionalData; index++) fields.Add((index, 8));
+        fields.AddRange([(customizations, 4), (3, 8)]);
         if (wonderlands) fields.Add((2, 7));
         var bytes = new byte[(fields.Sum(f => f.Width) + 7) / 8];
         var offset = 0;
