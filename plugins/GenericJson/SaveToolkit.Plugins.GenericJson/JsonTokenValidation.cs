@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using SaveToolkit.Sdk;
@@ -98,7 +99,7 @@ internal static class JsonTokenValidation
         {
             var position = childCounts[reader.CurrentDepth];
             scratch[0] = '[';
-            _ = position.TryFormat(scratch[1..], out var digits);
+            _ = position.TryFormat(scratch[1..], out var digits, provider: CultureInfo.InvariantCulture);
             scratch[digits + 1] = ']';
             if (!node.Label.AsSpan().SequenceEqual(scratch[..(digits + 2)])) Mismatch();
         }
