@@ -19,15 +19,18 @@ internal static class SemanticOriginalMetadata
             using var original = openOriginal();
             if (original is IFieldMetadataDocument)
             {
+                var recovered = new List<string>();
                 if (retryIds.Count > 0)
                 {
                     var targeted = new SemanticTargetedCapture(maxBytes).Capture(
-                        original, snapshot, retryIds, cancellationToken);
-                    if (!targeted.Succeeded)
-                        return new(false, targeted.IncompleteIds, targeted.Diagnostic);
+                        original, snapshot, retryIds, cancellationToken, markIncomplete: false);
+                    recovered.AddRange(targeted.CapturedIds);
+                    if (targeted.IncompleteIds.Count > 0)
+                        return new(false, targeted.IncompleteIds, targeted.Diagnostic, recovered);
                 }
 
-                return SemanticTargetedAuthority.ApplyCanonicalMetadata(original, snapshot, maxBytes, cancellationToken);
+                var outcome = SemanticTargetedAuthority.ApplyCanonicalMetadata(original, snapshot, maxBytes, cancellationToken);
+                return outcome with { RecoveredIds = recovered };
             }
             return new(true, []);
         }

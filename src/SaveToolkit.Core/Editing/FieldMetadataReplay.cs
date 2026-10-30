@@ -8,7 +8,8 @@ public static class FieldMetadataReplay
 {
     public static IReadOnlyList<ValueEdit> Edits(ViewIndex index, IReadOnlyList<ValueChange> changes, bool useOld)
     {
-        index.ResolveMetadata(changes.Select(change => change.ValueId));
+        index.ResolveMetadata(changes.Select(change => change.ValueId), CancellationToken.None,
+            FieldMetadataPlanning.MaxPlannedMetadataIds);
         var result = new List<ValueEdit>();
         var coalesced = new Dictionary<string, (FieldValue Old, FieldValue New)>(StringComparer.Ordinal);
         var order = new List<string>();
