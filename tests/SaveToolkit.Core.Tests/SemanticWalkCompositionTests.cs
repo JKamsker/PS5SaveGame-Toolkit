@@ -32,10 +32,16 @@ public sealed class SemanticWalkCompositionTests
     private static SemanticChangeLog Run(bool targeted, bool incomplete)
     {
         var review = new SemanticReview(new());
-        review.EnsureOriginal(() => new WalkDocument(incomplete));
-        if (targeted) review.CaptureTargetedOriginals(() => new WalkDocument(incomplete), ["primary"], CancellationToken.None);
+        // Both original baselines are complete. Only the current walk may fail, so the
+        // targeted arm retains ordinary merge behavior instead of targeted-only review.
+        if (targeted) review.CaptureTargetedOriginals(() => new WalkDocument(false), ["primary"], CancellationToken.None);
+        else review.EnsureOriginal(() => new WalkDocument(false));
+        var baseline = review.CaptureState();
+        Assert.True(baseline.Original!.Complete);
+        if (targeted) Assert.Contains("primary", baseline.TargetedIds);
+        else Assert.Empty(baseline.TargetedIds);
         using var current = new WalkDocument(incomplete) { Value = 2 };
-        return review.Query(() => new WalkDocument(incomplete), current, _ => { }, _ => { }, 1, CancellationToken.None);
+        return review.Query(() => new WalkDocument(false), current, _ => { }, _ => { }, 1, CancellationToken.None);
     }
 
     private sealed class WalkDocument : BoundSaveDocument, IFieldMetadataDocument
