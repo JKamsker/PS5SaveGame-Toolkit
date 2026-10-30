@@ -1,6 +1,8 @@
+using System.Text;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Plugins.XorJson.Tests;
 
@@ -69,6 +71,22 @@ public sealed class MetadataAdopterTests
         Assert.False(document.ApplyEdits([new("value/1", FieldValue.Of("2"))]).Succeeded);
     }
 
+    [Fact]
+    public void UnsupportedCharacterProfileMetadataRemainsReadOnlyBeforeView()
+    {
+        const string text = "{\"SerializeMeta\":{\"HardFormat\":\"FCharacterSaveV1\",\"SoftVersion\":1,\"FormatHash\":3777917472},\"CharacterSaveV1\":{\"MetaData\":{\"IsOnline\":false},\"Level\":1}}";
+        using var document = new XorJsonPlugin().Open(
+            MemorySaveSet.SingleFile("hero.sav", Encoding.UTF8.GetBytes(text)));
+        var resolver = Assert.IsAssignableFrom<IFieldMetadataDocument>(document);
+        var before = document.Serialize().Single().Content.ToArray();
+
+        var field = Assert.Single(resolver.ResolveFieldMetadata(["value/8"]));
+
+        Assert.True(field.Spec.ReadOnly);
+        Assert.False(document.ApplyEdits([new("value/8", FieldValue.ExactNumber("2"))]).Succeeded);
+        Assert.Equal(before, document.Serialize().Single().Content.ToArray());
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -87,6 +105,36 @@ public sealed class MetadataAdopterTests
         _ = document.RestoreMemento(removed.Revert!);
         Assert.Single(resolver.ResolveFieldMetadata(RemovedId));
         Assert.Equal(FieldValue.ExactNumber("1"), document.GetValue("value/2"));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void StructuralPublicationAddsCurrentMetadataAndFailedWritesKeepIt(bool xor)
+    {
+        using var document = XorJsonTests.Open(XorJsonTests.Encode("{\"items\":[1]}", xor));
+        var resolver = Assert.IsAssignableFrom<IFieldMetadataDocument>(document);
+        var originalBytes = document.Serialize().Single().Content.ToArray();
+
+        var addition = document.InvokeAction("json/add/1", new Dictionary<string, FieldValue>
+        {
+            ["json"] = FieldValue.Of("2")
+        });
+        var addedId = XorJsonTests.Fields(document).Single(field => field.Value == FieldValue.ExactNumber("2")).ValueId;
+        Assert.Equal(FieldValue.ExactNumber("2"), document.GetValue(addedId));
+        Assert.Single(resolver.ResolveFieldMetadata([addedId]));
+        var afterAddition = document.Serialize().Single().Content.ToArray();
+
+        Assert.Throws<SaveFormatException>(() => document.InvokeAction(
+            "json/add/1", new Dictionary<string, FieldValue> { ["json"] = FieldValue.Of("1,2") }));
+        Assert.Equal(afterAddition, document.Serialize().Single().Content.ToArray());
+        Assert.Single(resolver.ResolveFieldMetadata([addedId]));
+
+        _ = document.RestoreMemento(addition.Revert!);
+        Assert.Empty(resolver.ResolveFieldMetadata([addedId]));
+        var restoredId = XorJsonTests.Fields(document).Single(field => field.Value == FieldValue.ExactNumber("1")).ValueId;
+        Assert.Single(resolver.ResolveFieldMetadata([restoredId]));
+        Assert.Equal(originalBytes, document.Serialize().Single().Content.ToArray());
     }
 
     [Theory]
