@@ -130,7 +130,13 @@ public sealed class UnloadedQuantitySessionTests
         _ = session.BuildView();
         var quantity = ImportedQuantityTests.Quantities(document)[^1];
         string[] aliases = [$"raw/{quantity.Path}", $"inspect/value/{quantity.Path}"];
-        Assert.Equal(2, document.ResolveFieldMetadata(aliases).Count);
+        var metadata = document.ResolveFieldMetadata(aliases);
+        Assert.Equal(2, metadata.Count);
+        Assert.All(metadata, field =>
+        {
+            Assert.Equal(quantity.Path, field.CanonicalValueId);
+            Assert.Equal(FieldBindingKind.Derived, field.BindingKind);
+        });
         Assert.False(session.ApplyEdits([ImportedQuantitySessionTests.Edit(aliases[0], 17)], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
         var scope = new ActionScope([QuantityActions.RowKey(document.Layout.Items[^1])]);
         var preview = session.PlanAction(PragmataViews.QuantityAction, Parameters, scope, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);

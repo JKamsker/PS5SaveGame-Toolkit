@@ -637,6 +637,14 @@ exclusions, stale-plan rejection and one undo unit remain covered. No SDK change
 needed. This adoption does not claim targeted review beyond Core's bounded traversal
 or new canonicalization of non-quantity reference projections.
 
+The F13 follow-up explicitly publishes `CanonicalValueId` for the proven quantity
+projections above: each quantity path is self-canonical, while requested `raw/` and
+`inspect/value/` quantity metadata is read-only and points to that quantity path.
+This feature branch depends on the shared [PR58 foundation](https://github.com/JKamsker/PS5SaveGame-Toolkit/pull/58)
+and remains pending until the foundation and this Pragmata consumer are both merged
+into `main`; no aliases are declared for item IDs, catalogue references, or other
+primitive projections.
+
 F12 request resolved by [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32):
 `PragmataPlugin` implements the SDK's optional `ISaveDecoderProvider` and publishes
 `pragmata-canonical-v1`. The stock CLI selects this hook explicitly; `auto` retains
