@@ -11,13 +11,15 @@ internal sealed class SemanticReviewCoverageTracker
     private readonly HashSet<string> _failedOmissionIds = new(StringComparer.Ordinal);
     private int _omittedCount;
     private string? _omissionReason;
+    private bool _omittedCountIsLowerBound;
 
     public IReadOnlyCollection<string> RetryIds => _retryIds;
     public int OmittedCount => _omittedCount;
+    public bool OmittedCountIsLowerBound => _omittedCountIsLowerBound;
     public bool HasFailures => _failures.Count != 0;
 
     public SemanticReviewCoverageState CaptureState() => new(_retryIds.ToArray(), _failures.ToArray(),
-        _failedOmissionIds.ToArray(), _omittedCount, _omissionReason);
+        _failedOmissionIds.ToArray(), _omittedCount, _omissionReason, _omittedCountIsLowerBound);
 
     public void Restore(SemanticReviewCoverageState state)
     {
@@ -29,6 +31,7 @@ internal sealed class SemanticReviewCoverageTracker
         _failedOmissionIds.UnionWith(state.FailedOmissionIds);
         _omittedCount = state.OmittedCount;
         _omissionReason = state.OmissionReason;
+        _omittedCountIsLowerBound = state.OmittedCountIsLowerBound;
     }
 
     public void RecordFailure(string id, string diagnostic)
@@ -92,6 +95,7 @@ internal sealed class SemanticReviewCoverageTracker
     {
         _omittedCount = count > int.MaxValue - _omittedCount ? int.MaxValue : _omittedCount + count;
         _omissionReason ??= reason;
+        _omittedCountIsLowerBound = true;
     }
 
     public IReadOnlyList<string> Diagnostics()
@@ -104,4 +108,4 @@ internal sealed class SemanticReviewCoverageTracker
 
 internal sealed record SemanticReviewCoverageState(IReadOnlyList<string> RetryIds,
     IReadOnlyList<KeyValuePair<string, string>> Failures, IReadOnlyList<string> FailedOmissionIds,
-    int OmittedCount, string? OmissionReason);
+    int OmittedCount, string? OmissionReason, bool OmittedCountIsLowerBound);

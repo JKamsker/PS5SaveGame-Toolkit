@@ -347,7 +347,7 @@ internal sealed class SemanticReview
             ? new SemanticReviewCoverage(Math.Max(original.ExaminedCount, current.ExaminedCount), omitted, _maxBytes,
                 Math.Min(_maxBytes, Math.Max(original.Bytes, current.Bytes) + contextResolution.AcceptedBytes), allWarnings,
                 original.OmittedCountIsLowerBound || current.OmittedCountIsLowerBound
-                    || _coverage.OmittedCount > 0 || contextResolution.OmittedCount > 0)
+                    || _coverage.OmittedCountIsLowerBound || contextResolution.OmittedCount > 0)
             : null;
         return new SemanticChangeLog(changes, complete, allWarnings, revision) { Coverage = coverage };
     }

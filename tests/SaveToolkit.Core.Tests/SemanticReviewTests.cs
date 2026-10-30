@@ -185,9 +185,10 @@ public sealed class SemanticReviewTests : IDisposable
         review.CaptureTargetedOriginals(() => document, ["missing-a", "missing-b"], CancellationToken.None);
         var state = review.CaptureState();
         Assert.NotNull(state.Original);
-        Assert.False(state.Original!.Complete);
-        Assert.Equal(2, state.Original.OmittedCount);
-        Assert.False(state.Original.OmittedCountIsLowerBound);
+        var log = review.Query(() => document, document, _ => { }, _ => { }, 1, CancellationToken.None);
+        Assert.False(log.Complete);
+        Assert.Equal(2, log.Coverage?.OmittedCount);
+        Assert.False(log.Coverage?.OmittedCountIsLowerBound);
     }
 
     [Fact]
