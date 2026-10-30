@@ -201,9 +201,9 @@ internal sealed class SemanticReview
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
                 if (_coverage.RetryIds.Count == 0)
-                    _coverage.RecordOriginalFailures(ids, $"Targeted metadata capture failed: {ex.Message}");
+                    _coverage.RecordOriginalFailures(ids, SemanticDiagnostics.Exception("Targeted metadata capture failed", ex));
                 _original = new SemanticSnapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal), complete: false, bytes: 0)
-                { QueryWarnings = [$"Targeted metadata capture failed: {ex.Message}"] };
+                { QueryWarnings = [SemanticDiagnostics.Exception("Targeted metadata capture failed", ex)] };
             }
                 return;
             }
@@ -232,7 +232,7 @@ internal sealed class SemanticReview
             catch (OperationCanceledException) { throw; }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
-                _coverage.RecordOriginalFailures(ids, $"Targeted metadata capture failed: {ex.Message}");
+                _coverage.RecordOriginalFailures(ids, SemanticDiagnostics.Exception("Targeted metadata capture failed", ex));
             }
         }
         finally

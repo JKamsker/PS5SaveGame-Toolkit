@@ -54,7 +54,7 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
                 case FieldNode f:
                     if (fields.ContainsKey(f.ValueId)) break;
                     var field = new SemanticField(f.ValueId, rowLabel is null ? f.Label : $"{rowLabel} / {f.Label}", path, f.Value, f.Spec.ReadOnly, target,
-                        Spec: FieldSpecMetadata.Snapshot(f.Spec));
+                        Spec: f.Spec);
                     if (!SemanticSnapshot.TryEstimate(field, limits.MaxOriginalBytes - bytes, out var cost))
                     {
                         complete = false;
@@ -64,7 +64,7 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
 
                     index(f);
                     bytes += cost;
-                    fields[f.ValueId] = field;
+                    fields[f.ValueId] = field with { Spec = FieldSpecMetadata.Snapshot(f.Spec) };
                     break;
                 case SectionNode s:
                     var sectionPath = path.Append("section:" + (s.LazyId ?? s.Title)).ToArray();

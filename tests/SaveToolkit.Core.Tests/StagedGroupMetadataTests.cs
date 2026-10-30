@@ -48,9 +48,29 @@ public sealed class StagedGroupMetadataTests
         Assert.Equal(1, staged.GetValue("hidden").AsInt32());
     }
 
+    [Fact]
+    public void RestoreMetadataFailureDoesNotPublishOrLeakCandidate()
+    {
+        var state = new CandidateState();
+        using var staged = new StagedGroupDocument(() => new CandidateDocument(state), _ => [new FileOutput("save.dat", new byte[] { 1 })], () => { }, 4096);
+        Assert.Single(staged.Serialize());
+        Assert.Single(staged.ResolveFieldMetadata(["hidden"]));
+        var changed = staged.InvokeAction("touch", new Dictionary<string, FieldValue>());
+        Assert.True(changed.StructureChanged);
+        Assert.Single(staged.Serialize());
+        state.ThrowOnSecondResolve = true;
+        var disposedBefore = state.DisposedCandidates;
+
+        Assert.Throws<InvalidOperationException>(() => staged.RestoreMemento(changed.Revert!));
+        Assert.Equal(new byte[] { 1 }, staged.Serialize().Single().Content.ToArray());
+        Assert.Equal(disposedBefore + 1, state.DisposedCandidates);
+    }
+
     private sealed class CandidateState
     {
         public bool Hidden = true;
+        public bool ThrowOnSecondResolve;
+        public int DisposedCandidates;
     }
 
     private sealed class CandidateDocument : BoundSaveDocument, IGroupedSaveDocument, IFieldMetadataDocument
@@ -58,6 +78,7 @@ public sealed class StagedGroupMetadataTests
         private readonly CandidateState _state;
         private readonly Func<bool> _foreign;
         private int _value = 1;
+        private int _resolveCalls;
 
         public CandidateDocument() : this(new CandidateState()) { }
 
@@ -75,13 +96,15 @@ public sealed class StagedGroupMetadataTests
 
         public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
         {
-            if (actionId != "retire") throw new KeyNotFoundException(actionId);
-            _state.Hidden = false;
+            if (actionId == "retire") _state.Hidden = false;
+            else if (actionId != "touch") throw new KeyNotFoundException(actionId);
             return new ActionOutcome { StructureChanged = true };
         }
 
         public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
         {
+            if (++_resolveCalls == 2 && _state.ThrowOnSecondResolve)
+                throw new InvalidOperationException("second candidate metadata resolution failed");
             if (_foreign())
                 return [new FieldMetadata("foreign", "Foreign", IntegerSpec.Int32)];
             if (!_state.Hidden) return [];
@@ -94,5 +117,11 @@ public sealed class StagedGroupMetadataTests
 
         protected override void LoadSnapshot(DocumentMemento snapshot) =>
             (_value, _state.Hidden) = ((SnapshotMemento<(int, bool)>)snapshot).State;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) _state.DisposedCandidates++;
+            base.Dispose(disposing);
+        }
     }
 }

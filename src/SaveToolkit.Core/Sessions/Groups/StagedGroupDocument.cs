@@ -186,10 +186,20 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
             SessionCleanup.DisposeAfterFailure(candidate, failure, "Group restore verification and cleanup failed.");
             throw;
         }
+        IReadOnlyList<string> postRestoreRetired;
+        try
+        {
+            postRestoreRetired = ResolveCandidateMetadata(candidate, includeResolvedMetadata: true,
+                additionalIds: null, CancellationToken.None);
+        }
+        catch (Exception failure)
+        {
+            SessionCleanup.DisposeAfterFailure(candidate, failure, "Group restore metadata validation and cleanup failed.");
+            throw;
+        }
+        var allRetired = retiredMetadataIds.Concat(postRestoreRetired).Distinct(StringComparer.Ordinal).ToArray();
         Publish(candidate, outputs);
-        RetireMetadataIds(retiredMetadataIds);
-        RetireMetadataIds(ResolveCandidateMetadata(candidate, includeResolvedMetadata: true, additionalIds: null,
-            CancellationToken.None));
+        RetireMetadataIds(allRetired);
         return inverse;
     }
 
