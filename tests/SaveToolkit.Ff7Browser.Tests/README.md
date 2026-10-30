@@ -28,10 +28,12 @@ Configure scratch as described in [RELEASING](../../docs/RELEASING.md#disk-and-s
 then run from the repository root:
 
 ```powershell
+$env:SAVETOOLKIT_FF7_EVIDENCE = '<scratch>/api-evidence'
 ./scripts/test.ps1 -Filter SaveToolkit.Ff7Browser.Tests -Configuration Release -MaxParallel 1 -ResultsDirectory <scratch>/api-results
 ```
 
-`SAVETOOLKIT_FF7_EVIDENCE` optionally selects a separate evidence root. Each process
+`SAVETOOLKIT_FF7_EVIDENCE` selects a retained evidence root outside the wrapper's
+temporary process directory. Each process
 creates its own child directory, retaining unchanged HTTP request/response JSON,
 whole exported ZIPs and member SHA-256 manifests. Only its expanded application
 storage is removed. Do not point scratch or artifacts at private saves.

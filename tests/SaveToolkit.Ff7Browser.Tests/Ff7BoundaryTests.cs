@@ -60,12 +60,13 @@ public sealed class Ff7BoundaryTests(Ff7ApiHost host)
     [InlineData("foreign-selected")]
     public async Task InvalidCaptureNeverWritesBytesHistoryOrLibrary(string variant)
     {
-        await using var document = await Ff7ApiDocument.Open(host, Ff7Binary.Create(Ff7Actions.Titles[1]));
+        var binary = Ff7Binary.Create(Ff7Actions.Titles[1]);
+        await using var document = await Ff7ApiDocument.Open(host, binary);
         var request = JsonNode.Parse("{\"name\":\"Rejected\",\"actionId\":\"inventory/restock-existing\",\"parameters\":{\"quantity\":\"99\"},\"scopeKind\":\"document\"}")!;
         switch (variant)
         {
             case "unknown-type": request["actionId"] = Ff7Actions.Stars; request["parameters"] = new JsonObject { ["type"] = "3735928559", ["stars"] = "2" }; break;
-            case "number-type": request["actionId"] = Ff7Actions.Stars; request["parameters"] = new JsonObject { ["type"] = 10020, ["stars"] = "2" }; break;
+            case "number-type": request["actionId"] = Ff7Actions.Stars; request["parameters"] = new JsonObject { ["type"] = binary.MateriaType, ["stars"] = "2" }; break;
             case "wrong-scope": request["scopeKind"] = "allCopies"; break;
             case "quantity-bool": request["parameters"]!["quantity"] = true; break;
             case "level-range": request["actionId"] = Ff7Actions.Level; request["parameters"] = new JsonObject { ["level"] = "71" }; break;

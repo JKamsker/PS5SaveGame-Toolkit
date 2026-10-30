@@ -54,10 +54,11 @@ test("real stale preview rejects apply and retains the capture draft", async ({ 
   const applying = page.waitForResponse(response => /\/presets\/[^/]+\/apply$/.test(response.url()));
   await panel.getByRole("button", { name: "Apply preset", exact: true }).click();
   expect((await applying).status()).toBe(409);
+  await unchanged(page.request, documentPath, before);
   await expect(panel.getByRole("heading", { name: "Preset preview is stale", exact: true })).toBeVisible();
   await expect(panel.getByRole("button", { name: "Apply preset", exact: true })).toBeDisabled();
   await expect(panel.getByLabel("Name", { exact: true })).toHaveValue("Unsaved FF7 draft");
-  await unchanged(page.request, documentPath, before);
+  await expect(page.getByRole("alert")).toHaveCount(1);
   await screenshot(page, testInfo, "ff7-real-stale-preview");
   await flush();
 });
@@ -87,15 +88,15 @@ test("actual storage failure preserves draft, history, whole bytes and library; 
     const saving = page.waitForResponse(response => response.url().endsWith("/presets/capture"));
     await panel.getByRole("button", { name: "Save preset", exact: true }).click();
     expect((await saving).status()).toBe(503);
-    await expect(panel.getByLabel("Name", { exact: true })).toHaveValue("Retain this draft after a real storage error");
-    await expect(panel.getByRole("button", { name: "Retry saving preset", exact: true })).toBeVisible();
-    await expect(panel.getByRole("alert")).toHaveCount(1);
-    await screenshot(page, testInfo, "ff7-real-storage-error-draft");
   } finally {
     await unlink(storage);
     await rename(retained, storage);
   }
   await unchanged(page.request, documentPath, before);
+  await expect(panel.getByLabel("Name", { exact: true })).toHaveValue("Retain this draft after a real storage error");
+  await expect(panel.getByRole("button", { name: "Retry saving preset", exact: true })).toBeVisible();
+  await expect(panel.getByRole("alert")).toHaveCount(1);
+  await screenshot(page, testInfo, "ff7-real-storage-error-draft");
   const commonPath = await openFf7(page, binary, binary.commonName);
   await expect(page.locator(".presets-panel").getByRole("button", { name: "Save preset", exact: true })).toBeDisabled();
   const commonBefore = await snapshot(page.request, commonPath);
