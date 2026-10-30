@@ -12,8 +12,19 @@ internal static class GearboxGroupIdentity
         NavigationPath = static (role, path) => ["section:Gearbox character + profile",
             role == GearboxGroups.ProfileRole ? "section:Shared profile / bank" : "section:Character progression / backpack",
             .. path.Select(part => part.StartsWith("section:", StringComparison.Ordinal) ? "section:" + role + "/" + part[8..] : part)],
+        LocalNavigationPath = LocalPath,
         LocalScope = LocalScope,
     };
+
+    private static IReadOnlyList<string> LocalPath(string role, IReadOnlyList<string> path)
+    {
+        var ancestors = Policy.NavigationPath(role, []);
+        if (path.Count < ancestors.Count || !path.Take(ancestors.Count).SequenceEqual(ancestors, StringComparer.Ordinal))
+            throw new InvalidOperationException("The effect path belongs to another Gearbox member.");
+        var prefix = "section:" + role + "/";
+        return path.Skip(ancestors.Count).Select(part => part.StartsWith(prefix, StringComparison.Ordinal)
+            ? "section:" + part[prefix.Length..] : part).ToArray();
+    }
 
     private static ActionScope LocalScope(DocumentMemberAdapter member, ActionScope scope) => new(LocalRows(member, scope))
     {

@@ -15,7 +15,8 @@ public sealed class GroupProtocolTests
     private static readonly Dictionary<string, FieldValue> Empty = [];
 
     // Keep the historical presentation baseline while SelectionDeclarationTests pins the intentional
-    // selection wiring change. All existing field/row identities, plans and export bytes stay pinned.
+    // selection wiring change. The canonical raw-flags authority correction is asserted separately
+    // below, then normalized only in this historical transcript. Identities and bytes stay pinned.
     [Theory]
     [InlineData(false, "F6230C01C08B3ECE9D19A6121304C245CFD4B1D33AC04916D8E3B845386FA80B", "en-US")]
     [InlineData(true, "D0427AB8DC32351377832EED070C3FAD6BC27C59C3ADF26B85B5306F409CDF2B", "en-US")]
@@ -105,7 +106,12 @@ public sealed class GroupProtocolTests
         var plan = group.PlanAction(action, parameters, scope);
         Assert.Empty(plan.Errors);
         Assert.NotEmpty(plan.Changes);
-        transcript.Add(JsonSerializer.Serialize(plan));
+        if (action.EndsWith("/items/mark", StringComparison.Ordinal))
+        {
+            Assert.All(plan.Changes, change => Assert.True(change.Derived));
+            transcript.Add(JsonSerializer.Serialize(plan with { Changes = plan.Changes.Select(change => change with { Derived = false }).ToArray() }));
+        }
+        else transcript.Add(JsonSerializer.Serialize(plan));
         var outcome = group.ApplyActionPlan(action, parameters, scope, plan);
         Assert.True(outcome.Succeeded);
         RecordOutcome(transcript, outcome);

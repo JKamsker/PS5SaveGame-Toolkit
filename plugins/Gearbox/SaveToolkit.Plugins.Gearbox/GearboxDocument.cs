@@ -8,7 +8,7 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Plugins.Gearbox;
 
 internal sealed class GearboxDocument(string relativePath, string titleId, GearboxContainer container, ProtoMessage root,
-    IReferenceContext references) : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument, IFieldMetadataDocument
+    IReferenceContext references) : BoundSaveDocument, IQueryableDocument, IActionEffectDocument
 {
     private readonly Dictionary<string, Func<FieldValue>> _readers = new(StringComparer.Ordinal);
     private readonly GearboxLazyViews _lazy = new();
@@ -18,6 +18,8 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     private int _highestLevel = container.Profile ? 0 : root.Schema.Level(checked((int)root.Integer("experience_points")));
     private ItemBrowser? _items;
     private GearboxInventory? _inventory;
+    private GearboxPartBindings? _parts;
+    internal GearboxPartBindings PartBindings => _parts ??= new(this);
     private GearboxProgressionBindings? _progression;
     internal GearboxInventory Inventory => _inventory ??= new(this);
     private GearboxItemActions? _actions;
@@ -91,19 +93,11 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
 
     internal FieldNode DerivedItemNumber(string id, string canonicalId, string label, int minimum, int maximum, Func<int> get)
     {
-        var field = Field(id, label, new IntegerSpec(Math.Min(minimum, get()), Math.Max(maximum, get())), () => FieldValue.Of(get()));
-        RegisterField(new FieldMetadata(id, label, field.Spec)
+        var field = Field(id, label, new IntegerSpec(Math.Min(minimum, get()), Math.Max(maximum, get())), () => FieldValue.Of(get())) with
         {
-            BindingKind = FieldBindingKind.Derived,
-            CanonicalValueId = canonicalId,
-            Presentation = new FieldPresentation
-            {
-                Confidence = Confidence.Inferred,
-                Description = SerialWrites.Warning,
-                Warning = SerialWrites.Warning,
-            },
-        }, () => FieldValue.Of(get()));
-        return field with { Confidence = Confidence.Inferred, Description = SerialWrites.Warning, Warning = SerialWrites.Warning };
+            Confidence = Confidence.Inferred, Description = SerialWrites.Warning, Warning = SerialWrites.Warning,
+        };
+        return RegisterDerivedField(field, () => FieldValue.Of(get()), canonicalId);
     }
 
     internal FieldNode RawFlags(string id, Func<ProtoMessage> parent) =>
@@ -130,20 +124,13 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
             value => set(value.AsString()), value => value.Kind == FieldValueKind.Text ? null : "Choose a serial part ID.",
             SerialParts.Warning, Confidence.Inferred, SerialParts.Warning + source);
 
-    internal FieldNode ActionObservation(string id, string label, FieldSpec spec, Func<FieldValue> get, string description) {
-        var field = Field(id, label, spec with { ReadOnly = true }, get);
-        RegisterField(new FieldMetadata(id, label, field.Spec)
+    internal FieldNode ActionObservation(string id, string label, FieldSpec spec, Func<FieldValue> get, string description)
+    {
+        var field = Field(id, label, spec with { ReadOnly = true }, get) with
         {
-            BindingKind = FieldBindingKind.Derived,
-            CanonicalValueId = id,
-            Presentation = new FieldPresentation
-            {
-                Confidence = Confidence.Inferred,
-                Description = description,
-                Warning = SerialWrites.Warning,
-            },
-        }, get);
-        return field with { Confidence = Confidence.Inferred, Description = description, Warning = SerialWrites.Warning };
+            Confidence = Confidence.Inferred, Description = description, Warning = SerialWrites.Warning,
+        };
+        return RegisterDerivedField(field, get);
     }
 
     internal FieldNode AssetLabel(string id, string label, string path)
@@ -158,18 +145,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
         var field = Bind(id, "Item presence", new IntegerSpec(0, 2), get, null,
             warning: "Item presence is changed only by its structural action.", confidence: Confidence.Inferred,
             description: "Current item identity is present. Duplicate and removal are structural actions; direct field edits are unavailable.");
-        RegisterField(new FieldMetadata(id, field.Label, field.Spec)
-        {
-            BindingKind = FieldBindingKind.Derived,
-            CanonicalValueId = id,
-            Presentation = new FieldPresentation
-            {
-                Confidence = field.Confidence,
-                Description = field.Description,
-                Warning = field.Warning,
-            },
-        }, get);
-        return field;
+        return RegisterDerivedField(field, get);
     }
 
     internal FieldNode DerivedInteger(string id, string label, Func<ProtoMessage> parent, string name, long maximum, long minimum = -1)
@@ -178,17 +154,22 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
             () => FieldValue.Of(parent().Integer(name)), null,
             value => value.Kind != FieldValueKind.Integer || value.AsInteger() < minimum || value.AsInteger() > maximum
                 ? "Value is outside the supported range." : null);
-        RegisterField(new FieldMetadata(id, field.Label, field.Spec)
+        return RegisterDerivedField(field, () => FieldValue.Of(parent().Integer(name)));
+    }
+
+    private FieldNode RegisterDerivedField(FieldNode field, Func<FieldValue> get, string? canonicalId = null)
+    {
+        RegisterField(new FieldMetadata(field.ValueId, field.Label, field.Spec)
         {
             BindingKind = FieldBindingKind.Derived,
-            CanonicalValueId = id,
+            CanonicalValueId = canonicalId ?? field.ValueId,
             Presentation = new FieldPresentation
             {
                 Confidence = field.Confidence,
                 Description = field.Description,
                 Warning = field.Warning,
             },
-        }, () => FieldValue.Of(parent().Integer(name)));
+        }, get);
         return field;
     }
 
@@ -380,6 +361,7 @@ internal sealed class GearboxDocument(string relativePath, string titleId, Gearb
     }
 
     internal DocumentMemento CaptureState() => new GearboxSnapshot(Root.Clone(), Inventory.Capture(), _highestLevel);
+    public DocumentMemento CaptureMemento() => CaptureState();
     protected override DocumentMemento CaptureSnapshot() => CaptureState();
     protected override void LoadSnapshot(DocumentMemento memento)
     {

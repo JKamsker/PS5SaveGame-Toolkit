@@ -245,7 +245,7 @@ counts against the intended model; transfer/import regressions assert persisted 
 | F3 rich cells | Used | Expanded in the asset round (2026-10-29): attributed local skill/item images, explicitly whole-item part reference thumbnails, confidence-labelled fields and lazy details; raw/text fallback when unavailable |
 | F4 reference pickers | Used | Added in the completion round: existing serial-part replacement with category/width eligibility and independent writer checks; browse-only asset/class/mission/skill references and attributed inspection actions |
 | F5 structural history | Used | Import/duplicate/remove and bank moves retain full wire bytes, duplicate identities and counters in snapshots |
-| F6 planning / #27 | Used | Item levels accept document scope (all member inventory containers), explicit rows or host-resolved F8 query rows. Duplicate/remove and F7 transfers require explicit or host-resolved rows; import uses document scope into backpack/bank. Plans preview changes/skips/warnings |
+| F6 planning / #27 | Used | Item levels accept document scope (all member inventory containers), explicit rows or host-resolved F8 query rows. Duplicate/remove and F7 transfers require explicit or host-resolved rows; import uses document scope into backpack/bank. Standalone and grouped `IActionEffectDocument` providers publish ordered structural serial effects; canonical count/presence/slot metadata remains authoritative. Cold and warm previews never reserve persistent identities |
 | F7 groups / SDK-04 | Used | `DocumentMemberAdapter`/`DocumentMemberRouter` now forward targeted `IFieldMetadataDocument` requests through the current staged character/profile candidate, qualify canonical IDs once, preserve member navigation paths and reject foreign/duplicate responses; existing collection-qualified rows, inventory/ammo scope validation, transfers and whole-group snapshots remain unchanged |
 | F8 collections | Used | Backpack/bank/lost loot/balance/world catalogues, named skills, stored allocations and missions; equipment, SDUs, ammo, Guardian and Myth lists use F8 above 100 rows (F14). Full-set search/filter/sort with a 200-row query cap; duplicate item identities remain distinct |
 | F9 graph/map | Used | Added in the completion round: stored allocation graphs, calculator gate graphs, external-only mission checklist; bounded lazy pages, text alternatives and control links |
@@ -724,6 +724,7 @@ of the pinned zlib `datalib.py` implementations. No downloaded implementation wa
 | `Wonderlands.tsv`, `WonderlandsXp.tsv` | [TTWL editor][ttwl-root] | CJ Kucera / Abram Hindle; schemas credit Rick/Gibbed | [Zlib][ttwl-license] | 2026-10-28 | Separate schema facts and exact XP thresholds |
 | PS4 feedback masks | [Gibbed crypt files](https://github.com/FromDarkHell/BL3SaveEditor/tree/c044e6d6f1fd78b259f2147119fbe2cdbbc7a3ee/BL3Tools/Decryption) | Rick/Gibbed | Zlib, retained notice | 2026-10-28 | Independent managed feedback implementation / test probe |
 | F13 field metadata contract | [F13 proposal](../../docs/plans/F13-FIELD-SPEC-PUBLISHING.md), [published PR58](https://github.com/JKamsker/PS5SaveGame-Toolkit/pull/58) | SaveToolkit SDK/Core maintainers | Repository documentation / project contract | 2026-10-29 | Consumed `IFieldMetadataDocument`, `FieldPresentation`, canonical binding validation and the 200-ID batch bound; no framework code is copied into Gearbox |
+| Action-owned effect contract | [Merged contract](../../docs/PLUGIN_GUIDE.md#action-owned-effect-metadata), [PR73](https://github.com/JKamsker/PS5SaveGame-Toolkit/pull/73), [issue81 A](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/81) | SaveToolkit SDK/Core maintainers | Repository documentation / project contract | 2026-10-30 | Production `IActionEffectDocument` adoption with typed read-only structural effects and complete mementos; existing pinned serial/layout policies are unchanged |
 
 [bl3-root]: https://github.com/apocalyptech/bl3-cli-saveedit/tree/d459b28a7e88f1a5ae0f16118272d8a5383b8b04
 [ttwl-root]: https://github.com/apocalyptech/ttwl-cli-saveedit/tree/1fde90dc43e7f7ee261413d85c366e0a7236dd9b
@@ -798,7 +799,8 @@ returns the selected member role and save-set relative path, preserves first-see
 unknown/foreign/retired IDs and duplicates, and leaves provenance null because no authoritative plugin
 provenance is published. It does not infer ownership from prefixes, labels, values, bytes or filenames,
 and does not build a view, query, serialize output, dirty state or history. The implementation is
-plugin-owned; production adoption of any future action-effect descriptor remains a separate framework gate.
+plugin-owned. Action-owned serial consequences use the merged effect contract described below;
+they are not registered as parsed fields or semantic scalar aliases.
 
 The targeted and rendered account paths share the same embedded Myth allocation cap policy;
 reference-pack label/attribution overrides cannot grant a larger write range. Only the renderer's
@@ -813,20 +815,34 @@ by metadata observation; structural actions retain their existing identity lifec
 The first matching level statistic uses `character/recorded-level`; later records use distinct
 `character/recorded-level/1`, `/2`, etc., without a second `/0` writable primary.
 
-**GEARBOX-F13 / action-effect metadata: framework landing gate.** The independently reviewed
-action-effect contract is complete, while a separate framework writer owns its opt-in pre-capture,
-memento and inline-descriptor implementation. Against the currently published dependency,
-`items/import` (empty and nonempty destinations) and group `transfer/deposit`,
-`transfer/withdraw` and `transfer/claim` still emit ordered effects such as `import/serial`,
-`character/inventory_items/item-0`, `profile/bank_inventory_list/character:item-0`, and the
-source/destination `/count` rows. Existence effects are absent/new action records rather than
-parsed fields, and `import/serial` remains an action payload pseudo-field; Gearbox does not invent
-writable fields, suppress rows or weaken host preflight. Current count and presence observations
-remain honest, including zero known lists. Gearbox will adopt the published descriptor only after
-the framework implementation lands, then add host-session preview/apply/undo/redo byte and
-cardinality regressions. This deferred production adoption and pure-planning work is tracked in
-[#81](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/81). Remaining capture, console-validation
-and gameplay-model gaps are listed above and tracked in [#31][owner-validation].
+**GEARBOX-F13 / action-effect metadata: adopted (#81 A).** Standalone and grouped documents
+implement `IActionEffectDocument` using complete protobuf, identity-list, counter and progression
+snapshots. `items/import` retains the count-then-payload order: the genuinely parsed `/count` row
+uses canonical metadata, while `import/serial` is exclusively a read-only `StructuralMemento`
+effect with `OldExists = false`. It has no parsed metadata, getter or setter. Group deposits,
+withdrawals and claims retain source-removal/destination-insertion pairs, then source/destination
+counts and any equipment-index consequences. Only the absent/new serial rows carry effects;
+scalar/count/presence/slot metadata keeps canonical-first host validation. Effects include typed
+complete base64 payloads, confidence/warnings and reversible member-relative inventory paths.
+Selected role/save-file context for genuine fields still comes from the current candidate's
+explicit group members, not from effect provenance strings.
+
+Cold and warm planning use deterministic opening identities without materializing persistent
+identity lists or advancing counters. Only a committed structural append/removal initializes
+those lists; mementos preserve that boundary through undo, redo and fresh group restoration.
+Destination ownership, complete serial layout, metadata representability, aggregate capacity,
+pickup-order bounds and projected moved-ID collisions are checked before mutation. Empty
+selections are no-ops even at capacity. Revalidation rejects changed or incomplete reviewed
+projections atomically; the host records structural effects as one whole-action history unit.
+
+Authored nonempty BL3/TTWL fixtures exercise the production provider through host sessions and
+the real browser/API, with exact ordered projection, cardinality, rollback, stale/rejected/no-op,
+current-candidate binding and full-byte export/reopen checks. The browser suite covers long
+serials, absence (distinct from explicit null), genuine member context, keyboard/focus and
+375/768/1024/1440 widths. The existing synthetic renderer test retains the explicit-null case;
+Gearbox serial storage itself has no existing-null value. No intercepted success responses or
+private fixture bytes are used. Remaining capture, console-validation and gameplay-model gaps
+are listed above and tracked in [#31][owner-validation]; authored syntax is not console evidence.
 
 ## Owner capture and validation checklist
 

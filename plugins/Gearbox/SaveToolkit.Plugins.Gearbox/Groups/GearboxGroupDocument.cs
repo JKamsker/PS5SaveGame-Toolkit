@@ -6,8 +6,8 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.Gearbox;
 
-internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDocument, IActionPlanningDocument,
-    IFieldMetadataDocument, IGroupedFieldContext
+internal sealed class GearboxGroupDocument : IGroupedSaveDocument, IQueryableDocument, IActionEffectDocument,
+    IGroupedFieldContext
 {
     private readonly IReferenceContext _references;
     private readonly MemberBytes[] _original;

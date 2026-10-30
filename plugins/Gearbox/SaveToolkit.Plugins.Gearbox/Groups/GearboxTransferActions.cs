@@ -23,19 +23,24 @@ internal sealed class GearboxTransferActions(GearboxGroupDocument group)
         {
             var (source, target, sourceList, targetList, role) = Route(actionId);
             var entries = Select(source, sourceList, role, scope);
-            target.Inventory.EnsureCapacity(targetList, entries.Length);
+            if (entries.Length > 0) target.Inventory.EnsureCapacity(targetList, entries.Length);
             var changes = new List<PlannedChange>();
+            var movedIds = new HashSet<string>(StringComparer.Ordinal);
             foreach (var entry in entries)
             {
                 if (!source.Inventory.Info(entry.Id).Complete)
                     throw new SaveFormatException("Transfers require fully mapped checksum-valid serials; unknown items remain in their original container.");
                 target.Inventory.ValidateDestination(targetList, entry.Field);
+                var movedId = MovedId(entry, role);
+                if (!movedIds.Add(movedId)) throw new SaveFormatException("The selected items produce duplicate destination identities.");
+                target.Inventory.ValidateMovedIdentity(movedId);
                 changes.Add(new(role + "/" + sourceList + "/" + entry.Id, "Move " + entry.Id + " (original serial retained)",
-                    FieldValue.Of(Convert.ToBase64String(entry.Serial)), FieldValue.Null) { NewExists = false });
+                    FieldValue.Of(Convert.ToBase64String(entry.Serial)), FieldValue.Null)
+                { NewExists = false, Effect = GearboxActionEffects.Serial(sourceList, role) });
                 var targetRole = target.Profile ? "profile" : "character";
-                var movedId = entry.Id.Contains(':') ? entry.Id : role + ":" + entry.Id;
                 changes.Add(new(targetRole + "/" + targetList + "/" + movedId, "Receive " + movedId,
-                    FieldValue.Null, FieldValue.Of(Convert.ToBase64String(entry.Serial))) { OldExists = false });
+                    FieldValue.Null, FieldValue.Of(Convert.ToBase64String(entry.Serial)))
+                { OldExists = false, Effect = GearboxActionEffects.Serial(targetList, targetRole) });
             }
             if (entries.Length > 0)
             {
@@ -60,15 +65,19 @@ internal sealed class GearboxTransferActions(GearboxGroupDocument group)
 
     public void Apply(string actionId, ActionScope scope)
     {
+        var validation = Plan(actionId, scope);
+        if (validation.Errors.Count > 0) throw new SaveFormatException(validation.Errors[0].Message);
         var (source, target, sourceList, targetList, role) = Route(actionId);
         foreach (var entry in Select(source, sourceList, role, scope))
         {
-            target.Inventory.Append(targetList, entry.Field, entry.Id.Contains(':') ? entry.Id : role + ":" + entry.Id);
+            target.Inventory.Append(targetList, entry.Field, MovedId(entry, role));
             source.Inventory.Remove(entry.Id);
         }
         source.InvalidateItems();
         target.InvalidateItems();
     }
+
+    internal static string MovedId(InventoryEntry entry, string role) => entry.Id.Contains(':') ? entry.Id : role + ":" + entry.Id;
 
     private (GearboxDocument Source, GearboxDocument Target, string SourceList, string TargetList, string Role) Route(string actionId) => actionId switch
     {

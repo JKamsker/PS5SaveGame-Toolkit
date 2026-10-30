@@ -66,7 +66,7 @@ internal sealed class GearboxCoverageActions(GearboxDocument document, GearboxAm
                                 throw new SaveFormatException("Unsupported item record/serial or conflicting favourite+junk flags; original bytes are preserved.");
                             var old = message.Integer("flags");
                             var updated = GearboxItemMarks.Flags(old, target);
-                            if (old != updated) changes.Add(new(entry.Id + "/flags", entry.Id + " flags (Inferred; 2 favourite, 4 junk)", FieldValue.Of(old), FieldValue.Of(updated)));
+                            if (old != updated) changes.Add(new(entry.Id + "/flags", entry.Id + " flags (Inferred; 2 favourite, 4 junk)", FieldValue.Of(old), FieldValue.Of(updated)) { Derived = true });
                         }
                     }
                     catch (SaveFormatException ex) { skipped.Add(new(entry.Id, ex.Message)); }

@@ -305,12 +305,6 @@ internal static class GearboxMetadata
 
     private static bool TryActionObservation(GearboxDocument document, string id)
     {
-        if (id == "import/serial")
-        {
-            _ = document.ActionObservation(id, "Imported serial", new TextSpec { ReadOnly = true },
-                () => FieldValue.Null, "Structural import payload; the validated serial is applied by the import action.");
-            return true;
-        }
         var split = id.Split('/');
         if (split.Length == 2 && split[1] == "count" && split[0] is GearboxInventory.Backpack or GearboxInventory.Bank or GearboxInventory.LostLoot)
         {

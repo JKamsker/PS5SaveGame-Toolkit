@@ -1,6 +1,25 @@
 import { test, expect, type Locator, type Page, type TestInfo } from "@playwright/test";
 import { writeFile } from "node:fs/promises";
 import { fixture, importSave, loadJson, openJson } from "./helpers";
+import { generateGearboxFixtures, productionGearboxImport, productionGearboxTransfers, type GearboxFixture } from "./gearbox-action-effects";
+
+test.describe("production Gearbox effects", () => {
+  let gearboxFixtures: GearboxFixture[];
+  test.beforeAll(async () => {
+    test.setTimeout(60_000);
+    gearboxFixtures = await generateGearboxFixtures();
+  });
+  for (const [index, title] of ["Borderlands 3", "Wonderlands"].entries()) {
+    test(`${title} production import effects preserve bytes, focus, responsive preview and one undo unit`, async ({ page }, testInfo) => {
+      await productionGearboxImport(page, testInfo, gearboxFixtures[index]!);
+    });
+    for (const action of ["deposit", "withdraw", "claim"] as const) {
+      test(`${title} production grouped ${action} and transfer history retain every owned output`, async ({ page }, testInfo) => {
+        await productionGearboxTransfers(page, testInfo, gearboxFixtures[index]!, action);
+      });
+    }
+  }
+});
 
 const widths = [375, 768, 1024, 1440] as const;
 const longPayload = "exact-long-" + "Z".repeat(700);
