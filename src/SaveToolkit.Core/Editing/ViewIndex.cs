@@ -117,6 +117,8 @@ public sealed class ViewIndex
         return field;
     }
 
+    internal void SetMetadataBudget(long? bytes) => _metadata.SetBudget(bytes);
+
     public bool HasFieldMetadata => _metadata.Enabled;
 
     public void ResolveMetadata(IEnumerable<string> valueIds)

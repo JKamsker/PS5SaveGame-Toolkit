@@ -39,6 +39,8 @@ public sealed class ActionEffectTests : IDisposable
         Assert.True(ActionPlans.ContentEquals(plan, detached));
         Assert.Equal(spec, detached.Changes[0].Effect!.Spec);
         Assert.NotSame(plan.Changes[0].Effect!.Path, detached.Changes[0].Effect!.Path);
+        var legacy = new ActionPlan { Changes = [new("legacy/" + new string('x', 1_800), new string('l', 1_500), FieldValue.Of(1), FieldValue.Of(2))] };
+        Assert.Single(ActionPlanSnapshots.Snapshot(legacy).Changes);
     }
 
     [Fact]
@@ -92,6 +94,20 @@ public sealed class ActionEffectTests : IDisposable
     }
 
     [Fact]
+    public void ObservationEffectMayUseHostMementoWithoutProviderStructuralToken()
+    {
+        using var session = Open();
+        _plugin.Opened!.Mode = EffectPlanMode.ObservationNoToken;
+        var preview = session.PlanAction("toggle", new Dictionary<string, JsonElement>());
+        Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
+        Assert.True(session.State.CanUndo);
+        Assert.False(session.GetChanges().Complete);
+        Assert.Contains(session.GetChanges().Warnings, warning => warning.Contains("Action-owned effects", StringComparison.Ordinal));
+        Assert.True(session.Undo().Ok);
+        Assert.True(session.Redo().Ok);
+    }
+
+    [Fact]
     public void CanonicalFirstRejectsShadowAndResolverFailureNeverMeansEffectAbsence()
     {
         using var session = Open();
@@ -100,6 +116,11 @@ public sealed class ActionEffectTests : IDisposable
         _plugin.Opened.Mode = EffectPlanMode.ResolverFailure;
         var failed = session.PlanAction("toggle", new Dictionary<string, JsonElement>());
         Assert.Contains(failed.Plan.Errors, error => error.Message.Contains("metadata", StringComparison.OrdinalIgnoreCase));
+
+        _plugin.Opened.Mode = EffectPlanMode.CanonicalOmission;
+        var omission = session.PlanAction("toggle", new Dictionary<string, JsonElement>());
+        Assert.Null(omission.PlanId);
+        Assert.Contains(omission.Plan.Errors, error => error.Message.Contains("shadow", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -132,6 +153,9 @@ public sealed class ActionEffectTests : IDisposable
 
         Assert.False(result.Ok);
         Assert.Contains(result.Errors, error => error.Message.Contains("could not restore", StringComparison.OrdinalIgnoreCase));
+        Assert.False(session.CanEdit);
+        Assert.False(session.ApplyEdits([new IncomingEdit("live", JsonSerializer.SerializeToElement(2))]).Ok);
+        Assert.Throws<InvalidOperationException>(() => session.Serialize());
     }
 
     [Fact]
@@ -170,6 +194,11 @@ public sealed class ActionEffectTests : IDisposable
         Assert.NotNull(preview.PlanId);
         Assert.Equal(5_001, preview.Plan.Changes.Count);
         Assert.Equal("effect-5000", preview.Plan.Changes[^1].ValueId);
+
+        _plugin.Opened.BulkCount = 10_002;
+        var large = session.PlanAction("toggle", new Dictionary<string, JsonElement>());
+        Assert.NotNull(large.PlanId);
+        Assert.Equal(10_002, large.Plan.Changes.Count);
 
         _plugin.Opened.Mode = EffectPlanMode.OversizedSource;
         _plugin.Opened.ResolverCalls = 0;
@@ -218,6 +247,7 @@ public sealed class ActionEffectTests : IDisposable
         {
             ResolverCalls++;
             if (Mode == EffectPlanMode.ResolverFailure) throw new InvalidOperationException("canonical metadata resolver failed");
+            if (Mode == EffectPlanMode.CanonicalOmission) return [];
             return valueIds.Contains("live", StringComparer.Ordinal) ? [new("live", "Live", IntegerSpec.Int32)] : [];
         }
         public DocumentMemento CaptureMemento() => CaptureSnapshot()!;
@@ -236,7 +266,7 @@ public sealed class ActionEffectTests : IDisposable
             {
                 Effect = Effect(ActionEffectKind.Observation, FieldValue.Of(Value), FieldValue.Of(Value + 1)) with { Source = new string('x', 2_001) },
             }],
-            EffectPlanMode.CanonicalShadow => [new PlannedChange("live", "Live", FieldValue.Of(Value), FieldValue.Of(Value + 1))
+            EffectPlanMode.CanonicalShadow or EffectPlanMode.CanonicalOmission => [new PlannedChange("live", "Live", FieldValue.Of(Value), FieldValue.Of(Value + 1))
             {
                 Effect = Effect(ActionEffectKind.Observation, FieldValue.Of(Value), FieldValue.Of(Value + 1)),
             }],
@@ -246,6 +276,10 @@ public sealed class ActionEffectTests : IDisposable
                     OldExists = false,
                     Effect = Effect(ActionEffectKind.StructuralMemento, FieldValue.Null, FieldValue.Of(Value + 1)),
                 }],
+            EffectPlanMode.ObservationNoToken => [new PlannedChange("observed", "Observed", FieldValue.Of(Value), FieldValue.Of(Value + 1))
+            {
+                Effect = Effect(ActionEffectKind.Observation, FieldValue.Of(Value), FieldValue.Of(Value + 1)),
+            }],
             _ => [new PlannedChange("payload", "Action payload", FieldValue.Of(Value), FieldValue.Of(Value + 1))
             {
                 Effect = Effect(ActionEffectKind.Observation, FieldValue.Of(Value), FieldValue.Of(Value + 1)),
@@ -265,6 +299,11 @@ public sealed class ActionEffectTests : IDisposable
                 return new EditOutcome { Changes = [new ValueChange("payload", FieldValue.Of(Value - 1), FieldValue.Of(Value))], StructureChanged = true };
             if (Mode == EffectPlanMode.WrongOutcome)
                 return new EditOutcome { Changes = [new ValueChange("payload", FieldValue.Of(8), FieldValue.Of(9))], StructureChanged = true, Revert = before };
+            if (Mode == EffectPlanMode.ObservationNoToken)
+                return new EditOutcome
+                {
+                    Changes = plan.Changes.Select(change => new ValueChange(change.ValueId, change.OldValue, change.NewValue)).ToArray(),
+                };
             return new EditOutcome
             {
                 Changes = plan.Changes.Select(change => new ValueChange(change.ValueId, change.OldValue, change.NewValue)).ToArray(),
@@ -288,6 +327,7 @@ public sealed class ActionEffectTests : IDisposable
     {
         Observation,
         CanonicalShadow,
+        CanonicalOmission,
         ResolverFailure,
         MissingRevert,
         WrongOutcome,
@@ -297,5 +337,6 @@ public sealed class ActionEffectTests : IDisposable
         OversizedSource,
         ThrowAfterMutation,
         BrokenRestore,
+        ObservationNoToken,
     }
 }

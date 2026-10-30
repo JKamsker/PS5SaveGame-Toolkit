@@ -172,6 +172,7 @@ public sealed class DocumentMemberAdapter
     private IReadOnlyList<string> MapGroupPath(IReadOnlyList<string> path)
     {
         var mapped = _policy.NavigationPath(Role, path);
+        ValidateMappedPath(mapped);
         if (!path.SequenceEqual(_policy.LocalNavigationPath(Role, mapped), StringComparer.Ordinal))
             throw new InvalidOperationException($"Navigation path codec is not stable for member '{Role}'.");
         return mapped;
@@ -180,9 +181,17 @@ public sealed class DocumentMemberAdapter
     private IReadOnlyList<string> MapLocalPath(IReadOnlyList<string> path)
     {
         var mapped = _policy.LocalNavigationPath(Role, path);
+        ValidateMappedPath(mapped);
         if (!path.SequenceEqual(_policy.NavigationPath(Role, mapped), StringComparer.Ordinal))
             throw new InvalidOperationException($"Navigation path codec is not stable for member '{Role}'.");
         return mapped;
+    }
+
+    private static void ValidateMappedPath(IReadOnlyList<string> path)
+    {
+        if (path.Count > ActionPlanSnapshots.MaxEffectPathParts
+            || path.Any(part => part is null || part.Length > ActionPlanSnapshots.MaxEffectPathPartLength))
+            throw new InvalidOperationException("Action effect navigation path exceeds its bounded limit.");
     }
 
     private static FieldError MapError(FieldError error, Func<string, string> map) =>

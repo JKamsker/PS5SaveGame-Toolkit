@@ -40,6 +40,9 @@ public sealed partial class DocumentSession
         ActionPreview Reject(IReadOnlyList<FieldError> errors, bool stale = false) =>
             new(null, _revision, requested, new ActionPlan { Errors = errors }) { Stale = stale };
 
+        if (_unusable)
+            return Reject([new FieldError(actionId, "The document session is unusable; reopen it before planning or applying actions.")]);
+
         if (StaleCheck(expectedRevision, [actionId]) is { } stale)
         {
             return Reject(stale.Errors, stale: true);
@@ -103,7 +106,7 @@ public sealed partial class DocumentSession
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            var metadata = FieldMetadataPlanning.Validate(_index, Document, plan, _referenceFields, cancellationToken);
+            var metadata = FieldMetadataPlanning.Validate(_index, Document, detachedPlan, _referenceFields, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             if (_index.HasFieldMetadata
                 && bytes.LongLength + requestBytes + BoundedJson.Serialize(metadata, MaxPlanBytes).LongLength > MaxPlanBytes)
@@ -139,6 +142,8 @@ public sealed partial class DocumentSession
         Action startApply, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        if (_unusable)
+            return Rejected(string.Empty, "The document session is unusable; reopen it before planning or applying actions.");
         var pending = _pendingAction;
         _pendingAction = null; // Single use, including failed validation.
         if (pending is null || pending.Id != planId || pending.Revision != expectedRevision || expectedRevision != _revision)
@@ -199,6 +204,10 @@ public sealed partial class DocumentSession
                 before = effectDocument.CaptureMemento();
                 CheckSnapshotBudget(before);
             }
+            var canonicalIds = pending.HasEffects
+                ? detachedFresh.Changes.Where(change => change.Effect is null)
+                    .Select(change => change.ValueId).ToHashSet(StringComparer.Ordinal)
+                : null;
             _semantic.CaptureTargetedOriginals(_openOriginal,
                 detachedFresh.Changes.Where(change => change.Effect is null).Select(change => change.ValueId), cancellationToken);
             startApply();
@@ -225,8 +234,7 @@ public sealed partial class DocumentSession
                         : outcome.Revert is { } revert ? Record(new MementoStep(revert))
                         : outcome.Changes.Count > 0 ? Record(new ValueStep(outcome.Changes)) : [];
                     var semanticChanges = pending.HasEffects
-                        ? outcome.Changes.Where(change => detachedFresh.Changes.Any(planned => planned.Effect is null
-                            && planned.ValueId == change.ValueId)).ToArray()
+                        ? outcome.Changes.Where(change => canonicalIds!.Contains(change.ValueId)).ToArray()
                         : outcome.Changes;
                     historyRecorded = pending.HasEffects || outcome.Revert is not null || outcome.Changes.Count > 0;
                     return AfterChange(FromOutcome(outcome), pending.HasEffects || outcome.StructureChanged || outcome.Revert is not null,
@@ -262,10 +270,12 @@ public sealed partial class DocumentSession
         try
         {
             _ = Document.RestoreMemento(before);
-            _ = RebuildIndex(forceNewRevision: false);
+            var warnings = RebuildIndex(forceNewRevision: false);
+            if (warnings.Count > 0) throw new InvalidOperationException(string.Join("; ", warnings));
         }
         catch (Exception restore) when (restore is not OutOfMemoryException)
         {
+            MarkUnusable();
             throw new InvalidOperationException("Action failed and its snapshot could not restore the document; reopen it before continuing.", restore);
         }
     }

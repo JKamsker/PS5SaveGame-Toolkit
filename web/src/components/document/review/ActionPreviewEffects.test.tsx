@@ -2,10 +2,11 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, expect, it, vi } from "vitest";
 import { ActionPreviewChanges } from "./ActionPreviewChanges";
 import type { ActionPreview, PlannedChange } from "../../../api/actionReview";
+import type { FieldError } from "../../../api/protocol";
 import type { usePlannedAction } from "./usePlannedAction";
 
 const page = <T,>(items: T[]) => ({ items, page: 0, pages: 1, setPage: vi.fn() });
-const action = (changes: PlannedChange[], errors = []): ReturnType<typeof usePlannedAction> => ({
+const action = (changes: PlannedChange[], errors: FieldError[] = []): ReturnType<typeof usePlannedAction> => ({
   preview: { revision: 1, planId: "p", scope: {}, plan: { changes, skippedRows: [], warnings: [], errors } } as ActionPreview,
   changesPage: page(changes), effectsPage: page(changes.filter(change => change.effect)), skippedPage: page([]),
 } as unknown as ReturnType<typeof usePlannedAction>);
@@ -30,9 +31,9 @@ it("renders exact absent/null effect evidence and copies the complete long paylo
   expect(screen.getByText(/StructuralMemento · inventory\/serial/)).toBeTruthy();
   expect(screen.getByText(/Inferred/)).toBeTruthy();
   expect(screen.getByText(/fixture action/)).toBeTruthy();
-  expect(screen.getAllByText(long).length).toBeGreaterThan(0);
-  fireEvent.click(screen.getAllByRole("button", { name: "Copy exact" })[1]);
-  await waitFor(() => expect(writeText).toHaveBeenCalledWith(long));
+  expect(screen.getAllByText(`text: ${long}`).length).toBeGreaterThan(0);
+  fireEvent.click(screen.getAllByRole("button", { name: "Copy exact" })[1]!);
+  await waitFor(() => expect(writeText).toHaveBeenCalledWith(`text: ${long}`));
   expect(screen.getAllByRole("alert")).toHaveLength(1);
 });
 
@@ -50,4 +51,17 @@ it("pages every ordered effect row without changing the ordinary change list", (
   fireEvent.click(screen.getByRole("button", { name: "Next" }));
   expect(state.effectsPage.setPage).toHaveBeenCalledWith(1);
   expect(within(screen.getByRole("region", { name: "Preview changes" })).getAllByRole("row")).toHaveLength(102);
+});
+
+it("preserves nullable null, text, integer and union distinctions", () => {
+  const changes: PlannedChange[] = [
+    { valueId: "nullable", label: "Nullable", oldValue: null, newValue: "null", derived: false, oldExists: true, newExists: true,
+      effect: { kind: "Observation", spec: { kind: "nullable", inner: { kind: "text" } } } },
+    { valueId: "union", label: "Union", oldValue: { kind: "union", type: "count", value: "9007199254740993" }, newValue: { kind: "union", type: "count", value: "9007199254740994" }, derived: false, oldExists: true, newExists: true,
+      effect: { kind: "Observation", spec: { kind: "union", options: [{ id: "count", label: "Count", spec: { kind: "integer", min: "0", max: "99999999999999999999" } }] } } },
+  ];
+  render(<ActionPreviewChanges action={action(changes)} />);
+  expect(screen.getAllByText("null (explicit)").length).toBeGreaterThan(0);
+  expect(screen.getAllByText('text: null').length).toBeGreaterThan(0);
+  expect(screen.getAllByText("count: integer: 9007199254740993").length).toBeGreaterThan(0);
 });

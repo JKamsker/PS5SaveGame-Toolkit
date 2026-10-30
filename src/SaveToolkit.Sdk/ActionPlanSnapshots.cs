@@ -30,11 +30,31 @@ public static class ActionPlanSnapshots
         Admit(plan);
         return plan with
         {
-            Changes = Array.AsReadOnly(plan.Changes.Select(Snapshot).ToArray()),
-            SkippedRows = Array.AsReadOnly(plan.SkippedRows.Select(row => row with { }).ToArray()),
-            Warnings = Array.AsReadOnly(plan.Warnings.ToArray()),
-            Errors = Array.AsReadOnly(plan.Errors.Select(error => error with { }).ToArray()),
+            Changes = Array.AsReadOnly(SnapshotChanges(plan.Changes)),
+            SkippedRows = Array.AsReadOnly(SnapshotRows(plan.SkippedRows)),
+            Warnings = Array.AsReadOnly(SnapshotStrings(plan.Warnings)),
+            Errors = Array.AsReadOnly(SnapshotErrors(plan.Errors)),
         };
+    }
+
+    private static PlannedChange[] SnapshotChanges(IEnumerable<PlannedChange> source) =>
+        source.SelectBounded(Snapshot);
+    private static SkippedActionRow[] SnapshotRows(IEnumerable<SkippedActionRow> source) =>
+        source.SelectBounded(row => row with { });
+    private static string[] SnapshotStrings(IEnumerable<string> source) =>
+        source.SelectBounded(static value => value);
+    private static FieldError[] SnapshotErrors(IEnumerable<FieldError> source) =>
+        source.SelectBounded(error => error with { });
+
+    private static T[] SelectBounded<T>(this IEnumerable<T> source, Func<T, T> copy)
+    {
+        var values = new List<T>();
+        foreach (var item in source)
+        {
+            if (values.Count >= MaxPlanEntries) throw new InvalidOperationException("The action plan exceeds the bounded entry limit.");
+            values.Add(copy(item));
+        }
+        return values.ToArray();
     }
 
     /// <summary>Returns the serialized UTF-8 size of a bounded plan.</summary>
@@ -54,8 +74,10 @@ public static class ActionPlanSnapshots
     private static void Admit(ActionPlan plan)
     {
         long budget = 4 * 1024 * 1024;
+        var count = 0;
         foreach (var change in plan.Changes)
         {
+            if (++count > MaxPlanEntries) throw new InvalidOperationException("The action plan exceeds the bounded entry limit.");
             if (change.Effect is { } effect)
             {
                 Add(ref budget, effect.Spec);
@@ -64,7 +86,7 @@ public static class ActionPlanSnapshots
                 Add(ref budget, effect.Source);
                 if (effect.Path is { } path)
                 {
-                    Add(ref budget, path.Count * 16L);
+                    AddBytes(ref budget, path.Count * 16L);
                     foreach (var part in path) Add(ref budget, part);
                 }
                 if (effect.Presentation is { } presentation)
@@ -91,6 +113,12 @@ public static class ActionPlanSnapshots
         remaining -= cost;
     }
 
+    private static void AddBytes(ref long remaining, long cost)
+    {
+        if (cost < 0 || cost > remaining) throw new InvalidOperationException("Action plan exceeds its bounded budget.");
+        remaining -= cost;
+    }
+
     private static ActionEffectDescriptor? Snapshot(ActionEffectDescriptor? effect)
     {
         if (effect is null) return null;
@@ -104,11 +132,21 @@ public static class ActionPlanSnapshots
         if (effect.Presentation is { Warning.Length: > MaxPresentationTextLength }
             || effect.Presentation is { Description.Length: > MaxPresentationTextLength })
             throw new InvalidOperationException("Action effect presentation exceeds its bounded limit.");
+        if (effect.Presentation?.Confidence is { } confidence && !Enum.IsDefined(confidence))
+            throw new InvalidOperationException("Action effect confidence is invalid.");
         if (!effect.Spec.ReadOnly || !FieldSpecMetadata.TryEstimate(effect.Spec, 4 * 1024 * 1024, out _))
             throw new InvalidOperationException("Action effect specs must be bounded and read-only.");
-        if (effect.Spec is ReferenceSpec { Assess: not null })
+        if (ContainsReferenceCallback(effect.Spec))
             throw new InvalidOperationException("Action effect references cannot execute eligibility callbacks.");
         return effect.Snapshot();
     }
+
+    private static bool ContainsReferenceCallback(FieldSpec spec) => spec switch
+    {
+        ReferenceSpec { Assess: not null } => true,
+        NullableSpec nullable => ContainsReferenceCallback(nullable.Inner),
+        UnionSpec union => union.Options.Any(option => ContainsReferenceCallback(option.Spec)),
+        _ => false,
+    };
 
 }

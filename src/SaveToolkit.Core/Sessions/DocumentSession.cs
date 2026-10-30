@@ -96,7 +96,7 @@ public sealed partial class DocumentSession : IDisposable
 
     /// <summary>Captures the view and its revision together, without an edit or undo interleaving.</summary>
     public DocumentViewSnapshot CaptureView() => Locked(() =>
-        new DocumentViewSnapshot(Document.Title, Document.CanEdit, StateUnlocked(), BuildView()));
+        new DocumentViewSnapshot(Document.Title, !_unusable && Document.CanEdit, StateUnlocked(), BuildView()));
 
     public ViewNode BuildView() => Locked(() => PublishView(staged =>
     {

@@ -192,7 +192,8 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
     public void Dispose() => _current.Dispose();
 
     private EditOutcome Mutate(Func<IGroupedSaveDocument, EditOutcome> mutation, ActionPlan? plan = null) =>
-        MutateCore(mutation, plan?.Changes.Select(change => change.ValueId).ToArray(), plan);
+        MutateCore(mutation, plan?.Changes.Where(change => change.Effect is null)
+            .Select(change => change.ValueId).ToArray(), plan);
 
     private EditOutcome Mutate(Func<IGroupedSaveDocument, EditOutcome> mutation, IReadOnlyList<string> metadataIds) =>
         MutateCore(mutation, metadataIds, null);

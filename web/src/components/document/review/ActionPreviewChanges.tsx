@@ -1,4 +1,4 @@
-import { reviewValue } from "../../../api/actionReview";
+import { reviewEffectValue, reviewValue } from "../../../api/actionReview";
 import type { usePlannedAction } from "./usePlannedAction";
 import { ReviewPager } from "./paging";
 
@@ -42,14 +42,14 @@ function EffectRow({ change }: { change: ReturnType<typeof usePlannedAction>["ef
       {effect.presentation?.warning && <small className="notice--Warning">{effect.presentation.warning}</small>}
       {effect.presentation?.description && <small>{effect.presentation.description}</small>}
     </th>
-    <td><Payload value={change.oldValue} exists={change.oldExists} /></td>
-    <td><Payload value={change.newValue} exists={change.newExists} /></td>
+    <td><Payload value={change.oldValue} exists={change.oldExists} spec={effect.spec} /></td>
+    <td><Payload value={change.newValue} exists={change.newExists} spec={effect.spec} /></td>
     <td>{evidence || "Unspecified"}</td>
   </tr>;
 }
 
-function Payload({ value, exists }: { value: Parameters<typeof reviewValue>[0]; exists: boolean }) {
-  const text = reviewValue(value, exists);
+function Payload({ value, exists, spec }: { value: Parameters<typeof reviewValue>[0]; exists: boolean; spec: Parameters<typeof reviewEffectValue>[2] }) {
+  const text = reviewEffectValue(value, exists, spec);
   return <details><summary>{text.length > 120 ? `${text.slice(0, 117)}…` : text}</summary>
     <pre>{text}</pre><button type="button" className="btn btn--small" onClick={() => void navigator.clipboard?.writeText(text)}>Copy exact</button>
   </details>;

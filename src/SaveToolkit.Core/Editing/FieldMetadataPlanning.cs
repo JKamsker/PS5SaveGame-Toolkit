@@ -32,8 +32,21 @@ public static class FieldMetadataPlanning
         if (effects.Length > 0 && !effectEnabled)
             throw new InvalidOperationException("Action effects require an opted-in document capability.");
         if (!index.HasFieldMetadata && effects.Length == 0) return [];
-        index.ResolveMetadata(plan.Changes.Where(change => change.Effect is null).Select(change => change.ValueId), cancellationToken,
-            MaxPlannedMetadataIds);
+        var canonicalIds = plan.Changes.Where(change => change.Effect is null).Select(change => change.ValueId);
+        // Effect-only plans still probe the canonical resolver for a bounded prefix so an
+        // authority failure cannot be mistaken for absence. Large effect plans remain independent
+        // of the canonical 5000-row metadata allowance.
+        var resolverIds = canonicalIds.Concat(plan.Changes.Where(change => change.Effect is not null)
+            .Take(FieldMetadataIndex.BatchSize).Select(change => change.ValueId)).Distinct(StringComparer.Ordinal);
+        index.SetMetadataBudget(4 * 1024 * 1024);
+        try
+        {
+            index.ResolveMetadata(resolverIds, cancellationToken, MaxPlannedMetadataIds);
+        }
+        finally
+        {
+            index.SetMetadataBudget(null);
+        }
         var result = new List<FieldMetadata>(plan.Changes.Count);
         var ids = new HashSet<string>(StringComparer.Ordinal);
         foreach (var change in plan.Changes)
@@ -114,7 +127,7 @@ public static class FieldMetadataPlanning
         {
             return ValidateSpec(effect.Spec, 0, new HashSet<FieldSpec>(ReferenceEqualityComparer.Instance));
         }
-        catch (Exception) when (true) { return false; }
+        catch (Exception) { return false; }
     }
 
     private static bool ValidateSpec(FieldSpec spec, int depth, HashSet<FieldSpec> seen)
