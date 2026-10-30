@@ -3075,7 +3075,7 @@
             "additionalProperties": {
               "$ref": "#/components/schemas/FieldValue"
             },
-            "description": "At most 128 parameter IDs (1\u2013256 UTF-16 units, nonblank, no controls). Numbers retain exact JSON lexemes; strings and tagged values are bounded to 4096 units. Arrays and loose save objects are rejected.",
+            "description": "At most 128 parameter IDs (1\u2013256 UTF-16 units, nonblank, no controls). Numbers retain exact JSON lexemes; parameter values share the 512 KiB package byte limit. Arrays and loose save objects are rejected.",
             "maxProperties": 128,
             "type": "object"
           },
@@ -3128,17 +3128,17 @@
             ]
           },
           "pluginId": {
-            "maxLength": 128,
+            "maxLength": 256,
             "minLength": 1,
             "type": "string"
           },
           "pluginVersion": {
-            "maxLength": 128,
+            "maxLength": 512,
             "minLength": 1,
             "type": "string"
           },
           "presetKind": {
-            "maxLength": 128,
+            "maxLength": 512,
             "minLength": 1,
             "type": "string"
           },
@@ -3163,11 +3163,11 @@
           },
           "titleIds": {
             "items": {
-              "maxLength": 128,
+              "maxLength": 256,
               "minLength": 1,
               "type": "string"
             },
-            "maxItems": 32,
+            "maxItems": 128,
             "minItems": 1,
             "type": "array"
           }
@@ -3217,7 +3217,7 @@
         "additionalProperties": false,
         "properties": {
           "build": {
-            "maxLength": 256,
+            "maxLength": 512,
             "minLength": 1,
             "type": [
               "null",
@@ -3225,12 +3225,12 @@
             ]
           },
           "kind": {
-            "maxLength": 128,
+            "maxLength": 256,
             "minLength": 1,
             "type": "string"
           },
           "label": {
-            "maxLength": 256,
+            "maxLength": 512,
             "minLength": 1,
             "type": [
               "null",
@@ -3254,7 +3254,7 @@
             ]
           },
           "role": {
-            "maxLength": 256,
+            "maxLength": 512,
             "minLength": 1,
             "type": [
               "null",

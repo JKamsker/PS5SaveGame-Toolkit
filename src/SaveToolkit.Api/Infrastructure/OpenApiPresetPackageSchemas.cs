@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 using SaveToolkit.Api.Contracts;
+using SaveToolkit.Core.Presets;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Api.Infrastructure;
@@ -19,7 +20,7 @@ internal sealed class OpenApiPresetPackageSchemas : IOpenApiDocumentTransformer
                 Type = JsonSchemaType.Object, MaxProperties = 128,
                 AdditionalProperties = new OpenApiSchemaReference(nameof(FieldValue), document),
                 Description = "At most 128 parameter IDs (1–256 UTF-16 units, nonblank, no controls). " +
-                    "Numbers retain exact JSON lexemes; strings and tagged values are bounded to 4096 units. Arrays and loose save objects are rejected.",
+                    "Numbers retain exact JSON lexemes; parameter values share the 512 KiB package byte limit. Arrays and loose save objects are rejected.",
             };
         }
         if (document.Components.Schemas.TryGetValue(nameof(PresetPackageCompatibilityDto), out var compatibility)
@@ -27,8 +28,8 @@ internal sealed class OpenApiPresetPackageSchemas : IOpenApiDocumentTransformer
         {
             boundaries.Properties!["titleIds"] = new OpenApiSchema
             {
-                Type = JsonSchemaType.Array, MinItems = 1, MaxItems = 32,
-                Items = new OpenApiSchema { Type = JsonSchemaType.String, MinLength = 1, MaxLength = 128 },
+                Type = JsonSchemaType.Array, MinItems = 1, MaxItems = PresetContractValidation.MaxMapEntries,
+                Items = new OpenApiSchema { Type = JsonSchemaType.String, MinLength = 1, MaxLength = PresetContractValidation.MaxKeyLength },
             };
         }
         return Task.CompletedTask;

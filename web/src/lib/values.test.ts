@@ -19,6 +19,22 @@ describe("parseDraft", () => {
     expect(parseDraft({ kind: "float", singlePrecision: true }, "0.1")).toEqual({ ok: true, value: Math.fround(0.1) });
   });
 
+  it.each([
+    ["3.4028234663852886e38", true], ["-3.4028234663852886e38", true],
+    ["3.4028235e38", false], ["-3.4028235e38", false], ["1e300", false],
+  ])("uses the server float32 range for %s", (draft, accepted) => {
+    const result = parseDraft({ kind: "float", singlePrecision: true }, draft);
+    expect(result.ok).toBe(accepted);
+    if (result.ok) expect(Number.isFinite(result.value)).toBe(true);
+  });
+
+  it("checks float32 bounds after rounding, like the server", () => {
+    expect(parseDraft({ kind: "float", singlePrecision: true, max: 0.1 }, "0.1").ok).toBe(false);
+    expect(parseDraft({ kind: "float", singlePrecision: true, min: -0.1 }, "-0.1").ok).toBe(false);
+    expect(parseDraft({ kind: "float", singlePrecision: true, max: 1 }, "1.00000001")).toEqual({ ok: true, value: 1 });
+    expect(parseDraft({ kind: "float", singlePrecision: true, min: -1 }, "-1.00000001")).toEqual({ ok: true, value: -1 });
+  });
+
   it("validates enums unless custom values are allowed", () => {
     const spec = { kind: "enum" as const, options: [{ value: "1", label: "Easy" }] };
     expect(parseDraft(spec, "2").ok).toBe(false);

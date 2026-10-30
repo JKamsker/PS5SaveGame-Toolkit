@@ -50,7 +50,7 @@ public sealed class PresetPackageTests
     {
         AssertInvalid("{");
         AssertInvalid("{\"schemaVersion\":\"1\",\"schemaVersion\":\"1\"}");
-        AssertInvalid(new string('[', 17) + "0" + new string(']', 17));
+        AssertInvalid(new string('[', PresetPackageCodec.MaxDepth + 1) + "0" + new string(']', PresetPackageCodec.MaxDepth + 1));
         var json = JsonNode.Parse(PresetPackageCodec.Encode([PresetTransferFixture.Preset()]))!;
         var record = json["presets"]![0]!.DeepClone();
         json["presets"] = new JsonArray(Enumerable.Range(0, 257).Select(_ => record.DeepClone()).ToArray());
@@ -86,10 +86,11 @@ public sealed class PresetPackageTests
 
     [Theory]
     [InlineData("stableId", 256)]
-    [InlineData("label", 256)]
-    [InlineData("role", 256)]
+    [InlineData("kind", PresetContractValidation.MaxKeyLength)]
+    [InlineData("label", PresetContractValidation.MaxMetadataLength)]
+    [InlineData("role", PresetContractValidation.MaxMetadataLength)]
     [InlineData("path", PresetContractValidation.MaxMetadataLength)]
-    [InlineData("build", 256)]
+    [InlineData("build", PresetContractValidation.MaxMetadataLength)]
     [InlineData("provenance", PresetContractValidation.MaxMetadataLength)]
     public void SemanticProvenanceFieldsHaveExplicitDomains(string field, int limit)
     {

@@ -8,6 +8,7 @@ const SECONDS_PER_HOUR = 3600;
 const MILLISECONDS_PER_MINUTE = SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND;
 const MILLISECONDS_PER_HOUR = SECONDS_PER_HOUR * MILLISECONDS_PER_SECOND;
 const DURATION_DECIMAL_PLACES = 3;
+const FLOAT32_MAX = 3.4028234663852886e38;
 
 /** Result of turning what the user typed into a wire value. The server re-validates authoritatively. */
 export type Parsed = { ok: true; value: FieldValue } | { ok: false; error: string };
@@ -75,11 +76,15 @@ function parseFloatDraft(spec: FloatSpec, draft: string): Parsed {
   // grouping and mixed separators are rejected instead of guessing a different magnitude.
   const decimal = new Intl.NumberFormat().formatToParts(1.1).find(part => part.type === "decimal")?.value ?? ".";
   const normalized = text.includes(".") ? text : text.replace(decimal, ".");
-  const number = Number(normalized);
+  let number = Number(normalized);
   if (text === "" || !Number.isFinite(number)) return fail("Enter a number without thousands separators.");
+  if (spec.singlePrecision) {
+    if (Math.abs(number) > FLOAT32_MAX) return fail("Number is out of float32 range.");
+    number = Math.fround(number);
+  }
   if (spec.min !== undefined && number < spec.min) return fail(`Must be at least ${spec.min}.`);
   if (spec.max !== undefined && number > spec.max) return fail(`Must be at most ${spec.max}.`);
-  return { ok: true, value: spec.singlePrecision ? Math.fround(number) : number };
+  return { ok: true, value: number };
 }
 
 /** The editable text shown for a value. */
