@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.IO.Compression;
 using System.Text;
 using SaveToolkit.Core.Export;
 using SaveToolkit.Core.Plugins;
@@ -255,6 +256,31 @@ public sealed class SystemOutputOwnershipTests
         WorkspaceExporter.WriteZip(plan, first);
         WorkspaceExporter.WriteZip(plan, second);
         Assert.Equal(first.ToArray(), second.ToArray());
+        AssertZipMatchesPlan(plan, first.ToArray());
+        AssertZipMatchesPlan(plan, second.ToArray());
+    }
+
+    private static void AssertZipMatchesPlan(ExportPlan plan, byte[] archive)
+    {
+        using var zip = new ZipArchive(new MemoryStream(archive), ZipArchiveMode.Read);
+        Assert.Equal(plan.Files.Count, zip.Entries.Count);
+        Assert.Equal(plan.Files.Select(file => file.RelativePath), zip.Entries.Select(entry => entry.FullName));
+
+        for (var index = 0; index < zip.Entries.Count; index++)
+        {
+            var entry = zip.Entries[index];
+            // ZIP stores DOS timestamps without an offset; .NET reports the host-local offset on read.
+            Assert.Equal(ExportZipWriter.CanonicalEntryTimestamp.DateTime, entry.LastWriteTime.DateTime);
+
+            var file = plan.Included[index];
+            var expected = plan.Overrides.TryGetValue(file.RelativePath, out var overrideContent)
+                ? overrideContent.ToArray()
+                : file.ReadAllBytes();
+            using var content = new MemoryStream();
+            using var source = entry.Open();
+            source.CopyTo(content);
+            Assert.Equal(expected, content.ToArray());
+        }
     }
 
     [Fact]
