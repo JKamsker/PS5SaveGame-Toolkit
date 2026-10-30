@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SaveToolkit.Core.Editing;
+using SaveToolkit.Core.References;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
@@ -7,11 +8,15 @@ using SaveToolkit.Sdk.Values;
 namespace SaveToolkit.Core.Sessions;
 
 internal sealed record CanonicalMetadataOutcome(bool Applied, IReadOnlyList<string> IncompleteIds,
-    string? Diagnostic = null);
+    string? Diagnostic = null, IReadOnlyList<string>? RecoveredIds = null)
+{
+    public IReadOnlyList<string> Recovered => RecoveredIds ?? [];
+}
 
 internal static class SemanticTargetedAuthority
 {
-    public static void Validate(SemanticSnapshot original, SemanticSnapshot current)
+    public static void Validate(SemanticSnapshot original, SemanticSnapshot current,
+        ReferenceFieldService references)
     {
         foreach (var (id, before) in original.Fields)
         {
@@ -19,13 +24,18 @@ internal static class SemanticTargetedAuthority
             if (string.Equals(before.CanonicalValueId, after.CanonicalValueId, StringComparison.Ordinal)
                 && before.BindingKind == after.BindingKind && before.ReadOnly == after.ReadOnly
                 && before.Spec is { } beforeSpec && after.Spec is { } afterSpec
-                && AuthoritySpecAgree(beforeSpec, afterSpec)) continue;
+                && AuthoritySpecAgree(beforeSpec, afterSpec)
+                && OriginalValueMatchesCurrentPolicy(before.Value, afterSpec, references)) continue;
             current.Fields.Remove(id);
             current.Complete = false;
             current.QueryWarnings = [.. current.QueryWarnings,
                 $"Targeted metadata coverage is incomplete: authority changed for '{id}'; revert is unavailable."];
         }
     }
+
+    private static bool OriginalValueMatchesCurrentPolicy(FieldValue value, FieldSpec spec,
+        ReferenceFieldService references) => FieldValueCoercer.Normalize(value, spec,
+            allowReadOnly: true, references).Ok;
 
     public static CanonicalMetadataOutcome ApplyCanonicalMetadata(ISaveDocument document, SemanticSnapshot snapshot,
         long maxBytes, CancellationToken cancellationToken)
@@ -45,7 +55,7 @@ internal static class SemanticTargetedAuthority
             }
             catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
             {
-                return Failure(batch, $"Canonical metadata coverage is incomplete: {ex.Message}");
+                return Failure(batch, SemanticDiagnostics.Exception("Canonical metadata coverage is incomplete", ex));
             }
 
             foreach (var id in batch)

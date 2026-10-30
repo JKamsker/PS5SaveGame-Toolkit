@@ -96,26 +96,30 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
                     retainedBytes -= MetadataCost(removed);
             }
 
-            var admissions = new List<(string Id, FieldMetadata Field, long Delta)>(next.Count);
+            var admissions = new List<(string Id, FieldMetadata Field, long Delta, bool Changed)>(next.Count);
             foreach (var (id, field) in next)
             {
                 var previous = cache.GetValueOrDefault(id);
-                var changed = previous is null || !Agree(previous, field);
-                var delta = changed ? MetadataCost(field) - (previous is null ? 0 : MetadataCost(previous)) : 0;
+                // Estimate the incoming graph before wire serialization/equality. A warm-cache
+                // replacement can be much larger than the retained descriptor, so Agree must not
+                // allocate its UTF-8 comparison buffers before aggregate admission.
+                var incomingCost = MetadataCost(field);
+                var previousCost = previous is null ? 0 : MetadataCost(previous);
+                var delta = incomingCost - previousCost;
                 if (delta > 0 && _maxMetadataBytes is { } limit && retainedBytes > limit - delta)
                     throw new InvalidOperationException("Field metadata exceeds the bounded review budget.");
-                admissions.Add((id, field, delta));
+                var changed = previous is null || !Agree(previous, field);
+                admissions.Add((id, field, delta, changed));
                 retainedBytes += delta;
             }
 
             // Validate live bindings only after the whole batch has been admitted. A descriptor
             // that cannot fit the remaining aggregate budget must not trigger a plugin getter.
-            foreach (var (_, field, _) in admissions)
+            foreach (var (_, field, _, _) in admissions)
                 _ = document.GetValue(field.ValueId);
-            foreach (var (id, field, _) in admissions)
+            foreach (var (id, field, _, changed) in admissions)
             {
-                var previous = cache.GetValueOrDefault(id);
-                if (previous is null || !Agree(previous, field))
+                if (changed)
                     cache[id] = Snapshot(field);
                 touched.Add(id);
                 fetched.Add(id);

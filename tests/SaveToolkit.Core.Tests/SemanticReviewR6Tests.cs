@@ -133,7 +133,15 @@ public sealed class SemanticReviewR6Tests
         var retry = review.Query(openOriginal, current, _ => { }, _ => { }, 2, CancellationToken.None);
 
         Assert.True(retry.Complete);
-        Assert.Equal("Canonical hidden", Assert.Single(retry.Changes).Label);
+        var change = Assert.Single(retry.Changes);
+        Assert.Equal("hidden", change.ValueId);
+        Assert.Equal("Canonical hidden", change.Label);
+        Assert.Equal("1", change.OriginalValue.ToString());
+        Assert.Equal("2", change.CurrentValue.ToString());
+        Assert.True(change.OriginalExists);
+        Assert.True(change.CurrentExists);
+        Assert.True(change.CanRevert);
+        Assert.Contains("hidden", review.CaptureState().TargetedIds);
         Assert.Empty(review.CaptureState().CaptureDiagnostics);
         Assert.True(review.TryOriginal("hidden", out var original));
         Assert.Equal("1", original.ToString());
@@ -151,6 +159,49 @@ public sealed class SemanticReviewR6Tests
         Assert.Equal(1, snapshot.OmittedCount);
         Assert.True(snapshot.OmittedCountIsLowerBound);
         Assert.False(snapshot.Complete);
+    }
+
+    [Fact]
+    public void RepairedRenderedMetadataClearsOnlyTransientCoverageState()
+    {
+        var failures = 1;
+        using var current = new RenderedRetryDocument(() => failures-- > 0);
+        var review = new SemanticReview(new());
+        Func<ISaveDocument> openOriginal = () => new RenderedRetryDocument(() => failures-- > 0);
+
+        var first = review.Query(openOriginal, current, _ => { }, _ => { }, 1, CancellationToken.None);
+        Assert.False(first.Complete);
+        Assert.NotEmpty(first.Warnings);
+
+        current.SetValue(2);
+        var repaired = review.Query(openOriginal, current, _ => { }, _ => { }, 2, CancellationToken.None);
+
+        Assert.True(repaired.Complete);
+        var change = Assert.Single(repaired.Changes);
+        Assert.Equal("1", change.OriginalValue.ToString());
+        Assert.Equal("2", change.CurrentValue.ToString());
+        Assert.Empty(repaired.Warnings);
+        Assert.Empty(review.CaptureState().CaptureDiagnostics);
+    }
+
+    [Fact]
+    public void RepairedMissingRenderedMetadataClearsTransientOmission()
+    {
+        // The initial targeted capture and canonical enrichment each request metadata, then
+        // the first review retry must also remain incomplete before the next retry repairs it.
+        var omissions = 3;
+        using var current = new RenderedRetryDocument(static () => false);
+        var review = new SemanticReview(new());
+        Func<ISaveDocument> openOriginal = () => new RenderedRetryDocument(static () => false,
+            () => omissions-- > 0);
+
+        review.CaptureTargetedOriginals(openOriginal, ["hidden"], CancellationToken.None);
+        Assert.False(review.Query(openOriginal, current, _ => { }, _ => { }, 1, CancellationToken.None).Complete);
+        var repaired = review.Query(openOriginal, current, _ => { }, _ => { }, 2, CancellationToken.None);
+
+        Assert.True(repaired.Complete);
+        Assert.Empty(repaired.Warnings);
+        Assert.Empty(review.CaptureState().CaptureDiagnostics);
     }
 
     private static string Id(int index) => $"field-{index:0000}";
@@ -215,6 +266,37 @@ public sealed class SemanticReviewR6Tests
             ResolveCalls++;
             if (_failResolver()) throw new InvalidOperationException("transient metadata resolver failure");
             return base.ResolveFieldMetadata(valueIds);
+        }
+    }
+
+    private sealed class RenderedRetryDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        private int _value = 1;
+        private readonly Func<bool> _omitResolver;
+
+        public RenderedRetryDocument()
+            : this(static () => false, static () => false) { }
+
+        public RenderedRetryDocument(Func<bool> failResolver, Func<bool>? omitResolver = null)
+        {
+            this.failResolver = failResolver;
+            _omitResolver = omitResolver ?? (static () => false);
+            RegisterField("hidden", IntegerSpec.Int32, () => FieldValue.Of(_value), value => _value = value.AsInt32());
+        }
+
+        private Func<bool> failResolver { get; }
+        public override string Title => "Rendered retry metadata";
+        public void SetValue(int value) => _value = value;
+        public override ViewNode BuildView() => new SectionNode("Root", [new FieldNode("hidden", "Legacy hidden", IntegerSpec.Int32, FieldValue.Of(_value))]);
+        public override IReadOnlyList<FileOutput> Serialize() => [];
+        public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+        {
+            if (failResolver()) throw new InvalidOperationException("transient rendered metadata failure");
+            if (_omitResolver()) return [];
+            return valueIds.Select(id => new FieldMetadata(id, "Canonical hidden", IntegerSpec.Int32)
+            {
+                Path = ["canonical", id],
+            }).ToArray();
         }
     }
 }
