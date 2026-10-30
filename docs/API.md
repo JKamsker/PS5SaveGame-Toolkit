@@ -502,10 +502,13 @@ Stale/replaced/reused plan or changed consequences: 409; rejected effects: 422.
 
 ### `POST /api/workspaces/{workspaceId}/documents/{documentId}/presets/{presetId}/preview`
 
-JSON `{revision?:number}` checks the preset's plugin/version/title/build/variant/reference-pack
+JSON `{revision?:number,choices?:{[requestedStableId]:candidateStableId}}` checks the preset's plugin/version/title/build/variant/reference-pack
 boundary and returns `{preset,preview}`. The generic host adapter currently accepts one planned
 F6 action and delegates to the same pure action planner; selecting a preset never edits the save.
 Mismatch, read-only or unsupported multi-action/instance resolution is 422; stale revision is 409.
+For an ambiguous semantic instance, `choices` maps its requested stable ID to a candidate stable ID
+from the current resolution. Preview again with those explicit choices; the host validates them
+before asking the adapter to resolve and plan, and never persists them in the preset.
 
 ### `POST /api/workspaces/{workspaceId}/documents/{documentId}/presets/{presetId}/apply`
 
