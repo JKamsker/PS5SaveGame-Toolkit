@@ -79,7 +79,7 @@ async function assertTypedEvidence(dialog: Locator, effectRegion: Locator) {
   await expect(effectRegion.getByRole("row").filter({ hasText: "Certain" }).first()).toBeVisible();
   await expect(effectRegion.getByText("Long serial evidence", { exact: true })).toBeVisible();
   await expect(effectRegion.getByRole("row").filter({ hasText: "inventory / item:0" }).first()).toBeVisible();
-  await expect(effectRegion.getByText("Observation · effect-null-text", { exact: false })).toBeVisible();
+  await expect(effectRegion.getByRole("row").filter({ hasText: "effect-null-text" })).toContainText("Observation");
   await expect(effectRegion.locator("input, select, textarea")).toHaveCount(0);
 }
 
