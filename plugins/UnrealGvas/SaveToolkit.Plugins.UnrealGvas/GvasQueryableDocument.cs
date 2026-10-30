@@ -8,7 +8,7 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Plugins.UnrealGvas;
 
 /// <summary>Adds F8 navigation without changing the raw document composed by Hogwarts.</summary>
-internal sealed class GvasQueryableDocument : ISaveDocument, IQueryableDocument
+internal sealed class GvasQueryableDocument : ISaveDocument, IQueryableDocument, IFieldMetadataDocument
 {
     private readonly UnrealGvasDocument _raw;
     private GvasNamedViews _views;
@@ -30,6 +30,7 @@ internal sealed class GvasQueryableDocument : ISaveDocument, IQueryableDocument
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => _views.Query(collectionId, query);
     public IReadOnlyList<ViewNode> ExpandNode(string lazyId) => _raw.ExpandNode(lazyId);
     public FieldValue GetValue(string valueId) => _raw.GetValue(valueId);
+    public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds) => _raw.ResolveFieldMetadata(valueIds);
     public EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits) => _raw.ApplyEdits(edits);
     public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {

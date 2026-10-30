@@ -2,3 +2,9 @@
   href: first-plugin.md
 - name: Query a bounded collection
   href: collections.md
+- name: Preserve JSON scalar spelling
+  href: lossless-json.md
+- name: Project canonical fields
+  href: field-references.md
+- name: Patch an existing SFO value
+  href: sfo-substrate.md

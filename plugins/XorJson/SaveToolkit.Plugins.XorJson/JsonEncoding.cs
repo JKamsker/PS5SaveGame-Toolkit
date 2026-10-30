@@ -14,6 +14,12 @@ internal sealed record JsonEncoding(bool Xor, bool Plain = false)
         return result;
     }
 
+    internal void TransformInPlace(Span<byte> bytes, bool decode)
+    {
+        for (var i = 0; i < bytes.Length; i++)
+            bytes[i] = TransformByte(bytes[i], decode);
+    }
+
     private byte TransformByte(byte value, bool decode) =>
         Plain ? value : Xor ? (byte)(value ^ 1) : unchecked((byte)(value + (decode ? 1 : -1)));
 
@@ -33,12 +39,25 @@ internal sealed record JsonEncoding(bool Xor, bool Plain = false)
         foreach (var encoding in new[] { new JsonEncoding(true), new JsonEncoding(false) })
         {
             if (!HasJsonPrefix(bytes, encoding)) continue;
-            var plain = encoding.Transform(bytes, true);
+            encoding.TransformInPlace(bytes, true);
             JsonTokenTree tree;
-            try { tree = JsonTokenTree.Parse(plain); }
-            catch (SaveFormatException) { continue; }
-            if (match is not null) throw new SaveFormatException("Ambiguous JSON encoding; refusing to guess.");
+            try
+            {
+                tree = JsonTokenTree.Parse(bytes);
+            }
+            catch (SaveFormatException)
+            {
+                // The next candidate must see the original encoded bytes.
+                encoding.TransformInPlace(bytes, false);
+                continue;
+            }
+            if (match is not null)
+            {
+                encoding.TransformInPlace(bytes, false);
+                throw new SaveFormatException("Ambiguous JSON encoding; refusing to guess.");
+            }
             match = new DecodedJson(tree, encoding);
+            encoding.TransformInPlace(bytes, false);
         }
         return match ?? throw new SaveFormatException("Not valid XOR-1 or byte-minus-one UTF-8 JSON.");
     }

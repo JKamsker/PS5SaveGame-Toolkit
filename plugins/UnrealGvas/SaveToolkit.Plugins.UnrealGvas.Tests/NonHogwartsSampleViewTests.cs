@@ -31,7 +31,11 @@ public sealed class NonHogwartsSampleViewTests
             Assert.Equal(collection.TotalCount, first.TotalCount);
             Assert.True(JsonSerializer.SerializeToUtf8Bytes(first).Length < 2 * 1024 * 1024);
             Assert.Equal(first.Rows.Count, first.Rows.Select(row => row.Key).Distinct(StringComparer.Ordinal).Count());
-            Assert.All(first.Rows.SelectMany(row => row.Cells.Values), cell => Assert.IsType<TextNode>(cell));
+            Assert.All(first.Rows.SelectMany(row => row.Cells.Where(pair => pair.Key != "value").Select(pair => pair.Value)),
+                cell => Assert.IsType<TextNode>(cell));
+            Assert.All(first.Rows, row =>
+                Assert.True(row.Cells["value"] is TextNode or FieldReferenceNode,
+                    $"Unexpected value cell type in {collection.Id}."));
         }
         Assert.True(session.CanEdit);
         if (tab == "Actors")

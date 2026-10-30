@@ -6,6 +6,8 @@ const LONG_TEXT = 60;
 
 function cellHasDetails(cell: ViewNode): boolean {
   switch (cell.type) {
+    case "fieldReference":
+      return true;
     case "field":
       return (
         Boolean(cell.description || cell.warning) ||

@@ -14,11 +14,12 @@ public sealed class CleanReplacementLifetimeTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void FailedCleanOwnerCleanup_RemovesDeadOwnerAndDisposesUnpublishedGroup(bool groupReplacement)
+    public void FailedCleanOwnerCleanup_RemovesDeadOwnerAndDisposesUnpublishedCandidate(bool groupReplacement)
     {
         var inner = new GroupPlugin();
         var plugin = new FailingCleanupPlugin(inner);
-        using var store = new WorkspaceStore(new PluginCatalog([plugin, new AlternatePlugin()]), new() { DataRoot = TestZips.TempDir() });
+        var alternate = new AlternatePlugin();
+        using var store = new WorkspaceStore(new PluginCatalog([plugin, alternate]), new() { DataRoot = TestZips.TempDir() });
         const string root = "PPSA99990/sdimg_SAVE/";
         var workspace = store.Create("failed clean replacement",
         [
@@ -39,6 +40,7 @@ public sealed class CleanReplacementLifetimeTests
         Assert.Empty(workspace.Documents);
         Assert.Empty(workspace.DocumentGroups);
         Assert.All(inner.Opened, document => Assert.True(document.IsDisposed));
+        if (!groupReplacement) Assert.True(Assert.Single(alternate.Opened).IsDisposed);
 
         // A failed cleanup must neither consume the confirmation nor leave a dead path owner.
         var retry = workspace.OpenGroup(offer.Token);
@@ -75,6 +77,21 @@ public sealed class CleanReplacementLifetimeTests
         public const string Id = "test.alternate";
         public PluginInfo Info { get; } = new(Id, "Alternate", "1.0.0");
         public ProbeResult Probe(ISaveFile file) => ProbeResult.None;
-        public ISaveDocument Open(ISaveFile file) => throw new NotSupportedException();
+        public List<CandidateDocument> Opened { get; } = [];
+        public ISaveDocument Open(ISaveFile file)
+        {
+            var document = new CandidateDocument();
+            Opened.Add(document);
+            return document;
+        }
+    }
+
+    private sealed class CandidateDocument : BoundSaveDocument
+    {
+        public bool IsDisposed { get; private set; }
+        public override string Title => "Valid candidate";
+        public override ViewNode BuildView() => new TextNode(Title);
+        public override IReadOnlyList<FileOutput> Serialize() => [];
+        protected override void Dispose(bool disposing) { IsDisposed = true; base.Dispose(disposing); }
     }
 }
