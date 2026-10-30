@@ -18,6 +18,7 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
     private readonly Action<CancellationToken> _preflight;
     private readonly long _maxSnapshotBytes;
     private readonly HashSet<string> _expanded = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _resolvedMetadataIds = new(StringComparer.Ordinal);
     private readonly Dictionary<string, (string Collection, QueryableCollectionQuery Query)> _queries = new(StringComparer.Ordinal);
     private IGroupedSaveDocument _current;
     private IReadOnlyList<FileOutput> _outputs;
@@ -57,8 +58,18 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         : throw new NotSupportedException("The current group provider does not support action effects.");
 
     /// <summary>Forward bounded metadata to the currently published candidate.</summary>
-    public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds) =>
-        _current is IFieldMetadataDocument metadata ? metadata.ResolveFieldMetadata(valueIds) : [];
+    public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+    {
+        if (_current is not IFieldMetadataDocument metadata) return [];
+        var resolved = metadata.ResolveFieldMetadata(valueIds);
+        foreach (var field in resolved)
+        {
+            if (_resolvedMetadataIds.Count >= FieldMetadataLimits.MaxClosureIds) break;
+            _resolvedMetadataIds.Add(field.ValueId);
+        }
+
+        return resolved;
+    }
     public AssetContent? GetAsset(string assetId) => _current.GetAsset(assetId);
     public ReadOnlyMemory<byte> ReadBlob(string blobId, long offset, int count) => _current.ReadBlob(blobId, offset, count);
 
@@ -83,7 +94,8 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         return page;
     }
 
-    public EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits) => Mutate(candidate => candidate.ApplyEdits(edits));
+    public EditOutcome ApplyEdits(IReadOnlyList<ValueEdit> edits) =>
+        Mutate(candidate => candidate.ApplyEdits(edits), edits.Select(edit => edit.ValueId).ToArray());
 
     public ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
     {
@@ -117,7 +129,8 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         cancellationToken.ThrowIfCancellationRequested();
         var memento = _current.CaptureMemento();
         cancellationToken.ThrowIfCancellationRequested();
-        var candidate = CreateCandidate(memento, rebind: true, cancellationToken);
+        var candidate = CreateCandidate(memento, rebind: true, includeResolvedMetadata: true,
+            cancellationToken: cancellationToken);
         try
         {
             var plan = Planner(candidate).PlanAction(actionId, parameters, scope);
@@ -164,7 +177,7 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
     public DocumentMemento RestoreMemento(DocumentMemento memento)
     {
         var inverse = _current.CaptureMemento();
-        var candidate = CreateCandidate(memento, rebind: false);
+        var candidate = CreateCandidate(memento, rebind: false, includeResolvedMetadata: true);
         IReadOnlyList<FileOutput> outputs;
         try { outputs = _verify(candidate); }
         catch (Exception failure)
@@ -178,10 +191,18 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
 
     public void Dispose() => _current.Dispose();
 
-    private EditOutcome Mutate(Func<IGroupedSaveDocument, EditOutcome> mutation, ActionPlan? plan = null)
+    private EditOutcome Mutate(Func<IGroupedSaveDocument, EditOutcome> mutation, ActionPlan? plan = null) =>
+        MutateCore(mutation, plan?.Changes.Select(change => change.ValueId).ToArray(), plan);
+
+    private EditOutcome Mutate(Func<IGroupedSaveDocument, EditOutcome> mutation, IReadOnlyList<string> metadataIds) =>
+        MutateCore(mutation, metadataIds, null);
+
+    private EditOutcome MutateCore(Func<IGroupedSaveDocument, EditOutcome> mutation,
+        IReadOnlyList<string>? metadataIds, ActionPlan? plan)
     {
         var before = _current.CaptureMemento();
-        var candidate = CreateCandidate(before);
+        var candidate = CreateCandidate(before, includeResolvedMetadata: metadataIds is not null,
+            metadataIds: metadataIds);
         try
         {
             var outcome = mutation(candidate);
@@ -236,6 +257,7 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
     }
 
     private IGroupedSaveDocument CreateCandidate(DocumentMemento memento, bool rebind = true,
+        bool includeResolvedMetadata = false, IReadOnlyList<string>? metadataIds = null,
         CancellationToken cancellationToken = default)
     {
         _preflight(cancellationToken);
@@ -262,12 +284,32 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
                     if (queryable.Collections.Any(c => c.Id == collection)) _ = queryable.Query(collection, query);
                     cancellationToken.ThrowIfCancellationRequested();
                 }
+            ResolveCandidateMetadata(candidate, includeResolvedMetadata, metadataIds, cancellationToken);
             return candidate;
         }
         catch (Exception failure)
         {
             SessionCleanup.DisposeAfterFailure(candidate, failure, "Group candidate construction and cleanup failed.");
             throw;
+        }
+    }
+
+    private void ResolveCandidateMetadata(IGroupedSaveDocument candidate, bool includeResolvedMetadata,
+        IReadOnlyList<string>? additionalIds, CancellationToken cancellationToken)
+    {
+        if (candidate is not IFieldMetadataDocument metadata) return;
+        var ids = (includeResolvedMetadata ? _resolvedMetadataIds : [])
+            .Concat(additionalIds ?? [])
+            .Where(id => !string.IsNullOrEmpty(id)).Distinct(StringComparer.Ordinal).ToArray();
+        if (ids.Length > FieldMetadataLimits.MaxClosureIds)
+            throw new InvalidOperationException($"Group candidate metadata exceeds the bounded limit of {FieldMetadataLimits.MaxClosureIds} IDs.");
+        foreach (var batch in ids.Chunk(FieldMetadataLimits.MaxBatchSize))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var resolved = metadata.ResolveFieldMetadata(Array.AsReadOnly(batch));
+            if (resolved.Count != batch.Length || resolved.Select(field => field.ValueId)
+                .Distinct(StringComparer.Ordinal).Count() != batch.Length)
+                throw new InvalidOperationException("Group candidate metadata could not rebind every affected field.");
         }
     }
 
