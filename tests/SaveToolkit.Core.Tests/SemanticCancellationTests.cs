@@ -65,6 +65,29 @@ public sealed class SemanticCancellationTests : IDisposable
     }
 
     [Fact]
+    public void CancellationAfterPagePreparationKeepsOnlyPreviouslyPublishedBindings()
+    {
+        using var cancellation = new CancellationTokenSource();
+        using var session = Open(new(), () => new());
+        _ = session.QueryCollection("inventory/0", new() { Limit = 1, IncludeEmpty = true });
+        var state = session.State;
+        Assert.Throws<OperationCanceledException>(() => session.QueryCollection("inventory/0",
+            new() { Offset = 1, Limit = 1, IncludeEmpty = true }, state.Revision, page =>
+            {
+                cancellation.Cancel();
+                return page;
+            }, cancellation.Token));
+
+        Assert.Equal(state, session.State);
+        IncomingEdit Edit(int row) => new(SemanticQueryableDocument.ValueId(0, row), JsonSerializer.SerializeToElement(7));
+        Assert.False(session.ApplyEdits([Edit(1)]).Ok);
+        Assert.True(session.ApplyEdits([Edit(0)]).Ok);
+        Assert.True(session.Undo().Ok);
+        Assert.False(session.State.IsDirty);
+        Assert.Empty(session.GetChanges().Changes);
+    }
+
+    [Fact]
     public void CancelledRevertLeavesValuesAndHistoryUnchanged()
     {
         using var cancellation = new CancellationTokenSource();

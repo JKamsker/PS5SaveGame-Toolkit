@@ -21,7 +21,7 @@ public sealed partial class DocumentSession
 
     /// <summary>Prepares a host response before publishing page bindings; preparation failures retain the prior index.</summary>
     public T QueryCollection<T>(string collectionId, QueryableCollectionQuery query, long? expectedRevision,
-        Func<QueryableCollectionPage, T> prepareResponse, CancellationToken cancellationToken) => Locked(() => RunPreflight(_ =>
+        Func<QueryableCollectionPage, T> prepareResponse, CancellationToken cancellationToken) => Locked(() =>
     {
         if (Document is not IQueryableDocument queryable)
         {
@@ -53,9 +53,11 @@ public sealed partial class DocumentSession
         }
 
         query = query with { IncludeEmpty = query.IncludeEmpty ?? collection.EmptyRows?.HideByDefault != true };
+        // Paging changes only the view index and remembered group queries. PublishView already
+        // stages both until the final cancellation check; no semantic baseline or preview changes.
         return PublishView(staged => PreparePage(staged, queryable, collection, query, prepareResponse, cancellationToken),
             cancellationToken: cancellationToken);
-    }, cancellationToken), cancellationToken);
+    }, cancellationToken);
 
     private T PreparePage<T>(Editing.ViewIndex staged, IQueryableDocument queryable, QueryableCollection collection,
         QueryableCollectionQuery query, Func<QueryableCollectionPage, T> prepareResponse, CancellationToken cancellationToken)
