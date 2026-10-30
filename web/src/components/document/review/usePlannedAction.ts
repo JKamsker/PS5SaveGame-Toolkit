@@ -41,6 +41,7 @@ function usePlannedActionState(node: ActionNode, claimSnapshotErrors?: () => () 
   const [rejectedStale, setRejectedStale] = useState(false);
   // Keep pagination mounted when the preview is hidden for parameter editing or reopening.
   const changesPage = useReviewPage(preview?.plan.changes ?? []);
+  const effectsPage = useReviewPage((preview?.plan.changes ?? []).filter(change => change.effect));
   const skippedPage = useReviewPage(preview?.plan.skippedRows ?? []);
   const form = { parameters, values, setValues, errors, setErrors };
   const openDialog = () => {
@@ -49,7 +50,7 @@ function usePlannedActionState(node: ActionNode, claimSnapshotErrors?: () => () 
     modal.openDialog();
   };
   return { id, form, preview, setPreview, busy, submit, ...modal, openDialog, onClose, error, setError,
-    formVersion, setFormVersion, previewScope, setPreviewScope, rejectedStale, setRejectedStale, refreshError, setRefreshError, changesPage, skippedPage,
+    formVersion, setFormVersion, previewScope, setPreviewScope, rejectedStale, setRejectedStale, refreshError, setRefreshError, changesPage, effectsPage, skippedPage,
     invalid: Object.values(errors).some(Boolean) };
 }
 

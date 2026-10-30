@@ -26,6 +26,7 @@ internal sealed class SemanticReview
     private readonly HashSet<string> _recoveredReported = new(StringComparer.Ordinal);
     private bool _structureChanged;
     private bool _unreviewedReportedChanges;
+    private bool _effectCoverageIncomplete;
     private readonly HashSet<string> _targeted = new(StringComparer.Ordinal);
     private bool _targetedOnly;
     private bool _capturingOriginal;
@@ -46,6 +47,7 @@ internal sealed class SemanticReview
         var reported = _reported.ToArray();
         var recoveredReported = _recoveredReported.ToArray();
         var targetedOnly = _targetedOnly;
+        var effectCoverageIncomplete = _effectCoverageIncomplete;
         var metadataAvailable = _originalMetadataAvailable;
         var metadataAttempted = _originalMetadataAttempted;
         var coverage = _coverage.CaptureState();
@@ -59,6 +61,7 @@ internal sealed class SemanticReview
             _recoveredReported.Clear();
             _recoveredReported.UnionWith(recoveredReported);
             _targetedOnly = targetedOnly;
+            _effectCoverageIncomplete = effectCoverageIncomplete;
             _originalMetadataAvailable = metadataAvailable;
             _originalMetadataAttempted = metadataAttempted;
             _coverage.Restore(coverage);
@@ -78,9 +81,15 @@ internal sealed class SemanticReview
     }
     internal SemanticReviewState CaptureState() => new(
         _original?.Clone(), _targeted.ToArray(), _coverage.Diagnostics());
-    public void Observe(IReadOnlyList<ValueChange> changes, bool structural, Func<string, bool> indexed)
+    public void Observe(IReadOnlyList<ValueChange> changes, bool structural, Func<string, bool> indexed,
+        bool effectCoverage = false)
     {
         if (_original is not { } original) return;
+        if (effectCoverage)
+        {
+            _effectCoverageIncomplete = true;
+            _unreviewedReportedChanges = true;
+        }
         foreach (var change in changes)
         {
             if (original.Fields.ContainsKey(change.ValueId)) continue;
@@ -376,6 +385,8 @@ internal sealed class SemanticReview
         var complete = original.Complete && current.Complete && !_unreviewedReportedChanges
             && !_coverage.HasFailures && _coverage.OmittedCount == 0 && contextResolution.Complete;
         IReadOnlyList<string> warnings = complete ? [] : ["Semantic review is incomplete: the original could not be opened, a view exceeded its memory or traversal limit, a lazy section could not be read, or an internal field could not be matched after a structural change. Only proven changes are listed."];
+        if (_effectCoverageIncomplete)
+            warnings = [.. warnings, "Action-owned effects are not canonical fields; their persisted consequences are outside semantic field comparison."];
         var queryWarnings = original.QueryWarnings.Concat(current.QueryWarnings)
             .Select(SemanticDiagnostics.Bound).Distinct(StringComparer.Ordinal);
         IReadOnlyList<string> allWarnings = [.. warnings, .. _coverage.Diagnostics(),

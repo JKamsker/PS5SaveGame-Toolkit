@@ -56,8 +56,10 @@ public sealed partial class DocumentSession : IDisposable
     private readonly EditHistory _history;
     private readonly ReferenceFieldService _referenceFields;
     private readonly ReferenceContext _references;
+    private readonly long _maxSnapshotBytes;
     private bool _disposed;
     private bool _idleRetired;
+    private bool _unusable;
 
     public DocumentSession(string id, DiskSaveFile file, IGamePlugin plugin, ISaveDocument document,
         DocumentSessionOptions? options = null, Func<ISaveDocument>? openOriginal = null, ReferenceContext? references = null,
@@ -71,6 +73,7 @@ public sealed partial class DocumentSession : IDisposable
         var limits = options ?? DocumentSessionOptions.Default;
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limits.MaxQueryActionRows);
         _maxQueryActionRows = limits.MaxQueryActionRows;
+        _maxSnapshotBytes = limits.MaxSnapshotBytes;
         var referenceContext = references ?? ReferenceContext.None;
         _references = referenceContext;
         _history = new EditHistory(limits);
@@ -85,7 +88,7 @@ public sealed partial class DocumentSession : IDisposable
     public DiskSaveFile File { get; }
     public IGamePlugin Plugin { get; }
     public string Title => Locked(() => Document.Title);
-    public bool CanEdit => Locked(() => Document.CanEdit);
+    public bool CanEdit => Locked(() => !_unusable && Document.CanEdit);
     /// <summary>Optional semantic preset capability published by the opened plugin document.</summary>
     public IPresetDocument? PresetDocument => Locked(() => Document as IPresetDocument);
     /// <summary>Host-authoritative preset capability with the pinned reference identity applied.</summary>
@@ -135,7 +138,7 @@ public sealed partial class DocumentSession : IDisposable
 
     /// <summary>Captures the view and its revision together, without an edit or undo interleaving.</summary>
     public DocumentViewSnapshot CaptureView() => Locked(() =>
-        new DocumentViewSnapshot(Document.Title, Document.CanEdit, StateUnlocked(), BuildView()));
+        new DocumentViewSnapshot(Document.Title, !_unusable && Document.CanEdit, StateUnlocked(), BuildView()));
 
     public ViewNode BuildView() => Locked(() => PublishView(staged =>
     {
@@ -208,6 +211,7 @@ public sealed partial class DocumentSession : IDisposable
 
     public SessionEditResult ApplyEdits(IReadOnlyList<IncomingEdit> incoming, long? expectedRevision, CancellationToken cancellationToken) => Locked(() => RunPreflight(startApply =>
     {
+        if (_unusable) return Rejected(incoming.FirstOrDefault()?.ValueId ?? string.Empty, "The document session is unusable; reopen it before editing or exporting.");
         if (!Document.CanEdit)
         {
             return Rejected(incoming.FirstOrDefault()?.ValueId ?? string.Empty, "This document is read-only.");
@@ -289,10 +293,19 @@ public sealed partial class DocumentSession : IDisposable
     internal DocumentOutputCapture CaptureOutputs(CancellationToken cancellationToken) =>
         Locked(() =>
         {
+            if (_unusable) throw new InvalidOperationException("The document session is unusable; reopen it before exporting.");
             var state = StateUnlocked();
             var outputs = state.IsDirty ? DocumentOutputSnapshot.Capture(Document, cancellationToken) : [];
             return new DocumentOutputCapture(outputs, state.IsDirty, state.Revision);
         }, cancellationToken);
+
+    internal void MarkUnusable()
+    {
+        _unusable = true;
+        _pendingAction = null;
+        _history.Clear(irreversible: true);
+        _groupBroken = true;
+    }
 
     public AssetContent? GetAsset(string assetId) => Locked(() =>
         _index.KnowsAsset(assetId) && Document.GetAsset(assetId) is { } asset

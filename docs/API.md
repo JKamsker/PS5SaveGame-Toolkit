@@ -78,6 +78,21 @@ The explicit re-pin switch adds no skipped test to ordinary runs. Shared middlew
 errors such as unknown-path 404 and unsupported-method 405 remain described below;
 host/proxy failures before application execution are outside generated operations.
 
+## Planned action effects
+
+Action previews may include an optional `effect` on an ordered change. The descriptor is additive and
+omitted for legacy rows, preserving their serialized bytes. `kind` is `Observation` or
+`StructuralMemento`; its read-only `spec` describes the exact typed old/new values on the enclosing
+row. `oldExists: false` with `oldValue: null` means absence, while an existing nullable field uses
+`oldExists: true`. `presentation`, `path`, and `source` are bounded evidence supplied by the plugin.
+
+Effect-capable documents opt in explicitly through `IActionEffectDocument`. Core resolves canonical
+metadata first, rejects an effect that shadows a genuine field, and validates every descriptor before
+retaining a plan. Any effect-bearing action uses one whole-action memento for apply, undo, and redo;
+there is no individual effect setter or writer endpoint. The existing action plan/apply endpoints and
+`ActionPreview` envelope carry the optional field, and the web review shows all ordered effects with
+typed values, absence, provenance, warnings, and copyable long payloads.
+
 ## Shared responses and errors
 
 Unless an endpoint states otherwise, success is **200**, resource removal is

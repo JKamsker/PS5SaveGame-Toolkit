@@ -10,11 +10,12 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
 {
     internal const int BatchSize = 200;
     private readonly Dictionary<string, FieldMetadata> _fields = new(StringComparer.Ordinal);
-    private readonly long? _maxMetadataBytes = maxMetadataBytes;
+    private long? _maxMetadataBytes = maxMetadataBytes;
     public bool Enabled => document is IFieldMetadataDocument
         && (document is not SaveToolkit.Core.Sessions.Groups.StagedGroupDocument staged || staged.MetadataEnabled);
     public IEnumerable<string> Ids => _fields.Keys;
     public void Clear() => _fields.Clear();
+    internal void SetBudget(long? bytes) => _maxMetadataBytes = bytes;
     internal FieldMetadataIndex Copy(CancellationToken cancellationToken)
     {
         var copy = new FieldMetadataIndex(document, _maxMetadataBytes);

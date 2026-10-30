@@ -10,7 +10,7 @@ namespace SaveToolkit.Core.Sessions.Groups;
 /// Runs mutations and restores on independent candidates. The owning DocumentSession serializes calls
 /// and supplies F5 history/F6 plans. A failed plugin call never reaches the published group model.
 /// </summary>
-internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocument, IActionPlanningDocument,
+internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocument, IActionEffectDocument,
     IQueryableDocument, IAdditionalOutputOwner
 {
     private const int MaxRememberedQueries = 256;
@@ -52,6 +52,11 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
     public FieldValue GetValue(string valueId) => _current.GetValue(valueId);
 
     internal bool MetadataEnabled => _current is IFieldMetadataDocument;
+    internal bool EffectEnabled => _current is IActionEffectDocument;
+
+    public DocumentMemento CaptureMemento() => _current is IActionEffectDocument effects
+        ? effects.CaptureMemento()
+        : throw new NotSupportedException("The current group provider does not support action effects.");
 
     /// <summary>Forward only explicitly requested group ownership context from the current candidate.</summary>
     internal IReadOnlyList<DocumentGroupFieldContext> ResolveFieldContext(IReadOnlyList<string> valueIds) =>
@@ -164,8 +169,7 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
     }
 
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan) =>
-        Mutate(candidate => Planner(candidate).ApplyActionPlan(actionId, parameters, scope, plan),
-            plan.Changes.Select(change => change.ValueId).ToArray());
+        Mutate(candidate => Planner(candidate).ApplyActionPlan(actionId, parameters, scope, plan), plan);
 
     public IReadOnlyList<FileOutput> Serialize() => SerializeForSnapshot(CancellationToken.None)
         .Select(output => output with { Content = output.Content.ToArray() }).ToArray();
@@ -209,8 +213,15 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
 
     public void Dispose() => _current.Dispose();
 
-    private EditOutcome Mutate(Func<IGroupedSaveDocument, EditOutcome> mutation,
-        IReadOnlyList<string>? metadataIds = null)
+    private EditOutcome Mutate(Func<IGroupedSaveDocument, EditOutcome> mutation, ActionPlan? plan = null) =>
+        MutateCore(mutation, plan?.Changes.Where(change => change.Effect is null)
+            .Select(change => change.ValueId).ToArray(), plan);
+
+    private EditOutcome Mutate(Func<IGroupedSaveDocument, EditOutcome> mutation, IReadOnlyList<string> metadataIds) =>
+        MutateCore(mutation, metadataIds, null);
+
+    private EditOutcome MutateCore(Func<IGroupedSaveDocument, EditOutcome> mutation,
+        IReadOnlyList<string>? metadataIds, ActionPlan? plan)
     {
         var before = _current.CaptureMemento();
         var candidate = CreateCandidate(before, out var retiredMetadataIds,
@@ -218,6 +229,8 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
         try
         {
             var outcome = mutation(candidate);
+            if (outcome.Succeeded && plan is { Changes.Count: > 0 } && plan.Changes.Any(change => change.Effect is not null))
+                ActionEffectOutcomeValidation.Validate(plan, outcome);
             if (!outcome.Succeeded || outcome.Changes.Count == 0 && !outcome.StructureChanged && outcome.Revert is null)
             {
                 var discarded = candidate;

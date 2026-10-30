@@ -1,6 +1,57 @@
 {
   "components": {
     "schemas": {
+      "ActionEffectDescriptor": {
+        "description": "Read-only metadata for a consequence that is not a parsed canonical field. The enclosing\nPlannedChange owns identity, labels and typed before/after values.",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/ActionEffectKind"
+          },
+          "path": {
+            "description": "Optional document-relative navigation path for the action-owned row.",
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "presentation": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FieldPresentation",
+                "description": "Optional presentation evidence for the action-owned row."
+              }
+            ]
+          },
+          "source": {
+            "description": "Optional bounded provenance supplied by the provider.",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "spec": {
+            "$ref": "#/components/schemas/FieldSpec"
+          }
+        },
+        "required": [
+          "kind",
+          "spec"
+        ],
+        "type": "object"
+      },
+      "ActionEffectKind": {
+        "description": "How an action-owned consequence is restored by the host.",
+        "enum": [
+          "Observation",
+          "StructuralMemento"
+        ]
+      },
       "ActionNode": {
         "description": "Plugin-defined command (e.g. \u0022Max all items\u0022). Parameters are rendered as a small form; their\nstring FieldNode.ValueId is the parameter name passed to ActionOutcome ISaveDocument.InvokeAction(string actionId, IReadOnlyDictionary\u0026lt;string, FieldValue\u0026gt; parameters).",
         "properties": {
@@ -2224,6 +2275,17 @@
           "derived": {
             "description": "True for a consequence of another edit; the plugin decides which consequences require actual assignments.",
             "type": "boolean"
+          },
+          "effect": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ActionEffectDescriptor",
+                "description": "Optional action-owned metadata; null retains legacy plan wire bytes."
+              }
+            ]
           },
           "label": {
             "type": "string"

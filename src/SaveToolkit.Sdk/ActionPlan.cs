@@ -1,5 +1,6 @@
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
+using System.Text.Json.Serialization;
 
 namespace SaveToolkit.Sdk;
 
@@ -50,6 +51,9 @@ public sealed record PlannedChange(string ValueId, string Label, FieldValue OldV
     public bool OldExists { get; init; } = true;
     /// <summary>False when the action removes the field, distinct from assigning null.</summary>
     public bool NewExists { get; init; } = true;
+    /// <summary>Optional action-owned metadata; null retains legacy plan wire bytes.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ActionEffectDescriptor? Effect { get; init; }
 }
 
 /// <summary>A selected row left unchanged, with a user-facing explanation.</summary>

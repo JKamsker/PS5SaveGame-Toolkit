@@ -17,6 +17,7 @@ public sealed partial class DocumentSession
     public SessionEditResult InvokeAction(string actionId, IReadOnlyDictionary<string, JsonElement> parameters,
         long? expectedRevision, CancellationToken cancellationToken) => Locked(() => RunPreflight(startApply =>
     {
+        if (_unusable) return Rejected(actionId, "The document session is unusable; reopen it before planning or applying actions.");
         if (StaleCheck(expectedRevision, [actionId]) is { } stale)
         {
             return stale;
