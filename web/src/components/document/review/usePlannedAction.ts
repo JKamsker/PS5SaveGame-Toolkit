@@ -124,7 +124,8 @@ function createActionApply(state: PlannedState, selection: PlannedScope) {
         state.setPreview(null);
         state.setRejectedStale(Boolean(result.stale));
         state.setRefreshError(result.snapshotError ?? "");
-        state.setError(result.errors.map(error => error.message).join(" ") || "Apply failed. Preview the action again.");
+        state.setError([...result.errors.map(error => error.message), result.message, ...result.warnings]
+          .filter(Boolean).join(" ") || "Apply failed. Preview the action again.");
         state.requestFocus("error");
       }
     } catch (failure) {
