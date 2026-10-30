@@ -114,6 +114,7 @@ public sealed class WorkspaceIdleRaceTests
                 if (activity == "lease") Assert.Equal(0, store.Sweep());
                 if (activity == "mutation") Assert.True(session.Undo().Ok);
                 lease?.Dispose();
+                await WaitForIdleCutoffAsync(remaining, ct);
                 Assert.Equal(1, store.Sweep());
             }
         }
@@ -167,6 +168,16 @@ public sealed class WorkspaceIdleRaceTests
 
         Assert.True(session.State.IsDirty);
         Assert.Same(workspace, store.Get(workspace.Id));
+    }
+
+    private static async Task WaitForIdleCutoffAsync(Workspace workspace, CancellationToken cancellationToken)
+    {
+        const int clockPollMilliseconds = 1;
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(OperationTimeout);
+        // Zero-timeout expiry still requires a cutoff strictly after the final access (including lease release).
+        while (DateTimeOffset.UtcNow <= workspace.LastAccess)
+            await Task.Delay(clockPollMilliseconds, timeout.Token);
     }
 
     private static WorkspaceStore Store(IdleRetentionPlugin plugin) => new(new PluginCatalog([plugin]),

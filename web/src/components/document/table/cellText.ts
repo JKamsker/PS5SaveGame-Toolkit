@@ -40,6 +40,8 @@ export function statsSummary(items: { label: string; value: string }[]): string 
 export function cellSearchText(node: ViewNode | undefined, valueOf: ValueOf): string {
   if (!node) return "";
   switch (node.type) {
+    case "fieldReference":
+      return `${node.label ?? "Referenced field"} unavailable ${node.description ?? ""}`;
     case "text":
       return node.text;
     case "field": {

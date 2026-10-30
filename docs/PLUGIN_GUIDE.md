@@ -117,6 +117,9 @@ into save data. Exercise de-AT and tr-TR, and include ar-SA for calendar/sign be
   owner rule in [AGENTS.md](../AGENTS.md#rules-for-plugin-work)). Prefer composition
   and reused helpers; do not split into partials merely to meet a line count. Avoid `dynamic`,
   reflection tricks and unsafe code (any exception needs a reason in a comment).
+- The repository-wide [C# source-size guard](CSHARP_SIZE_GUARD.md) warns above 300 lines and
+  rejects above 500 for non-generated files. Its changed-file CI check reads the exact base-to-HEAD
+  range; do not add broad generated globs or legacy exemptions to hide a new oversized plugin file.
 - Do not add repository tooling inside plugin folders: no hooks, build targets, `Directory.Build.*`,
   lint scripts or `.gitattributes`. File size and style are reviewed centrally.
 - Follow [repository collaboration policy](../AGENTS.md#collaboration-policy) for commits and review
@@ -213,6 +216,63 @@ Existing documents do not opt in merely by inheriting `BoundSaveDocument` or usi
 `RegisterField(id, spec, get, set, validate)` overload. Their view discovery, planning and replay
 behavior is preserved. Canonical labels and paths are published for consumers, but targeted semantic
 review of unloaded IDs is separate work; this API alone does not promise complete review coverage.
+
+### Lossless JSON scalar patches (SDK-06 foundation)
+
+`SaveToolkit.Sdk.Json.LosslessJsonDocument` parses bounded strict UTF-8 while retaining the input
+bytes, BOM, trivia, duplicate property occurrences and exact scalar lexemes. `ReplaceScalar` may
+change only one scalar token; `CaptureSnapshot`/`RestoreSnapshot` provide document-owned bounded
+replacement history. `LosslessJsonLimits` bounds bytes, depth, value nodes, number lexemes and
+replacement exponents. Invalid UTF-8, malformed JSON, invalid scalar lexemes and serialized-size
+growth fail before state changes. See the [lossless JSON tutorial](../docs-site/tutorials/lossless-json.md)
+and `tests/SaveToolkit.Core.Tests/LosslessJsonDocumentTests.cs`.
+
+This is a shared lexical substrate, not a structural JSON adapter. Keep native identities,
+duplicate-key policy, envelopes/XOR, checksums and complete output verification in the plugin. SDK-06
+remains open until **both GenericJson and XorJson consumers are merged on `main`** with their
+format-specific no-op, identity, envelope and reopen evidence. Do not mark a plugin adopted from
+the foundation or from a preparation branch.
+
+### Canonical field references (SDK-08 foundation and UnrealGvas adoption)
+
+`FieldReferenceNode` names one canonical `TargetValueId` and carries only optional contextual
+`Label`/`Description`. It cannot introduce a spec, value, writable identity or chained reference.
+The host resolves loaded fields or targeted `IFieldMetadataDocument` results; unavailable targets
+remain unavailable references. `FieldMetadata.Presentation` carries canonical nullable
+`Confidence`, `Warning` and `Description`: `null` means unspecified, while an empty
+`FieldPresentation` explicitly carries no annotations. A projection cannot override canonical
+readOnly, spec, confidence or warning policy. A plugin/consumer selects any bounded text/detail
+fallback for very long values before emitting references; the host normalizes complete canonical
+values, specs and annotations, measures the combined 2 MiB response budget and returns 413 without
+partial output when it is exceeded. It never clips canonical `FieldValue` data or automatically
+replaces an oversized reference. Preserve identity, provenance, search/filter/sort and genuine
+canonical values in the consumer fallback. See the authoritative
+[FIELD_REFERENCES.md budget guidance](FIELD_REFERENCES.md#host-lifecycle-and-wire-contract).
+
+See the [canonical field-reference tutorial](../docs-site/tutorials/field-references.md) and
+`tests/SaveToolkit.Core.Tests/FieldReference*Tests.cs`. The production UnrealGvas consumer is now
+on `main`: non-generic Jedi/Sackboy raw, named and eager-search scalar projections emit references,
+while generic summaries, wide strings, actor observations and opaque values retain bounded/read-only
+fallbacks. [`GvasFieldReferenceTests.cs`](../plugins/UnrealGvas/SaveToolkit.Plugins.UnrealGvas.Tests/GvasFieldReferenceTests.cs)
+covers canonical metadata, shared live edits, unavailable structural targets, protected fields and
+the 2 MiB wide-string fallback boundary. SDK-08 is therefore resolved for this shipped consumer;
+future titles still need their own evidence and must not infer gameplay semantics from the projection.
+
+### Existing-entry SFO patch substrate (SDK-10 foundation and ownership boundary)
+
+`ParamSfoDocument` retains a bounded SFO byte sequence and read-only entry metadata. Its
+`PlanExistingUtf8`/`Apply` pair is identity- and SHA-256-bound, pure and non-mutating: it can patch
+one existing UTF-8 value in its reserved slot, including the required NUL, without creating keys,
+resizing slots or rewriting sibling/trailing bytes. `ParamSfoPatchLimits` bounds the complete file,
+entry, key and encoded value; strict UTF-8 byte counts reject embedded NULs, unpaired surrogates
+and capacity overflow. See the [SFO substrate tutorial](../docs-site/tutorials/sfo-substrate.md)
+and `tests/SaveToolkit.Core.Tests/ParamSfoPatchTests.cs`.
+
+This substrate is not an owned-system-output workflow by itself. The separate system-output ownership
+foundation is now on `main`, while the host/plugin still must apply its ownership, whole-output
+verification, history and export rules around any output. SDK-10 remains open until controlled
+whole-byte caption evidence and a later SuckerPunch consumer justify any `param.sfo SUBTITLE`
+synchronization. Preserve system metadata today; do not claim automatic caption updates.
 
 ## View vocabulary (src/SaveToolkit.Sdk/Views)
 

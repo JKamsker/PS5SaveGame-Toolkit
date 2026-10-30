@@ -67,6 +67,7 @@ public sealed partial class DocumentSession : IDisposable
         _history = new EditHistory(limits);
         _referenceFields = new ReferenceFieldService(referenceContext);
         _semantic = new SemanticReview(limits);
+        OutputOwnership = new OutputOwnershipBinding(file, document);
         // The original is re-opened with the same pinned reference packs so its field identities match the live document.
         _openOriginal = openOriginal ?? (() => plugin.Open(file, referenceContext));
     }
@@ -78,6 +79,14 @@ public sealed partial class DocumentSession : IDisposable
     public bool CanEdit => Locked(() => Document.CanEdit);
 
     private ISaveDocument Document { get; }
+    private OutputOwnershipBinding OutputOwnership { get; }
+
+    /// <summary>Full save-set paths reserved by this document, including exact declared system files.</summary>
+    internal IReadOnlyList<string> OwnedOutputPaths => OutputOwnership.OwnedPaths;
+    internal IReadOnlyList<string> DeclaredOutputPaths => OutputOwnership.DeclaredPaths;
+    internal string? OutputSetError(IEnumerable<string> outputPaths) => OutputOwnership.OutputSetError(outputPaths);
+    internal bool RequiresCompleteOutputs => OutputOwnership.RequiresCompleteOutputs;
+    internal void CheckOutputFingerprints(CancellationToken cancellationToken) => OutputOwnership.Check(cancellationToken);
 
     public DocumentState State => Locked(StateUnlocked);
 
@@ -87,12 +96,12 @@ public sealed partial class DocumentSession : IDisposable
     public DocumentViewSnapshot CaptureView() => Locked(() =>
         new DocumentViewSnapshot(Document.Title, Document.CanEdit, StateUnlocked(), BuildView()));
 
-    public ViewNode BuildView() => Locked(() =>
+    public ViewNode BuildView() => Locked(() => PublishView(staged =>
     {
         var view = Document.BuildView();
-        _index.Add(view);
-        return view;
-    });
+        staged.Add(view);
+        return staged.ResolveFieldReferences(Document, view);
+    }));
 
     public IReadOnlyList<ViewNode> Expand(string lazyId) => Locked(() =>
     {
@@ -101,11 +110,55 @@ public sealed partial class DocumentSession : IDisposable
             throw _retired.Contains(lazyId) ? new StaleViewException() : new KeyNotFoundException($"Unknown lazy node '{lazyId}'.");
         }
 
-        var nodes = Document.ExpandNode(lazyId);
-        _index.AddAll(nodes);
-        _expanded.Add(lazyId);
-        return nodes;
+        // Read-only presentation output cannot affect bindings or metadata. Avoid copying the
+        // accumulated index for this bounded case; all index-bearing output keeps the transaction.
+        var restoreGroup = (Document as Groups.StagedGroupDocument)?.CancellationRollback();
+        try
+        {
+            var nodes = Document.ExpandNode(lazyId);
+            if (ViewIndex.IsIndexNeutral(nodes))
+            {
+                _expanded.Add(lazyId);
+                restoreGroup = null;
+                return nodes;
+            }
+
+            var rollback = restoreGroup;
+            restoreGroup = null;
+            var resolved = PublishView(staged =>
+            {
+                staged.AddAll(nodes);
+                return ((SectionNode)staged.ResolveFieldReferences(Document, new SectionNode(string.Empty, nodes))).Children;
+            }, rollback: rollback);
+            _expanded.Add(lazyId);
+            return resolved;
+        }
+        catch
+        {
+            restoreGroup?.Invoke();
+            throw;
+        }
     });
+
+    // A rejected response must publish neither bindings/metadata nor remembered group pages.
+    private T PublishView<T>(Func<ViewIndex, T> prepare, Action? rollback = null,
+        CancellationToken cancellationToken = default)
+    {
+        var restoreGroup = rollback ?? (Document as Groups.StagedGroupDocument)?.CancellationRollback();
+        try
+        {
+            var staged = _index.Copy(cancellationToken);
+            var result = prepare(staged);
+            cancellationToken.ThrowIfCancellationRequested();
+            _index = staged;
+            return result;
+        }
+        catch
+        {
+            restoreGroup?.Invoke();
+            throw;
+        }
+    }
 
     /// <param name="incoming">Edits as sent by the client.</param>
     /// <param name="expectedRevision">The <see cref="DocumentState.Revision"/> the client's view was built at, if known.</param>
@@ -153,6 +206,9 @@ public sealed partial class DocumentSession : IDisposable
         }
 
         EnsureOriginal(cancellationToken);
+        var scalarProof = ScalarEditEffectiveness.Capture(Document, edits, cancellationToken);
+        if (scalarProof is not null && OutputSetError(scalarProof.Select(output => output.RelativePath)) is not null)
+            scalarProof = null;
         // Point of no return: mutation and history/revision publication must finish together.
         startApply();
         var outcome = CallPlugin(() => Document.ApplyEdits(edits), edits.FirstOrDefault()?.ValueId);
@@ -160,6 +216,8 @@ public sealed partial class DocumentSession : IDisposable
         {
             return FromOutcome(outcome);
         }
+
+        outcome = ScalarEditEffectiveness.Complete(Document, edits, scalarProof, outcome);
 
         var warnings = outcome.Revert is { } revert
             ? Record(new MementoStep(revert))
@@ -183,8 +241,17 @@ public sealed partial class DocumentSession : IDisposable
     /// </summary>
     public IReadOnlyList<FileOutput> Serialize() => Serialize(CancellationToken.None);
 
-    public IReadOnlyList<FileOutput> Serialize(CancellationToken cancellationToken) => Locked<IReadOnlyList<FileOutput>>(() =>
-        StateUnlocked().IsDirty ? DocumentOutputSnapshot.Capture(Document, cancellationToken) : [], cancellationToken);
+    public IReadOnlyList<FileOutput> Serialize(CancellationToken cancellationToken) =>
+        CaptureOutputs(cancellationToken).Outputs;
+
+    /// <summary>Captures output bytes and the dirty/revision state that produced them atomically.</summary>
+    internal DocumentOutputCapture CaptureOutputs(CancellationToken cancellationToken) =>
+        Locked(() =>
+        {
+            var state = StateUnlocked();
+            var outputs = state.IsDirty ? DocumentOutputSnapshot.Capture(Document, cancellationToken) : [];
+            return new DocumentOutputCapture(outputs, state.IsDirty, state.Revision);
+        }, cancellationToken);
 
     public AssetContent? GetAsset(string assetId) => Locked(() =>
         _index.KnowsAsset(assetId) && Document.GetAsset(assetId) is { } asset

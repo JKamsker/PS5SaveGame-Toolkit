@@ -73,4 +73,48 @@ public sealed class CharacterGateTests
         Assert.False(plugin.Probe(file).IsMatch);
         Assert.Throws<SaveFormatException>(() => plugin.Open(file));
     }
+
+    [Theory]
+    [InlineData("SoftVersion", "3")]
+    [InlineData("FormatHash", "1")]
+    public void RejectedCharacterGateEditRestoresSdkHistoryBeforeStructuralUndo(string gateLabel, string replacement)
+    {
+        const string text = "{\"SerializeMeta\":{\"HardFormat\":\"FCharacterSaveV1\",\"SoftVersion\":2,\"FormatHash\":3777917472}," +
+            "\"CharacterSaveV1\":{\"MetaData\":{\"IsOnline\":false},\"Level\":1}}";
+        var original = XorJsonTests.Encode(text);
+        using var document = XorJsonTests.Open(original);
+        var fields = XorJsonTests.Fields(document);
+        var gate = fields.Single(field => field.Label == gateLabel);
+        var level = fields.Single(field => field.Label == "Level");
+        var typed = Assert.IsType<JsonSaveDocument>(document);
+        var before = typed.CaptureDocumentMemento();
+
+        var rejected = document.ApplyEdits([new(gate.ValueId, FieldValue.ExactNumber(replacement))]);
+
+        Assert.False(rejected.Succeeded);
+        Assert.Equal(original, document.Serialize().Single().Content.ToArray());
+        Assert.Equal(gate.Value, document.GetValue(gate.ValueId));
+        var afterFailure = typed.CaptureDocumentMemento();
+        var afterState = Assert.IsType<SnapshotMemento<JsonModelSnapshot>>(afterFailure).State;
+        Assert.Empty(afterState.LosslessReplacements);
+        Assert.Equal(before.SizeBytes, afterFailure.SizeBytes);
+
+        Assert.True(document.ApplyEdits([new(level.ValueId, FieldValue.ExactNumber("2"))]).Succeeded);
+        var changed = document.Serialize().Single().Content.ToArray();
+        var structural = document.InvokeAction("json/add/0", new Dictionary<string, FieldValue>
+        {
+            ["key"] = FieldValue.Of("r3"),
+            ["json"] = FieldValue.Of("1"),
+        });
+        var structuralBytes = document.Serialize().Single().Content.ToArray();
+        Assert.NotEqual(Convert.ToHexString(changed), Convert.ToHexString(structuralBytes));
+
+        var redo = document.RestoreMemento(structural.Revert!);
+        Assert.Equal(changed, document.Serialize().Single().Content.ToArray());
+        _ = document.RestoreMemento(redo);
+        Assert.Equal(structuralBytes, document.Serialize().Single().Content.ToArray());
+
+        _ = document.RestoreMemento(afterFailure);
+        Assert.Equal(original, document.Serialize().Single().Content.ToArray());
+    }
 }

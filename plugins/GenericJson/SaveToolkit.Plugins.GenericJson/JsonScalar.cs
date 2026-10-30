@@ -21,14 +21,6 @@ internal static class JsonScalar
         new(Boolean, "JSON boolean", new BoolSpec()),
     ]));
 
-    public static FieldValue Read(ref Utf8JsonReader reader) => reader.TokenType switch
-    {
-        JsonTokenType.Null => FieldValue.Null,
-        JsonTokenType.String => FieldValue.Union(Text, FieldValue.Of(reader.GetString()!)),
-        JsonTokenType.True or JsonTokenType.False => FieldValue.Union(Boolean, FieldValue.Of(reader.GetBoolean())),
-        _ => throw new InvalidOperationException("Expected a JSON scalar."),
-    };
-
     public static string? Validate(FieldValue value)
     {
         if (value.IsNull) return null;
@@ -57,6 +49,48 @@ internal static class JsonScalar
             FieldValueKind.Bool => scalar.AsBool() ? "true"u8.ToArray() : "false"u8.ToArray(),
             _ => throw new InvalidOperationException("Unsupported JSON scalar type."),
         };
+    }
+
+    /// <summary>Counts the exact UTF-8 bytes emitted by the default JSON scalar encoder.</summary>
+    public static int EncodedLength(FieldValue value)
+    {
+        if (value.IsNull) return 4;
+        var scalar = value.AsUnion().Value;
+        return scalar.Kind switch
+        {
+            FieldValueKind.Bool => scalar.AsBool() ? 4 : 5,
+            FieldValueKind.ExactNumber => checked(Encoding.UTF8.GetByteCount(scalar.AsExactNumber())),
+            FieldValueKind.Text => StringEncodedLength(scalar.AsString()),
+            _ => throw new InvalidOperationException("Unsupported JSON scalar type."),
+        };
+    }
+
+    private static int StringEncodedLength(string value)
+    {
+        var length = 2; // JSON quotes.
+        for (var i = 0; i < value.Length; i++)
+        {
+            var character = value[i];
+            if (character is >= '\uD800' and <= '\uDBFF')
+            {
+                if (++i >= value.Length || value[i] is < '\uDC00' or > '\uDFFF')
+                    throw new InvalidOperationException("Text contains an unpaired Unicode surrogate.");
+                length = checked(length + 12); // Default encoder emits two \uXXXX escapes.
+                continue;
+            }
+
+            if (character is >= '\uDC00' and <= '\uDFFF')
+                throw new InvalidOperationException("Text contains an unpaired Unicode surrogate.");
+            length = checked(length + character switch
+            {
+                '\\' => 2,
+                '\b' or '\f' or '\n' or '\r' or '\t' => 2,
+                // Match JsonSerializer's default encoder, including its ASCII hex escapes.
+                < '\u0020' or '"' or '+' or '`' or '<' or '>' or '&' or '\'' or > '\u007E' => 6,
+                _ => 1,
+            });
+        }
+        return length;
     }
 
     public static string TypeOf(FieldValue value) => value.IsNull ? "null" : value.AsUnion().Type;

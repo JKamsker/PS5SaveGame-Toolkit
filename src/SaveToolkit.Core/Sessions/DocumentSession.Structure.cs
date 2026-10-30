@@ -197,7 +197,9 @@ public sealed partial class DocumentSession
         HashSet<string> expanded;
         try
         {
-            fresh.Add(Document.BuildView());
+            var view = Document.BuildView();
+            fresh.Add(view);
+            _ = fresh.ResolveFieldReferences(Document, view);
             expanded = ReExpand(fresh, _expanded);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)

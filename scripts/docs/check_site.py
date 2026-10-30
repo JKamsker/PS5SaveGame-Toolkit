@@ -11,6 +11,10 @@ REQUIRED_SYMBOLS = (
     "SaveToolkit.Sdk.IGamePlugin", "SaveToolkit.Sdk.ISaveDocument",
     "SaveToolkit.Sdk.Views.ViewNode", "SaveToolkit.Sdk.Values.FieldSpec",
     "SaveToolkit.Sdk.BoundSaveDocument", "SaveToolkit.Sdk.Binary.BoundedBinaryCursor",
+    "SaveToolkit.Sdk.Json.LosslessJsonDocument", "SaveToolkit.Sdk.Json.LosslessJsonLimits",
+    "SaveToolkit.Sdk.Views.FieldReferenceNode", "SaveToolkit.Sdk.FieldPresentation",
+    "SaveToolkit.Sdk.Saves.ParamSfoDocument", "SaveToolkit.Sdk.Saves.ParamSfoPatchPlan",
+    "SaveToolkit.Sdk.Saves.ParamSfoPatchLimits",
 )
 BASES = ("https://docs.invalid/", "https://docs.invalid/PS5SaveGame-Toolkit/")
 
@@ -85,7 +89,8 @@ def check(site):
         path = site / f"api/{symbol}.html"
         if path not in pages or symbol.rsplit(".", 1)[-1] not in path.read_text(encoding="utf-8"):
             errors.add(f"Missing rendered SDK symbol: {symbol}")
-    required = ("index.html", "tutorials/first-plugin.html", "reference/http.html",
+    required = ("index.html", "tutorials/first-plugin.html", "tutorials/lossless-json.html",
+                "tutorials/field-references.html", "tutorials/sfo-substrate.html", "reference/http.html",
                 "reference/openapi.json", "assets/redoc/redoc.standalone.js", "assets/http-reference.js",
                 "assets/redoc/LICENSE.txt", "index.json", "xrefmap.yml", ".nojekyll")
     for name in required:

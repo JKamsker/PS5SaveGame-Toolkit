@@ -17,6 +17,7 @@ the setup in `docs/RELEASING.md`. Set `SAVETOOLKIT_E2E_SCRATCH` and
 `PLAYWRIGHT_BROWSERS_PATH` to put temporary workspaces, browser profiles, reports
 and downloads outside the checkout. Only Chromium runs; no private samples are used.
 
-Export comparisons cover every path and decompressed payload byte. ZIP timestamps
-and compression are packaging metadata, so whole-archive bytes are not compared
-(see the export contract in `docs/API.md`).
+Export comparisons cover every path and decompressed payload byte. Exported ZIP
+entries use the canonical `1980-01-01T00:00:00+00:00` timestamp; compression and
+other packaging metadata can vary across runtimes, so browser comparisons do not
+use whole-archive bytes (see the export contract in `docs/API.md`).
