@@ -73,8 +73,8 @@ internal sealed class CharacterView
             SelectionId = CharacterPlanning.SelectionTableId,
             Title = "Character sheets",
             Description = WriteWarnings.Progression + "HP/MP are bounded by the original stored maxima. Maxima remain read-only caches. " +
-                "Select rows, then use a table action to preview only that selection; an empty selection changes nothing. " +
-                "The separate controls above the table target all seven records. " + EmbeddedCatalogs.Attribution,
+                "Select rows to make the controls follow that selection; an empty selection changes nothing, and no selection targets all seven records. " +
+                EmbeddedCatalogs.Attribution,
         };
     }
 

@@ -65,6 +65,8 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
     {
         ArgumentNullException.ThrowIfNull(instances);
         ArgumentNullException.ThrowIfNull(choices);
+        if (_readOnly)
+            return new(instances.Select(ReadOnlyResolution).ToArray());
         var results = new List<PresetInstanceResolution>(instances.Count);
         var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var requested in instances)
@@ -76,13 +78,11 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
                     PresetInstanceResolutionStatus.Unsupported, [], "foreign-or-duplicate-identity"));
                 continue;
             }
-
             if (!FinalFantasy7PresetIdentity.HasStableMetadata(requested, target, _references))
             {
                 results.Add(new(requested, PresetInstanceResolutionStatus.Unsupported, [], "tampered-identity-metadata"));
                 continue;
             }
-
             var current = _semantic.ResolveTarget(target);
             var candidates = current.Candidates.Select(candidate => FinalFantasy7PresetIdentity.ToCandidate(target, candidate, _references)).ToArray();
             choices.TryGetValue(requested.StableId, out var choiceId);
@@ -103,7 +103,6 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
                 current = _semantic.ResolveTarget(target, choice.RowKey);
                 candidates = [FinalFantasy7PresetIdentity.ToCandidate(target, choice, _references)];
             }
-
             var status = FinalFantasy7PresetIdentity.Status(current.Status);
             IReadOnlyList<PresetInstanceReference> presented = status == PresetInstanceResolutionStatus.Resolved
                 ? target.AllMatches ? [FinalFantasy7PresetIdentity.ToAllCopiesCandidate(target, current.Candidates, _references)] : candidates
@@ -112,7 +111,9 @@ internal sealed class FinalFantasy7PresetDocument : IPresetDocument
         }
         return new(results);
     }
-
+    private static PresetInstanceResolution ReadOnlyResolution(PresetInstanceReference? requested) => new(
+        requested ?? new PresetInstanceReference("ff7.invalid", "ff7:invalid"), PresetInstanceResolutionStatus.Unsupported,
+        [], "common-file-read-only");
     public ActionPlan PlanPreset(IReadOnlyList<PresetAction> actions, SdkPresetResolution resolution)
     {
         try

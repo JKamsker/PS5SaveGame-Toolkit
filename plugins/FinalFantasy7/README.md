@@ -52,7 +52,8 @@ unloaded pages. Select-all-matching retains the exact server query, empty-slot v
 exclusions. With no selection these sibling buttons use document scope (all eligible stacks, or
 all eligible owned copies of the chosen materia type). Explicit empty scopes, zero matches and
 fully excluded queries change nothing. Unmounting the table resets its selection and disables
-the bound control until the table is mounted again. Character controls retain their existing scopes.
+the bound control until the table is mounted again. Character controls follow the eager seven-row
+table selection, with document scope only when no rows are selected.
 `BulkSelectionDeclarationTests`, `BulkSelectionPlanningTests` and `BulkSelectionConformanceTests`
 add synthetic regression coverage; these new tests have not yet been executed in this implementation
 worker. Browser request wiring and sample-backed validation are assigned to independent validation.
@@ -63,7 +64,8 @@ The **Characters** tab provides **Recover selected characters' current HP/MP** a
 **Set selected character levels**. Both use F6 previews with old/new values, skipped-row reasons,
 source attribution and the common console/integrity warning. Select rows and use either action in
 the character table to send those explicit row keys; an empty table selection changes nothing.
-The separate controls above the table use document scope and target all seven displayed records.
+The controls above the table follow its selection when rows are selected; with no selection they use
+document scope and target all seven displayed records.
 Character queries and foreign/noncanonical keys cannot broaden that scope. Records outside these
 seven mapped slots, including unqualified guest/past records, are not targets. Original out-of-curve
 levels remain locked. Recovery never changes maxima, XP, equipment or status effects. Level targets
@@ -93,9 +95,9 @@ multi-row apply/undo/redo, scope/curve limits, locked and unknown rows, stale/ta
 exact write offsets and export/reopen framing. Internal integrity remains unconfirmed; no checksum
 or signature algorithm is asserted. `CharacterActionRegressionTests` covers repeated apply/undo/redo
 of coherent and inconsistent opening pairs (including unchanged target XP), table-cell action placement,
-Cloud-only changes, document scope and explicit empty selections. Six additional React checks ran
+Cloud-only changes, selection-following controls, and explicit empty selections. Six additional React checks ran
 from task scratch against the plugin's actual synthetic Characters view: both table controls sent
-only Cloud's key or an empty selection, and both separate controls retained document scope.
+only Cloud's key or an empty selection, and the separate controls followed that same selection contract.
 The full Release API build passed with **0 warnings and 0 errors**.
 
 ## Framework feature adoption
@@ -107,7 +109,7 @@ The full Release API build passed with **0 warnings and 0 errors**.
 | F3 rich table cells | Used | Inventory/catalog row-detail sections retain attributed official descriptions and imported `ImageNode` icons. Bound numeric cells carry confidence/warnings. Tested detail nodes, imported image identity and `GetAsset` routing. |
 | F4 reference pickers | Used | Both AP/star actions use an owned-eligible materia `ReferenceSpec`. Inventory/materia type IDs publish browse-only `ReferenceSpec`s. Main Owned items F8 tables display type IDs as text; only retained legacy owned-page endpoints bind browse-only weapon/materia type fields. Writable weapon references remain **instance IDs**, while catalog keys are **type IDs**; substituting that catalog would select the wrong domain. |
 | F5 reversible structure | N/A | No safe allocation/removal/reorder writer exists: free-slot initialization, serial uniqueness, acquisition order and all inventory/detail/owner dependencies remain unknown. Current writers patch fixed-size existing values. Owner acquisition/discard/capacity pairs are required before a structural transaction can be implemented. |
-| F6 planning / #27 scopes | Used | Existing AP/star/restock presets plus current-HP/MP recovery and character-level targets with derived XP; pure previews, warnings, skipped rows, full-content revalidation through shared `ActionPlans`, and one undo group. Inventory/materia sibling controls bind to their corresponding F8 tables through SDK-41 and support explicit/document/Core-resolved query scopes; seven-row character actions retain their explicit eager-table or document scopes. `MateriaPlanningTests`, `PresetPlanningTests`, `CharacterCoverageTests`, `BulkSelectionDeclarationTests`, `BulkSelectionPlanningTests`, tab-scoped opt-in `BulkSelectionConformanceTests`. |
+| F6 planning / #27 scopes | Used | Existing AP/star/restock presets plus current-HP/MP recovery and character-level targets with derived XP; pure previews, warnings, skipped rows, full-content revalidation through shared `ActionPlans`, and one undo group. Inventory/materia sibling controls bind to their corresponding F8 tables through SDK-41 and support explicit/document/Core-resolved query scopes; seven-row character actions follow the eager table selection and use document scope only when no rows are selected. `MateriaPlanningTests`, `PresetPlanningTests`, `CharacterCoverageTests`, `BulkSelectionDeclarationTests`, `BulkSelectionPlanningTests`, tab-scoped opt-in `BulkSelectionConformanceTests`. |
 | F7 document groups | N/A | No implemented operation changes more than the primary gameplay file; common and prior-state RESD dependencies are unmapped. Grouping them would claim a coupling that has not been established. Existing backup mirroring remains framework-owned. |
 | F8 queryable tables | Used | Complete inventories, materia, catalogs, cards, progress, owned relationships, linked-header index (including common files), named enemy records (161 Remake / 230 Rebirth) and the 388-row research collection. `GameplayCollection` and `CollectionQuery` use SDK `InMemoryCollection<T>` with `ToTableNode`; whole-model search/filter/sort precedes page-only rendering. Legacy raw-word/lazy endpoints remain bounded. |
 | F9 graphs / maps | Used | Six attributed Rebirth regional backgrounds with local field targets and distinct bit domains; unverified coordinates remain list-only; seven read-only folio candidate graphs (238 bits) and seven Rebirth equipment-reference graphs. Accessible text alternatives, bounded/lazy groups, JSON/SDK validation and Core edit/undo refresh tests. No fabricated prerequisite edges, socket links, capacity, coordinates or weapon-upgrade grid. |
