@@ -35,6 +35,20 @@ internal sealed class OutputOwnershipBinding
     public IReadOnlyList<string> OwnedPaths { get; }
     public bool RequiresCompleteOutputs => DeclaredPaths.Count > 0;
 
+    // Shared by dirty export validation and optional no-op proof. An omitted owned
+    // file cannot establish that all serialized effects were ineffective.
+    public string? OutputSetError(IEnumerable<string> outputPaths)
+    {
+        if (!RequiresCompleteOutputs) return null;
+        var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var path in outputPaths)
+            if (!paths.Add(path)) return $"serialized duplicate output '{path}'.";
+        foreach (var expected in OwnedPaths)
+            if (!paths.Contains(expected)) return $"did not serialize required output '{expected}'.";
+        return paths.Any(path => !OwnedPaths.Contains(path, StringComparer.OrdinalIgnoreCase))
+            ? "returned an output outside its declared ownership set." : null;
+    }
+
     public void Check(CancellationToken cancellationToken)
     {
         foreach (var (path, expected) in _fingerprints)

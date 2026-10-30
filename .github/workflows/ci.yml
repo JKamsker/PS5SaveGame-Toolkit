@@ -84,21 +84,20 @@ jobs:
         run: npx playwright install-deps chromium
       - name: Run built app smoke tests
         working-directory: web
-        env:
-          PLAYWRIGHT_HTML_OUTPUT_DIR: ${{ env.SAVETOOLKIT_E2E_SCRATCH }}/playwright-report
-          PLAYWRIGHT_JUNIT_OUTPUT_FILE: ${{ env.SAVETOOLKIT_E2E_SCRATCH }}/e2e.xml
         run: npm run e2e -- --reporter=list,html,junit
       - name: Browser test summary
         if: always()
         env:
           JOB_STATUS: ${{ job.status }}
-        run: python3 -B .github/scripts/ci_summary.py --title 'Built app smoke (Chromium)' --junit "$SAVETOOLKIT_E2E_SCRATCH/e2e.xml"
+        run: python3 -B .github/scripts/ci_summary.py --title 'Built app smoke (Chromium)' --junit "$SAVETOOLKIT_E2E_SCRATCH"
       - name: Upload browser test counts
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: test-results-e2e-${{ runner.os }}
-          path: ${{ env.SAVETOOLKIT_E2E_SCRATCH }}/e2e.xml
+          path: |
+            ${{ env.SAVETOOLKIT_E2E_SCRATCH }}/invocation-*/discovery.json
+            ${{ env.SAVETOOLKIT_E2E_SCRATCH }}/invocation-*/**/e2e.xml
           if-no-files-found: warn
           retention-days: 14
       - name: Upload Playwright report on failure
@@ -106,7 +105,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: playwright-report
-          path: ${{ env.SAVETOOLKIT_E2E_SCRATCH }}/playwright-report
+          path: ${{ env.SAVETOOLKIT_E2E_SCRATCH }}/invocation-*/**/playwright-report/**
           if-no-files-found: warn
           retention-days: 14
 

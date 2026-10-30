@@ -66,6 +66,11 @@ public sealed class ExactNumberApiTests(IsolatedApiFactory factory) : IClassFixt
         var explicitNull = await _client.PostAsJsonAsync($"{path}/edits", new { edits = new[] { new { valueId = "optional", value = (string?)null } } }, ct);
         explicitNull.EnsureSuccessStatusCode();
         var body = await explicitNull.Content.ReadFromJsonAsync<JsonElement>(ct);
-        Assert.Equal(JsonValueKind.Null, body.GetProperty("changes")[0].GetProperty("newValue").ValueKind);
+        Assert.Empty(body.GetProperty("changes").EnumerateArray());
+        Assert.False(body.GetProperty("state").GetProperty("isDirty").GetBoolean());
+        Assert.False(body.GetProperty("state").GetProperty("canUndo").GetBoolean());
+        Assert.Equal(0, body.GetProperty("state").GetProperty("revision").GetInt64());
+        var current = await _client.GetFromJsonAsync<JsonElement>(path, ct);
+        Assert.Equal(JsonValueKind.Null, current.GetProperty("view").GetProperty("children")[1].GetProperty("value").ValueKind);
     }
 }

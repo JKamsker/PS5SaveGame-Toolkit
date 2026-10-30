@@ -75,7 +75,8 @@ def main():
         if args.trx_directory:
             lines += test_rows(sorted(args.trx_directory.rglob("*.trx")), trx_counts, "Backend TRX")
         if args.junit:
-            lines += test_rows([args.junit], junit_counts, "JUnit")
+            reports = sorted(args.junit.rglob("e2e.xml")) if args.junit.is_dir() else [args.junit]
+            lines += test_rows(reports, junit_counts, "JUnit")
     if args.script_log:
         text = args.script_log.read_text(encoding="utf-8-sig") if args.script_log.exists() else ""
         counts = script_counts(text)
