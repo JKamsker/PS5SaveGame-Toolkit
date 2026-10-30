@@ -1,4 +1,5 @@
 using System.Text.Json;
+using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Core.Editing;
@@ -7,7 +8,8 @@ internal static class UnionValueCoercer
 {
     private static readonly string[] WireProperties = ["kind", "type", "value"];
 
-    public static FieldValueCoercer.Result FromJson(JsonElement json, UnionSpec spec)
+    public static FieldValueCoercer.Result FromJson(JsonElement json, UnionSpec spec,
+        ReferenceFieldService? references = null)
     {
         if (json.ValueKind != JsonValueKind.Object ||
             !json.TryGetProperty("kind", out var kind) || kind.ValueKind != JsonValueKind.String || kind.GetString() != "union" ||
@@ -18,17 +20,18 @@ internal static class UnionValueCoercer
 
         var option = Find(spec, type.GetString()!);
         if (option is null) return Fail("Unknown or ambiguous union type.");
-        var result = FieldValueCoercer.FromJson(value, option.Spec);
+        var result = FieldValueCoercer.FromJson(value, option.Spec, references);
         return result.Ok ? new(FieldValue.Union(option.Id, result.Value), null) : result;
     }
 
-    public static FieldValueCoercer.Result Normalize(FieldValue raw, UnionSpec spec, bool allowReadOnly)
+    public static FieldValueCoercer.Result Normalize(FieldValue raw, UnionSpec spec, bool allowReadOnly,
+        ReferenceFieldService? references = null)
     {
         if (raw.Kind != FieldValueKind.Union) return Fail("Select a union type and supply its value.");
         var union = raw.AsUnion();
         var option = Find(spec, union.Type);
         if (option is null) return Fail("Unknown or ambiguous union type.");
-        var result = FieldValueCoercer.Normalize(union.Value, option.Spec, allowReadOnly);
+        var result = FieldValueCoercer.Normalize(union.Value, option.Spec, allowReadOnly, references);
         return result.Ok ? new(FieldValue.Union(option.Id, result.Value), null) : result;
     }
 

@@ -1,5 +1,6 @@
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
+using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Core.Sessions;
@@ -52,18 +53,20 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
             {
                 case FieldNode f:
                     if (fields.ContainsKey(f.ValueId)) break;
-                    var field = new SemanticField(f.ValueId, rowLabel is null ? f.Label : $"{rowLabel} / {f.Label}", path, f.Value, f.Spec.ReadOnly, target);
-                    var cost = SemanticSnapshot.Estimate(field);
-                    if (cost > limits.MaxOriginalBytes - bytes)
+                    var field = new SemanticField(f.ValueId, rowLabel is null ? f.Label : $"{rowLabel} / {f.Label}", path, f.Value, f.Spec.ReadOnly, target,
+                        Spec: f.Spec);
+                    if (!SemanticSnapshot.TryEstimate(field, limits.MaxOriginalBytes - bytes, out var cost))
                     {
                         complete = false;
                         queryCut |= target is not null;
                         break;
                     }
 
-                    bytes += cost;
-                    fields[f.ValueId] = field;
                     index(f);
+                    bytes += cost;
+                    fields[f.ValueId] = RequiresSpecSnapshot(f.Spec)
+                        ? field with { Spec = FieldSpecMetadata.Snapshot(f.Spec) }
+                        : field;
                     break;
                 case SectionNode s:
                     var sectionPath = path.Append("section:" + (s.LazyId ?? s.Title)).ToArray();
@@ -149,17 +152,59 @@ internal sealed class SemanticSnapshotCapture(DocumentSessionOptions limits)
         { QueryWarnings = queryTraversal.Warnings };
     }
 
+    private static bool RequiresSpecSnapshot(FieldSpec spec) => spec is EnumSpec or FlagsSpec or NullableSpec or UnionSpec;
+
 }
 
 internal sealed class SemanticSnapshot(Dictionary<string, SemanticField> fields, bool complete, long bytes)
 {
-    private const int FieldOverheadBytes = 256;
     public Dictionary<string, SemanticField> Fields { get; } = fields;
     public bool Complete { get; set; } = complete;
     public long Bytes { get; set; } = bytes;
-    public IReadOnlyList<string> QueryWarnings { get; init; } = [];
-    internal static long Estimate(SemanticField field) => FieldOverheadBytes
-        + 2L * (field.ValueId.Length + field.Label.Length + field.Value.ToString().Length + field.Path.Sum(p => p.Length)
-            + (field.Target is { } target ? target.CollectionId.Length + target.RowKey.Length + (target.Query.Cursor?.Length ?? 0) : 0));
+    internal long OmittedCount { get; set; }
+    internal bool OmittedCountIsLowerBound { get; set; }
+    public IReadOnlyList<string> QueryWarnings { get; set; } = [];
+    internal SemanticSnapshot Clone()
+    {
+        var copy = new SemanticSnapshot(Fields.ToDictionary(pair => pair.Key,
+            pair => pair.Value with { Path = pair.Value.Path.ToArray() }, StringComparer.Ordinal), Complete, Bytes)
+        { QueryWarnings = QueryWarnings.ToArray(), OmittedCount = OmittedCount,
+            OmittedCountIsLowerBound = OmittedCountIsLowerBound };
+        return copy;
+    }
+
+    internal void ReplaceWith(SemanticSnapshot source)
+    {
+        Fields.Clear();
+        foreach (var (id, field) in source.Fields)
+            Fields.Add(id, field with { Path = field.Path.ToArray() });
+        Complete = source.Complete;
+        Bytes = source.Bytes;
+        OmittedCount = source.OmittedCount;
+        OmittedCountIsLowerBound = source.OmittedCountIsLowerBound;
+        QueryWarnings = source.QueryWarnings.ToArray();
+    }
+
+    internal void Merge(SemanticSnapshot source, long maxBytes)
+    {
+        Complete &= source.Complete;
+        QueryWarnings = [.. QueryWarnings, .. source.QueryWarnings];
+        OmittedCount += source.OmittedCount;
+        OmittedCountIsLowerBound |= source.OmittedCountIsLowerBound;
+        foreach (var field in source.Fields.Values)
+        {
+            if (Fields.ContainsKey(field.ValueId)) continue;
+            var cost = Estimate(field);
+            if (cost > maxBytes - Bytes) { Complete = false; continue; }
+            Bytes += cost;
+            Fields.Add(field.ValueId, field);
+        }
+    }
+
+    internal static long Estimate(SemanticField field) =>
+        TryEstimate(field, long.MaxValue, out var bytes) ? bytes : long.MaxValue;
+
+    internal static bool TryEstimate(SemanticField field, long limit, out long bytes) =>
+        SemanticMetadataBudget.TryEstimate(field, limit, out bytes);
 
 }

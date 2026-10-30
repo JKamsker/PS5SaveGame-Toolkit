@@ -6,6 +6,11 @@ namespace SaveToolkit.Core.Editing;
 /// <summary>Checks canonical binding policy before a preview is usable, and again before apply.</summary>
 public static class FieldMetadataPlanning
 {
+    // Matches DocumentSession's existing 5000-row action-scope policy. Semantic review keeps
+    // its stricter 4096 retained-target cap, while atomic action preflight validates this
+    // already-advertised scope without silently truncating it.
+    internal const int MaxPlannedMetadataIds = 5000;
+
     /// <summary>Legacy documents return no descriptors and retain their existing planning behavior.</summary>
     public static IReadOnlyList<FieldMetadata> Validate(ViewIndex index, ISaveDocument document, ActionPlan plan,
         ReferenceFieldService? references = null)
@@ -16,7 +21,8 @@ public static class FieldMetadataPlanning
     {
         cancellationToken.ThrowIfCancellationRequested();
         if (!index.HasFieldMetadata) return [];
-        index.ResolveMetadata(plan.Changes.Select(change => change.ValueId), cancellationToken);
+        index.ResolveMetadata(plan.Changes.Select(change => change.ValueId), cancellationToken,
+            MaxPlannedMetadataIds);
         var result = new List<FieldMetadata>(plan.Changes.Count);
         var ids = new HashSet<string>(StringComparer.Ordinal);
         foreach (var change in plan.Changes)

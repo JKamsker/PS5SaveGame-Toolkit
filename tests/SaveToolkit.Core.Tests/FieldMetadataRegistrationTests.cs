@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SaveToolkit.Core.Editing;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
@@ -70,6 +71,26 @@ public sealed class FieldMetadataRegistrationTests
         path[0] = "section:Changed";
         Assert.Equal("Original", Assert.IsType<EnumSpec>(snapshot.Spec).Options[0].Label);
         Assert.Equal("section:Original", Assert.Single(snapshot.Path!));
+        Assert.False(FieldMetadataPlanning.Agree([snapshot], [index.Metadata("value")!]));
+    }
+
+    [Fact]
+    public void PresentationAnnotationsParticipateInAgreementAndUseStableWireValues()
+    {
+        using var document = new PublishedDocument();
+        document.Publish(new FieldMetadata("value", "Value", IntegerSpec.Int32)
+        {
+            Presentation = new FieldPresentation { Confidence = Confidence.Verified, Warning = "Check source." },
+        });
+        var index = new ViewIndex(document);
+        var snapshot = index.Metadata("value")!;
+        using var json = JsonDocument.Parse(JsonSerializer.Serialize(snapshot));
+        Assert.Equal("Verified", json.RootElement.GetProperty("Presentation").GetProperty("Confidence").GetString());
+
+        document.Publish(new FieldMetadata("value", "Value", IntegerSpec.Int32)
+        {
+            Presentation = new FieldPresentation { Confidence = Confidence.Verified, Warning = "Changed." },
+        });
         Assert.False(FieldMetadataPlanning.Agree([snapshot], [index.Metadata("value")!]));
     }
 

@@ -66,7 +66,7 @@ public sealed partial class DocumentSession : IDisposable
         _references = referenceContext;
         _history = new EditHistory(limits);
         _referenceFields = new ReferenceFieldService(referenceContext);
-        _semantic = new SemanticReview(limits);
+        _semantic = new SemanticReview(limits, _referenceFields);
         OutputOwnership = new OutputOwnershipBinding(file, document);
         // The original is re-opened with the same pinned reference packs so its field identities match the live document.
         _openOriginal = openOriginal ?? (() => plugin.Open(file, referenceContext));
@@ -205,7 +205,7 @@ public sealed partial class DocumentSession : IDisposable
             return new SessionEditResult { Errors = errors, State = StateUnlocked() };
         }
 
-        EnsureOriginal(cancellationToken);
+        _semantic.CaptureTargetedOriginals(_openOriginal, edits.Select(edit => edit.ValueId), cancellationToken);
         var scalarProof = ScalarEditEffectiveness.Capture(Document, edits, cancellationToken);
         if (scalarProof is not null && OutputSetError(scalarProof.Select(output => output.RelativePath)) is not null)
             scalarProof = null;
