@@ -44,7 +44,7 @@ internal static class PresetEndpoints
     private static IResult Capture(DocumentRef document, CapturePresetRequest request, PresetStore store)
     {
         var capability = document.Value.PresetCapability;
-        if (document.Value.PresetDocument is not null && capability is null)
+        if (document.Value.PresetCapabilityAdmission == PresetCapabilityAdmission.Malformed)
             return Results.UnprocessableEntity(new ErrorDto("The semantic preset capability is malformed.", "capabilityMalformed"));
         var captureRequest = new SaveToolkit.Sdk.PresetCaptureRequest(
             request.ActionId,
@@ -89,7 +89,7 @@ internal static class PresetEndpoints
         var preset = store.Find(presetId) ?? throw new KeyNotFoundException("Preset not found.");
         var compatibility = PresetStore.CheckCompatibility(preset, document.Value);
         if (!compatibility.Compatible) return Results.UnprocessableEntity(new ErrorDto(compatibility.Message!, compatibility.Code));
-        if (document.Value.PresetDocument is not null)
+        if (document.Value.PresetCapabilityAdmission != PresetCapabilityAdmission.Absent)
         {
             if (PresetContractValidation.ValidateChoices(request.Choices) is { } choiceError)
                 return Results.UnprocessableEntity(new ErrorDto(choiceError, "presetContract"));
@@ -120,7 +120,7 @@ internal static class PresetEndpoints
         var compatibility = PresetStore.CheckCompatibility(preset, document.Value);
         if (!compatibility.Compatible) return Results.UnprocessableEntity(new ErrorDto(compatibility.Message!, compatibility.Code));
         var fingerprint = PresetStore.PayloadFingerprint(preset);
-        if (document.Value.PresetDocument is not null)
+        if (document.Value.PresetCapabilityAdmission != PresetCapabilityAdmission.Absent)
             return SessionEditResponse.Create(document.Value.ApplyPresetPlan(request.PlanId, request.Revision, preset.Id, fingerprint, cancellationToken));
         if (preset.Actions.Count != 1)
             return Results.UnprocessableEntity(new ErrorDto("This document has no multi-action preset adapter yet."));
