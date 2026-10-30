@@ -238,7 +238,7 @@ public sealed partial class DocumentSession
                     if (!outcome.Succeeded)
                     {
                         restoreAttempted = true;
-                        RestoreFailedEffect(effectDocument, before);
+                        RestoreFailedEffect(effectDocument, before, string.Join("; ", outcome.Errors.Select(error => error.Message)));
                         return FromOutcome(outcome);
                     }
                     if (pending.HasEffects)
@@ -259,12 +259,12 @@ public sealed partial class DocumentSession
                     return AfterChange(FromOutcome(outcome), pending.HasEffects || outcome.StructureChanged || outcome.Revert is not null,
                         warnings, semanticChanges, pending.HasEffects);
                 }
-                catch
+                catch (Exception failure)
                 {
                     if (!historyRecorded && !restoreAttempted)
                     {
                         restoreAttempted = true;
-                        RestoreFailedEffect(effectDocument, before);
+                        RestoreFailedEffect(effectDocument, before, failure.Message);
                     }
                     throw;
                 }
@@ -283,7 +283,7 @@ public sealed partial class DocumentSession
             throw new InvalidOperationException("The action snapshot exceeds its undo budget.");
     }
 
-    private void RestoreFailedEffect(IActionEffectDocument? capability, DocumentMemento? before)
+    private void RestoreFailedEffect(IActionEffectDocument? capability, DocumentMemento? before, string? primaryError)
     {
         if (capability is null || before is null) return;
         try
@@ -295,9 +295,14 @@ public sealed partial class DocumentSession
         catch (Exception restore) when (restore is not OutOfMemoryException)
         {
             MarkUnusable();
-            throw new InvalidOperationException("Action failed and its snapshot could not restore the document; reopen it before continuing.", restore);
+            var primary = BoundDiagnostic(primaryError ?? "The action outcome was rejected.");
+            var secondary = BoundDiagnostic(restore.Message);
+            throw new InvalidOperationException(
+                $"Action failed ({primary}) and its snapshot could not restore the document ({secondary}); reopen it before continuing.", restore);
         }
     }
+
+    private static string BoundDiagnostic(string message) => message.Length <= 512 ? message : message[..512] + "…";
 
     // Shared by edits, actions and planning: host caches/preview publication are transactional
     // until the final token check. Plugin mutation and history must then complete together.

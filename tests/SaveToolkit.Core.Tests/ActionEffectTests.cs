@@ -153,6 +153,7 @@ public sealed class ActionEffectTests : IDisposable
 
         Assert.False(result.Ok);
         Assert.Contains(result.Errors, error => error.Message.Contains("could not restore", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(result.Errors, error => error.Message.Contains("writer failed", StringComparison.OrdinalIgnoreCase));
         Assert.False(session.CanEdit);
         Assert.False(session.ApplyEdits([new IncomingEdit("live", JsonSerializer.SerializeToElement(2))]).Ok);
         Assert.False(session.Undo().Ok);
