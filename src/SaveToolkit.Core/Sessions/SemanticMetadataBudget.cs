@@ -10,6 +10,7 @@ internal static class SemanticMetadataBudget
     private const long PresentationOverheadBytes = 48;
     private const long PathArrayOverheadBytes = 24;
     private const long PathReferenceBytes = 8;
+    private const int InlinePathReferences = 1;
     internal const int MaxPathSegments = FieldMetadataLimits.MaxClosureIds;
 
     public static bool TryEstimate(SemanticField field, long limit, out long bytes)
@@ -71,10 +72,13 @@ internal static class SemanticMetadataBudget
     private static bool TryAddPath(ref long total, IReadOnlyList<string>? path, long limit)
     {
         if (path is null) return true;
-        if (path.Count > MaxPathSegments || !Add(ref total, PathArrayOverheadBytes, limit)) return false;
+        if (path.Count > MaxPathSegments) return false;
+        if (path.Count > InlinePathReferences
+            && (!Add(ref total, PathArrayOverheadBytes, limit))) return false;
         var remaining = limit - total;
-        if (path.Count > remaining / PathReferenceBytes
-            || !Add(ref total, checked(PathReferenceBytes * (long)path.Count), limit)) return false;
+        var additionalReferences = Math.Max(0, path.Count - InlinePathReferences);
+        if (additionalReferences > remaining / PathReferenceBytes
+            || !Add(ref total, checked(PathReferenceBytes * (long)additionalReferences), limit)) return false;
         for (var index = 0; index < path.Count; index++)
             if (!AddString(ref total, path[index], limit)) return false;
         return true;

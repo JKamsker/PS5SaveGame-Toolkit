@@ -65,7 +65,8 @@ public static class FieldSpecMetadata
                 continue;
             }
 
-            if (!Add(ref bytes, SpecNodeOverheadBytes, limit)) return false;
+            if (frame.Spec is NullableSpec or UnionSpec
+                && !Add(ref bytes, SpecNodeOverheadBytes, limit)) return false;
             if (!AddString(ref bytes, frame.Spec.Unit, limit)) return false;
             switch (frame.Spec)
             {
@@ -107,7 +108,6 @@ public static class FieldSpecMetadata
 
         static bool TryEstimateLeaf(FieldSpec leaf, long maximum, ref long total)
         {
-            if (!Add(ref total, SpecNodeOverheadBytes, maximum)) return false;
             if (!AddString(ref total, leaf.Unit, maximum)) return false;
             switch (leaf)
             {
