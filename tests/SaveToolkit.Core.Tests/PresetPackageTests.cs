@@ -86,10 +86,11 @@ public sealed class PresetPackageTests
 
     [Theory]
     [InlineData("stableId", 256)]
-    [InlineData("label", 256)]
-    [InlineData("role", 256)]
+    [InlineData("kind", PresetContractValidation.MaxKeyLength)]
+    [InlineData("label", PresetContractValidation.MaxMetadataLength)]
+    [InlineData("role", PresetContractValidation.MaxMetadataLength)]
     [InlineData("path", PresetContractValidation.MaxMetadataLength)]
-    [InlineData("build", 256)]
+    [InlineData("build", PresetContractValidation.MaxMetadataLength)]
     [InlineData("provenance", PresetContractValidation.MaxMetadataLength)]
     public void SemanticProvenanceFieldsHaveExplicitDomains(string field, int limit)
     {

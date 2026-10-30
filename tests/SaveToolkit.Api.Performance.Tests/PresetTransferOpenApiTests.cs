@@ -33,7 +33,12 @@ public sealed class PresetTransferOpenApiTests
             Assert.Contains("string", types);
             Assert.Equal(PresetContractValidation.MaxMetadataLength, compatibility["properties"]![field]!["maxLength"]!.GetValue<int>());
         }
-        foreach (var field in new[] { "path", "provenance" })
+        foreach (var field in new[] { "pluginVersion", "presetKind" })
+            Assert.Equal(PresetContractValidation.MaxMetadataLength, compatibility["properties"]![field]!["maxLength"]!.GetValue<int>());
+        Assert.Equal(PresetContractValidation.MaxKeyLength, compatibility["properties"]!["pluginId"]!["maxLength"]!.GetValue<int>());
+        Assert.Equal(PresetContractValidation.MaxMapEntries, compatibility["properties"]!["titleIds"]!["maxItems"]!.GetValue<int>());
+        Assert.Equal(PresetContractValidation.MaxKeyLength, compatibility["properties"]!["titleIds"]!["items"]!["maxLength"]!.GetValue<int>());
+        foreach (var field in new[] { "label", "role", "path", "build", "provenance" })
             Assert.Equal(PresetContractValidation.MaxMetadataLength, schemas["PresetPackageInstanceDto"]!["properties"]![field]!["maxLength"]!.GetValue<int>());
         AssertRequired(schemas["PresetPackageActionDto"]!, "actionId", "parameters", "instances", "scopeKind");
         Assert.Equal("^1$", schemas["PresetPackageDto"]!["properties"]!["schemaVersion"]!["pattern"]!.GetValue<string>());

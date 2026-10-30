@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 using SaveToolkit.Api.Contracts;
+using SaveToolkit.Core.Presets;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Api.Infrastructure;
@@ -27,8 +28,8 @@ internal sealed class OpenApiPresetPackageSchemas : IOpenApiDocumentTransformer
         {
             boundaries.Properties!["titleIds"] = new OpenApiSchema
             {
-                Type = JsonSchemaType.Array, MinItems = 1, MaxItems = 32,
-                Items = new OpenApiSchema { Type = JsonSchemaType.String, MinLength = 1, MaxLength = 128 },
+                Type = JsonSchemaType.Array, MinItems = 1, MaxItems = PresetContractValidation.MaxMapEntries,
+                Items = new OpenApiSchema { Type = JsonSchemaType.String, MinLength = 1, MaxLength = PresetContractValidation.MaxKeyLength },
             };
         }
         return Task.CompletedTask;

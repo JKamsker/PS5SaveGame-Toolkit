@@ -110,12 +110,12 @@ public static class PresetPackageCodec
         if (preset.CreatedAt == default || preset.UpdatedAt < preset.CreatedAt)
             throw Invalid("presetPackageTimestamp", "Preset timestamps are missing or out of order.");
         var compatibility = preset.Compatibility;
-        Text(compatibility.PluginId, "plugin ID", 128);
-        Text(compatibility.PluginVersion, "plugin version", 128);
-        Text(compatibility.PresetKind, "preset kind", 128);
-        if (compatibility.TitleIds is null || compatibility.TitleIds.Count is < 1 or > 32)
-            throw Invalid("presetPackageTitles", "Each preset needs 1–32 explicit title identifiers.");
-        foreach (var title in compatibility.TitleIds) Text(title, "title ID", 128);
+        Text(compatibility.PluginId, "plugin ID", PresetContractValidation.MaxKeyLength);
+        Text(compatibility.PluginVersion, "plugin version", PresetContractValidation.MaxMetadataLength);
+        Text(compatibility.PresetKind, "preset kind", PresetContractValidation.MaxMetadataLength);
+        if (compatibility.TitleIds is null || compatibility.TitleIds.Count is < 1 or > PresetContractValidation.MaxMapEntries)
+            throw Invalid("presetPackageTitles", $"Each preset needs 1–{PresetContractValidation.MaxMapEntries} explicit title identifiers.");
+        foreach (var title in compatibility.TitleIds) Text(title, "title ID", PresetContractValidation.MaxKeyLength);
         foreach (var (field, value) in new[] { ("gameBuild", compatibility.GameBuild), ("formatVariant", compatibility.FormatVariant),
             ("referencePackIdentity", compatibility.ReferencePackIdentity), ("schemaFingerprint", compatibility.SchemaFingerprint),
             ("fileRole", compatibility.FileRole), ("capabilitySchemaVersion", compatibility.CapabilitySchemaVersion) })
@@ -135,12 +135,12 @@ public static class PresetPackageCodec
             foreach (var instance in action.Instances)
             {
                 if (instance is null) throw Invalid("presetPackageInstance", "A semantic target is missing.");
-                Text(instance.Kind, "semantic target kind", 128);
+                Text(instance.Kind, "semantic target kind", PresetContractValidation.MaxKeyLength);
                 Text(instance.StableId, "semantic target ID", PresetContractValidation.MaxKeyLength);
-                if (instance.Label is not null) Text(instance.Label, "semantic target label", 256);
-                if (instance.Role is not null) Text(instance.Role, "semantic target role", 256);
+                if (instance.Label is not null) Text(instance.Label, "semantic target label", PresetContractValidation.MaxMetadataLength);
+                if (instance.Role is not null) Text(instance.Role, "semantic target role", PresetContractValidation.MaxMetadataLength);
                 if (instance.Path is not null) Text(instance.Path, "semantic target path", PresetContractValidation.MaxMetadataLength);
-                if (instance.Build is not null) Text(instance.Build, "semantic target build", 256);
+                if (instance.Build is not null) Text(instance.Build, "semantic target build", PresetContractValidation.MaxMetadataLength);
                 if (instance.Provenance is not null) Text(instance.Provenance, "semantic target provenance", PresetContractValidation.MaxMetadataLength);
             }
         }
