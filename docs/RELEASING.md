@@ -418,13 +418,18 @@ by projects named `*.Tests` in `Directory.Packages.props`; new test projects sho
 ## Built app browser smoke tests
 
 The Ubuntu-only `e2e` CI job runs alongside validation with a 12-minute limit. The official
-`npm run e2e` entry runs two complementary suites sequentially: the original canonical tests,
-then the real Unreal plugin tests with generated synthetic binary saves. Each suite retains its
-own 180-second overall deadline, 30-second test timeout, one worker and zero retries. The aggregate
-wall allowance grows with the added mandatory coverage; all tests do not share one 180-second budget.
-Discovery verifies that both suites partition every selected test exactly once and records their IDs.
-Either suite or teardown failure fails the command, and both suites still run when the first fails.
-CLI file/grep filters remain supported, for example `npm run e2e -- unreal-reference.e2e.ts`.
+`npm run e2e` entry reads `web/scripts/e2e-suites.json` and runs the canonical complement, Unreal,
+text-capacity and FF7 suites sequentially whenever their owned feature files are present. Each
+selected suite retains the unchanged 180-second overall deadline, 30-second test timeout, one
+worker, zero retries, traces and teardown. The aggregate allowance is additive: four selected suites
+may use up to 720 seconds of suite ceilings, excluding discovery, startup, reporting and teardown
+overhead; the complete composed run still has to fit the unchanged 12-minute CI job.
+Discovery records unfiltered available IDs, filtered selected IDs and each suite's `absent`,
+`filtered-out` or `selected` state. It verifies the exact disjoint union against the complete
+filtered discovery, rejects a partial or present-but-empty declared inventory, and fails an empty
+global selection before launch. Any suite launch, nonzero/signal, or teardown failure fails the
+command while later selected suites are still attempted. CLI file/grep filters remain supported,
+for example `npm run e2e -- unreal-reference.e2e.ts`.
 Chromium imports
 the committed synthetic fixtures through the bundled UI. The suite covers import errors and recovery,
 raw read-only inspection, editing/review/undo, document isolation and redo, full-collection search/filter/
@@ -467,9 +472,9 @@ Pop-Location
 
 Playwright's `webServer` starts the real API with `--no-build` on a free loopback port and uses
 temporary workspace/reference-pack directories, removed after the run. Test output and the HTML
-report remain under a unique `invocation-*/canonical` or `invocation-*/unreal` scratch directory,
-with separate JUnit/HTML reports, server ports and temporary workspaces. CI collects both reports
-and the discovery manifest. `SAVETOOLKIT_E2E_SCRATCH` overrides the platform default (the D: path
+report remain under unique `invocation-*/<suite>` scratch directories, with separate JUnit/HTML
+reports, server ports and temporary workspaces. CI collects every nested report and the discovery
+manifest. `SAVETOOLKIT_E2E_SCRATCH` overrides the platform default (the D: path
 above on Windows, a directory under the system temp folder elsewhere).
 
 ## Build and check bundles locally

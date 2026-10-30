@@ -26,6 +26,23 @@ it("also contains a thrown launch exception to its suite", () => {
   expect(launch.mock.calls).toEqual([["canonical"], ["unreal"]]);
 });
 
+it("attempts later suites after a signaled process and a teardown failure", () => {
+  const attempted = [];
+  const launch = vi.fn().mockImplementation(suite => {
+    attempted.push(suite);
+    if (suite === "unreal") return { status: null, signal: "SIGTERM" };
+    if (suite === "text-capacity") return { status: 1, signal: null };
+    return { status: 0 };
+  });
+  expect(runSelectedSuites([
+    ["canonical", ["canonical-id"]],
+    ["unreal", ["unreal-id"]],
+    ["text-capacity", ["capacity-id"]],
+    ["ff7", ["ff7-id"]],
+  ], launch, vi.fn())).toBe(1);
+  expect(attempted).toEqual(["canonical", "unreal", "text-capacity", "ff7"]);
+});
+
 it("keeps filtered empty suites unlaunched and succeeds for the selected suite", () => {
   const launch = vi.fn().mockReturnValue({ status: 0 });
   expect(runSelectedSuites([["canonical", []], suites[1]], launch, vi.fn())).toBe(0);

@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "testDirectory": "e2e",
+  "suites": [
+    {
+      "id": "canonical",
+      "role": "complement",
+      "patterns": [],
+      "files": []
+    },
+    {
+      "id": "unreal",
+      "role": "feature",
+      "patterns": ["**/unreal-*.e2e.ts"],
+      "files": ["unreal-presentation.e2e.ts", "unreal-reference.e2e.ts"]
+    },
+    {
+      "id": "text-capacity",
+      "role": "feature",
+      "patterns": ["**/text-capacity.e2e.ts"],
+      "files": ["text-capacity.e2e.ts"]
+    },
+    {
+      "id": "ff7",
+      "role": "feature",
+      "patterns": ["**/ff7-*.e2e.ts"],
+      "files": [
+        "ff7-forms.e2e.ts",
+        "ff7-history.e2e.ts",
+        "ff7-selection.e2e.ts",
+        "ff7-states.e2e.ts"
+      ]
+    }
+  ]
+}
