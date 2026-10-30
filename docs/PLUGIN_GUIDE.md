@@ -1798,8 +1798,12 @@ mutating plugin-owned spec/path lists after planning cannot alter a reviewed pla
 Planning shares one inclusive 4 MiB UTF-8 allowance across the request, complete ordered plan and
 every canonical dependency resolved for its rows. The whole canonical closure is admitted before
 live getters, metadata comparison or detached graph copies. Selection limits do not truncate effects:
-plans retain up to 65,536 ordered entries, with independent per-spec limits of 4,096 nodes and depth128.
+plans retain up to 65,536 ordered entries, with independent per-spec limits of 4,096 nodes and depth 128.
 Provider collections must report their actual finite cardinality; inconsistent counts are rejected.
+`ActionPlanSnapshots` also carries a finite aggregate wire allowance through nested collection visits
+before copying, followed by capped exact JSON measurement. Its overloads accept the caller's remaining
+byte allowance; the default is 4 MiB. Effect values must already be exact for their selected leaf spec:
+normalization that would round a `Single` value or rewrite timestamp text rejects the preview.
 The host freezes complete outcome changes and diagnostics before recording history or publishing a
 group candidate, and checks a member's structural token before replacing it with a group snapshot.
 Optional float bounds may be absent independently, but supplied bounds must be finite and ordered.

@@ -33,13 +33,9 @@ internal static class PlanningMetadataAdmission
                     || raw.Presentation?.Confidence is { } confidence && !Enum.IsDefined(confidence)
                     || raw.BindingKind == FieldBindingKind.Derived && !raw.Spec.ReadOnly)
                     throw new InvalidOperationException("Invalid or duplicate field metadata.");
-                if (!FieldSpecMetadata.TryEstimate(raw.Spec, long.MaxValue, out _, cancellationToken))
-                    throw new InvalidOperationException("Field spec exceeds bounded metadata limits.");
-                if (raw.Path is { } path)
-                    BoundedMetadataCollections.Visit(path, maximumPathParts,
-                        part => ArgumentNullException.ThrowIfNull(part), cancellationToken);
                 var field = string.IsNullOrEmpty(raw.CanonicalValueId) ? raw with { CanonicalValueId = raw.ValueId } : raw;
                 if (fields.Count > 0) bytes++;
+                new ActionWireBudget(allowance - bytes, cancellationToken).AdmitMetadata(field);
                 bytes += BoundedJson.Measure(field, checked((int)Math.Min(int.MaxValue, allowance - bytes)));
                 fields.Add(field.ValueId, field);
                 if (scheduled.Add(field.CanonicalValueId))

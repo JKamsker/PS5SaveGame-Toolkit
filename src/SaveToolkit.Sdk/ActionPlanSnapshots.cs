@@ -1,4 +1,3 @@
-using System.Text.Json;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Sdk;
@@ -6,6 +5,8 @@ namespace SaveToolkit.Sdk;
 /// <summary>Bounded detached snapshots used for action preview retention and structural equality.</summary>
 public static class ActionPlanSnapshots
 {
+    /// <summary>Maximum inclusive default JSON bytes retained by a standalone plan.</summary>
+    public const int MaxSerializedBytes = 4 * 1024 * 1024;
     /// <summary>Maximum aggregate number of plan rows and diagnostics.</summary>
     public const int MaxPlanEntries = 65_536;
     /// <summary>Maximum effect value identifier length.</summary>
@@ -23,9 +24,13 @@ public static class ActionPlanSnapshots
 
 
     /// <summary>Creates a detached snapshot after admitting every actual collection traversal.</summary>
-    public static ActionPlan Snapshot(ActionPlan plan, CancellationToken cancellationToken = default)
+    public static ActionPlan Snapshot(ActionPlan plan, CancellationToken cancellationToken = default) =>
+        Snapshot(plan, MaxSerializedBytes, cancellationToken);
+
+    /// <summary>Creates a detached snapshot within the caller's remaining inclusive wire allowance.</summary>
+    public static ActionPlan Snapshot(ActionPlan plan, long maximumBytes, CancellationToken cancellationToken = default)
     {
-        Validate(plan, cancellationToken);
+        Validate(plan, maximumBytes, cancellationToken);
         return plan with
         {
             Changes = Array.AsReadOnly(BoundedMetadataCollections.Enumerate(plan.Changes, MaxPlanEntries, cancellationToken)
@@ -37,18 +42,26 @@ public static class ActionPlanSnapshots
     }
 
     /// <summary>Returns the serialized UTF-8 size of a bounded plan.</summary>
-    public static long SerializedSize(ActionPlan plan)
-    {
-        Validate(plan);
-        return JsonSerializer.SerializeToUtf8Bytes(plan, MetadataJson.Options).LongLength;
-    }
+    public static long SerializedSize(ActionPlan plan) => Admit(plan, MaxSerializedBytes, CancellationToken.None);
+
+    /// <summary>Measures exact default JSON bytes after admission within a finite caller allowance.</summary>
+    public static long SerializedSize(ActionPlan plan, long maximumBytes, CancellationToken cancellationToken = default) =>
+        Admit(plan, maximumBytes, cancellationToken);
 
     /// <summary>Admits finite graph shape before serialization, authority lookup or detached copies.</summary>
-    public static void Validate(ActionPlan plan, CancellationToken cancellationToken = default)
+    public static void Validate(ActionPlan plan, CancellationToken cancellationToken = default) =>
+        _ = Admit(plan, MaxSerializedBytes, cancellationToken);
+
+    /// <summary>Admits shape and wire bytes within the caller's finite remaining allowance.</summary>
+    public static void Validate(ActionPlan plan, long maximumBytes, CancellationToken cancellationToken = default) =>
+        _ = Admit(plan, maximumBytes, cancellationToken);
+
+    private static long Admit(ActionPlan plan, long maximumBytes, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(plan);
         var total = checked((long)plan.Changes.Count + plan.SkippedRows.Count + plan.Warnings.Count + plan.Errors.Count);
         if (total > MaxPlanEntries) throw new InvalidOperationException("The action plan exceeds the bounded entry limit.");
+        new ActionWireBudget(maximumBytes, cancellationToken).AdmitPlan(plan);
         BoundedMetadataCollections.Visit(plan.SkippedRows, MaxPlanEntries, row => ArgumentNullException.ThrowIfNull(row), cancellationToken);
         BoundedMetadataCollections.Visit(plan.Warnings, MaxPlanEntries, value => ArgumentNullException.ThrowIfNull(value), cancellationToken);
         BoundedMetadataCollections.Visit(plan.Errors, MaxPlanEntries, value => ArgumentNullException.ThrowIfNull(value), cancellationToken);
@@ -62,6 +75,7 @@ public static class ActionPlanSnapshots
                 ValidateEffect(effect, cancellationToken);
             }
         }, cancellationToken);
+        return ActionWireJson.Measure(plan, maximumBytes);
     }
 
     private static void ValidateEffect(ActionEffectDescriptor effect, CancellationToken cancellationToken)
@@ -79,10 +93,9 @@ public static class ActionPlanSnapshots
             throw new InvalidOperationException("Action effect presentation exceeds its bounded limit.");
         if (effect.Presentation?.Confidence is { } confidence && !Enum.IsDefined(confidence))
             throw new InvalidOperationException("Action effect confidence is invalid.");
-        if (!effect.Spec.ReadOnly || !FieldSpecMetadata.TryEstimate(effect.Spec, long.MaxValue, out _, cancellationToken))
+        if (!effect.Spec.ReadOnly)
             throw new InvalidOperationException("Action effect specs must be bounded and read-only.");
-        if (ContainsReferenceCallback(effect.Spec))
-            throw new InvalidOperationException("Action effect references cannot execute eligibility callbacks.");
+
     }
 
     private static ActionEffectDescriptor? SnapshotEffect(ActionEffectDescriptor? effect, CancellationToken cancellationToken) =>
@@ -93,11 +106,4 @@ public static class ActionPlanSnapshots
             Presentation = effect.Presentation is { } presentation ? presentation with { } : null,
         };
 
-    private static bool ContainsReferenceCallback(FieldSpec spec) => spec switch
-    {
-        ReferenceSpec { Assess: not null } => true,
-        NullableSpec nullable => ContainsReferenceCallback(nullable.Inner),
-        UnionSpec union => union.Options.Any(option => ContainsReferenceCallback(option.Spec)),
-        _ => false,
-    };
 }

@@ -113,9 +113,8 @@ public sealed partial class DocumentSession
             cancellationToken.ThrowIfCancellationRequested();
             var requestBytes = BoundedJson.Measure(readOnlyValues, MaxPlanBytes)
                 + BoundedJson.Measure(requested, MaxPlanBytes);
-            ActionPlanSnapshots.Validate(plan, cancellationToken);
             var planAllowance = checked((int)(MaxPlanBytes - requestBytes));
-            var planBytes = BoundedJson.Measure(plan, planAllowance);
+            var planBytes = ActionPlanSnapshots.SerializedSize(plan, planAllowance, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             var metadataBudget = MaxPlanBytes - planBytes - requestBytes;
             if (metadataBudget < 0)
@@ -124,14 +123,14 @@ public sealed partial class DocumentSession
             }
 
             if (plan.Errors.Count > 0)
-                return new ActionPreview(null, _revision, requested, ActionPlanSnapshots.Snapshot(plan, cancellationToken));
+                return new ActionPreview(null, _revision, requested, ActionPlanSnapshots.Snapshot(plan, planAllowance, cancellationToken));
 
             cancellationToken.ThrowIfCancellationRequested();
             var metadata = FieldMetadataPlanning.Validate(_index, Document, plan, _referenceFields,
                 cancellationToken, metadataBudget);
             cancellationToken.ThrowIfCancellationRequested();
             // Validation admitted the complete canonical dependency closure before copying or getters.
-            var detachedPlan = ActionPlanSnapshots.Snapshot(plan, cancellationToken);
+            var detachedPlan = ActionPlanSnapshots.Snapshot(plan, planAllowance, cancellationToken);
             var bytes = BoundedJson.Serialize(detachedPlan, planAllowance);
             cancellationToken.ThrowIfCancellationRequested();
             var id = Guid.NewGuid().ToString("N");
@@ -211,12 +210,11 @@ public sealed partial class DocumentSession
             // nested specs/presentation/path lists from bypassing bounds or changing while checked.
             var requestBytes = BoundedJson.Measure(pending.Parameters, MaxPlanBytes)
                 + BoundedJson.Measure(pending.Scope, MaxPlanBytes);
-            ActionPlanSnapshots.Validate(fresh, cancellationToken);
             var planAllowance = checked((int)(MaxPlanBytes - requestBytes));
-            var planBytes = BoundedJson.Measure(fresh, planAllowance);
+            var planBytes = ActionPlanSnapshots.SerializedSize(fresh, planAllowance, cancellationToken);
             if (fresh.Errors.Count > 0)
             {
-                var rejected = ActionPlanSnapshots.Snapshot(fresh, cancellationToken);
+                var rejected = ActionPlanSnapshots.Snapshot(fresh, planAllowance, cancellationToken);
                 return new SessionEditResult { Errors = rejected.Errors, Warnings = rejected.Warnings, State = StateUnlocked() };
             }
             cancellationToken.ThrowIfCancellationRequested();
@@ -226,7 +224,7 @@ public sealed partial class DocumentSession
             var metadata = FieldMetadataPlanning.Validate(_index, Document, fresh, _referenceFields,
                 cancellationToken, metadataBudget);
             cancellationToken.ThrowIfCancellationRequested();
-            var detachedFresh = ActionPlanSnapshots.Snapshot(fresh, cancellationToken);
+            var detachedFresh = ActionPlanSnapshots.Snapshot(fresh, planAllowance, cancellationToken);
             var freshBytes = BoundedJson.Serialize(detachedFresh, planAllowance);
             if (!FieldMetadataPlanning.Agree(pending.Metadata, metadata)
                 || !pending.PlanBytes.AsSpan().SequenceEqual(freshBytes))

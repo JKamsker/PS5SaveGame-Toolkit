@@ -163,8 +163,15 @@ public static class FieldMetadataPlanning
         NullableSpec nullable => ValidateTypedValue(value, nullable.Inner),
         UnionSpec union when value.Kind == FieldValueKind.Union => ValidateUnionValue(value, union),
         UnionSpec => new(FieldValue.Null, "Expected a union value."),
-        _ => FieldValueCoercer.Normalize(value, spec, allowReadOnly: true, references: null),
+        _ => ValidateExactLeaf(value, spec),
     };
+
+    private static FieldValueCoercer.Result ValidateExactLeaf(FieldValue value, FieldSpec spec)
+    {
+        var normalized = FieldValueCoercer.Normalize(value, spec, allowReadOnly: true, references: null);
+        return normalized.Ok && normalized.Value != value
+            ? new(FieldValue.Null, "Normalization would change the reviewed typed value.") : normalized;
+    }
 
     private static FieldValueCoercer.Result ValidateUnionValue(FieldValue value, UnionSpec spec)
     {
