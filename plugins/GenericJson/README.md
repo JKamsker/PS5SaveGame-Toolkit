@@ -286,12 +286,13 @@ licence incompatibility. The central historical register is outside this plugin'
 F10, F5, F8 and F6 are consumed directly; no plugin-local substitute history, query or diff protocol was added. F7 is available but no clearly coupled companion write is identified, as documented above.
 
 - **Resolved:** tagged ExactNumber/Union review rendering, reported in [issue #18](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/18#issuecomment-6479348148), was fixed by `03b66b7` with shared tests. Exact preview rendering works in the browser; no obsolete warning remains.
-- **Resolved and adopted:** shared planned-action reference parameters shipped in `63580dc`. `JsonSemanticTarget` now publishes its existing `ReferenceSpec` directly for the F6 value parameter; current `ActionParameterFields.tsx` passes the parameter value ID and action ID to `FieldControl`. Plugin integration tests query that action/parameter pair through `DocumentSession`, enforce imported choices and verify paired writes/history/review. The separate F4 field remains browse-only and imported-ID anchored. The file-derived enum fallback remains for absent matching packs.
+- **Resolved and adopted:** shared planned-action reference parameters shipped in `63580dc`. `JsonSemanticTarget` now publishes its existing `ReferenceSpec` directly for the F6 value parameter; current `ActionParameterFields.tsx` passes the parameter value ID and action ID to `FieldControl`. Plugin integration tests query that action/parameter pair through `DocumentSession`, enforce imported choices and verify paired writes/history/review. The separate F4 field remains browse-only and imported-ID anchored. The file-derived enum fallback remains for absent matching packs; migrating it needs concrete
+  consumer value, rather than a blanket helper requirement.
 - **Resolved by a query-string route:** the API now supports `GET .../collections?collectionId=...` for IDs containing `/`; see [API routing guidance](../../docs/API.md). The earlier encoded path-segment failure does not require changing this plugin: GenericJson continues to ship `json-array-<immutable-id>`, with its existing stable identities and working F8 features.
 
 The [central SDK request triage](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/SDK_REQUESTS.md)
 records those fixes as SDK-19/20/21. SDK-06 is adopted through reviewed dependency commit
-`72490fe8756627013c73c0b80fa874b563a0e652` (PR #51): shared parsing and scalar span patching are
+`72490fe8756627013c73c0b80fa874b563a0e652` (PR #51), now merged on main: shared parsing and scalar span patching are
 used only when topology and member names remain imported. The streaming validator remains for
 Probe, structural equality and exact diagnostic mapping; GenericJson retains its local structural
 trivia writer, stable IDs, snapshots, title semantics and warning labels. SDK-06 has no structural

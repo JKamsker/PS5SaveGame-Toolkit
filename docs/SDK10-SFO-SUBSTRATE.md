@@ -61,7 +61,10 @@ preserved but cannot be targeted.
 
 This substrate does not authorize `sce_sys/*` ownership, change export/history,
 or synchronize a caption with timer, difficulty, locale, or any other gameplay
-field. Those concerns belong to the separate host-ownership and consumer PRs.
+field. The separate [host-ownership contract](SYSTEM_OUTPUT_OWNERSHIP.md) and
+[SuckerPunch manual-caption consumer](../plugins/SuckerPunch/README.md#framework-feature-adoption)
+are delivered. Manual caption byte/history tests do not establish timer/difficulty authority;
+SDK-10 remains open for that automatic synchronization and its controlled native evidence.
 
 ## Format references and limits of the evidence
 

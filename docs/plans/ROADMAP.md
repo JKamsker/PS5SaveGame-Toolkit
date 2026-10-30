@@ -1,6 +1,6 @@
 # PS5 Save Toolkit: cross-plugin requirements roadmap
 
-## Current status — 2026-10-29 (#40)
+## Current status — 2026-10-30 (#40 / #81)
 
 This status supersedes the historical proposals below. F1–F14 are implemented on local `main`;
 feature availability does not imply every plugin uses every feature, or that an edited save has
@@ -26,36 +26,42 @@ been accepted on PS5. All plugins remain Experimental. See the [current support 
 | F14 | One inventory table with confirmed empty-slot visibility and full-model counts | [plugin guide](../PLUGIN_GUIDE.md#inventory-tables-and-empty-slots-f14) |
 
 Shared collection/action/binary/reference/CRC helpers, storage-only field registration and conformance
-mutation fuzzing are also delivered. The [field-metadata proposal](F13-FIELD-SPEC-PUBLISHING.md) is
-**partially delivered** overall: [SDK-02](../SDK_REQUESTS.md#prioritized-inventory) delivers opt-in
-canonical field metadata, primary/derived binding policy, unloaded-edit preflight and live replay
-integration, and Pragmata has adopted it. Targeted original/current semantic-review metadata capture,
-generic cross-ID alias relationships and automatic group forwarding remain separate integrations.
-Three SDK requests remain open: lossless JSON consumer adoption (SDK-06, large), versioned preset
-storage (SDK-07, large), and SFO subtitle ownership/synchronization (SDK-10; blocked on evidence).
-SDK-08 is resolved for the production UnrealGvas consumer now on `main`; its eligible non-generic
-Jedi/Sackboy projections use canonical references with bounded fallbacks and consumer tests. The
-remaining gates are recorded in the [current backlog](../SDK_REQUESTS.md#prioritized-inventory).
-The open rows retain their foundation/adoption boundaries; no foundation alone closes them.
+mutation fuzzing are delivered. The [field-metadata proposal](F13-FIELD-SPEC-PUBLISHING.md) is delivered
+as an opt-in contract: targeted original/current capture, explicit canonical aliases, presentation
+and current-candidate group forwarding. Adoption remains selective; see the
+[SDK ledger](../SDK_REQUESTS.md) and [plugin guide](../PLUGIN_GUIDE.md#selective-helper-adoption).
+
+**41 SDK requests: 1 open, 0 partially resolved, 37 resolved, 3 obsolete.** SDK-10 alone remains open
+for automatic gameplay-to-SUBTITLE synchronization. Gearbox action-effect adoption is separate
+unimplemented consumer work in [#81](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/81).
+
+| Contract | Delivered foundation | Production adoption | Remaining native/title evidence |
+| --- | --- | --- | --- |
+| SDK-06 lossless JSON | Bounded lexical tree, scalar replacement and snapshots | GenericJson and XorJson parsing/scalar adapters; structural writers and envelopes remain local | Title dependencies and console effects are unproven. |
+| SDK-07 presets | Host library, compatibility, pure instance resolution and transfer | FF7 adapter for five existing F6 actions | Native socket/loadout allocation and direct weapon assignment remain unsupported; actual console build is unknown. |
+| SDK-08 canonical references | FieldReferenceNode, metadata/presentation and bounded wire normalization | Eligible non-generic UnrealGvas Jedi/Sackboy scalar projections | Other titles, row roles, checksums and gameplay meaning need separate evidence. |
+| SDK-10 SFO | Pure existing-entry patches, explicit output ownership and whole-byte history/export | SuckerPunch manual Tsushima caption action | Automatic timer/difficulty synchronization requires controlled authority evidence; manual captions do not close SDK-10. |
+| F13 targeted metadata | Explicit aliases, bounded original/current review, member metadata/context forwarding | Pragmata quantities; Gearbox parsed fields/group context; XorJson scalars/groups; Unreal scalars; SuckerPunch Tsushima fields/caption | Metadata cannot establish gameplay semantics or native acceptance. |
+| UTF-8 capacity | TextSpec.MaxUtf8Bytes, strict validation and field/action UI hints | Manual SuckerPunch caption uses payload capacity after reserving the SFO NUL byte | Byte/history tests do not prove console acceptance. |
+| Action effects | IActionEffectDocument, typed ordered effects, whole-action mementos and API/preview | No production Gearbox adopter yet | Import/move effects and pure planning remain #81 work. |
+
+### Browser coverage and execution
+
+Merged browser tests exercise production FF7 presets, Unreal references and manual SuckerPunch
+captions using authored fixtures; transfer and text capacity have dedicated suites. F13 review has
+synthetic semantic-review renderer coverage. The action-effects suite also intercepts responses
+and proves renderer behavior only. See `web/e2e/ff7-*.e2e.ts`, `unreal-*.e2e.ts`, `suckerpunch-caption-*.e2e.ts`,
+`preset-transfer*.e2e.ts`, `text-capacity.e2e.ts`, `semantic-review-ux.e2e.ts` and
+`action-effects.e2e.ts`; ownership is declared in `web/scripts/e2e-suite-manifest.mjs`.
+
+The composed execution result is recorded in [#81](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/81).
+This documentation reconciliation does not claim a new browser run. Authored fixtures, optional
+sample skips and host/browser passes do not establish controlled native pairs or console acceptance.
+B1/B2 and remaining B3 evidence stay with [#31](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/31).
 
 The backend quality pass [#34](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/34) and web quality
-pass [#35](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/35) have also landed. Their reported
-fixes/tests are delivered; this does not promise further unperformed review. GitHub issue state is
-separate from implementation status.
-
-The delivered baseline above was rechecked against `201dd690a48a93bf496f1825246bc6954cc5ec52`,
-which includes merged PR56 ownership, PR59 C# size guard, PR66 UnrealGvas adoption and PR70 idle-race
-test fix. Three open SDK requests retain a clearer foundation/adoption split:
-| Request | Foundation on `main` | Adoption/evidence gate still open |
-| --- | --- | --- |
-| SDK-06 lossless JSON | `LosslessJsonDocument`, bounded limits, scalar replacement and snapshots, with Core characterization tests | Both GenericJson and XorJson consumers must land on `main`; their structural IDs and XOR envelopes remain plugin-owned. |
-| SDK-07 presets | No host preset store yet; existing F6 plans remain usable | Host storage plus title/build and owned-instance resolution, then the FinalFantasy7 and transfer use cases. |
-| SDK-08 canonical references | `FieldReferenceNode`, `FieldPresentation`, metadata resolution and bounded normalization, plus production UnrealGvas projections and consumer tests | Resolved for eligible non-generic Jedi/Sackboy projections; other titles still need their own evidence and gameplay semantics remain unproven. |
-| SDK-10 SFO caption ownership | `ParamSfoDocument`, identity-bound pure plans, strict UTF-8/capacity/NUL checks and tests | Reviewed ownership plus controlled whole-byte caption evidence and a later SuckerPunch consumer. |
-
-The functionality/UX improvement wave remains unmerged and awaits integration validation and review.
-This table does not close any ledger row, change the historical F1–F14 baseline, or close gameplay,
-format and owner-evidence gaps below.
+pass [#35](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/35) have landed. Their reported
+fixes/tests are delivered; GitHub issue state remains separate from implementation status.
 
 ### Plugin rounds
 
@@ -74,7 +80,7 @@ F12/F13 adoption varies by README; a plugin's old starting-main note does not ma
 | [EldenRing](../../plugins/EldenRing/README.md) | Complete; six existing operations, progress/class references, F8/F9 and F12/F13; broader stats/equipment/world dependencies unmodeled |
 | [FinalFantasy16](../../plugins/FinalFantasy16/README.md) | Complete; fixed-width edits, inventory query actions, ability/location references and F12/F13; allocator and saved ability joins need evidence |
 | [FinalFantasy7](../../plugins/FinalFantasy7/README.md) | Complete; supported variant writes, restock/star presets and F12/F13; full socket/upgrade/reward/structural model remains incomplete |
-| [Gearbox](../../plugins/Gearbox/README.md) | Complete; serial-part editing, structural inventory/F7, skill references and F12/F13; legal pools/account precedence and BL4 evidence remain open |
+| [Gearbox](../../plugins/Gearbox/README.md) | Complete historical round; serial-part editing, structural inventory/F7, skill references and F12/F13; action-effect adoption/pure planning remain unimplemented; legal pools/account precedence and BL4 evidence remain open |
 | [GenericJson](../../plugins/GenericJson/README.md) | Complete; title adapters, bounded browsing, F9, decoder/inspection; missing title definitions/dependency templates need captures |
 | [GodOfWarRagnarok](../../plugins/GodOfWarRagnarok/README.md) | Complete; counters/time/restore and F9/F12/F13; integrity and gear/story grammar remain unknown |
 | [Insomniac](../../plugins/Insomniac/README.md) | Complete; scalar writes/bolt planning, F8/F9 and F12/F13; inventory identity, upgrade and location joins need captures |

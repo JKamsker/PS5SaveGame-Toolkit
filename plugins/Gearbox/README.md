@@ -252,7 +252,7 @@ counts against the intended model; transfer/import regressions assert persisted 
 | F10 exact / nullable / union | N/A | Exposed scalars are typed protobuf integers/float32, with no decimal lexemes, explicit null or scalar type union. Existing Int128-backed IntegerSpec / integer-string transport and FloatSpec.Single suffice; ExactNumberSpec, NullableSpec and UnionSpec are not used. Absent records are preserved except for the documented write-created records |
 | F11 shared codecs | N/A | GVAS feedback-obfuscated protobuf and item bitstreams use neither Kraken/Oodle nor SQLite; no local implementation of those codecs exists |
 | F12 decoder providers / F8 traversal | Used | Added in the completion round: SDK-only `ISaveDecoderProvider` registers `gearbox-evidence`; fixtures use the production hook, independently cross-checked on every sample generation. Host traversal covers F8 views with its shared budgets |
-| F13 inspection / browse / sort | Added this round | GearboxDocument resolves only requested parsed IDs (including unloaded scalar, ammo, SDU, world, account and item bindings) with shared `FieldPresentation`; live bindings reselect the current root, item lookup has a finite cold-work bound, and structural action effects remain honest read-only observations. The group forwards current-candidate metadata through the existing adapter/router. Both catalogue actions set `Mutates = false`; read-only reference fields support attributed browse-only pickers, category filters and name/key sorting. Float duration N/A: stored play time is integral seconds, resource floats are ammunition amounts |
+| F13 inspection / browse / sort | Used | GearboxDocument resolves only requested parsed IDs (including unloaded scalar, ammo, SDU, world, account and item bindings) with shared `FieldPresentation`; live bindings reselect the current root, item lookup has a finite cold-work bound. Canonical metadata does not replace the still-unadopted action-effect contract. The group forwards current-candidate metadata through the existing adapter/router. Both catalogue actions set `Mutates = false`; read-only reference fields support attributed browse-only pickers, category filters and name/key sorting. Float duration N/A: stored play time is integral seconds, resource floats are ammunition amounts |
 
 Shared SDK helpers are **Used**: `GvasReader` uses `BoundedBinaryCursor` / `FStringCodec`,
 `SerialEnvelope` uses incremental `Crc32Ieee` with Gearbox-specific coverage/folding, and
@@ -798,7 +798,7 @@ returns the selected member role and save-set relative path, preserves first-see
 unknown/foreign/retired IDs and duplicates, and leaves provenance null because no authoritative plugin
 provenance is published. It does not infer ownership from prefixes, labels, values, bytes or filenames,
 and does not build a view, query, serialize output, dirty state or history. The implementation is
-plugin-owned; production adoption of any future action-effect descriptor remains a separate framework gate.
+plugin-owned; production adoption of the delivered action-effect descriptor remains separate work.
 
 The targeted and rendered account paths share the same embedded Myth allocation cap policy;
 reference-pack label/attribution overrides cannot grant a larger write range. Only the renderer's
@@ -813,19 +813,15 @@ by metadata observation; structural actions retain their existing identity lifec
 The first matching level statistic uses `character/recorded-level`; later records use distinct
 `character/recorded-level/1`, `/2`, etc., without a second `/0` writable primary.
 
-**GEARBOX-F13 / action-effect metadata: framework landing gate.** The independently reviewed
-action-effect contract is complete, while a separate framework writer owns its opt-in pre-capture,
-memento and inline-descriptor implementation. Against the currently published dependency,
-`items/import` (empty and nonempty destinations) and group `transfer/deposit`,
-`transfer/withdraw` and `transfer/claim` still emit ordered effects such as `import/serial`,
-`character/inventory_items/item-0`, `profile/bank_inventory_list/character:item-0`, and the
-source/destination `/count` rows. Existence effects are absent/new action records rather than
-parsed fields, and `import/serial` remains an action payload pseudo-field; Gearbox does not invent
-writable fields, suppress rows or weaken host preflight. Current count and presence observations
-remain honest, including zero known lists. Gearbox will adopt the published descriptor only after
-the framework implementation lands, then add host-session preview/apply/undo/redo byte and
-cardinality regressions. This deferred production adoption and pure-planning work is tracked in
-[#81](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/81). Remaining capture, console-validation
+**GEARBOX-F13 / action-effect metadata: not adopted.** The SDK/Core/API and preview contract
+(`IActionEffectDocument`, `PlannedChange.Effect`) are delivered. Gearbox implements neither the
+capability nor typed effect descriptors. `items/import` and group `transfer/deposit`,
+`transfer/withdraw` and `transfer/claim` still report payload/structural IDs such as `import/serial`
+and moved-item rows. Parsed scalar/count/presence metadata is separate from absent records and
+action payloads; current pseudo-field metadata is not action-effect authority.
+Production adoption, pure planning and real host/API/browser acceptance remain
+[#81](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/81) work. The synthetic intercepted
+renderer case does not cover this consumer. Remaining capture, console-validation
 and gameplay-model gaps are listed above and tracked in [#31][owner-validation].
 
 ## Owner capture and validation checklist

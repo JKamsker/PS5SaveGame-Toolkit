@@ -53,7 +53,7 @@ JSON. Whether external integrity or console-side validation exists is
 | F10 exact numbers | Used: token parser and `ExactNumberSpec` | Numeric lexemes, nulls, duplicate members and unchanged spelling survive edits. |
 | F11 shared codecs | N/A | XorJson is UTF-8 JSON with byte transforms; it has no Kraken, SQLite or Oodle payload. |
 | F12 decoder hook | Used: `XorJsonDecoder` | Added in `16679ae`: `ISaveDecoderProvider` exposes `xorjson.tokens`; F1 tests use `HookSaveDecoder`, with depth/value/byte bounds. |
-| F13 inspection / browse picker and targeted metadata | Conditional adopter | `json/inspect` is explicitly non-mutating; targeted scalar metadata is self-primary and bounded to requested `value/{Index}` IDs, while group context uses the SDK member router and actual role/path. Catalog pickers inherit browse search/category/sort from Core. Float duration: N/A — no evidenced float time unit. Final adoption remains conditional on corrected SDK-58/SDK-68 dependency review and dependency-first landing. |
+| F13 inspection / browse picker and targeted metadata | Used | `json/inspect` is explicitly non-mutating; targeted scalar metadata is self-primary and bounded to requested `value/{Index}` IDs, while group context uses the SDK member router and actual role/path. Catalog pickers inherit browse search/category/sort from Core. Float duration: N/A — no evidenced float time unit. The shared F13 metadata/context contracts and consumer are merged on main; host and structural tests cover current-candidate bindings. |
 
 Shared SDK use includes `BoundSaveDocument`, `ExactJsonNumber`, F7 group
 contracts and F8/F6 interfaces. Collection queries, plan revalidation, icon
@@ -87,17 +87,13 @@ the SDK `DocumentMemberRouter`/`DocumentMemberAdapter`; context role and relativ
 path come from the selected `DocumentGroupInput` member, and provenance stays
 null when no source publishes it.
 
-This adopter consumes the published SDK-06 lossless scalar ownership and the
-published SDK-58/SDK-68 contracts without copying framework policy. The feature
-composes landed PR61 through the ordinary merge of published main
-`c1af2a29f6be2e5bb18bbd25738d0a14f942a9db`; the earlier F13 preparation head had
-not consumed it. `F13HostMatrixTests`, `F13GroupActionTests` and
+This adopter consumes the merged SDK-06 lossless scalar substrate and F13 metadata/context
+contracts without copying framework policy. `F13HostMatrixTests`, `F13GroupActionTests` and
 `F13StructuralSessionTests` exercise real host metadata preflight, all five
 existing scalar action families, empty selection, exact member bytes and history.
 `MetadataLookupTests` bounds cold/warm/post-restore lookup allocations separately
 from parse/restore work. These are synthetic proofs, not console reload evidence.
-The feature is reviewable on its dependency branch, but final adoption requires corrected
-SDK-58 and SDK-68 to land first and pass their independent review and CI gates.
+The consumer and shared contracts are on main; native/title evidence remains separate.
 
 The pack sidecars and this README document pinned sources, modifications, hashes and PS5 uncertainty. Game artwork and game descriptions are attributed under the owner decision of 2026-10-29; earlier community facts retain their 2026-10-28 policy basis. No saved-location coordinates or wiki text are imported.
 
