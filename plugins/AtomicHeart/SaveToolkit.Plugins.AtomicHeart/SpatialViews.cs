@@ -1,3 +1,4 @@
+using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -26,7 +27,7 @@ internal sealed class SpatialViews(RecordIndex index, InventoryState state,
     internal IReadOnlyList<ViewNode> Expand(string lazyId)
     {
         var parts = lazyId.Split('/');
-        if (parts.Length != 3 || !int.TryParse(parts[2], out var start) || start < 0) throw new KeyNotFoundException(lazyId);
+        if (parts.Length != 3 || !int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var start) || start < 0) throw new KeyNotFoundException(lazyId);
         if (parts[1] is "skills" or "weapons")
         {
             var branch = parts[1] == "skills" ? "Skills" : "Weapon upgrades";
@@ -123,7 +124,7 @@ internal sealed class SpatialViews(RecordIndex index, InventoryState state,
                 var description = $"{Clip(record.Name)}/{Clip(property.Name)}: {property.Type} {Clip(property.Detail)}; " +
                     (empty ? "two serialized zero counts (empty collection in this snapshot). " : "opaque collection retained without guessing its entries. ") +
                     $"Not a confirmed ownership or prerequisite mapping. Community skills reference (link only): {SkillsUrl}.";
-                result.Add(new(RecordIdentity.Compact("skill", $"{record.Id}/{property.Name}[{property.ArrayIndex}]\0{occurrence}"), () => Clip(property.Name), "Skills", description, property.Payload,
+                result.Add(new(RecordIdentity.Compact("skill", FormattableString.Invariant($"{record.Id}/{property.Name}[{property.ArrayIndex}]\0{occurrence}")), () => Clip(property.Name), "Skills", description, property.Payload,
                     () => empty ? "Empty serialized collection; gameplay state unknown" : "Opaque serialized collection; gameplay state unknown", Page(result.Count)));
             }
         }

@@ -1,3 +1,4 @@
+using System.Globalization;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Sdk;
@@ -40,9 +41,9 @@ internal sealed class RecordViews
     internal IReadOnlyList<ViewNode> Expand(string lazyId)
     {
         var parts = lazyId.Split('/');
-        if (parts.Length < 3 || !int.TryParse(parts[2], out var ordinal) || ordinal < 0) throw new KeyNotFoundException(lazyId);
+        if (parts.Length < 3 || !int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var ordinal) || ordinal < 0) throw new KeyNotFoundException(lazyId);
         if (parts.Length == 4 && parts[1] == "group" && ordinal < groups.Count &&
-            int.TryParse(parts[3], out var start) && start >= 0 && (start == 0 || start < groups[ordinal].Members.Count))
+            int.TryParse(parts[3], NumberStyles.Integer, CultureInfo.InvariantCulture, out var start) && start >= 0 && (start == 0 || start < groups[ordinal].Members.Count))
             return Properties(ordinal, start);
         if (parts.Length != 3) throw new KeyNotFoundException(lazyId);
         if (parts[1] == "records" && (ordinal == 0 || ordinal < index.Objects.Count))
@@ -116,7 +117,7 @@ internal sealed class RecordViews
             var identity = (property.Name, property.ArrayIndex);
             var occurrence = occurrences.GetValueOrDefault(identity);
             occurrences[identity] = occurrence + 1;
-            var segment = $"{Uri.EscapeDataString(property.Name)}[{property.ArrayIndex}]";
+            var segment = FormattableString.Invariant($"{Uri.EscapeDataString(property.Name)}[{property.ArrayIndex}]");
             if (occurrence != 0) segment += $"#{occurrence + 1}";
             segments[ordinal] = segment;
             // Count every eventual full identity now, including unopened leaves. Deferring its

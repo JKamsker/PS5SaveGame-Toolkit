@@ -60,7 +60,7 @@ internal sealed class AtomicHeartSaveDecoder : ISaveDecoderHook
     {
         foreach (var property in properties)
         {
-            var path = $"{parent}/{Uri.EscapeDataString(property.Name)}[{property.ArrayIndex}]";
+            var path = FormattableString.Invariant($"{parent}/{Uri.EscapeDataString(property.Name)}[{property.ArrayIndex}]");
             if (property.Value is { } value)
             {
                 if (depth + 1 > sink.MaxDepth)
