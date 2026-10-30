@@ -4,6 +4,7 @@ import { fixture, importSave, loadJson, openJson } from "./helpers";
 
 const widths = [375, 768, 1024, 1440] as const;
 const longPayload = "exact-long-" + "Z".repeat(700);
+const maxDialogTabStops = 512;
 
 async function renderedEffectIds(region: Locator) {
   return region.locator("tbody tr").evaluateAll(rows => rows.map(row => {
@@ -124,12 +125,16 @@ async function assertEffectPreview(dialog: Locator, effectRegion: Locator, autho
 }
 
 async function tabToFooter(page: Page, dialog: Locator, apply: Locator) {
-  const tabStops = await dialog.locator("summary, button:not(:disabled), [tabindex='0']").count();
-  for (let tabs = 1; tabs <= tabStops + 1; tabs++) {
-    await page.keyboard.press("Tab");
-    if (await apply.evaluate(element => element === document.activeElement)) return tabs;
+  const tabStops = await dialog.locator("summary, button:not(:disabled), [tabindex='0']").evaluateAll(elements =>
+    elements.filter(element => element.getClientRects().length > 0 && getComputedStyle(element).visibility === "visible")
+      .map(element => ({ tag: element.tagName, label: element.getAttribute("aria-label") ?? element.textContent?.trim() })));
+  expect(tabStops.length).toBeGreaterThan(0);
+  expect(tabStops.length).toBeLessThanOrEqual(maxDialogTabStops);
+  for (let nativeTabs = 1; nativeTabs <= tabStops.length + 1; nativeTabs++) {
+    await page.keyboard.press("Shift+Tab");
+    if (await apply.evaluate(element => element === document.activeElement)) return { nativeTabs, tabStops };
   }
-  throw new Error(`Apply was not keyboard-reachable within ${tabStops + 1} native Tab presses.`);
+  throw new Error(`Apply was not keyboard-reachable within ${tabStops.length + 1} native reverse-Tab presses.`);
 }
 
 async function assertResponsivePreview(page: Page, testInfo: TestInfo, dialog: Locator, effectRegion: Locator) {
@@ -158,7 +163,7 @@ async function assertResponsivePreview(page: Page, testInfo: TestInfo, dialog: L
     const populatedScreenshot = testInfo.outputPath(`synthetic-effects-${width}-region.png`);
     await page.screenshot({ path: populatedScreenshot, fullPage: true });
     screenshots.push(populatedScreenshot);
-    const nativeTabs = await tabToFooter(page, dialog, apply);
+    const { nativeTabs, tabStops } = await tabToFooter(page, dialog, apply);
     await expect(apply).toBeFocused();
     const applyBox = await apply.boundingBox();
     expect(applyBox).toBeTruthy();
@@ -167,7 +172,7 @@ async function assertResponsivePreview(page: Page, testInfo: TestInfo, dialog: L
     expect(applyBox!.x + applyBox!.width).toBeLessThanOrEqual(viewport.width);
     expect(applyBox!.y + applyBox!.height).toBeLessThanOrEqual(viewport.height);
     await apply.click({ trial: true });
-    measurements.push({ width, viewport, dialogBox, regionBox, applyBox, overflow, pageOverflow, nativeTabs });
+    measurements.push({ width, viewport, dialogBox, regionBox, applyBox, overflow, pageOverflow, nativeTabs, tabStops });
     const screenshot = testInfo.outputPath(`synthetic-effects-${width}.png`);
     await page.screenshot({ path: screenshot, fullPage: true });
     screenshots.push(screenshot);
