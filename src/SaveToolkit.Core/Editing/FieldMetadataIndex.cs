@@ -63,13 +63,13 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxInitialIds);
         var initial = MaterializeInitialIds(ids, maxInitialIds);
-        var working = new Dictionary<string, FieldMetadata>(_fields, StringComparer.Ordinal);
+        var working = new FieldMetadataTransaction(_fields);
         var retainedBytes = _maxMetadataBytes is null ? 0 : MetadataBytes(working.Values);
         ResolveAll(initial, working, ref retainedBytes, maxInitialIds, cancellationToken);
-        _fields = working.ToImmutableDictionary(StringComparer.Ordinal);
+        _fields = working.Commit();
     }
 
-    private void ResolveAll(IReadOnlyList<string> ids, Dictionary<string, FieldMetadata> cache,
+    private void ResolveAll(IReadOnlyList<string> ids, FieldMetadataTransaction cache,
         ref long retainedBytes, int maxScheduledIds, CancellationToken cancellationToken)
     {
         if (document is not IFieldMetadataDocument source) return;
