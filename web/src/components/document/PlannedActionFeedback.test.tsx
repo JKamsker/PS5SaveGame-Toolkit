@@ -41,6 +41,7 @@ const snapshot = (revision = 1, flag = false): SaveDocument => ({ id: "d", fileI
 async function mount() {
   vi.spyOn(api, "document").mockResolvedValue(snapshot());
   vi.spyOn(api, "sources").mockResolvedValue({ datasets: [] });
+  vi.spyOn(api, "documentPresets").mockResolvedValue([]);
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
   clients.push(client);
   const toast = vi.fn();
@@ -65,8 +66,8 @@ it.each(["envelope", "exception"])("refreshes revision and fields before the fir
   vi.mocked(api.document).mockReturnValueOnce(refreshed.promise);
   const trigger = screen.getByRole("button", { name: "Rename" });
   fireEvent.click(trigger);
-  fireEvent.change(screen.getByRole("textbox", { name: "Caption" }), { target: { value: "🎮" } });
-  fireEvent.blur(screen.getByRole("textbox", { name: "Caption" }));
+  fireEvent.change(within(screen.getByRole("dialog")).getByRole("textbox", { name: "Caption" }), { target: { value: "🎮" } });
+  fireEvent.blur(within(screen.getByRole("dialog")).getByRole("textbox", { name: "Caption" }));
   fireEvent.click(screen.getByRole("button", { name: "Preview" }));
   fireEvent.click(await screen.findByRole("button", { name: "Apply" }));
   await waitFor(() => expect(api.document).toHaveBeenCalledTimes(2));
@@ -79,7 +80,7 @@ it.each(["envelope", "exception"])("refreshes revision and fields before the fir
   expect(screen.getAllByRole("alert")).toHaveLength(1);
   expect(toast).not.toHaveBeenCalled();
   expect(screen.getByRole("switch", { name: "Flag" }).getAttribute("aria-checked")).toBe("true");
-  expect(screen.getByRole("textbox", { name: "Caption" })).toHaveProperty("value", "🎮");
+  expect(within(screen.getByRole("dialog")).getByRole("textbox", { name: "Caption" })).toHaveProperty("value", "🎮");
   expect(screen.queryByRole("button", { name: "Apply" })).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "Preview again" }));
   await screen.findByRole("button", { name: "Apply" });
@@ -95,8 +96,8 @@ it.each([undefined, "conflict"])("keeps an ordinary 409 non-stale and dialog-own
   vi.spyOn(actionReview, "apply").mockRejectedValue(new ApiError("Action conflicts with current settings", 409, code === undefined ? undefined : { code }));
   const toast = await mount();
   fireEvent.click(screen.getByRole("button", { name: "Rename" }));
-  fireEvent.change(screen.getByRole("textbox", { name: "Caption" }), { target: { value: "🎮" } });
-  fireEvent.blur(screen.getByRole("textbox", { name: "Caption" }));
+  fireEvent.change(within(screen.getByRole("dialog")).getByRole("textbox", { name: "Caption" }), { target: { value: "🎮" } });
+  fireEvent.blur(within(screen.getByRole("dialog")).getByRole("textbox", { name: "Caption" }));
   fireEvent.click(screen.getByRole("button", { name: "Preview" }));
   fireEvent.click(await screen.findByRole("button", { name: "Apply" }));
   const reason = await screen.findByRole("alert");
@@ -105,7 +106,7 @@ it.each([undefined, "conflict"])("keeps an ordinary 409 non-stale and dialog-own
   expect(screen.getAllByRole("alert")).toHaveLength(1);
   expect(screen.queryByRole("button", { name: "Preview again" })).toBeNull();
   expect(screen.getByRole("button", { name: "Preview" })).toHaveProperty("disabled", false);
-  expect(screen.getByRole("textbox", { name: "Caption" })).toHaveProperty("value", "🎮");
+  expect(within(screen.getByRole("dialog")).getByRole("textbox", { name: "Caption" })).toHaveProperty("value", "🎮");
   expect(api.document).toHaveBeenCalledOnce();
   expect(toast).not.toHaveBeenCalled();
 });

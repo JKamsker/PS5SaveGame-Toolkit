@@ -44,12 +44,14 @@ export async function readDocumentSnapshot(client: QueryClient, workspaceId: str
   try {
     await client.cancelQueries({ queryKey: key, exact: true });
     if (!isCurrent()) return unavailable;
-    const document = await api.document(workspaceId, documentId);
+    // fetchQuery forces a fresh request after cancellation, and cancellation rejects
+    // instead of resolving a refetch observer's restored cached-success result.
+    await client.fetchQuery({ queryKey: key, staleTime: 0, retry: false, queryFn: async () => {
+      const document = await api.document(workspaceId, documentId);
+      if (!isCurrent()) throw new Error(unavailable);
+      return document;
+    } });
     if (!isCurrent()) return unavailable;
-    // Retire background reads begun during the request before publishing the authority.
-    await client.cancelQueries({ queryKey: key, exact: true });
-    if (!isCurrent()) return unavailable;
-    client.setQueryData(key, document);
     const after = client.getQueryState(key)?.dataUpdateCount ?? 0;
     return after > before ? undefined : unavailable;
   } catch (failure) {
