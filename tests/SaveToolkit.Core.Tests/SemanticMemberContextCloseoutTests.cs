@@ -25,7 +25,7 @@ public sealed class SemanticMemberContextCloseoutTests
             return new Dictionary<string, SemanticMemberContext> { ["canonical"] = context };
         }, [canonical, legacy], 0, SemanticContextBudget.MaxResponseBytes, CancellationToken.None);
 
-        Assert.Equal(["canonical"], requested);
+        Assert.Equal(["canonical"], Assert.IsType<string[]>(requested));
         Assert.Equal(context, Assert.Single(result.Contexts).Value);
         Assert.True(result.Complete);
         Assert.Equal(0, result.OmittedCount);
