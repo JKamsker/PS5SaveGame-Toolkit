@@ -4,8 +4,8 @@ import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import type { SaveDocument } from "../src/api/protocol";
-import { archive, downloadedFiles, home, type SaveFiles, upload } from "./helpers";
+import type { EditResult, SaveDocument } from "../src/api/protocol";
+import { archive, downloadedFiles, expectFiles, home, type SaveFiles, upload } from "./helpers";
 import { unzipSync } from "fflate";
 
 const repositoryRoot = fileURLToPath(new URL("../..", import.meta.url));
@@ -84,13 +84,29 @@ export function isCaptionDocumentRequest(url: string, documentPath: string, suff
 }
 
 /** Downloads a whole-dump export through the real workspace endpoint without opening a second modal. */
-export async function exportCaptionApi(page: Page, documentPath: string): Promise<SaveFiles> {
+export async function exportCaptionApi(page: Page, documentPath: string, testInfo?: TestInfo, name?: string): Promise<SaveFiles> {
   const workspacePath = documentPath.slice(0, documentPath.indexOf("/documents/"));
   const response = await page.request.post(`${workspacePath}/export`, {
     data: { scope: "Everything", mirrorBackups: false },
   });
   expect(response.ok()).toBe(true);
-  return unzipSync(await response.body());
+  const bytes = await response.body();
+  if (testInfo && name) await testInfo.attach(name, { body: bytes, contentType: "application/zip" });
+  return unzipSync(bytes);
+}
+
+/** Execute the supported scalar endpoint, separately from the UI's disabled empty-plan Apply. */
+export async function assertCaptionServerNoop(page: Page, documentPath: string, value: string,
+  before: SaveDocument, files: SaveFiles, testInfo: TestInfo, name: string) {
+  const response = await page.request.post(`${documentPath}/edits`, {
+    data: { edits: [{ valueId: captionValueId, value }], revision: before.state.revision },
+  });
+  expect(response.status()).toBe(200);
+  const result = await response.json() as EditResult;
+  await testInfo.attach(`${name}.json`, { body: JSON.stringify(result, null, 2), contentType: "application/json" });
+  expect(result).toMatchObject({ ok: true, changes: [], structureChanged: false, state: before.state });
+  expect((await documentSnapshot(page, documentPath)).state).toEqual(before.state);
+  expectFiles(await exportCaptionApi(page, documentPath, testInfo, `${name}.zip`), files);
 }
 
 export async function exportCaptionScope(page: Page, testInfo: TestInfo, label: RegExp, name: string): Promise<SaveFiles> {

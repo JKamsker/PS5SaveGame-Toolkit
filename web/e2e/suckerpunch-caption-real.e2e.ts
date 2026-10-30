@@ -1,13 +1,14 @@
-import { expect, test, type Locator, type Page, type TestInfo } from "@playwright/test";
+import { expect, test, type Page, type TestInfo } from "@playwright/test";
 import type { ActionPreview } from "../src/api/actionReview";
 import type { EditResult } from "../src/api/protocol";
 import {
-  captionCompanionPath, captionLabel, captionPrimaryPath, captionSfoPath, captionValueId, captionWarning,
+  assertCaptionServerNoop, captionCompanionPath, captionLabel, captionPrimaryPath, captionSfoPath, captionValueId, captionWarning,
   documentSnapshot, editedCaption, expectedGlyphSfo, exportCaptionApi, generateSuckerPunchFixtures,
   isCaptionDocumentRequest, openSuckerPunch,
   exportCaptionScope, type SuckerPunchFixture,
 } from "./suckerpunch-caption-helpers";
 import { expectFiles } from "./helpers";
+import { exerciseCaptionKeyboardLayout } from "./suckerpunch-caption-keyboard";
 
 let fixture: SuckerPunchFixture;
 test.beforeAll(async ({ browserName }, testInfo) => {
@@ -132,7 +133,7 @@ test("real original caption action is one whole-byte undo and redo unit", async 
   expectFiles(await exportCaptionScope(page, testInfo, /Whole dump/, "caption-original-action-redo.zip"), editedFiles);
 });
 
-test("real caption no-op and cancel preserve bytes across clean, dirty and redo states", async ({ page }) => {
+test("real caption no-op and cancel preserve bytes across clean, dirty and redo states", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1024, height: 900 });
   const documentPath = await openSuckerPunch(page, fixture.files);
   const clean = await documentSnapshot(page, documentPath);
@@ -153,14 +154,7 @@ test("real caption no-op and cancel preserve bytes across clean, dirty and redo 
   const dirtyBytes = await exportCaptionApi(page, documentPath);
   expect(dirty.state).toMatchObject({ canUndo: true, canRedo: false, isDirty: true });
 
-  const serverNoop = await page.request.post(`${documentPath}/edits`, {
-    data: { edits: [{ valueId: captionValueId, value: editedCaption }], revision: dirty.state.revision },
-  });
-  expect(serverNoop.status()).toBe(200);
-  const serverNoopResult = await serverNoop.json() as EditResult;
-  expect(serverNoopResult).toMatchObject({ ok: true, changes: [], structureChanged: false, state: dirty.state });
-  expect((await documentSnapshot(page, documentPath)).state).toEqual(dirty.state);
-  expectFiles(await exportCaptionApi(page, documentPath), dirtyBytes);
+  await assertCaptionServerNoop(page, documentPath, editedCaption, dirty, dirtyBytes, testInfo, "caption-dirty-server-noop");
 
   const dirtyNoop = await previewCaption(page, editedCaption, undefined, undefined, documentPath, editedCaption);
   await expect(dirtyNoop.getByRole("status")).toHaveText("No changes. No undo step will be created.");
@@ -178,6 +172,10 @@ test("real caption no-op and cancel preserve bytes across clean, dirty and redo 
   const undoBytes = await exportCaptionApi(page, documentPath);
   expectFiles(undoBytes, cleanBytes);
 
+  await assertCaptionServerNoop(page, documentPath, fixture.caption, afterUndo, undoBytes, testInfo, "caption-redo-server-noop");
+  await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Redo", exact: true })).toBeEnabled();
+
   const redoNoop = await previewCaption(page, fixture.caption, undefined, undefined, documentPath, fixture.caption);
   await expect(redoNoop.getByRole("status")).toHaveText("No changes. No undo step will be created.");
   await expect(redoNoop.getByRole("button", { name: "Apply", exact: true })).toBeDisabled();
@@ -188,9 +186,12 @@ test("real caption no-op and cancel preserve bytes across clean, dirty and redo 
   const redoing = page.waitForResponse(response => response.request().method() === "POST" &&
     isCaptionDocumentRequest(response.url(), documentPath, "/redo"));
   await page.getByRole("button", { name: "Redo", exact: true }).click();
-  expect((await redoing).status()).toBe(200);
+  const redone = await redoing;
+  expect(redone.status()).toBe(200);
+  expect((await redone.json() as EditResult).ok).toBe(true);
   const afterRedo = await documentSnapshot(page, documentPath);
   expect(afterRedo.state).toMatchObject({ canUndo: true, canRedo: false, isDirty: true });
+  await expect(page.getByText(`param.sfo SUBTITLE: ${editedCaption}`, { exact: true })).toBeVisible();
   expectFiles(await exportCaptionApi(page, documentPath), dirtyBytes);
 });
 
@@ -324,67 +325,11 @@ test("real stale caption apply preserves Unicode draft and uses the fresh docume
   });
 });
 
-async function tabUntil(page: Page, target: Locator, maxTabs = 24) {
-  for (let index = 0; index < maxTabs; index++) {
-    if (await target.evaluate(element => element === document.activeElement)) return;
-    await page.keyboard.press("Tab");
-  }
-  await expect(target).toBeFocused();
-}
-
 for (const width of [375, 768, 1024, 1440]) {
   test(`real caption control is Tab reachable with a populated planned table at ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 });
     const documentPath = await openSuckerPunch(page, fixture.files);
-    const action = captionAction(page);
-    await expect(action).toBeVisible();
-    const stableFocus = page.getByRole("tab", { name: "Overview", exact: true });
-    await stableFocus.focus();
-    await tabUntil(page, action);
-    await page.keyboard.press("Enter");
-    const dialog = page.getByRole("dialog", { name: /Preview: Set save caption/ });
-    const heading = dialog.getByRole("heading", { name: /Preview: Set save caption/ });
-    const input = dialog.getByRole("textbox", { name: "Caption" });
-    await expect(heading).toBeFocused();
-    await page.keyboard.press("Tab");
-    await expect(input).toBeFocused();
-    await input.fill(editedCaption);
-    await expect(input).toHaveAttribute("aria-invalid", "false");
-    const planning = page.waitForResponse(response => response.request().method() === "POST" &&
-      isCaptionDocumentRequest(response.url(), documentPath, "/actions/plan"));
-    await page.keyboard.press("Tab");
-    const cancel = dialog.getByRole("button", { name: "Cancel", exact: true });
-    await expect(cancel).toBeFocused();
-    await page.keyboard.press("Tab");
-    const preview = dialog.getByRole("button", { name: "Preview", exact: true });
-    await expect(preview).toBeFocused();
-    await page.keyboard.press("Enter");
-    expect((await planning).ok()).toBe(true);
-    const region = dialog.getByRole("region", { name: "Preview changes", exact: true });
-    const table = dialog.getByRole("table", { name: "Preview changes", exact: true });
-    const footer = dialog.locator(".dialog__footer");
-    await expect(region).toBeVisible();
-    await expect(table).toContainText(captionLabel);
-    await expect(table).toContainText(editedCaption);
-    await expect(footer).toBeVisible();
-    await footer.getByRole("button", { name: "Apply", exact: true }).scrollIntoViewIfNeeded();
-    await expect(footer.getByRole("button", { name: "Apply", exact: true })).toBeInViewport();
-    await noPageOverflow(page, width);
-    await page.screenshot({ path: testInfo.outputPath(`caption-planned-${width}.png`), fullPage: true });
-    await tabUntil(page, footer.getByRole("button", { name: "Cancel", exact: true }));
-    await tabUntil(page, footer.getByRole("button", { name: "Change parameters", exact: true }));
-    await tabUntil(page, footer.getByRole("button", { name: "Apply", exact: true }));
-    await page.keyboard.press("Escape");
-    await expect(action).toBeFocused();
-
-    await page.keyboard.press("Enter");
-    await expect(heading).toBeFocused();
-    await page.keyboard.press("Tab");
-    await expect(input).toBeFocused();
-    await page.keyboard.press("Tab");
-    await expect(cancel).toBeFocused();
-    await page.keyboard.press("Enter");
-    await expect(action).toBeFocused();
+    await exerciseCaptionKeyboardLayout(page, documentPath, width, testInfo);
   });
 }
 
