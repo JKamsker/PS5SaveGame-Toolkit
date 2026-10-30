@@ -50,7 +50,7 @@ public sealed class PresetPackageTests
     {
         AssertInvalid("{");
         AssertInvalid("{\"schemaVersion\":\"1\",\"schemaVersion\":\"1\"}");
-        AssertInvalid(new string('[', 17) + "0" + new string(']', 17));
+        AssertInvalid(new string('[', PresetPackageCodec.MaxDepth + 1) + "0" + new string(']', PresetPackageCodec.MaxDepth + 1));
         var json = JsonNode.Parse(PresetPackageCodec.Encode([PresetTransferFixture.Preset()]))!;
         var record = json["presets"]![0]!.DeepClone();
         json["presets"] = new JsonArray(Enumerable.Range(0, 257).Select(_ => record.DeepClone()).ToArray());

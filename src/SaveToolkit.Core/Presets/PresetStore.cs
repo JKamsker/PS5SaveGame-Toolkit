@@ -23,6 +23,7 @@ public sealed record PresetCompatibilityCheck(bool Compatible, string? Message =
 public sealed class PresetStore
 {
     public const string CurrentSchemaVersion = "1";
+    internal const int MaxJsonDepth = 64;
     private readonly PresetStoreOptions _options;
     private readonly PresetLibraryStorage _storage;
     private readonly PresetLibraryStaging _staging;
@@ -289,6 +290,7 @@ public sealed class PresetStore
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
+        MaxDepth = MaxJsonDepth,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         WriteIndented = true,
     };

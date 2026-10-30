@@ -11,7 +11,8 @@ public static class PresetPackageCodec
     public const string Producer = "PS5 Save Game Toolkit";
     public const int MaxBytes = 512 * 1024;
     public const int MaxPresets = PresetTransferLimits.MaxRecords;
-    public const int MaxDepth = 16;
+    // The package adds one object around the stored record array.
+    public const int MaxDepth = PresetStore.MaxJsonDepth + 1;
     internal static JsonSerializerOptions JsonOptions { get; } = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = false,
