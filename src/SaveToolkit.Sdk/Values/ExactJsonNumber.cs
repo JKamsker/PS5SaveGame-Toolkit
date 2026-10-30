@@ -49,9 +49,10 @@ public static class ExactJsonNumber
         ArgumentNullException.ThrowIfNull(spec);
         if (spec.MaxLength is < 1 or > HardMaxLength || spec.MaxAbsoluteExponent is < 0 or > HardMaxAbsoluteExponent)
             return "Invalid exact-number resource limits.";
-        foreach (var bound in new[] { spec.Min, spec.Max })
-            if (bound is not null && ValidateLexeme(bound, HardMaxLength, HardMaxAbsoluteExponent) is not null)
-                return "Invalid exact-number range bound.";
+        // Imports validate each numeric leaf; avoid a temporary bounds array per value.
+        if ((spec.Min is { } minimum && ValidateLexeme(minimum, HardMaxLength, HardMaxAbsoluteExponent) is not null)
+            || (spec.Max is { } maximum && ValidateLexeme(maximum, HardMaxLength, HardMaxAbsoluteExponent) is not null))
+            return "Invalid exact-number range bound.";
         if (spec.Min is { } min && spec.Max is { } max && Compare(min, max) > 0)
             return "Invalid exact-number range.";
         return null;
