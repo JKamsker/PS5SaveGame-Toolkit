@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { reviewValue, type ActionPreview } from "../../api/actionReview";
+import { useDocument } from "../../state/documentStore";
 
 type Preview = ActionPreview & { resolution?: { instances: { requested: { stableId: string; label?: string }; status: string; candidates?: { stableId: string; label?: string; kind?: string; role?: string; path?: string; build?: string; provenance?: string }[]; message?: string }[] } };
 
@@ -17,6 +18,8 @@ export interface PresetPreviewProps {
 }
 
 export function PresetPreview({ preview, busy, stale, refreshError, refreshPending = false, applyError, canApply, onApply, onCancel, onPreviewAgain }: PresetPreviewProps) {
+  const context = useDocument();
+  useLayoutEffect(() => context.claimSnapshotErrors?.(), [context.claimSnapshotErrors]);
   const [choices, setChoices] = useState<Record<string, string>>({});
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {

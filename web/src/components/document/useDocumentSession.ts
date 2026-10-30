@@ -40,7 +40,8 @@ type SessionLifetime = ReturnType<typeof useDocumentLifetime>;
 function useDocumentResult(workspaceId: string, documentId: string, session: SessionLifetime, onToast: Notify) {
   const queryClient = useQueryClient();
   const { lifetime, currentStore, enqueue } = session;
-  const { readSnapshot, snapshotError, snapshotRefresh } = useDocumentSnapshot(workspaceId, documentId, lifetime);
+  const retireIntents = useCallback(() => { lifetime.generation++; }, [lifetime]);
+  const { readSnapshot, snapshotError, snapshotRefresh } = useDocumentSnapshot(workspaceId, documentId, lifetime, retireIntents);
   const refresh = useCallback(async (options?: { throwOnError?: boolean }) => {
     await enqueue(async () => {
       if (!lifetime.active) {

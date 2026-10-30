@@ -59,6 +59,8 @@ it("clears a failed read through one controller owner after same-descriptor retr
   fireEvent.click(screen.getByRole("button", { name: "Preview" }));
   await waitFor(() => expect(screen.getAllByRole("alert")).toHaveLength(1));
   await waitFor(() => expect(context?.refreshState).toBe("failed"));
+  // The lazy review leaf must be mounted before checking its installed-read guard/alert owner.
+  await screen.findByRole("button", { name: "Preview again" });
   expect(screen.getByRole("alert").textContent).toContain("503 authored read failure");
   expect(screen.getByRole("button", { name: "Preview again" }).hasAttribute("disabled")).toBe(true);
   vi.mocked(api.document).mockResolvedValue(snapshot(3));

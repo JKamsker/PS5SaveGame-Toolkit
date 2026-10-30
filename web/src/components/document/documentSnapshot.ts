@@ -5,14 +5,14 @@ import { api } from "../../api/client";
 const unavailable = "The document snapshot could not be refreshed.";
 
 /** Read requirements belong to the document lifetime, including while no dialog is open. */
-export function useDocumentSnapshot(workspaceId: string, documentId: string, lifetime: { active: boolean; generation: number }) {
+export function useDocumentSnapshot(workspaceId: string, documentId: string, lifetime: { active: boolean }, retireIntents: () => void) {
   const queryClient = useQueryClient();
   const request = useRef(0);
   const [readState, setReadState] = useState<{ owner: typeof lifetime; status: "pending" | "required"; message?: string } | null>(null);
   const readSnapshot = useCallback(async () => {
     if (!lifetime.active) return unavailable;
     const requestId = ++request.current;
-    lifetime.generation++;
+    retireIntents();
     // Publish before awaiting the read: native Escape/reopen must not expose an obsolete revision.
     if (lifetime.active) setReadState(previous => ({ owner: lifetime, status: "pending",
       message: previous?.owner === lifetime ? previous.message : undefined }));
@@ -20,7 +20,7 @@ export function useDocumentSnapshot(workspaceId: string, documentId: string, lif
     const error = await readDocumentSnapshot(queryClient, workspaceId, documentId, isCurrent);
     if (isCurrent()) setReadState(error === undefined ? null : { owner: lifetime, status: "required", message: error });
     return error;
-  }, [queryClient, workspaceId, documentId, lifetime]);
+  }, [queryClient, workspaceId, documentId, lifetime, retireIntents]);
   const currentRead = readState?.owner === lifetime ? readState : undefined;
   return { readSnapshot, snapshotError: currentRead?.message, snapshotRefresh: currentRead?.status };
 }

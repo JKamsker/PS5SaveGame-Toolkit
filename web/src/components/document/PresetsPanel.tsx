@@ -31,11 +31,10 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
   const [scopeKind, setScopeKind] = useState(() => firstScope(captureActions[0], document.presetCapability));
   const [parameters, setParameters] = useState<Record<string, FieldValue>>(() => actionParameters(captureActions[0]));
   const [parameterErrors, setParameterErrors] = useState<Record<string, string | undefined>>({});
-  const [preview, setPreview] = useState<{ preset: ToolkitPreset; preview: ActionPreview }>();
+  const [preview, setPreview] = useState<{ preset: ToolkitPreset; preview: ActionPreview; generation: number }>();
   const [stale, setStale] = useState(false);
   const [applyError, setApplyError] = useState<string>();
   const [applyBlocked, setApplyBlocked] = useState(false);
-  const [resolutionGeneration, setResolutionGeneration] = useState(0);
   const [message, setMessage] = useState<string>();
   const [messageIsError, setMessageIsError] = useState(false);
   const [filter, setFilter] = useState("");
@@ -49,9 +48,8 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
   const review = useRef({ generation: 0, presetId: "", opener: null as HTMLElement | null });
   const currentContext = useRef(context);
   useEffect(() => { currentContext.current = context; }, [context]);
-  const previewOpen = Boolean(preview);
-  useEffect(() => previewOpen ? context.claimSnapshotErrors?.() : undefined, [previewOpen, context.claimSnapshotErrors]);
   const showMessage = (text: string, isError = false) => { setMessage(text); setMessageIsError(isError); };
+  const showError = (error: unknown) => showMessage(error instanceof Error ? error.message : "Preset request failed.", true);
   const clearMessage = () => { setMessage(undefined); setMessageIsError(false); };
   const heading = useRef<HTMLHeadingElement>(null);
   const activeActionId = captureActions.some(action => action.actionId === actionId) ? actionId : captureActions[0]?.actionId ?? "";
@@ -65,14 +63,8 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
       selectionTableId: action.selectionTableId,
       parameters: (action.parameters ?? []).map(parameter => ({ valueId: parameter.valueId, spec: parameter.spec })),
     })),
-    capability: document.presetCapability?.actions.map(action => ({
-      actionId: action.actionId,
-      label: action.label,
-      parameterIds: action.parameterIds,
-      parameterSpecs: action.parameterSpecs,
-      scopeKinds: supportedScopeKinds(action, document.presetCapability),
-      supportsCapture: action.supportsCapture,
-    })),
+    // Compatibility boundary changes retire a review just like action descriptor changes.
+    capability: document.presetCapability,
   }), [captureActions, document.presetCapability]);
   const previousDescriptorSignature = useRef<string | undefined>(undefined);
   const binding = useActionSelection(selectedAction?.selectionTableId);
@@ -111,13 +103,12 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
     if (requestId !== review.current.generation) return;
     setStale(true);
     setApplyBlocked(true);
-    try { await context.refresh({ throwOnError: true }); }
-    catch { /* The document controller owns the failed read and its retry state. */ }
+    // The controller's quiet refresh owns failed reads and their retry state.
+    await context.refresh();
   };
   const installPreview = async (result: { preset: ToolkitPreset; preview: ActionPreview }, requestId: number) => {
     if (requestId !== review.current.generation) return;
-    setPreview(result);
-    setResolutionGeneration(value => value + 1);
+    setPreview({ ...result, generation: requestId });
     setApplyError(undefined);
     setApplyBlocked(false);
     setStale(Boolean(result.preview.stale));
@@ -140,7 +131,7 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
       if (rejectedPreview) {
         await installPreview(rejectedPreview, requestId);
       }
-      else { setRetryPresetId(presetId); showMessage(error instanceof Error ? error.message : "Could not preview preset.", true); }
+      else { setRetryPresetId(presetId); showError(error); }
     }
   };
   const create = useMutation({
@@ -149,12 +140,12 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
         selectedRowKeys: scopeKind === "selected" ? [...(selection?.selectedKeys ?? [])] : undefined,
         allMatches: scopeKind === "allEligible" || scopeKind === "allCopies" }); },
     onSuccess: result => { setName(""); showMessage(`Saved “${result.name}”.`); void client.invalidateQueries({ queryKey: ["presets"] }); },
-    onError: error => showMessage(error instanceof Error ? error.message : "Could not save preset.", true),
+    onError: error => showError(error),
   });
   const rename = useMutation({
     mutationFn: ({ id, value }: { id: string; value: string }) => api.renamePreset(id, value),
     onSuccess: result => { showMessage(`Renamed to “${result.name}”.`); void client.invalidateQueries({ queryKey: ["presets"] }); },
-    onError: error => showMessage(error instanceof Error ? error.message : "Could not rename preset.", true),
+    onError: error => showError(error),
   });
   const filteredPresets = useMemo(() => (presets.data ?? []).filter(row => {
     const text = `${row.preset.name} ${row.preset.actions.map(action => action.actionId).join(" ")}`.toLowerCase();
@@ -179,7 +170,7 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
       void client.invalidateQueries({ queryKey: ["presets"] });
       if (generation === review.current.generation || !review.current.presetId)
         requestAnimationFrame(() => { if (!review.current.presetId) heading.current?.focus(); });
-    } catch (error) { showMessage(error instanceof Error ? error.message : "Could not delete preset.", true); }
+    } catch (error) { showError(error); }
   };
   const apply = useMutation({
     mutationFn: (intent: { generation: number; presetId: string; planId: string; revision: number }) => {
@@ -239,15 +230,15 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
       {actions.length === 0 && <p className="notice notice--Muted">This document has no planned preset actions. Import and export remain available from the document toolbar.</p>}
       <h3 ref={heading} tabIndex={-1}>Saved presets</h3>
       {children}
-      {presets.isError && <><p role="alert">{messageIsError && message ? message : `Could not load presets: ${presets.error.message}`}</p><button type="button" className="btn btn--small" onClick={() => void reloadPresets().catch(error => showMessage(error instanceof Error ? error.message : "Could not reload presets.", true))}>Retry loading presets</button></>}
+      {presets.isError && <><p role="alert">{messageIsError && message ? message : `Could not load presets: ${presets.error.message}`}</p><button type="button" className="btn btn--small" onClick={() => void reloadPresets().catch(showError)}>Retry loading presets</button></>}
       {presets.data?.length === 0 && <p className="notice notice--Muted">No presets saved for this toolkit yet.</p>}
       {presets.data && <><div className="presets-filters"><label>Filter presets <input className="input" value={filter} onChange={event => setFilter(event.target.value)} placeholder="Name or action" /></label><label>Title <input className="input" value={titleFilter} onChange={event => setTitleFilter(event.target.value)} placeholder="Title id" /></label><label>Build <input className="input" value={buildFilter} onChange={event => setBuildFilter(event.target.value)} placeholder="Build" /></label><label>Plugin <input className="input" value={pluginFilter} onChange={event => setPluginFilter(event.target.value)} placeholder="Plugin id or version" /></label><label>Compatibility <select className="input" value={compatFilter} onChange={event => setCompatFilter(event.target.value)}><option value="all">All</option><option value="ready">Ready to apply</option><option value="attention">Needs attention</option></select></label><label>Updated <select className="input" value={dateFilter} onChange={event => setDateFilter(event.target.value)}><option value="all">Any date</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select></label></div><p className="presets-meta" role="status" aria-live="polite">{filteredPresets.length} matching preset{filteredPresets.length === 1 ? "" : "s"}{filteredPresets.length > 50 ? "; showing the first 50" : ""}.</p>{refreshBlocked && <p className="presets-meta" role="status" aria-live="polite">Refreshing the document before another preset preview…</p>}<Suspense fallback={<p aria-live="polite">Loading saved preset rows…</p>}><PresetRows rows={visiblePresets} busy={apply.isPending || rename.isPending} onPreview={loadPreview} onDelete={preset => setPendingDelete(preset)} onRename={(id, value) => rename.mutateAsync({ id, value }).then(() => undefined)} /></Suspense>{visiblePresets.length === 0 && <p className="notice notice--Muted">No presets match this filter.</p>}</>}
       {pendingDelete && <Suspense fallback={<p aria-live="polite">Loading delete confirmation…</p>}><PresetDeleteDialog preset={pendingDelete} onDelete={() => void confirmDelete()} onCancel={() => setPendingDelete(undefined)} /></Suspense>}
       {retryPresetId && <button type="button" className="btn btn--small" onClick={() => void loadPreview(retryPresetId)}>Retry preview</button>}
       {create.isError && <button type="button" className="btn btn--small" disabled={refreshBlocked || create.isPending} onClick={() => { if (!refreshBlocked) create.mutate(); }}>Retry saving preset</button>}
-      {preview && <Suspense fallback={<p aria-live="polite">Loading preset preview…</p>}><PresetPreview key={`${preview.preset.id}:${preview.preview.planId ?? "none"}:${preview.preview.revision}:${resolutionGeneration}:${stale ? "stale" : "current"}`} preview={preview.preview} busy={apply.isPending} stale={stale} refreshError={context.refreshError} refreshPending={context.refreshState === "pending"} applyError={applyError} canApply={document.canEdit && !applyBlocked && !refreshBlocked} onApply={applyPreview} onCancel={closePreview} onPreviewAgain={choices => loadPreview(preview.preset.id, choices)} /></Suspense>}
+      {preview && <Suspense fallback={<p aria-live="polite">Loading preset preview…</p>}><PresetPreview key={`${preview.generation}:${stale}`} preview={preview.preview} busy={apply.isPending} stale={stale} refreshError={context.refreshError} refreshPending={context.refreshState === "pending"} applyError={applyError} canApply={document.canEdit && !applyBlocked && !refreshBlocked} onApply={applyPreview} onCancel={closePreview} onPreviewAgain={choices => loadPreview(preview.preset.id, choices)} /></Suspense>}
       {message && !presets.isError && <p role={messageIsError ? "alert" : "status"} aria-label="Preset save result" className="notice notice--Warning">{message}</p>}
-      <form className="presets-create" onSubmit={event => { event.preventDefault(); if (refreshBlocked) return; clearMessage(); try { create.mutate(); } catch (error) { showMessage(error instanceof Error ? error.message : "Invalid preset JSON.", true); } }}>
+      <form className="presets-create" onSubmit={event => { event.preventDefault(); if (refreshBlocked) return; clearMessage(); create.mutate(); }}>
         <h3>Save an action preset</h3>
         {!document.canEdit && <p className="notice notice--Muted">This document is read-only; presets can be reviewed but not created or applied.</p>}
         <label>Name <input className="input" value={name} onChange={event => setName(event.target.value)} required maxLength={100} disabled={!document.canEdit || create.isPending} /></label>
