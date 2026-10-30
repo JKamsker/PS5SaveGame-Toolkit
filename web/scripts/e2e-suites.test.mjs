@@ -186,22 +186,64 @@ it("launches every valid selected suite while retaining thrown, signal, nonzero 
   const directory = mkdtempSync(path.join(tmpdir(), "savetoolkit-e2e-discovery-"));
   const discoveryPath = path.join(directory, "discovery.json");
   const attempted = [];
+  const observations = [];
+  const readErrors = [];
+  const branchResults = [];
+  const reportError = vi.fn();
   const launch = vi.fn().mockImplementation(suite => {
     attempted.push(suite);
-    expect(existsSync(discoveryPath)).toBe(true);
-    const persisted = JSON.parse(readFileSync(discoveryPath, "utf8"));
-    expect(persisted.all.filteredSelectedIDs).toEqual(["synthetic-canonical", "synthetic-capacity", "synthetic-ff7"]);
-    if (suite === "canonical") throw new Error("synthetic launch error");
-    if (suite === "capacity") return { status: null, signal: "SIGTERM" };
-    if (suite === "ff7") return { status: 1 };
+    const observation = { suite, fileExists: existsSync(discoveryPath) };
+    try {
+      observation.persisted = JSON.parse(readFileSync(discoveryPath, "utf8"));
+    } catch (error) {
+      readErrors.push({ suite, message: error instanceof Error ? error.message : String(error) });
+    }
+    observations.push(observation);
+    if (suite === "canonical") {
+      branchResults.push({ suite, branch: "thrown" });
+      throw new Error("synthetic launch error");
+    }
+    if (suite === "capacity") {
+      const signalResult = { status: null, signal: "SIGTERM" };
+      branchResults.push({ suite, branch: "signal", result: signalResult });
+      return signalResult;
+    }
+    if (suite === "ff7") {
+      const nonzeroResult = { status: 1 };
+      branchResults.push({ suite, branch: "nonzero", result: nonzeroResult });
+      return nonzeroResult;
+    }
+    branchResults.push({ suite, branch: "success" });
     return { status: 0 };
   });
   try {
-    const result = orchestrateSuites({ manifest, inventories, args: [], discover, launch, reportError: vi.fn(),
+    const result = orchestrateSuites({ manifest, inventories, args: [], discover, launch, reportError,
       beforeExecute: result => writeFileSync(discoveryPath, JSON.stringify(result.discovery)) });
     expect(result.exitCode).toBe(1);
     expect(attempted).toEqual(["canonical", "capacity", "ff7"]);
     expect(ids).toEqual({ canonical: ["synthetic-canonical"], capacity: ["synthetic-capacity"], ff7: ["synthetic-ff7"] });
+    expect(readErrors).toEqual([]);
+    expect(observations).toHaveLength(3);
+    expect(observations.every(observation => observation.fileExists)).toBe(true);
+    expect(observations[0].persisted).toEqual(result.discovery);
+    expect(observations[0].persisted.all).toMatchObject({
+      availableIDs: ["synthetic-canonical", "synthetic-capacity", "synthetic-ff7"],
+      filteredSelectedIDs: ["synthetic-canonical", "synthetic-capacity", "synthetic-ff7"],
+      availableCount: 3,
+      filteredSelectedCount: 3,
+    });
+    expect(observations[0].persisted.suites).toMatchObject({
+      canonical: { state: "selected", availableIDs: ["synthetic-canonical"], selectedIDs: ["synthetic-canonical"] },
+      capacity: { state: "selected", availableIDs: ["synthetic-capacity"], selectedIDs: ["synthetic-capacity"] },
+      ff7: { state: "selected", availableIDs: ["synthetic-ff7"], selectedIDs: ["synthetic-ff7"] },
+    });
+    expect(branchResults).toEqual([
+      { suite: "canonical", branch: "thrown" },
+      { suite: "capacity", branch: "signal", result: { status: null, signal: "SIGTERM" } },
+      { suite: "ff7", branch: "nonzero", result: { status: 1 } },
+    ]);
+    expect(reportError).toHaveBeenCalledWith("E2E suite 'canonical' could not launch: synthetic launch error");
+    expect(reportError).toHaveBeenCalledTimes(1);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
