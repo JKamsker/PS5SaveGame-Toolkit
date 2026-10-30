@@ -108,6 +108,7 @@ The job IDs below are the workflow keys, rather than matrix-expanded display nam
 | [ci.yml](../.github/workflows/ci.yml) | `csharp-size` | Exact PR/base-range C# size gate plus a full report-only debt audit. |
 | [ci.yml](../.github/workflows/ci.yml) | `e2e` | Ubuntu Chromium tests against the built API/UI. |
 | [dependency-drift.yml](../.github/workflows/dependency-drift.yml) | `report` | Weekly/manual report-only NuGet/npm version drift; no secrets, updates or auto-merge. |
+| [nightly-stryker.yml](../.github/workflows/nightly-stryker.yml) | `mutation` | Informational Core/SDK production-code mutation testing through Core tests, with per-project scores and HTML reports. |
 | [nightly-fuzz.yml](../.github/workflows/nightly-fuzz.yml) | `fuzz` | Ubuntu scheduled/manual mutation sweep with synthetic seeds, reproducible seed/count overrides and metadata-only failure reports. |
 | [docs.yml](../.github/workflows/docs.yml) | `build` | Curated documentation, generated SDK/OpenAPI references and static links on PRs, main pushes and manual dispatch. |
 | [docs.yml](../.github/workflows/docs.yml) | `deploy` | Publish verified documentation to GitHub Pages on main only. |
@@ -122,6 +123,33 @@ synthetic seeds are available; all current plugins provide synthetic seeds. See 
 [mutation harness contract](PLUGIN_GUIDE.md#deterministic-mutation-fuzzing-40).
 The [cross-plugin detection matrix](PLUGIN_GUIDE.md#tests) runs its synthetic routing checks
 in normal Core tests; its external-sample check skips when no matching archives are available.
+
+The independent [nightly Stryker workflow](../.github/workflows/nightly-stryker.yml) runs at
+**01:47 UTC** and through Actions → Nightly Stryker (informational) → Run workflow. Separate
+Core/SDK matrix jobs mutate all production C# files in `src/SaveToolkit.Core` and
+`src/SaveToolkit.Sdk`, using `tests/SaveToolkit.Core.Tests`. Each job has a **90-minute timeout**,
+`continue-on-error: true` and no score gate; it never runs on pushes or pull requests and adds
+no work to CI or nightly fuzz. The local manifest pins **Stryker.NET 5.0.0**. The shared
+`tests/stryker-config.json` selects its native preview **MTP** runner, compatible with the
+`global.json` test runner; see [Stryker's MTP support announcement](https://stryker-mutator.io/blog/stryker-net-mtp-runner/).
+Stryker runs in [solution mode](https://stryker-mutator.io/docs/stryker-net/configuration/)
+from a temporary three-project solution (Core, SDK and Core.Tests), created with recursive
+reference inclusion disabled. This bounds test discovery to Core.Tests; referenced plugin test
+projects still build normally but do not join mutation test execution. Scratch also receives
+copies of `global.json` and the tool manifest so SDK/tool selection stays pinned in solution mode.
+The existing optional Core-test MTP configuration link excludes allocation, API-hosting,
+mutation-fuzz, conformance, save-mutation, scratch and documentation test classes from this
+sweep; ordinary CI retains them. No private samples are downloaded: `SAVETOOLKIT_ARTIFACTS`
+points to an existing empty scratch directory, and all temporary data/reports use `runner.temp`.
+
+Each project writes its mutation score and status counts to the step summary, explicitly
+reporting unavailable results after a failure. The score is `(Killed + Timeout) / (Killed +
+Timeout + Survived + NoCoverage)`; compile-error and ignored mutants are excluded. HTML and JSON
+reports are uploaded even after a failed sweep when available, with **3-day retention**.
+Treat scores as diagnostic: native MTP remains preview and compiler fallbacks can exclude
+methods. The [mutation-testing guide](../tests/README.md) records these limitations and the
+local runner. Hosted jobs discard instrumented assemblies with the runner; after local
+sweeps, rebuild before ordinary tests and never run both concurrently.
 
 ## Framework mutation testing
 

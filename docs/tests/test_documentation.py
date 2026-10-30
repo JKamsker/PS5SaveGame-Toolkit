@@ -416,7 +416,7 @@ class DocumentationTests(unittest.TestCase):
         self.assertNotIn("backend_filter", release)
 
     def test_ci_caches_match_dependency_inputs_and_keep_browser_system_dependencies(self):
-        for path in ("ci.yml", "nightly-fuzz.yml", "release.yml"):
+        for path in ("ci.yml", "nightly-fuzz.yml", "nightly-stryker.yml", "release.yml"):
             workflow = document(f".github/workflows/{path}")
             for setup in workflow.split("uses: actions/setup-dotnet@v6")[1:]:
                 setup = setup.split("\n      - ", 1)[0]
@@ -449,6 +449,28 @@ class DocumentationTests(unittest.TestCase):
         self.assertNotIn("push:", workflow)
         self.assertIn("retention-days: 14", workflow)
         self.assertIn("report-only", document("docs/RELEASING.md"))
+
+    def test_nightly_stryker_is_informational_bounded_and_uses_native_mtp(self):
+        workflow = document(".github/workflows/nightly-stryker.yml")
+        releasing = markdown_section(document("docs/RELEASING.md"), "## Continuous integration")
+        manifest = json.loads(document(".config/dotnet-tools.json"))
+        config = json.loads(document("tests/stryker-config.json"))["stryker-config"]
+        version = manifest["tools"]["dotnet-stryker"]["version"]
+        self.assertEqual("mtp", config["test-runner"])
+        self.assertEqual(0, config["thresholds"]["break"])
+        for fragment in ("cron: '47 1 * * *'", "workflow_dispatch:", "continue-on-error: true",
+                         "timeout-minutes: 90", "fail-fast: false", "project: [Core, Sdk]",
+                         "tests/SaveToolkit.Core.Tests/SaveToolkit.Core.Tests.csproj", "dotnet tool restore",
+                         "--include-references false", "working-directory: ${{ runner.temp }}/stryker",
+                         f"Restore pinned Stryker.NET {version}", "tests/stryker-config.json",
+                         "@('progress', 'html', 'json')", "SAVETOOLKIT_ARTIFACTS=$scratch/empty-samples",
+                         "GITHUB_STEP_SUMMARY", "mutation-report.html", "retention-days: 3"):
+            self.assertIn(fragment, workflow)
+        self.assertEqual(2, workflow.count("if: always()"))
+        for fragment in ("pull_request:", "push:", "secrets.", "contents: write", "23 3 * * *"):
+            self.assertNotIn(fragment, workflow)
+        for fragment in ("01:47 UTC", "90-minute timeout", "3-day retention", f"Stryker.NET {version}"):
+            self.assertIn(fragment, releasing)
 
     def test_coverage_platforms_and_nightly_fuzz_match_workflows(self):
         workflow = document(".github/workflows/ci.yml")
