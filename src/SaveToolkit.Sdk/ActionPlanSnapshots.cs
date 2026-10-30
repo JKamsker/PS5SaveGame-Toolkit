@@ -21,130 +21,77 @@ public static class ActionPlanSnapshots
     /// <summary>Maximum warning or description length in effect presentation.</summary>
     public const int MaxPresentationTextLength = 4_096;
 
-    /// <summary>Creates a detached, bounded snapshot of a plan.</summary>
-    public static ActionPlan Snapshot(ActionPlan plan)
+
+    /// <summary>Creates a detached snapshot after admitting every actual collection traversal.</summary>
+    public static ActionPlan Snapshot(ActionPlan plan, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(plan);
-        var total = checked((long)plan.Changes.Count + plan.SkippedRows.Count + plan.Warnings.Count + plan.Errors.Count);
-        if (total > MaxPlanEntries) throw new InvalidOperationException("The action plan exceeds the bounded entry limit.");
-        Admit(plan);
+        Validate(plan, cancellationToken);
         return plan with
         {
-            Changes = Array.AsReadOnly(SnapshotChanges(plan.Changes)),
-            SkippedRows = Array.AsReadOnly(SnapshotRows(plan.SkippedRows)),
-            Warnings = Array.AsReadOnly(SnapshotStrings(plan.Warnings)),
-            Errors = Array.AsReadOnly(SnapshotErrors(plan.Errors)),
+            Changes = Array.AsReadOnly(BoundedMetadataCollections.Enumerate(plan.Changes, MaxPlanEntries, cancellationToken)
+                .Select(change => change with { Effect = SnapshotEffect(change.Effect, cancellationToken) }).ToArray()),
+            SkippedRows = Array.AsReadOnly(BoundedMetadataCollections.Copy(plan.SkippedRows, MaxPlanEntries, cancellationToken)),
+            Warnings = Array.AsReadOnly(BoundedMetadataCollections.Copy(plan.Warnings, MaxPlanEntries, cancellationToken)),
+            Errors = Array.AsReadOnly(BoundedMetadataCollections.Copy(plan.Errors, MaxPlanEntries, cancellationToken)),
         };
-    }
-
-    private static PlannedChange[] SnapshotChanges(IEnumerable<PlannedChange> source) =>
-        source.SelectBounded(Snapshot);
-    private static SkippedActionRow[] SnapshotRows(IEnumerable<SkippedActionRow> source) =>
-        source.SelectBounded(row => row with { });
-    private static string[] SnapshotStrings(IEnumerable<string> source) =>
-        source.SelectBounded(static value => value);
-    private static FieldError[] SnapshotErrors(IEnumerable<FieldError> source) =>
-        source.SelectBounded(error => error with { });
-
-    private static T[] SelectBounded<T>(this IEnumerable<T> source, Func<T, T> copy)
-    {
-        var values = new List<T>();
-        foreach (var item in source)
-        {
-            if (values.Count >= MaxPlanEntries) throw new InvalidOperationException("The action plan exceeds the bounded entry limit.");
-            values.Add(copy(item));
-        }
-        return values.ToArray();
     }
 
     /// <summary>Returns the serialized UTF-8 size of a bounded plan.</summary>
     public static long SerializedSize(ActionPlan plan)
     {
+        Validate(plan);
+        return JsonSerializer.SerializeToUtf8Bytes(plan, MetadataJson.Options).LongLength;
+    }
+
+    /// <summary>Admits finite graph shape before serialization, authority lookup or detached copies.</summary>
+    public static void Validate(ActionPlan plan, CancellationToken cancellationToken = default)
+    {
         ArgumentNullException.ThrowIfNull(plan);
-        return JsonSerializer.SerializeToUtf8Bytes(plan).LongLength;
-    }
-
-    private static PlannedChange Snapshot(PlannedChange change)
-    {
-        if (change.Effect is not null && (change.ValueId.Length > MaxEffectIdLength || change.Label.Length > MaxEffectLabelLength))
-            throw new InvalidOperationException("Action plan identity or label exceeds its bounded limit.");
-        return change with { Effect = Snapshot(change.Effect) };
-    }
-
-    private static void Admit(ActionPlan plan)
-    {
-        long budget = 4 * 1024 * 1024;
-        var count = 0;
-        foreach (var change in plan.Changes)
+        var total = checked((long)plan.Changes.Count + plan.SkippedRows.Count + plan.Warnings.Count + plan.Errors.Count);
+        if (total > MaxPlanEntries) throw new InvalidOperationException("The action plan exceeds the bounded entry limit.");
+        BoundedMetadataCollections.Visit(plan.SkippedRows, MaxPlanEntries, row => ArgumentNullException.ThrowIfNull(row), cancellationToken);
+        BoundedMetadataCollections.Visit(plan.Warnings, MaxPlanEntries, value => ArgumentNullException.ThrowIfNull(value), cancellationToken);
+        BoundedMetadataCollections.Visit(plan.Errors, MaxPlanEntries, value => ArgumentNullException.ThrowIfNull(value), cancellationToken);
+        BoundedMetadataCollections.Visit(plan.Changes, MaxPlanEntries, change =>
         {
-            if (++count > MaxPlanEntries) throw new InvalidOperationException("The action plan exceeds the bounded entry limit.");
+            ArgumentNullException.ThrowIfNull(change);
             if (change.Effect is { } effect)
             {
-                Add(ref budget, effect.Spec);
-                Add(ref budget, change.ValueId);
-                Add(ref budget, change.Label);
-                Add(ref budget, effect.Source);
-                if (effect.Path is { } path)
-                {
-                    AddBytes(ref budget, path.Count * 16L);
-                    foreach (var part in path) Add(ref budget, part);
-                }
-                if (effect.Presentation is { } presentation)
-                {
-                    Add(ref budget, presentation.Warning);
-                    Add(ref budget, presentation.Description);
-                }
+                if (change.ValueId.Length > MaxEffectIdLength || change.Label.Length > MaxEffectLabelLength)
+                    throw new InvalidOperationException("Action plan identity or label exceeds its bounded limit.");
+                ValidateEffect(effect, cancellationToken);
             }
-        }
+        }, cancellationToken);
     }
 
-    private static void Add(ref long remaining, FieldSpec spec)
+    private static void ValidateEffect(ActionEffectDescriptor effect, CancellationToken cancellationToken)
     {
-        if (!FieldSpecMetadata.TryEstimate(spec, remaining, out var cost))
-        {
-            var reason = FieldSpecMetadata.TryEstimate(spec, long.MaxValue, out _)
-                ? "Action plan exceeds its bounded budget."
-                : "Action effect spec exceeds bounded depth or node limit.";
-            throw new InvalidOperationException(reason);
-        }
-        remaining -= cost;
-    }
-
-    private static void Add(ref long remaining, string? value)
-    {
-        if (value is null) return;
-        var cost = checked(value.Length * 2L);
-        if (cost > remaining) throw new InvalidOperationException("Action plan exceeds its bounded budget.");
-        remaining -= cost;
-    }
-
-    private static void AddBytes(ref long remaining, long cost)
-    {
-        if (cost < 0 || cost > remaining) throw new InvalidOperationException("Action plan exceeds its bounded budget.");
-        remaining -= cost;
-    }
-
-    private static ActionEffectDescriptor? Snapshot(ActionEffectDescriptor? effect)
-    {
-        if (effect is null) return null;
-        if (effect.Source?.Length > MaxEffectSourceLength)
-            throw new InvalidOperationException("Action effect source exceeds its bounded limit.");
+        if (!Enum.IsDefined(effect.Kind) || effect.Source?.Length > MaxEffectSourceLength)
+            throw new InvalidOperationException("Action effect kind or source exceeds its bounded limit.");
         if (effect.Path is { } path)
-        {
-            if (path.Count > MaxEffectPathParts || path.Any(part => part is null || part.Length > MaxEffectPathPartLength))
-                throw new InvalidOperationException("Action effect path exceeds its bounded limit.");
-        }
+            BoundedMetadataCollections.Visit(path, MaxEffectPathParts, part =>
+            {
+                if (part is null || part.Length > MaxEffectPathPartLength)
+                    throw new InvalidOperationException("Action effect path exceeds its bounded limit.");
+            }, cancellationToken);
         if (effect.Presentation is { Warning.Length: > MaxPresentationTextLength }
             || effect.Presentation is { Description.Length: > MaxPresentationTextLength })
             throw new InvalidOperationException("Action effect presentation exceeds its bounded limit.");
         if (effect.Presentation?.Confidence is { } confidence && !Enum.IsDefined(confidence))
             throw new InvalidOperationException("Action effect confidence is invalid.");
-        if (!effect.Spec.ReadOnly || !FieldSpecMetadata.TryEstimate(effect.Spec, 4 * 1024 * 1024, out _))
+        if (!effect.Spec.ReadOnly || !FieldSpecMetadata.TryEstimate(effect.Spec, long.MaxValue, out _, cancellationToken))
             throw new InvalidOperationException("Action effect specs must be bounded and read-only.");
         if (ContainsReferenceCallback(effect.Spec))
             throw new InvalidOperationException("Action effect references cannot execute eligibility callbacks.");
-        return effect.Snapshot();
     }
+
+    private static ActionEffectDescriptor? SnapshotEffect(ActionEffectDescriptor? effect, CancellationToken cancellationToken) =>
+        effect is null ? null : effect with
+        {
+            Spec = FieldSpecMetadata.SnapshotBounded(effect.Spec, cancellationToken),
+            Path = effect.Path is { } path ? BoundedMetadataCollections.Path(path, cancellationToken) : null,
+            Presentation = effect.Presentation is { } presentation ? presentation with { } : null,
+        };
 
     private static bool ContainsReferenceCallback(FieldSpec spec) => spec switch
     {
@@ -153,5 +100,4 @@ public static class ActionPlanSnapshots
         UnionSpec union => union.Options.Any(option => ContainsReferenceCallback(option.Spec)),
         _ => false,
     };
-
 }

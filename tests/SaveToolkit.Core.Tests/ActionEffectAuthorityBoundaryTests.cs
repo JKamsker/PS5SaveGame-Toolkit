@@ -24,7 +24,7 @@ public sealed class ActionEffectAuthorityBoundaryTests
 
         var metadata = FieldMetadataPlanning.Validate(index, document, plan);
 
-        Assert.Single(metadata);
+        Assert.Equal(["alias", "target"], metadata.Select(field => field.ValueId));
         Assert.Equal(2, document.ResolverCalls);
     }
 
@@ -46,9 +46,8 @@ public sealed class ActionEffectAuthorityBoundaryTests
         var error = Assert.Throws<InvalidOperationException>(() => FieldMetadataPlanning.Validate(index, document, plan));
 
         Assert.Contains("bounded", error.Message, StringComparison.OrdinalIgnoreCase);
-        // The two admitted IDs may reach their live getters; the third closure target is
-        // rejected before it can be admitted or published.
-        Assert.Equal(2, document.GetterCalls);
+        // The entire closure must fit before any live getter or publication.
+        Assert.Equal(0, document.GetterCalls);
         Assert.Equal(2, document.ResolverCalls);
     }
 

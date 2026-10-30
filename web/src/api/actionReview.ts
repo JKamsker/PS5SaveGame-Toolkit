@@ -66,6 +66,26 @@ export function reviewEffectValue(value: FieldValue, exists: boolean, spec: Fiel
   return formatTypedValue(value, spec);
 }
 
+/** Lossless union evidence: opaque tags and nested scalar kinds have explicit JSON boundaries. */
+export function reviewEffectExactValue(value: FieldValue, exists: boolean, spec: FieldSpec): string {
+  if (!exists || !containsUnion(value)) return reviewEffectValue(value, exists, spec);
+  return JSON.stringify(typedEvidence(value, spec));
+}
+
+function containsUnion(value: FieldValue): boolean {
+  return value !== null && typeof value === "object" && value.kind === "union";
+}
+
+function typedEvidence(value: FieldValue, spec: FieldSpec): unknown {
+  if (spec.kind === "nullable") return value === null
+    ? { kind: "null", value: null } : typedEvidence(value, spec.inner);
+  if (spec.kind === "union" && value !== null && typeof value === "object" && value.kind === "union") {
+    const option = spec.options.find(candidate => candidate.id === value.type);
+    return { kind: "union", type: value.type, value: option ? typedEvidence(value.value, option.spec) : value.value };
+  }
+  return { kind: value === null ? "null" : spec.kind, value };
+}
+
 /** Plain text for any wire value, including tagged exact numbers and union choices (F10). */
 function formatValue(value: FieldValue): string {
   if (value === null) return "null";
@@ -78,7 +98,8 @@ function formatTypedValue(value: FieldValue, spec: FieldSpec): string {
   if (spec.kind === "nullable") return formatTypedValue(value, spec.inner);
   if (spec.kind === "union" && typeof value === "object" && value.kind === "union") {
     const option = spec.options.find(candidate => candidate.id === value.type);
-    return `${value.type}: ${option ? formatTypedValue(value.value, option.spec) : formatValue(value.value)}`;
+    const tag = /^[\w-]+$/.test(value.type) ? value.type : JSON.stringify(value.type);
+    return `${tag}: ${option ? formatTypedValue(value.value, option.spec) : formatValue(value.value)}`;
   }
   if (typeof value === "object") return `${spec.kind}: ${formatValue(value)}`;
   return `${spec.kind}: ${String(value)}`;

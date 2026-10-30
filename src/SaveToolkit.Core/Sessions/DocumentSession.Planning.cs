@@ -90,34 +90,28 @@ public sealed partial class DocumentSession
                 ? group.PlanForSession(actionId, readOnlyValues, requested, cancellationToken)
                 : planner.PlanAction(actionId, readOnlyValues, requested);
             cancellationToken.ThrowIfCancellationRequested();
-            var detachedPlan = ActionPlanSnapshots.Snapshot(plan);
-            var bytes = BoundedJson.Serialize(detachedPlan, MaxPlanBytes);
-            var requestBytes = BoundedJson.Serialize(readOnlyValues, MaxPlanBytes).LongLength
-                + BoundedJson.Serialize(requested, MaxPlanBytes).LongLength;
+            var requestBytes = BoundedJson.Measure(readOnlyValues, MaxPlanBytes)
+                + BoundedJson.Measure(requested, MaxPlanBytes);
+            ActionPlanSnapshots.Validate(plan, cancellationToken);
+            var planAllowance = checked((int)(MaxPlanBytes - requestBytes));
+            var planBytes = BoundedJson.Measure(plan, planAllowance);
             cancellationToken.ThrowIfCancellationRequested();
-            var metadataBudget = MaxPlanBytes - bytes.LongLength - requestBytes;
+            var metadataBudget = MaxPlanBytes - planBytes - requestBytes;
             if (metadataBudget < 0)
             {
                 return Reject([new FieldError(actionId, "Preview is too large; narrow its scope.")]);
             }
 
-            if (detachedPlan.Errors.Count > 0)
-            {
-                return new ActionPreview(null, _revision, requested, detachedPlan);
-            }
+            if (plan.Errors.Count > 0)
+                return new ActionPreview(null, _revision, requested, ActionPlanSnapshots.Snapshot(plan, cancellationToken));
 
             cancellationToken.ThrowIfCancellationRequested();
-            var metadata = FieldMetadataPlanning.Validate(_index, Document, detachedPlan, _referenceFields,
+            var metadata = FieldMetadataPlanning.Validate(_index, Document, plan, _referenceFields,
                 cancellationToken, metadataBudget);
             cancellationToken.ThrowIfCancellationRequested();
-            var metadataBytes = 0L;
-            if (_index.HasFieldMetadata)
-            {
-                metadataBytes = BoundedJson.Serialize(metadata, MaxPlanBytes).LongLength;
-            }
-            if (_index.HasFieldMetadata
-                && bytes.LongLength + requestBytes + metadataBytes > MaxPlanBytes)
-                return Reject([new FieldError(actionId, "Preview metadata is too large; narrow its scope.")]);
+            // Validation admitted the complete canonical dependency closure before copying or getters.
+            var detachedPlan = ActionPlanSnapshots.Snapshot(plan, cancellationToken);
+            var bytes = BoundedJson.Serialize(detachedPlan, planAllowance);
             cancellationToken.ThrowIfCancellationRequested();
             var id = Guid.NewGuid().ToString("N");
             _pendingAction = new PendingAction(id, _revision, actionId, readOnlyValues, requested, bytes, metadata,
@@ -140,7 +134,7 @@ public sealed partial class DocumentSession
         }
         catch (Exception ex) when (ex is not OutOfMemoryException and not OperationCanceledException)
         {
-            return Reject([new FieldError(actionId, $"Planning failed: {ex.Message}")]);
+            return Reject([new FieldError(actionId, $"Planning failed: {ActionEffectOutcomes.Diagnostic(ex)}")]);
         }
     }
 
@@ -188,20 +182,25 @@ public sealed partial class DocumentSession
             cancellationToken.ThrowIfCancellationRequested();
             // Apply uses the same detached graph admission as preview. This keeps provider-owned
             // nested specs/presentation/path lists from bypassing bounds or changing while checked.
-            var detachedFresh = ActionPlanSnapshots.Snapshot(fresh);
-            if (detachedFresh.Errors.Count > 0)
-                return new SessionEditResult { Errors = detachedFresh.Errors, Warnings = detachedFresh.Warnings, State = StateUnlocked() };
-
+            var requestBytes = BoundedJson.Measure(pending.Parameters, MaxPlanBytes)
+                + BoundedJson.Measure(pending.Scope, MaxPlanBytes);
+            ActionPlanSnapshots.Validate(fresh, cancellationToken);
+            var planAllowance = checked((int)(MaxPlanBytes - requestBytes));
+            var planBytes = BoundedJson.Measure(fresh, planAllowance);
+            if (fresh.Errors.Count > 0)
+            {
+                var rejected = ActionPlanSnapshots.Snapshot(fresh, cancellationToken);
+                return new SessionEditResult { Errors = rejected.Errors, Warnings = rejected.Warnings, State = StateUnlocked() };
+            }
             cancellationToken.ThrowIfCancellationRequested();
-            var freshBytes = BoundedJson.Serialize(detachedFresh, MaxPlanBytes);
-            var requestBytes = BoundedJson.Serialize(pending.Parameters, MaxPlanBytes).LongLength
-                + BoundedJson.Serialize(pending.Scope, MaxPlanBytes).LongLength;
-            var metadataBudget = MaxPlanBytes - freshBytes.LongLength - requestBytes;
+            var metadataBudget = MaxPlanBytes - planBytes - requestBytes;
             if (metadataBudget < 0)
                 return Rejected(pending.ActionId, "Preview is too large; narrow its scope.");
-            var metadata = FieldMetadataPlanning.Validate(_index, Document, detachedFresh, _referenceFields,
+            var metadata = FieldMetadataPlanning.Validate(_index, Document, fresh, _referenceFields,
                 cancellationToken, metadataBudget);
             cancellationToken.ThrowIfCancellationRequested();
+            var detachedFresh = ActionPlanSnapshots.Snapshot(fresh, cancellationToken);
+            var freshBytes = BoundedJson.Serialize(detachedFresh, planAllowance);
             if (!FieldMetadataPlanning.Agree(pending.Metadata, metadata)
                 || !pending.PlanBytes.AsSpan().SequenceEqual(freshBytes))
             {
@@ -235,10 +234,11 @@ public sealed partial class DocumentSession
                 try
                 {
                     var outcome = planner.ApplyActionPlan(pending.ActionId, pending.Parameters, pending.Scope, detachedFresh);
+                    if (pending.HasEffects) outcome = ActionEffectOutcomes.Snapshot(outcome);
                     if (!outcome.Succeeded)
                     {
                         restoreAttempted = true;
-                        RestoreFailedEffect(effectDocument, before, string.Join("; ", outcome.Errors.Select(error => error.Message)));
+                        RestoreFailedEffect(effectDocument, before, ActionEffectOutcomes.FailureSummary(outcome.Errors));
                         return FromOutcome(outcome);
                     }
                     if (pending.HasEffects)
@@ -248,15 +248,20 @@ public sealed partial class DocumentSession
                         var after = effectDocument!.CaptureMemento();
                         CheckSnapshotBudget(after);
                     }
+                    // Complete every provider collection traversal and projection while the
+                    // local rollback owner still owns the pre-apply token.
+                    var semanticChanges = pending.HasEffects
+                        ? outcome.Changes.Where(change => canonicalIds!.Contains(change.ValueId)).ToArray()
+                        : outcome.Changes;
+                    var result = FromOutcome(outcome);
                     var warnings = pending.HasEffects
                         ? Record(new MementoStep(before!))
                         : outcome.Revert is { } revert ? Record(new MementoStep(revert))
                         : outcome.Changes.Count > 0 ? Record(new ValueStep(outcome.Changes)) : [];
-                    var semanticChanges = pending.HasEffects
-                        ? outcome.Changes.Where(change => canonicalIds!.Contains(change.ValueId)).ToArray()
-                        : outcome.Changes;
+                    // Record has transferred token ownership to RunGroup; nothing that can
+                    // enumerate provider output may intervene before this assignment.
                     historyRecorded = pending.HasEffects || outcome.Revert is not null || outcome.Changes.Count > 0;
-                    return AfterChange(FromOutcome(outcome), pending.HasEffects || outcome.StructureChanged || outcome.Revert is not null,
+                    return AfterChange(result, pending.HasEffects || outcome.StructureChanged || outcome.Revert is not null,
                         warnings, semanticChanges, pending.HasEffects);
                 }
                 catch (Exception failure)
@@ -264,7 +269,7 @@ public sealed partial class DocumentSession
                     if (!historyRecorded && !restoreAttempted)
                     {
                         restoreAttempted = true;
-                        RestoreFailedEffect(effectDocument, before, failure.Message);
+                        RestoreFailedEffect(effectDocument, before, ActionEffectOutcomes.Diagnostic(failure));
                     }
                     throw;
                 }
@@ -273,7 +278,7 @@ public sealed partial class DocumentSession
         catch (Exception ex) when (ex is not OutOfMemoryException and not OperationCanceledException)
         {
             var warnings = _unusable ? [] : RebuildIndex(forceNewRevision: false);
-            return Rejected(pending.ActionId, $"Action failed: {ex.Message}") with { Warnings = warnings, State = StateUnlocked() };
+            return Rejected(pending.ActionId, $"Action failed: {ActionEffectOutcomes.Diagnostic(ex)}") with { Warnings = warnings, State = StateUnlocked() };
         }
     }
 
@@ -290,19 +295,17 @@ public sealed partial class DocumentSession
         {
             _ = Document.RestoreMemento(before);
             var warnings = RebuildIndex(forceNewRevision: false);
-            if (warnings.Count > 0) throw new InvalidOperationException(string.Join("; ", warnings));
+            if (warnings.Count > 0) throw new InvalidOperationException(ActionEffectOutcomes.Bound(warnings[0]));
         }
         catch (Exception restore) when (restore is not OutOfMemoryException)
         {
             MarkUnusable();
-            var primary = BoundDiagnostic(primaryError ?? "The action outcome was rejected.");
-            var secondary = BoundDiagnostic(restore.Message);
+            var primary = ActionEffectOutcomes.Bound(primaryError ?? "The action outcome was rejected.");
+            var secondary = ActionEffectOutcomes.Diagnostic(restore);
             throw new InvalidOperationException(
                 $"Action failed ({primary}) and its snapshot could not restore the document ({secondary}); reopen it before continuing.", restore);
         }
     }
-
-    private static string BoundDiagnostic(string message) => message.Length <= 512 ? message : message[..512] + "…";
 
     // Shared by edits, actions and planning: host caches/preview publication are transactional
     // until the final token check. Plugin mutation and history must then complete together.

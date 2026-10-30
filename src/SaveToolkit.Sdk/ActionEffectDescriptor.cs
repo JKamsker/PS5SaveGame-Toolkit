@@ -34,7 +34,7 @@ public sealed record ActionEffectDescriptor(ActionEffectKind Kind, FieldSpec Spe
         {
             Spec = FieldSpecMetadata.Snapshot(Spec),
             Presentation = Presentation is null ? null : Presentation with { },
-            Path = Path is null ? null : Array.AsReadOnly(Path.ToArray()),
+            Path = Path is null ? null : BoundedMetadataCollections.Path(Path),
         };
     }
 }

@@ -1,4 +1,4 @@
-import { reviewEffectValue, reviewValue } from "../../../api/actionReview";
+import { reviewEffectExactValue, reviewEffectValue, reviewValue } from "../../../api/actionReview";
 import type { usePlannedAction } from "./usePlannedAction";
 import { ReviewPager } from "./paging";
 
@@ -50,7 +50,8 @@ function EffectRow({ change }: { change: ReturnType<typeof usePlannedAction>["ef
 
 function Payload({ value, exists, spec }: { value: Parameters<typeof reviewValue>[0]; exists: boolean; spec: Parameters<typeof reviewEffectValue>[2] }) {
   const text = reviewEffectValue(value, exists, spec);
+  const exact = reviewEffectExactValue(value, exists, spec);
   return <details><summary>{text.length > 120 ? `${text.slice(0, 117)}…` : text}</summary>
-    <pre>{text}</pre><button type="button" className="btn btn--small" onClick={() => void navigator.clipboard?.writeText(text)}>Copy exact</button>
+    <pre>{exact}</pre><button type="button" className="btn btn--small" onClick={() => void navigator.clipboard?.writeText(exact)}>Copy exact</button>
   </details>;
 }

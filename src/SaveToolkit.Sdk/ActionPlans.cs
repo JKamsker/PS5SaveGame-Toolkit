@@ -28,6 +28,8 @@ public static class ActionPlans
     {
         ArgumentNullException.ThrowIfNull(reviewed);
         ArgumentNullException.ThrowIfNull(fresh);
+        ActionPlanSnapshots.Validate(reviewed);
+        ActionPlanSnapshots.Validate(fresh);
         return reviewed.Changes.Count == fresh.Changes.Count && reviewed.Changes.Zip(fresh.Changes).All(pair => ChangeEquals(pair.First, pair.Second)) && reviewed.SkippedRows.SequenceEqual(fresh.SkippedRows) &&
             reviewed.Warnings.SequenceEqual(fresh.Warnings, StringComparer.Ordinal) && reviewed.Errors.SequenceEqual(fresh.Errors);
     }
