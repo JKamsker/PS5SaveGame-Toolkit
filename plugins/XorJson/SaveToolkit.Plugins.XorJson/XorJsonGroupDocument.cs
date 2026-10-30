@@ -6,13 +6,15 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.XorJson;
 
-internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDocument, IActionPlanningDocument
+internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDocument, IActionPlanningDocument,
+    IFieldMetadataDocument, IGroupedFieldContext
 {
     private const string GroupWarning = "Experimental character/global transaction. No shared game dependency or console reload has been verified; every member is staged and exported together, but the game may reject or repair the result.";
     private const string UnknownMemberIdentity = "Unknown XorJson group member identity.";
     private readonly IReferenceContext _references;
     private readonly DocumentMemberAdapter[] _members;
     private readonly DocumentMemberRouter _router;
+    private readonly IReadOnlyDictionary<string, string> _relativePaths;
     private static readonly DocumentMemberIdentityPolicy MemberIdentity = new()
     {
         TableCellScope = static (scope, row, _) => scope + "/" + row,
@@ -27,6 +29,8 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
     public XorJsonGroupDocument(XorJsonPlugin plugin, DocumentGroupInput input, IReferenceContext references)
     {
         _references = references;
+        _relativePaths = input.Members.ToDictionary(member => member.Role, member => member.File.RelativePath,
+            StringComparer.Ordinal);
         _members = input.Members.OrderBy(member => member.Role, StringComparer.Ordinal)
             .Select(member => new DocumentMemberAdapter(member.Role,
                 plugin.Open(member.File, references), MemberIdentity)).ToArray();
@@ -47,6 +51,34 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
     public IReadOnlyList<ViewNode> ExpandNode(string lazyId) => Resolve(lazyId).ExpandNode(lazyId);
 
     public FieldValue GetValue(string valueId) => Resolve(valueId).GetValue(valueId);
+
+    public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+    {
+        JsonMetadataRequest.Validate(valueIds);
+        var owned = new List<string>(valueIds.Count);
+        foreach (var valueId in valueIds.Distinct(StringComparer.Ordinal))
+        {
+            try { _ = _router.Resolve(valueId); owned.Add(valueId); }
+            catch (KeyNotFoundException) { }
+        }
+
+        return owned.Count == 0 ? [] : _router.ResolveFieldMetadata(owned);
+    }
+
+    public IReadOnlyList<DocumentGroupFieldContext> ResolveFieldContext(IReadOnlyList<string> valueIds)
+    {
+        var fields = ResolveFieldMetadata(valueIds);
+        var contexts = new List<DocumentGroupFieldContext>(fields.Count);
+        foreach (var field in fields)
+        {
+            var member = Resolve(field.ValueId);
+            if (!_relativePaths.TryGetValue(member.Role, out var relativePath))
+                throw new InvalidOperationException($"Group member '{member.Role}' has no selected relative path.");
+            contexts.Add(new DocumentGroupFieldContext(field.ValueId, member.Role, relativePath));
+        }
+
+        return contexts;
+    }
 
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) =>
         Resolve(collectionId).Query(collectionId, query);
