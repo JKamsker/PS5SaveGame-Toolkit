@@ -113,11 +113,12 @@ logs as attachments. `--trace on` retains successful traces as well as failures.
 The standard Playwright teardown stops its API and removes only that invocation's
 workspace/reference-pack directory. Reports, downloads and synthetic inputs remain
 in test output for review. The official local/CI entry partitions discovered tests
-into the original canonical and added real-Unreal suites, verifies their union has
-no omissions or duplicates, and runs both with separate unchanged 180-second,
-one-worker, zero-retry gates. Each has a unique server/scratch/report lifecycle;
-the aggregate allowance includes both mandatory suites. Hosted CI collects both
-reports and discovers the fixture unit project; no private data is required.
+into canonical, real Unreal and [real FF7](../tests/SaveToolkit.Ff7Browser.Tests/README.md)
+suites, verifies their union has no omissions or duplicates, and runs all three
+with separate unchanged 180-second, one-worker, zero-retry gates. Each has a unique
+server/scratch/report lifecycle; the aggregate suite allowance is 540 seconds plus
+discovery/startup, within the unchanged 12-minute CI job. Hosted CI collects all
+reports and discovers the fixture unit projects; no private data is required.
 Suite launch errors are identified and retained as aggregate failures while later
 selected suites are still attempted, just like ordinary nonzero process exits.
 

@@ -467,9 +467,9 @@ Pop-Location
 ```
 
 Playwright's `webServer` starts the real API with `--no-build` on a free loopback port and uses
-temporary workspace/reference-pack directories, removed after the run. Test output and the HTML
-report remain under a unique `invocation-*/canonical` or `invocation-*/unreal` scratch directory,
-with separate JUnit/HTML reports, server ports and temporary workspaces. CI collects both reports
+temporary workspace/reference-pack/preset directories, removed after the run. Test output and the HTML
+report remain under unique `invocation-*/canonical`, `invocation-*/unreal` and `invocation-*/ff7` scratch directories,
+with separate JUnit/HTML reports, server ports and temporary workspaces. CI collects all three reports
 and the discovery manifest. `SAVETOOLKIT_E2E_SCRATCH` overrides the platform default (the D: path
 above on Windows, a directory under the system temp folder elsewhere).
 

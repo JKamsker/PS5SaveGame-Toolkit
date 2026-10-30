@@ -62,4 +62,28 @@ public sealed class Ff7TamperTests(Ff7ApiHost host)
         Assert.Equal(422, (await document.Preview(preset, choices: choices)).Status);
         await document.Unchanged(before);
     }
+
+    [Fact]
+    public async Task UnsupportedInventoryAllMatchesIdentityNeverPresentsAMateriaCandidate()
+    {
+        var binary = Ff7Binary.Create(Ff7Actions.Titles[0]).InventoryMatches(0);
+        await using var document = await Ff7ApiDocument.Open(host, binary);
+        var captured = await document.Capture(Ff7Actions.Restock, new { quantity = "99" }, "selected", ["inventory/0"]);
+        var actions = captured["actions"]!.DeepClone();
+        var instance = actions[0]!["instances"]![0]!;
+        instance["kind"] = instance["kind"]!.GetValue<string>() + ".all-matches";
+        var created = await host.Send("/api/presets", new
+        {
+            name = "Unsupported inventory all-matches", compatibility = captured["compatibility"]!.DeepClone(), actions,
+        });
+        Assert.Equal(200, created.Status);
+        var before = await document.Snapshot();
+        var rejected = await document.Preview(created.Body);
+        Assert.Equal(422, rejected.Status);
+        await document.Unchanged(before);
+        var result = Assert.Single(rejected.Body["preview"]!["resolution"]!["instances"]!.AsArray())!;
+        Assert.Equal("Unsupported", result["status"]!.GetValue<string>());
+        Assert.Empty(result["candidates"]!.AsArray());
+        Assert.Null(rejected.Body["preview"]!["planId"]);
+    }
 }

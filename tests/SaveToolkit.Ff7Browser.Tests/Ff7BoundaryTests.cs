@@ -55,6 +55,11 @@ public sealed class Ff7BoundaryTests(Ff7ApiHost host)
     [InlineData("number-type")]
     [InlineData("wrong-scope")]
     [InlineData("quantity-bool")]
+    [InlineData("quantity-negative")]
+    [InlineData("ap-type")]
+    [InlineData("stars-range")]
+    [InlineData("recovery-parameter")]
+    [InlineData("level-type")]
     [InlineData("level-range")]
     [InlineData("unknown-action")]
     [InlineData("foreign-selected")]
@@ -69,6 +74,11 @@ public sealed class Ff7BoundaryTests(Ff7ApiHost host)
             case "number-type": request["actionId"] = Ff7Actions.Stars; request["parameters"] = new JsonObject { ["type"] = binary.MateriaType, ["stars"] = "2" }; break;
             case "wrong-scope": request["scopeKind"] = "allCopies"; break;
             case "quantity-bool": request["parameters"]!["quantity"] = true; break;
+            case "quantity-negative": request["parameters"]!["quantity"] = "-1"; break;
+            case "ap-type": request["actionId"] = Ff7Actions.Ap; request["parameters"] = new JsonObject { ["type"] = binary.MateriaType.ToString(System.Globalization.CultureInfo.InvariantCulture), ["ap"] = true }; break;
+            case "stars-range": request["actionId"] = Ff7Actions.Stars; request["parameters"] = new JsonObject { ["type"] = binary.MateriaType.ToString(System.Globalization.CultureInfo.InvariantCulture), ["stars"] = "0" }; break;
+            case "recovery-parameter": request["actionId"] = Ff7Actions.Recover; break;
+            case "level-type": request["actionId"] = Ff7Actions.Level; request["parameters"] = new JsonObject { ["level"] = true }; break;
             case "level-range": request["actionId"] = Ff7Actions.Level; request["parameters"] = new JsonObject { ["level"] = "71" }; break;
             case "unknown-action": request["actionId"] = "not-an-action"; break;
             case "foreign-selected": request["scopeKind"] = "selected"; request["selectedRowKeys"] = new JsonArray("materia/0"); break;

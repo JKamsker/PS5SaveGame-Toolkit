@@ -61,7 +61,9 @@ public sealed class Ff7ApiHost : IDisposable
         using var response = await Client.GetAsync(path, Ct);
         response.EnsureSuccessStatusCode();
         var bytes = await response.Content.ReadAsByteArrayAsync(Ct);
-        await File.WriteAllBytesAsync(Path.Combine(Root, $"{Interlocked.Increment(ref _request):D4}.response.json"), bytes, Ct);
+        var prefix = Path.Combine(Root, $"{Interlocked.Increment(ref _request):D4}");
+        await File.WriteAllBytesAsync(prefix + ".response.json", bytes, Ct);
+        await File.WriteAllTextAsync(prefix + ".http.txt", $"GET {path}\n{(int)response.StatusCode}", Ct);
         return JsonNode.Parse(bytes)!;
     }
 
