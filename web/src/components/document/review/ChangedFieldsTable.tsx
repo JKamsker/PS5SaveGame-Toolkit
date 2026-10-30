@@ -37,6 +37,7 @@ function ChangedFieldRow({ change, review, focusSummary }: ReviewProps & { chang
         <summary>Also shown as {change.aliases.length} projection{change.aliases.length === 1 ? "" : "s"}</summary>
         <ul>{change.aliases.map(alias => <li key={alias.valueId}>
           <span>{alias.label}</span>
+          {alias.changed && <span className="review-badge">Changed projection</span>}
           {alias.bindingKind === "Derived" && <span className="review-badge">Derived</span>}
           {alias.presentation?.confidence && <span className="review-confidence">Confidence: {alias.presentation.confidence}</span>}
           {alias.member && <span className="review-context">{alias.member.role} · {alias.member.relativePath}

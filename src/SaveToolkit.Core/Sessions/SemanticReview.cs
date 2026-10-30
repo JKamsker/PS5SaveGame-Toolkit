@@ -13,9 +13,6 @@ internal sealed record SemanticField(string ValueId, string Label, string[] Path
 internal sealed record SemanticReviewState(SemanticSnapshot? Original,
     IReadOnlyList<string> TargetedIds, IReadOnlyList<string> CaptureDiagnostics);
 
-internal sealed record MemberContextResolution(
-    IReadOnlyDictionary<string, SemanticMemberContext> Contexts, int OmittedCount, string? Diagnostic);
-
 /// <summary>
 /// A separate original-value baseline survives history eviction. Both baseline and current walks
 /// are bounded, including lazy expansion and navigation metadata. Partial coverage is never
@@ -347,7 +344,7 @@ internal sealed class SemanticReview
         var noContext = new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal);
         var uncontextualized = SemanticSnapshotComparison.Compare(original.Fields, original.Complete,
             current.Fields, current.Complete, document, noContext, cancellationToken);
-        var contextResolution = ResolveMemberContext(uncontextualized, cancellationToken);
+        var contextResolution = ResolveMemberContext(uncontextualized, Math.Max(original.Bytes, current.Bytes), cancellationToken);
         var changes = contextResolution.Contexts.Count == 0
             ? uncontextualized
             : SemanticSnapshotComparison.Compare(original.Fields, original.Complete,
@@ -363,67 +360,15 @@ internal sealed class SemanticReview
         var coverage = _originalMetadataAvailable == true || document is IFieldMetadataDocument || !complete
             ? new SemanticReviewCoverage(Math.Max(original.ExaminedCount, current.ExaminedCount),
                 original.OmittedCount + current.OmittedCount + _captureOmittedCount + contextResolution.OmittedCount, _maxBytes,
-                Math.Max(original.Bytes, current.Bytes), allWarnings,
+                Math.Min(_maxBytes, Math.Max(original.Bytes, current.Bytes) + contextResolution.AcceptedBytes), allWarnings,
                 original.OmittedCountIsLowerBound || current.OmittedCountIsLowerBound
                     || _captureOmittedCount > 0 || contextResolution.OmittedCount > 0)
             : null;
         return new SemanticChangeLog(changes, complete, allWarnings, revision) { Coverage = coverage };
     }
 
-    private MemberContextResolution ResolveMemberContext(
-        IReadOnlyList<SemanticChange> changes, CancellationToken cancellationToken)
-    {
-        if (_memberContext is null) return new(new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal), 0, null);
-        var ids = new List<string>(Math.Min(FieldMetadataLimits.MaxClosureIds, changes.Count));
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-        var omitted = 0;
-        foreach (var change in changes)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            if (change.CanonicalValueId is not { } canonical || !seen.Add(canonical)) continue;
-            if (ids.Count < FieldMetadataLimits.MaxClosureIds) ids.Add(canonical);
-            else omitted++;
-        }
-        if (ids.Count == 0 && omitted == 0)
-            return new(new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal), 0, null);
-
-        var diagnostics = omitted == 0 ? null
-            : $"Group member context is bounded: omitted at least {omitted} canonical changed IDs.";
-        try
-        {
-            var contexts = _memberContext(ids);
-            var requested = ids.ToHashSet(StringComparer.Ordinal);
-            var mapped = new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal);
-            var malformed = false;
-            foreach (var (id, context) in contexts)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (!requested.Contains(id) || string.IsNullOrWhiteSpace(context.Role)
-                    || string.IsNullOrWhiteSpace(context.RelativePath) || !mapped.TryAdd(id, context))
-                {
-                    malformed = true;
-                    continue;
-                }
-            }
-
-            var missing = ids.Count - mapped.Count;
-            omitted += missing;
-            if (missing > 0 || malformed)
-                diagnostics = diagnostics is null
-                    ? "Group member context is incomplete: the resolver omitted or returned malformed canonical context."
-                    : diagnostics + " The resolver also omitted or returned malformed canonical context.";
-            return new(mapped, omitted, diagnostics);
-        }
-        catch (Exception ex) when (ex is not (OutOfMemoryException or OperationCanceledException))
-        {
-            return new(new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal),
-                omitted + ids.Count,
-                diagnostics is null
-                    ? $"Group member context resolution failed: {ex.Message}"
-                    : diagnostics + $" Resolver failure: {ex.Message}");
-        }
-    }
-
+    private MemberContextResolution ResolveMemberContext(IReadOnlyList<SemanticChange> changes, long usedBytes, CancellationToken cancellationToken) =>
+        SemanticMemberContextResolver.Resolve(_memberContext, changes, usedBytes, _maxBytes, cancellationToken);
     public bool TryOriginal(string id, out FieldValue value)
     {
         if (_original?.Fields.GetValueOrDefault(id) is { } field)

@@ -11,7 +11,7 @@ public sealed record SemanticCollectionTarget(string CollectionId, string RowKey
 /// <summary>Presentation-only identity for an explicitly published projection of a canonical field.</summary>
 public sealed record SemanticProjection(string ValueId, string Label, IReadOnlyList<string> Path,
     FieldBindingKind? BindingKind = null, FieldPresentation? Presentation = null,
-    SemanticMemberContext? Member = null);
+    SemanticMemberContext? Member = null, bool Changed = false);
 
 /// <summary>Server-owned navigation state. A missing target remains reviewable and is never fabricated.</summary>
 public sealed record SemanticNavigationTarget(IReadOnlyList<string> Path, SemanticCollectionTarget? Collection = null,

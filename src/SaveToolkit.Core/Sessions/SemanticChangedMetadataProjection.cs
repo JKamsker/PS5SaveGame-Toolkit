@@ -40,12 +40,16 @@ internal static class SemanticChangedMetadataProjection
             catch (Exception ex)
             {
                 current.Complete = false;
-                current.QueryWarnings = [.. current.QueryWarnings,
-                    $"Changed-field metadata coverage is incomplete for '{id}': {ex.Message}"];
+                MarkOmitted(current, $"Changed-field metadata resolver failed for '{id}': {ex.Message}", true);
                 continue;
             }
 
-            if (index.Cached(id) is not { } metadata || !current.Fields.TryGetValue(id, out var field)) continue;
+            if (index.Cached(id) is not { } metadata || !current.Fields.TryGetValue(id, out var field))
+            {
+                current.Complete = false;
+                MarkOmitted(current, $"Changed-field metadata descriptor was unavailable for '{id}'.", false);
+                continue;
+            }
             var updated = field with
             {
                 Label = metadata.Label,
@@ -61,8 +65,7 @@ internal static class SemanticChangedMetadataProjection
                 || !SemanticSnapshot.TryEstimate(field, long.MaxValue, out var existingCost))
             {
                 current.Complete = false;
-                current.QueryWarnings = [.. current.QueryWarnings,
-                    $"Changed-field metadata coverage is incomplete for '{id}': metadata could not be bounded."];
+                MarkOmitted(current, $"Changed-field metadata could not be bounded for '{id}'.", true);
                 continue;
             }
 
@@ -80,5 +83,12 @@ internal static class SemanticChangedMetadataProjection
             current.Bytes += Math.Max(0, additional);
             current.Fields[id] = updated with { Spec = FieldSpecMetadata.Snapshot(metadata.Spec) };
         }
+    }
+
+    private static void MarkOmitted(SemanticSnapshot snapshot, string reason, bool lowerBound)
+    {
+        snapshot.OmittedCount++;
+        snapshot.OmittedCountIsLowerBound |= lowerBound;
+        snapshot.QueryWarnings = [.. snapshot.QueryWarnings, reason];
     }
 }

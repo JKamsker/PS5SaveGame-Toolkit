@@ -16,7 +16,7 @@ export type FieldBindingKind = "Primary" | "Derived";
 export interface FieldPresentation { confidence?: "Verified" | "Inferred" | "Unknown"; warning?: string; description?: string }
 export interface SemanticProjection {
   valueId: string; label: string; path: string[]; bindingKind?: FieldBindingKind; presentation?: FieldPresentation;
-  member?: SemanticMemberContext;
+  member?: SemanticMemberContext; changed?: boolean;
 }
 export interface SemanticNavigationTarget {
   path: string[]; collection?: SemanticCollectionTarget; available: boolean; unavailableReason?: string;

@@ -185,7 +185,7 @@ describe("semantic changes panel", () => {
     vi.spyOn(actionReview, "changes").mockResolvedValue({ ...log, changes: [{ ...change,
       canonicalValueId: "quantity", bindingKind: "Primary", member: { role: "character", relativePath: "profile.dat", groupTitle: "Group", provenance: "router" },
       aliases: [
-        { valueId: "raw/quantity", label: "Raw quantity", path: ["section:Raw", "row:legacy"], bindingKind: "Derived",
+        { valueId: "raw/quantity", label: "Raw quantity", path: ["section:Raw", "row:legacy"], bindingKind: "Derived", changed: true,
           member: { role: "character", relativePath: "profile.dat", groupTitle: "Group", provenance: "router" } },
       ], canNavigate: true }] });
     renderDocument(<ChangesPanel />);
@@ -195,6 +195,7 @@ describe("semantic changes panel", () => {
     expect(screen.getByText("Also shown as 1 projection")).toBeTruthy();
     fireEvent.click(screen.getByText("Also shown as 1 projection"));
     expect(screen.getByText("Raw quantity")).toBeTruthy();
+    expect(screen.getByText("Changed projection")).toBeTruthy();
     for (const value of ["row:legacy", "profile.dat", "router"]) {
       fireEvent.change(screen.getByRole("searchbox"), { target: { value } });
       expect(screen.getByText("Also shown as 1 projection")).toBeTruthy();

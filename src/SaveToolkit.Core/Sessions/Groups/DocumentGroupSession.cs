@@ -174,20 +174,33 @@ public sealed class DocumentGroupSession
     private IReadOnlyDictionary<string, SemanticMemberContext> ResolveFieldContext(
         StagedGroupDocument staged, IReadOnlyList<string> valueIds)
     {
-        var requested = valueIds.ToHashSet(StringComparer.Ordinal);
-        var contexts = new List<DocumentGroupFieldContext>();
-        foreach (var batch in valueIds.Distinct(StringComparer.Ordinal).Chunk(FieldMetadataLimits.MaxBatchSize))
-            contexts.AddRange(staged.ResolveFieldContext(batch));
-
+        var requested = valueIds.Distinct(StringComparer.Ordinal).ToHashSet(StringComparer.Ordinal);
         var members = Members.ToDictionary(member => (member.Role, member.RelativePath));
         var mapped = new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal);
-        foreach (var context in contexts)
+        long responseBytes = 0;
+        foreach (var batch in requested.Chunk(SemanticContextBudget.MaxBatchCount))
         {
-            if (!requested.Contains(context.ValueId)
-                || !members.ContainsKey((context.Role, context.RelativePath))
-                || !mapped.TryAdd(context.ValueId,
-                    new SemanticMemberContext(context.Role, context.RelativePath, Title, context.Provenance)))
-                throw new InvalidOperationException("The group returned duplicate or foreign field context.");
+            var response = staged.ResolveFieldContext(batch);
+            if (response is null || response.Count > batch.Length)
+                throw new SemanticContextResolutionException(mapped, "The group returned more context rows than requested.");
+            foreach (var context in response)
+            {
+                if (context is null || string.IsNullOrWhiteSpace(context.ValueId)
+                    || string.IsNullOrWhiteSpace(context.Role) || string.IsNullOrWhiteSpace(context.RelativePath)
+                    || !requested.Contains(context.ValueId) || !members.ContainsKey((context.Role, context.RelativePath)))
+                    throw new SemanticContextResolutionException(mapped, "The group returned foreign field context.");
+                if (context.Role.Length > SemanticContextBudget.MaxStringLength
+                    || context.RelativePath.Length > SemanticContextBudget.MaxStringLength
+                    || context.Provenance is { Length: > SemanticContextBudget.MaxStringLength })
+                    throw new SemanticContextResolutionException(mapped, "The group returned oversized context strings.");
+                var semantic = new SemanticMemberContext(context.Role, context.RelativePath, Title, context.Provenance);
+                if (!SemanticContextBudget.TryEstimate(semantic, out var bytes)
+                    || responseBytes > SemanticContextBudget.MaxResponseBytes - bytes)
+                    throw new SemanticContextResolutionException(mapped, "The group context response exceeded its bounded byte budget.");
+                responseBytes += bytes;
+                if (!mapped.TryAdd(context.ValueId, semantic))
+                    throw new SemanticContextResolutionException(mapped, "The group returned duplicate field context.");
+            }
         }
 
         return mapped;

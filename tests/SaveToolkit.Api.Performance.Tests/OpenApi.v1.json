@@ -3468,6 +3468,10 @@
               }
             ]
           },
+          "changed": {
+            "default": false,
+            "type": "boolean"
+          },
           "label": {
             "type": "string"
           },
