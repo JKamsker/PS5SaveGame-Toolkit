@@ -26,7 +26,7 @@ export interface FloatSpec extends SpecBase {
   kind: "float"; min?: number; max?: number; singlePrecision?: boolean;
   format?: "Decimal" | "Duration"; unitsPerSecond?: number;
 }
-interface TextSpec extends SpecBase { kind: "text"; maxLength?: number; multiline?: boolean }
+interface TextSpec extends SpecBase { kind: "text"; maxLength?: number; maxUtf8Bytes?: number | null; multiline?: boolean }
 interface EnumOption { value: string; label: string; description?: string }
 export interface EnumSpec extends SpecBase { kind: "enum"; options: EnumOption[]; allowCustom?: boolean }
 interface FlagBit { bit: number; label: string; description?: string }

@@ -49,6 +49,8 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
   const [retryPresetId, setRetryPresetId] = useState<string>();
   const [previewOpener, setPreviewOpener] = useState<HTMLElement | null>(null);
   const previewRequest = useRef(0);
+  const previewOpen = Boolean(preview);
+  useEffect(() => previewOpen ? context.claimSnapshotErrors?.() : undefined, [previewOpen, context.claimSnapshotErrors]);
   const showMessage = (text: string, isError = false) => { setMessage(text); setMessageIsError(isError); };
   const clearMessage = () => { setMessage(undefined); setMessageIsError(false); };
   const heading = useRef<HTMLHeadingElement>(null);
@@ -103,7 +105,7 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
     setApplyBlocked(true);
     setRefreshError(undefined);
     try {
-      await context.refresh();
+      await context.refresh({ throwOnError: true });
       if (requestId !== previewRequest.current) return;
       setRefreshError(undefined);
     } catch (error) {

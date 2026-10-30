@@ -1,4 +1,3 @@
-import { lazy, Suspense } from "react";
 import type { SaveFileInfo } from "../../api/protocol";
 import { DocumentContext } from "../../state/documentStore";
 import { SourcesPanel } from "./SourcesPanel";
@@ -10,8 +9,6 @@ import { DocumentHeader } from "./DocumentHeader";
 import { useDocumentSession } from "./useDocumentSession";
 import { useEntryFocus } from "../ui/useEntryFocus";
 import { useDocumentCloseState } from "./documentClosures";
-
-const PresetsPanel = lazy(() => import("./PresetsPanel").then(module => ({ default: module.PresetsPanel })));
 
 interface DocumentEditorProps {
   workspaceId: string;
@@ -56,7 +53,7 @@ function DocumentSessionEditor(props: DocumentEditorProps) {
 
 function OpenDocument({ session, focusHeading, workspaceId, documentId, file, onSwitchPlugin, onToast, onClosed, onOpenGroup }:
   DocumentEditorProps & { session: ReturnType<typeof useDocumentSession>; focusHeading: ReturnType<typeof useEntryFocus> }) {
-  const { query, context, refresh, refreshState, refreshError, structureVersion } = session;
+  const { query, context, refresh, structureVersion } = session;
   if (!context || !query.data) return null;
   const doc = query.data;
   return (
@@ -64,9 +61,9 @@ function OpenDocument({ session, focusHeading, workspaceId, documentId, file, on
       <ReviewNavigationProvider>
         <article className="editor">
           <DocumentHeader document={doc} file={file} focusHeading={focusHeading} onSwitchPlugin={onSwitchPlugin} />
-          {(query.isError || refreshState === "failed") && <div className="read-error">
-            <p role="alert" className="notice notice--Danger">Could not refresh the document: {refreshError ?? query.error?.message ?? "The current document could not be refreshed."}</p>
-            <button type="button" className="btn btn--small" disabled={refreshState === "pending" || query.isFetching} onClick={() => void refresh()}>Refresh document</button>
+          {context.snapshotError && <div className="read-error">
+            <p role={context.snapshotErrorInDialog ? undefined : "alert"} className="notice notice--Danger">Could not refresh the document: {context.snapshotError}</p>
+            <button type="button" className="btn btn--small" disabled={context.snapshotRefresh === "pending" || query.isFetching} onClick={() => void refresh()}>Refresh document</button>
           </div>}
           <DocumentGroupControls document={doc} onClosed={onClosed} onOpenGroup={onOpenGroup} />
           <SourcesPanel
@@ -78,9 +75,6 @@ function OpenDocument({ session, focusHeading, workspaceId, documentId, file, on
           />
           {!doc.canEdit && <p className="notice notice--Muted">This plugin shows the data but cannot write it.</p>}
           <ChangesPanel />
-          <Suspense fallback={<p className="presets-loading" aria-live="polite">Loading toolkit presets…</p>}>
-            <PresetsPanel document={doc} onToast={onToast} />
-          </Suspense>
           <ViewRenderer node={doc.view} />
         </article>
       </ReviewNavigationProvider>

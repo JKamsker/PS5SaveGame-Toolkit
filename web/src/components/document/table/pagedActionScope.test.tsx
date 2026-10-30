@@ -25,6 +25,6 @@ it("submits all explicitly selected row keys across collection pages", async () 
   expect(screen.getByText("2 selected")).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "Refill: Ether" }));
   const dialog = within(await screen.findByRole("dialog", { name: "Preview: Refill" }));
-  await dialog.findByText("0 field changes · 0 skipped rows · one undo step");
+  await dialog.findByText("No changes. No undo step will be created.");
   expect(plan).toHaveBeenCalledExactlyOnceWith("w1", "d1", "refill", {}, { rowKeys: ["a", "b"] }, 0);
 }, 10_000); // Two server pages and a completed action preview; 1.2 s in the full Windows suite.

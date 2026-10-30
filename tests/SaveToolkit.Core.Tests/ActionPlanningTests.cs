@@ -96,10 +96,18 @@ public sealed class ActionPlanningTests : IDisposable
     public void EmptyScopeIsNotDocumentScope_AndPlansAreSingleUse()
     {
         using var session = Open();
+        var originalState = session.State;
+        var originalOutput = _plugin.LastOpened!.Serialize().Single();
         var preview = session.PlanAction("refill", NoParameters, new ActionScope([]));
         Assert.Empty(preview.Plan.Changes);
         Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Ok);
         Assert.False(session.State.CanUndo);
+        Assert.Equal(originalState, session.State);
+        Assert.Empty(session.GetChanges().Changes);
+        Assert.Empty(session.Serialize());
+        var unchangedOutput = _plugin.LastOpened.Serialize().Single();
+        Assert.Equal(originalOutput.RelativePath, unchangedOutput.RelativePath);
+        Assert.Equal(originalOutput.Content.ToArray(), unchangedOutput.Content.ToArray());
         Assert.True(session.ApplyActionPlan(preview.PlanId!, preview.Revision).Stale);
         Assert.Null(session.PlanAction("refill", NoParameters, new ActionScope(["missing"])).PlanId);
         Assert.False(session.InvokeAction("refill", NoParameters).Ok);

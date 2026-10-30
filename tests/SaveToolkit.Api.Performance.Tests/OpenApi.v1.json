@@ -4525,10 +4525,20 @@
         "type": "object"
       },
       "TextSpec": {
-        "description": "A text field with an optional UTF-16 length bound and explicit line-break policy.",
+        "description": "A text field with independent optional UTF-16 and UTF-8 bounds and an explicit line-break policy.",
         "properties": {
           "maxLength": {
             "description": "Maximum length in UTF-16 code units, or null for unbounded.",
+            "format": "int32",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ]
+          },
+          "maxUtf8Bytes": {
+            "description": "Optional inclusive UTF-8 byte limit for the logical value, excluding storage terminators and any\nencoding preamble. A literal U\u002BFEFF in the value counts as three bytes. Must be nonnegative;\nzero accepts only empty text. When present, edits must contain valid Unicode scalar sequences.\nNo normalization, replacement, or truncation is performed. Independent of int? TextSpec.MaxLength.",
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using SaveToolkit.Core.References;
 using SaveToolkit.Sdk.Values;
@@ -12,6 +13,7 @@ namespace SaveToolkit.Core.Editing;
 /// </summary>
 public static class FieldValueCoercer
 {
+    private static readonly UTF8Encoding StrictUtf8 = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
     public readonly record struct Result(FieldValue Value, string? Error)
     {
         public bool Ok => Error is null;
@@ -34,17 +36,26 @@ public static class FieldValueCoercer
                     : json.Deserialize<FieldValue>();
                 return Normalize(value, spec, references: references);
             }
-            catch (Exception ex) when (ex is JsonException or ArgumentException)
+            catch (Exception ex) when (ex is JsonException or ArgumentException or InvalidOperationException)
             {
                 return Fail("Invalid tagged field value or exact JSON number.");
             }
+        }
+
+        // System.Text.Json rejects unpaired escaped surrogates while materializing a string.
+        // Return a field error instead of letting malformed text escape the validation boundary.
+        if (json.ValueKind == JsonValueKind.String)
+        {
+            string text;
+            try { text = json.GetString()!; }
+            catch (InvalidOperationException) { return Fail("Text must contain valid Unicode scalar sequences."); }
+            return Normalize(FieldValue.Of(text), spec, references: references);
         }
 
         FieldValue raw = json.ValueKind switch
         {
             JsonValueKind.True => FieldValue.Of(true),
             JsonValueKind.False => FieldValue.Of(false),
-            JsonValueKind.String => FieldValue.Of(json.GetString()!),
             JsonValueKind.Number when json.TryGetInt64(out var l) => FieldValue.Of(l),
             JsonValueKind.Number => FieldValue.Of(json.GetDouble()),
             _ => FieldValue.Null,
@@ -164,6 +175,17 @@ public static class FieldValueCoercer
         }
 
         var text = raw.AsString();
+        if (spec.MaxUtf8Bytes is { } capacity)
+        {
+            if (capacity < TextSpec.MinimumUtf8ByteCapacity) return Fail("Invalid UTF-8 byte capacity.");
+            try
+            {
+                if (StrictUtf8.GetByteCount(text) > capacity) return Fail($"At most {capacity} UTF-8 bytes.");
+            }
+            catch (EncoderFallbackException) { return Fail("Text must contain valid Unicode scalar sequences."); }
+            catch (ArgumentException) { return Fail("Text is too large to encode as UTF-8."); }
+        }
+
         if (spec.MaxLength is { } max && text.Length > max)
         {
             return Fail($"At most {max} characters.");

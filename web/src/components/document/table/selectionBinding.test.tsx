@@ -27,7 +27,7 @@ function mockPlan() {
 async function preview() {
   fireEvent.click(screen.getByRole("button", { name: action.label }));
   const dialog = within(await screen.findByRole("dialog", { name: `Preview: ${action.label}` }));
-  await dialog.findByText("0 field changes · 0 skipped rows · one undo step");
+  await dialog.findByText("No changes. No undo step will be created.");
 }
 
 it("binds a sibling before an eager table, names the table accessibly and isolates other selections", async () => {

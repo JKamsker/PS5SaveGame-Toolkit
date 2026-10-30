@@ -150,6 +150,16 @@ export class DocumentStore {
   }
 }
 
+export interface DocumentMutationOptions {
+  /** A dialog can own mutation failures instead of announcing them again in a background toast. */
+  failureFeedback?: "toast" | "dialog";
+}
+
+/** Client-only outcome; a failed read must never make cached values appear freshly acknowledged. */
+export interface DocumentMutationResult extends EditResult {
+  snapshotError?: string;
+}
+
 export interface DocumentContextValue {
   workspaceId: string;
   documentId: string;
@@ -157,22 +167,26 @@ export interface DocumentContextValue {
   store: DocumentStore;
   /** Bumped when the structure changed; lazy sections refetch on change. */
   structureVersion: number;
-  /** Refetches the view (and bumps `structureVersion`), e.g. after a stale-id rejection. */
-  refresh: () => Promise<void>;
-  /** Current-lifetime proof state for callers that must wait for an installed snapshot. */
+  /** A failed snapshot read may leave the previous document cached for inspection. */
+  snapshotError?: string;
+  /** Cached values cannot be used for a new plan until this explicit read installs a snapshot. */
+  snapshotRefresh?: "pending" | "required";
+  /** Scoped modal ownership affects announcements only; closing returns feedback to the document. */
+  claimSnapshotErrors?: () => () => void;
+  snapshotErrorInDialog?: boolean;
+  /** Preset callers share the same installed-snapshot requirement as action dialogs. */
   refreshState?: "ready" | "pending" | "failed";
   refreshError?: string;
+  /** Refetches the view; dialogs can require success while ordinary refresh keeps its existing quiet failure behavior. */
+  refresh: (options?: { throwOnError?: boolean }) => Promise<void>;
   commit: (valueId: string, value: FieldValue) => Promise<boolean>;
   /** Same serialized/deduplicated commit, with proof of any diagnostic that its result installed. */
   commitWithDiagnostics?: (valueId: string, value: FieldValue) => Promise<FieldCommitOutcome>;
   acceptResult: (result: EditResult) => Promise<void>;
   /** Serialize a mutation with other writes/history and accept its result before the next starts. */
-  mutate: (call: () => Promise<EditResult>, options?: DocumentMutationOptions) => Promise<EditResult>;
+  mutate: (call: () => Promise<EditResult>, options?: DocumentMutationOptions) => Promise<DocumentMutationResult>;
   runAction: (actionId: string, parameters: Record<string, FieldValue>) => Promise<EditResult>;
 }
-
-/** Optional caller-owned feedback for mutations that render a focused inline result. */
-export interface DocumentMutationOptions { failureFeedback?: "toast" | "dialog" }
 
 export const DocumentContext = createContext<DocumentContextValue | null>(null);
 

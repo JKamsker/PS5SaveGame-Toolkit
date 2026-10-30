@@ -1,5 +1,6 @@
 import type { FieldSpec, FieldValue, FloatSpec, IntegerSpec } from "../api/protocol";
 import { exactNumberError } from "./exactNumbers";
+import { textCapacityError } from "./textCapacity";
 
 const MILLISECONDS_PER_SECOND = 1000;
 const SECONDS_PER_MINUTE = 60;
@@ -46,6 +47,10 @@ export function parseDraft(spec: FieldSpec, draft: string | boolean): Parsed {
       return parseFloatDraft(spec, String(draft));
     case "text": {
       const t = String(draft);
+      if (spec.maxUtf8Bytes != null) {
+        const error = textCapacityError(t, spec.maxUtf8Bytes);
+        if (error) return fail(error);
+      }
       if (spec.maxLength !== undefined && t.length > spec.maxLength) return fail(`At most ${spec.maxLength} characters.`);
       if (!spec.multiline && /[\r\n]/.test(t)) return fail("Line breaks are not allowed.");
       return { ok: true, value: t };

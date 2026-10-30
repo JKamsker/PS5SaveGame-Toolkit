@@ -148,7 +148,7 @@ it.each([false, true])("guards repeated legacy action submits (dialog=%s)", asyn
 
 it("serializes planned apply with edits and guards repeated form submits", async () => {
   vi.spyOn(actionReview, "plan").mockResolvedValue({ planId: "plan", revision: 1, scope: {},
-    plan: { changes: [], warnings: [], errors: [], skippedRows: [] } });
+    plan: { changes: [{ valueId: "a", label: "Flag", oldValue: false, newValue: true, oldExists: true, newExists: true, derived: false }], warnings: [], errors: [], skippedRows: [] } });
   const pending = deferred<EditResult>();
   const apply = vi.spyOn(actionReview, "apply").mockReturnValue(pending.promise);
   const edit = vi.spyOn(api, "edit").mockResolvedValue(result(3));
