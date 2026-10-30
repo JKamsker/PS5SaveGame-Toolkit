@@ -12,8 +12,6 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
     public const string InventoryActionId = "inventory/set-quantity";
     public const string RestoreAmmoActionId = "inventory/restore-imported-ammo";
     public const string QuantityParameter = "quantity";
-    private const uint OldestObservedVersion = 47;
-    private const uint LatestObservedVersion = 49;
     public const string CapacityWarning = TsushimaWriteWarnings.Console + " Experimental. " +
         "The game may clamp quantities to its capacity limits. Game carrying capacities and console persistence are unverified. " +
         "This sets a target quantity, not a capacity refill. Hide retains its raw name because its friendly mapping is unproven.";
@@ -77,7 +75,7 @@ internal sealed class TsushimaQuantityPlanning(byte[] bytes, SaveContainer conta
             return Reject("Quantity planning is available only for the recognized Tsushima inventory.");
         }
 
-        if (container.Word3 is < OldestObservedVersion or > LatestObservedVersion)
+        if (container.Word3 is < TsushimaIds.OldestObservedVersion or > TsushimaIds.LatestObservedVersion)
         {
             return Reject("Quantity planning is limited to observed Tsushima container versions 47–49.");
         }

@@ -32,7 +32,7 @@ public sealed class TsushimaInventoryPlanningTests
             var plan = planner.PlanAction(ActionId, Target(7), scope);
             Assert.Empty(plan.Errors);
             Assert.Contains("Not validated on console", Assert.Single(plan.Warnings));
-            Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+            Assert.Equal(original, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
             var writable = inventory.Rows.Select(row => (FieldNode)row.Cells["quantity"])
                 .Where(field => !field.Spec.ReadOnly && field.Value.AsInt32() != 7).ToArray();
             Assert.Equal(writable.Select(field => field.ValueId), plan.Changes.Where(change => !change.Derived).Select(change => change.ValueId));
@@ -60,14 +60,14 @@ public sealed class TsushimaInventoryPlanningTests
             Assert.Equal(plan.Warnings, outcome.Warnings);
             Assert.Equal(plan.Changes.Select(change => (change.ValueId, change.OldValue, change.NewValue)),
                 outcome.Changes.Select(change => (change.ValueId, change.OldValue, change.NewValue)));
-            var edited = Assert.Single(document.Serialize()).Content.ToArray();
+            var edited = SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
             Assert.Equal(expected, edited);
             WriteAssertions.OnlyRangesChanged(original, edited, allowed);
             using var reopened = Open(WithBytes(edited));
             Assert.All(plan.Changes, change => Assert.Equal(change.NewValue, reopened.GetValue(change.ValueId)));
             Assert.True(document.ApplyEdits(plan.Changes.Where(change => !change.Derived)
                 .Select(change => new ValueEdit(change.ValueId, change.OldValue)).ToArray()).Succeeded);
-            Assert.Equal(original, Assert.Single(document.Serialize()).Content.ToArray());
+            Assert.Equal(original, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         }
     }
 
@@ -89,20 +89,20 @@ public sealed class TsushimaInventoryPlanningTests
         Assert.NotNull(preview.PlanId);
         Assert.Contains(preview.Plan.Changes, change => change.ValueId == "inventory/ArrowNormal/quantity-copy" && change.Derived);
         Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Ok);
-        var edited = Assert.Single(document.Serialize()).Content.ToArray();
+        var edited = SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
         Assert.Equal(4, session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes.Count);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.CanUndo);
         Assert.Empty(session.GetChanges(cancellationToken: TestContext.Current.CancellationToken).Changes);
-        Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(file.ReadAllBytes(), SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         Assert.True(session.Redo().Ok);
-        Assert.Equal(edited, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(edited, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         Assert.True(session.ApplyActionPlan(preview.PlanId, preview.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
         var stale = session.PlanAction(ActionId, parameters, scope: null, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
         Assert.True(session.ApplyEdits([new IncomingEdit(ArrowId, JsonSerializer.SerializeToElement("8"))], expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken).Ok);
-        var beforeRejected = Assert.Single(document.Serialize()).Content.ToArray();
+        var beforeRejected = SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
         Assert.True(session.ApplyActionPlan(stale.PlanId!, stale.Revision, cancellationToken: TestContext.Current.CancellationToken).Stale);
-        Assert.Equal(beforeRejected, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(beforeRejected, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Theory]
@@ -116,7 +116,7 @@ public sealed class TsushimaInventoryPlanningTests
         var plan = planner.PlanAction(ActionId, Target(target), scope);
         Assert.Empty(plan.Errors);
         Assert.True(planner.ApplyActionPlan(ActionId, Target(target), scope, plan).Succeeded);
-        using var reopened = Open(WithBytes(Assert.Single(document.Serialize()).Content.ToArray()));
+        using var reopened = Open(WithBytes(SuckerPunchTestData.PrimaryOutput(document).Content.ToArray()));
         Assert.Equal(target, reopened.GetValue(ArrowId).AsInt64());
         Assert.Equal(target, reopened.GetValue("inventory/ArrowNormal/quantity-copy").AsInt64());
         Assert.Equal(target, reopened.GetValue(SuppliesId).AsInt64());
@@ -136,7 +136,7 @@ public sealed class TsushimaInventoryPlanningTests
         var plan = planner.PlanAction(ActionId, Target(7), new ActionScope());
         Assert.False(planner.ApplyActionPlan(ActionId, Target(7), new ActionScope(), plan with { Warnings = [] }).Succeeded);
         Assert.False(planner.ApplyActionPlan(ActionId, Target(7), new ActionScope(), plan with { Changes = [] }).Succeeded);
-        Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(file.ReadAllBytes(), SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Fact]
@@ -158,7 +158,7 @@ public sealed class TsushimaInventoryPlanningTests
         Assert.Empty(plan.Changes);
         Assert.Equal(4, plan.SkippedRows.Count);
         Assert.True(planner.ApplyActionPlan(ActionId, Target(7), scope, plan).Succeeded);
-        Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(bytes, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Fact]
@@ -191,7 +191,7 @@ public sealed class TsushimaInventoryPlanningTests
             var planner = (IActionPlanningDocument)document;
             Assert.NotEmpty(planner.PlanAction(ActionId, Target(7), new ActionScope()).Errors);
             Assert.False(planner.ApplyActionPlan(ActionId, Target(7), new ActionScope(), new ActionPlan()).Succeeded);
-            Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+            Assert.Equal(file.ReadAllBytes(), SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         }
     }
 }

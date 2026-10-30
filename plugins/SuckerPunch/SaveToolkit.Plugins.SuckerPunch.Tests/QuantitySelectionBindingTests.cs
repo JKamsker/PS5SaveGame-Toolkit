@@ -49,7 +49,7 @@ public sealed class QuantitySelectionBindingTests
             Assert.All(table.Rows, row => Assert.Null(Assert.Single(row.Cells.Values.OfType<ActionNode>(),
                 action => action.ActionId == RestoreAction).SelectionTableId));
         }
-        Assert.Equal(save.Bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(save.Bytes, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Theory]
@@ -118,7 +118,7 @@ public sealed class QuantitySelectionBindingTests
         }
         foreach (var key in new[] { "unknown", save.ResourceName.ToUpperInvariant() })
             Assert.NotEmpty(planner.PlanAction(actionId, Target(1), new([key])).Errors);
-        Assert.Equal(save.Bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(save.Bytes, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     internal static Tab InventoryTab(ViewNode view) =>
