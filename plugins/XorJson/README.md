@@ -61,8 +61,9 @@ nodes and quest-catalog enumeration remain local implementations; this plugin
 does not use `InMemoryCollection<T>`, `ActionPlans`, `ReferenceViews.Icon`,
 `ReferenceInspection` or `ReferenceCatalogReader`. Binary cursor/FString/CRC
 helpers are N/A for this JSON layout without an observed checksum. SDK-04 supplies
-member identity mapping, scope/plan dispatch and edit partitioning; the lossless
-JSON tree remains local pending SDK-06 below.
+member identity mapping, scope/plan dispatch and edit partitioning. SDK-06 now
+supplies the lossless JSON tree and scalar patch substrate; F5 structural edits,
+plugin identities, history and transformed envelopes remain local policy.
 F14 empty-slot presentation is N/A: no vacant-slot sentinel is established for
 these variable-length inventory records; the stack `-1` means non-stackable.
 
@@ -422,16 +423,20 @@ dependencies remain Unknown.
   explicitly projects only the formerly skipped unknown-key response into its old shape;
   that response is separately asserted rejected. All other protocol/view/export fields
   retain their pre-migration hashes.
-- **Open: SDK-06 — shared lossless JSON tree/scalar patch substrate.**
-  `JsonTokenTree`, `JsonValueToken` and `JsonTokenWriter` remain plugin-local.
-  SDK `ExactJsonNumber` validates numeric lexemes; it does not supply the lexical
-  tree or byte-preserving writer. BOM/trivia, duplicate keys, exact numbers,
-  untouched spans and undo need preservation tests before migration; structural
-  identities and XOR/shift envelopes remain local policy.
+- **Adopted: SDK-06 — shared lossless JSON tree/scalar patch substrate.**
+  `JsonTokenTree` delegates strict UTF-8/BOM/trivia/duplicate-property parsing
+  and bounded scalar spans to `LosslessJsonDocument`; unchanged-structure writes
+  use its document-owned scalar replacement and serialization. The adapter maps
+  SDK IDs, `PropertyNameSpan`, decoded names and duplicate occurrences into the
+  existing `value/{Index}` identities. The local writer/model still owns F5
+  add/remove/replace, detached structural snapshots, F6/F7 history, title gates
+  and XOR/shift envelopes. The readiness contract is recorded in
+  [XORJSON-SDK06-READINESS.md](XORJSON-SDK06-READINESS.md); migration evidence is
+  in [XORJSON-SDK06-HANDOFF.md](XORJSON-SDK06-HANDOFF.md).
 
 The dispositions above match [docs/SDK_REQUESTS.md](../../docs/SDK_REQUESTS.md):
-SDK-04 (member composition), SDK-22 (F7 transactions) and SDK-23 (overlay
-preservation) are resolved and adopted; SDK-06 remains an open optional sharing request.
+SDK-04 (member composition), SDK-06 (lossless JSON scalar substrate), SDK-22 (F7
+transactions) and SDK-23 (overlay preservation) are resolved and adopted here.
 
 ## Performance review
 

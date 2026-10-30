@@ -51,3 +51,9 @@ For a collection with an empty-row policy, resolve `IncludeEmpty` before paging.
 ## Next: enrich labels without inventing ownership
 
 Reference data can add names, descriptions, icons and provenance to existing raw IDs. It does not prove that an item is owned, eligible or safe to grant. Start with <xref:SaveToolkit.Sdk.References.IReferenceContext> and the [reference-pack guide](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/PLUGIN_GUIDE.md#reference-packs) before introducing a pack or picker. Keep unavailable data usable as raw IDs and retain source/licence attribution.
+
+From here, choose the contract that matches the format: [lossless JSON](lossless-json.md) for
+exact scalar spelling, [canonical field references](field-references.md) for repeated projections,
+or the [existing-entry SFO substrate](sfo-substrate.md) for strict UTF-8 metadata patches. For
+reviewable bulk changes, return to the [save workflow](../guides/working-with-saves.md) and inspect
+the preview, skipped rows, warnings and Changes panel before applying an action.

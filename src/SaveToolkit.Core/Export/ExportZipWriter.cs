@@ -8,6 +8,13 @@ internal static class ExportZipWriter
 {
     private const int CopyBufferSize = 81920;
 
+    /// <summary>
+    /// Canonical ZIP metadata for exported entries. Imported files retain their paths and bytes,
+    /// not source ZIP timestamps, so exports use one ZIP-valid value for byte-for-byte stability.
+    /// </summary>
+    internal static readonly DateTimeOffset CanonicalEntryTimestamp =
+        new(1980, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
     public static void Write(ExportPlan plan, Stream output, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -20,6 +27,7 @@ internal static class ExportZipWriter
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     var entry = zip.CreateEntry(WorkspaceExporter.ExportPath(file), CompressionLevel.Fastest);
+                    entry.LastWriteTime = CanonicalEntryTimestamp;
                     using var target = entry.Open();
                     if (plan.Overrides.TryGetValue(file.RelativePath, out var content))
                     {

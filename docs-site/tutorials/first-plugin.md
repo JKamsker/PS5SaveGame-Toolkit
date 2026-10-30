@@ -88,6 +88,9 @@ The inherited `PluginConformanceTests<T>` checks plugin behavior, including no-o
 
 Continue with [query a bounded collection](collections.md) for a small, testable change. The full [test contract](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/PLUGIN_GUIDE.md#tests) explains external samples and conformance expectations.
 
+For shipped SDK preservation contracts, continue with [lossless JSON](lossless-json.md),
+[canonical field references](field-references.md), and the [SFO patch substrate](sfo-substrate.md).
+
 ## Research before adding a writer
 
 Keep the scaffold read-only while researching the real format. Cite your sources in the plugin README, verify their claims against actual bytes and distinguish known layout from inferred meaning. Replace the synthetic probe, parser, fixtures and support claims together. Document unsupported versions, bounds, integrity algorithms and no-op behavior.
