@@ -29,7 +29,7 @@ internal static class JsonStructureActions
         {
             var child = node.Children[i];
             "value/".AsSpan().CopyTo(identity);
-            _ = child.Index.TryFormat(identity["value/".Length..], out var digits);
+            _ = child.Index.TryFormat(identity["value/".Length..], out var digits, provider: CultureInfo.InvariantCulture);
             ReadOnlySpan<char> entry = identity[..("value/".Length + digits)];
             if (node.Kind == JsonTokenType.StartObject) entry = $"{entry}:{JsonSerializer.Serialize(child.Label)}";
             if (i > 0) hash.AppendData(", "u8);

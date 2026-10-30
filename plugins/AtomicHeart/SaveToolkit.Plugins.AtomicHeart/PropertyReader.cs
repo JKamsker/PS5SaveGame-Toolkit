@@ -1,3 +1,4 @@
+using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Binary;
 using SaveToolkit.Sdk.Values;
@@ -119,7 +120,7 @@ internal sealed class PropertyReader(byte[] bytes)
         for (var index = 0; index < count; index++)
         {
             var start = reader.Position;
-            var key = keyed ? reader.Int64().ToString() : index.ToString();
+            var key = keyed ? reader.Int64().ToString(CultureInfo.InvariantCulture) : index.ToString(CultureInfo.InvariantCulture);
             var children = ReadSequence(ref reader, depth + 1);
             var span = new ByteSpan(start, reader.Position - start);
             elements.Add(new TaggedProperty(key, "StructElement", "", 0, span, span, null) { Children = children });

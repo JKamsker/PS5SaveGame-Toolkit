@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 namespace SaveToolkit.Plugins.GenericJson;
@@ -42,7 +43,7 @@ internal static class JsonPaths
         Span<char> number = stackalloc char[MaxIndexLength];
         if (node.Parent.Kind == JsonTokenType.StartArray)
         {
-            _ = node.Position.TryFormat(number, out var digits);
+            _ = node.Position.TryFormat(number, out var digits, provider: CultureInfo.InvariantCulture);
             Append(path, ref length, number[..digits]);
             Append(path, ref length, "]");
         }
@@ -51,7 +52,7 @@ internal static class JsonPaths
             node.EscapedPathLabel ??= JsonSerializer.Serialize(Clip(node.Label, MaxDisplayKey));
             Append(path, ref length, node.EscapedPathLabel);
             Append(path, ref length, "]#");
-            _ = node.Occurrence.TryFormat(number, out var digits);
+            _ = node.Occurrence.TryFormat(number, out var digits, provider: CultureInfo.InvariantCulture);
             Append(path, ref length, number[..digits]);
         }
         return length;

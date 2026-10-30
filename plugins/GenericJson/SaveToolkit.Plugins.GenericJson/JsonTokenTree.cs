@@ -22,7 +22,7 @@ internal sealed class JsonTokenTree
     public int NextId { get; set; }
 
     public JsonValueToken? FindValue(string valueId) => valueId.StartsWith("value/", StringComparison.Ordinal)
-        && int.TryParse(valueId.AsSpan("value/".Length), out var id) && ById.TryGetValue(id, out var node) && node.ValueId == valueId ? node : null;
+        && int.TryParse(valueId.AsSpan("value/".Length), NumberStyles.Integer, CultureInfo.InvariantCulture, out var id) && ById.TryGetValue(id, out var node) && node.ValueId == valueId ? node : null;
 
     public static JsonTokenTree Parse(string text)
     {

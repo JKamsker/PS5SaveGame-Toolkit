@@ -1,3 +1,4 @@
+using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
 using SaveToolkit.Sdk.Values;
@@ -75,7 +76,7 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
         if (lazyId.StartsWith("inspect/", StringComparison.Ordinal)) return records.Expand(lazyId);
         if (lazyId.StartsWith("spatial/", StringComparison.Ordinal)) return spatial.Expand(lazyId);
         var parts = lazyId.Split('/');
-        if (parts.Length != 2 || !int.TryParse(parts[1], out var start) || start < 0) throw new KeyNotFoundException(lazyId);
+        if (parts.Length != 2 || !int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var start) || start < 0) throw new KeyNotFoundException(lazyId);
         if (parts[0] == "metadata" && (start == 0 || start < parsed.Properties.Count))
         {
             var nodes = parsed.Properties.Skip(start).Take(PageSize).Select((p, i) => Metadata(p, start + i)).ToList();
@@ -144,13 +145,13 @@ internal sealed class AtomicHeartDocument : BoundSaveDocument, IQueryableDocumen
         {
             source = index.Plain;
             var parts = blobId.Split('/');
-            if (parts.Length != 3 || !int.TryParse(parts[1], out start) || !int.TryParse(parts[2], out length) ||
+            if (parts.Length != 3 || !int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out start) || !int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out length) ||
                 start < 0 || length < 0 || start > source.Length - length) throw new KeyNotFoundException(blobId);
         }
         else if (blobId != "data")
         {
             var parts = blobId.Split('/');
-            if (parts.Length != 2 || parts[0] != "property" || !int.TryParse(parts[1], out var ordinal) || ordinal < 0 || ordinal >= parsed.Properties.Count)
+            if (parts.Length != 2 || parts[0] != "property" || !int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var ordinal) || ordinal < 0 || ordinal >= parsed.Properties.Count)
                 throw new KeyNotFoundException(blobId);
             start = parsed.Properties[ordinal].Offset;
             length = parsed.Properties[ordinal].Length;

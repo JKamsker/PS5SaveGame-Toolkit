@@ -1,3 +1,4 @@
+using System.Globalization;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -80,14 +81,15 @@ internal sealed class RecordCollection(RecordIndex index)
     {
         if (column is not ("offset" or "bytes")) return Text(entry, column).Equals(value, StringComparison.OrdinalIgnoreCase);
         Span<char> buffer = stackalloc char[32];
-        return Number(entry.Record, column).TryFormat(buffer, out var written) &&
+        return Number(entry.Record, column).TryFormat(buffer, out var written, provider: CultureInfo.InvariantCulture) &&
             buffer[..written].Equals(value.AsSpan(), StringComparison.OrdinalIgnoreCase);
     }
 
     private TableRow Row(ObjectRecord record, int ordinal) => new(record.Id, new Dictionary<string, ViewNode> {
         ["kind"] = new TextNode(record.Kind), ["name"] = new TextNode(record.Name), ["owner"] = new TextNode(record.Owner),
         ["class"] = new TextNode(Text((record, ordinal), "class")),
-        ["offset"] = new TextNode(record.Span.Offset.ToString()), ["bytes"] = new TextNode(record.Span.Length.ToString()),
+        ["offset"] = new TextNode(record.Span.Offset.ToString(CultureInfo.InvariantCulture)),
+        ["bytes"] = new TextNode(record.Span.Length.ToString(CultureInfo.InvariantCulture)),
         ["details"] = SectionNode.Lazy("Inspect record", $"inspect/object/{ordinal}"),
     });
 

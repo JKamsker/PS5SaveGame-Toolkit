@@ -63,7 +63,7 @@ internal sealed class InventoryState
                 instance?.Value is not { Kind: FieldValueKind.Integer } instanceId) continue;
             var storedAmount = ReadInteger(amount, quantity.Name);
             var storedInstanceId = ReadInteger(instanceId, instance.Name);
-            var key = $"{record.Id}/{propertyName}/item/{storedInstanceId}";
+            var key = FormattableString.Invariant($"{record.Id}/{propertyName}/item/{storedInstanceId}");
             if (!itemOrdinals.TryAdd(key, items.Count))
             {
                 key += $"/slot/{element.Name}";

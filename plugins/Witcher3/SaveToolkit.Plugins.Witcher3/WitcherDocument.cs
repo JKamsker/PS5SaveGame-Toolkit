@@ -1,3 +1,4 @@
+using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
@@ -135,12 +136,12 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
         }
 
         var parts = lazyId.Split('/');
-        if (parts.Length == 2 && parts[0] == "names" && int.TryParse(parts[1], out var start) && start >= 0 && start <= directory.Names.Count)
+        if (parts.Length == 2 && parts[0] == "names" && int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var start) && start >= 0 && start <= directory.Names.Count)
         {
             return [NamesTable(start), .. NextPage("Names", "names", start, directory.Names.Count)];
         }
 
-        if (parts.Length == 2 && parts[0] == "node" && int.TryParse(parts[1], out var id) && id >= 0 && id < tree.Nodes.Count)
+        if (parts.Length == 2 && parts[0] == "node" && int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var id) && id >= 0 && id < tree.Nodes.Count)
         {
             var node = tree.Nodes[id];
             var scalar = ScalarField(node);
@@ -152,8 +153,8 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
                 .. ChildPage(id, 0)];
         }
 
-        if (parts.Length == 3 && parts[0] == "children" && int.TryParse(parts[1], out var parent) && parent >= -1 && parent < tree.Nodes.Count &&
-            int.TryParse(parts[2], out var page) && page >= 0)
+        if (parts.Length == 3 && parts[0] == "children" && int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var parent) && parent >= -1 && parent < tree.Nodes.Count &&
+            int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var page) && page >= 0)
         {
             return ChildPage(parent, page);
         }
@@ -205,7 +206,7 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
 
     private ReadOnlyMemory<byte> NodeBlob(string id)
     {
-        if (id.StartsWith("node/", StringComparison.Ordinal) && int.TryParse(id.AsSpan(5), out var index) && index >= 0 && index < tree.Nodes.Count)
+        if (id.StartsWith("node/", StringComparison.Ordinal) && int.TryParse(id.AsSpan(5), NumberStyles.Integer, CultureInfo.InvariantCulture, out var index) && index >= 0 && index < tree.Nodes.Count)
         {
             var node = tree.Nodes[index];
             return container.Payload.AsMemory(node.Offset, node.Size);
@@ -243,7 +244,7 @@ internal sealed class WitcherDocument(string path, WitcherContainer container, S
         return [.. children.Skip(start).Take(PageSize).Select(id => (ViewNode)SectionNode.Lazy(
             $"{tree.Nodes[id].Name} [{tree.Nodes[id].Tag}]", $"node/{id}",
             tree.Nodes[id].Children.Count > 0 ? $"{tree.Nodes[id].Children.Count} children" : tree.Nodes[id].Type ?? $"{tree.Nodes[id].Size} bytes")),
-            .. NextPage("Variables", $"children/{parent}", start, children.Count)];
+            .. NextPage("Variables", FormattableString.Invariant($"children/{parent}"), start, children.Count)];
     }
 
     private TableNode NamesTable(int start) => new([new("index", "Name index"), new("name", "Stored name")],

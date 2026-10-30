@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
@@ -80,7 +81,7 @@ internal sealed class AstroDocument : BoundSaveDocument, IActionPlanningDocument
         var split = lazyId.LastIndexOf('|');
         var id = split < 0 ? lazyId : lazyId[..split];
         var page = 0;
-        if ((split >= 0 && (!int.TryParse(lazyId.AsSpan(split + 1), out page) || page < 0)) ||
+        if ((split >= 0 && (!int.TryParse(lazyId.AsSpan(split + 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out page) || page < 0)) ||
             !_elements.TryGetValue(id, out var element))
         {
             throw new KeyNotFoundException($"Unknown ASTRO tree node '{lazyId}'.");

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.References;
@@ -109,7 +110,7 @@ internal sealed class JsonActionPlanner(JsonEditModel model, IReferenceContext r
         if (value.Kind != FieldValueKind.ExactNumber || ExactJsonNumber.Validate(value.AsExactNumber(),
             new ExactNumberSpec { Min = bounds.Min, Max = bounds.Max }) is not null)
             throw new SaveFormatException("Value exceeds the inferred PC bounds for this action.");
-        if (bounds.Whole && !int.TryParse(value.AsExactNumber(), out _))
+        if (bounds.Whole && !int.TryParse(value.AsExactNumber(), NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
             throw new SaveFormatException("This action requires a whole number written without exponent notation.");
         return value;
     }

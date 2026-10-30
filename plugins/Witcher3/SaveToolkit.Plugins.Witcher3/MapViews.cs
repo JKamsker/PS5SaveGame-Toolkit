@@ -1,3 +1,4 @@
+using System.Globalization;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Collections;
 using SaveToolkit.Sdk.References;
@@ -48,7 +49,7 @@ internal sealed class MapViews
     {
         if (id.StartsWith(RegionalMapViews.Prefix, StringComparison.Ordinal)) { return _regions.Expand(id); }
         var parts = id.Split('/');
-        if (parts.Length != 2 || !int.TryParse(parts[1], out var page) || page < 0) { throw new KeyNotFoundException(id); }
+        if (parts.Length != 2 || !int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var page) || page < 0) { throw new KeyNotFoundException(id); }
         var tags = _tags ?? [];
         if (parts[0] == "map-view" && page < Math.Max(1, (tags.Count + SpatialViewLimits.MaxItems - 1) / SpatialViewLimits.MaxItems))
         {
