@@ -7,6 +7,7 @@ namespace SaveToolkit.Sdk.Values;
 /// they do not make callbacks thread-safe or freeze mutable closures.</remarks>
 public static class FieldSpecMetadata
 {
+    private const long SpecNodeOverheadBytes = 64;
     /// <summary>Copies nested collections without losing reference-policy delegates through serialization.</summary>
     /// <exception cref="ArgumentNullException">The spec is null.</exception>
     public static FieldSpec Snapshot(FieldSpec spec)
@@ -64,6 +65,7 @@ public static class FieldSpecMetadata
                 continue;
             }
 
+            if (!Add(ref bytes, SpecNodeOverheadBytes, limit)) return false;
             if (!AddString(ref bytes, frame.Spec.Unit, limit)) return false;
             switch (frame.Spec)
             {
@@ -105,6 +107,7 @@ public static class FieldSpecMetadata
 
         static bool TryEstimateLeaf(FieldSpec leaf, long maximum, ref long total)
         {
+            if (!Add(ref total, SpecNodeOverheadBytes, maximum)) return false;
             if (!AddString(ref total, leaf.Unit, maximum)) return false;
             switch (leaf)
             {

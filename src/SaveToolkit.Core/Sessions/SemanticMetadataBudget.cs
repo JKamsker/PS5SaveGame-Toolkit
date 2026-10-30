@@ -8,6 +8,9 @@ internal static class SemanticMetadataBudget
 {
     private const long FieldOverheadBytes = 256;
     private const long PresentationOverheadBytes = 48;
+    private const long PathArrayOverheadBytes = 24;
+    private const long PathReferenceBytes = 8;
+    internal const int MaxPathSegments = FieldMetadataLimits.MaxClosureIds;
 
     public static bool TryEstimate(SemanticField field, long limit, out long bytes)
     {
@@ -15,8 +18,7 @@ internal static class SemanticMetadataBudget
         if (limit < 0 || !AddString(ref bytes, field.ValueId, limit)
             || !AddString(ref bytes, field.Label, limit)
             || !AddString(ref bytes, field.CanonicalValueId, limit)) return false;
-        foreach (var path in field.Path)
-            if (!AddString(ref bytes, path, limit)) return false;
+        if (!TryAddPath(ref bytes, field.Path, limit)) return false;
         if (field.Target is { } target
             && (!AddString(ref bytes, target.CollectionId, limit)
                 || !AddString(ref bytes, target.RowKey, limit)
@@ -41,9 +43,7 @@ internal static class SemanticMetadataBudget
         if (limit < 0 || !AddString(ref bytes, metadata.ValueId, limit)
             || !AddString(ref bytes, metadata.Label, limit)
             || !AddString(ref bytes, metadata.CanonicalValueId, limit)) return false;
-        if (metadata.Path is { } path)
-            foreach (var segment in path)
-                if (!AddString(ref bytes, segment, limit)) return false;
+        if (!TryAddPath(ref bytes, metadata.Path, limit)) return false;
         if (!FieldSpecMetadata.TryEstimate(metadata.Spec, limit - bytes, out var specBytes)) return false;
         bytes += specBytes;
         if (metadata.Presentation is { } presentation)
@@ -65,6 +65,18 @@ internal static class SemanticMetadataBudget
     {
         if (value < 0 || total > limit - value) return false;
         total += value;
+        return true;
+    }
+
+    private static bool TryAddPath(ref long total, IReadOnlyList<string>? path, long limit)
+    {
+        if (path is null) return true;
+        if (path.Count > MaxPathSegments || !Add(ref total, PathArrayOverheadBytes, limit)) return false;
+        var remaining = limit - total;
+        if (path.Count > remaining / PathReferenceBytes
+            || !Add(ref total, checked(PathReferenceBytes * (long)path.Count), limit)) return false;
+        for (var index = 0; index < path.Count; index++)
+            if (!AddString(ref total, path[index], limit)) return false;
         return true;
     }
 }

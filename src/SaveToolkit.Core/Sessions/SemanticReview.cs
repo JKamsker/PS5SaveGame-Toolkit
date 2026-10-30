@@ -23,6 +23,7 @@ internal sealed class SemanticReview
 {
     private SemanticSnapshot? _original;
     private readonly HashSet<string> _reported = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _recoveredReported = new(StringComparer.Ordinal);
     private bool _structureChanged;
     private bool _unreviewedReportedChanges;
     private readonly HashSet<string> _targeted = new(StringComparer.Ordinal);
@@ -41,6 +42,8 @@ internal sealed class SemanticReview
     {
         var original = _original?.Clone();
         var targeted = _targeted.ToArray();
+        var reported = _reported.ToArray();
+        var recoveredReported = _recoveredReported.ToArray();
         var targetedOnly = _targetedOnly;
         var metadataAvailable = _originalMetadataAvailable;
         var metadataAttempted = _originalMetadataAttempted;
@@ -50,6 +53,10 @@ internal sealed class SemanticReview
             _original = original?.Clone();
             _targeted.Clear();
             _targeted.UnionWith(targeted);
+            _reported.Clear();
+            _reported.UnionWith(reported);
+            _recoveredReported.Clear();
+            _recoveredReported.UnionWith(recoveredReported);
             _targetedOnly = targetedOnly;
             _originalMetadataAvailable = metadataAvailable;
             _originalMetadataAttempted = metadataAttempted;
@@ -267,6 +274,8 @@ internal sealed class SemanticReview
                 {
                     _coverage.ClearMetadataAttemptFailure();
                 }
+                foreach (var id in publication.Accepted)
+                    if (_reported.Remove(id)) _recoveredReported.Add(id);
                 _originalMetadataAttempted = metadata.Applied && _coverage.RetryIds.Count == 0;
             }
             return Query(document, index, expandedLazy, revision, cancellationToken);
@@ -295,6 +304,8 @@ internal sealed class SemanticReview
                 current.Fields.Remove(id);
         }
         var walked = _capture.Capture(document, index, expandedLazy, cancellationToken);
+        var authorityRejected = new HashSet<string>(targetedCaptured.IncompleteIds.Concat(recoveryCaptured.IncompleteIds),
+            StringComparer.Ordinal);
         if (_targetedOnly)
         {
             current.QueryWarnings = [.. current.QueryWarnings, .. walked.QueryWarnings,
@@ -312,11 +323,13 @@ internal sealed class SemanticReview
                     + Math.Max(1, metadata.IncompleteIds.Count));
                 current.OmittedCountIsLowerBound = true;
                 current.QueryWarnings = [.. current.QueryWarnings, metadata.Diagnostic!];
+                authorityRejected.UnionWith(metadata.IncompleteIds);
             }
         }
-        foreach (var id in targetedCaptured.IncompleteIds.Concat(recoveryCaptured.IncompleteIds)) current.Fields.Remove(id);
-        SemanticTargetedAuthority.Validate(original, current, _references);
-        foreach (var id in _reported.Where(id => !current.Fields.ContainsKey(id)))
+        foreach (var id in authorityRejected) current.Fields.Remove(id);
+        authorityRejected.UnionWith(SemanticTargetedAuthority.Validate(original, current, _references,
+            _recoveredReported));
+        foreach (var id in _reported.Where(id => !current.Fields.ContainsKey(id) && !authorityRejected.Contains(id)))
         {
             cancellationToken.ThrowIfCancellationRequested();
             try
@@ -339,8 +352,10 @@ internal sealed class SemanticReview
         var complete = original.Complete && current.Complete && !_unreviewedReportedChanges
             && !_coverage.HasFailures && _coverage.OmittedCount == 0;
         IReadOnlyList<string> warnings = complete ? [] : ["Semantic review is incomplete: the original could not be opened, a view exceeded its memory or traversal limit, a lazy section could not be read, or an internal field could not be matched after a structural change. Only proven changes are listed."];
+        var queryWarnings = original.QueryWarnings.Concat(current.QueryWarnings)
+            .Select(SemanticDiagnostics.Bound).Distinct(StringComparer.Ordinal);
         return new SemanticChangeLog(changes, complete,
-            [.. warnings, .. _coverage.Diagnostics(), .. original.QueryWarnings.Concat(current.QueryWarnings).Distinct(StringComparer.Ordinal)], revision);
+            [.. warnings, .. _coverage.Diagnostics(), .. queryWarnings], revision);
     }
 
     public bool TryOriginal(string id, out FieldValue value)

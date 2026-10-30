@@ -15,9 +15,10 @@ internal sealed record CanonicalMetadataOutcome(bool Applied, IReadOnlyList<stri
 
 internal static class SemanticTargetedAuthority
 {
-    public static void Validate(SemanticSnapshot original, SemanticSnapshot current,
-        ReferenceFieldService references)
+    public static IReadOnlyList<string> Validate(SemanticSnapshot original, SemanticSnapshot current,
+        ReferenceFieldService references, IReadOnlySet<string>? retainRejectedIds = null)
     {
+        var rejected = new List<string>();
         foreach (var (id, before) in original.Fields)
         {
             if (before.CanonicalValueId is null || !current.Fields.TryGetValue(id, out var after)) continue;
@@ -26,11 +27,22 @@ internal static class SemanticTargetedAuthority
                 && before.Spec is { } beforeSpec && after.Spec is { } afterSpec
                 && AuthoritySpecAgree(beforeSpec, afterSpec)
                 && OriginalValueMatchesCurrentPolicy(before.Value, afterSpec, references)) continue;
-            current.Fields.Remove(id);
+            if (retainRejectedIds?.Contains(id) == true && current.Fields.TryGetValue(id, out var rejectedField))
+            {
+                // Keep the observed value/existence for an honest incomplete row, but make the
+                // internal comparison conservative so a rejected policy cannot become revertible.
+                current.Fields[id] = rejectedField with { ReadOnly = true };
+            }
+            else current.Fields.Remove(id);
             current.Complete = false;
+            rejected.Add(id);
             current.QueryWarnings = [.. current.QueryWarnings,
-                $"Targeted metadata coverage is incomplete: authority changed for '{id}'; revert is unavailable."];
+                SemanticDiagnostics.WithIdentity(
+                    "Targeted metadata coverage is incomplete: authority changed for '",
+                    id, "'; revert is unavailable.")];
         }
+
+        return rejected;
     }
 
     private static bool OriginalValueMatchesCurrentPolicy(FieldValue value, FieldSpec spec,
@@ -62,7 +74,8 @@ internal static class SemanticTargetedAuthority
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (working.Fields[id] is not { } semantic || index.Cached(id) is not { } metadata)
-                    return Failure([id], $"Canonical metadata coverage is incomplete: no descriptor was published for '{id}'.");
+                    return Failure([id], SemanticDiagnostics.WithIdentity(
+                        "Canonical metadata coverage is incomplete: no descriptor was published for '", id, "'."));
 
                 var updated = semantic with
                 {
@@ -76,11 +89,13 @@ internal static class SemanticTargetedAuthority
                 };
                 if (!SemanticSnapshot.TryEstimate(updated, long.MaxValue, out var updatedCost)
                     || !SemanticSnapshot.TryEstimate(semantic, long.MaxValue, out var existingCost))
-                    return Failure([id], $"Canonical metadata coverage is incomplete: review metadata is too large for '{id}'.");
+                    return Failure([id], SemanticDiagnostics.WithIdentity(
+                        "Canonical metadata coverage is incomplete: review metadata is too large for '", id, "'."));
 
                 var additional = updatedCost - existingCost;
                 if (additional > 0 && additional > maxBytes - working.Bytes)
-                    return Failure([id], $"Canonical metadata coverage is incomplete: review budget exceeded for '{id}'.");
+                    return Failure([id], SemanticDiagnostics.WithIdentity(
+                        "Canonical metadata coverage is incomplete: review budget exceeded for '", id, "'."));
 
                 working.Bytes += Math.Max(0, additional);
                 working.Fields[id] = updated with { Spec = FieldSpecMetadata.Snapshot(metadata.Spec) };

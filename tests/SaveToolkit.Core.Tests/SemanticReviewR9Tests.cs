@@ -11,7 +11,6 @@ public sealed class SemanticReviewR9Tests
     public void PendingMetadataFailureOwnsOneOmissionAndRollbackRestoresIt()
     {
         var coverage = new SemanticReviewCoverage();
-        coverage.RecordOmissions(2, "unrelated omission");
         using var document = new RetryDocument();
         var snapshot = new SemanticSnapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal)
         {
@@ -30,7 +29,12 @@ public sealed class SemanticReviewR9Tests
             Assert.False(failed.Applied);
             coverage.RecordOriginalFailures([], failed.Diagnostic!);
         }
+        Assert.Equal(1, coverage.OmittedCount);
+        Assert.Contains(coverage.Diagnostics(), message => message.Contains("transient failure", StringComparison.Ordinal));
+
+        coverage.RecordOmissions(2, "unrelated omission");
         Assert.Equal(3, coverage.OmittedCount);
+        Assert.Contains(coverage.Diagnostics(), message => message.Contains("unrelated omission", StringComparison.Ordinal));
 
         var state = coverage.CaptureState();
         coverage.RecordOmissions(4, "temporary cancellation work");
@@ -45,6 +49,18 @@ public sealed class SemanticReviewR9Tests
         Assert.Equal(2, coverage.OmittedCount);
         Assert.Contains(coverage.Diagnostics(), message => message.Contains("unrelated omission", StringComparison.Ordinal));
         Assert.DoesNotContain(coverage.Diagnostics(), message => message.Contains("transient failure", StringComparison.Ordinal));
+
+        coverage.RecordOriginalFailures([], "later transient failure");
+        Assert.Contains(coverage.Diagnostics(), message => message.Contains("later transient failure", StringComparison.Ordinal));
+        coverage.ClearMetadataAttemptFailure();
+        Assert.Contains(coverage.Diagnostics(), message => message.Contains("unrelated omission", StringComparison.Ordinal));
+
+        var reverse = new SemanticReviewCoverage();
+        reverse.RecordOmissions(1, "unrelated first");
+        reverse.RecordOriginalFailures([], "pending second");
+        reverse.ClearMetadataAttemptFailure();
+        Assert.Contains(reverse.Diagnostics(), message => message.Contains("unrelated first", StringComparison.Ordinal));
+        Assert.DoesNotContain(reverse.Diagnostics(), message => message.Contains("pending second", StringComparison.Ordinal));
     }
 
     [Fact]

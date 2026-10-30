@@ -52,18 +52,27 @@ public sealed class StagedGroupMetadataTests
     public void RestoreMetadataFailureDoesNotPublishOrLeakCandidate()
     {
         var state = new CandidateState();
-        using var staged = new StagedGroupDocument(() => new CandidateDocument(state), _ => [new FileOutput("save.dat", new byte[] { 1 })], () => { }, 4096);
+        using var staged = new StagedGroupDocument(() => new CandidateDocument(state), candidate => candidate.Serialize(), () => { }, 4096);
         Assert.Single(staged.Serialize());
         Assert.Single(staged.ResolveFieldMetadata(["hidden"]));
         var changed = staged.InvokeAction("touch", new Dictionary<string, FieldValue>());
         Assert.True(changed.StructureChanged);
-        Assert.Single(staged.Serialize());
+        Assert.Equal(new byte[] { 2 }, staged.Serialize().Single().Content.ToArray());
+        var publishedBeforeFailure = state.Created[^1];
         state.ThrowOnSecondResolve = true;
         var disposedBefore = state.DisposedCandidates;
 
         Assert.Throws<InvalidOperationException>(() => staged.RestoreMemento(changed.Revert!));
-        Assert.Equal(new byte[] { 1 }, staged.Serialize().Single().Content.ToArray());
+        Assert.Equal(new byte[] { 2 }, staged.Serialize().Single().Content.ToArray());
+        Assert.False(publishedBeforeFailure.Disposed);
         Assert.Equal(disposedBefore + 1, state.DisposedCandidates);
+
+        state.ThrowOnSecondResolve = false;
+        var continued = staged.InvokeAction("touch", new Dictionary<string, FieldValue>());
+        Assert.True(continued.StructureChanged);
+        Assert.Equal(new byte[] { 3 }, staged.Serialize().Single().Content.ToArray());
+        _ = staged.RestoreMemento(changed.Revert!);
+        Assert.Equal(new byte[] { 1 }, staged.Serialize().Single().Content.ToArray());
     }
 
     private sealed class CandidateState
@@ -71,6 +80,7 @@ public sealed class StagedGroupMetadataTests
         public bool Hidden = true;
         public bool ThrowOnSecondResolve;
         public int DisposedCandidates;
+        public List<CandidateDocument> Created { get; } = [];
     }
 
     private sealed class CandidateDocument : BoundSaveDocument, IGroupedSaveDocument, IFieldMetadataDocument
@@ -86,6 +96,7 @@ public sealed class StagedGroupMetadataTests
         {
             _state = state;
             _foreign = foreign ?? (static () => false);
+            state.Created.Add(this);
         }
 
         public override string Title => "Candidate";
@@ -97,7 +108,8 @@ public sealed class StagedGroupMetadataTests
         public override ActionOutcome InvokeAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters)
         {
             if (actionId == "retire") _state.Hidden = false;
-            else if (actionId != "touch") throw new KeyNotFoundException(actionId);
+            else if (actionId == "touch") _value++;
+            else throw new KeyNotFoundException(actionId);
             return new ActionOutcome { StructureChanged = true };
         }
 
@@ -120,8 +132,14 @@ public sealed class StagedGroupMetadataTests
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing) _state.DisposedCandidates++;
+            if (disposing)
+            {
+                _state.DisposedCandidates++;
+                Disposed = true;
+            }
             base.Dispose(disposing);
         }
+
+        public bool Disposed { get; private set; }
     }
 }

@@ -1,5 +1,6 @@
 using SaveToolkit.Core.Editing;
 using SaveToolkit.Sdk;
+using System.Globalization;
 
 namespace SaveToolkit.Core.Sessions;
 
@@ -11,6 +12,7 @@ internal sealed class SemanticReviewCoverage
     private readonly HashSet<string> _failedOmissionIds = new(StringComparer.Ordinal);
     private int _omittedCount;
     private string? _omissionReason;
+    private string? _pendingMetadataReason;
     private bool _pendingMetadataAttempt;
 
     public IReadOnlyCollection<string> RetryIds => _retryIds;
@@ -19,7 +21,7 @@ internal sealed class SemanticReviewCoverage
     public bool HasPendingMetadataAttempt => _pendingMetadataAttempt;
 
     public SemanticReviewCoverageState CaptureState() => new(_retryIds.ToArray(), _failures.ToArray(),
-        _failedOmissionIds.ToArray(), _omittedCount, _omissionReason, _pendingMetadataAttempt);
+        _failedOmissionIds.ToArray(), _omittedCount, _omissionReason, _pendingMetadataReason, _pendingMetadataAttempt);
 
     public void Restore(SemanticReviewCoverageState state)
     {
@@ -31,6 +33,7 @@ internal sealed class SemanticReviewCoverage
         _failedOmissionIds.UnionWith(state.FailedOmissionIds);
         _omittedCount = state.OmittedCount;
         _omissionReason = state.OmissionReason;
+        _pendingMetadataReason = state.PendingMetadataReason;
         _pendingMetadataAttempt = state.PendingMetadataAttempt;
     }
 
@@ -95,6 +98,7 @@ internal sealed class SemanticReviewCoverage
     {
         if (!_pendingMetadataAttempt) return;
         _pendingMetadataAttempt = false;
+        _pendingMetadataReason = null;
         if (_omittedCount > 0) _omittedCount--;
     }
 
@@ -102,7 +106,8 @@ internal sealed class SemanticReviewCoverage
     {
         if (_pendingMetadataAttempt) return;
         _pendingMetadataAttempt = true;
-        RecordOmissions(1, diagnostic);
+        _pendingMetadataReason = SemanticDiagnostics.Bound(diagnostic);
+        if (_omittedCount < int.MaxValue) _omittedCount++;
     }
 
     public void RecordOmissions(int count, string reason)
@@ -114,11 +119,15 @@ internal sealed class SemanticReviewCoverage
     public IReadOnlyList<string> Diagnostics()
     {
         if (_omittedCount == 0) return _failures.Values.ToArray();
-        var aggregate = $"{_omissionReason ?? "Targeted metadata coverage was bounded."} Omitted entries: {_omittedCount}.";
+        var reason = _omissionReason ?? _pendingMetadataReason ?? "Targeted metadata coverage was bounded.";
+        if (_omissionReason is not null && _pendingMetadataReason is not null)
+            reason = SemanticDiagnostics.Compose(_omissionReason, " Pending metadata: ", _pendingMetadataReason);
+        var aggregate = SemanticDiagnostics.Compose(reason, " Omitted entries: ",
+            _omittedCount.ToString(CultureInfo.InvariantCulture), ".");
         return [.. _failures.Values, aggregate];
     }
 }
 
 internal sealed record SemanticReviewCoverageState(IReadOnlyList<string> RetryIds,
     IReadOnlyList<KeyValuePair<string, string>> Failures, IReadOnlyList<string> FailedOmissionIds,
-    int OmittedCount, string? OmissionReason, bool PendingMetadataAttempt);
+    int OmittedCount, string? OmissionReason, string? PendingMetadataReason, bool PendingMetadataAttempt);

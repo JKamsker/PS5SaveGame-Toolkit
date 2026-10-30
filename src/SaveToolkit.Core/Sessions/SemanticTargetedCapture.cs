@@ -55,6 +55,12 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                     || field.Spec is null || !Enum.IsDefined(field.BindingKind))
                     throw new InvalidOperationException("Invalid targeted field metadata.");
 
+                if (!SemanticMetadataBudget.TryEstimate(field, maxBytes - snapshot.Bytes, out _))
+                {
+                    if (markIncomplete) snapshot.Complete = false;
+                    continue;
+                }
+
                 var canonical = string.IsNullOrEmpty(field.CanonicalValueId) ? field.ValueId : field.CanonicalValueId;
                 if (snapshot.Fields.TryGetValue(field.ValueId, out var existing))
                 {
@@ -62,7 +68,7 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                     {
                         ReadOnly = field.Spec.ReadOnly, CanonicalValueId = canonical, BindingKind = field.BindingKind,
                         Spec = field.Spec, Presentation = field.Presentation, Label = field.Label,
-                        Path = field.Path?.ToArray() ?? existing.Path,
+                        Path = existing.Path,
                     };
                     if (!SemanticSnapshot.TryEstimate(candidate, long.MaxValue, out var candidateCost)
                         || !SemanticSnapshot.TryEstimate(existing, long.MaxValue, out var existingCost)
@@ -73,13 +79,18 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                     }
 
                     snapshot.Bytes += Math.Max(0, candidateCost - existingCost);
-                    snapshot.Fields[field.ValueId] = candidate with { Spec = FieldSpecMetadata.Snapshot(field.Spec) };
+                    snapshot.Fields[field.ValueId] = candidate with
+                    {
+                        Path = field.Path?.ToArray() ?? existing.Path,
+                        Spec = FieldSpecMetadata.Snapshot(field.Spec),
+                    };
                     captured.Add(field.ValueId);
                     continue;
                 }
 
+                var value = document.GetValue(field.ValueId);
                 var semantic = new SemanticField(field.ValueId, field.Label, field.Path?.ToArray() ?? [],
-                    document.GetValue(field.ValueId), field.Spec.ReadOnly,
+                    value, field.Spec.ReadOnly,
                     CanonicalValueId: canonical, BindingKind: field.BindingKind,
                     Spec: field.Spec, Presentation: field.Presentation);
                 if (!SemanticSnapshot.TryEstimate(semantic, maxBytes - snapshot.Bytes, out var cost))
