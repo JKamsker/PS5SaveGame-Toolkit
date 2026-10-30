@@ -39,24 +39,8 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
     public override string Title => _name;
     public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
     {
-        JsonMetadataRequest.Validate(valueIds);
-        foreach (var valueId in valueIds.Distinct(StringComparer.Ordinal))
-        {
-            if (!JsonActions.TryFind(_model, valueId, out var node) || node.IsContainer) continue;
-            var binding = JsonScalarBindingPolicy.Create(node, _references, CanEdit, WriteWarningForDocument);
-            var spec = FieldSpecMetadata.Snapshot(binding.Spec);
-            var index = node.Index;
-            RegisterField(new FieldMetadata(valueId, node.Label, spec)
-            {
-                BindingKind = FieldBindingKind.Primary,
-                CanonicalValueId = valueId,
-                Presentation = binding.Presentation,
-            },
-            () => _model.Find(index).Current,
-            CanEdit && !spec.ReadOnly ? value => _model.Find(index).Current = value : null,
-            binding.Validate);
-        }
-
+        JsonFieldMetadataPublisher.Publish(_model, _references, CanEdit, WriteWarningForDocument,
+            valueIds, (metadata, get, set, validate) => RegisterField(metadata, get, set, validate));
         return base.ResolveFieldMetadata(valueIds);
     }
 
@@ -253,7 +237,7 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
                 ? section with { Description = InventoryDescription(node) } : section;
         }
         var binding = JsonScalarBindingPolicy.Create(node, _references, CanEdit, WriteWarningForDocument);
-        var field = Field(node.ValueId, node.Label, binding.Spec, () => _model.Find(node.Index).Current,
+        var field = Field(node.ValueId, binding.Label, binding.Spec, () => _model.Find(node.Index).Current,
             CanEdit && !binding.Spec.ReadOnly ? value => _model.Find(node.Index).Current = value : null,
             binding.Validate) with
         {

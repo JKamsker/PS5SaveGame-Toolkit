@@ -158,6 +158,7 @@ internal sealed class XorJsonGroupDocument : IGroupedSaveDocument, IQueryableDoc
                 plan with { Errors = plan.Errors.Select(error => error.ValueId.Length == 0
                     ? error : error with { ValueId = member.Prefix(error.ValueId) }).ToArray() });
             if (!outcome.Succeeded) return outcome with { Errors = LocalErrors(member, outcome.Errors) };
+            if (outcome.Changes.Count == 0 && !outcome.StructureChanged && outcome.Revert is null) return outcome;
             _ = Serialize();
             return outcome with
             {

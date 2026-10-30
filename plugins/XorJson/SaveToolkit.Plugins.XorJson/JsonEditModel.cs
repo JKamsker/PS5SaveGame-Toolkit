@@ -11,11 +11,10 @@ internal sealed class JsonEditModel
     private const int EstimatedNodeBytes = 256;
     private int _nextId;
     private readonly LosslessJsonDocument _losslessDocument;
-    private Dictionary<int, JsonValueToken>? _index;
+    private Dictionary<int, JsonValueToken> _index;
     private IReadOnlyList<JsonValueToken>? _nodes;
     public JsonValueToken Root { get; private set; }
     public IReadOnlyList<JsonValueToken> Nodes => _nodes ??= Walk(Root).ToArray();
-    private Dictionary<int, JsonValueToken> Index => _index ??= Nodes.ToDictionary(node => node.Index);
 
     public JsonEditModel(JsonTokenTree tree)
     {
@@ -23,19 +22,19 @@ internal sealed class JsonEditModel
         _losslessDocument = tree.Lossless;
         _nextId = tree.Nodes.Count;
         _nodes = tree.Nodes;
+        _index = tree.Nodes.ToDictionary(node => node.Index);
     }
 
-    public JsonValueToken Find(int id)
-    {
-        // Parsed IDs are their positions until structure changes. Reuse that index
-        // without building another document-wide dictionary for a single lookup.
-        if (_nodes is { } nodes && id >= 0 && id < nodes.Count && nodes[id].Index == id) return nodes[id];
-        return Index.GetValueOrDefault(id) ?? throw new KeyNotFoundException("The JSON record no longer exists.");
-    }
+    // The current identity index is maintained by parse, structural publication and restore.
+    // Even a cold miss must not enumerate Nodes or materialize an unrelated subtree.
+    public JsonValueToken Find(int id) =>
+        _index.GetValueOrDefault(id) ?? throw new KeyNotFoundException("The JSON record no longer exists.");
 
     public void Change(string operation, int id, string? json, string? key)
     {
         var target = Find(id);
+        var retired = operation == "add" ? [] : Walk(target).Select(node => node.Index).ToArray();
+        JsonValueToken? inserted = null;
         if (operation == "add" && !target.IsContainer) throw new SaveFormatException("Add requires an object or array.");
         if (operation is "remove" or "replace" && target.Parent is null)
             throw new SaveFormatException("The document root cannot be removed or replaced.");
@@ -47,7 +46,7 @@ internal sealed class JsonEditModel
         if (operation == "remove") parent.Children.RemoveAt(position);
         else
         {
-            var inserted = CreateFragment(parent, target, operation, json, key);
+            inserted = CreateFragment(parent, target, operation, json, key);
             inserted.Parent = parent;
             if (operation == "replace")
             {
@@ -59,7 +58,9 @@ internal sealed class JsonEditModel
             else parent.Children.Add(inserted);
         }
         UpdateChildPaths(parent);
-        _index = null;
+        foreach (var retiredId in retired) _index.Remove(retiredId);
+        if (inserted is not null)
+            foreach (var added in Walk(inserted)) _index[added.Index] = added;
         _nodes = null;
         // Validate the full depth, node count, size and grammar before the transaction can succeed.
         _ = JsonTokenWriter.Write(Root);
@@ -123,7 +124,7 @@ internal sealed class JsonEditModel
         Root = Clone(state.Root, null, new Dictionary<byte[], byte[]>(ReferenceEqualityComparer.Instance));
         BindSdkModel(Root);
         _ = JsonTokenWriter.Write(Root, state.LosslessReplacements);
-        _index = null;
+        _index = Walk(Root).ToDictionary(node => node.Index);
         _nodes = null;
         // Never reuse an id allocated by a later, now-undone operation.
         _nextId = Math.Max(_nextId, state.NextId);

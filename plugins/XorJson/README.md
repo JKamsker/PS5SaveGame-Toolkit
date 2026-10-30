@@ -73,6 +73,11 @@ The XorJson consumer implements the SDK `IFieldMetadataDocument` contract for
 current scalar tokens and `IGroupedFieldContext` for the character/global group.
 Requests are validated in full before lookup, including duplicate-counted batch
 limits, and the resolver checks only requested IDs in the current token index.
+The index is created during parsing, updated by structural publication and rebuilt
+as part of restore; cold unknown, current and retired lookups never create it.
+Only the exact current ID spelling is admitted: `value/01` is unknown rather than
+another writable identity for `value/1`. Legal empty member names use their full
+typed path as the nonempty label, retaining the member name and duplicate occurrence.
 It does not build a view, expand lazy ranges, enumerate catalogs, query, or
 serialize. Every raw scalar is an explicit self-canonical primary; equal values,
 labels, prefixes, catalog matches and role names never create aliases. Specs and
@@ -84,7 +89,14 @@ null when no source publishes it.
 
 This adopter consumes the published SDK-06 lossless scalar ownership and the
 published SDK-58/SDK-68 contracts without copying framework policy. The feature
-is reviewable on its dependency branch, but final adoption requires corrected
+composes landed PR61 through the ordinary merge of published main
+`c1af2a29f6be2e5bb18bbd25738d0a14f942a9db`; the earlier F13 preparation head had
+not consumed it. `F13HostMatrixTests`, `F13GroupActionTests` and
+`F13StructuralSessionTests` exercise real host metadata preflight, all five
+existing scalar action families, empty selection, exact member bytes and history.
+`MetadataLookupTests` bounds cold/warm/post-restore lookup allocations separately
+from parse/restore work. These are synthetic proofs, not console reload evidence.
+The feature is reviewable on its dependency branch, but final adoption requires corrected
 SDK-58 and SDK-68 to land first and pass their independent review and CI gates.
 
 The pack sidecars and this README document pinned sources, modifications, hashes and PS5 uncertainty. Game artwork and game descriptions are attributed under the owner decision of 2026-10-29; earlier community facts retain their 2026-10-28 policy basis. No saved-location coordinates or wiki text are imported.

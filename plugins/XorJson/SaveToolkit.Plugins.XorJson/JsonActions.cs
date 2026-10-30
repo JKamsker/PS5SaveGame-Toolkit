@@ -20,7 +20,7 @@ internal static class JsonActions
         node = null!;
         if (!id.StartsWith("value/", StringComparison.Ordinal) ||
             !int.TryParse(id.AsSpan(6), NumberStyles.None, CultureInfo.InvariantCulture, out var index)) return false;
-        try { node = model.Find(index); return true; }
+        try { node = model.Find(index); return string.Equals(id, node.ValueId, StringComparison.Ordinal); }
         catch (KeyNotFoundException) { return false; }
     }
 

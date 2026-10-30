@@ -6,7 +6,7 @@ using SaveToolkit.Sdk.Views;
 namespace SaveToolkit.Plugins.XorJson;
 
 /// <summary>Creates one scalar policy shared by rendered fields and targeted metadata.</summary>
-internal sealed record JsonScalarBinding(FieldSpec Spec, FieldPresentation Presentation,
+internal sealed record JsonScalarBinding(string Label, FieldSpec Spec, FieldPresentation Presentation,
     Func<FieldValue, string?> Validate);
 
 internal static class JsonScalarBindingPolicy
@@ -29,6 +29,7 @@ internal static class JsonScalarBindingPolicy
         if (!canEdit && !spec.ReadOnly) spec = spec with { ReadOnly = true };
 
         return new JsonScalarBinding(
+            node.Label.Length == 0 ? node.TypedPath : node.Label,
             spec,
             new FieldPresentation
             {
