@@ -69,6 +69,7 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                         ReadOnly = field.Spec.ReadOnly, CanonicalValueId = canonical, BindingKind = field.BindingKind,
                         Spec = field.Spec, Presentation = field.Presentation, Label = field.Label,
                         Path = existing.Path,
+                        MetadataPublished = true,
                     };
                     if (!SemanticSnapshot.TryEstimate(candidate, long.MaxValue, out var candidateCost)
                         || !SemanticSnapshot.TryEstimate(existing, long.MaxValue, out var existingCost)
@@ -92,7 +93,7 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                 var semantic = new SemanticField(field.ValueId, field.Label, field.Path?.ToArray() ?? [],
                     value, field.Spec.ReadOnly,
                     CanonicalValueId: canonical, BindingKind: field.BindingKind,
-                    Spec: field.Spec, Presentation: field.Presentation);
+                    Spec: field.Spec, Presentation: field.Presentation, MetadataPublished: true);
                 if (!SemanticSnapshot.TryEstimate(semantic, maxBytes - snapshot.Bytes, out var cost))
                 {
                     if (markIncomplete) snapshot.Complete = false;

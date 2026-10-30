@@ -10,7 +10,7 @@ public sealed class SemanticReviewR9Tests
     [Fact]
     public void PendingMetadataFailureOwnsOneOmissionAndRollbackRestoresIt()
     {
-        var coverage = new SemanticReviewCoverage();
+        var coverage = new SemanticReviewCoverageTracker();
         using var document = new RetryDocument();
         var snapshot = new SemanticSnapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal)
         {
@@ -55,7 +55,7 @@ public sealed class SemanticReviewR9Tests
         coverage.ClearMetadataAttemptFailure();
         Assert.Contains(coverage.Diagnostics(), message => message.Contains("unrelated omission", StringComparison.Ordinal));
 
-        var reverse = new SemanticReviewCoverage();
+        var reverse = new SemanticReviewCoverageTracker();
         reverse.RecordOmissions(1, "unrelated first");
         reverse.RecordOriginalFailures([], "pending second");
         reverse.ClearMetadataAttemptFailure();
@@ -84,7 +84,7 @@ public sealed class SemanticReviewR9Tests
     [Fact]
     public void ProviderDiagnosticsAreBoundedAcrossAffectedIds()
     {
-        var coverage = new SemanticReviewCoverage();
+        var coverage = new SemanticReviewCoverageTracker();
         var huge = new string('X', 100_000);
         for (var index = 0; index < 8; index++)
             coverage.RecordFailure($"field-{index}", huge);

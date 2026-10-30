@@ -53,6 +53,10 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
 
     internal bool MetadataEnabled => _current is IFieldMetadataDocument;
 
+    /// <summary>Forward only explicitly requested group ownership context from the current candidate.</summary>
+    internal IReadOnlyList<DocumentGroupFieldContext> ResolveFieldContext(IReadOnlyList<string> valueIds) =>
+        _current is IGroupedFieldContext context ? context.ResolveFieldContext(valueIds) : [];
+
     /// <summary>Forward bounded metadata to the currently published candidate.</summary>
     public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
     {
@@ -280,6 +284,8 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
             cancellationToken.ThrowIfCancellationRequested();
             _ = candidate.RestoreMemento(memento);
             cancellationToken.ThrowIfCancellationRequested();
+            retiredMetadataIds = ResolveCandidateMetadata(candidate, includeResolvedMetadata, metadataIds, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
             _ = candidate.BuildView();
             cancellationToken.ThrowIfCancellationRequested();
             foreach (var lazyId in rebind ? _expanded : [])
@@ -296,7 +302,6 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
                     if (queryable.Collections.Any(c => c.Id == collection)) _ = queryable.Query(collection, query);
                     cancellationToken.ThrowIfCancellationRequested();
                 }
-            retiredMetadataIds = ResolveCandidateMetadata(candidate, includeResolvedMetadata, metadataIds, cancellationToken);
             return candidate;
         }
         catch (Exception failure)

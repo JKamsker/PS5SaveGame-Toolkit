@@ -177,6 +177,21 @@ public sealed class SemanticReviewTests : IDisposable
     }
 
     [Fact]
+    public void MissingTargetedMetadataReportsTheKnownOmissionCount()
+    {
+        var review = new SemanticReview(new());
+        using var document = new MissingMetadataDocument();
+
+        review.CaptureTargetedOriginals(() => document, ["missing-a", "missing-b"], CancellationToken.None);
+        var state = review.CaptureState();
+        Assert.NotNull(state.Original);
+        var log = review.Query(() => document, document, _ => { }, _ => { }, 1, CancellationToken.None);
+        Assert.False(log.Complete);
+        Assert.Equal(2, log.Coverage?.OmittedCount);
+        Assert.False(log.Coverage?.OmittedCountIsLowerBound);
+    }
+
+    [Fact]
     public void CurrentTargetedMetadataResolvesBeforeAFailingViewWalk()
     {
         var zip = TestZips.Build(("PPSA99999/sdimg_SAVE/save.dat", new byte[] { 1 }));
@@ -327,5 +342,17 @@ public sealed class SemanticReviewTests : IDisposable
             Events.Add("metadata");
             return base.ResolveFieldMetadata(ids);
         }
+    }
+
+    private sealed class MissingMetadataDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        public MissingMetadataDocument() => RegisterField(new FieldMetadata("known", "Known", IntegerSpec.Int32),
+            () => FieldValue.Of(1), _ => { });
+
+        public override string Title => "Missing metadata";
+        public override ViewNode BuildView() => new TextNode("No fields");
+        public override IReadOnlyList<FileOutput> Serialize() => [];
+        public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> ids) =>
+            base.ResolveFieldMetadata(ids.Where(id => id == "known").ToArray());
     }
 }

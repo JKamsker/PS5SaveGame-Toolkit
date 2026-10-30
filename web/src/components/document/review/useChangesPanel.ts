@@ -64,9 +64,18 @@ export function useChangesPanel() {
   const [error, setError] = useState("");
   const query = useQuery({ queryKey: ["changes", doc.workspaceId, doc.documentId, revision, version, doc.structureVersion],
     queryFn: () => actionReview.changes(doc.workspaceId, doc.documentId), enabled: open });
-  const changes = query.data?.changes.filter(change => `${change.label} ${change.valueId}`.toLowerCase().includes(search.toLowerCase())) ?? [];
+  const changes = query.data?.changes.filter(change => {
+    const searchable = [change.label, change.valueId, change.canonicalValueId, ...change.path,
+      change.member?.role, change.member?.relativePath, change.member?.groupTitle, change.member?.provenance,
+      ...(change.aliases?.flatMap(alias => [alias.label, alias.valueId, ...alias.path, alias.member?.role,
+        alias.member?.relativePath, alias.member?.groupTitle, alias.member?.provenance]) ?? [])]
+      .filter(Boolean).join(" ").toLowerCase();
+    return searchable.includes(search.trim().toLowerCase());
+  }) ?? [];
   const page = useReviewPage(changes);
-  const partial = query.data && (!query.data.complete || query.data.warnings.some(warning => /truncat/i.test(warning)));
+  const partial = query.data && (!query.data.complete
+    || query.data.warnings.some(warning => /truncat/i.test(warning))
+    || (query.data.coverage?.omittedCount ?? 0) > 0);
   const refreshChanges = async (refreshDocument = false) => {
     try {
       if (refreshDocument) await doc.refresh();

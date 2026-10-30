@@ -57,7 +57,12 @@ internal static class SemanticTargetedAuthority
 
         var working = snapshot.Clone();
         var index = new FieldMetadataIndex(document, Math.Max(0, maxBytes - working.Bytes));
-        var ids = working.Fields.Keys.ToArray();
+        // Targeted capture already admitted these descriptors, including their current
+        // presentation. Re-resolving them here would spend the same review budget twice and
+        // could replace a current annotation with an older fallback. Only legacy fields need
+        // canonical authority enrichment.
+        var ids = working.Fields.Values.Where(field => !field.MetadataPublished)
+            .Select(field => field.ValueId).ToArray();
         foreach (var batch in ids.Chunk(FieldMetadataIndex.BatchSize))
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -85,7 +90,7 @@ internal static class SemanticTargetedAuthority
                     CanonicalValueId = string.IsNullOrEmpty(metadata.CanonicalValueId) ? id : metadata.CanonicalValueId,
                     BindingKind = metadata.BindingKind,
                     Spec = metadata.Spec,
-                    Presentation = metadata.Presentation,
+                    Presentation = metadata.Presentation, MetadataPublished = true,
                 };
                 if (!SemanticSnapshot.TryEstimate(updated, long.MaxValue, out var updatedCost)
                     || !SemanticSnapshot.TryEstimate(semantic, long.MaxValue, out var existingCost))

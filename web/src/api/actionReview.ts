@@ -7,10 +7,24 @@ export interface QueryableCollectionQuery extends Omit<CollectionQuery, "q" | "s
   text?: string;
   sortColumn?: string;
 }
-interface SemanticCollectionTarget {
+export interface SemanticCollectionTarget {
   collectionId: string;
   rowKey: string;
   query: QueryableCollectionQuery;
+}
+export type FieldBindingKind = "Primary" | "Derived";
+export interface FieldPresentation { confidence?: "Verified" | "Inferred" | "Unknown"; warning?: string; description?: string }
+export interface SemanticProjection {
+  valueId: string; label: string; path: string[]; bindingKind?: FieldBindingKind; presentation?: FieldPresentation;
+  member?: SemanticMemberContext; changed?: boolean;
+}
+export interface SemanticNavigationTarget {
+  path: string[]; collection?: SemanticCollectionTarget; available: boolean; unavailableReason?: string;
+}
+export interface SemanticMemberContext { role: string; relativePath: string; groupTitle?: string; provenance?: string }
+export interface SemanticReviewCoverage {
+  examinedCount: number; omittedCount: number; budgetBytes: number; usedBytes: number; omittedReasons: string[];
+  omittedCountIsLowerBound?: boolean;
 }
 export function collectionReviewQuery({ text, sortColumn, ...query }: QueryableCollectionQuery): CollectionQuery {
   return { ...query, q: text, sort: sortColumn };
@@ -35,8 +49,13 @@ export interface SemanticChange {
   valueId: string; label: string; path: string[]; originalValue: FieldValue; currentValue: FieldValue;
   originalExists: boolean; currentExists: boolean; canRevert: boolean;
   target?: SemanticCollectionTarget;
+  canonicalValueId?: string; bindingKind?: FieldBindingKind; presentation?: FieldPresentation;
+  aliases?: SemanticProjection[]; member?: SemanticMemberContext;
+  navigationTarget?: SemanticNavigationTarget; canNavigate?: boolean; revertReason?: string;
 }
-export interface SemanticChangeLog { changes: SemanticChange[]; complete: boolean; warnings: string[]; revision: number }
+export interface SemanticChangeLog {
+  changes: SemanticChange[]; complete: boolean; warnings: string[]; revision: number; coverage?: SemanticReviewCoverage;
+}
 
 export const actionReview = {
   plan: (workspace: string, document: string, actionId: string, parameters: Record<string, FieldValue>, scope: ActionScope, revision?: number) =>

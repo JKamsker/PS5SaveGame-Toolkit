@@ -10,7 +10,7 @@ namespace SaveToolkit.Core.Sessions;
 internal sealed record SemanticField(string ValueId, string Label, string[] Path, FieldValue Value, bool ReadOnly,
     SemanticCollectionTarget? Target = null, string? CanonicalValueId = null,
     FieldBindingKind BindingKind = FieldBindingKind.Primary, FieldSpec? Spec = null,
-    FieldPresentation? Presentation = null);
+    FieldPresentation? Presentation = null, bool MetadataPublished = false);
 internal sealed record SemanticReviewState(SemanticSnapshot? Original,
     IReadOnlyList<string> TargetedIds, IReadOnlyList<string> CaptureDiagnostics);
 
@@ -31,9 +31,10 @@ internal sealed class SemanticReview
     private bool _capturingOriginal;
     private bool? _originalMetadataAvailable;
     private bool _originalMetadataAttempted;
-    private readonly SemanticReviewCoverage _coverage = new();
+    private readonly SemanticReviewCoverageTracker _coverage = new();
     private readonly SemanticSnapshotCapture _capture;
     private readonly SemanticTargetedCapture _targetedCapture;
+    private readonly Func<IReadOnlyList<string>, IReadOnlyDictionary<string, SemanticMemberContext>>? _memberContext;
     private readonly long _maxBytes;
     private readonly ReferenceFieldService _references;
 
@@ -63,13 +64,15 @@ internal sealed class SemanticReview
             _coverage.Restore(coverage);
         };
     }
-    public SemanticReview(DocumentSessionOptions limits, ReferenceFieldService? references = null)
+    public SemanticReview(DocumentSessionOptions limits, ReferenceFieldService? references = null,
+        Func<IReadOnlyList<string>, IReadOnlyDictionary<string, SemanticMemberContext>>? memberContext = null)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(limits.MaxReviewQueryRows);
         ArgumentOutOfRangeException.ThrowIfNegative(limits.MaxReviewQueryPages);
         ArgumentOutOfRangeException.ThrowIfNegative(limits.MaxReviewQueryBytes);
         _capture = new SemanticSnapshotCapture(limits);
         _targetedCapture = new SemanticTargetedCapture(limits.MaxOriginalBytes);
+        _memberContext = memberContext;
         _maxBytes = limits.MaxOriginalBytes;
         _references = references ?? new ReferenceFieldService(ReferenceContext.None);
     }
@@ -122,6 +125,7 @@ internal sealed class SemanticReview
                 {
                     _coverage.RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
                 }
+                SemanticPresentationProjection.Apply(original, _original, _maxBytes, cancellationToken);
             }
             _originalMetadataAttempted = _coverage.RetryIds.Count == 0;
         }
@@ -190,6 +194,7 @@ internal sealed class SemanticReview
                         _coverage.RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
                     }
                     if (metadata.Applied) _coverage.ClearRecovered(snapshot);
+                    SemanticPresentationProjection.Apply(original, snapshot, _maxBytes, cancellationToken);
                     _originalMetadataAvailable = true;
                     _originalMetadataAttempted = _coverage.RetryIds.Count == 0;
                 }
@@ -234,6 +239,7 @@ internal sealed class SemanticReview
                 _coverage.RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
             else
                 _coverage.ClearRecovered(existing);
+            SemanticPresentationProjection.Apply(original, existing, _maxBytes, cancellationToken);
             _originalMetadataAttempted = _coverage.RetryIds.Count == 0;
             }
             catch (OperationCanceledException) { throw; }
@@ -311,6 +317,7 @@ internal sealed class SemanticReview
             current.QueryWarnings = [.. current.QueryWarnings, .. walked.QueryWarnings,
                 "Legacy current view coverage is incomplete; targeted values do not prove whole-document coverage."];
             current.Complete = false;
+            SemanticPresentationProjection.Apply(document, current, _maxBytes, cancellationToken);
         }
         else
         {
@@ -325,6 +332,17 @@ internal sealed class SemanticReview
                 current.QueryWarnings = [.. current.QueryWarnings, metadata.Diagnostic!];
                 authorityRejected.UnionWith(metadata.IncompleteIds);
             }
+            SemanticPresentationProjection.Apply(document, current, _maxBytes, cancellationToken);
+        }
+        foreach (var id in targetedCaptured.IncompleteIds) current.Fields.Remove(id);
+        SemanticChangedMetadataProjection.Apply(original, current, document, _maxBytes, cancellationToken);
+        foreach (var id in recoveryCaptured.IncompleteIds) current.Fields.Remove(id);
+        // A retry ID already contributes one original-coverage omission. Do not count the
+        // same known identity a second time when the current target is still unavailable.
+        if (recoveryCaptured.IncompleteIds.Count > 0)
+        {
+            current.OmittedCount = Math.Max(0, current.OmittedCount - recoveryCaptured.IncompleteIds.Count);
+            if (current.OmittedCount == 0) current.OmittedCountIsLowerBound = false;
         }
         foreach (var id in authorityRejected) current.Fields.Remove(id);
         authorityRejected.UnionWith(SemanticTargetedAuthority.Validate(original, current, _references,
@@ -345,19 +363,36 @@ internal sealed class SemanticReview
                 current.Complete = false;
             }
         }
-        var changes = SemanticSnapshotComparison.Compare(original.Fields, original.Complete,
-            current.Fields, current.Complete, document, cancellationToken);
+        var noContext = new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal);
+        var uncontextualized = SemanticSnapshotComparison.Compare(original.Fields, original.Complete,
+            current.Fields, current.Complete, document, noContext, cancellationToken);
+        var contextResolution = ResolveMemberContext(uncontextualized, Math.Max(original.Bytes, current.Bytes), cancellationToken);
+        var changes = contextResolution.Contexts.Count == 0
+            ? uncontextualized
+            : SemanticSnapshotComparison.Compare(original.Fields, original.Complete,
+                current.Fields, current.Complete, document, contextResolution.Contexts, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
 
         var complete = original.Complete && current.Complete && !_unreviewedReportedChanges
-            && !_coverage.HasFailures && _coverage.OmittedCount == 0;
+            && !_coverage.HasFailures && _coverage.OmittedCount == 0 && contextResolution.OmittedCount == 0;
         IReadOnlyList<string> warnings = complete ? [] : ["Semantic review is incomplete: the original could not be opened, a view exceeded its memory or traversal limit, a lazy section could not be read, or an internal field could not be matched after a structural change. Only proven changes are listed."];
         var queryWarnings = original.QueryWarnings.Concat(current.QueryWarnings)
             .Select(SemanticDiagnostics.Bound).Distinct(StringComparer.Ordinal);
-        return new SemanticChangeLog(changes, complete,
-            [.. warnings, .. _coverage.Diagnostics(), .. queryWarnings], revision);
+        IReadOnlyList<string> allWarnings = [.. warnings, .. _coverage.Diagnostics(),
+            .. (contextResolution.Diagnostic is { } diagnostic ? [SemanticDiagnostics.Bound(diagnostic)] : Array.Empty<string>()),
+            .. queryWarnings];
+        var omitted = original.OmittedCount + current.OmittedCount + _coverage.OmittedCount + contextResolution.OmittedCount;
+        var coverage = _originalMetadataAvailable == true || document is IFieldMetadataDocument || !complete
+            ? new SemanticReviewCoverage(Math.Max(original.ExaminedCount, current.ExaminedCount), omitted, _maxBytes,
+                Math.Max(original.Bytes, current.Bytes) + contextResolution.AcceptedBytes, allWarnings,
+                original.OmittedCountIsLowerBound || current.OmittedCountIsLowerBound
+                    || _coverage.OmittedCountIsLowerBound || contextResolution.OmittedCount > 0)
+            : null;
+        return new SemanticChangeLog(changes, complete, allWarnings, revision) { Coverage = coverage };
     }
 
+    private MemberContextResolution ResolveMemberContext(IReadOnlyList<SemanticChange> changes, long usedBytes, CancellationToken cancellationToken) =>
+        SemanticMemberContextResolver.Resolve(_memberContext, changes, usedBytes, _maxBytes, cancellationToken);
     public bool TryOriginal(string id, out FieldValue value)
     {
         if (_original?.Fields.GetValueOrDefault(id) is { } field)
