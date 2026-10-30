@@ -268,7 +268,8 @@ in-memory library. Storage I/O failures return 503; invalid payloads return 422.
 
 JSON body `{name,compatibility,actions}` creates one version-1 preset and returns it. The
 compatibility boundary must include a plugin, plugin version and at least one title ID. The host
-rejects empty names, oversized payloads and invalid action counts with 422.
+rejects invalid names and action counts with 400. Payload validation failures return 400;
+requests exceeding the 512 KiB create envelope return 413 (`presetPayloadTooLarge`).
 
 ### `PATCH /api/presets/{presetId}`
 
