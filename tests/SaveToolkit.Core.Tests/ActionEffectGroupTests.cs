@@ -112,11 +112,18 @@ public sealed class ActionEffectGroupTests
         }
         public override IReadOnlyList<FileOutput> Serialize() =>
             [new("member-a", new byte[] { (byte)_first }), new("member-b", new byte[] { (byte)_second })];
-        public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds) =>
-            valueIds.Select(id => new FieldMetadata(id, id, IntegerSpec.Int32)
+        public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+        {
+            // Restore clears bindings. Candidate metadata must bind the current model before
+            // the host reads it, without relying on the later view-construction phase.
+            RegisterField("member-a/value", IntegerSpec.Int32, () => FieldValue.Of(_first), value => _first = value.AsInt32());
+            RegisterField("member-b/value", IntegerSpec.Int32, () => FieldValue.Of(_second), value => _second = value.AsInt32());
+            return valueIds.Where(id => id is "member-a/value" or "member-b/value")
+                .Select(id => new FieldMetadata(id, id, IntegerSpec.Int32)
             {
                 BindingKind = FieldBindingKind.Primary, CanonicalValueId = id,
             }).ToArray();
+        }
         public DocumentMemento CaptureMemento() => CaptureSnapshot();
 
         public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) => new()

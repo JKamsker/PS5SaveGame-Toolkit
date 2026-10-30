@@ -48,7 +48,7 @@ public static class FieldSpecMetadata
         while (pending.Count > 0)
         {
             var frame = pending.Pop();
-            if (frame.Depth > FieldMetadataLimits.MaxSpecDepth || ++nodes > FieldMetadataLimits.MaxClosureIds)
+            if (frame.Depth > FieldMetadataLimits.MaxSpecDepth)
                 return false;
 
             if (frame.NextUnionOption > 0 && frame.Spec is UnionSpec continuation)
@@ -64,6 +64,9 @@ public static class FieldSpecMetadata
                 }
                 continue;
             }
+
+            // A union continuation schedules its next child; it is not another spec node.
+            if (++nodes > FieldMetadataLimits.MaxClosureIds) return false;
 
             if (frame.Spec is NullableSpec or UnionSpec
                 && !Add(ref bytes, SpecNodeOverheadBytes, limit)) return false;
