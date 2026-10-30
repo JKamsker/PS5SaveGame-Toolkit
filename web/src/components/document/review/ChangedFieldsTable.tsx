@@ -19,6 +19,7 @@ function ChangedFieldRow({ change, review, focusSummary }: ReviewProps & { chang
   const { disabled, canEdit, navigate, revert } = review;
   const canNavigate = change.canNavigate ?? Boolean(change.target || change.path.length > 0);
   const reasonId = `change-reason-${change.valueId.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+  const navigationReasonId = `change-navigation-${change.valueId.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
   const readOnlyReason = change.revertReason ?? (change.bindingKind === "Derived"
     ? "Derived fields update when the canonical primary changes."
     : "This field cannot be reverted safely.");
@@ -32,7 +33,9 @@ function ChangedFieldRow({ change, review, focusSummary }: ReviewProps & { chang
         {change.member.groupTitle && <> · {change.member.groupTitle}</>}
         {change.member.provenance && <> · {change.member.provenance}</>}
       </span>}
-      <small>Technical ID: {change.valueId}{change.canonicalValueId && <> · canonical {change.canonicalValueId}</>}</small>
+      <details className="review-technical"><summary>Technical details</summary>
+        <small>Technical ID: {change.valueId}{change.canonicalValueId && <> · canonical {change.canonicalValueId}</>}</small>
+      </details>
       {change.aliases && <details className="review-aliases">
         <summary>Also shown as {change.aliases.length} projection{change.aliases.length === 1 ? "" : "s"}</summary>
         <ul>{change.aliases.map(alias => <li key={alias.valueId}>
@@ -40,18 +43,26 @@ function ChangedFieldRow({ change, review, focusSummary }: ReviewProps & { chang
           {alias.changed && <span className="review-badge">Changed projection</span>}
           {alias.bindingKind === "Derived" && <span className="review-badge">Derived</span>}
           {alias.presentation?.confidence && <span className="review-confidence">Confidence: {alias.presentation.confidence}</span>}
+          {alias.presentation?.warning && <span className="review-reason">{alias.presentation.warning}</span>}
+          {alias.presentation?.description && <span className="review-context">{alias.presentation.description}</span>}
           {alias.member && <span className="review-context">{alias.member.role} · {alias.member.relativePath}
             {alias.member.groupTitle && <> · {alias.member.groupTitle}</>}
             {alias.member.provenance && <> · {alias.member.provenance}</>}
           </span>}
-          <small>Technical ID: {alias.valueId} · path {alias.path.join(" › ") || "unavailable"}</small>
+          <details className="review-technical"><summary>Technical details</summary>
+            <small>Technical ID: {alias.valueId} · path {alias.path.join(" › ") || "unavailable"}</small>
+          </details>
         </li>)}</ul>
       </details>}
       {!change.canRevert && <span id={reasonId} className="review-reason">{readOnlyReason}</span>}
+      {!canNavigate && <span id={navigationReasonId} className="review-reason">
+        {change.navigationTarget?.unavailableReason ?? "This field is unavailable in the current reviewed view."}
+      </span>}
     </th>
     <td>{reviewValue(change.originalValue, change.originalExists)}</td><td>{reviewValue(change.currentValue, change.currentExists)}</td>
     <td className="review-actions">
       <button type="button" className="btn btn--small" disabled={disabled || !change.currentExists || !canNavigate}
+        aria-describedby={!canNavigate ? navigationReasonId : undefined}
         onClick={() => void navigate(change)} aria-label={`Jump to ${change.label}`}>Jump</button>
       <button type="button" className="btn btn--small" disabled={disabled || !canEdit || !change.canRevert}
         aria-describedby={!change.canRevert ? reasonId : undefined}

@@ -40,12 +40,10 @@ public sealed class DocumentGroupSession
         var input = Input(new OverlaySaveSet(set, frozen));
         IGroupedSaveDocument Open()
         {
-            // Group plugins commonly publish metadata while building their view. Opened
-            // originals are used by targeted semantic capture before the first live walk,
-            // so initialize that bounded publication point on every candidate as well.
-            var document = _groupPlugin.OpenGroup(input, references);
-            _ = document.BuildView();
-            return document;
+            // Targeted semantic capture must be able to resolve explicit metadata before any
+            // legacy view/lazy walk. Implementations publish requested bindings from the
+            // document model; the session builds a view only after that bounded phase.
+            return _groupPlugin.OpenGroup(input, references);
         }
         var declarationProbe = Open();
         try
@@ -180,19 +178,25 @@ public sealed class DocumentGroupSession
         long responseBytes = 0;
         foreach (var batch in requested.Chunk(SemanticContextBudget.MaxBatchCount))
         {
+            var batchIds = batch.ToHashSet(StringComparer.Ordinal);
             var response = staged.ResolveFieldContext(batch);
-            if (response is null || response.Count > batch.Length)
+            if (response is null)
                 throw new SemanticContextResolutionException(mapped, "The group returned more context rows than requested.");
+            var responseEntries = 0;
             foreach (var context in response)
             {
+                if (++responseEntries > batch.Length)
+                    throw new SemanticContextResolutionException(mapped, "The group returned more context rows than requested.");
                 if (context is null || string.IsNullOrWhiteSpace(context.ValueId)
-                    || string.IsNullOrWhiteSpace(context.Role) || string.IsNullOrWhiteSpace(context.RelativePath)
-                    || !requested.Contains(context.ValueId) || !members.ContainsKey((context.Role, context.RelativePath)))
+                    || !batchIds.Contains(context.ValueId))
                     throw new SemanticContextResolutionException(mapped, "The group returned foreign field context.");
-                if (context.Role.Length > SemanticContextBudget.MaxStringLength
+                if (string.IsNullOrWhiteSpace(context.Role) || string.IsNullOrWhiteSpace(context.RelativePath)
+                    || context.Role.Length > SemanticContextBudget.MaxStringLength
                     || context.RelativePath.Length > SemanticContextBudget.MaxStringLength
                     || context.Provenance is { Length: > SemanticContextBudget.MaxStringLength })
                     throw new SemanticContextResolutionException(mapped, "The group returned oversized context strings.");
+                if (!members.ContainsKey((context.Role, context.RelativePath)))
+                    throw new SemanticContextResolutionException(mapped, "The group returned foreign field context.");
                 var semantic = new SemanticMemberContext(context.Role, context.RelativePath, Title, context.Provenance);
                 if (!SemanticContextBudget.TryEstimate(semantic, out var bytes)
                     || responseBytes > SemanticContextBudget.MaxResponseBytes - bytes)

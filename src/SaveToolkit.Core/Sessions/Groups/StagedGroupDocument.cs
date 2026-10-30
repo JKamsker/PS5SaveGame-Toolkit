@@ -274,6 +274,8 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
             cancellationToken.ThrowIfCancellationRequested();
             _ = candidate.RestoreMemento(memento);
             cancellationToken.ThrowIfCancellationRequested();
+            retiredMetadataIds = ResolveCandidateMetadata(candidate, includeResolvedMetadata, metadataIds, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
             _ = candidate.BuildView();
             cancellationToken.ThrowIfCancellationRequested();
             foreach (var lazyId in rebind ? _expanded : [])
@@ -290,7 +292,6 @@ internal sealed class StagedGroupDocument : ISaveDocument, IFieldMetadataDocumen
                     if (queryable.Collections.Any(c => c.Id == collection)) _ = queryable.Query(collection, query);
                     cancellationToken.ThrowIfCancellationRequested();
                 }
-            retiredMetadataIds = ResolveCandidateMetadata(candidate, includeResolvedMetadata, metadataIds, cancellationToken);
             return candidate;
         }
         catch (Exception failure)

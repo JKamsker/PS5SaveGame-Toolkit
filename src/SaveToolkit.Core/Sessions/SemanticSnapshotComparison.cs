@@ -42,7 +42,8 @@ internal static class SemanticSnapshotComparison
                 after?.Representative.Target ?? before?.Representative.Target, available,
                 available ? null : "The field is unavailable in the current reviewed view.");
             var aliases = members.GroupBy(field => field.ValueId, StringComparer.Ordinal)
-                .Select(group => group.OrderByDescending(field => field.MetadataPublished).First())
+                .Select(group => after?.Members.GetValueOrDefault(group.Key)
+                    ?? group.OrderByDescending(field => field.MetadataPublished).First())
                 .Where(field => field.ValueId != representative.ValueId && field.MetadataPublished)
                 .Select(field => new SemanticProjection(field.ValueId, field.Label, field.Path,
                     field.BindingKind, field.Presentation, ContextFor(field, memberContext),

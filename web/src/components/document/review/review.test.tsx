@@ -186,6 +186,7 @@ describe("semantic changes panel", () => {
       canonicalValueId: "quantity", bindingKind: "Primary", member: { role: "character", relativePath: "profile.dat", groupTitle: "Group", provenance: "router" },
       aliases: [
         { valueId: "raw/quantity", label: "Raw quantity", path: ["section:Raw", "row:legacy"], bindingKind: "Derived", changed: true,
+          presentation: { warning: "Current metadata caution", description: "Current alias context" },
           member: { role: "character", relativePath: "profile.dat", groupTitle: "Group", provenance: "router" } },
       ], canNavigate: true }] });
     renderDocument(<ChangesPanel />);
@@ -196,6 +197,8 @@ describe("semantic changes panel", () => {
     fireEvent.click(screen.getByText("Also shown as 1 projection"));
     expect(screen.getByText("Raw quantity")).toBeTruthy();
     expect(screen.getByText("Changed projection")).toBeTruthy();
+    expect(screen.getByText("Current metadata caution")).toBeTruthy();
+    expect(screen.getByText("Current alias context")).toBeTruthy();
     for (const value of ["row:legacy", "profile.dat", "router"]) {
       fireEvent.change(screen.getByRole("searchbox"), { target: { value } });
       expect(screen.getByText("Also shown as 1 projection")).toBeTruthy();
@@ -268,6 +271,23 @@ describe("semantic changes panel", () => {
     expect(screen.getByRole("button", { name: "Jump to Potion quantity" })).toHaveProperty("disabled", false);
     fireEvent.click(button);
     expect(revert).not.toHaveBeenCalled();
+  });
+
+  it("separates a server navigation denial from revert authority and keeps IDs disclosed on demand", async () => {
+    const navigationDenied = { ...change, canRevert: true, canNavigate: false,
+      navigationTarget: { path: [], available: false, unavailableReason: "The current row was removed." } };
+    vi.spyOn(actionReview, "changes").mockResolvedValue({ ...log, changes: [navigationDenied] });
+    renderDocument(<ChangesPanel />);
+    fireEvent.click(screen.getByText("Changes against original"));
+    const jump = await screen.findByRole("button", { name: "Jump to Potion quantity" });
+    expect(jump).toHaveProperty("disabled", true);
+    const reason = screen.getByText("The current row was removed.");
+    expect(jump.getAttribute("aria-describedby")).toBe(reason.id);
+    expect(screen.getByRole("button", { name: "Revert Potion quantity" })).toHaveProperty("disabled", false);
+    const technical = screen.getByText("Technical details").closest("details");
+    expect(technical).toHaveProperty("open", false);
+    fireEvent.click(screen.getByText("Technical details"));
+    expect(technical).toHaveProperty("open", true);
   });
 
   it("loads changes against original, filters them and reverts with the log revision", async () => {

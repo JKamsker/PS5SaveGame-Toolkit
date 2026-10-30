@@ -118,7 +118,7 @@ internal sealed class SemanticReview
                 {
                     _coverage.RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
                 }
-                SemanticPresentationProjection.Apply(original, _original, cancellationToken);
+                SemanticPresentationProjection.Apply(original, _original, _maxBytes, cancellationToken);
             }
             _originalMetadataAttempted = _coverage.RetryIds.Count == 0;
         }
@@ -187,7 +187,7 @@ internal sealed class SemanticReview
                         _coverage.RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
                     }
                     if (metadata.Applied) _coverage.ClearRecovered(snapshot);
-                    SemanticPresentationProjection.Apply(original, snapshot, cancellationToken);
+                    SemanticPresentationProjection.Apply(original, snapshot, _maxBytes, cancellationToken);
                     _originalMetadataAvailable = true;
                     _originalMetadataAttempted = _coverage.RetryIds.Count == 0;
                 }
@@ -232,7 +232,7 @@ internal sealed class SemanticReview
                 _coverage.RecordOriginalFailures(metadata.IncompleteIds, metadata.Diagnostic!);
             else
                 _coverage.ClearRecovered(existing);
-            SemanticPresentationProjection.Apply(original, existing, cancellationToken);
+            SemanticPresentationProjection.Apply(original, existing, _maxBytes, cancellationToken);
             _originalMetadataAttempted = _coverage.RetryIds.Count == 0;
             }
             catch (OperationCanceledException) { throw; }
@@ -306,7 +306,7 @@ internal sealed class SemanticReview
             current.QueryWarnings = [.. current.QueryWarnings, .. walked.QueryWarnings,
                 "Legacy current view coverage is incomplete; targeted values do not prove whole-document coverage."];
             current.Complete = false;
-            SemanticPresentationProjection.Apply(document, current, cancellationToken);
+            SemanticPresentationProjection.Apply(document, current, _maxBytes, cancellationToken);
         }
         else
         {
@@ -320,11 +320,18 @@ internal sealed class SemanticReview
                 current.OmittedCountIsLowerBound = true;
                 current.QueryWarnings = [.. current.QueryWarnings, metadata.Diagnostic!];
             }
-            SemanticPresentationProjection.Apply(document, current, cancellationToken);
+            SemanticPresentationProjection.Apply(document, current, _maxBytes, cancellationToken);
         }
         foreach (var id in targetedCaptured.IncompleteIds) current.Fields.Remove(id);
         SemanticChangedMetadataProjection.Apply(original, current, document, _maxBytes, cancellationToken);
         foreach (var id in recoveryCaptured.IncompleteIds) current.Fields.Remove(id);
+        // A retry ID already contributes one original-coverage omission. Do not count the
+        // same known identity a second time when the current target is still unavailable.
+        if (recoveryCaptured.IncompleteIds.Count > 0)
+        {
+            current.OmittedCount = Math.Max(0, current.OmittedCount - recoveryCaptured.IncompleteIds.Count);
+            if (current.OmittedCount == 0) current.OmittedCountIsLowerBound = false;
+        }
         SemanticTargetedAuthority.Validate(original, current, _references);
         foreach (var id in _reported.Where(id => !current.Fields.ContainsKey(id)))
         {
@@ -361,7 +368,7 @@ internal sealed class SemanticReview
         var omitted = original.OmittedCount + current.OmittedCount + _coverage.OmittedCount + contextResolution.OmittedCount;
         var coverage = _originalMetadataAvailable == true || document is IFieldMetadataDocument || !complete
             ? new SemanticReviewCoverage(Math.Max(original.ExaminedCount, current.ExaminedCount), omitted, _maxBytes,
-                Math.Min(_maxBytes, Math.Max(original.Bytes, current.Bytes) + contextResolution.AcceptedBytes), allWarnings,
+                Math.Max(original.Bytes, current.Bytes) + contextResolution.AcceptedBytes, allWarnings,
                 original.OmittedCountIsLowerBound || current.OmittedCountIsLowerBound
                     || _coverage.OmittedCountIsLowerBound || contextResolution.OmittedCount > 0)
             : null;
