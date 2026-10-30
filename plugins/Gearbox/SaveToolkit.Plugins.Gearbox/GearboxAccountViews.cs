@@ -9,6 +9,18 @@ namespace SaveToolkit.Plugins.Gearbox;
 /// <summary>Read each stored mirror independently; no reconciliation direction or computed rank.</summary>
 internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyViews lazy)
 {
+    internal static readonly string[] HeroScalars = ["strength", "dexterity", "intelligence", "wisdom", "constitution", "luck"];
+    internal static readonly (string Name, string Label)[] MythScalars =
+        [("prestige_experience", "Stored Myth XP"), ("last_upgrade_tree_index", "Last upgrade tree index (raw)")];
+    internal static readonly (string Name, string Label)[] GuardianScalars =
+        [("guardian_rank", "Stored rank"), ("guardian_experience", "Legacy XP"),
+        ("new_guardian_experience", "New XP"), ("available_tokens", "Available tokens"),
+        ("guardian_available_tokens", "Available tokens"), ("is_rank_system_enabled", "Rank system enabled (raw)"),
+        ("guardian_reward_random_seed", "Reward random seed (raw)")];
+    internal static bool SupportsScalar(bool wonderlands, string role, string name) => wonderlands
+        ? role == "hero" ? HeroScalars.Contains(name) : MythScalars.Any(field => field.Name == name)
+        : GuardianScalars.Any(field => field.Name == name);
+
     private static readonly string[] RewardScalars = ["num_tokens", "is_enabled"];
     public IReadOnlyList<ViewNode> Build()
     {
@@ -33,9 +45,7 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         var current = get();
         if (current is null) { nodes.Add(new TextNode(title + ": record absent (preserved).")); return; }
         var fields = new List<ViewNode>();
-        foreach (var (name, label) in new[] { ("guardian_rank", "Stored rank"), ("guardian_experience", "Legacy XP"),
-            ("new_guardian_experience", "New XP"), ("available_tokens", "Available tokens"), ("guardian_available_tokens", "Available tokens"),
-            ("is_rank_system_enabled", "Rank system enabled (raw)"), ("guardian_reward_random_seed", "Reward random seed (raw)") })
+        foreach (var (name, label) in GuardianScalars)
         {
             if (!Has(current, name)) continue;
             fields.Add(AccountNumber(id + "/" + name, label, () => get()!, name,
@@ -71,7 +81,7 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         if (!document.Profile && document.Root.Child("hero_points_save_data") is { } hero)
         {
             var fields = new List<ViewNode>();
-            foreach (var name in new[] { "strength", "dexterity", "intelligence", "wisdom", "constitution", "luck" })
+            foreach (var name in HeroScalars)
             {
                 if (!Has(hero, name)) continue;
                 var record = document.World.Find("hero:" + name);
@@ -89,7 +99,7 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         var id = document.Profile ? "account/myth" : "account/myth-mirror";
         if (current is null) { nodes.Add(new TextNode("Myth record absent (preserved); no rank or point budget inferred.")); return; }
         var values = new List<ViewNode>();
-        foreach (var (name, label) in new[] { ("prestige_experience", "Stored Myth XP"), ("last_upgrade_tree_index", "Last upgrade tree index (raw)") })
+        foreach (var (name, label) in MythScalars)
             if (Has(current, name)) values.Add(AccountNumber(id + "/" + name, label, () => get()!, name,
                 name == "last_upgrade_tree_index" ? 3 : Math.Max(current.Integer(name), 1_000_000)));
         values.Add(lazy.Register(id + "/allocations", "Myth indexed allocations", () => [new TextNode("Upstream index labels; PS5 allocation rotation/caps unproven. No computed Myth rank."), MythTable(get, id).Build()]));
@@ -108,8 +118,7 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
             {
                 ["index"] = new TextNode(values["index"]),
                 ["name"] = document.InspectionField(key + "/name", "Stat", values["name"], record is null ? Confidence.Unknown : Confidence.Inferred, record?.AttributionText),
-                ["points"] = MythPoints(get, id, position, value,
-                    SerialDatabase.For(true).Find(GearboxWorldCatalog.CatalogId, "myth:" + position.ToString(CultureInfo.InvariantCulture))?.Attributes.GetValueOrDefault("upstreamCap"), record?.AttributionText),
+                ["points"] = BindMythPoints(document, get, id, position, value),
             }));
         }));
 
@@ -153,14 +162,19 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
     }
 
     internal static bool TryIntegerAt(ProtoMessage message, string name, int index, out int value, bool bounded = true)
+        => TryIntegerAt(message, name, index, out value, out _, bounded);
+
+    internal static bool TryIntegerAt(ProtoMessage message, string name, int index, out int value,
+        out int visited, bool bounded = true)
     {
         value = 0;
         var ordinal = 0;
-        var visited = 0;
+        visited = 0;
         foreach (var field in message.Fields)
         {
+            visited++;
+            if (bounded && visited > GearboxInventory.DirectLookupWorkLimit) return false;
             if (field.Spec?.Name != name) continue;
-            if (bounded && ++visited > GearboxInventory.DirectLookupWorkLimit) return false;
             if (field.Value is ulong scalar)
             {
                 if (ordinal++ == index) { value = unchecked((int)scalar); return true; }
@@ -170,7 +184,8 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
             using var reader = new CodedInputStream(bytes);
             while (!reader.IsAtEnd)
             {
-                if (bounded && ++visited > GearboxInventory.DirectLookupWorkLimit) return false;
+                visited++;
+                if (bounded && visited > GearboxInventory.DirectLookupWorkLimit) return false;
                 if (ordinal++ == index) { value = reader.ReadInt32(); return true; }
                 reader.ReadInt32();
             }
@@ -182,8 +197,12 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         bool writable = true, string? description = null, string? warning = null) =>
         document.AccountNumber(id, label, get, name, maximum, writable, description, warning);
 
-    private FieldNode MythPoints(Func<ProtoMessage?> get, string id, int position, int value, string? upstreamCap, string? attribution)
+    internal static FieldNode BindMythPoints(GearboxDocument document, Func<ProtoMessage?> get,
+        string id, int position, int value)
     {
+        var key = "myth:" + position.ToString(CultureInfo.InvariantCulture);
+        var upstreamCap = SerialDatabase.For(true).Find(GearboxWorldCatalog.CatalogId, key)?.Attributes.GetValueOrDefault("upstreamCap");
+        var attribution = document.World.Find(key)?.AttributionText;
         if (!document.Coordinated || !int.TryParse(upstreamCap, out var cap) || value < 0)
             return document.InspectionField($"{id}/{position}/points", "Stored points", value.ToString(CultureInfo.InvariantCulture), Confidence.Inferred, attribution);
         var maximum = cap == 0 ? Math.Max(value, 1000) : cap;

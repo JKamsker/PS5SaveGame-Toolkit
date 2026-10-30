@@ -9,6 +9,8 @@ internal sealed class GearboxProgressionBindings(GearboxDocument document)
     private ProtoMessage[] _stats = [];
     private int[] _ordinals = [];
 
+    internal static string RecordedLevelId(int index) => index == 0 ? "character/recorded-level" : $"character/recorded-level/{index}";
+
     internal bool Ensure(bool boundedDiscovery)
     {
         if (document.Profile) return false;
@@ -44,7 +46,7 @@ internal sealed class GearboxProgressionBindings(GearboxDocument document)
         for (var i = 0; i < stats.Count; i++)
         {
             var statIndex = i;
-            var id = stats.Count == 1 ? "character/recorded-level" : $"character/recorded-level/{statIndex}";
+            var id = RecordedLevelId(statIndex);
             _ = document.Integer(id, "Recorded level statistic", () => Get(statIndex), "stat_value", int.MaxValue,
                 warning: "Updated with XP; this statistic alone does not change level.");
         }

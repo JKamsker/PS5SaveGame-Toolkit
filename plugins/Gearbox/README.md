@@ -799,6 +799,17 @@ unknown/foreign/retired IDs and duplicates, and leaves provenance null because n
 provenance is published. It does not infer ownership from prefixes, labels, values, bytes or filenames,
 and does not build a view, query, serialize output, dirty state or history. The implementation is
 plugin-owned; production adoption of any future action-effect descriptor remains a separate framework gate.
+
+The targeted and rendered account paths share the same embedded Myth allocation cap policy;
+reference-pack label/attribution overrides cannot grant a larger write range. Only the renderer's
+explicit Guardian, Hero and Myth scalar names are editable. Container count observations belong to
+the actual character backpack or profile bank/lost-loot role, including empty owned lists. Cold
+nested allocation lookup charges every visited field/packed value against the existing finite work
+budget. Established inventory identities retain direct field positions across root clones and
+restore; structural actions rebuild those positions at their existing identity lifecycle boundary.
+The first matching level statistic uses `character/recorded-level`; later records use distinct
+`character/recorded-level/1`, `/2`, etc., without a second `/0` writable primary.
+
 **GEARBOX-F13 / action-effect metadata: framework landing gate.** The independently reviewed
 action-effect contract is complete, while a separate framework writer owns its opt-in pre-capture,
 memento and inline-descriptor implementation. Against the currently published dependency,
@@ -810,8 +821,9 @@ parsed fields, and `import/serial` remains an action payload pseudo-field; Gearb
 writable fields, suppress rows or weaken host preflight. Current count and presence observations
 remain honest, including zero known lists. Gearbox will adopt the published descriptor only after
 the framework implementation lands, then add host-session preview/apply/undo/redo byte and
-cardinality regressions. Remaining capture, console-validation and gameplay-model gaps are listed
-above and tracked in [#31][owner-validation].
+cardinality regressions. This deferred production adoption and pure-planning work is tracked in
+[#81](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/81). Remaining capture, console-validation
+and gameplay-model gaps are listed above and tracked in [#31][owner-validation].
 
 ## Owner capture and validation checklist
 

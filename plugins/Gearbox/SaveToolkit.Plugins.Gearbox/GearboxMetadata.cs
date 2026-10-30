@@ -52,16 +52,11 @@ internal static class GearboxMetadata
             }
             return;
         }
-        if (id is "character/recorded-level")
+        if (id == GearboxProgressionBindings.RecordedLevelId(0) ||
+            id.StartsWith("character/recorded-level/", StringComparison.Ordinal) &&
+            GearboxMetadataLookup.TryCanonicalIndex(id["character/recorded-level/".Length..], out var ordinal) && ordinal > 0)
         {
-            if (!document.Profile)
-            {
-                var index = FindChildIndex(document.Root, "game_stats_data",
-                    s => s.Text("stat_path") == CharacterProgression.LevelStat(document.Root.Schema.Wonderlands));
-                if (index >= 0) _ = document.Integer(id, "Recorded level statistic",
-                    () => GearboxMetadataLookup.RequireChild(document.Root, "game_stats_data", index), "stat_value",
-                    warning: "Updated with XP; this statistic alone does not change level.");
-            }
+            _ = document.EnsureProgressionBindings(boundedDiscovery: true);
             return;
         }
         if (TryCurrency(document, id) || TryAmmo(document, id) || TrySdu(document, id) || TrySlot(document, id) || TryWorld(document, id) || TryAccount(document, id))
@@ -163,7 +158,8 @@ internal static class GearboxMetadata
         else if (document.Profile ? role != "profile" : role is not ("legacy" or "character")) return false;
         Func<ProtoMessage?> parent = () => RoleParent(document, role);
         var name = split[2];
-        if (parent() is not { } current || !IntegerField(current, name)) return false;
+        if (!GearboxAccountViews.SupportsScalar(document.Root.Schema.Wonderlands, role, name) ||
+            parent() is not { } current || !IntegerField(current, name)) return false;
         var (label, maximum, description, warning) = AccountPresentation(document, role, name, current);
         _ = document.AccountNumber(id, label, () => parent()!, name, maximum,
             writable: name != "guardian_reward_random_seed", description: description, warning: warning);
@@ -177,19 +173,7 @@ internal static class GearboxMetadata
         var parent = RoleParent(document, role);
         if (parent is null || !GearboxAccountViews.TryIntegerAt(parent, "points_spent_by_index_order", index,
             out var value)) return false;
-        var record = document.World.Find("myth:" + index.ToString(CultureInfo.InvariantCulture));
-        var capText = record?.Attributes.GetValueOrDefault("upstreamCap");
-        var attribution = record?.AttributionText;
-        if (!document.Coordinated || !int.TryParse(capText, out var cap) || value < 0)
-        {
-            _ = document.InspectionField(id, "Stored points", value.ToString(CultureInfo.InvariantCulture),
-                Confidence.Inferred, attribution);
-            return true;
-        }
-        var maximum = cap == 0 ? Math.Max(value, 1000) : cap;
-        var description = (attribution is null ? "" : attribution + " ") +
-            "Raw allocation; upstream cap is an editor policy. XP/rank/rotation and point budgets are not automatically reconciled. " + SerialWrites.Warning;
-        _ = document.MythPoints(id, () => RoleParent(document, role), index, maximum, description);
+        _ = GearboxAccountViews.BindMythPoints(document, () => RoleParent(document, role), "account/" + role, index, value);
         return true;
     }
 
@@ -349,6 +333,7 @@ internal static class GearboxMetadata
         if (split.Length == 2 && split[1] == "count" && split[0] is GearboxInventory.Backpack or GearboxInventory.Bank or GearboxInventory.LostLoot)
         {
             var list = split[0];
+            if (document.Profile ? list == GearboxInventory.Backpack : list != GearboxInventory.Backpack) return false;
             if (!GearboxMetadataLookup.TryCount(document.Root, list, out _)) return false;
             _ = document.ActionObservation(id, list + " item count", new IntegerSpec(0, int.MaxValue),
                 () => GearboxMetadataLookup.TryCount(document.Root, list, out var count)
@@ -357,19 +342,5 @@ internal static class GearboxMetadata
             return true;
         }
         return false;
-    }
-
-    private static int FindChildIndex(ProtoMessage root, string name, Func<ProtoMessage, bool> predicate)
-    {
-        var index = 0;
-        var visited = 0;
-        foreach (var field in root.Fields)
-        {
-            if (++visited > GearboxInventory.DirectLookupWorkLimit) return -1;
-            if (field.Spec?.Name != name || field.Message is null) continue;
-            if (predicate(field.Message)) return index;
-            index++;
-        }
-        return -1;
     }
 }
