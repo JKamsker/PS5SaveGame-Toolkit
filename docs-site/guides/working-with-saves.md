@@ -25,9 +25,20 @@ Confidence in a byte layout is separate from confidence in a gameplay effect. A 
 2. Browse or search the table; check that the row and owner are the ones you intended.
 3. Choose one supported existing value within the published bounds. Read any warning and confirmation.
 4. For a bulk action, inspect its preview and skipped rows before applying it. A preview explains the planned changes within its stated limits.
-5. Review the **Changes** panel. If anything is unexpected, undo and inspect again. History has limits; export or retain the original rather than relying on unlimited undo.
+5. Review **Changes against original**. If anything is unexpected, undo and inspect again. History has limits; export or retain the original rather than relying on unlimited undo.
 
 Related files may open as an explicit group with coordinated history. Do not independently substitute files from another save set. Follow the plugin's documented grouping and backup rules.
+
+## Follow a specific task
+
+- [Save, reuse and transfer an action preset](presets-and-transfer.md): choose supported FF7 scopes,
+  resolve current ownership and move preset packages without applying them.
+- [Review changes and find the owning field](metadata-review.md): compare values, inspect aliases
+  and grouped member context, and understand incomplete coverage.
+- [Change a Tsushima save caption](manual-caption.md): fit a manual caption into its UTF-8 slot
+  and export its owned SFO alongside the primary file.
+- [Preview an action and understand its effects](action-effects.md): check scope, skipped rows and
+  stale recovery, with explicit limits on the synthetic typed-effect evidence available today.
 
 ## Export and test separately
 

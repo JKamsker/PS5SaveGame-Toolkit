@@ -2,6 +2,8 @@
   "docfx.json", "index.md", "toc.yml",
   "getting-started/quickstart.md", "getting-started/toc.yml",
   "guides/working-with-saves.md", "guides/troubleshooting.md", "guides/toc.yml",
+  "guides/presets-and-transfer.md", "guides/metadata-review.md",
+  "guides/manual-caption.md", "guides/action-effects.md",
   "tutorials/first-plugin.md", "tutorials/collections.md", "tutorials/lossless-json.md",
   "tutorials/field-references.md", "tutorials/sfo-substrate.md", "tutorials/toc.yml",
   "reference/index.md", "reference/http.md", "reference/toc.yml",

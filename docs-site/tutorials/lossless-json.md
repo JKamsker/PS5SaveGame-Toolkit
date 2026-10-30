@@ -5,14 +5,21 @@ description: Parse bounded UTF-8 JSON, retain lexical trivia and duplicates, and
 
 # Preserve JSON while editing scalar values
 
+If you are editing your own save, use the plugin's existing scalar control and
+[review the result](../guides/metadata-review.md). Untouched JSON spelling can be retained without
+establishing the gameplay meaning of the value you edited. The rest of this tutorial explains the
+plugin implementation contract.
+
 `LosslessJsonDocument` is a small SDK substrate for plugins that must change a scalar without
 normalizing the surrounding document. It retains the original UTF-8 bytes, BOM, whitespace,
 duplicate property occurrences and numeric lexemes. Containers and property names are structural
 read-only data; a plugin can replace a scalar token only after it has identified the node it owns.
 
-This page teaches the merged SDK contract. It does not claim that GenericJson or XorJson has
-migrated to it. Their structural IDs and XOR/envelope rules remain plugin-owned. The shared API
-is useful at that boundary because it does not invent those identities or rewrite an envelope.
+Both GenericJson and XorJson now use the shared parser and scalar preservation substrate.
+Their structural IDs, structural writers and XOR/envelope rules remain plugin-owned. The shared
+API does not invent those identities or rewrite an envelope. See the production
+[GenericJson parser adapter](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/GenericJson/SaveToolkit.Plugins.GenericJson/JsonTokenTree.cs)
+and [XorJson scalar writer](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/XorJson/SaveToolkit.Plugins.XorJson/JsonTokenWriter.cs).
 
 The runnable excerpts below are taken from
 [`LosslessJsonDocumentTests.cs`](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/tests/SaveToolkit.Core.Tests/LosslessJsonDocumentTests.cs).
@@ -115,7 +122,12 @@ The shared tree deliberately stops at scalar spans:
 
 The shared tests cover BOM, CRLF/trailing trivia, duplicate names, exact numbers, type-changing
 scalar patches, malformed input, strict UTF-8, cumulative byte budgets and typed undo/redo. Add a
-format-specific characterization test before an adopter makes a writer claim.
+format-specific characterization test before expanding a writer claim. Existing
+[GenericJson substrate history tests](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/GenericJson/SaveToolkit.Plugins.GenericJson.Tests/JsonSubstrateHistoryTests.cs)
+check source preservation across snapshots and structural history; XorJson's
+[exact-value tests](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/XorJson/SaveToolkit.Plugins.XorJson.Tests/ExactValueTests.cs)
+check numeric spelling, type distinctions, limits and rollback for plain/XOR cases. These are
+byte/model guarantees within tested layouts, not native game or console acceptance.
 
 Continue with [canonical field references](field-references.md), or return to
 [create your first plugin](first-plugin.md) and [query a bounded collection](collections.md).

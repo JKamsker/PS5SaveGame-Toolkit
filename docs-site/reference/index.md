@@ -28,8 +28,25 @@ and the [ParamSfo substrate](../tutorials/sfo-substrate.md). The generated pages
 `LosslessJsonDocument`, `FieldReferenceNode`, `FieldPresentation`, and `ParamSfoDocument` remain
 the exact member reference. The UnrealGvas consumer for SDK-08 is now on `main`: eligible
 non-generic Jedi/Sackboy scalar projections use canonical references, while generic summaries,
-wide strings, actor observations and opaque values retain bounded/read-only fallbacks. SDK-06,
-SDK-07 and SDK-10 remain open under the central ledger.
+wide strings, actor observations and opaque values retain bounded/read-only fallbacks.
+GenericJson and XorJson use the lossless JSON substrate, FF7 supplies semantic preset adoption,
+and SuckerPunch supplies the manual Tsushima caption consumer. Automatic gameplay-to-caption
+synchronization and Gearbox production action-effect adoption remain outstanding.
+
+## Save-editing journeys and their contracts
+
+These links connect the current user workflows to generated SDK members. The HTTP reference
+below covers host preset-library transfer; transfer is separate from applying a preset to a save.
+
+| Journey | Generated SDK contracts |
+| --- | --- |
+| [Save and transfer presets](../guides/presets-and-transfer.md) | <xref:SaveToolkit.Sdk.IPresetDocument>, <xref:SaveToolkit.Sdk.PresetCapability>, <xref:SaveToolkit.Sdk.PresetInstanceResolutionStatus> |
+| [Review canonical fields and aliases](../guides/metadata-review.md) | <xref:SaveToolkit.Sdk.IFieldMetadataDocument>, <xref:SaveToolkit.Sdk.FieldMetadata>, <xref:SaveToolkit.Sdk.FieldPresentation> |
+| [Edit a manual caption and export owned metadata](../guides/manual-caption.md) | <xref:SaveToolkit.Sdk.IAdditionalOutputOwner>, <xref:SaveToolkit.Sdk.Saves.ParamSfoDocument>, <xref:SaveToolkit.Sdk.Values.TextSpec> |
+| [Preview actions and effects](../guides/action-effects.md) | <xref:SaveToolkit.Sdk.IActionEffectDocument>, <xref:SaveToolkit.Sdk.ActionEffectDescriptor> |
+
+Typed effects have host/test-provider and synthetic renderer evidence today. These reference
+pages describe the contract; their presence does not establish production Gearbox adoption.
 
 ## Local HTTP API · OpenAPI 3.1
 
