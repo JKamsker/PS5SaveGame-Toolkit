@@ -64,6 +64,7 @@ export function suiteRecord(inventory, availableIDs, selectedIDs) {
     : selectedIDs.length ? "selected" : "filtered-out";
   return {
     state,
+    patterns: inventory?.suite?.patterns ?? [],
     declaredFiles: inventory?.declared ?? [],
     matchedFiles: inventory?.matched ?? [],
     availableIDs,

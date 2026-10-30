@@ -7,7 +7,8 @@ import { defineConfig, devices } from "@playwright/test";
 
 const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
 const suiteManifest = JSON.parse(readFileSync(new URL("./scripts/e2e-suites.json", import.meta.url), "utf8")) as {
-  suites: { id: string; role: "feature" | "complement"; patterns: string[] }[];
+  version: number;
+  suites: { id: string; role: "feature" | "complement"; patterns: string[]; files: string[] }[];
 };
 const suite = process.env.SAVETOOLKIT_E2E_SUITE;
 const featureSuites = suiteManifest.suites.filter(entry => entry.role === "feature");

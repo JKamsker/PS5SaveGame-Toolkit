@@ -17,8 +17,8 @@ import { composeDiscovery, identities, orchestrateSuites } from "./run-e2e.mjs";
 const webRoot = fileURLToPath(new URL("..", import.meta.url));
 
 function fixtureManifest() {
-  return { version: 1, testDirectory: "e2e", suites: [
-    { id: "canonical", role: "complement", patterns: [], files: [] },
+  return { version: 2, testDirectory: "e2e", suites: [
+    { id: "canonical", role: "complement", patterns: [], files: ["canonical.e2e.ts"] },
     { id: "capacity", role: "feature", patterns: ["**/text-capacity.e2e.ts"], files: ["text-capacity.e2e.ts"] },
     { id: "ff7", role: "feature", patterns: ["**/ff7-*.e2e.ts"], files: [
       "ff7-forms.e2e.ts", "ff7-history.e2e.ts", "ff7-selection.e2e.ts", "ff7-states.e2e.ts",
@@ -45,20 +45,41 @@ function allFixtureFiles() {
 it("records published ownership without requiring future feature files to be absent", () => {
   const manifest = readSuiteManifest();
   expect(complementSuite(manifest).id).toBe("canonical");
-  expect(featureSuites(manifest).map(suite => suite.id)).toEqual(["unreal", "text-capacity", "ff7"]);
+  expect(complementSuite(manifest).files).toEqual([
+    "actions.e2e.ts", "bundle.e2e.ts", "failure-document.e2e.ts", "failure-lifetimes.e2e.ts",
+    "failure-reference.e2e.ts", "failure-review-export.e2e.ts", "field-reference.e2e.ts", "import.e2e.ts",
+    "keyboard.e2e.ts", "map-accessibility.e2e.ts", "reference-batch.e2e.ts", "review.e2e.ts",
+    "selection-binding.e2e.ts", "smoke.e2e.ts", "table.e2e.ts", "workspace.e2e.ts",
+  ]);
+  expect(featureSuites(manifest).map(suite => suite.id)).toEqual([
+    "unreal", "text-capacity", "ff7", "transfer", "caption", "action-effects",
+  ]);
   expect(featureSuites(manifest).map(suite => suite.patterns)).toEqual([
     ["**/unreal-*.e2e.ts"],
     ["**/text-capacity.e2e.ts"],
     ["**/ff7-*.e2e.ts"],
+    ["**/preset-transfer.e2e.ts", "**/preset-transfer-recovery.e2e.ts", "**/preset-transfer-library.e2e.ts"],
+    ["**/suckerpunch-caption-real.e2e.ts", "**/suckerpunch-caption-text-boundaries.e2e.ts"],
+    ["**/action-effects.e2e.ts"],
   ]);
   expect(allFeaturePatterns(manifest)).toEqual([
     "**/unreal-*.e2e.ts",
     "**/text-capacity.e2e.ts",
     "**/ff7-*.e2e.ts",
+    "**/preset-transfer.e2e.ts",
+    "**/preset-transfer-recovery.e2e.ts",
+    "**/preset-transfer-library.e2e.ts",
+    "**/suckerpunch-caption-real.e2e.ts",
+    "**/suckerpunch-caption-text-boundaries.e2e.ts",
+    "**/action-effects.e2e.ts",
   ]);
 
   const inventory = validateFeatureInventory(manifest, path.join(webRoot, "e2e"));
-  for (const entry of inventory) {
+  expect(inventory.map(entry => entry.suite.id)).toEqual([
+    "canonical", "unreal", "text-capacity", "ff7", "transfer", "caption", "action-effects",
+  ]);
+  expect(inventory[0]).toMatchObject({ state: "present", declared: complementSuite(manifest).files });
+  for (const entry of inventory.slice(1)) {
     expect(["absent", "present"]).toContain(entry.state);
     if (entry.state === "present") expect(entry.matched).toEqual(entry.declared);
     else expect(entry.matched).toEqual([]);
@@ -70,10 +91,11 @@ it("proves absent, complete capacity/FF7 and partial inventories in synthetic di
   const manifest = fixtureManifest();
   const root = mkdtempSync(path.join(tmpdir(), "savetoolkit-e2e-inventory-"));
   try {
-    expect(validateFeatureInventory(manifest, root).map(entry => entry.state)).toEqual(["absent", "absent"]);
+    writeFixtureFiles(root, ["canonical.e2e.ts"]);
+    expect(validateFeatureInventory(manifest, root).map(entry => entry.state)).toEqual(["present", "absent", "absent"]);
 
     writeFixtureFiles(root, allFixtureFiles());
-    expect(validateFeatureInventory(manifest, root).map(entry => entry.state)).toEqual(["present", "present"]);
+    expect(validateFeatureInventory(manifest, root).map(entry => entry.state)).toEqual(["present", "present", "present"]);
 
     rmSync(path.join(root, "ff7-history.e2e.ts"));
     expect(() => validateFeatureInventory(manifest, root)).toThrow(/incomplete feature-file inventory/);
@@ -100,7 +122,65 @@ it("rejects an actual undeclared feature file without prefix false positives", (
   try {
     writeFixtureFiles(root, ["ff7-forms.e2e.ts", "ff7-history.e2e.ts", "ff7-selection.e2e.ts",
       "ff7-states.e2e.ts", "ff7-extra.e2e.ts"]);
-    expect(() => validateFeatureInventory(manifest, root)).toThrow(/undeclared matching feature files/);
+    expect(() => validateFeatureInventory(manifest, root)).toThrow(/undeclared \.e2e\.ts files/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+it("proves the published action-effects partition is explicit when present", () => {
+  const manifest = readSuiteManifest();
+  const canonical = complementSuite(manifest);
+  const actionEffects = featureSuites(manifest).find(suite => suite.id === "action-effects");
+  const root = mkdtempSync(path.join(tmpdir(), "savetoolkit-e2e-action-effects-"));
+  try {
+    writeFixtureFiles(root, canonical.files);
+    expect(validateFeatureInventory(manifest, root).find(entry => entry.suite.id === actionEffects.id))
+      .toMatchObject({ state: "absent", declared: ["action-effects.e2e.ts"], matched: [] });
+
+    writeFixtureFiles(root, actionEffects.files);
+    expect(validateFeatureInventory(manifest, root).find(entry => entry.suite.id === actionEffects.id))
+      .toMatchObject({ state: "present", declared: actionEffects.files, matched: actionEffects.files });
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+it.each([
+  ["unknown file", root => writeFixtureFiles(root, ["canonical.e2e.ts", "new.e2e.ts"]), /undeclared \.e2e\.ts files/],
+  ["missing canonical allowlist file", root => {}, /canonical file allowlist is missing/],
+  ["overlapping pattern/file", root => writeFixtureFiles(root, ["canonical.e2e.ts", "text-capacity.e2e.ts"]), /overlapping or mismatched/],
+])("rejects schema2 %s before discovery", (_name, setup, message) => {
+  const manifest = fixtureManifest();
+  if (_name === "overlapping pattern/file") manifest.suites[2].patterns = ["**/text-capacity.e2e.ts"];
+  const root = mkdtempSync(path.join(tmpdir(), "savetoolkit-e2e-schema2-"));
+  try {
+    setup(root);
+    expect(() => validateFeatureInventory(manifest, root)).toThrow(message);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+it("rejects duplicate declared ownership before discovery", () => {
+  const manifest = fixtureManifest();
+  manifest.suites[1].files[0] = "canonical.e2e.ts";
+  const root = mkdtempSync(path.join(tmpdir(), "savetoolkit-e2e-overlap-"));
+  try {
+    writeFixtureFiles(root, ["canonical.e2e.ts"]);
+    expect(() => validateFeatureInventory(manifest, root)).toThrow(/suite files overlap/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+it("rejects unsupported ownership patterns before discovery", () => {
+  const manifest = fixtureManifest();
+  manifest.suites[1].patterns = ["e2e/**/unreal-*.e2e.ts"];
+  const root = mkdtempSync(path.join(tmpdir(), "savetoolkit-e2e-pattern-"));
+  try {
+    writeFixtureFiles(root, ["canonical.e2e.ts"]);
+    expect(() => validateFeatureInventory(manifest, root)).toThrow(/expected a \*\*\//);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -179,6 +259,36 @@ it("records absent versus intentionally filtered-out and launches only selected 
   expect(result.discovery.suites.capacity.state).toBe("selected");
   expect(result.discovery.suites.ff7.state).toBe("absent");
   expect(launch.mock.calls).toEqual([["capacity"]]);
+});
+
+it("keeps full availability while filtering canonical and feature partitions independently", () => {
+  const { manifest, inventories } = discoveryFixture();
+  const available = {
+    canonical: ["synthetic-canonical-a", "synthetic-canonical-b"],
+    capacity: ["synthetic-capacity"],
+    ff7: ["synthetic-ff7"],
+  };
+  const selected = {
+    canonical: ["synthetic-canonical-b"],
+    capacity: ["synthetic-capacity"],
+    ff7: [],
+  };
+  const discover = (suite, args) => {
+    const values = args.length ? selected : available;
+    return suite ? values[suite] : Object.values(values).flat();
+  };
+  const launch = vi.fn().mockReturnValue({ status: 0 });
+  const result = orchestrateSuites({ manifest, inventories, args: ["--grep", "capacity-or-canonical"], discover, launch,
+    reportError: vi.fn() });
+
+  expect(result.discovery.all.availableIDs).toEqual([
+    "synthetic-canonical-a", "synthetic-canonical-b", "synthetic-capacity", "synthetic-ff7",
+  ]);
+  expect(result.discovery.all.filteredSelectedIDs).toEqual(["synthetic-canonical-b", "synthetic-capacity"]);
+  expect(result.discovery.suites.canonical.state).toBe("selected");
+  expect(result.discovery.suites.capacity.state).toBe("selected");
+  expect(result.discovery.suites.ff7.state).toBe("filtered-out");
+  expect(launch.mock.calls).toEqual([["canonical"], ["capacity"]]);
 });
 
 it("launches every valid selected suite while retaining thrown, signal, nonzero and teardown failures", () => {

@@ -39,8 +39,11 @@ it("attempts later suites after a signaled process and a teardown failure", () =
     ["unreal", ["unreal-id"]],
     ["text-capacity", ["capacity-id"]],
     ["ff7", ["ff7-id"]],
+    ["transfer", ["transfer-id"]],
+    ["caption", ["caption-id"]],
+    ["action-effects", ["action-effects-id"]],
   ], launch, vi.fn())).toBe(1);
-  expect(attempted).toEqual(["canonical", "unreal", "text-capacity", "ff7"]);
+  expect(attempted).toEqual(["canonical", "unreal", "text-capacity", "ff7", "transfer", "caption", "action-effects"]);
 });
 
 it("keeps filtered empty suites unlaunched and succeeds for the selected suite", () => {

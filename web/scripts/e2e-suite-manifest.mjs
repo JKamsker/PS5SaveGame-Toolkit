@@ -3,13 +3,24 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const manifestPath = fileURLToPath(new URL("./e2e-suites.json", import.meta.url));
+const manifestVersion = 2;
+
+function normalizedTestFile(file) {
+  const normalized = file.replaceAll("\\", "/");
+  const parts = normalized.split("/");
+  if (!normalized || normalized.startsWith("/") || parts.some(part => !part || part === "..")
+    || !normalized.endsWith(".e2e.ts"))
+    throw new Error(`E2E suite manifest contains an invalid test file '${file}'.`);
+  return normalized;
+}
 
 export function readSuiteManifest() {
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-  if (manifest.version !== 1 || manifest.testDirectory !== "e2e" || !Array.isArray(manifest.suites))
-    throw new Error("E2E suite manifest must declare version 1 and the e2e test directory.");
+  if (manifest.version !== manifestVersion || manifest.testDirectory !== "e2e" || !Array.isArray(manifest.suites))
+    throw new Error(`E2E suite manifest must declare version ${manifestVersion} and the e2e test directory.`);
 
   const ids = new Set();
+  const files = new Map();
   let complements = 0;
   for (const suite of manifest.suites) {
     if (!suite || typeof suite.id !== "string" || ids.has(suite.id))
@@ -21,8 +32,15 @@ export function readSuiteManifest() {
       throw new Error(`E2E suite '${suite.id}' has an unknown role.`);
     if (suite.role === "feature" && (!suite.patterns.length || !suite.files.length))
       throw new Error(`E2E feature suite '${suite.id}' must declare patterns and feature files.`);
-    if (suite.role === "complement" && (suite.patterns.length || suite.files.length))
-      throw new Error("The canonical complement suite cannot declare feature patterns or files.");
+    if (suite.role === "complement" && (!suite.files.length || suite.patterns.length))
+      throw new Error("The canonical complement suite must declare an explicit file allowlist and no patterns.");
+    suite.patterns = suite.patterns.map(pattern => pattern.replaceAll("\\", "/"));
+    suite.files = suite.files.map(normalizedTestFile);
+    for (const pattern of suite.patterns) globRegex(pattern);
+    for (const file of suite.files) {
+      if (files.has(file)) throw new Error(`E2E suite files overlap between '${files.get(file)}' and '${suite.id}'.`);
+      files.set(file, suite.id);
+    }
     if (suite.role === "complement") complements++;
     ids.add(suite.id);
   }
@@ -78,19 +96,50 @@ export function filesForSuite(suite, files) {
   return files.filter(file => patterns.some(pattern => pattern.test(file))).sort();
 }
 
+function matchingFeatureSuites(manifest, file) {
+  return featureSuites(manifest).filter(suite => filesForSuite(suite, [file]).length);
+}
+
+function validatePatternOwnership(manifest) {
+  const declared = new Map();
+  for (const suite of manifest.suites) {
+    for (const file of suite.files) {
+      if (declared.has(file)) throw new Error(`E2E suite files overlap between '${declared.get(file).id}' and '${suite.id}'.`);
+      declared.set(file, suite);
+    }
+  }
+  for (const [file, owner] of declared) {
+    const matches = matchingFeatureSuites(manifest, file);
+    if (owner.role === "feature" && (matches.length !== 1 || matches[0].id !== owner.id))
+      throw new Error(`E2E suite file '${file}' has overlapping or mismatched feature patterns.`);
+    if (owner.role === "complement" && matches.length)
+      throw new Error(`E2E canonical file '${file}' is claimed by a feature pattern.`);
+  }
+  return declared;
+}
+
 export function validateFeatureInventory(manifest, testDirectory) {
+  const ownership = validatePatternOwnership(manifest);
   const files = testFiles(testDirectory);
-  return featureSuites(manifest).map(suite => {
-    const declared = [...suite.files].sort();
+  const unknown = files.filter(file => !ownership.has(file));
+  if (unknown.length) throw new Error(`E2E test inventory has undeclared .e2e.ts files: ${unknown.join(", ")}.`);
+
+  return manifest.suites.map(suite => {
+    const suiteFiles = [...suite.files].sort();
+    if (suite.role === "complement") {
+      const missing = suiteFiles.filter(file => !files.includes(file));
+      if (missing.length) throw new Error(`E2E canonical file allowlist is missing: ${missing.join(", ")}.`);
+      return { suite, state: "present", declared: suiteFiles, matched: suiteFiles };
+    }
+
     const matched = filesForSuite(suite, files);
-    const missing = declared.filter(file => !files.includes(file));
-    const undeclared = matched.filter(file => !declared.includes(file));
+    const missing = suiteFiles.filter(file => !files.includes(file));
+    if (!matched.length && missing.length === suiteFiles.length)
+      return { suite, state: "absent", declared: suiteFiles, matched: [] };
     if (missing.length && matched.length)
       throw new Error(`E2E suite '${suite.id}' has an incomplete feature-file inventory: missing ${missing.join(", ")}.`);
-    if (undeclared.length)
-      throw new Error(`E2E suite '${suite.id}' has undeclared matching feature files: ${undeclared.join(", ")}.`);
-    if (matched.length !== declared.length)
-      return { suite, state: "absent", declared, matched };
-    return { suite, state: "present", declared, matched };
+    if (matched.length !== suiteFiles.length)
+      throw new Error(`E2E suite '${suite.id}' has a pattern/file ownership mismatch.`);
+    return { suite, state: matched.length ? "present" : "absent", declared: suiteFiles, matched };
   });
 }
