@@ -442,6 +442,8 @@ sort/paging, bulk preview/cancel/apply, keyboard-only application interaction, a
 F6 actions cover selected-row and filtered-query scopes (including unloaded pages), empty table
 selection versus document scope, cancel without writes, and exact apply/undo/redo values and exports.
 Export assertions compare every path and decompressed payload byte; ZIP metadata is not compared.
+Exported ZIP entries use the canonical `1980-01-01T00:00:00+00:00` last-write timestamp because
+the imported-file model does not preserve source ZIP timestamps.
 The synthetic suite needs no private samples. The optional
 [reference-batch.e2e.ts](../web/e2e/reference-batch.e2e.ts) regression requires
 `SAVETOOLKIT_ARTIFACTS/PPSA08664_saves_dec.zip` and skips when that external Rebirth archive

@@ -155,12 +155,21 @@ public abstract partial class PluginConformanceTests<TPlugin>
         foreach (var file in AllSelectedFiles())
         {
             using var document = Open(file);
-            foreach (var output in document.Serialize())
-            {
-                var original = ((ISaveSet)file.Directory.SaveSet).FindFile(output.RelativePath);
-                Assert.True(original is not null, $"Serialize produced unknown path {output.RelativePath}.");
-                Assert.True(output.Content.Span.SequenceEqual(original.ReadAllBytes()), $"No-op round trip changed {output.RelativePath}.");
-            }
+            AssertNoOpSerialization(document, file);
+        }
+    }
+
+    /// <summary>
+    /// Checks every serialized output against its source bytes, including synthetic fixtures.
+    /// The host separately validates output ownership and completeness.
+    /// </summary>
+    protected static void AssertNoOpSerialization(ISaveDocument document, ISaveFile file)
+    {
+        foreach (var output in document.Serialize())
+        {
+            var original = file.Directory.SaveSet.FindAnyFile(output.RelativePath);
+            Assert.True(original is not null, $"Serialize produced unknown path {output.RelativePath}.");
+            Assert.True(output.Content.Span.SequenceEqual(original.ReadAllBytes()), $"No-op round trip changed {output.RelativePath}.");
         }
     }
 

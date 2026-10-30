@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Json;
 using SaveToolkit.Sdk.Values;
 
 namespace SaveToolkit.Plugins.GenericJson;
@@ -12,6 +13,7 @@ internal sealed class JsonTokenTree
     internal const int MaxNodes = 250_000;
     internal const int MaxDepth = 64;
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
+    internal LosslessJsonDocument? LexicalSource { get; private set; }
 
     public List<JsonValueToken> Nodes { get; } = [];
     public Dictionary<int, JsonValueToken> ById { get; } = [];
@@ -38,82 +40,58 @@ internal sealed class JsonTokenTree
             throw new SaveFormatException("JSON files must be between 1 byte and 16 MiB.");
         }
 
-        long tokenOffset = 0;
+        LosslessJsonDocument source;
         try
         {
-            _ = StrictUtf8.GetCharCount(bytes);
-            var tree = new JsonTokenTree();
-            tree.ReadTokens(bytes, ref tokenOffset);
-            tree.InitializeSpans(bytes);
-            tree.NextId = tree.Nodes.Count;
-            tree.Reindex();
-            return tree;
-        }
-        catch (DecoderFallbackException ex)
-        {
-            throw new SaveFormatException($"Invalid UTF-8 text at byte offset {ex.Index}.", ex);
-        }
-        catch (JsonException ex)
-        {
-            // Reader messages may contain input text; expose numeric locations only.
-            throw new SaveFormatException($"Invalid JSON at line {ex.LineNumber + 1}, byte position {ex.BytePositionInLine} (maximum depth: {MaxDepth}).", ex);
-        }
-        catch (Exception ex) when (ex is InvalidOperationException or FormatException)
-        {
-            throw new SaveFormatException($"Invalid JSON string or Unicode escape at byte offset {tokenOffset}.", ex);
-        }
-    }
-
-    private void ReadTokens(byte[] bytes, ref long tokenOffset)
-    {
-        var bom = bytes.AsSpan().StartsWith("\uFEFF"u8) ? 3 : 0;
-        var reader = new Utf8JsonReader(bytes.AsSpan(bom), new JsonReaderOptions { MaxDepth = MaxDepth });
-        var parents = new Stack<JsonValueToken>();
-        MemberName property = default;
-        while (reader.Read())
-        {
-            tokenOffset = reader.TokenStartIndex + bom;
-            if (reader.TokenType == JsonTokenType.PropertyName)
+            source = LosslessJsonDocument.Parse(bytes, new LosslessJsonLimits
             {
-                property = new(reader.GetString(), checked((int)reader.TokenStartIndex + bom), reader.ValueSpan.Length + 2);
-                continue;
-            }
-            if (reader.TokenType is JsonTokenType.EndObject or JsonTokenType.EndArray)
+                MaxBytes = MaxBytes, MaxDepth = MaxDepth, MaxTokens = MaxNodes,
+                MaxNumberLength = ExactJsonNumber.HardMaxLength,
+                MaxAbsoluteExponent = ExactJsonNumber.HardMaxAbsoluteExponent,
+            });
+        }
+        catch (LosslessJsonException ex)
+        {
+            // Preserve the established streaming diagnostic text and failure precedence.
+            // Successful imports use only the shared lexer; this path creates no editable tree.
+            JsonTokenValidation.Validate(bytes);
+            throw new SaveFormatException("JSON could not be represented by the shared lexical tree.", ex);
+        }
+        var tree = new JsonTokenTree { LexicalSource = source, Preamble = source.Preamble, Postamble = source.Postamble };
+        foreach (var lexical in source.Nodes)
+        {
+            var parent = lexical.Parent is null ? null : tree.Nodes[lexical.Parent.Id];
+            var node = new JsonValueToken(lexical.Id, lexical.PropertyName ?? (parent is null ? "$" : $"[{parent.Children.Count}]"),
+                TokenKind(lexical), lexical.OriginalSpan.Offset, lexical.OriginalSpan.Length)
             {
-                var container = parents.Pop();
-                container.Length = checked((int)reader.BytesConsumed + bom - container.Offset);
-                container.OriginalChildIds = Array.AsReadOnly(container.Children.Select(child => child.Index).ToArray());
-                continue;
-            }
-            if (Nodes.Count >= MaxNodes)
-                throw new SaveFormatException("JSON exceeds the 250,000 value safety limit.");
-            var parent = parents.TryPeek(out var current) ? current : null;
-            var node = CreateNode(bytes, ref reader, bom, parent, property);
-            property = default;
-            Nodes.Add(node);
+                Source = bytes, Parent = parent,
+                MemberOffset = lexical.PropertyNameSpan?.Offset ?? lexical.OriginalSpan.Offset,
+                MemberNameLength = lexical.PropertyNameSpan?.Length ?? 0,
+                Position = parent?.Children.Count ?? 0,
+            };
+            tree.Nodes.Add(node);
             parent?.Children.Add(node);
-            if (node.IsContainer) parents.Push(node);
-            else
-            {
-                ReadValue(node, ref reader);
-                node.Original = node.Current;
-            }
+            if (!node.IsContainer) ReadValue(node, lexical);
         }
-        if (Nodes.Count == 0) throw new SaveFormatException("JSON must contain one value.");
+        foreach (var node in tree.Nodes.Where(node => node.IsContainer))
+            node.OriginalChildIds = Array.AsReadOnly(node.Children.Select(child => child.Index).ToArray());
+        foreach (var node in tree.Nodes) node.BeginTracking();
+        tree.InitializeSpans(bytes);
+        tree.NextId = tree.Nodes.Count;
+        tree.Reindex();
+        return tree;
     }
 
-    private JsonValueToken CreateNode(byte[] bytes, ref Utf8JsonReader reader, int bom, JsonValueToken? parent, MemberName property)
+    private static JsonTokenType TokenKind(LosslessJsonNode node) => node.Kind switch
     {
-        var label = property.Name ?? (parent is null ? "$" : $"[{parent.Children.Count}]");
-        return new JsonValueToken(Nodes.Count, label, reader.TokenType,
-            checked((int)reader.TokenStartIndex + bom), checked((int)(reader.BytesConsumed - reader.TokenStartIndex)))
-        {
-            Source = bytes, Parent = parent,
-            MemberOffset = parent?.Kind == JsonTokenType.StartObject ? property.Offset : checked((int)reader.TokenStartIndex + bom),
-            MemberNameLength = parent?.Kind == JsonTokenType.StartObject ? property.Length : 0,
-            Position = parent?.Children.Count ?? 0,
-        };
-    }
+        LosslessJsonNodeKind.Object => JsonTokenType.StartObject,
+        LosslessJsonNodeKind.Array => JsonTokenType.StartArray,
+        LosslessJsonNodeKind.String => JsonTokenType.String,
+        LosslessJsonNodeKind.Number => JsonTokenType.Number,
+        LosslessJsonNodeKind.Boolean => node.BooleanValue == true ? JsonTokenType.True : JsonTokenType.False,
+        LosslessJsonNodeKind.Null => JsonTokenType.Null,
+        _ => throw new InvalidOperationException("Unknown JSON lexical kind."),
+    };
 
     private void InitializeSpans(byte[] bytes)
     {
@@ -177,7 +155,7 @@ internal sealed class JsonTokenTree
 
     public JsonTokenTree Clone()
     {
-        var clone = new JsonTokenTree { Preamble = Preamble, Postamble = Postamble, NextId = NextId };
+        var clone = new JsonTokenTree { Preamble = Preamble, Postamble = Postamble, NextId = NextId, LexicalSource = LexicalSource };
         clone.Nodes.Add(Nodes[0].Clone());
         clone.Reindex();
         return clone;
@@ -196,35 +174,51 @@ internal sealed class JsonTokenTree
     public long EstimateBytes()
     {
         const int NodeOverhead = 320;
+        const int LexicalNodeOverhead = 200;
+        // Conservatively charge shared source storage to each snapshot, including source nodes
+        // removed from the live structural tree. History must not undercount retained originals.
+        var lexicalBytes = LexicalSource is { } source ? source.OriginalLength + source.Nodes.Sum(node =>
+            LexicalNodeOverhead + 2L * ((node.OriginalLexeme?.Length ?? 0)
+                + (node.PropertyName?.Length ?? 0) + (node.PropertyNameLexeme?.Length ?? 0))) : 0;
         return Nodes.Select(n => n.Source).Distinct().Sum(b => (long)b.Length)
             + Nodes.Sum(n => NodeOverhead + (long)sizeof(int) * n.OriginalChildIds.Count
-                + 2L * (n.Label.Length + n.OriginalLabel.Length + n.Original.ToString().Length + n.Current.ToString().Length));
+                + 2L * (n.Label.Length + n.OriginalLabel.Length + n.Original.ToString().Length + n.Current.ToString().Length))
+            + lexicalBytes;
     }
 
-    private static void ReadValue(JsonValueToken node, ref Utf8JsonReader reader)
+    private static void ReadValue(JsonValueToken node, LosslessJsonNode lexical)
     {
-        if (reader.TokenType == JsonTokenType.Number)
+        if (lexical.Kind == LosslessJsonNodeKind.Number)
         {
-            var raw = Encoding.UTF8.GetString(reader.ValueSpan);
+            var raw = lexical.OriginalLexeme!;
             if (!WithinNumberResources(raw))
             {
                 node.Spec = new TextSpec { ReadOnly = true };
                 node.Current = FieldValue.Of(raw);
+                node.Original = node.Current;
                 node.Warning = "Number exceeds SDK lexeme/exponent resource limits; preserved verbatim and read-only.";
                 return;
             }
             node.Spec = JsonScalar.Spec;
             node.Current = FieldValue.Union(JsonScalar.Number, FieldValue.ExactNumber(raw));
+            node.Original = node.Current;
             return;
         }
 
         node.Spec = JsonScalar.Spec;
-        node.Current = JsonScalar.Read(ref reader);
+        node.Current = lexical.Kind switch
+        {
+            LosslessJsonNodeKind.Null => FieldValue.Null,
+            LosslessJsonNodeKind.String => FieldValue.Union(JsonScalar.Text, FieldValue.Of(lexical.StringValue!)),
+            LosslessJsonNodeKind.Boolean => FieldValue.Union(JsonScalar.Boolean, FieldValue.Of(lexical.BooleanValue!.Value)),
+            _ => throw new InvalidOperationException("Expected a JSON scalar."),
+        };
+        node.Original = node.Current;
     }
 
     private static bool WithinNumberResources(string raw)
     {
-        // Utf8JsonReader has already checked syntax. FieldValue.ExactNumber validates accepted
+        // The shared lexer has already checked syntax. FieldValue.ExactNumber validates accepted
         // lexemes again; only decide whether to use the lossless read-only resource fallback here.
         if (raw.Length > ExactJsonNumber.HardMaxLength) return false;
         var exponentAt = raw.AsSpan().IndexOfAny('e', 'E');
@@ -232,6 +226,4 @@ internal sealed class JsonTokenTree
             CultureInfo.InvariantCulture, out var exponent)
             && exponent >= -ExactJsonNumber.HardMaxAbsoluteExponent && exponent <= ExactJsonNumber.HardMaxAbsoluteExponent;
     }
-
-    private readonly record struct MemberName(string? Name, int Offset, int Length);
 }

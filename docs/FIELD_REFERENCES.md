@@ -116,17 +116,17 @@ the existing submitting-control diagnostic ownership rules.
 
 ## Concrete consumer and adoption boundary
 
-UnrealGvas currently renders `GvasPropertyCollection` value cells as text, while Properties/Search
-owns canonical scalar bindings. A concrete adoption is Jedi `HDRBrightness` in Search,
-`gvas/properties`, and `jedi/settings`. An adopter can replace **eligible scalar value cells** with
-references to those existing raw IDs after exposing targeted raw metadata and forwarding it through
-`GvasQueryableDocument`. Preserve `UnknownIntegrityWarning`/`EditWarning`, confidence, exact specs and
-existing read-only restrictions; becoming editable in named views is an intentional presentation
-change requiring plugin tests. Actor tags/strings without canonical bindings must remain text.
+The shipped UnrealGvas consumer now renders eligible non-generic Jedi/Sackboy scalar value cells as
+references to their existing raw IDs across `gvas/properties`, named projections and eager Search,
+after exposing targeted raw metadata through `GvasQueryableDocument`. It preserves
+`UnknownIntegrityWarning`/`EditWarning`, confidence, exact specs and existing read-only restrictions.
+Generic raw summaries, wide strings, actor tags/strings without canonical bindings and opaque values
+retain bounded text/read-only fallbacks. Consumer tests cover canonical metadata, shared live edits,
+unavailable structural targets, protected fields and the wide-string budget boundary.
 
-This framework change does not migrate plugins, establish new native writers, prove gameplay
-meaning, or deduplicate independent cross-ID aliases. F13's explicit canonical-alias contract is
-separate. SDK-08 consumer adoption remains pending until that plugin work lands.
+This framework and consumer adoption does not establish new native writers, prove gameplay meaning,
+or deduplicate independent cross-ID aliases. F13's explicit canonical-alias contract remains
+separate. SDK-08 is resolved for this shipped consumer; other titles require their own evidence.
 
 ## Evidence and sources
 

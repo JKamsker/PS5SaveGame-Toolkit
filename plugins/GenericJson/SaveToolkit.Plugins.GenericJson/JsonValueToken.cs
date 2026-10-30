@@ -7,6 +7,8 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
 {
     private int _index = index;
     private string? _valueId;
+    private FieldValue _current;
+    private bool _trackCurrent;
     public int Index
     {
         get => _index;
@@ -36,10 +38,28 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
     public List<JsonValueToken> Children { get; } = [];
     // Read-only imported identities can be shared by clones without changing snapshot state.
     public IReadOnlyList<int> OriginalChildIds { get; set; } = [];
-    public bool HasOriginalChildren => OriginalChildIds.SequenceEqual(Children.Select(child => child.Index));
+    public bool HasOriginalChildren
+    {
+        get
+        {
+            if (OriginalChildIds.Count != Children.Count) return false;
+            for (var i = 0; i < Children.Count; i++)
+                if (OriginalChildIds[i] != Children[i].Index) return false;
+            return true;
+        }
+    }
     public FieldSpec? Spec { get; set; }
     public FieldValue Original { get; set; }
-    public FieldValue Current { get; set; }
+    public FieldValue Current
+    {
+        get => _current;
+        set
+        {
+            _current = value;
+            if (_trackCurrent) ValueChanged = true;
+        }
+    }
+    public bool ValueChanged { get; private set; }
     public string? Warning { get; set; }
     public bool IsContainer => Kind is JsonTokenType.StartObject or JsonTokenType.StartArray;
     public string JsonType => Kind switch
@@ -54,6 +74,8 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
 
     public byte[] Encode() => JsonScalar.Encode(Current);
 
+    internal void BeginTracking() => _trackCurrent = true;
+
     public JsonValueToken Clone(JsonValueToken? parent = null)
     {
         var clone = new JsonValueToken(Index, Label, Kind, Offset, Length)
@@ -61,11 +83,13 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
             MemberOffset = MemberOffset, Source = Source, Leading = Leading, Trailing = Trailing,
             SeparatorBefore = SeparatorBefore, DefaultSeparator = DefaultSeparator, Parent = parent,
             Imported = Imported, Spec = Spec, Original = Original, Current = Current, Warning = Warning,
+            ValueChanged = ValueChanged,
             Position = Position, Occurrence = Occurrence,
             OriginalLabel = OriginalLabel, MemberNameLength = MemberNameLength,
             OriginalChildIds = OriginalChildIds,
         };
         clone.Children.AddRange(Children.Select(child => child.Clone(clone)));
+        clone.BeginTracking();
         return clone;
     }
 }
