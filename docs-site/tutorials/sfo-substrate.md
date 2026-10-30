@@ -5,6 +5,11 @@ description: Use the lossless ParamSfoDocument substrate for identity-bound, str
 
 # Patch an existing SFO value without resizing it
 
+To change your own save caption in the published app, follow
+[the manual Tsushima caption journey](../guides/manual-caption.md). It explains eligibility,
+UTF-8 capacity, preview, Undo and the owned companion export. This tutorial describes the
+underlying SDK byte-patching contract.
+
 `ParamSfoDocument` is a bounded substrate for one narrow operation: replace an existing UTF-8
 string in its reserved slot. It parses and retains every source byte, exposes read-only entry
 metadata, and returns a new byte array from an identity-bound pure plan. It never creates a key,
@@ -62,15 +67,18 @@ rejected before encoding.
 
 ## Keep ownership outside this substrate
 
-This API is a **pure patching substrate**, not the eventual exact-output owner for a game:
+This API is a **pure patching substrate**. The shipped SuckerPunch consumer supplies exact-output
+ownership for its eligible manual Tsushima caption:
 
 - A plugin or host must decide which existing system file is in scope, preserve its path and
   sibling relationships, and verify the complete candidate output after applying the plan.
 - `ParamSfoDocument` does not synchronize gameplay state into `SUBTITLE`, does not create or resize
   entries and does not prove that a save manager caption should change.
-- The separate system-output ownership foundation is now shipped, but SDK-10 remains open until
-  controlled evidence shows that a full-byte caption output is required and the later SuckerPunch
-  consumer lands. Do not publish an “owned system output” journey from this pure substrate.
+- The [SuckerPunch caption consumer](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/SuckerPunch/SaveToolkit.Plugins.SuckerPunch/SuckerPunchCaption.cs)
+  owns the eligible same-directory `sce_sys/param.sfo`. Its
+  [session tests](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/SuckerPunch/SaveToolkit.Plugins.SuckerPunch.Tests/CaptionSessionTests.cs)
+  cover full-byte output, no-op/stale behavior, history and export/reopen. This manual consumer
+  has landed; automatic timer/difficulty-to-`SUBTITLE` synchronization remains unproven.
 - Export and document history remain host responsibilities. A pure plan can be included in an
   undoable host operation, but the substrate itself has no I/O, session or export side effects.
 

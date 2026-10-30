@@ -21,6 +21,17 @@ _layout: landing
 <a class="docs-path" href="reference/index.md"><span class="eyebrow">04 · GENERATED REFERENCE</span><strong>Find the exact contract</strong><span>Browse C# SDK types and the local HTTP API, rebuilt with the source.</span></a>
 </div>
 
+## Edit and review your save
+
+- [Save, reuse and transfer presets](guides/presets-and-transfer.md) through separate library import
+  and revision-bound save application.
+- [Review changes](guides/metadata-review.md) with canonical fields, aliases, member context and
+  explicit coverage limits.
+- [Change a Tsushima caption](guides/manual-caption.md) within its UTF-8 capacity and export the
+  exact companion metadata.
+- [Preview actions and effects](guides/action-effects.md), including current scopes, no-op and
+  stale recovery, and the limits of synthetic effect evidence.
+
 ## Current SDK tutorials
 
 After the scaffold and collection walkthrough, continue through the shipped preservation and
@@ -33,8 +44,11 @@ presentation contracts:
 - [Patch an existing SFO value](tutorials/sfo-substrate.md) plans a strict UTF-8 in-place update
   while retaining every other byte.
 
-These are framework foundations. The central [SDK request ledger](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/SDK_REQUESTS.md)
-still tracks native adoption and evidence gates separately.
+GenericJson and XorJson use the lossless JSON substrate, eligible UnrealGvas projections use
+canonical field references, and the manual Tsushima caption uses the SFO substrate. The tutorials
+link those consumers and tests. The central [SDK request ledger](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/SDK_REQUESTS.md)
+tracks remaining adoption and evidence separately; automatic gameplay-to-caption synchronization
+and production Gearbox action effects are not delivered by these journeys.
 
 ## Before you begin
 

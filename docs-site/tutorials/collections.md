@@ -56,4 +56,6 @@ From here, choose the contract that matches the format: [lossless JSON](lossless
 exact scalar spelling, [canonical field references](field-references.md) for repeated projections,
 or the [existing-entry SFO substrate](sfo-substrate.md) for strict UTF-8 metadata patches. For
 reviewable bulk changes, return to the [save workflow](../guides/working-with-saves.md) and inspect
-the preview, skipped rows, warnings and Changes panel before applying an action.
+the preview, skipped rows and warnings before applying an action, then check **Changes against
+original**. The [action journey](../guides/action-effects.md) explains selected/query/document
+scopes; [presets](../guides/presets-and-transfer.md) have their own explicit capture scopes.

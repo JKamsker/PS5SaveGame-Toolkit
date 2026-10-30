@@ -1,4 +1,12 @@
 - name: Working with saves
   href: working-with-saves.md
+- name: Save, reuse and transfer presets
+  href: presets-and-transfer.md
+- name: Review changes and owning fields
+  href: metadata-review.md
+- name: Change a Tsushima save caption
+  href: manual-caption.md
+- name: Preview actions and effects
+  href: action-effects.md
 - name: Troubleshooting
   href: troubleshooting.md

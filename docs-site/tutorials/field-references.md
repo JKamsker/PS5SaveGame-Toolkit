@@ -5,6 +5,12 @@ description: Reuse one binding across projections while retaining metadata, conf
 
 # Project one canonical field into several views
 
+When editing a supported UnrealGvas save, eligible raw, named and search projections refer to
+the same field. Check its warning and confidence, edit through an available canonical control,
+then [review the change](../guides/metadata-review.md). Opening another projection does not create
+another value or grant permission to edit a protected field. The rest of this tutorial explains
+the plugin contract behind those controls.
+
 `FieldReferenceNode` is a presentation instruction: it names one canonical `valueId` and never
 creates another binding. The host resolves the target from a loaded field or from targeted
 `IFieldMetadataDocument` discovery. An available reference becomes an ordinary `FieldNode`; an
@@ -15,7 +21,7 @@ The contract is shipped in `SaveToolkit.Sdk`, and the production UnrealGvas cons
 `main`. Non-generic Jedi/Sackboy raw, named and eager-search scalar projections emit these
 references; generic raw summaries, wide strings, actor observations and opaque values retain their
 bounded/read-only fallbacks. The framework and consumer tests are the runnable examples for this
-page:
+page, alongside the [Unreal browser journey](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/web/e2e/unreal-reference.e2e.ts):
 
 - [`FieldReferenceContractTests.cs`](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/tests/SaveToolkit.Core.Tests/FieldReferenceContractTests.cs)
 - [`FieldReferencePresentationTests.cs`](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/tests/SaveToolkit.Core.Tests/FieldReferencePresentationTests.cs)
@@ -112,8 +118,12 @@ they do not create a second binding.
 
 SDK-08 is **resolved** in the central ledger for the shipped UnrealGvas consumer. Its tests cover
 genuine projections, unavailable structural targets, canonical annotations, shared live edits and
-the bounded wide-string fallback. This does not establish gameplay semantics for other titles or
-close the separate SDK-06, SDK-07 or SDK-10 adoption/evidence gates.
+the bounded wide-string fallback. This does not establish gameplay semantics for other titles,
+FF7 presets or manual captions. GenericJson/XorJson preservation
+is covered by [the JSON tutorial](lossless-json.md), FF7 semantic reuse by
+[the preset journey](../guides/presets-and-transfer.md), and the manual SFO consumer by
+[the caption journey](../guides/manual-caption.md). Automatic gameplay-to-caption synchronization
+remains unproven.
 
 Continue with [working with saves](../guides/working-with-saves.md) to review and revert changes,
 or return to [the first-plugin walkthrough](first-plugin.md).
