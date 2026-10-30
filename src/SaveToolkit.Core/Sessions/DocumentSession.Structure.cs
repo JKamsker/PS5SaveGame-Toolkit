@@ -182,6 +182,12 @@ public sealed partial class DocumentSession
                 }
                 catch (Exception ex) when (ex is not OutOfMemoryException)
                 {
+                    // A provider rejection before returning an inverse is the original replay
+                    // failure contract. It is unrelated to the host's inverse-size admission.
+                    if (inverse is null)
+                        return new HistoryReplay.StepResult(EditOutcome.Rejected(string.Empty,
+                            $"Plugin error: {ActionEffectOutcomes.Diagnostic(ex)}") with { StructureChanged = true },
+                            memento, Rebuilt: false);
                     if (inverse is not null)
                     {
                         try

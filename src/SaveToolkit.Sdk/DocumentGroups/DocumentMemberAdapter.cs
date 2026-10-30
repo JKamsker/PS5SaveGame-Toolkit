@@ -158,20 +158,34 @@ public sealed class DocumentMemberAdapter
     };
 
     private static ActionPlan MapPlan(ActionPlan plan, Func<string, string> map,
-        Func<IReadOnlyList<string>, IReadOnlyList<string>> mapPath, CancellationToken cancellationToken) => plan with
+        Func<IReadOnlyList<string>, IReadOnlyList<string>> mapPath, CancellationToken cancellationToken)
     {
-        Changes = BoundedMetadataCollections.Enumerate(plan.Changes, ActionPlanSnapshots.MaxPlanEntries, cancellationToken).Select(change => change with
+        ActionPlanSnapshots.Validate(plan, cancellationToken);
+        var budget = new ActionWireBudget(ActionPlanSnapshots.MaxSerializedBytes, cancellationToken);
+        budget.AdmitDiagnostics(plan);
+        var changes = new List<PlannedChange>();
+        foreach (var change in BoundedMetadataCollections.Enumerate(plan.Changes, ActionPlanSnapshots.MaxPlanEntries, cancellationToken))
         {
-            ValueId = map(change.ValueId),
-            Effect = change.Effect is { Path: { } path } effect
-                ? effect with { Path = Array.AsReadOnly(mapPath(path).ToArray()) }
-                : change.Effect,
-        }).ToArray(),
-        SkippedRows = BoundedMetadataCollections.Enumerate(plan.SkippedRows, ActionPlanSnapshots.MaxPlanEntries, cancellationToken)
-            .Select(row => row with { RowKey = map(row.RowKey) }).ToArray(),
-        Errors = BoundedMetadataCollections.Enumerate(plan.Errors, ActionPlanSnapshots.MaxPlanEntries, cancellationToken)
-            .Select(error => MapError(error, map)).ToArray(),
-    };
+            var mapped = change with
+            {
+                ValueId = map(change.ValueId),
+                Effect = change.Effect is { Path: { } path } effect
+                    ? effect with { Path = mapPath(path) } : change.Effect,
+            };
+            budget.AdmitChange(mapped);
+            changes.Add(mapped);
+        }
+        var result = plan with
+        {
+            Changes = changes.AsReadOnly(),
+            SkippedRows = BoundedMetadataCollections.Enumerate(plan.SkippedRows, ActionPlanSnapshots.MaxPlanEntries, cancellationToken)
+                .Select(row => row with { RowKey = map(row.RowKey) }).ToArray(),
+            Errors = BoundedMetadataCollections.Enumerate(plan.Errors, ActionPlanSnapshots.MaxPlanEntries, cancellationToken)
+                .Select(error => MapError(error, map)).ToArray(),
+        };
+        ActionPlanSnapshots.Validate(result, cancellationToken);
+        return result;
+    }
 
     private IReadOnlyList<string> MapPath(IReadOnlyList<string> path, bool toGroup, CancellationToken cancellationToken)
     {

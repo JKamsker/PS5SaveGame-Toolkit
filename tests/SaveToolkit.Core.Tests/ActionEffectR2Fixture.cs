@@ -37,10 +37,14 @@ internal sealed class ActionEffectR2Document : BoundSaveDocument, IActionEffectD
 {
     public int Value { get; private set; }
     public int RestoreCalls { get; private set; }
+    public int CaptureCalls { get; private set; }
+    public int WriterCalls { get; private set; }
+    public int ResolverCalls { get; private set; }
     public bool OversizedInverse { get; set; }
     public bool FailRebindAfterRestore { get; set; }
     public FieldSpec EffectSpec { get; set; } = IntegerSpec.Int32 with { ReadOnly = true };
     public Func<ActionPlan, EditOutcome>? Outcome { get; set; }
+    public Func<ActionPlan>? Preview { get; set; }
     public override string Title => "Effect R2";
     public override ViewNode BuildView()
     {
@@ -51,8 +55,8 @@ internal sealed class ActionEffectR2Document : BoundSaveDocument, IActionEffectD
             new ActionNode("change", "Change") { SupportsPlanning = true },
         ]);
     }
-    public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> ids) => [];
-    public DocumentMemento CaptureMemento() => new RelativeSnapshot(Value, 8);
+    public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> ids) { ResolverCalls++; return []; }
+    public DocumentMemento CaptureMemento() { CaptureCalls++; return new RelativeSnapshot(Value, 8); }
     public override DocumentMemento RestoreMemento(DocumentMemento token)
     {
         RestoreCalls++;
@@ -64,7 +68,7 @@ internal sealed class ActionEffectR2Document : BoundSaveDocument, IActionEffectD
         Value += snapshot.Delta.Value;
         return inverse;
     }
-    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) => new()
+    public ActionPlan PlanAction(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope) => Preview?.Invoke() ?? new()
     {
         Changes = [new PlannedChange("effect", "Effect", FieldValue.Of(Value), FieldValue.Of(Value + 1))
         {
@@ -73,6 +77,7 @@ internal sealed class ActionEffectR2Document : BoundSaveDocument, IActionEffectD
     };
     public EditOutcome ApplyActionPlan(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope, ActionPlan plan)
     {
+        WriterCalls++;
         Value++;
         return Outcome?.Invoke(plan) ?? new EditOutcome
         {
