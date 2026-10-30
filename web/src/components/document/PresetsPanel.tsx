@@ -190,7 +190,8 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
         return;
       }
       if (result.ok) { closePreview(); onToast("Preset applied. Use Undo to reverse this one history step."); }
-      else setApplyError(result.errors.map(error => error.message).filter(Boolean).join(" ") || result.message || "Preset was not applied.");
+      else setApplyError([...result.errors.map(error => error.message), result.message, ...result.warnings]
+        .filter(Boolean).join(" ") || "Preset was not applied.");
     },
     onError: (error, intent) => {
       if (intent.generation !== review.current.generation) return;
