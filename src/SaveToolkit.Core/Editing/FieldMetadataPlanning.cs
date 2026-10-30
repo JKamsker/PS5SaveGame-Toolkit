@@ -127,8 +127,10 @@ public static class FieldMetadataPlanning
 
     private static bool ValidateSpec(FieldSpec spec, int depth, HashSet<FieldSpec> seen)
     {
-        if (depth > FieldMetadataLimits.MaxSpecDepth || !seen.Add(spec)
-            || !FieldSpecMetadata.TryEstimate(spec, 4 * 1024 * 1024, out _)) return false;
+        // Validate already admitted this graph's aggregate wire bytes, actual collection
+        // counts, nodes, depth, cycles and cancellation through ActionPlanSnapshots.
+        // Check constraints here; semantic UTF-16 storage prices are not a wire cap.
+        if (depth > FieldMetadataLimits.MaxSpecDepth || !seen.Add(spec)) return false;
         var valid = spec switch
         {
             IntegerSpec integer => integer.Min <= integer.Max && Enum.IsDefined(integer.Format)
