@@ -57,14 +57,16 @@ export function testFiles(testDirectory) {
 }
 
 function globRegex(pattern) {
-  let expression = "^";
-  for (let index = 0; index < pattern.length; index++) {
-    const character = pattern[index];
-    if (character === "*" && pattern[index + 1] === "*") {
-      index++;
-      if (pattern[index + 1] === "/") index++;
-      expression += ".*";
-    } else if (character === "*") expression += "[^/]*";
+  const normalized = pattern.replaceAll("\\", "/");
+  if (!normalized.startsWith("**/"))
+    throw new Error(`Unsupported E2E ownership pattern '${pattern}': expected a **/ prefix.`);
+  if (normalized.slice(3).includes("**"))
+    throw new Error(`Unsupported E2E ownership pattern '${pattern}': ** is only supported as **/.`);
+
+  let expression = "^(?:[^/]+/)*";
+  for (let index = 3; index < normalized.length; index++) {
+    const character = normalized[index];
+    if (character === "*") expression += "[^/]*";
     else if (character === "?") expression += "[^/]";
     else expression += character.replace(/[\\^$+{}()[\].|]/g, "\\$&");
   }
