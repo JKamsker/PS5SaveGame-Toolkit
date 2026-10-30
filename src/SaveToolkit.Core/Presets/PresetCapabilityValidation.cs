@@ -6,6 +6,8 @@ namespace SaveToolkit.Core.Presets;
 
 internal static class PresetCapabilityValidation
 {
+    private const string MalformedReason = "Preset capability metadata is malformed.";
+
     public static string? Validate(PresetCapability? capability) => TryDetach(capability, out _, out var error) ? null : error;
 
     public static bool TryDetach(PresetCapability? capability, out PresetCapability? detached, out string? error)
@@ -41,7 +43,7 @@ internal static class PresetCapabilityValidation
         }
         catch (Exception ex) when (ex is not OutOfMemoryException and not OperationCanceledException)
         {
-            return Fail($"The preset capability metadata is malformed: {ex.Message}", out error);
+            return Fail(MalformedReason, out error);
         }
     }
 

@@ -75,21 +75,25 @@ public sealed partial class DocumentSession
             cancellationToken.ThrowIfCancellationRequested();
             var instances = preset.Actions.SelectMany(action => action.Instances ?? []).ToArray();
             var candidateResolution = planner.ResolvePresetInstances(instances, new Dictionary<string, string>(StringComparer.Ordinal));
-            if (PresetContractValidation.ValidateResolution(candidateResolution, instances, null, false, out var resolutionBytes) is { } resolutionError)
+            if (PresetContractValidation.ValidateResolution(candidateResolution, instances, null, false, out _) is { } resolutionError)
                 return Error(preset, emptyResolution, resolutionError);
-            resolution = candidateResolution;
+            if (PresetContractValidation.DetachResolution(candidateResolution, out var initialResolution, out var resolutionBytes) is { } detachError)
+                return Error(preset, emptyResolution, detachError);
+            resolution = initialResolution!;
             if (selected.Count > 0)
             {
                 if (PresetContractValidation.ValidateResolution(resolution, instances, selected, false, out _) is { } resolutionChoiceError)
                     return Error(preset, resolution, resolutionChoiceError);
                 candidateResolution = planner.ResolvePresetInstances(instances, selected);
-                if (PresetContractValidation.ValidateResolution(candidateResolution, instances, selected, true, out resolutionBytes) is { } chosenError)
+                if (PresetContractValidation.ValidateResolution(candidateResolution, instances, selected, true, out _) is { } chosenError)
                     return Error(preset, resolution, chosenError);
-                resolution = candidateResolution;
+                if (PresetContractValidation.DetachResolution(candidateResolution, out var chosenResolution, out resolutionBytes) is { } chosenDetachError)
+                    return Error(preset, resolution, chosenDetachError);
+                resolution = chosenResolution!;
             }
             if (!resolution.Succeeded)
                 return new(null, _revision, preset, resolution, new ActionPlan { Errors = ResolutionErrors(resolution) });
-            var plan = planner.PlanPreset(preset.Actions, resolution);
+            var plan = planner.PlanPreset(preset.Actions, CloneResolution(resolution));
             var bytes = JsonSerializer.SerializeToUtf8Bytes(plan);
             if (bytes.LongLength > MaxPlanBytes)
                 return Error(preset, resolution, "Preset preview is too large; narrow its scope.");
@@ -124,19 +128,25 @@ public sealed partial class DocumentSession
                 return Rejected("preset", actionError);
             cancellationToken.ThrowIfCancellationRequested();
             var instances = pending.Preset.Actions.SelectMany(action => action.Instances ?? []).ToArray();
-            var resolution = planner.ResolvePresetInstances(instances, new Dictionary<string, string>(StringComparer.Ordinal));
-            if (PresetContractValidation.ValidateResolution(resolution, instances, null, false, out var freshResolutionBytes) is { } resolutionError)
+            var candidateResolution = planner.ResolvePresetInstances(instances, new Dictionary<string, string>(StringComparer.Ordinal));
+            if (PresetContractValidation.ValidateResolution(candidateResolution, instances, null, false, out _) is { } resolutionError)
                 return Rejected("preset", resolutionError) with { Stale = true };
+            if (PresetContractValidation.DetachResolution(candidateResolution, out var detachedResolution, out var freshResolutionBytes) is { } detachError)
+                return Rejected("preset", detachError) with { Stale = true };
+            var resolution = detachedResolution!;
             if (pending.Choices.Count > 0)
             {
                 if (PresetContractValidation.ValidateResolution(resolution, instances, pending.Choices, false, out _) is { } choiceError)
                     return Rejected("preset", choiceError) with { Stale = true };
-                resolution = planner.ResolvePresetInstances(instances, pending.Choices);
-                if (PresetContractValidation.ValidateResolution(resolution, instances, pending.Choices, true, out freshResolutionBytes) is { } chosenError)
+                candidateResolution = planner.ResolvePresetInstances(instances, pending.Choices);
+                if (PresetContractValidation.ValidateResolution(candidateResolution, instances, pending.Choices, true, out _) is { } chosenError)
                     return Rejected("preset", chosenError) with { Stale = true };
+                if (PresetContractValidation.DetachResolution(candidateResolution, out var chosenResolution, out freshResolutionBytes) is { } chosenDetachError)
+                    return Rejected("preset", chosenDetachError) with { Stale = true };
+                resolution = chosenResolution!;
             }
             if (!resolution.Succeeded) return new SessionEditResult { Errors = ResolutionErrors(resolution), State = StateUnlocked() };
-            var fresh = planner.PlanPreset(pending.Preset.Actions, resolution);
+            var fresh = planner.PlanPreset(pending.Preset.Actions, CloneResolution(resolution));
             if (fresh.Errors.Count > 0 || !pending.PlanBytes.AsSpan().SequenceEqual(JsonSerializer.SerializeToUtf8Bytes(fresh))
                 || !pending.ResolutionBytes.AsSpan().SequenceEqual(freshResolutionBytes!))
                 return Rejected("preset", "The preset effects changed. Preview it again.") with { Stale = true };
@@ -144,7 +154,7 @@ public sealed partial class DocumentSession
             startApply();
             return RunGroup(_ =>
             {
-                var outcome = planner.ApplyPreset(pending.Preset.Actions, resolution, fresh);
+                var outcome = planner.ApplyPreset(pending.Preset.Actions, CloneResolution(resolution), fresh);
                 if (!outcome.Succeeded) return FromOutcome(outcome);
                 var warnings = outcome.Revert is { } revert ? Record(new MementoStep(revert))
                     : outcome.Changes.Count > 0 ? Record(new ValueStep(outcome.Changes)) : [];
@@ -160,6 +170,10 @@ public sealed partial class DocumentSession
     private static IReadOnlyList<FieldError> ResolutionErrors(PresetResolution resolution) =>
         resolution.Instances.Where(item => item.Status != PresetInstanceResolutionStatus.Resolved)
             .Select(item => new FieldError(item.Requested.StableId, item.Message ?? $"Preset instance is {item.Status.ToString().ToLowerInvariant()}.")).ToArray();
+
+    private static PresetResolution CloneResolution(PresetResolution source) => new(source.Instances.Select(item =>
+        new PresetInstanceResolution(item.Requested with { }, item.Status,
+            (item.Candidates ?? []).Select(candidate => candidate with { }).ToArray(), item.Message)).ToArray());
 
     private sealed record PendingPreset(string Id, long Revision, ToolkitPreset Preset, string PresetFingerprint, PresetResolution Resolution,
         byte[] PlanBytes, byte[] ResolutionBytes, IReadOnlyDictionary<string, string> Choices);

@@ -176,6 +176,22 @@ it("retires a preview and refreshes the document when apply returns an accepted 
   expect(toast).not.toHaveBeenCalled();
 });
 
+it("recovers a typed stale preview envelope returned as a normal result", async () => {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([{
+    preset: { schemaVersion: "1", id: "p", name: "Saved", compatibility: { pluginId: "test", pluginVersion: "1", titleIds: ["PPSA00001"] },
+      actions: [{ actionId: "capture", parameters: {}, scopeKind: "document" }], createdAt: "", updatedAt: "" },
+    compatibility: { compatible: true, readOnly: false, canPreview: true, canApply: true, presetKind: "toolkit.action-parameters", savedPluginVersion: "1", currentPluginVersion: "1", unsupportedActions: [] },
+  }]);
+  vi.spyOn(api, "presetPreview").mockResolvedValue({ preset: {} as never, preview: { planId: undefined, revision: 0, stale: true, scope: {}, plan: { changes: [], skippedRows: [], warnings: [], errors: [{ valueId: "", message: "The document is stale." }] } } });
+  const rendered = renderSpatial(<PresetsPanel document={document} onToast={vi.fn()} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  fireEvent.click(await screen.findByRole("button", { name: "Preview" }));
+  await waitFor(() => expect(screen.getByRole("heading", { name: "Preset preview is stale" })).not.toBeNull());
+  expect(rendered.context.refresh).toHaveBeenCalledTimes(1);
+  expect(screen.getAllByRole("alert")).toHaveLength(1);
+  expect(screen.getByRole("button", { name: "Apply preset" }).hasAttribute("disabled")).toBe(true);
+});
+
 it("renders storage failures as one actionable alert", async () => {
   vi.spyOn(api, "documentPresets").mockRejectedValue(new Error("Preset storage is temporarily unavailable. Retry the operation."));
   renderSpatial(<PresetsPanel document={document} onToast={vi.fn()} />);

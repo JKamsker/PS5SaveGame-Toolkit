@@ -134,6 +134,25 @@ public static class PresetContractValidation
         catch (JsonException) { return "Preset resolution is not serializable."; }
     }
 
+    /// <summary>Creates a bounded host-owned snapshot that adapters cannot mutate after validation.</summary>
+    public static string? DetachResolution(PresetResolution? source, out PresetResolution? detached, out byte[]? serialized)
+    {
+        detached = null;
+        serialized = null;
+        if (ValidateResolution(source, out _) is { } error) return error;
+        try
+        {
+            var instances = source!.Instances.Select(item => new PresetInstanceResolution(
+                CloneReference(item.Requested), item.Status,
+                (item.Candidates ?? []).Select(CloneReference).ToArray(), item.Message)).ToArray();
+            detached = new PresetResolution(instances);
+            var detachedError = ValidateResolution(detached, out serialized);
+            if (detachedError is not null) detached = null;
+            return detachedError;
+        }
+        catch (JsonException) { return "Preset resolution is not serializable."; }
+    }
+
     /// <summary>Validates a resolution against the exact requested target set and transient choices.</summary>
     public static string? ValidateResolution(PresetResolution? resolution,
         IReadOnlyList<PresetInstanceReference> requested,
@@ -249,6 +268,8 @@ public static class PresetContractValidation
         || reference.Path is { Length: > MaxMetadataLength } || reference.Build is { Length: > MaxMetadataLength }
         || reference.Provenance is { Length: > MaxMetadataLength }
         ? "invalid reference" : null;
+
+    private static PresetInstanceReference CloneReference(PresetInstanceReference reference) => reference with { };
 
     private static string? Key(PresetInstanceReference? reference) =>
         ValidateReference(reference) is null ? $"{reference!.Kind}\0{reference.StableId}" : null;

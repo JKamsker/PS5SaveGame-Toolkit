@@ -34,6 +34,9 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
   const [preview, setPreview] = useState<{ preset: ToolkitPreset; preview: ActionPreview }>();
   const [stale, setStale] = useState(false);
   const [refreshError, setRefreshError] = useState<string>();
+  const [applyError, setApplyError] = useState<string>();
+  const [applyBlocked, setApplyBlocked] = useState(false);
+  const [resolutionGeneration, setResolutionGeneration] = useState(0);
   const [message, setMessage] = useState<string>();
   const [messageIsError, setMessageIsError] = useState(false);
   const [filter, setFilter] = useState("");
@@ -45,6 +48,7 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
   const [pendingDelete, setPendingDelete] = useState<ToolkitPreset>();
   const [retryPresetId, setRetryPresetId] = useState<string>();
   const [previewOpener, setPreviewOpener] = useState<HTMLElement | null>(null);
+  const previewRequest = useRef(0);
   const showMessage = (text: string, isError = false) => { setMessage(text); setMessageIsError(isError); };
   const clearMessage = () => { setMessage(undefined); setMessageIsError(false); };
   const heading = useRef<HTMLHeadingElement>(null);
@@ -77,27 +81,61 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
   const parameterIds = selectedAction?.parameters?.map(parameter => parameter.valueId) ?? [];
   const parametersMatchDescriptor = parameterIds.length === Object.keys(parameters).length
     && parameterIds.every(id => Object.prototype.hasOwnProperty.call(parameters, id));
+  const refreshBlocked = context.refreshState === "pending" || context.refreshState === "failed";
   const reloadPresets = async () => {
     await api.reloadPresets();
     const result = await presets.refetch();
     if (result.error) throw result.error;
   };
+  const closePreview = () => {
+    const opener = previewOpener;
+    previewRequest.current++;
+    setPreview(undefined);
+    setStale(false);
+    setRefreshError(undefined);
+    setApplyError(undefined);
+    setApplyBlocked(false);
+    setPreviewOpener(null);
+    if (opener) requestAnimationFrame(() => opener.focus());
+  };
+  const recoverStalePreview = async (requestId: number) => {
+    setStale(true);
+    setApplyBlocked(true);
+    setRefreshError(undefined);
+    try {
+      await context.refresh();
+      if (requestId !== previewRequest.current) return;
+      setRefreshError(undefined);
+    } catch (error) {
+      if (requestId !== previewRequest.current) return;
+      setRefreshError(error instanceof Error ? `The current document could not be refreshed: ${error.message}` : "The current document could not be refreshed.");
+    }
+  };
+  const installPreview = async (result: { preset: ToolkitPreset; preview: ActionPreview }, requestId: number) => {
+    if (requestId !== previewRequest.current) return;
+    setPreview(result);
+    setResolutionGeneration(value => value + 1);
+    setApplyError(undefined);
+    setApplyBlocked(false);
+    setStale(Boolean(result.preview.stale));
+    setRefreshError(undefined);
+    setRetryPresetId(undefined);
+    clearMessage();
+    if (result.preview.stale) await recoverStalePreview(requestId);
+  };
   const loadPreview = async (presetId: string, choices?: Record<string, string>) => {
+    if (context.refreshState === "pending" || context.refreshState === "failed") return;
+    const requestId = ++previewRequest.current;
     if (!preview || preview.preset.id !== presetId)
       setPreviewOpener(globalThis.document.activeElement instanceof HTMLElement ? globalThis.document.activeElement : null);
     try {
       const result = await api.presetPreview(context.workspaceId, context.documentId, presetId, context.store.state.revision, choices);
-      setPreview(result); setStale(Boolean(result.preview.stale)); setRefreshError(undefined); clearMessage();
-      setRetryPresetId(undefined);
+      await installPreview(result, requestId);
     } catch (error) {
+      if (requestId !== previewRequest.current) return;
       const rejectedPreview = previewFromError(error);
       if (rejectedPreview) {
-        const isStalePreview = Boolean(rejectedPreview.preview.stale);
-        setPreview(rejectedPreview); setStale(isStalePreview); setRefreshError(undefined);
-        if (isStalePreview) {
-          try { await context.refresh(); }
-          catch (refreshFailure) { setRefreshError(refreshFailure instanceof Error ? `The current document could not be refreshed: ${refreshFailure.message}` : "The current document could not be refreshed."); }
-        }
+        await installPreview(rejectedPreview, requestId);
       }
       else { setRetryPresetId(presetId); showMessage(error instanceof Error ? error.message : "Could not preview preset.", true); }
     }
@@ -132,28 +170,26 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
     try { await api.deletePreset(pendingDelete.id); setPendingDelete(undefined); if (preview?.preset.id === pendingDelete.id) setPreview(undefined); void client.invalidateQueries({ queryKey: ["presets"] }); requestAnimationFrame(() => heading.current?.focus()); }
     catch (error) { showMessage(error instanceof Error ? error.message : "Could not delete preset.", true); }
   };
-  const refreshAfterStale = async (refreshFailed = false) => {
-    setStale(true); setRefreshError(undefined);
-    if (refreshFailed) setRefreshError("The current document could not be refreshed. Retry the document read before previewing again.");
-  };
   const apply = useMutation({
     mutationFn: () => context.mutate(
       () => api.presetApply(context.workspaceId, context.documentId, preview!.preset.id, preview!.preview.planId!, preview!.preview.revision),
       { failureFeedback: "dialog" }),
     onSuccess: async result => {
       if (result.stale) {
-        if (!result.refreshCompleted && !result.refreshFailed) {
-          await context.refresh().then(() => refreshAfterStale()).catch(() => refreshAfterStale(true));
-        } else await refreshAfterStale(result.refreshFailed);
+        setApplyError(undefined);
+        if (!result.refreshCompleted && !result.refreshFailed) await recoverStalePreview(previewRequest.current);
+        else { setStale(true); setRefreshError(result.refreshFailed ? "The current document could not be refreshed. Retry the document read before previewing again." : undefined); }
         return;
       }
-      if (result.ok) { setPreview(undefined); onToast("Preset applied. Use Undo to reverse this one history step."); }
-      else onToast(result.message ?? "Preset was not applied.", true);
+      if (result.ok) { closePreview(); onToast("Preset applied. Use Undo to reverse this one history step."); }
+      else setApplyError(result.errors.map(error => error.message).filter(Boolean).join(" ") || result.message || "Preset was not applied.");
     },
     onError: error => {
-      if (!isStaleError(error)) { onToast(error instanceof Error ? error.message : "Could not apply preset.", true); return; }
-      void context.refresh().then(() => refreshAfterStale()).catch(() => refreshAfterStale(true));
+      setApplyBlocked(true);
+      if (!isStaleError(error)) { setApplyError(error instanceof Error ? error.message : "Could not apply preset."); return; }
+      void recoverStalePreview(previewRequest.current);
     },
+    onMutate: () => { setApplyBlocked(true); setApplyError(undefined); },
   });
   const selectAction = (id: string) => {
     const next = captureActions.find(action => action.actionId === id);
@@ -169,7 +205,7 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
     setParameters(actionParameters(nextAction));
     setParameterErrors({});
     setPreview(undefined);
-    setStale(false); setRefreshError(undefined);
+    setStale(false); setRefreshError(undefined); setApplyError(undefined); setApplyBlocked(false);
   }, [captureActions, descriptorSignature, document.presetCapability]);
   return <details className="section presets-panel">
     <summary className="section__summary"><span className="section__title">Toolkit presets</span></summary>
@@ -180,11 +216,11 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
       <h3 ref={heading} tabIndex={-1}>Saved presets</h3>
       {presets.isError && <><p role="alert">{messageIsError && message ? message : `Could not load presets: ${presets.error.message}`}</p><button type="button" className="btn btn--small" onClick={() => void reloadPresets().catch(error => showMessage(error instanceof Error ? error.message : "Could not reload presets.", true))}>Retry loading presets</button></>}
       {presets.data?.length === 0 && <p className="notice notice--Muted">No presets saved for this toolkit yet.</p>}
-      {presets.data && <><div className="presets-filters"><label>Filter presets <input className="input" value={filter} onChange={event => setFilter(event.target.value)} placeholder="Name or action" /></label><label>Title <input className="input" value={titleFilter} onChange={event => setTitleFilter(event.target.value)} placeholder="Title id" /></label><label>Build <input className="input" value={buildFilter} onChange={event => setBuildFilter(event.target.value)} placeholder="Build" /></label><label>Plugin <input className="input" value={pluginFilter} onChange={event => setPluginFilter(event.target.value)} placeholder="Plugin id or version" /></label><label>Compatibility <select className="input" value={compatFilter} onChange={event => setCompatFilter(event.target.value)}><option value="all">All</option><option value="ready">Ready to apply</option><option value="attention">Needs attention</option></select></label><label>Updated <select className="input" value={dateFilter} onChange={event => setDateFilter(event.target.value)}><option value="all">Any date</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select></label></div><p className="presets-meta" role="status" aria-live="polite">{filteredPresets.length} matching preset{filteredPresets.length === 1 ? "" : "s"}{filteredPresets.length > 50 ? "; showing the first 50" : ""}.</p><Suspense fallback={<p aria-live="polite">Loading saved preset rows…</p>}><PresetRows rows={visiblePresets} busy={apply.isPending || rename.isPending} onPreview={loadPreview} onDelete={preset => setPendingDelete(preset)} onRename={(id, value) => rename.mutateAsync({ id, value }).then(() => undefined)} /></Suspense>{visiblePresets.length === 0 && <p className="notice notice--Muted">No presets match this filter.</p>}</>}
+      {presets.data && <><div className="presets-filters"><label>Filter presets <input className="input" value={filter} onChange={event => setFilter(event.target.value)} placeholder="Name or action" /></label><label>Title <input className="input" value={titleFilter} onChange={event => setTitleFilter(event.target.value)} placeholder="Title id" /></label><label>Build <input className="input" value={buildFilter} onChange={event => setBuildFilter(event.target.value)} placeholder="Build" /></label><label>Plugin <input className="input" value={pluginFilter} onChange={event => setPluginFilter(event.target.value)} placeholder="Plugin id or version" /></label><label>Compatibility <select className="input" value={compatFilter} onChange={event => setCompatFilter(event.target.value)}><option value="all">All</option><option value="ready">Ready to apply</option><option value="attention">Needs attention</option></select></label><label>Updated <select className="input" value={dateFilter} onChange={event => setDateFilter(event.target.value)}><option value="all">Any date</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select></label></div><p className="presets-meta" role="status" aria-live="polite">{filteredPresets.length} matching preset{filteredPresets.length === 1 ? "" : "s"}{filteredPresets.length > 50 ? "; showing the first 50" : ""}.</p><Suspense fallback={<p aria-live="polite">Loading saved preset rows…</p>}><PresetRows rows={visiblePresets} busy={apply.isPending || rename.isPending || refreshBlocked} onPreview={loadPreview} onDelete={preset => setPendingDelete(preset)} onRename={(id, value) => rename.mutateAsync({ id, value }).then(() => undefined)} /></Suspense>{visiblePresets.length === 0 && <p className="notice notice--Muted">No presets match this filter.</p>}</>}
       {pendingDelete && <Suspense fallback={<p aria-live="polite">Loading delete confirmation…</p>}><PresetDeleteDialog preset={pendingDelete} onDelete={() => void confirmDelete()} onCancel={() => setPendingDelete(undefined)} /></Suspense>}
       {retryPresetId && <button type="button" className="btn btn--small" onClick={() => void loadPreview(retryPresetId)}>Retry preview</button>}
       {create.isError && <button type="button" className="btn btn--small" onClick={() => create.mutate()}>Retry saving preset</button>}
-      {preview && <Suspense fallback={<p aria-live="polite">Loading preset preview…</p>}><PresetPreview key={`${preview.preset.id}:${preview.preview.planId ?? "none"}:${preview.preview.revision}:${stale ? "stale" : "current"}`} opener={previewOpener} preview={preview.preview} busy={apply.isPending} stale={stale} refreshError={refreshError} canApply={document.canEdit} onApply={() => void apply.mutate()} onCancel={() => setPreview(undefined)} onPreviewAgain={choices => loadPreview(preview.preset.id, choices)} /></Suspense>}
+      {preview && <Suspense fallback={<p aria-live="polite">Loading preset preview…</p>}><PresetPreview key={`${preview.preset.id}:${preview.preview.planId ?? "none"}:${preview.preview.revision}:${resolutionGeneration}:${stale ? "stale" : "current"}`} preview={preview.preview} busy={apply.isPending} stale={stale} refreshError={refreshError} refreshPending={context.refreshState === "pending"} applyError={applyError} canApply={document.canEdit && !applyBlocked} onApply={() => void apply.mutate()} onCancel={closePreview} onPreviewAgain={choices => loadPreview(preview.preset.id, choices)} /></Suspense>}
       {message && !presets.isError && <p role={messageIsError ? "alert" : "status"} aria-label="Preset save result" className="notice notice--Warning">{message}</p>}
       <form className="presets-create" onSubmit={event => { event.preventDefault(); clearMessage(); try { create.mutate(); } catch (error) { showMessage(error instanceof Error ? error.message : "Invalid preset JSON.", true); } }}>
         <h3>Save an action preset</h3>
@@ -196,7 +232,7 @@ export function PresetsPanel({ document, onToast }: PresetsPanelProps) {
         <label>Scope <select className="input" value={scopeKind} onChange={event => setScopeKind(event.target.value)} disabled={!document.canEdit || create.isPending || captureActions.length === 0}>{supportedScopes.map(scope => <option key={scope} value={scope}>{scopeLabel(scope)}</option>)}</select></label>
         {scopeKind === "selected" && <p className="presets-meta" role="status">{selectedScopeUnavailable ? (binding.unavailable ? "This action has no reachable selection table." : "Clear the whole-query selection before capturing selected rows.") : `${selection?.count ?? 0} selected row${selection?.count === 1 ? "" : "s"} will be captured explicitly.`}</p>}
         {selectedAction?.parameters?.length ? <ActionParameterFields form={{ parameters: selectedAction.parameters, values: parameters, errors: parameterErrors, setValues: setParameters, setErrors: setParameterErrors }} idPrefix="preset-parameter" actionId={actionId} busy={!document.canEdit || create.isPending} variant="direct" /> : <p className="presets-meta">This action has no parameters.</p>}
-        <button className="btn btn--primary btn--small" type="submit" disabled={!document.canEdit || create.isPending || !activeActionId || captureActions.length === 0 || selectedScopeUnavailable || !scopeIsAdvertised || !parametersMatchDescriptor}>{create.isPending ? "Saving…" : "Save preset"}</button>
+        <button className="btn btn--primary btn--small" type="submit" disabled={!document.canEdit || create.isPending || refreshBlocked || !activeActionId || captureActions.length === 0 || selectedScopeUnavailable || !scopeIsAdvertised || !parametersMatchDescriptor}>{create.isPending ? "Saving…" : "Save preset"}</button>
       </form>
     </div>
   </details>;

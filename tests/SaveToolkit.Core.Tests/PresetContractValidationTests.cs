@@ -140,11 +140,54 @@ public sealed class PresetContractValidationTests
         Assert.Null(PresetContractValidation.ValidateResolution(unique, [requested], null, false, out _));
     }
 
+    [Fact]
+    public void DetachedResolutionDoesNotAliasAdapterCollections()
+    {
+        var requested = new PresetInstanceReference("owned", "target");
+        var candidates = new List<PresetInstanceReference> { new("owned", "candidate") };
+        var items = new List<PresetInstanceResolution>
+        {
+            new(requested, PresetInstanceResolutionStatus.Resolved, candidates),
+        };
+        var source = new PresetResolution(items);
+
+        Assert.Null(PresetContractValidation.DetachResolution(source, out var detached, out _));
+        items.Clear();
+        candidates.Clear();
+
+        Assert.NotNull(detached);
+        Assert.Single(detached!.Instances);
+        Assert.Single(detached.Instances[0].Candidates);
+    }
+
+    [Fact]
+    public void CapabilityCollectionFailureUsesBoundedPublicReason()
+    {
+        var capability = new PresetCapability("1", null,
+            new ThrowingActionList(new PresetActionCapability("set", "Set", [])), 1);
+
+        Assert.False(PresetContractValidation.TryDetach(capability, out _, out var error));
+        Assert.Equal("Preset capability metadata is malformed.", error);
+        Assert.True(error!.Length < PresetContractValidation.MaxMetadataLength);
+    }
+
     private static PresetCapability Capability(PresetActionCapability action) =>
         new("1", null, [action], 1, "fixture", "sha256:fixture", "toolkit.action-parameters", "schema", "save");
 
     private static class ScopeKinds
     {
         public const string Invalid = "session";
+    }
+
+    private sealed class ThrowingActionList(PresetActionCapability action) : IReadOnlyList<PresetActionCapability>
+    {
+        public int Count => 1;
+        public PresetActionCapability this[int index] => index == 0 ? action : throw new ArgumentOutOfRangeException(nameof(index));
+        public IEnumerator<PresetActionCapability> GetEnumerator()
+        {
+            yield return action;
+            throw new InvalidOperationException(new string('x', 100_000));
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
