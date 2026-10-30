@@ -50,6 +50,35 @@ async function mount() {
   return toast;
 }
 
+it("announces lost undo history when a successful planned action closes its dialog", async () => {
+  const warning = "This change is too large to undo (257 MiB, limit 256 MiB). Earlier history was cleared.";
+  vi.spyOn(api, "edit").mockResolvedValue({
+    ok: true, errors: [], warnings: [], structureChanged: false,
+    changes: [{ valueId: "flag", oldValue: false, newValue: true }],
+    state: { ...state, revision: 2, isDirty: true, canUndo: true },
+  });
+  vi.spyOn(actionReview, "plan").mockResolvedValue(preview(2));
+  vi.spyOn(actionReview, "apply").mockResolvedValue({
+    ok: true, errors: [], warnings: [warning], structureChanged: true,
+    changes: [{ valueId: "caption", oldValue: "old", newValue: "🎮" }],
+    state: { ...state, revision: 3, isDirty: true },
+  });
+  const toast = await mount();
+  await act(async () => { fireEvent.click(screen.getByRole("switch", { name: "Flag" })); });
+  expect(screen.getByRole("button", { name: "Undo" })).toHaveProperty("disabled", false);
+  vi.mocked(api.document).mockResolvedValue({ ...snapshot(3, true), state: { ...state, revision: 3, isDirty: true } });
+  fireEvent.click(screen.getByRole("button", { name: "Rename" }));
+  const dialog = within(screen.getByRole("dialog"));
+  fireEvent.change(dialog.getByRole("textbox", { name: "Caption" }), { target: { value: "🎮" } });
+  fireEvent.blur(dialog.getByRole("textbox", { name: "Caption" }));
+  fireEvent.click(dialog.getByRole("button", { name: "Preview" }));
+  fireEvent.click(await dialog.findByRole("button", { name: "Apply" }));
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+
+  expect(screen.getByRole("button", { name: "Undo" })).toHaveProperty("disabled", true);
+  expect(toast).toHaveBeenCalledExactlyOnceWith(warning);
+});
+
 it.each(["envelope", "exception"])("refreshes revision and fields before the first stale retry with one diagnostic (%s)", async kind => {
   let serverRevision = 1;
   const plan = vi.spyOn(actionReview, "plan").mockImplementation(async (_w, _d, _a, _params, _scope, revision) => {
