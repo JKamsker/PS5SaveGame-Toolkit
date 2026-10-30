@@ -5,13 +5,13 @@ import { fileURLToPath } from "node:url";
 const manifestPath = fileURLToPath(new URL("./e2e-suites.json", import.meta.url));
 const manifestVersion = 2;
 
-function normalizedTestFile(file) {
+export function normalizedTestFile(file) {
   const normalized = file.replaceAll("\\", "/");
   const parts = normalized.split("/");
   if (!normalized || normalized.startsWith("/") || normalized.includes(":")
     || parts.some(part => !part || part === "." || part === "..")
     || !normalized.endsWith(".e2e.ts"))
-    throw new Error(`E2E suite manifest contains an invalid test file '${file}'.`);
+    throw new Error(`E2E inventory contains an invalid test file '${file}'.`);
   return normalized;
 }
 
