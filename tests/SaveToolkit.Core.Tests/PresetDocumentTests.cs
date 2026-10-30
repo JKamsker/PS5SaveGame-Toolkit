@@ -80,6 +80,25 @@ public sealed class PresetDocumentTests
     }
 
     [Fact]
+    public void InvalidPublishedCapabilityIsDetachedBeforeDocumentPublication()
+    {
+        var document = new PresetFixtureDocument
+        {
+            CapabilityOverride = new PresetCapability("1", "r19", [new PresetActionCapability("set", "Set", ["value"],
+                ParameterSpecs: [new FlagsSpec([], -1)])]),
+        };
+        using var fixture = new MutationSessionFixture(document);
+
+        var dto = SaveToolkit.Api.Contracts.DtoMapper.ToDto(fixture.Session);
+
+        Assert.Null(dto.PresetCapability);
+        Assert.Equal("malformed", dto.PresetCapabilityStatus);
+        Assert.Contains("malformed", dto.PresetCapabilityReason, StringComparison.OrdinalIgnoreCase);
+        Assert.NotNull(fixture.Session.PresetDocument);
+        Assert.Equal(0, document.ResolveCalls);
+    }
+
+    [Fact]
     public void AggregateInstanceBoundRejectsBeforeAdapterResolution()
     {
         var document = new PresetFixtureDocument();
@@ -127,6 +146,19 @@ public sealed class PresetDocumentTests
     }
 
     [Fact]
+    public void RejectedSecondResolutionPublishesOnlyLastValidatedGraph()
+    {
+        var document = new PresetFixtureDocument { Resolution = PresetInstanceResolutionStatus.Ambiguous, Shape = ResolutionShape.SecondOversized };
+        using var fixture = new MutationSessionFixture(document);
+        var preview = fixture.Session.PlanPreset(Preset("second"), choices: new Dictionary<string, string> { ["id"] = "candidate" });
+        Assert.Null(preview.PlanId);
+        Assert.Single(preview.Resolution.Instances);
+        Assert.Equal(PresetInstanceResolutionStatus.Ambiguous, preview.Resolution.Instances[0].Status);
+        Assert.Equal(2, preview.Resolution.Instances[0].Candidates.Count);
+        Assert.False(fixture.Session.State.CanUndo);
+    }
+
+    [Fact]
     public void OptInCapabilityRejectsMissingPublishedCompatibilityBoundaries()
     {
         using var fixture = new MutationSessionFixture(new PresetFixtureDocument());
@@ -166,7 +198,7 @@ public sealed class PresetDocumentTests
         new PresetCompatibility("test", "1", ["PPSA99999"]),
         [new PresetAction("set", new Dictionary<string, JsonElement>(), [new("owned", "id")])], DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
 
-    public enum ResolutionShape { Normal, Omitted, Injected, Duplicate, ForgedResolved }
+    public enum ResolutionShape { Normal, Omitted, Injected, Duplicate, ForgedResolved, SecondOversized }
 
     private sealed class PresetFixtureDocument : BoundSaveDocument, IPresetDocument
     {
@@ -174,11 +206,12 @@ public sealed class PresetDocumentTests
         public int ResolveCalls { get; private set; }
         public IReadOnlyList<string>? CapturedSelection { get; private set; }
         public bool ThrowOnResolve { get; init; }
+        public PresetCapability? CapabilityOverride { get; init; }
         public ResolutionShape Shape { get; init; }
         public PresetInstanceResolutionStatus Resolution { get; init; } = PresetInstanceResolutionStatus.Resolved;
         public string? GameBuild { get; init; } = "r19";
         public override string Title => "Preset fixture";
-        public PresetCapability PresetCapability => new("1", GameBuild, [new("set", "Set", [])], 4, "fixture", "pack");
+        public PresetCapability PresetCapability => CapabilityOverride ?? new("1", GameBuild, [new("set", "Set", [])], 4, "fixture", "pack");
         public PresetAction CapturePreset(PresetCaptureRequest request)
         {
             CapturedSelection = request.SelectedRowKeys;
@@ -189,7 +222,11 @@ public sealed class PresetDocumentTests
         public PresetResolution ResolvePresetInstances(IReadOnlyList<PresetInstanceReference> instances) =>
             Resolve(instances);
         public PresetResolution ResolvePresetInstances(IReadOnlyList<PresetInstanceReference> instances, IReadOnlyDictionary<string, string> choices) =>
-            choices.Count > 0
+            Shape == ResolutionShape.SecondOversized && choices.Count > 0
+                ? new([new PresetInstanceResolution(instances[0], PresetInstanceResolutionStatus.Ambiguous,
+                    Enumerable.Range(0, PresetContractValidation.MaxResolutionCandidates + 1)
+                        .Select(index => new PresetInstanceReference("owned", $"candidate-{index}")).ToArray())])
+            : choices.Count > 0
                 ? new(instances.Select(instance => new PresetInstanceResolution(instance, PresetInstanceResolutionStatus.Resolved,
                     [new("owned", choices[instance.StableId])])).ToArray())
                 : ResolvePresetInstances(instances);

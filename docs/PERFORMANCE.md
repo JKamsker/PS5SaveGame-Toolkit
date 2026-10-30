@@ -31,8 +31,13 @@ DocumentEditor CSS chunk without CSS source changes.
 | index.css | 37478 | 9943 | 37478 | 9943 |
 | WorkspacePage.js | 156784 | 45486 | 14267 | 5131 |
 | DocumentEditor.js (new split) | — | — | 143127 | 41652 |
-| PresetsPanel.js (lazy preset flow) | — | — | 16081 | 5249 |
-| PresetsPanel.css (lazy preset flow) | — | — | 1446 | 523 |
+| PresetsPanel.js (lazy preset flow) | — | — | 15898 | 5242 |
+| PresetsPanel.css (lazy preset flow) | — | — | 1252 | 523 |
+| PresetRows.js (lazy saved rows) | — | — | 3931 | 1195 |
+| PresetRows.css (lazy saved rows) | — | — | 511 | 289 |
+| PresetPreview.js (lazy review) | — | — | 4426 | 1650 |
+| PresetDeleteDialog.js (lazy confirmation) | — | — | 978 | 538 |
+| jsx-runtime.js (shared runtime) | — | — | 8784 | 3328 |
 | documentStore.js (shared lazy dependency) | — | — | 2802 | 1015 |
 | values.js (shared initial dependency) | — | — | 13967 | 5391 |
 | Workspace/editor CSS | 5131 | 1504 | 5131 | 1504 |
@@ -50,8 +55,9 @@ DocumentEditor CSS chunk without CSS source changes.
   editor, tables, virtualizer and reference-picker code immediately (**45486 gzip bytes**).
   JS for home plus the empty workspace falls from **164181 to 123718 gzip bytes** (24.6%).
 - Selecting a document, or opening a `?doc=...` deep link, additionally loads DocumentEditor JS
-  (**42271 gzip bytes**) and its CSS (**1504**). The preset leaf is loaded as a separate
-  **5249-byte** JS/**523-byte** CSS chunk behind the same accessible Suspense status. The existing
+  (**42502 gzip bytes**) and its CSS (**1504**). Saved preset rows and preview are loaded as
+  separate accessible Suspense leaves (**1195-byte** rows JS/**289-byte** CSS and **1650-byte**
+  preview JS); the shared JSX runtime is **3328 bytes**. The existing
   Opening status covers the editor code load.
   Eager/queryable tables, hex virtualization, the reference picker and TanStack Virtual stay together
   in this chunk; they are deferred with the editor, not independently split. Their recursive renderer
@@ -77,31 +83,24 @@ dependency or unexpectedly retained barrel import was confirmed. `fflate` is use
 only and is absent from production chunks. The analysis used existing Vite APIs on D: scratch;
 no visualizer, analysis artifact or dependency was added to the repository.
 
-The corrected preset foundation plus transfer composition was remeasured on 2026-10-29:
-initial JS 120129 bytes, PresetsPanel JS 5655 bytes and CSS 523 bytes, all within the
-existing unchanged budgets. The transfer toolbar is supplied through the panel's child
-slot from the already-lazy DocumentEditor chunk (42628 bytes), preserving room for the
-foundation's compatibility disclosure and capture controls without adding chunks.
-Transfer dialogs use server-owned compatibility and preview-capability summaries.
-ImportPresetDialog is 2348 bytes, including explicit
-reload-and-repreview recovery, the server's capture-only limitation and memoized conflict
-rows so changing one choice does not rerender every record. Its budget is
-2600 bytes (10.7% headroom), replacing the earlier 2370-byte limit measured before
-those required recovery/capability states and full-library interaction checks. Initial and PresetsPanel limits stay unchanged. The shared transfer
-request helper includes the document compatibility endpoint (TransferDialog chunk
-932 bytes); its budget remains 1030 bytes. Export is 1125 bytes.
-Transfer measurements below reflect this combined source;
-other rows preserve the original split baseline. No runtime dependency was added.
+The published preset foundation plus transfer composition was remeasured on 2026-10-30.
+Initial JavaScript is 120132 gzip bytes and CSS is 9943 bytes. PresetsPanel is
+5510 bytes JavaScript and 419 bytes CSS, within its unchanged 5800/580 limits.
+The generic `PresetRows` leaf is 1195 bytes JavaScript and 289 bytes CSS, using the
+foundation's 1320/320 budgets. The shared renderer, preview and delete leaves retain
+accessible loading boundaries; capture, filter and preview state remain in the panel.
+The transfer toolbar is supplied through the Saved presets child slot by the
+already-lazy DocumentEditor (42935 bytes), without another provider or toolbar chunk.
 
-The published R6 foundation plus transfer composition was remeasured on 2026-10-30.
-The added readiness/boundary disclosure and library filters initially produced
-6261 bytes of panel JavaScript and 582 bytes of CSS, exceeding the unchanged
-5800/580 limits. Existing saved-row rendering and its styles now form a small lazy
-`PresetRows` leaf (1211 bytes JavaScript, 289 bytes CSS), with explicit 1350/320
-budgets. Filter state, loading/error handling and transfer controls stay mounted in
-the existing panel; row loading has an accessible status. The resulting panel is
-5751 bytes JavaScript and 419 bytes CSS; initial JavaScript is 120132 bytes.
-Initial, editor, panel and existing transfer limits remain unchanged.
+Transfer dialogs use server-owned informational compatibility summaries. Import is
+2348 bytes, including explicit reload-and-repreview recovery and memoized conflict
+rows. Its 2600-byte budget (10.7% headroom) replaces the earlier 2370-byte measurement
+before those required recovery/capability states and full-library interaction checks.
+Export is 1128 bytes; the shared native dialog/request helper is 933 bytes. Existing
+initial, editor, panel and transfer limits stay unchanged. The table retains original
+split baselines for existing chunks and measured transfer entries; the combined
+measurements in this paragraph identify the current composition. No runtime dependency
+was added.
 
 ### Enforced gzip limits
 
@@ -122,20 +121,22 @@ output-directory behavior, so the check never removes or rewrites output.
 | WorkspacePage.js | 5131 | 5700 |
 | DocumentEditor.js | 41652 | 45900 |
 | DocumentEditor.css | 1504 | 1660 |
-| PresetsPanel.js | 5249 | 5800 |
+| PresetsPanel.js | 5242 | 5800 |
 | PresetsPanel.css | 523 | 580 |
-| PresetRows.js | 1211 | 1350 |
+| PresetRows.js | 1195 | 1320 |
 | PresetRows.css | 289 | 320 |
+| PresetPreview.js | 1650 | 1820 |
+| PresetDeleteDialog.js | 538 | 600 |
 | ImportPresetDialog.js | 2348 | 2600 |
-| ExportPresetDialog.js | 1125 | 1250 |
-| TransferDialog.js | 932 | 1030 |
+| ExportPresetDialog.js | 1128 | 1250 |
+| TransferDialog.js | 933 | 1030 |
 | TransferDialog.css | 473 | 520 |
-| jsx-runtime.js | 3328 | 3670 |
-| documentStore.js | 1015 | 1130 |
+| jsx-runtime.js | 3328 | 3650 |
+| documentStore.js | 1035 | 1130 |
 | values.js | 5391 | 6000 |
-| GraphView.js | 1747 | 1930 |
-| MapView.js | 2129 | 2350 |
-| SpatialShared.js | 1788 | 1970 |
+| GraphView.js | 1746 | 1930 |
+| MapView.js | 2141 | 2350 |
+| SpatialShared.js | 1787 | 1970 |
 | SpatialShared.css | 911 | 1010 |
 
 The preset-transfer follow-up adds explicit lazy import/export dialogs and shared native-modal

@@ -164,9 +164,12 @@ export interface DocumentContextValue {
   commitWithDiagnostics?: (valueId: string, value: FieldValue) => Promise<FieldCommitOutcome>;
   acceptResult: (result: EditResult) => Promise<void>;
   /** Serialize a mutation with other writes/history and accept its result before the next starts. */
-  mutate: (call: () => Promise<EditResult>) => Promise<EditResult>;
+  mutate: (call: () => Promise<EditResult>, options?: DocumentMutationOptions) => Promise<EditResult>;
   runAction: (actionId: string, parameters: Record<string, FieldValue>) => Promise<EditResult>;
 }
+
+/** Optional caller-owned feedback for mutations that render a focused inline result. */
+export interface DocumentMutationOptions { failureFeedback?: "toast" | "dialog" }
 
 export const DocumentContext = createContext<DocumentContextValue | null>(null);
 

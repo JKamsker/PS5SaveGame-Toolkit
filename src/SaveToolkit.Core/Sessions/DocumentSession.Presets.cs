@@ -23,18 +23,20 @@ public sealed partial class DocumentSession
     /// <summary>Runs the optional pure plugin capture adapter while the document is locked.</summary>
     public PresetAction CapturePreset(PresetCaptureRequest request) => Locked(() =>
     {
+        ArgumentNullException.ThrowIfNull(request);
         var effectiveRequest = request with
         {
             SelectedRowKeys = request.ScopeKind == PresetScopeKinds.Selected ? request.SelectedRowKeys : null,
         };
-        if (Document is IPresetDocument semanticAdapter && semanticAdapter.PresetCapability is null)
+        var capability = PresetCapability;
+        if (Document is IPresetDocument && capability is null)
             throw new ArgumentException("The semantic preset capability is malformed.", nameof(request));
-        if (PresetContractValidation.ValidateCapture(PresetCapability, effectiveRequest, _referenceFields) is { } error)
+        if (PresetContractValidation.ValidateCapture(capability, effectiveRequest, _referenceFields) is { } error)
             throw new ArgumentException(error, nameof(request));
         var action = Document is IPresetDocument adapter
             ? adapter.CapturePreset(effectiveRequest)
             : new PresetAction(effectiveRequest.ActionId, effectiveRequest.Parameters, [], effectiveRequest.ScopeKind);
-        if (PresetContractValidation.ValidateCapturedAction(PresetCapability, effectiveRequest, action, _referenceFields) is { } actionError)
+        if (PresetContractValidation.ValidateCapturedAction(capability, effectiveRequest, action, _referenceFields) is { } actionError)
             throw new ArgumentException(actionError, nameof(request));
         return action;
     });
@@ -56,11 +58,11 @@ public sealed partial class DocumentSession
         var emptyResolution = new PresetResolution([]);
         if (StaleCheck(expectedRevision, [preset.Id]) is { } stale)
             return new(null, _revision, preset, emptyResolution, new ActionPlan { Errors = stale.Errors }) { Stale = true };
-        if (Document is not IPresetDocument planner || planner.PresetCapability is not { } capability)
+        if (Document is not IPresetDocument planner || PresetCapability is not { } capability)
             return Error(preset, emptyResolution, "This plugin has no semantic preset adapter.");
         if (PresetContractValidation.ValidateChoices(choices) is { } choiceError)
             return Error(preset, emptyResolution, choiceError);
-        if (PresetContractValidation.ValidateActions(planner.PresetCapability, preset.Actions, _referenceFields) is { } actionError)
+        if (PresetContractValidation.ValidateActions(capability, preset.Actions, _referenceFields) is { } actionError)
             return Error(preset, emptyResolution, actionError);
         if (preset.Actions.Count == 0 || preset.Actions.Count > capability.MaxActions)
             return Error(preset, emptyResolution, "The preset contains an unsupported number of actions.");
@@ -72,16 +74,18 @@ public sealed partial class DocumentSession
         {
             cancellationToken.ThrowIfCancellationRequested();
             var instances = preset.Actions.SelectMany(action => action.Instances ?? []).ToArray();
-            resolution = planner.ResolvePresetInstances(instances, new Dictionary<string, string>(StringComparer.Ordinal));
-            if (PresetContractValidation.ValidateResolution(resolution, instances, null, false, out var resolutionBytes) is { } resolutionError)
+            var candidateResolution = planner.ResolvePresetInstances(instances, new Dictionary<string, string>(StringComparer.Ordinal));
+            if (PresetContractValidation.ValidateResolution(candidateResolution, instances, null, false, out var resolutionBytes) is { } resolutionError)
                 return Error(preset, emptyResolution, resolutionError);
+            resolution = candidateResolution;
             if (selected.Count > 0)
             {
                 if (PresetContractValidation.ValidateResolution(resolution, instances, selected, false, out _) is { } resolutionChoiceError)
                     return Error(preset, resolution, resolutionChoiceError);
-                resolution = planner.ResolvePresetInstances(instances, selected);
-                if (PresetContractValidation.ValidateResolution(resolution, instances, selected, true, out resolutionBytes) is { } chosenError)
+                candidateResolution = planner.ResolvePresetInstances(instances, selected);
+                if (PresetContractValidation.ValidateResolution(candidateResolution, instances, selected, true, out resolutionBytes) is { } chosenError)
                     return Error(preset, resolution, chosenError);
+                resolution = candidateResolution;
             }
             if (!resolution.Succeeded)
                 return new(null, _revision, preset, resolution, new ActionPlan { Errors = ResolutionErrors(resolution) });
@@ -112,7 +116,7 @@ public sealed partial class DocumentSession
             || expectedPresetId is not null && (pending.Preset.Id != expectedPresetId || pending.PresetFingerprint != expectedPresetFingerprint))
             return Rejected(string.Empty, "The preset preview is stale. Preview it again.") with { Stale = true };
         if (!Document.CanEdit) return Rejected("preset", "This document is read-only.");
-        if (Document is not IPresetDocument planner || planner.PresetCapability is not { } capability)
+        if (Document is not IPresetDocument planner || PresetCapability is not { } capability)
             return Rejected("preset", "This plugin has no semantic preset adapter.");
         try
         {

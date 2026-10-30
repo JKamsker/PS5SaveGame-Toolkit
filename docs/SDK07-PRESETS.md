@@ -115,6 +115,18 @@ and validates every action id, label, scope, parameter id, typed specification, 
 Durable records accept only the four `PresetScopeKinds` values. Capture requests normalize selection
 keys away for non-`Selected` scopes before invoking a plugin adapter.
 
+Before a capability reaches a document DTO, compatibility summary, or UI, the host admits it into a
+bounded detached snapshot. The snapshot limits graph depth and node count, rejects cycles, duplicate
+union/enum/flag entries, invalid flag widths or bit positions, and oversized metadata. A malformed
+capability is reported as disabled (`capabilityMalformed` at the API boundary); it never falls back to
+the generic semantic path and never invokes capture, resolution, planning, or apply. When a refreshed
+document publishes a different action descriptor or parameter contract, the panel resets to that
+descriptor's first advertised scope and fresh typed defaults while preserving an unrelated draft.
+The document DTO carries an explicit `presetCapabilityStatus` of `absent`, `valid`, or `malformed`;
+only `absent` permits the generic document action fallback. Apply uses the document session's
+serialized mutation controller and owns one feedback surface, so stale responses refresh the
+authoritative snapshot before another preview and a failed refresh keeps retry blocked.
+
 The panel presents the server-owned current title, preset kind, readiness and apply state. Saved
 presets can be filtered by name/action, title, build, plugin, compatibility and update age; the
 bounded list reports its matching count and first-page limit. Preview changes and skipped rows are

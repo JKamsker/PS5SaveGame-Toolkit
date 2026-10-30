@@ -20,6 +20,11 @@ public static class PresetContractValidation
     public const int MaxCapabilityActions = 32;
     public const int MaxScopeKinds = 4;
     public const int MaxCapabilityBytes = 256 * 1024;
+    public const int MaxCapabilityDepth = 32;
+    public const int MaxCapabilityNodes = 1024;
+    public const int MaxUnionOptions = 32;
+    public const int MaxFlagWidth = 128;
+    public const int MaxFlagBits = 128;
 
     public static bool HasSemanticBoundaries(PresetCompatibility compatibility) =>
         compatibility.GameBuild is not null || compatibility.FormatVariant is not null
@@ -97,6 +102,9 @@ public static class PresetContractValidation
     }
 
     public static string? ValidateCapability(PresetCapability? capability) => PresetCapabilityValidation.Validate(capability);
+
+    public static bool TryDetach(PresetCapability? capability, out PresetCapability? detached, out string? error) =>
+        PresetCapabilityValidation.TryDetach(capability, out detached, out error);
 
     public static string? ValidateResolution(PresetResolution? resolution, out byte[]? serialized)
     {

@@ -3,7 +3,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { api, ApiError } from "../../api/client";
 import type { EditResult, FieldValue, SaveDocument, Workspace } from "../../api/protocol";
-import { DocumentStore, type DocumentContextValue, type FieldCommitOutcome, type FieldDiagnosticReceipt } from "../../state/documentStore";
+import { DocumentStore, type DocumentContextValue, type DocumentMutationOptions, type FieldCommitOutcome, type FieldDiagnosticReceipt } from "../../state/documentStore";
 import { sameValue } from "../../lib/values";
 import { WorkspaceActivityContext } from "../../state/workspaceActivity";
 
@@ -42,24 +42,38 @@ function useDocumentResult(workspaceId: string, documentId: string, query: Docum
   /** Refetches the view after a structural change; the new view data creates a fresh value cache. */
   const { refetch } = query;
   const refresh = useCallback(async () => {
-    await enqueue(async () => { if (lifetime.active) await refetch(); });
+    await enqueue(async () => {
+      if (!lifetime.active) return;
+      const result = await refetch();
+      if (result.error) throw result.error;
+    });
   }, [refetch, enqueue, lifetime]);
 
   const handleResult = useCallback(
-    async (result: EditResult) => {
+    async (result: EditResult, options?: DocumentMutationOptions) => {
       if (!lifetime.active || !currentStore.current) return;
       if (result.stale) {
         // Nothing changed on the server; the ids we sent belong to a replaced view.
         lifetime.generation++;
-        await refetch();
-        if (lifetime.active) onToast("The document changed. Please try again with the current view.", true);
+        const refreshed = await refetch();
+        if (refreshed.error) {
+          result.refreshFailed = true;
+          if (lifetime.active && options?.failureFeedback !== "dialog") onToast("The current document could not be refreshed.", true);
+        } else if (lifetime.active && options?.failureFeedback !== "dialog") {
+          onToast("The document changed. Please try again with the current view.", true);
+          result.refreshCompleted = true;
+        } else {
+          result.refreshCompleted = true;
+        }
         return;
       }
       const diagnostics = currentStore.current.applyWithDiagnostics(result);
       if (result.structureChanged) { lifetime.generation++; await refetch(); }
       if (!lifetime.active) return;
-      if (result.message) onToast(result.message);
-      for (const w of result.warnings) onToast(w);
+      if (options?.failureFeedback !== "dialog") {
+        if (result.message) onToast(result.message);
+        for (const w of result.warnings) onToast(w);
+      }
       // Close/export controls need the acknowledged dirty flag before the background read finishes.
       queryClient.setQueryData<Workspace>(["workspace", workspaceId], previous => previous && ({ ...previous,
         documents: previous.documents.map(document => document.id === documentId ? { ...document, isDirty: result.state.isDirty } : document),
@@ -80,7 +94,8 @@ function useDocumentMutation(workspaceId: string, documentId: string, query: Doc
   const activity = useContext(WorkspaceActivityContext);
   const { lifetime, currentStore, enqueue } = session;
   const run = useCallback(
-    (call: () => Promise<EditResult>, onApplied?: (diagnostics: ReadonlyMap<string, FieldDiagnosticReceipt> | undefined) => void): Promise<EditResult> => {
+    (call: () => Promise<EditResult>, onApplied?: (diagnostics: ReadonlyMap<string, FieldDiagnosticReceipt> | undefined) => void,
+      options?: DocumentMutationOptions): Promise<EditResult> => {
       const generation = lifetime.generation;
       const rejected = (message: string): EditResult => ({ ok: false, errors: [{ valueId: "", message }], changes: [], warnings: [],
         structureChanged: false, state: currentStore.current?.state ?? query.data!.state });
@@ -97,11 +112,11 @@ function useDocumentMutation(workspaceId: string, documentId: string, query: Doc
           // Also retire snapshots that began while this write was in flight.
           await queryClient.cancelQueries({ queryKey: ["document", workspaceId, documentId] });
           if (!lifetime.active) return rejected("The document is no longer open.");
-          const diagnostics = await handleResult(result);
+          const diagnostics = await handleResult(result, options);
           // Pass this result's installations, never errors left over from another queued write.
           onApplied?.(diagnostics);
           const globalError = result.errors.find(error => error.valueId === "");
-          if (lifetime.active && !result.ok && !result.stale && globalError) onToast(globalError.message, true);
+          if (lifetime.active && options?.failureFeedback !== "dialog" && !result.ok && !result.stale && globalError) onToast(globalError.message, true);
           return result;
         } catch (error) {
           // A failed/ambiguous write must not release already queued intents against an uncertain state.
@@ -147,7 +162,7 @@ function useDocumentContext(workspaceId: string, documentId: string, query: Docu
       structureVersion,
       refresh,
       acceptResult: async result => { await handleResult(result); },
-      mutate: run,
+      mutate: (call, options) => run(call, undefined, options),
       commitWithDiagnostics: (valueId, value) => pendingCommit(valueId, value).outcome,
       commit: (valueId, value) => pendingCommit(valueId, value).accepted,
       runAction: async (actionId: string, parameters: Record<string, FieldValue>) =>

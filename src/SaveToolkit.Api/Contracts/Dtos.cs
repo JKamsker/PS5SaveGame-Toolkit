@@ -69,6 +69,8 @@ public sealed record DocumentDto(
 {
     public IReadOnlyList<GroupMemberInfo>? GroupMembers { get; init; }
     public PresetCapability? PresetCapability { get; init; }
+    public string PresetCapabilityStatus { get; init; } = "absent";
+    public string? PresetCapabilityReason { get; init; }
     public string? TitleId { get; init; }
 }
 

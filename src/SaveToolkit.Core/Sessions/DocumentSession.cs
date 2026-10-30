@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SaveToolkit.Core.Editing;
+using SaveToolkit.Core.Presets;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
@@ -8,6 +9,13 @@ using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Core.Sessions;
+
+public enum PresetCapabilityAdmission
+{
+    Absent,
+    Valid,
+    Malformed,
+}
 
 public sealed record IncomingEdit(string ValueId, JsonElement Value);
 
@@ -81,14 +89,33 @@ public sealed partial class DocumentSession : IDisposable
     public IPresetDocument? PresetDocument => Locked(() => Document as IPresetDocument);
     /// <summary>Host-authoritative preset capability with the pinned reference identity applied.</summary>
     public PresetCapability? PresetCapability => Locked(() => EffectivePresetCapability());
+    /// <summary>Whether this document has an admitted semantic preset capability.</summary>
+    public PresetCapabilityAdmission PresetCapabilityAdmission => Locked(() => ReadPresetCapability().Admission);
+    /// <summary>Bounded reason when semantic capability admission failed.</summary>
+    public string? PresetCapabilityError => Locked(() => ReadPresetCapability().Error);
     /// <summary>The immutable reference context pinned when this document opened.</summary>
     public IReferenceContext PinnedReferences => _references;
 
     private PresetCapability? EffectivePresetCapability()
     {
-        if (Document is not IPresetDocument adapter) return null;
-        if (adapter.PresetCapability is not { } capability) return null;
-        return capability with { ReferencePackIdentity = ((IReferenceContext)_references).ContentIdentity };
+        return ReadPresetCapability().Capability;
+    }
+
+    private (PresetCapability? Capability, PresetCapabilityAdmission Admission, string? Error) ReadPresetCapability()
+    {
+        if (Document is not IPresetDocument adapter)
+            return (null, PresetCapabilityAdmission.Absent, null);
+        try
+        {
+            var capability = adapter.PresetCapability;
+            if (!PresetContractValidation.TryDetach(capability, out var detached, out var error))
+                return (null, PresetCapabilityAdmission.Malformed, error ?? "The semantic preset capability is malformed.");
+            return (detached! with { ReferencePackIdentity = ((IReferenceContext)_references).ContentIdentity }, PresetCapabilityAdmission.Valid, null);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException and not OperationCanceledException)
+        {
+            return (null, PresetCapabilityAdmission.Malformed, "The semantic preset capability is malformed.");
+        }
     }
 
     private ISaveDocument Document { get; }

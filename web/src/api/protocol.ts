@@ -172,6 +172,8 @@ export interface SaveDocument {
   state: DocumentState;
   view: ViewNode;
   presetCapability?: PresetCapability;
+  presetCapabilityStatus?: "absent" | "valid" | "malformed";
+  presetCapabilityReason?: string;
   titleId?: string;
 }
 
@@ -187,6 +189,10 @@ export interface EditResult {
   structureChanged: boolean;
   /** The request used an old revision or retired view id; refetch the document and retry. */
   stale?: boolean;
+  /** The mutation was accepted but its authoritative refresh failed. */
+  refreshFailed?: boolean;
+  /** The shared mutation controller installed a fresh document snapshot. */
+  refreshCompleted?: boolean;
   state: DocumentState;
 }
 
