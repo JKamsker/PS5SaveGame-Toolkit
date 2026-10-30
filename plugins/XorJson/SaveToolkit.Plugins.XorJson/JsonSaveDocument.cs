@@ -8,7 +8,8 @@ using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Plugins.XorJson;
 
-internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument
+internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, IActionPlanningDocument,
+    IFieldMetadataDocument
 {
     private const int PageSize = 128;
     private readonly string _name;
@@ -36,6 +37,13 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
     }
 
     public override string Title => _name;
+    public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+    {
+        JsonFieldMetadataPublisher.Publish(_model, _references, CanEdit, WriteWarningForDocument,
+            valueIds, (metadata, get, set, validate) => RegisterField(metadata, get, set, validate));
+        return base.ResolveFieldMetadata(valueIds);
+    }
+
     public override AssetContent? GetAsset(string assetId) => _references.GetAsset(assetId);
     public override bool CanEdit => _character is null || _character.CanWrite;
     internal bool IsCharacter => _character is not null;
@@ -228,24 +236,14 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
             return _character is not null && node.Parent?.Label == "Entries" && node.Parent.Parent?.Label == "Inventory"
                 ? section with { Description = InventoryDescription(node) } : section;
         }
-        var spec = node.Spec!;
-        ReferenceRecord? record = null;
-        var catalogId = CharacterViews.CatalogFor(node);
-        if (catalogId is not null && _references.Catalog(catalogId) is not null && node.Scalar.Kind == FieldValueKind.Text)
+        var binding = JsonScalarBindingPolicy.Create(node, _references, CanEdit, WriteWarningForDocument);
+        var field = Field(node.ValueId, binding.Label, binding.Spec, () => _model.Find(node.Index).Current,
+            CanEdit && !binding.Spec.ReadOnly ? value => _model.Find(node.Index).Current = value : null,
+            binding.Validate) with
         {
-            // A tagged union must retain its explicit type selector and tagged value contract.
-            if (node.Current.Kind == FieldValueKind.Text)
-                spec = new ReferenceSpec(catalogId) { AllowCustom = false, ReadOnly = !CanEdit };
-            record = _references.Catalog(catalogId)?.Find(node.Scalar.AsString());
-        }
-        var field = Field(node.ValueId, node.Label, spec, () => _model.Find(node.Index).Current,
-            CanEdit && !spec.ReadOnly ? value => _model.Find(node.Index).Current = value : null,
-            value => JsonActions.Validate(node, value, _references)) with
-        {
-            Confidence = record is null ? Confidence.Unknown : Confidence.Inferred,
-            Warning = node.Warning ?? (_character is not null ? CharacterWriteWarning : WriteWarning),
-            Description = $"{node.TypedPath}; original UTF-8 token at 0x{node.Offset:X}." +
-                (record is null ? "" : $" {record.Name} ({record.Category}). {record.Description} {record.AttributionText}. PC catalog; PS5 semantics unverified."),
+            Confidence = binding.Presentation.Confidence,
+            Warning = binding.Presentation.Warning,
+            Description = binding.Presentation.Description,
         };
         // Character collection cells remain direct fields so F8 tables can edit them without
         // expanding a per-cell wrapper. Raw container expansion still exposes F5 actions.
@@ -277,7 +275,9 @@ internal sealed class JsonSaveDocument : BoundSaveDocument, IQueryableDocument, 
         return SectionNode.Lazy(label, id, count.ToString(CultureInfo.InvariantCulture));
     }
 
-    private static string CharacterWriteWarning => "Experimental character write. Not validated on console. " +
+    private string WriteWarningForDocument => _character is not null ? CharacterWriteWarning : WriteWarning;
+
+    private const string CharacterWriteWarning = "Experimental character write. Not validated on console. " +
         "The FCharacterSaveV1 storage layout is observed; gameplay meanings and dependencies remain unverified. " +
         "The game may reject, repair or clamp the save. No checksum or dependency behavior is known.";
 

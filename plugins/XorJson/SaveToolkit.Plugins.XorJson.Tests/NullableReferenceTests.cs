@@ -17,11 +17,19 @@ public sealed class NullableReferenceTests
     public void CatalogStringRetainsTheExplicitUnionSpec(bool xor)
     {
         using var document = Open(xor);
+        var resolver = Assert.IsAssignableFrom<IFieldMetadataDocument>(document);
+        var cold = Assert.Single(resolver.ResolveFieldMetadata(["value/2"]));
+        Assert.IsType<UnionSpec>(Assert.IsType<NullableSpec>(cold.Spec).Inner);
+        Assert.Equal(FieldValue.Null, document.GetValue(cold.ValueId));
         var field = XorJsonTests.Fields(document).Single(field => field.Label == "TypeTag");
         var value = FieldValue.Union("string", FieldValue.Of("SW.Item.Sword"));
         Assert.True(document.ApplyEdits([new(field.ValueId, value)]).Succeeded);
 
         var current = XorJsonTests.Fields(document).Single(candidate => candidate.ValueId == field.ValueId);
+        var metadata = Assert.Single(resolver.ResolveFieldMetadata([field.ValueId]));
+        Assert.True(FieldSpecMetadata.Agree(current.Spec, metadata.Spec));
+        Assert.Equal(current.Confidence, metadata.Presentation?.Confidence);
+        Assert.Equal(current.Warning, metadata.Presentation?.Warning);
         Assert.IsType<UnionSpec>(Assert.IsType<NullableSpec>(current.Spec).Inner);
         Assert.True(FieldValueCoercer.Normalize(current.Value, current.Spec).Ok);
         Assert.Equal(Confidence.Inferred, current.Confidence);
