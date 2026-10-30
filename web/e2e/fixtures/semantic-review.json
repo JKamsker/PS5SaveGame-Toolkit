@@ -41,6 +41,7 @@
           "label": "Raw balance",
           "path": ["section:character", "section:raw"],
           "bindingKind": "Derived",
+          "changed": true,
           "member": {
             "role": "character",
             "relativePath": "PPSA00000/sdimg_E2E/character.dat",

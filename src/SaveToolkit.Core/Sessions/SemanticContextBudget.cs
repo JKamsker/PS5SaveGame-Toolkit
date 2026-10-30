@@ -1,11 +1,12 @@
 using System.Text;
+using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Core.Sessions;
 
 internal static class SemanticContextBudget
 {
     internal const int MaxStringLength = 4096;
-    internal const int MaxBatchCount = 200;
+    internal const int MaxBatchCount = FieldMetadataLimits.MaxBatchSize;
     internal const long MaxResponseBytes = 256 * 1024;
 
     public static bool TryEstimate(SemanticMemberContext context, out long bytes)

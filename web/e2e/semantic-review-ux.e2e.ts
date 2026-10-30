@@ -73,6 +73,7 @@ test("metadata-backed review renders canonical aliases, member context and safe 
   await primary.getByText(/Also shown as 1 projection/).click();
   await expect(primary).toContainText("character/raw/balance");
   await expect(primary).toContainText("Derived");
+  await expect(primary).toContainText("Changed projection");
 
   const search = review.getByRole("searchbox", { name: "Find a changed field" });
   await search.fill("character/raw/balance");
