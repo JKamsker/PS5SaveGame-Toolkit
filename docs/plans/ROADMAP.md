@@ -1,5 +1,9 @@
 # PS5 Save Toolkit: cross-plugin requirements roadmap
 
+For the current disposition of the remaining 17-title work in issue #81 section B, see
+[the title-gap triage](TITLE_GAP_TRIAGE.md): bounded READY tasks, exact #31 capture requests,
+unresolved integrity evidence and work not justified by the current implementation.
+
 ## Current status — 2026-10-29 (#40)
 
 This status supersedes the historical proposals below. F1–F14 are implemented on local `main`;
