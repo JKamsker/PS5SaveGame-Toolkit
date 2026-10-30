@@ -26,10 +26,7 @@ public static class ExactJsonNumber
     public static string? Validate(string text, ExactNumberSpec? spec = null)
     {
         spec ??= new ExactNumberSpec();
-        if (spec.MaxLength is < 1 or > HardMaxLength || spec.MaxAbsoluteExponent is < 0 or > HardMaxAbsoluteExponent)
-        {
-            return "Invalid exact-number resource limits.";
-        }
+        if (ValidateSpec(spec) is { } specError) return specError;
 
         var error = ValidateLexeme(text, spec.MaxLength, spec.MaxAbsoluteExponent);
         if (error is not null) return error;
@@ -43,6 +40,21 @@ public static class ExactJsonNumber
             return "Invalid exact-number range.";
         if (spec.Min is { } lower && Compare(text, lower) < 0) return $"Must be at least {lower}.";
         if (spec.Max is { } upper && Compare(text, upper) > 0) return $"Must be at most {upper}.";
+        return null;
+    }
+
+    /// <summary>Validates a descriptor's limits and exact range bounds without validating a value.</summary>
+    public static string? ValidateSpec(ExactNumberSpec spec)
+    {
+        ArgumentNullException.ThrowIfNull(spec);
+        if (spec.MaxLength is < 1 or > HardMaxLength || spec.MaxAbsoluteExponent is < 0 or > HardMaxAbsoluteExponent)
+            return "Invalid exact-number resource limits.";
+        // Imports validate each numeric leaf; avoid a temporary bounds array per value.
+        if ((spec.Min is { } minimum && ValidateLexeme(minimum, HardMaxLength, HardMaxAbsoluteExponent) is not null)
+            || (spec.Max is { } maximum && ValidateLexeme(maximum, HardMaxLength, HardMaxAbsoluteExponent) is not null))
+            return "Invalid exact-number range bound.";
+        if (spec.Min is { } min && spec.Max is { } max && Compare(min, max) > 0)
+            return "Invalid exact-number range.";
         return null;
     }
 

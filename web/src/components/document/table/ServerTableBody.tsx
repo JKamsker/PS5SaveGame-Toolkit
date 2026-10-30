@@ -2,6 +2,7 @@ import type { QueryableTableNode } from "../../../api/protocol";
 import { columnTrack } from "./presentation";
 import { ServerRow, ServerTableHeader } from "./ServerTableRows";
 import type { ServerTableModel } from "./ServerTableView";
+import { ROW_HEIGHT, scrollTableByKey } from "./keyboardScroll";
 
 interface ServerTablePartProps { node: QueryableTableNode; table: ServerTableModel }
 
@@ -31,7 +32,9 @@ export function ServerTableBody({ node, table }: ServerTablePartProps) {
   const { retired, result, page, detailCount, hasDetails, columns, rows, confidence, visibleSelected,
     selection, indexedRows, expanded, expandRow, toggleDetails } = table;
   return (
-    <div className="table__scroller" inert={retired}>
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex -- The named scroll region uses the eager table's keyboard policy; retired rows remain inert.
+    <div className="table__scroller" inert={retired} tabIndex={0} role="region" aria-label={`${node.title ?? "Table"} rows`}
+      onKeyDown={event => scrollTableByKey(event, event.currentTarget.scrollHeight, ROW_HEIGHT)}>
       <div className="table__grid" role="table" aria-label={node.title} aria-busy={result.isFetching} aria-rowcount={(page?.filteredCount ?? node.totalCount) + detailCount + 1} style={{ gridTemplateColumns: `36px ${hasDetails ? "36px " : ""}${columns.map(column => columnTrack(column)).join(" ")}` }}>
         <ServerTableHeader columns={columns} rows={rows} confidence={confidence} hasDetails={hasDetails} selected={visibleSelected} selection={selection} />
         {indexedRows.map(({ row, rowIndex }) => <ServerRow key={row.key} row={row} emptyRows={node.emptyRows} columns={columns} showDetailsColumn={hasDetails}

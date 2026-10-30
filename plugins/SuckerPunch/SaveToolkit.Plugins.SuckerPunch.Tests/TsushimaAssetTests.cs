@@ -184,7 +184,7 @@ public sealed class TsushimaAssetTests
             new QueryableCollectionQuery { Text = "SwordKatanaSakaiStorm", Limit = 1 });
         Assert.IsType<ImageNode>(Assert.Single(equipment.Rows).Cells["icon"]);
         Assert.Equal(4, context.Datasets().Count(dataset => dataset.Used && dataset.Dataset.Kind == ReferenceDatasetKind.Assets));
-        Assert.Equal(Slot("suckerpunchUser1").ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(Slot("suckerpunchUser1").ReadAllBytes(), SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Fact]

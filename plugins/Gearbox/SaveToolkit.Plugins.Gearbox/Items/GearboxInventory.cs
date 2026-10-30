@@ -1,4 +1,5 @@
 using SaveToolkit.Sdk;
+using System.Globalization;
 
 namespace SaveToolkit.Plugins.Gearbox;
 
@@ -8,37 +9,129 @@ internal sealed class GearboxInventory
     public const string Backpack = "inventory_items";
     public const string Bank = "bank_inventory_list";
     public const string LostLoot = "lost_loot_inventory_list";
+    internal const int DirectLookupWorkLimit = 4096;
     private readonly GearboxDocument _document;
     private readonly Dictionary<string, List<string>> _ids;
+    private readonly Dictionary<string, (string List, int Index)> _locations = new(StringComparer.Ordinal);
+    private bool _identitiesInitialized;
     private int _nextId;
     private ProtoMessage? _indexedRoot;
+    private ProtoMessage? _directRoot;
     private InventoryEntry[] _entries = [];
     private Dictionary<string, InventoryEntry> _byId = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, InventoryEntry> _directEntries = new(StringComparer.Ordinal);
     private readonly Dictionary<string, (byte[] Bytes, SerialInfo Info)> _serials = new(StringComparer.Ordinal);
+
+    internal long DirectFieldsVisited { get; private set; }
+    internal int LastDirectFieldsVisited { get; private set; }
+    internal int LastDirectRecordsVisited { get; private set; }
+    internal bool LastDirectLookupExceeded { get; private set; }
 
     public GearboxInventory(GearboxDocument document)
     {
         _document = document;
-        _ids = (document.Profile ? new[] { Bank, LostLoot } : [Backpack]).ToDictionary(list => list,
-            list => document.Root.All(list).Select(_ => "item-" + _nextId++).ToList(), StringComparer.Ordinal);
+        _ids = (document.Profile ? new[] { Bank, LostLoot } : [Backpack])
+            .ToDictionary(list => list, _ => new List<string>(), StringComparer.Ordinal);
     }
 
     public IEnumerable<InventoryEntry> Entries { get { Index(); return _entries; } }
     public InventoryEntry Find(string id)
     {
-        Index();
-        return _byId.GetValueOrDefault(id) ?? throw new SaveFormatException("The item identity is no longer present.");
+        if (ReferenceEquals(_indexedRoot, _document.Root) && _byId.TryGetValue(id, out var indexed)) return indexed;
+        if (TryFindDirect(id, out var entry)) return entry;
+        throw new SaveFormatException("The item identity is no longer present.");
+    }
+
+    private bool TryFindDirect(string id, out InventoryEntry entry)
+    {
+        entry = null!;
+        LastDirectFieldsVisited = 0;
+        LastDirectRecordsVisited = 0;
+        LastDirectLookupExceeded = false;
+        if (!ReferenceEquals(_directRoot, _document.Root))
+        {
+            _directRoot = _document.Root;
+            _directEntries.Clear();
+            _serials.Clear();
+        }
+        if (_directEntries.TryGetValue(id, out var cached)) { entry = cached; return true; }
+        // A scalar can remove another root tag between setters. The model maintains each tag's
+        // own ordinals during that mutation, so a category cannot shift an inventory identity.
+        if (_locations.TryGetValue(id, out var location))
+        {
+            var field = _document.Root.FieldAt(location.List, location.Index);
+            if (field is null) return false;
+            LastDirectFieldsVisited++;
+            DirectFieldsVisited++;
+            if (field.Spec?.Name != location.List) return false;
+            LastDirectRecordsVisited++;
+            entry = new InventoryEntry(id, location.List, location.Index, field);
+            _directEntries[id] = entry;
+            return true;
+        }
+        if (!TryCanonicalItemId(id, out var number))
+            return false;
+        // Cold targeted lookup uses the stable numeric identity directly. Full identity lists are
+        // materialized only by view/structural paths; this keeps one unloaded request bounded.
+        if (!_identitiesInitialized && !_document.Profile && number < DirectLookupWorkLimit)
+            return TryEntry(Backpack, number, out entry, id);
+        if (!_identitiesInitialized && _document.Profile && number < DirectLookupWorkLimit)
+        {
+            var bankCount = CountBounded(Bank);
+            if (bankCount < 0) return false;
+            if (number < bankCount) return TryEntry(Bank, number, out entry, id);
+            return TryEntry(LostLoot, number - bankCount, out entry, id);
+        }
+        return false;
+    }
+
+    private bool TryEntry(string list, int index, out InventoryEntry entry, string? identity = null)
+    {
+        entry = null!;
+        var seen = 0;
+        ProtoField? field = null;
+        foreach (var candidate in _document.Root.Fields)
+        {
+            _document.Root.CountTargetedVisit();
+            DirectFieldsVisited++;
+            if (++LastDirectFieldsVisited > DirectLookupWorkLimit)
+            {
+                LastDirectLookupExceeded = true;
+                return false;
+            }
+            if (candidate.Spec?.Name != list) continue;
+            if (++LastDirectRecordsVisited > DirectLookupWorkLimit)
+            {
+                LastDirectLookupExceeded = true;
+                return false;
+            }
+            if (seen++ == index) { field = candidate; break; }
+        }
+        if (field is null) return false;
+        entry = new InventoryEntry(identity ?? _ids[list][index], list, index, field);
+        _directEntries[entry.Id] = entry;
+        _directRoot = _document.Root;
+        return true;
     }
 
     private void Index()
     {
+        EnsureIdentities();
         if (ReferenceEquals(_indexedRoot, _document.Root)) return;
         _entries = _ids.SelectMany(pair => _document.Root.All(pair.Key)
             .Select((record, index) => new InventoryEntry(pair.Value[index], pair.Key, index, record))).ToArray();
         _byId = _entries.ToDictionary(entry => entry.Id, StringComparer.Ordinal);
+        _directEntries.Clear();
+        foreach (var entry in _entries) _directEntries[entry.Id] = entry;
         _indexedRoot = _document.Root;
+        _directRoot = _document.Root;
     }
-    public InventoryIdentity Capture() => new(_ids.ToDictionary(p => p.Key, p => p.Value.ToArray(), StringComparer.Ordinal), _nextId);
+    public InventoryIdentity Capture()
+    {
+        return new(_identitiesInitialized
+            ? _ids.ToDictionary(p => p.Key, p => p.Value.ToArray(), StringComparer.Ordinal)
+            : _ids.ToDictionary(p => p.Key, _ => Array.Empty<string>(), StringComparer.Ordinal), _nextId, _identitiesInitialized);
+    }
     public SerialInfo Info(string id)
     {
         var serial = Find(id).Serial;
@@ -49,14 +142,31 @@ internal sealed class GearboxInventory
     }
     public void Restore(InventoryIdentity identity)
     {
+        if (!identity.Initialized)
+        {
+            foreach (var list in _ids.Keys.ToArray()) _ids[list].Clear();
+            _nextId = identity.NextId;
+            _identitiesInitialized = false;
+            _locations.Clear();
+            _indexedRoot = null;
+            _directRoot = null;
+            _directEntries.Clear();
+            _serials.Clear();
+            return;
+        }
+        EnsureIdentities();
         if (!_ids.Keys.Order().SequenceEqual(identity.Lists.Keys.Order()) ||
             identity.Lists.Any(p => p.Value.Length != _document.Root.All(p.Key).Count()) ||
             identity.Lists.SelectMany(p => p.Value).Distinct().Count() != identity.Lists.Sum(p => p.Value.Length))
             throw new InvalidOperationException("Invalid Gearbox inventory identity snapshot.");
         foreach (var (list, ids) in identity.Lists) _ids[list] = ids.ToList();
         _nextId = identity.NextId;
+        _identitiesInitialized = true;
         _indexedRoot = null;
+        _directRoot = null;
+        _directEntries.Clear();
         _serials.Clear();
+        RebuildLocations();
     }
 
     public void SetSerial(string id, byte[] serial)
@@ -66,8 +176,17 @@ internal sealed class GearboxInventory
         else field.Set(serial);
     }
 
+    internal void Invalidate()
+    {
+        _indexedRoot = null;
+        _directRoot = null;
+        _directEntries.Clear();
+        _serials.Clear();
+    }
+
     public void Remove(string id)
     {
+        EnsureIdentities();
         var entry = Find(id);
         if (entry.List == Backpack)
         {
@@ -80,12 +199,16 @@ internal sealed class GearboxInventory
         }
         _document.Root.Remove(entry.Field);
         _ids[entry.List].RemoveAt(entry.Index);
+        RebuildLocations();
         _serials.Remove(id);
         _indexedRoot = null;
+        _directRoot = null;
+        _directEntries.Clear();
     }
 
     public string Append(string list, ProtoField source, string? movedId = null)
     {
+        EnsureIdentities();
         EnsureCapacity(list, 1);
         ValidateDestination(list, source);
         if (movedId is not null && _ids.Values.SelectMany(ids => ids).Contains(movedId))
@@ -114,8 +237,56 @@ internal sealed class GearboxInventory
         root.Add(new ProtoField(root.Schema.Tag(root.Type, list), 2, spec, [], serial, message));
         var id = movedId ?? "item-" + _nextId++;
         _ids[list].Add(id);
+        RebuildLocations();
         _indexedRoot = null;
+        _directRoot = null;
+        _directEntries.Clear();
         return id;
+    }
+
+    private void RebuildLocations()
+    {
+        _locations.Clear();
+        foreach (var (list, ids) in _ids)
+            for (var index = 0; index < ids.Count; index++) _locations[ids[index]] = (list, index);
+    }
+
+    private int CountBounded(string list)
+    {
+        var count = 0;
+        foreach (var field in _document.Root.Fields)
+        {
+            _document.Root.CountTargetedVisit();
+            DirectFieldsVisited++;
+            if (++LastDirectFieldsVisited > DirectLookupWorkLimit)
+            {
+                LastDirectLookupExceeded = true;
+                return -1;
+            }
+            if (field.Spec?.Name != list) continue;
+            if (++LastDirectRecordsVisited > DirectLookupWorkLimit)
+            {
+                LastDirectLookupExceeded = true;
+                return -1;
+            }
+            if (count++ >= DirectLookupWorkLimit)
+            {
+                LastDirectLookupExceeded = true;
+                return -1;
+            }
+        }
+        return count;
+    }
+
+    private static bool TryCanonicalItemId(string id, out int number)
+    {
+        number = -1;
+        const string prefix = "item-";
+        if (!id.StartsWith(prefix, StringComparison.Ordinal)) return false;
+        var token = id[prefix.Length..];
+        if (token.Length == 0 || token.Length > 10 || token[0] == '0' && token.Length > 1) return false;
+        if (!int.TryParse(token, NumberStyles.None, CultureInfo.InvariantCulture, out number) || number < 0) return false;
+        return string.Equals(id, prefix + number.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal);
     }
 
     public void ValidateDestination(string list, ProtoField source)
@@ -133,6 +304,7 @@ internal sealed class GearboxInventory
 
     public void EnsureCapacity(string list, int additional)
     {
+        EnsureIdentities();
         if (list == Backpack && additional > 0 && _document.Root.Children(Backpack)
             .Select(m => m.Integer("pickup_order_index")).DefaultIfEmpty(0).Max() > int.MaxValue - additional)
             throw new SaveFormatException("Destination pickup order would overflow.");
@@ -154,9 +326,19 @@ internal sealed class GearboxInventory
         if (tier < 0 || max is null || tier > max || count + additional > capacity)
             throw new SaveFormatException($"Destination capacity policy ({capacity}) would be exceeded; no items were discarded.");
     }
+
+    private void EnsureIdentities()
+    {
+        if (_identitiesInitialized) return;
+        foreach (var list in _ids.Keys.ToArray())
+            _ids[list] = Enumerable.Range(0, _document.Root.All(list).Count())
+                .Select(_ => "item-" + _nextId++).ToList();
+        _identitiesInitialized = true;
+        RebuildLocations();
+    }
 }
 
-internal sealed record InventoryIdentity(Dictionary<string, string[]> Lists, int NextId);
+internal sealed record InventoryIdentity(Dictionary<string, string[]> Lists, int NextId, bool Initialized);
 internal sealed record InventoryEntry(string Id, string List, int Index, ProtoField Field)
 {
     public byte[] Serial => SerialOf(Field);

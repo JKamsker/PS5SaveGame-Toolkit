@@ -33,3 +33,13 @@ it("retains both preview page positions while parameters are shown and planned a
   expect(await screen.findByText("Change 100")).toBeTruthy();
   expect(document.querySelector('nav[aria-label="Skipped rows pages"]')?.textContent).toContain("Page 2 of 2");
 });
+
+it("announces the rendered preview counts while preserving its diagnostic alerts", async () => {
+  vi.spyOn(actionReview, "plan").mockResolvedValue({ ...preview,
+    plan: { ...preview.plan, errors: [{ valueId: "value/0", message: "Inspect this consequence" }] } });
+  renderDocument(<ActionButton node={{ type: "action", actionId: "run", label: "Run", supportsPlanning: true }} />);
+  fireEvent.click(screen.getByRole("button", { name: "Run" }));
+  expect(await screen.findByRole("alert")).toHaveProperty("textContent", "value/0: Inspect this consequence");
+  expect(screen.getByRole("status")).toHaveProperty("textContent", "101 field changes · 101 skipped rows · one undo step");
+  expect(screen.getByText("Change 0")).toBeTruthy();
+});

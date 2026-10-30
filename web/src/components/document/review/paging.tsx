@@ -7,7 +7,7 @@ export function useReviewPage<T>(items: readonly T[]) {
   const [requestedPage, setPage] = useState(0);
   const pages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
   const page = Math.min(requestedPage, pages - 1);
-  return { items: items.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE), page, pages, setPage };
+  return { items: items.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE), total: items.length, page, pages, setPage };
 }
 
 export function ReviewPager({ page, pages, setPage, label }: { page: number; pages: number; setPage: (page: number) => void; label: string }) {

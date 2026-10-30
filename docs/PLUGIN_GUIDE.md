@@ -1777,3 +1777,35 @@ and adjacent SDK-request notes describe their retained plugin policies.
 | SDK-04 | [XorJson](../plugins/XorJson/README.md#framework-feature-adoption) | Used | Shared member adapter/router with existing eager-row/navigation policies. |
 | SDK-05 | [BaldursGate3](../plugins/BaldursGate3/README.md#framework-feature-adoption) | Used | `ReferenceViews.Icon` with `RequireProvenance`. |
 | SDK-05 | [TalesOfArise](../plugins/TalesOfArise/README.md#framework-feature-adoption) | Used | `ReferenceViews.Icon` with `AssetIdOnly`, exact alt text and em-dash fallback. |
+
+## Action-owned effect metadata
+
+Actions that report absent/new records or action payloads may opt into `IActionEffectDocument` in
+addition to `IActionPlanningDocument` and `IFieldMetadataDocument`. Add `PlannedChange.Effect` with
+a read-only `FieldSpec` and an explicit `ActionEffectKind` (`Observation` or `StructuralMemento`).
+The enclosing row owns identity, label, typed old/new values, and existence flags: use
+`FieldValue.Null` only when the matching `OldExists`/`NewExists` is false. Core resolves exact
+canonical metadata first, so effects cannot shadow genuine fields or invent aliases. Reference
+effects are display-only (`Assess = null`).
+
+The capability must implement `CaptureMemento` as a pure, complete, size-accounted snapshot accepted
+by `RestoreMemento`. Every effect-bearing action uses one whole-action memento for apply, undo, and
+redo, including observation-only plans. Do not register action payload IDs as parsed fields or add
+effect-specific setters. `Path` is a bounded document-relative navigation path and `Source` is
+provenance text, never an output ownership or fetch key. The host retains a detached bounded snapshot;
+mutating plugin-owned spec/path lists after planning cannot alter a reviewed plan.
+
+Planning shares one inclusive 4 MiB UTF-8 allowance across the request, complete ordered plan and
+every canonical dependency resolved for its rows. The whole canonical closure is admitted before
+live getters, metadata comparison or detached graph copies. Selection limits do not truncate effects:
+plans retain up to 65,536 ordered entries, with independent per-spec limits of 4,096 nodes and depth 128.
+Provider collections must report their actual finite cardinality; inconsistent counts are rejected.
+`ActionPlanSnapshots` also carries a finite aggregate wire allowance through nested collection visits
+before copying, followed by capped exact JSON measurement. Its overloads accept the caller's remaining
+byte allowance; the default is 4 MiB. Effect values must already be exact for their selected leaf spec:
+normalization that would round a `Single` value or rewrite timestamp text rejects the preview.
+The host freezes complete outcome changes and diagnostics before recording history or publishing a
+group candidate, and checks a member's structural token before replacing it with a group snapshot.
+Optional float bounds may be absent independently, but supplied bounds must be finite and ordered.
+The preview's exact union copy is tagged JSON so opaque option IDs and nested typed values cannot
+collide with delimiter-containing text; scalar text copying remains complete and untruncated.

@@ -39,6 +39,6 @@ public sealed class SamplePerformanceTests
         allocated = AllocationProbe.Measure(() => queryable.Query(collection.Id, query with { Offset = 200 }), out var page);
         Assert.Equal(10, page.Rows.Count);
         allocated.AssertLessThan(MaximumTenRowPageAllocation, $"Ten-row page allocated {allocated.MinimumBytes:N0} bytes.");
-        Assert.Equal(file.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(file.ReadAllBytes(), SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 }

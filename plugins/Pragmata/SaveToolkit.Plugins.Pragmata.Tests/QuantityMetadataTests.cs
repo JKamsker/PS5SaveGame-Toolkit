@@ -45,9 +45,11 @@ public sealed class QuantityMetadataTests
         var metadata = resolver.ResolveFieldMetadata(ids);
         Assert.Equal(ids, metadata.Select(field => field.ValueId));
         Assert.Equal(FieldBindingKind.Primary, metadata[0].BindingKind);
+        Assert.Equal(quantity.Path, metadata[0].CanonicalValueId);
         Assert.All(metadata.Skip(1), field =>
         {
             Assert.Equal(FieldBindingKind.Derived, field.BindingKind);
+            Assert.Equal(quantity.Path, field.CanonicalValueId);
             Assert.Equal(metadata[0].Spec with { ReadOnly = true }, field.Spec);
             Assert.Equal(document.Read(quantity), document.GetValue(field.ValueId));
             Assert.False(document.ApplyEdits([new(field.ValueId, FieldValue.Of(17))]).Succeeded);

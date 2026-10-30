@@ -1,13 +1,23 @@
-import { reviewValue } from "../../../api/actionReview";
+import { reviewEffectExactValue, reviewEffectValue, reviewValue } from "../../../api/actionReview";
 import type { usePlannedAction } from "./usePlannedAction";
 import { ReviewPager } from "./paging";
 
 export function ActionPreviewChanges({ action }: { action: ReturnType<typeof usePlannedAction> }) {
-  const { preview, changesPage, skippedPage } = action;
+  const { preview, changesPage, effectsPage, skippedPage } = action;
   if (!preview) return null;
+  const effectCount = effectsPage.total;
   return <>
     {preview.plan.errors.map((error, index) => <p role="alert" tabIndex={-1} key={index}>{error.valueId}: {error.message}</p>)}
     {preview.plan.warnings.map((warning, index) => <p className="notice notice--Warning" key={index}>{warning}</p>)}
+    {effectCount > 0 && <>
+      <p className="notice notice--Info">{effectCount} action effects · {preview.plan.changes.length} total ordered rows · one whole-action undo</p>
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Keyboard users must be able to inspect all effect rows. */}
+      <div className="review-scroll" role="region" aria-label="Action effects" tabIndex={0}><table className="review-table" aria-label="Action effects">
+        <thead><tr><th>Effect</th><th>Before</th><th>After</th><th>Evidence</th></tr></thead>
+        <tbody>{effectsPage.items.map((change, index) => <EffectRow key={`${change.valueId}-${index}`} change={change} />)}</tbody>
+      </table></div>
+      <ReviewPager {...effectsPage} label="Action effects pages" />
+    </>}
     {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Keyboard users must be able to scroll the preview table. */}
     <div className="review-scroll" role="region" aria-label="Preview changes" tabIndex={0}><table className="review-table" aria-label="Preview changes">
       <thead><tr><th>Field</th><th>Before</th><th>After</th></tr></thead>
@@ -22,4 +32,28 @@ export function ActionPreviewChanges({ action }: { action: ReturnType<typeof use
       <ReviewPager {...skippedPage} label="Skipped rows pages" />
     </details>}
   </>;
+}
+
+function EffectRow({ change }: { change: ReturnType<typeof usePlannedAction>["effectsPage"]["items"][number] }) {
+  const effect = change.effect!;
+  const presentation = effect.presentation;
+  const evidence = [effect.kind, presentation?.confidence ?? "Unspecified", effect.source,
+    effect.path?.join(" / ")].filter(Boolean).join(" · ");
+  return <tr>
+    <th scope="row">{change.label}<small>{effect.kind} · {change.valueId}</small>
+      {presentation?.warning && <small className="notice--Warning">{presentation.warning}</small>}
+      {presentation?.description && <small>{presentation.description}</small>}
+    </th>
+    <td><Payload value={change.oldValue} exists={change.oldExists} spec={effect.spec} /></td>
+    <td><Payload value={change.newValue} exists={change.newExists} spec={effect.spec} /></td>
+    <td>{evidence}</td>
+  </tr>;
+}
+
+function Payload({ value, exists, spec }: { value: Parameters<typeof reviewValue>[0]; exists: boolean; spec: Parameters<typeof reviewEffectValue>[2] }) {
+  const text = reviewEffectValue(value, exists, spec);
+  const exact = reviewEffectExactValue(value, exists, spec);
+  return <details><summary>{text.length > 120 ? `${text.slice(0, 117)}…` : text}</summary>
+    <pre>{exact}</pre><button type="button" className="btn btn--small" onClick={() => void navigator.clipboard?.writeText(exact)}>Copy exact</button>
+  </details>;
 }

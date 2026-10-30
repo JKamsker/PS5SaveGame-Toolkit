@@ -9,6 +9,18 @@ namespace SaveToolkit.Plugins.Gearbox;
 /// <summary>Read each stored mirror independently; no reconciliation direction or computed rank.</summary>
 internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyViews lazy)
 {
+    internal static readonly string[] HeroScalars = ["strength", "dexterity", "intelligence", "wisdom", "constitution", "luck"];
+    internal static readonly (string Name, string Label)[] MythScalars =
+        [("prestige_experience", "Stored Myth XP"), ("last_upgrade_tree_index", "Last upgrade tree index (raw)")];
+    internal static readonly (string Name, string Label)[] GuardianScalars =
+        [("guardian_rank", "Stored rank"), ("guardian_experience", "Legacy XP"),
+        ("new_guardian_experience", "New XP"), ("available_tokens", "Available tokens"),
+        ("guardian_available_tokens", "Available tokens"), ("is_rank_system_enabled", "Rank system enabled (raw)"),
+        ("guardian_reward_random_seed", "Reward random seed (raw)")];
+    internal static bool SupportsScalar(bool wonderlands, string role, string name) => wonderlands
+        ? role == "hero" ? HeroScalars.Contains(name) : MythScalars.Any(field => field.Name == name)
+        : GuardianScalars.Any(field => field.Name == name);
+
     private static readonly string[] RewardScalars = ["num_tokens", "is_enabled"];
     public IReadOnlyList<ViewNode> Build()
     {
@@ -33,9 +45,7 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         var current = get();
         if (current is null) { nodes.Add(new TextNode(title + ": record absent (preserved).")); return; }
         var fields = new List<ViewNode>();
-        foreach (var (name, label) in new[] { ("guardian_rank", "Stored rank"), ("guardian_experience", "Legacy XP"),
-            ("new_guardian_experience", "New XP"), ("available_tokens", "Available tokens"), ("guardian_available_tokens", "Available tokens"),
-            ("is_rank_system_enabled", "Rank system enabled (raw)"), ("guardian_reward_random_seed", "Reward random seed (raw)") })
+        foreach (var (name, label) in GuardianScalars)
         {
             if (!Has(current, name)) continue;
             fields.Add(AccountNumber(id + "/" + name, label, () => get()!, name,
@@ -71,13 +81,14 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         if (!document.Profile && document.Root.Child("hero_points_save_data") is { } hero)
         {
             var fields = new List<ViewNode>();
-            foreach (var name in new[] { "strength", "dexterity", "intelligence", "wisdom", "constitution", "luck" })
+            foreach (var name in HeroScalars)
             {
                 if (!Has(hero, name)) continue;
                 var record = document.World.Find("hero:" + name);
                 fields.Add(AccountNumber("account/hero/" + name, record?.Name ?? name,
-                    () => document.Root.Child("hero_points_save_data")!, name, Math.Max(hero.Integer(name), 30)) with
-                { Description = record?.AttributionText + " " + SerialWrites.Warning, Warning = "Stored raw stat; backstory, budget and Myth bonuses are not recomputed. " + SerialWrites.Warning });
+                    () => document.Root.Child("hero_points_save_data")!, name, Math.Max(hero.Integer(name), 30),
+                    description: record?.AttributionText + " " + SerialWrites.Warning,
+                    warning: "Stored raw stat; backstory, budget and Myth bonuses are not recomputed. " + SerialWrites.Warning));
             }
             if (Has(hero, "player_aspect_data_path")) fields.Add(document.World.Label("account/hero/backstory", "Backstory", hero.Text("player_aspect_data_path")));
             nodes.Add(new SectionNode("Character Hero stats", fields));
@@ -88,7 +99,7 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         var id = document.Profile ? "account/myth" : "account/myth-mirror";
         if (current is null) { nodes.Add(new TextNode("Myth record absent (preserved); no rank or point budget inferred.")); return; }
         var values = new List<ViewNode>();
-        foreach (var (name, label) in new[] { ("prestige_experience", "Stored Myth XP"), ("last_upgrade_tree_index", "Last upgrade tree index (raw)") })
+        foreach (var (name, label) in MythScalars)
             if (Has(current, name)) values.Add(AccountNumber(id + "/" + name, label, () => get()!, name,
                 name == "last_upgrade_tree_index" ? 3 : Math.Max(current.Integer(name), 1_000_000)));
         values.Add(lazy.Register(id + "/allocations", "Myth indexed allocations", () => [new TextNode("Upstream index labels; PS5 allocation rotation/caps unproven. No computed Myth rank."), MythTable(get, id).Build()]));
@@ -107,8 +118,7 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
             {
                 ["index"] = new TextNode(values["index"]),
                 ["name"] = document.InspectionField(key + "/name", "Stat", values["name"], record is null ? Confidence.Unknown : Confidence.Inferred, record?.AttributionText),
-                ["points"] = MythPoints(get, id, position, value,
-                    SerialDatabase.For(true).Find(GearboxWorldCatalog.CatalogId, "myth:" + position.ToString(CultureInfo.InvariantCulture))?.Attributes.GetValueOrDefault("upstreamCap"), record?.AttributionText),
+                ["points"] = BindMythPoints(document, get, id, position, value),
             }));
         }));
 
@@ -151,19 +161,56 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         }
     }
 
-    private FieldNode AccountNumber(string id, string label, Func<ProtoMessage> get, string name, long maximum, bool writable = true) =>
-        document.Integer(id, label, get, name, maximum, document.Coordinated && writable, SerialWrites.Warning) with
-        { Confidence = Confidence.Inferred, Description = "Existing raw stored value; observed range plus conservative editor bound. Point budgets, mirror precedence and derived rewards are not inferred. " + SerialWrites.Warning };
+    internal static bool TryIntegerAt(ProtoMessage message, string name, int index, out int value, bool bounded = true)
+        => TryIntegerAt(message, name, index, out value, out _, bounded);
 
-    private FieldNode MythPoints(Func<ProtoMessage?> get, string id, int position, int value, string? upstreamCap, string? attribution)
+    internal static bool TryIntegerAt(ProtoMessage message, string name, int index, out int value,
+        out int visited, bool bounded = true)
     {
+        value = 0;
+        var ordinal = 0;
+        visited = 0;
+        foreach (var field in message.Fields)
+        {
+            message.CountTargetedVisit();
+            visited++;
+            if (bounded && visited > GearboxInventory.DirectLookupWorkLimit) return false;
+            if (field.Spec?.Name != name) continue;
+            if (field.Value is ulong scalar)
+            {
+                if (ordinal++ == index) { value = unchecked((int)scalar); return true; }
+                continue;
+            }
+            if (field.Value is not byte[] bytes) return false;
+            using var reader = new CodedInputStream(bytes);
+            while (!reader.IsAtEnd)
+            {
+                message.CountTargetedVisit();
+                visited++;
+                if (bounded && visited > GearboxInventory.DirectLookupWorkLimit) return false;
+                if (ordinal++ == index) { value = reader.ReadInt32(); return true; }
+                reader.ReadInt32();
+            }
+        }
+        return false;
+    }
+
+    private FieldNode AccountNumber(string id, string label, Func<ProtoMessage> get, string name, long maximum,
+        bool writable = true, string? description = null, string? warning = null) =>
+        document.AccountNumber(id, label, get, name, maximum, writable, description, warning);
+
+    internal static FieldNode BindMythPoints(GearboxDocument document, Func<ProtoMessage?> get,
+        string id, int position, int value)
+    {
+        var key = "myth:" + position.ToString(CultureInfo.InvariantCulture);
+        var upstreamCap = SerialDatabase.For(true).Find(GearboxWorldCatalog.CatalogId, key)?.Attributes.GetValueOrDefault("upstreamCap");
+        var attribution = document.World.Find(key)?.AttributionText;
         if (!document.Coordinated || !int.TryParse(upstreamCap, out var cap) || value < 0)
             return document.InspectionField($"{id}/{position}/points", "Stored points", value.ToString(CultureInfo.InvariantCulture), Confidence.Inferred, attribution);
         var maximum = cap == 0 ? Math.Max(value, 1000) : cap;
-        return document.ItemNumber($"{id}/{position}/points", "Stored points", 0, maximum,
-            () => Integers(get()!, "points_spent_by_index_order").ElementAt(position),
-            next => ProtoArrayEdits.Set(get()!, "points_spent_by_index_order", position, next)) with
-        { Description = attribution + " Raw allocation; upstream cap is an editor policy. XP/rank/rotation and point budgets are not automatically reconciled. " + SerialWrites.Warning };
+        var description = (attribution is null ? "" : attribution + " ") +
+            "Raw allocation; upstream cap is an editor policy. XP/rank/rotation and point budgets are not automatically reconciled. " + SerialWrites.Warning;
+        return document.MythPoints($"{id}/{position}/points", get, position, maximum, description);
     }
 
     private static bool Has(ProtoMessage message, string name) => message.Fields.Any(f => f.Spec?.Name == name);

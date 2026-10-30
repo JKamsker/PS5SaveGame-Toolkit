@@ -104,6 +104,8 @@ public sealed class ViewIndex
             throw new InvalidOperationException($"Rendered canonical field annotations conflict for field '{valueId}'.");
         return _fields.GetValueOrDefault(valueId);
     }
+
+    internal bool HasRenderedField(string valueId) => ShownField(valueId) is not null;
     internal bool RequiresMetadata(string valueId) => _registeredFields.Contains(valueId);
 
     /// <summary>
@@ -135,16 +137,23 @@ public sealed class ViewIndex
         return field;
     }
 
+    internal void SetMetadataBudget(long? bytes) => _metadata.SetBudget(bytes);
+
+    internal IReadOnlyList<FieldMetadata> ResolvePlanningMetadata(IReadOnlyList<string> ids, int maximumIds,
+        long allowance, CancellationToken cancellationToken) =>
+        _metadata.ResolveForPlanning(ids, maximumIds, allowance, cancellationToken);
+
     public bool HasFieldMetadata => _metadata.Enabled;
 
     public void ResolveMetadata(IEnumerable<string> valueIds)
         => ResolveMetadata(valueIds, CancellationToken.None);
 
-    internal void ResolveMetadata(IEnumerable<string> valueIds, CancellationToken cancellationToken)
+    internal void ResolveMetadata(IEnumerable<string> valueIds, CancellationToken cancellationToken,
+        int maxInitialIds = FieldMetadataLimits.MaxClosureIds)
     {
         if (!_metadata.Enabled) return;
-        var ids = valueIds.Distinct(StringComparer.Ordinal).ToArray();
-        _metadata.ResolveAll(ids, cancellationToken);
+        var ids = valueIds.Distinct(StringComparer.Ordinal).Take(maxInitialIds + 1).ToArray();
+        _metadata.ResolveAll(ids, maxInitialIds, cancellationToken);
         foreach (var id in ids)
         {
             cancellationToken.ThrowIfCancellationRequested();

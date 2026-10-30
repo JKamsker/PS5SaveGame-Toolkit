@@ -123,9 +123,11 @@ public sealed partial class DocumentSession
         }
     }
 
-    private SessionEditResult AfterChange(SessionEditResult result, bool structural, IReadOnlyList<string> warnings)
+    private SessionEditResult AfterChange(SessionEditResult result, bool structural, IReadOnlyList<string> warnings,
+        IReadOnlyList<ValueChange>? semanticChanges = null, bool effectCoverage = false)
     {
-        if (result.Ok) _semantic.Observe(result.Changes, structural, id => _index.Spec(id) is not null);
+        if (result.Ok) _semantic.Observe(semanticChanges ?? result.Changes, structural,
+            id => _index.Spec(id) is not null, effectCoverage);
         if (!structural && result.Ok && result.Changes.Count > 0)
         {
             _revision++;
@@ -168,9 +170,11 @@ public sealed partial class DocumentSession
             case ValueStep values:
                 return new HistoryReplay.StepResult(Revert(values.Changes, useOld: undo), values, Rebuilt: false);
             case MementoStep memento:
+                DocumentMemento? inverse = null;
                 try
                 {
-                    var inverse = Document.RestoreMemento(memento.Memento);
+                    inverse = Document.RestoreMemento(memento.Memento);
+                    CheckSnapshotBudget(inverse);
 
                     // Later steps in the same entry may edit values of the restored records: re-bind them now.
                     var warnings = RebuildIndex();
@@ -178,8 +182,33 @@ public sealed partial class DocumentSession
                 }
                 catch (Exception ex) when (ex is not OutOfMemoryException)
                 {
+                    // A provider rejection before returning an inverse is the original replay
+                    // failure contract. It is unrelated to the host's inverse-size admission.
+                    if (inverse is null)
+                        return new HistoryReplay.StepResult(EditOutcome.Rejected(string.Empty,
+                            $"Plugin error: {ActionEffectOutcomes.Diagnostic(ex)}") with { StructureChanged = true },
+                            memento, Rebuilt: false);
+                    if (inverse is not null)
+                    {
+                        try
+                        {
+                            _ = Document.RestoreMemento(inverse);
+                            var rebindWarnings = RebuildIndex(forceNewRevision: false);
+                            if (rebindWarnings.Count > 0)
+                                throw new InvalidOperationException(ActionEffectOutcomes.Bound(rebindWarnings[0]));
+                        }
+                        catch (Exception restore) when (restore is not OutOfMemoryException)
+                        {
+                            MarkUnusable();
+                            return new HistoryReplay.StepResult(EditOutcome.Rejected(string.Empty,
+                                $"History replay exceeded its snapshot budget and could not restore the document: {ActionEffectOutcomes.Diagnostic(restore)}"),
+                                memento, Rebuilt: false);
+                        }
+                    }
                     // The document rolled itself back, but may have replaced model objects: re-index.
-                    return new HistoryReplay.StepResult(EditOutcome.Rejected(string.Empty, $"Plugin error: {ex.Message}") with { StructureChanged = true }, step, Rebuilt: false);
+                    return new HistoryReplay.StepResult(EditOutcome.Rejected(string.Empty,
+                        $"History replay rejected an oversized snapshot: {ActionEffectOutcomes.Diagnostic(ex)}") with { StructureChanged = true },
+                        memento, Rebuilt: false);
                 }
 
             default:
@@ -210,7 +239,7 @@ public sealed partial class DocumentSession
                 _structuralRevision = ++_revision;
             }
 
-            return [$"The view could not be rebuilt: {ex.Message}"];
+            return [$"The view could not be rebuilt: {ActionEffectOutcomes.Diagnostic(ex)}"];
         }
 
         var before = _index.BindingIds.ToHashSet(StringComparer.Ordinal);

@@ -18,6 +18,8 @@ internal sealed class ReferenceData(IReferenceContext context, Ff7Schema schema)
     private readonly Dictionary<(bool Materia, uint Id), string> _descriptions = new();
     private readonly Dictionary<(string Catalog, uint Id), string> _sources = new();
 
+    public string? ContentIdentity => context.ContentIdentity;
+
     public string Item(uint id) => Record("ff7r-items", id)?.Name ?? Ff7Catalog.Item(schema, id);
     public string Materia(uint id) => Record("ff7r-materia", id)?.Name ?? Ff7Catalog.Materia(schema, id);
     public string Weapon(uint id) => Record("ff7r-weapons", id)?.Name ?? $"Unknown weapon 0x{id:X}";

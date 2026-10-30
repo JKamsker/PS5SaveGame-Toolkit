@@ -62,6 +62,26 @@ public sealed class DocumentMemberAdapter
     /// <summary>Read a group-qualified field through its member-local binding.</summary>
     public FieldValue GetValue(string valueId) => Document.GetValue(Local(valueId));
 
+    /// <summary>
+    /// Resolves explicitly requested member metadata against the current member model and qualifies
+    /// both field and canonical identities. Unknown IDs are omitted by the member contract; paths
+    /// are mapped only when the plugin published a real navigation path.
+    /// </summary>
+    public IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds)
+    {
+        ArgumentNullException.ThrowIfNull(valueIds);
+        if (Document is not IFieldMetadataDocument metadata) return [];
+        var localIds = valueIds.Select(id => _policy.TryToLocalId(Role, id))
+            .Where(id => id is not null).Select(id => id!).ToArray();
+        if (localIds.Length == 0) return [];
+        return metadata.ResolveFieldMetadata(Array.AsReadOnly(localIds)).Select(field => field with
+        {
+            ValueId = Prefix(field.ValueId),
+            CanonicalValueId = Prefix(string.IsNullOrEmpty(field.CanonicalValueId) ? field.ValueId : field.CanonicalValueId),
+            Path = field.Path is { } path ? Array.AsReadOnly(_policy.NavigationPath(Role, path).ToArray()) : null,
+        }).ToArray();
+    }
+
     /// <summary>Expand a group-qualified lazy section and map all returned children.</summary>
     public IReadOnlyList<ViewNode> ExpandNode(string lazyId)
     {
@@ -117,10 +137,12 @@ public sealed class DocumentMemberAdapter
     }
 
     /// <summary>Qualify a local plan. A skipped-row key is opaque and uses the ordinary identity policy.</summary>
-    public ActionPlan ToGroupPlan(ActionPlan plan) => MapPlan(plan, Prefix);
+    public ActionPlan ToGroupPlan(ActionPlan plan, CancellationToken cancellationToken = default) =>
+        MapPlan(plan, Prefix, path => MapPath(path, toGroup: true, cancellationToken), cancellationToken);
 
     /// <summary>Invert plan identity mapping, preserving empty general errors and every plan flag.</summary>
-    public ActionPlan ToLocalPlan(ActionPlan plan) => MapPlan(plan, Local);
+    public ActionPlan ToLocalPlan(ActionPlan plan, CancellationToken cancellationToken = default) =>
+        MapPlan(plan, Local, path => MapPath(path, toGroup: false, cancellationToken), cancellationToken);
 
     /// <summary>Qualify changes and errors; retain member warnings, flags and the member-local Revert token.</summary>
     public EditOutcome ToGroupOutcome(EditOutcome outcome) => outcome with
@@ -135,12 +157,49 @@ public sealed class DocumentMemberAdapter
         Changes = outcome.Changes.Select(change => change with { ValueId = Prefix(change.ValueId) }).ToArray(),
     };
 
-    private static ActionPlan MapPlan(ActionPlan plan, Func<string, string> map) => plan with
+    private static ActionPlan MapPlan(ActionPlan plan, Func<string, string> map,
+        Func<IReadOnlyList<string>, IReadOnlyList<string>> mapPath, CancellationToken cancellationToken)
     {
-        Changes = plan.Changes.Select(change => change with { ValueId = map(change.ValueId) }).ToArray(),
-        SkippedRows = plan.SkippedRows.Select(row => row with { RowKey = map(row.RowKey) }).ToArray(),
-        Errors = plan.Errors.Select(error => MapError(error, map)).ToArray(),
-    };
+        ActionPlanSnapshots.Validate(plan, cancellationToken);
+        var budget = new ActionWireBudget(ActionPlanSnapshots.MaxSerializedBytes, cancellationToken);
+        budget.AdmitDiagnostics(plan);
+        var changes = new List<PlannedChange>();
+        foreach (var change in BoundedMetadataCollections.Enumerate(plan.Changes, ActionPlanSnapshots.MaxPlanEntries, cancellationToken))
+        {
+            var mapped = change with
+            {
+                ValueId = map(change.ValueId),
+                Effect = change.Effect is { Path: { } path } effect
+                    ? effect with { Path = mapPath(path) } : change.Effect,
+            };
+            budget.AdmitChange(mapped);
+            changes.Add(mapped);
+        }
+        var result = plan with
+        {
+            Changes = changes.AsReadOnly(),
+            SkippedRows = BoundedMetadataCollections.Enumerate(plan.SkippedRows, ActionPlanSnapshots.MaxPlanEntries, cancellationToken)
+                .Select(row => row with { RowKey = map(row.RowKey) }).ToArray(),
+            Errors = BoundedMetadataCollections.Enumerate(plan.Errors, ActionPlanSnapshots.MaxPlanEntries, cancellationToken)
+                .Select(error => MapError(error, map)).ToArray(),
+        };
+        ActionPlanSnapshots.Validate(result, cancellationToken);
+        return result;
+    }
+
+    private IReadOnlyList<string> MapPath(IReadOnlyList<string> path, bool toGroup, CancellationToken cancellationToken)
+    {
+        var input = BoundedMetadataCollections.Path(path, cancellationToken);
+        var forward = toGroup ? _policy.NavigationPath : _policy.LocalNavigationPath;
+        var reverse = toGroup ? _policy.LocalNavigationPath : _policy.NavigationPath;
+        cancellationToken.ThrowIfCancellationRequested();
+        var mapped = BoundedMetadataCollections.Path(forward(Role, input), cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        var inverse = BoundedMetadataCollections.Path(reverse(Role, mapped), cancellationToken);
+        if (!input.SequenceEqual(inverse, StringComparer.Ordinal))
+            throw new InvalidOperationException($"Navigation path codec is not stable for member '{Role}'.");
+        return mapped;
+    }
 
     private static FieldError MapError(FieldError error, Func<string, string> map) =>
         error.ValueId.Length == 0 ? error : error with { ValueId = map(error.ValueId) };

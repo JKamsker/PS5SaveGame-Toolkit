@@ -418,13 +418,31 @@ by projects named `*.Tests` in `Directory.Packages.props`; new test projects sho
 ## Built app browser smoke tests
 
 The Ubuntu-only `e2e` CI job runs alongside validation with a 12-minute limit. The official
-`npm run e2e` entry runs two complementary suites sequentially: the original canonical tests,
-then the real Unreal plugin tests with generated synthetic binary saves. Each suite retains its
-own 180-second overall deadline, 30-second test timeout, one worker and zero retries. The aggregate
-wall allowance grows with the added mandatory coverage; all tests do not share one 180-second budget.
-Discovery verifies that both suites partition every selected test exactly once and records their IDs.
-Either suite or teardown failure fails the command, and both suites still run when the first fails.
-CLI file/grep filters remain supported, for example `npm run e2e -- unreal-reference.e2e.ts`.
+`npm run e2e` entry reads the schema-2 `web/scripts/e2e-suites.json` manifest and runs the explicit
+canonical file allowlist plus each named feature partition (Unreal, text-capacity, FF7, transfer,
+caption and action-effects) sequentially whenever its complete owned file inventory is present.
+Every available `.e2e.ts` file must be declared exactly once; an unknown file, overlapping pattern,
+missing required canonical file, partial feature inventory or present-but-empty discovery fails before
+any actual suite launch. Each selected suite retains the unchanged 180-second overall deadline,
+30-second default test timeout, one worker, zero retries, traces and teardown. Existing spec-specific
+overrides, including the transfer library's 60-second test timeout, are unchanged. The aggregate allowance is
+additive across the partitions that are actually present; neither four-suite nor six-suite ceiling
+arithmetic includes discovery, startup, reporting or teardown overhead or proves the complete run fits.
+The complete composed run still has to fit the unchanged 12-minute CI job.
+The canonical allowlist explicitly marks `presets.e2e.ts` optional until its published feature is
+composed; when present, all its actual registrations participate in canonical discovery and execution.
+Optional means declared absence is allowed, never that a present file or its IDs may be skipped.
+Discovery records the full declared-file, matched-file and pattern inventory together with unfiltered
+available IDs, filtered selected IDs and each suite's `absent`, `filtered-out` or `selected` state.
+Each opaque ID also retains its normalized spec-file association. Every matched case file must
+contribute unfiltered IDs in its owner partition, including optional canonical files once installed;
+unexpected or inconsistent file associations fail before persistence or launch. Developer filters may
+legitimately exclude any otherwise covered file.
+It verifies exact disjoint unions against complete unfiltered and filtered discovery, rejects malformed
+or empty required-present partitions and fails an empty global selection before launch. Any suite
+launch, nonzero/signal, or teardown failure fails the command while later selected suites are still
+attempted. CLI file/grep filters remain supported, for example
+`npm run e2e -- unreal-reference.e2e.ts`.
 Chromium imports
 the committed synthetic fixtures through the bundled UI. The suite covers import errors and recovery,
 raw read-only inspection, editing/review/undo, document isolation and redo, full-collection search/filter/
@@ -468,10 +486,10 @@ Pop-Location
 ```
 
 Playwright's `webServer` starts the real API with `--no-build` on a free loopback port and uses
-temporary workspace/reference-pack directories, removed after the run. Test output and the HTML
-report remain under a unique `invocation-*/canonical` or `invocation-*/unreal` scratch directory,
-with separate JUnit/HTML reports, server ports and temporary workspaces. CI collects both reports
-and the discovery manifest. `SAVETOOLKIT_E2E_SCRATCH` overrides the platform default (the D: path
+temporary workspace/reference-pack/preset directories, removed after the run. Test output and the HTML
+report remain under unique `invocation-*/<suite>` scratch directories, with separate JUnit/HTML
+reports, server ports and temporary workspaces. CI collects every nested report and the discovery
+manifest. `SAVETOOLKIT_E2E_SCRATCH` overrides the platform default (the D: path
 above on Windows, a directory under the system temp folder elsewhere).
 
 ## Build and check bundles locally

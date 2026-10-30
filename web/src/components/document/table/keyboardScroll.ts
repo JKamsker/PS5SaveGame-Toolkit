@@ -1,6 +1,9 @@
 import type { KeyboardEvent } from "react";
 
-/** Scroll the virtual viewport itself; leave editing and selection keys to its children. */
+/** Must match `.table__cell` height in table.css. Detail rows are measured. */
+export const ROW_HEIGHT = 41;
+
+/** Scroll the table viewport itself; leave editing and selection keys to its children. */
 export function scrollTableByKey(event: KeyboardEvent<HTMLDivElement>, totalHeight: number, rowHeight: number) {
   if (event.target !== event.currentTarget || event.altKey || event.ctrlKey || event.metaKey) return;
   const viewport = event.currentTarget;

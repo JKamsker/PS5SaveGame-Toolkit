@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <!-- xUnit is transitive through the ordinary test-helper reference; this executable is a fixture writer. -->
+    <StartupObject>SaveToolkit.Testing.Ff7Browser.FixtureProgram</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Reuse the public, pure authored fixture seam; private samples are never read. -->
+    <ProjectReference Include="../../../plugins/FinalFantasy7/SaveToolkit.Plugins.FinalFantasy7.Tests/SaveToolkit.Plugins.FinalFantasy7.Tests.csproj" />
+  </ItemGroup>
+</Project>

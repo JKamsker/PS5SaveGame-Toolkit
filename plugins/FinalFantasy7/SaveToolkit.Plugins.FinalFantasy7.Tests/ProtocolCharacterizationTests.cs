@@ -16,15 +16,15 @@ public sealed class ProtocolCharacterizationTests
 {
     [Theory]
     // Refreshed for #40's character table actions; authored framing, no private sample data.
-    [InlineData("PPSA01911", "BD10E291DA189F14B3AA1D9FBC071E02B0FEB808C8A310589694F8B8DE8C51DF")]
-    [InlineData("PPSA08664", "ED32F63E669571032B1A9F96EC88C462955C35486BB725A4F56DE89C298B2C7B")]
-    [InlineData("PPSA18936", "D16F56DAB11B8A338C08CAF083D6F3F751765A2157683E6B5CD6E2EDBE7F4193")]
+    [InlineData("PPSA01911", "EF2424B3445844D0863001C22CB7B2E280CB3BB0662E273E870F8FFA8C510A0C")]
+    [InlineData("PPSA08664", "3FD52C362F706212904EBB3B2992DA45C1949E33440947564EA54F05B90E3BBE")]
+    [InlineData("PPSA18936", "F3F639F8E08F8B7338738406E53F91BD739EDBE02F421040964BFBB4A726CA97")]
     // Direct-open hashes: equal to hosted when images resolve; otherwise pinned separately.
-    [InlineData("PPSA01911", "BD10E291DA189F14B3AA1D9FBC071E02B0FEB808C8A310589694F8B8DE8C51DF", false)]
-    [InlineData("PPSA08664", "695448F7F3C5D67BF4CDBFE1AF890E04E8415B3AD8FAAABB5C0EB1BE7522697C", false,
-        "ED32F63E669571032B1A9F96EC88C462955C35486BB725A4F56DE89C298B2C7B")]
-    [InlineData("PPSA18936", "EB9BFF5338D09039F8186E587B9632E69115CB373C644B9362B809806E14D61B", false,
-        "D16F56DAB11B8A338C08CAF083D6F3F751765A2157683E6B5CD6E2EDBE7F4193")]
+    [InlineData("PPSA01911", "EF2424B3445844D0863001C22CB7B2E280CB3BB0662E273E870F8FFA8C510A0C", false)]
+    [InlineData("PPSA08664", "764DBA963DA016DB355601EE919FC5BFF2D881E1BE841ACE4AAA2F5EC2CC299D", false,
+        "3FD52C362F706212904EBB3B2992DA45C1949E33440947564EA54F05B90E3BBE")]
+    [InlineData("PPSA18936", "E48107D7207DA89ABAF4E2FE570E08287D4072C2DA6ECE9F5D7191A864C75D77", false,
+        "F3F639F8E08F8B7338738406E53F91BD739EDBE02F421040964BFBB4A726CA97")]
     public void RootCollectionsLazyRoutesAndCompletePlansKeepTheirProtocol(string title, string expected,
         bool hosted = true, string? resolvedImagesExpected = null)
     {
@@ -59,17 +59,32 @@ public sealed class ProtocolCharacterizationTests
         }
     }
 
-    // Retain the existing protocol fingerprints except for the three intentionally added SDK-41
+    // Retain the existing protocol fingerprints except for the intentional SDK-41
     // declarations. BulkSelectionDeclarationTests checks their actual published metadata separately.
     private static ViewNode WithoutSelectionBindings(ViewNode root)
     {
         var tabs = Assert.IsType<TabsNode>(root);
         return tabs with { Tabs = tabs.Tabs.Select(tab => tab with
         {
-            Children = tab.Children.Select(node => node is ActionNode { SelectionTableId: not null } action
-                ? WithoutBinding(action) : node).ToArray(),
+            Children = tab.Children.Select(WithoutNode).ToArray(),
         }).ToArray() };
     }
+
+    private static ViewNode WithoutNode(ViewNode node) => node switch
+    {
+        ActionNode { SelectionTableId: not null } action => WithoutBinding(action),
+        TableNode table => table with
+        {
+            SelectionId = null,
+            Rows = table.Rows.Select(row => row with
+            {
+                Cells = row.Cells.ToDictionary(pair => pair.Key,
+                    pair => pair.Value is ActionNode { SelectionTableId: not null } action
+                        ? WithoutBinding(action) : pair.Value, StringComparer.Ordinal),
+            }).ToArray(),
+        },
+        _ => node,
+    };
 
     private static ActionNode WithoutBinding(ActionNode action)
     {
@@ -77,6 +92,7 @@ public sealed class ProtocolCharacterizationTests
         {
             InventoryPlanning.ActionId => "inventory",
             MateriaPlanning.ActionId or MateriaPlanning.StarActionId => "materia",
+            CharacterPlanning.RecoveryActionId or CharacterPlanning.LevelActionId => CharacterPlanning.SelectionTableId,
             _ => throw new InvalidOperationException("Unexpected selection binding in the protocol fingerprint."),
         };
         Assert.Equal(expected, action.SelectionTableId);

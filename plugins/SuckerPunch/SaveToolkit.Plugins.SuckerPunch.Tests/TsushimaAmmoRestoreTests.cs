@@ -228,7 +228,7 @@ public sealed class TsushimaAmmoRestoreTests
         Assert.Equal(save.Bytes, Bytes(document));
     }
 
-    private static byte[] Bytes(ISaveDocument document) => Assert.Single(document.Serialize()).Content.ToArray();
+    private static byte[] Bytes(ISaveDocument document) => SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
 
     private static void SetAmmo(SyntheticSave save, string name, uint count)
     {

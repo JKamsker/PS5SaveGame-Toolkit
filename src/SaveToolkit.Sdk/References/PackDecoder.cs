@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text.Json;
 using SaveToolkit.Sdk;
 
 namespace SaveToolkit.Sdk.References;
@@ -29,6 +31,7 @@ internal static class PackDecoder
             TitleIds = [.. manifest.TitleIds ?? []],
             GameBuilds = [.. manifest.GameBuilds ?? []],
             Locale = manifest.Locale,
+            ContentFingerprint = ContentFingerprint(manifest),
             Datasets = orderedDatasets,
         };
         // Only an immutable embedded source may outlive this call. User ZIP streams are disposed by
@@ -74,6 +77,41 @@ internal static class PackDecoder
     private static ReferenceDatasetInfo DatasetInfo(string packId, PackDatasetModel dataset, int count) =>
         new(packId, dataset.Id!, PackManifestValidator.Kind(dataset.Kind)!.Value,
             PackManifestValidator.ToAttribution(dataset.Attribution!)) { Title = dataset.Title, ItemCount = count };
+
+    private static string ContentFingerprint(PackManifest manifest)
+    {
+        // Manifest ordering and every validated file hash are part of the identity. This distinguishes
+        // user overlays with the same id/version/locale and remains independent of archive paths/times.
+        var canonical = new
+        {
+            manifest.Schema,
+            manifest.Id,
+            manifest.Version,
+            manifest.Title,
+            manifest.Description,
+            Plugins = manifest.Plugins,
+            TitleIds = manifest.TitleIds,
+            GameBuilds = manifest.GameBuilds,
+            manifest.Locale,
+            Datasets = manifest.Datasets?.Select(dataset => new
+            {
+                dataset.Id,
+                dataset.Kind,
+                dataset.Title,
+                Files = dataset.Files?.Select(file => new { file.Path, file.Sha256 }),
+                Attribution = dataset.Attribution is null ? null : new
+                {
+                    dataset.Attribution.SourceUrl,
+                    dataset.Attribution.Author,
+                    dataset.Attribution.License,
+                    dataset.Attribution.LicenseUrl,
+                    dataset.Attribution.Retrieved,
+                    dataset.Attribution.Modifications,
+                },
+            }),
+        };
+        return "sha256:" + Convert.ToHexStringLower(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(canonical)));
+    }
 
     private static Lazy<DecodedReferenceCatalog> DeferredCatalog(IPackFileSource source, PackDatasetModel model,
         ReferencePackInfo pack, ReferenceDatasetInfo dataset, EmbeddedReferencePackLimits limits,

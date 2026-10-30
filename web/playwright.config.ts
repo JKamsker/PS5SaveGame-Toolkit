@@ -1,14 +1,20 @@
-import { defineConfig, devices } from "@playwright/test";
-import { mkdtempSync, mkdirSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { defineConfig, devices } from "@playwright/test";
 
 const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
-const unrealTests = "**/unreal-*.e2e.ts";
+const suiteManifest = JSON.parse(readFileSync(new URL("./scripts/e2e-suites.json", import.meta.url), "utf8")) as {
+  version: number;
+  suites: { id: string; role: "feature" | "complement"; patterns: string[]; files: string[]; optionalFiles?: string[] }[];
+};
 const suite = process.env.SAVETOOLKIT_E2E_SUITE;
-if (suite && suite !== "canonical" && suite !== "unreal") throw new Error(`Unknown e2e suite: ${suite}`);
+const featureSuites = suiteManifest.suites.filter(entry => entry.role === "feature");
+const selectedSuite = suiteManifest.suites.find(entry => entry.id === suite);
+if (suite && !selectedSuite) throw new Error(`Unknown e2e suite: ${suite}`);
+const featurePatterns = featureSuites.flatMap(entry => entry.patterns);
 const scratch = path.resolve(process.env.SAVETOOLKIT_E2E_SCRATCH ?? (process.platform === "win32"
   ? "D:/Temp/saveeditor/test-scratch/e2e-smoke"
   : path.join(tmpdir(), "saveeditor/test-scratch/e2e-smoke")));
@@ -36,8 +42,8 @@ const runDirectory = process.env.SAVETOOLKIT_E2E_RUN_DIRECTORY ??= mkdtempSync(p
 export default defineConfig({
   testDir: "./e2e",
   // Keep browser tests out of Vitest's *.test / *.spec discovery.
-  testMatch: suite === "unreal" ? unrealTests : "**/*.e2e.ts",
-  testIgnore: suite === "canonical" ? unrealTests : [],
+  testMatch: selectedSuite?.role === "feature" ? selectedSuite.patterns : "**/*.e2e.ts",
+  testIgnore: selectedSuite?.role === "complement" ? featurePatterns : [],
   fullyParallel: false,
   workers: 1,
   forbidOnly: !!process.env.CI,
@@ -46,8 +52,8 @@ export default defineConfig({
   globalTimeout: 180_000,
   globalTeardown: "./e2e/teardown.ts",
   outputDir: path.join(scratch, "test-results"),
-  reporter: [["list"], ["html", { outputFolder: path.join(scratch, "playwright-report"), open: "never" }],
-    ["junit", { outputFile: path.join(scratch, "e2e.xml") }]],
+  reporter: [["list"], ["html", { outputFolder: process.env.PLAYWRIGHT_HTML_OUTPUT_DIR ?? path.join(scratch, "playwright-report"), open: "never" }],
+    ["junit", { outputFile: process.env.PLAYWRIGHT_JUNIT_OUTPUT_FILE ?? path.join(scratch, "e2e.xml") }]],
   use: {
     baseURL,
     trace: "retain-on-failure",
@@ -55,7 +61,7 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: `dotnet run --project src/SaveToolkit.Api --configuration Release --no-build --no-launch-profile --urls ${baseURL} -- --Toolkit:DataRoot="${path.join(runDirectory, "workspaces")}" --Toolkit:PackRoot="${path.join(runDirectory, "reference-packs")}"`,
+    command: `dotnet run --project src/SaveToolkit.Api --configuration Release --no-build --no-launch-profile --urls ${baseURL} -- --Toolkit:DataRoot="${path.join(runDirectory, "workspaces")}" --Toolkit:PackRoot="${path.join(runDirectory, "reference-packs")}" --Toolkit:PresetRoot="${path.join(runDirectory, "presets")}"`,
     cwd: repositoryRoot,
     url: `${baseURL}/api/version`,
     reuseExistingServer: false,

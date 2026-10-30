@@ -10,6 +10,7 @@ public static class ToolkitJson
 
     public static JsonSerializerOptions Configure(JsonSerializerOptions options)
     {
+        options.MaxDepth = SaveToolkit.Sdk.MetadataJson.MaxDepth;
         options.Converters.Add(new JsonStringEnumConverter());
         options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         return options;

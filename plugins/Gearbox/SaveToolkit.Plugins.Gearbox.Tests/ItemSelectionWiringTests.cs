@@ -51,7 +51,7 @@ public sealed class ItemSelectionWiringTests
             var preview = session.PlanAction(action.ActionId, Empty, scope, expectedRevision: null, cancellationToken: Ct);
             Assert.Empty(preview.Plan.Errors);
             Assert.Equal(selected, preview.Scope.RowKeys);
-            Assert.Equal(selected.Order(StringComparer.Ordinal), preview.Plan.Changes.Where(change => !change.Derived)
+            Assert.Equal(selected.Order(StringComparer.Ordinal), preview.Plan.Changes.Where(change => change.ValueId.EndsWith("/presence", StringComparison.Ordinal))
                 .Select(change => change.ValueId[..^"/presence".Length]).Order(StringComparer.Ordinal));
             SelectionByteAssertions.Equal(document, original);
             Assert.Empty(session.Serialize(cancellationToken: Ct));

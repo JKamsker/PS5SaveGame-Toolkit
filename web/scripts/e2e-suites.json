@@ -1,0 +1,87 @@
+{
+  "version": 2,
+  "testDirectory": "e2e",
+  "suites": [
+    {
+      "id": "canonical",
+      "role": "complement",
+      "patterns": [],
+      "files": [
+        "actions.e2e.ts",
+        "bundle.e2e.ts",
+        "failure-document.e2e.ts",
+        "failure-lifetimes.e2e.ts",
+        "failure-reference.e2e.ts",
+        "failure-review-export.e2e.ts",
+        "field-reference.e2e.ts",
+        "import.e2e.ts",
+        "keyboard.e2e.ts",
+        "map-accessibility.e2e.ts",
+        "presets.e2e.ts",
+        "reference-batch.e2e.ts",
+        "review.e2e.ts",
+        "selection-binding.e2e.ts",
+        "semantic-review-ux.e2e.ts",
+        "smoke.e2e.ts",
+        "table.e2e.ts",
+        "workspace.e2e.ts"
+      ],
+      "optionalFiles": ["presets.e2e.ts"]
+    },
+    {
+      "id": "unreal",
+      "role": "feature",
+      "patterns": ["**/unreal-*.e2e.ts"],
+      "files": ["unreal-presentation.e2e.ts", "unreal-reference.e2e.ts"]
+    },
+    {
+      "id": "text-capacity",
+      "role": "feature",
+      "patterns": ["**/text-capacity.e2e.ts"],
+      "files": ["text-capacity.e2e.ts"]
+    },
+    {
+      "id": "ff7",
+      "role": "feature",
+      "patterns": ["**/ff7-*.e2e.ts"],
+      "files": [
+        "ff7-forms.e2e.ts",
+        "ff7-history.e2e.ts",
+        "ff7-selection.e2e.ts",
+        "ff7-states.e2e.ts"
+      ]
+    },
+    {
+      "id": "transfer",
+      "role": "feature",
+      "patterns": [
+        "**/preset-transfer.e2e.ts",
+        "**/preset-transfer-recovery.e2e.ts",
+        "**/preset-transfer-library.e2e.ts"
+      ],
+      "files": [
+        "preset-transfer.e2e.ts",
+        "preset-transfer-recovery.e2e.ts",
+        "preset-transfer-library.e2e.ts"
+      ]
+    },
+    {
+      "id": "caption",
+      "role": "feature",
+      "patterns": [
+        "**/suckerpunch-caption-real.e2e.ts",
+        "**/suckerpunch-caption-text-boundaries.e2e.ts"
+      ],
+      "files": [
+        "suckerpunch-caption-real.e2e.ts",
+        "suckerpunch-caption-text-boundaries.e2e.ts"
+      ]
+    },
+    {
+      "id": "action-effects",
+      "role": "feature",
+      "patterns": ["**/action-effects.e2e.ts"],
+      "files": ["action-effects.e2e.ts"]
+    }
+  ]
+}

@@ -7,7 +7,8 @@ internal static class EditCoverageData
     internal const string AmmoPath = "/Game/GameData/Weapons/Ammo/Resource_Ammo_Pistol.Resource_Ammo_Pistol";
     internal const string OtherAmmoPath = "/Game/GameData/Weapons/Ammo/Resource_Ammo_SMG.Resource_Ammo_SMG";
 
-    internal static GearboxDocument Create(bool wonderlands, Action<ProtoMessage>? configure = null, bool profile = false)
+    internal static GearboxDocument Create(bool wonderlands, Action<ProtoMessage>? configure = null, bool profile = false,
+        bool coordinated = false)
     {
         var title = wonderlands ? "PPSA01493" : "PPSA01463";
         var container = GearboxContainer.Parse(GearboxTestData.CreateContainer(wonderlands, profile, tail: [0xAB, 0xCD]), title, profile);
@@ -23,7 +24,8 @@ internal static class EditCoverageData
         }
         configure?.Invoke(root);
         var imported = GearboxContainer.Parse(container.Encode(root), title, profile);
-        return new GearboxDocument(profile ? "profile" : "1", title, imported, imported.Decode(), IReferenceContext.Empty);
+        return new GearboxDocument(profile ? "profile" : "1", title, imported, imported.Decode(), IReferenceContext.Empty)
+        { Coordinated = coordinated };
     }
 
     internal static void AddItem(ProtoMessage root, long flags, byte[]? bytes = null)

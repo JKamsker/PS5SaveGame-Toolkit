@@ -28,7 +28,7 @@ public sealed class PlanningPerformanceTests
             else Assert.Empty(plan.Changes);
             allocated.AssertLessThan(MaximumPreviewAllocation, $"Preview allocated {allocated.MinimumBytes:N0} bytes.");
         }
-        Assert.Equal(save.Bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(save.Bytes, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
     }
 
     [Theory]
@@ -66,13 +66,13 @@ public sealed class PlanningPerformanceTests
         Assert.Empty(plan.Errors);
         Assert.Equal(checksum, Assert.Single(plan.Changes, change => change.ValueId ==
             $"container/word{save.ChecksumOffset / sizeof(uint)}").NewValue.AsUInt32());
-        Assert.Equal(save.Bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(save.Bytes, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         Assert.True(planner.ApplyActionPlan(save.ActionId, parameters, scope, plan).Succeeded);
-        Assert.Equal(expected, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(expected, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         // A later plan must start from the edited checksum, not the open-time header.
         var next = planner.PlanAction(save.ActionId, Target(2), scope);
         Assert.True(planner.ApplyActionPlan(save.ActionId, Target(2), scope, next).Succeeded);
-        var final = Assert.Single(document.Serialize()).Content.ToArray();
+        var final = SuckerPunchTestData.PrimaryOutput(document).Content.ToArray();
         Assert.Equal(yotei ? YoteiTestData.Checksum(final) : SuckerPunchTestData.Checksum(final),
             SuckerPunchTestData.Word(final, save.ChecksumOffset));
     }

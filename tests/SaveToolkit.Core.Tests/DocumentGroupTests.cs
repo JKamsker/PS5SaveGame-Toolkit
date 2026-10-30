@@ -159,12 +159,45 @@ public sealed class DocumentGroupTests : IDisposable
         var changes = session.GetChanges();
         Assert.Contains(changes.Changes, change => change.ValueId == "character/balance");
         Assert.Contains(changes.Changes, change => change.ValueId == "profile/balance");
+        var character = Assert.Single(changes.Changes, change => change.ValueId == "character/balance");
+        var profile = Assert.Single(changes.Changes, change => change.ValueId == "profile/balance");
+        Assert.Equal(("10", "11"), (character.OriginalValue.ToString(), character.CurrentValue.ToString()));
+        Assert.Equal(("20", "19"), (profile.OriginalValue.ToString(), profile.CurrentValue.ToString()));
         Assert.True(session.RevertChange("profile/balance", changes.Revision).Ok);
         Assert.Equal(GroupPlugin.Create("P", 20, 9), Bytes(session)[Root + "profile.dat"]);
         Assert.Equal(GroupPlugin.Create("C", 11, 7, 7), Bytes(session)[Root + "character.dat"]);
         Assert.True(session.Undo().Ok);
         Assert.True(session.Undo().Ok);
         Assert.False(session.State.IsDirty);
+    }
+
+    [Fact]
+    public void SemanticReviewPublishesAuthoritativeMemberContextForRenderedGroupFields()
+    {
+        var session = Open(Create()).Session;
+        Assert.True(session.ApplyEdits([Edit("character/balance", 11)], 0).Ok);
+
+        var changes = session.GetChanges().Changes;
+        var change = Assert.Single(changes, item => item.ValueId == "character/balance");
+        Assert.Equal("character", change.Member?.Role);
+        Assert.Equal(Root + "character.dat", change.Member?.RelativePath);
+        Assert.Equal("Character + profile", change.Member?.GroupTitle);
+        Assert.Equal("synthetic group input", change.Member?.Provenance);
+        var projectedAlias = Assert.Single(change.Aliases!);
+        Assert.Equal("character/raw/balance", projectedAlias.ValueId);
+        Assert.Equal("character", projectedAlias.Member?.Role);
+        Assert.Equal(Root + "character.dat", projectedAlias.Member?.RelativePath);
+        var live = _plugin.Opened.Last(document => !document.IsDisposed);
+        Assert.NotEmpty(live.ContextRequests);
+        Assert.DoesNotContain(live.ContextRequests.SelectMany(request => request), id => id.Contains("/raw/", StringComparison.Ordinal));
+        Assert.Contains(live.ContextRequests.SelectMany(request => request), id => id == "character/balance");
+        foreach (var alias in changes.Where(item => item.ValueId is "character/raw/balance" or "profile/raw/balance"))
+        {
+            Assert.Equal(alias.ValueId.StartsWith("character/", StringComparison.Ordinal) ? "character" : "profile",
+                alias.Member?.Role);
+            Assert.Equal(alias.ValueId.StartsWith("character/", StringComparison.Ordinal)
+                ? Root + "character.dat" : Root + "profile.dat", alias.Member?.RelativePath);
+        }
     }
 
     [Fact]

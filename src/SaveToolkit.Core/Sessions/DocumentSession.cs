@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SaveToolkit.Core.Editing;
+using SaveToolkit.Core.Presets;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Storage;
 using SaveToolkit.Sdk;
@@ -8,6 +9,13 @@ using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 
 namespace SaveToolkit.Core.Sessions;
+
+public enum PresetCapabilityAdmission
+{
+    Absent,
+    Valid,
+    Malformed,
+}
 
 public sealed record IncomingEdit(string ValueId, JsonElement Value);
 
@@ -48,11 +56,14 @@ public sealed partial class DocumentSession : IDisposable
     private readonly EditHistory _history;
     private readonly ReferenceFieldService _referenceFields;
     private readonly ReferenceContext _references;
+    private readonly long _maxSnapshotBytes;
     private bool _disposed;
     private bool _idleRetired;
+    private bool _unusable;
 
     public DocumentSession(string id, DiskSaveFile file, IGamePlugin plugin, ISaveDocument document,
-        DocumentSessionOptions? options = null, Func<ISaveDocument>? openOriginal = null, ReferenceContext? references = null)
+        DocumentSessionOptions? options = null, Func<ISaveDocument>? openOriginal = null, ReferenceContext? references = null,
+        Func<IReadOnlyList<string>, IReadOnlyDictionary<string, SemanticMemberContext>>? memberContext = null)
     {
         Id = id;
         File = file;
@@ -62,11 +73,12 @@ public sealed partial class DocumentSession : IDisposable
         var limits = options ?? DocumentSessionOptions.Default;
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(limits.MaxQueryActionRows);
         _maxQueryActionRows = limits.MaxQueryActionRows;
+        _maxSnapshotBytes = limits.MaxSnapshotBytes;
         var referenceContext = references ?? ReferenceContext.None;
         _references = referenceContext;
         _history = new EditHistory(limits);
         _referenceFields = new ReferenceFieldService(referenceContext);
-        _semantic = new SemanticReview(limits);
+        _semantic = new SemanticReview(limits, _referenceFields, memberContext);
         OutputOwnership = new OutputOwnershipBinding(file, document);
         // The original is re-opened with the same pinned reference packs so its field identities match the live document.
         _openOriginal = openOriginal ?? (() => plugin.Open(file, referenceContext));
@@ -76,7 +88,41 @@ public sealed partial class DocumentSession : IDisposable
     public DiskSaveFile File { get; }
     public IGamePlugin Plugin { get; }
     public string Title => Locked(() => Document.Title);
-    public bool CanEdit => Locked(() => Document.CanEdit);
+    public bool CanEdit => Locked(() => !_unusable && Document.CanEdit);
+    /// <summary>Optional semantic preset capability published by the opened plugin document.</summary>
+    public IPresetDocument? PresetDocument => Locked(() => Document as IPresetDocument);
+    /// <summary>Host-authoritative preset capability with the pinned reference identity applied.</summary>
+    public PresetCapability? PresetCapability => Locked(() => EffectivePresetCapability());
+    /// <summary>Whether this document has an admitted semantic preset capability.</summary>
+    public PresetCapabilityAdmission PresetCapabilityAdmission => Locked(() => ReadPresetCapability().Admission);
+    /// <summary>Bounded reason when semantic capability admission failed.</summary>
+    public string? PresetCapabilityError => Locked(() => ReadPresetCapability().Error);
+    /// <summary>The immutable reference context pinned when this document opened.</summary>
+    public IReferenceContext PinnedReferences => _references;
+
+    private PresetCapability? EffectivePresetCapability()
+    {
+        return ReadPresetCapability().Capability;
+    }
+
+    private (PresetCapability? Capability, PresetCapabilityAdmission Admission, string? Error) ReadPresetCapability()
+    {
+        if (_unusable)
+            return (null, PresetCapabilityAdmission.Absent, "The document session is unusable; reopen it before using presets.");
+        if (Document is not IPresetDocument adapter)
+            return (null, PresetCapabilityAdmission.Absent, null);
+        try
+        {
+            var capability = adapter.PresetCapability;
+            if (!PresetContractValidation.TryDetach(capability, out var detached, out var error))
+                return (null, PresetCapabilityAdmission.Malformed, error ?? "The semantic preset capability is malformed.");
+            return (detached! with { ReferencePackIdentity = ((IReferenceContext)_references).ContentIdentity }, PresetCapabilityAdmission.Valid, null);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException and not OperationCanceledException)
+        {
+            return (null, PresetCapabilityAdmission.Malformed, "The semantic preset capability is malformed.");
+        }
+    }
 
     private ISaveDocument Document { get; }
     private OutputOwnershipBinding OutputOwnership { get; }
@@ -94,7 +140,7 @@ public sealed partial class DocumentSession : IDisposable
 
     /// <summary>Captures the view and its revision together, without an edit or undo interleaving.</summary>
     public DocumentViewSnapshot CaptureView() => Locked(() =>
-        new DocumentViewSnapshot(Document.Title, Document.CanEdit, StateUnlocked(), BuildView()));
+        new DocumentViewSnapshot(Document.Title, !_unusable && Document.CanEdit, StateUnlocked(), BuildView()));
 
     public ViewNode BuildView() => Locked(() => PublishView(staged =>
     {
@@ -167,6 +213,7 @@ public sealed partial class DocumentSession : IDisposable
 
     public SessionEditResult ApplyEdits(IReadOnlyList<IncomingEdit> incoming, long? expectedRevision, CancellationToken cancellationToken) => Locked(() => RunPreflight(startApply =>
     {
+        if (_unusable) return Rejected(incoming.FirstOrDefault()?.ValueId ?? string.Empty, "The document session is unusable; reopen it before editing or exporting.");
         if (!Document.CanEdit)
         {
             return Rejected(incoming.FirstOrDefault()?.ValueId ?? string.Empty, "This document is read-only.");
@@ -205,7 +252,7 @@ public sealed partial class DocumentSession : IDisposable
             return new SessionEditResult { Errors = errors, State = StateUnlocked() };
         }
 
-        EnsureOriginal(cancellationToken);
+        _semantic.CaptureTargetedOriginals(_openOriginal, edits.Select(edit => edit.ValueId), cancellationToken);
         var scalarProof = ScalarEditEffectiveness.Capture(Document, edits, cancellationToken);
         if (scalarProof is not null && OutputSetError(scalarProof.Select(output => output.RelativePath)) is not null)
             scalarProof = null;
@@ -248,10 +295,20 @@ public sealed partial class DocumentSession : IDisposable
     internal DocumentOutputCapture CaptureOutputs(CancellationToken cancellationToken) =>
         Locked(() =>
         {
+            if (_unusable) throw new InvalidOperationException("The document session is unusable; reopen it before exporting.");
             var state = StateUnlocked();
             var outputs = state.IsDirty ? DocumentOutputSnapshot.Capture(Document, cancellationToken) : [];
             return new DocumentOutputCapture(outputs, state.IsDirty, state.Revision);
         }, cancellationToken);
+
+    internal void MarkUnusable()
+    {
+        _unusable = true;
+        _pendingAction = null;
+        _pendingPreset = null;
+        _history.Clear(irreversible: true);
+        _groupBroken = true;
+    }
 
     public AssetContent? GetAsset(string assetId) => Locked(() =>
         _index.KnowsAsset(assetId) && Document.GetAsset(assetId) is { } asset

@@ -18,7 +18,7 @@ public sealed class TsushimaCorruptionTests
         new byte[] { 1, 2, 3, 4 }.CopyTo(bytes, 16);
         using var document = Open(WithBytes(bytes));
         Assert.False(document.CanEdit); // Valid container, no recognised inventory layout.
-        Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Equal(bytes, SuckerPunchTestData.PrimaryOutput(document).Content.ToArray());
         bytes[19] = 5;
         Assert.Throws<SaveFormatException>(() => Open(WithBytes(bytes)));
     }

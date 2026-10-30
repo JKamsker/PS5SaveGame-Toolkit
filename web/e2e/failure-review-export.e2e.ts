@@ -115,7 +115,7 @@ for (const failure of failures) {
     await loadJson(page);
     await editCoins(page);
     const plan = await faults.block("**/export/plan", failure);
-    const opener = page.getByRole("button", { name: /^Export/ });
+    const opener = page.getByRole("button", { name: /^Export(?:$| \d)/ });
     await opener.click();
     const dialog = page.getByRole("dialog", { name: "Export edited saves" });
     await dialog.getByRole("radio", { name: /Whole dump/ }).check();

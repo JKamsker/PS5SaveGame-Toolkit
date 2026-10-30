@@ -71,8 +71,12 @@ internal sealed class PragmataBindings(PragmataDocument document)
             _nodes[node.Path] = node;
             _nodes[id] = node;
             var derived = id != node.Path;
-            result.Add(new FieldMetadata(id, HashNames.Label(node.Hash), derived ? Spec(node) with { ReadOnly = true } : Spec(node))
-                { BindingKind = derived ? FieldBindingKind.Derived : FieldBindingKind.Primary });
+            var spec = Spec(node);
+            result.Add(new FieldMetadata(id, HashNames.Label(node.Hash), derived ? spec with { ReadOnly = true } : spec)
+            {
+                BindingKind = derived ? FieldBindingKind.Derived : FieldBindingKind.Primary,
+                CanonicalValueId = node.Path,
+            });
         }
         return result;
     }

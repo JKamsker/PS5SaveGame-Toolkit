@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <Using Include="Xunit" />
+    <ProjectReference Include="../../src/SaveToolkit.Api/SaveToolkit.Api.csproj" />
+    <ProjectReference Include="../../src/SaveToolkit.Testing/SaveToolkit.Testing.csproj" />
+    <ProjectReference Include="../fixtures/SaveToolkit.Ff7BrowserFixture/SaveToolkit.Ff7BrowserFixture.csproj" />
+  </ItemGroup>
+</Project>

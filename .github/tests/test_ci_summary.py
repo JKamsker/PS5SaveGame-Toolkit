@@ -35,10 +35,10 @@ class SummaryTests(unittest.TestCase):
     def test_empty_junit_is_explicitly_zero_tests(self):
         self.assertEqual((0, 0, 0), self.summary.junit_counts(ET.fromstring('<testsuites />')))
 
-    def test_browser_summary_combines_both_nested_suite_reports(self):
+    def test_browser_summary_combines_all_three_nested_suite_reports(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            for suite, tests, skipped in (("canonical", 66, 1), ("unreal", 10, 0)):
+            for suite, tests, skipped in (("canonical", 66, 1), ("unreal", 10, 0), ("ff7", 11, 0)):
                 report = root / "invocation-test" / suite / "e2e.xml"
                 report.parent.mkdir(parents=True)
                 report.write_text(f'<testsuite tests="{tests}" failures="0" skipped="{skipped}" />', encoding="utf-8")
@@ -46,7 +46,7 @@ class SummaryTests(unittest.TestCase):
             with patch("sys.argv", ["ci_summary", "--title", "Browser", "--junit", str(root)]), \
                  patch.dict("os.environ", {"GITHUB_STEP_SUMMARY": str(summary)}):
                 self.summary.main()
-            self.assertIn("| JUnit: 2 report(s) | 75 | 0 | 1 |", summary.read_text(encoding="utf-8"))
+            self.assertIn("| JUnit: 3 report(s) | 86 | 0 | 1 |", summary.read_text(encoding="utf-8"))
 
     def test_missing_trx_counters_are_not_reported_as_zero_passed(self):
         with self.assertRaises(ValueError):

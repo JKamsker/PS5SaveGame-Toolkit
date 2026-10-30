@@ -246,13 +246,13 @@ counts against the intended model; transfer/import regressions assert persisted 
 | F4 reference pickers | Used | Added in the completion round: existing serial-part replacement with category/width eligibility and independent writer checks; browse-only asset/class/mission/skill references and attributed inspection actions |
 | F5 structural history | Used | Import/duplicate/remove and bank moves retain full wire bytes, duplicate identities and counters in snapshots |
 | F6 planning / #27 | Used | Item levels accept document scope (all member inventory containers), explicit rows or host-resolved F8 query rows. Duplicate/remove and F7 transfers require explicit or host-resolved rows; import uses document scope into backpack/bank. Plans preview changes/skips/warnings |
-| F7 groups / SDK-04 | Used | `DocumentMemberAdapter`, `DocumentMemberIdentityPolicy`, `DocumentMemberRouter` and `DocumentMemberEdits` share member identity mapping and dispatch; Gearbox retains collection-qualified rows, inventory/ammo scope validation, explicit character/profile transactions, transfers and whole-group snapshots |
+| F7 groups / SDK-04 | Used | `DocumentMemberAdapter`/`DocumentMemberRouter` now forward targeted `IFieldMetadataDocument` requests through the current staged character/profile candidate, qualify canonical IDs once, preserve member navigation paths and reject foreign/duplicate responses; existing collection-qualified rows, inventory/ammo scope validation, transfers and whole-group snapshots remain unchanged |
 | F8 collections | Used | Backpack/bank/lost loot/balance/world catalogues, named skills, stored allocations and missions; equipment, SDUs, ammo, Guardian and Myth lists use F8 above 100 rows (F14). Full-set search/filter/sort with a 200-row query cap; duplicate item identities remain distinct |
 | F9 graph/map | Used | Added in the completion round: stored allocation graphs, calculator gate graphs, external-only mission checklist; bounded lazy pages, text alternatives and control links |
 | F10 exact / nullable / union | N/A | Exposed scalars are typed protobuf integers/float32, with no decimal lexemes, explicit null or scalar type union. Existing Int128-backed IntegerSpec / integer-string transport and FloatSpec.Single suffice; ExactNumberSpec, NullableSpec and UnionSpec are not used. Absent records are preserved except for the documented write-created records |
 | F11 shared codecs | N/A | GVAS feedback-obfuscated protobuf and item bitstreams use neither Kraken/Oodle nor SQLite; no local implementation of those codecs exists |
 | F12 decoder providers / F8 traversal | Used | Added in the completion round: SDK-only `ISaveDecoderProvider` registers `gearbox-evidence`; fixtures use the production hook, independently cross-checked on every sample generation. Host traversal covers F8 views with its shared budgets |
-| F13 inspection / browse / sort | Used | Added in the completion round: both catalogue actions set `Mutates = false`; read-only reference fields support attributed browse-only pickers, category filters and name/key sorting. Float duration N/A: stored play time is integral seconds, resource floats are ammunition amounts |
+| F13 inspection / browse / sort | Added this round | GearboxDocument resolves only requested parsed IDs (including unloaded scalar, ammo, SDU, world, account and item bindings) with shared `FieldPresentation`; live bindings reselect the current root, item lookup has a finite cold-work bound, and structural action effects remain honest read-only observations. The group forwards current-candidate metadata through the existing adapter/router. Both catalogue actions set `Mutates = false`; read-only reference fields support attributed browse-only pickers, category filters and name/key sorting. Float duration N/A: stored play time is integral seconds, resource floats are ammunition amounts |
 
 Shared SDK helpers are **Used**: `GvasReader` uses `BoundedBinaryCursor` / `FStringCodec`,
 `SerialEnvelope` uses incremental `Crc32Ieee` with Gearbox-specific coverage/folding, and
@@ -723,6 +723,7 @@ of the pinned zlib `datalib.py` implementations. No downloaded implementation wa
 | `Bl3.tsv`, `Bl3Xp.tsv` | [BL3 editor][bl3-root] | CJ Kucera; schemas credit Rick/Gibbed | [Zlib][bl3-license] | 2026-10-28 | Separate schema facts and exact XP thresholds |
 | `Wonderlands.tsv`, `WonderlandsXp.tsv` | [TTWL editor][ttwl-root] | CJ Kucera / Abram Hindle; schemas credit Rick/Gibbed | [Zlib][ttwl-license] | 2026-10-28 | Separate schema facts and exact XP thresholds |
 | PS4 feedback masks | [Gibbed crypt files](https://github.com/FromDarkHell/BL3SaveEditor/tree/c044e6d6f1fd78b259f2147119fbe2cdbbc7a3ee/BL3Tools/Decryption) | Rick/Gibbed | Zlib, retained notice | 2026-10-28 | Independent managed feedback implementation / test probe |
+| F13 field metadata contract | [F13 proposal](../../docs/plans/F13-FIELD-SPEC-PUBLISHING.md), [published PR58](https://github.com/JKamsker/PS5SaveGame-Toolkit/pull/58) | SaveToolkit SDK/Core maintainers | Repository documentation / project contract | 2026-10-29 | Consumed `IFieldMetadataDocument`, `FieldPresentation`, canonical binding validation and the 200-ID batch bound; no framework code is copied into Gearbox |
 
 [bl3-root]: https://github.com/apocalyptech/bl3-cli-saveedit/tree/d459b28a7e88f1a5ae0f16118272d8a5383b8b04
 [ttwl-root]: https://github.com/apocalyptech/ttwl-cli-saveedit/tree/1fde90dc43e7f7ee261413d85c366e0a7236dd9b
@@ -787,8 +788,45 @@ fresh-snapshot restoration. Planned coordinated actions use F6 planning and F7 s
 structural snapshots. F12's `ISaveDecoderProvider` / `gearbox-evidence` and F13 inspection/browse
 contracts are also adopted. Shared binary/string/CRC and reference-icon helpers are implemented
 as listed under Framework feature adoption; these are resolved integrations, not SDK requests.
-No outstanding framework contract request or alternative output API is needed. Remaining capture,
-console-validation and gameplay-model gaps are listed above and tracked in [#31][owner-validation].
+**GEARBOX-F13 / grouped field context: optional published adoption.** The published PR68 SDK contract
+adds `IGroupedFieldContext.ResolveFieldContext(IReadOnlyList<string>)` and the authoritative
+`DocumentGroupFieldContext(ValueId, Role, RelativePath, Provenance?)` record ([source at the
+published contract commit](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/e0a66cd90241d33c1a766ee38e26c28ec3fe0254/src/SaveToolkit.Sdk/DocumentGroups/DocumentGroupFieldContext.cs)).
+Gearbox implements this bounded, observation-only capability for at most the shared 200 requested IDs:
+it routes exact known current group-qualified IDs through `DocumentMemberRouter`/`DocumentMemberAdapter`,
+returns the selected member role and save-set relative path, preserves first-seen request order, omits
+unknown/foreign/retired IDs and duplicates, and leaves provenance null because no authoritative plugin
+provenance is published. It does not infer ownership from prefixes, labels, values, bytes or filenames,
+and does not build a view, query, serialize output, dirty state or history. The implementation is
+plugin-owned; production adoption of any future action-effect descriptor remains a separate framework gate.
+
+The targeted and rendered account paths share the same embedded Myth allocation cap policy;
+reference-pack label/attribution overrides cannot grant a larger write range. Only the renderer's
+explicit Guardian, Hero and Myth scalar names are editable. Container count observations belong to
+the actual character backpack or profile bank/lost-loot role, including empty owned lists. Cold
+nested allocation lookup charges every visited field/packed value against the existing finite work
+budget. The parsed model maintains known-tag field indexes during construction, cloning and
+mutation. Scalar reads select the actual last occurrence (including name-limit policy inputs), and
+established inventory identities use direct per-list ordinals on the current model. Removing a
+session-created currency category cannot shift an item identity to its sibling. No index is built
+by metadata observation; structural actions retain their existing identity lifecycle boundary.
+The first matching level statistic uses `character/recorded-level`; later records use distinct
+`character/recorded-level/1`, `/2`, etc., without a second `/0` writable primary.
+
+**GEARBOX-F13 / action-effect metadata: framework landing gate.** The independently reviewed
+action-effect contract is complete, while a separate framework writer owns its opt-in pre-capture,
+memento and inline-descriptor implementation. Against the currently published dependency,
+`items/import` (empty and nonempty destinations) and group `transfer/deposit`,
+`transfer/withdraw` and `transfer/claim` still emit ordered effects such as `import/serial`,
+`character/inventory_items/item-0`, `profile/bank_inventory_list/character:item-0`, and the
+source/destination `/count` rows. Existence effects are absent/new action records rather than
+parsed fields, and `import/serial` remains an action payload pseudo-field; Gearbox does not invent
+writable fields, suppress rows or weaken host preflight. Current count and presence observations
+remain honest, including zero known lists. Gearbox will adopt the published descriptor only after
+the framework implementation lands, then add host-session preview/apply/undo/redo byte and
+cardinality regressions. This deferred production adoption and pure-planning work is tracked in
+[#81](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/81). Remaining capture, console-validation
+and gameplay-model gaps are listed above and tracked in [#31][owner-validation].
 
 ## Owner capture and validation checklist
 

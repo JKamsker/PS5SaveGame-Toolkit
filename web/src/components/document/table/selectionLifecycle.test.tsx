@@ -43,6 +43,6 @@ it("retires a sibling's selection when the table unmounts and remounts", async (
   expect(screen.getByRole("button", { name: "Restore" }).hasAttribute("disabled")).toBe(true);
   fireEvent.click(screen.getByRole("button", { name: "Toggle table" }));
   fireEvent.click(screen.getByRole("button", { name: "Restore" }));
-  await within(await screen.findByRole("dialog")).findByText("0 field changes · 0 skipped rows · one undo step");
+  await within(await screen.findByRole("dialog")).findByText("No changes. No undo step will be created.");
   expect(plan.mock.calls[0]?.[4]).toEqual({});
 });

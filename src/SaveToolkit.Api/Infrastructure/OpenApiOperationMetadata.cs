@@ -37,7 +37,7 @@ internal sealed class OpenApiOperationMetadata : IOpenApiOperationTransformer
             DescribeCollectionQuery(operation);
 
         if (operation.Responses?.TryGetValue("200", out var binary) == true && binary.Content is { } content
-            && content.Keys.Any(media => media != "application/json"))
+            && (content.Keys.Any(media => media != "application/json") || path == "/api/presets/transfer/export"))
         {
             if (path.EndsWith("/assets", StringComparison.Ordinal))
             {

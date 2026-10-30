@@ -9,6 +9,10 @@ for IDs containing `/`, because Kestrel preserves encoded slashes in route value
 There is no version prefix or authentication handshake. This is a local,
 single-user application; workspaces are transient, not persisted across restarts.
 
+Text specs may publish an optional `maxUtf8Bytes` constraint for the logical value;
+see [UTF-8 text capacity and planned actions](TEXT_CAPACITY.md) for byte counting,
+strict Unicode validation, and empty/stale preview behavior.
+
 The endpoint headings below are an executable inventory:
 `ApiDocumentationTests` compares them in both directions with ASP.NET Core's real
 `EndpointDataSource`, including aliases. SPA/static-file routes are outside this API.
@@ -73,6 +77,21 @@ Ordinary tests never rewrite the baseline and require no samples for these check
 The explicit re-pin switch adds no skipped test to ordinary runs. Shared middleware
 errors such as unknown-path 404 and unsupported-method 405 remain described below;
 host/proxy failures before application execution are outside generated operations.
+
+## Planned action effects
+
+Action previews may include an optional `effect` on an ordered change. The descriptor is additive and
+omitted for legacy rows, preserving their serialized bytes. `kind` is `Observation` or
+`StructuralMemento`; its read-only `spec` describes the exact typed old/new values on the enclosing
+row. `oldExists: false` with `oldValue: null` means absence, while an existing nullable field uses
+`oldExists: true`. `presentation`, `path`, and `source` are bounded evidence supplied by the plugin.
+
+Effect-capable documents opt in explicitly through `IActionEffectDocument`. Core resolves canonical
+metadata first, rejects an effect that shadows a genuine field, and validates every descriptor before
+retaining a plan. Any effect-bearing action uses one whole-action memento for apply, undo, and redo;
+there is no individual effect setter or writer endpoint. The existing action plan/apply endpoints and
+`ActionPreview` envelope carry the optional field, and the web review shows all ordered effects with
+typed values, absence, provenance, warnings, and copyable long payloads.
 
 ## Shared responses and errors
 
@@ -195,6 +214,85 @@ It is derived from registered title IDs and plugin maturity, rather than probing
 checking its writer. Content-based JSON overlays do not register extra title IDs, so a title
 listed with `None` can still contain editable JSON. Consult the
 [user guide's per-file limits](USER_GUIDE.md#supported-titles-and-write-limits).
+
+### `POST /api/presets/transfer/export`
+
+JSON `{ids:[...]}` exports an explicit selection of 1–256 host presets as a version-1
+package download. No save bytes or paths are included. See [preset transfer](SDK07-PRESET-TRANSFER.md).
+
+### `POST /api/presets/transfer/preview`
+
+Upload raw package JSON, bounded to 512 KiB/depth 16 before typed deserialization.
+Returns `PresetImportPreview` with schema/provenance, every record and all ID/name
+conflicts; no persistence occurs. Invalid/future packages return typed 422, size 413.
+
+### `POST /api/workspaces/{workspaceId}/documents/{documentId}/presets/transfer/compatibility`
+
+JSON `{token}` returns indexed `PresetImportCompatibilityDto` server summaries for
+staged records relative to the document, using the same mapper as document preset rows.
+Informational only: no save mutation or plugin apply occurs; unknown plugins may be stored
+for later. Expired tokens return 409. Document routes declare revision failures as 412.
+
+### `POST /api/presets/transfer/resolve`
+
+JSON `{token,choices:[{index,decision,replaceId?}]}` resolves every imported record.
+`decision` is `keepBoth` or `replace` with an explicit target. Returns a fresh preview
+token and all resulting names/replacements for confirmation. No persistence occurs.
+
+### `POST /api/presets/transfer/commit`
+
+JSON `{token}` commits a resolved, reviewed preview as one host-storage transaction.
+Returns `{imported:[{id,name}]}`. Concurrent CRUD/durable-file changes reject stale
+previews with 409. Storage failure returns 503 and leaves disk/memory unchanged.
+
+### `DELETE /api/presets/transfer/previews/{token}`
+
+Cancels read-only staging, returning 204. Preview tokens expire after ten minutes;
+at most eight are retained. Control bodies are at most 258 KiB (derived from the full 256-record/128-unit escaped-ID domain). Transfer never changes
+open documents, dirty state or history. All failures use stable typed API problems.
+
+### `GET /api/presets`
+
+Returns the host-owned `ToolkitPreset[]` list. Presets contain schema version, name,
+plugin/version/title/build/variant/reference-pack compatibility and semantic action parameters;
+they never contain save bytes or local paths. All preset routes return a typed `503
+presetStorageUnavailable` when the host library cannot be read or written temporarily.
+
+### `POST /api/presets/reload`
+
+Reloads the external preset file through a bounded single-handle read. A malformed,
+oversized, or duplicate-record replacement is rejected without replacing the last good
+in-memory library. Storage I/O failures return 503; invalid payloads return 422.
+
+### `POST /api/presets`
+
+JSON body `{name,compatibility,actions}` creates one version-1 preset and returns it. The
+compatibility boundary must include a plugin, plugin version and at least one title ID. The host
+rejects empty names, oversized payloads and invalid action counts with 422.
+
+### `PATCH /api/presets/{presetId}`
+
+JSON body `{name}` renames a host preset. It does not alter any open document or save bytes.
+
+### `DELETE /api/presets/{presetId}`
+
+Deletes only the external preset record and returns 204. Document Undo/Redo does not restore
+preset deletion.
+
+### `POST /api/workspaces/{workspaceId}/documents/{documentId}/presets/capture`
+
+JSON `{name,actionId,parameters?,scopeKind?,selectedRowKeys?,allMatches?}` invokes the optional
+pure plugin capture adapter. Selected row keys are ephemeral input only; the returned preset contains
+semantic targets and the host's actual title/plugin/variant/build/reference-pack boundary. Plugins do
+not perform storage or reference-pack I/O. The operation changes host preset storage only, never save
+bytes or document history.
+
+### `GET /api/workspaces/{workspaceId}/documents/{documentId}/presets`
+
+Returns document-scoped rows `{preset,compatibility}`. Compatibility is computed by the
+server against the opened document's exact title, plugin, build, variant, role, capability
+schema, reference-pack identity, action and scope support. Unknown or mismatched rows are
+reported with a stable code and are not advertised as previewable.
 
 ### `GET /api/workspaces`
 
@@ -400,15 +498,37 @@ Required JSON `{planId:string,revision:number}` (revision must be explicitly
 present). Returns **EditResult** and ETag. Plans are document-specific and
 single-use, including failed domain validation; re-preview after a failure.
 Stale/replaced/reused plan or changed consequences: 409; rejected effects: 422.
+
+### `POST /api/workspaces/{workspaceId}/documents/{documentId}/presets/{presetId}/preview`
+
+JSON `{revision?:number}` checks the preset's plugin/version/title/build/variant/reference-pack
+boundary and returns `{preset,preview}`. The generic host adapter currently accepts one planned
+F6 action and delegates to the same pure action planner; selecting a preset never edits the save.
+Mismatch, read-only or unsupported multi-action/instance resolution is 422; stale revision is 409.
+
+### `POST /api/workspaces/{workspaceId}/documents/{documentId}/presets/{presetId}/apply`
+
+Required JSON `{planId:string,revision:number}` applies the single-use revision-bound preview as one
+existing document history entry. Reused/stale plans and changed consequences are rejected without
+partial writes. A plugin implementing `IPresetDocument` owns explicit missing/ambiguous instance
+resolution and atomic multi-action application; the host never substitutes by name, type or slot.
 Effects are recomputed and checked before atomic application as one undo group.
 Transport/header rejection happens before invoking the domain operation.
 
 ### `GET /api/workspaces/{workspaceId}/documents/{documentId}/changes`
 
-No parameters. Returns `{changes,complete,warnings,revision}`. Each change has
-`valueId,label,path,originalValue,currentValue,originalExists,currentExists,
-canRevert`, plus optional `target` for fields reached through current F8 queryable
-rows. Eager/lazy changes retain their existing JSON shape. `target` contains
+No parameters. Returns `{changes,complete,warnings,revision,coverage?}`. Each change has
+ `valueId,label,path,originalValue,currentValue,originalExists,currentExists,
+ canRevert`, plus optional `target` for fields reached through current F8 queryable
+ rows. Eager/lazy changes retain their existing JSON shape. Metadata-backed changes may
+ additionally carry `canonicalValueId`, `bindingKind`, `presentation`, `aliases`,
+ `member`, `navigationTarget`, `canNavigate`, and `revertReason`. The effective
+ canonical ID is emitted only when the server has an explicit published identity;
+ aliases contain label/path/raw ID projections without duplicate value payloads.
+ `member` is authoritative group context (`role`, `relativePath`, optional `groupTitle`
+ and `provenance`) returned by the host's bounded `IGroupedFieldContext` resolver.
+ `navigationTarget` and `canNavigate` are server-owned; clients must not infer a target
+ from an ID, caption or path. Eager/lazy changes retain their existing JSON shape. `target` contains
 `{collectionId,rowKey,query}`: the exact unfiltered page query (including
 `includeEmpty:true`, `limit`, and either `offset` or `cursor`). Open the enclosing
 sections/tabs from `path`, query the opaque `collectionId` through the query-string
@@ -431,7 +551,10 @@ The navigation target is a Core/HTTP review contract, separate from SDK `ViewTar
 metadata discovery. Clients must not synthesize a target from an ID prefix or reuse its page query
 after the log revision changes.
 
-`complete:false` means bounded traversal/baseline coverage is partial; do not
+`coverage`, when present, contains `{examinedCount,omittedCount,budgetBytes,usedBytes,
+ omittedReasons,omittedCountIsLowerBound}`. The lower-bound flag is true when the server
+ could not establish an exact omitted set, including bounded group-context resolution or
+ truncated traversal. `complete:false` means bounded traversal/baseline coverage is partial; do not
 infer missing changes or field additions/removals from unvisited data. F8 budget
 cuts and invalid/failed paging add explicit **truncated** warnings identifying the
 collection/reason. Display these warnings even when `changes` is empty; never show
@@ -439,6 +562,13 @@ collection/reason. Display these warnings even when `changes` is empty; never sh
 history eviction. Existing `canRevert` governs individual revert, including F8
 fields; derived/read-only fields and structural additions/removals cannot revert
 individually.
+
+The framework's Generic JSON browser fixture provides synthetic protocol coverage for
+canonical/alias search, member context, unavailable navigation, incomplete coverage,
+retry, revert focus handoff and responsive keyboard access. It does not prove that a
+Pragmata or Gearbox/XorJson production adapter has implemented `IGroupedFieldContext`;
+those adapters must publish their real member role and relative path before production
+member provenance can be shown.
 
 ### `POST /api/workspaces/{workspaceId}/documents/{documentId}/changes/revert`
 
@@ -488,7 +618,9 @@ There is no workspace ETag or cross-document revision snapshot guarantee.
 
 No parameters. Returns `{packs:ReferencePackInfo[],errors:[{origin,message}]}`.
 Load errors are diagnostics in a successful listing. Pack information includes
-identity/version/title/origin and declared datasets/compatibility metadata.
+identity/version/title/origin, a host-computed `contentFingerprint` over the validated manifest/file
+hashes, and declared datasets/compatibility metadata. The fingerprint distinguishes same-id/version/
+locale overlays and is safe to use as a preset compatibility key.
 
 ### `POST /api/reference-packs`
 
@@ -509,7 +641,7 @@ and any Origin must match the request host authority. Existing pins survive remo
 ### `GET /api/workspaces/{workspaceId}/documents/{documentId}/sources`
 
 Returns `{datasets:[{packId,packTitle,packVersion,origin,locale?,datasetId,kind,
-title?,itemCount,attribution,used}]}` for pinned sources. Attribution includes
+title?,itemCount,attribution,used,contentFingerprint?}]}` for pinned sources. Attribution includes
 source/license/author/retrieval date/modifications. This is provenance, not a remote fetch.
 
 ### `GET /api/workspaces/{workspaceId}/documents/{documentId}/references/{catalogId}`

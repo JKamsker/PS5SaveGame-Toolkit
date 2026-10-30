@@ -49,8 +49,8 @@ internal sealed class GearboxItemActions(GearboxDocument document)
         var list = document.Profile ? GearboxInventory.Bank : GearboxInventory.Backpack;
         document.Inventory.EnsureCapacity(list, 1);
         var count = document.Root.All(list).Count();
-        changes.Add(new(list + "/count", "Import one validated-layout serial", FieldValue.Of(count), FieldValue.Of(count + 1)));
-        changes.Add(new("import/serial", "New serial (game legality unverified)", FieldValue.Null, FieldValue.Of(Convert.ToBase64String(serial))) { OldExists = false });
+        changes.Add(new(list + "/count", "Import one validated-layout serial", FieldValue.Of(count), FieldValue.Of(count + 1)) { Derived = true });
+        changes.Add(new("import/serial", "New serial (game legality unverified)", FieldValue.Null, FieldValue.Of(Convert.ToBase64String(serial))) { OldExists = false, Derived = true });
     }
 
     private void PlanSelected(string actionId, IReadOnlyDictionary<string, FieldValue> parameters, ActionScope scope,
@@ -76,7 +76,7 @@ internal sealed class GearboxItemActions(GearboxDocument document)
                 if (actionId == "items/duplicate" && !document.Inventory.Info(entry.Id).Complete)
                 { skipped.Add(new(entry.Id, "Cannot create an item with an unknown or invalid layout.")); continue; }
                 changes.Add(new(entry.Id + "/presence", entry.Id + (actionId == "items/remove" ? " removed" : " duplicated"),
-                    FieldValue.Of(1), FieldValue.Of(actionId == "items/remove" ? 0 : 2)));
+                    FieldValue.Of(1), FieldValue.Of(actionId == "items/remove" ? 0 : 2)) { Derived = true });
             }
         }
         var skippedIds = skipped.Select(row => row.RowKey).ToHashSet(StringComparer.Ordinal);

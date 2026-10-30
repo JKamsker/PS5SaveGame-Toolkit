@@ -127,7 +127,8 @@ describe("action preview", () => {
     fireEvent.click(screen.getByRole("button", { name: "Refill" }));
     await screen.findByText("Potion quantity");
     fireEvent.click(screen.getByRole("button", { name: "Apply" }));
-    expect(await screen.findByText("Preview is stale")).toBeTruthy();
+    await waitFor(() => expect(screen.getByRole("alert").textContent).toContain("Preview is stale"));
+    expect(screen.getByRole("button", { name: "Preview again" })).toBeTruthy();
   });
 
   it("preserves immediate invocation for legacy actions", async () => {
@@ -181,6 +182,31 @@ describe("action preview", () => {
 });
 
 describe("semantic changes panel", () => {
+  it("searches canonical and alias identities and explains derived context", async () => {
+    vi.spyOn(actionReview, "changes").mockResolvedValue({ ...log, changes: [{ ...change,
+      canonicalValueId: "quantity", bindingKind: "Primary", member: { role: "character", relativePath: "profile.dat", groupTitle: "Group", provenance: "router" },
+      aliases: [
+        { valueId: "raw/quantity", label: "Raw quantity", path: ["section:Raw", "row:legacy"], bindingKind: "Derived", changed: true,
+          presentation: { warning: "Current metadata caution", description: "Current alias context" },
+          member: { role: "character", relativePath: "profile.dat", groupTitle: "Group", provenance: "router" } },
+      ], canNavigate: true }] });
+    renderDocument(<ChangesPanel />);
+    fireEvent.click(screen.getByText("Changes against original"));
+    await screen.findByText("Potion quantity");
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "raw/quantity" } });
+    expect(screen.getByText("Also shown as 1 projection")).toBeTruthy();
+    fireEvent.click(screen.getByText("Also shown as 1 projection"));
+    expect(screen.getByText("Raw quantity")).toBeTruthy();
+    expect(screen.getByText("Changed projection")).toBeTruthy();
+    expect(screen.getByText("Current metadata caution")).toBeTruthy();
+    expect(screen.getByText("Current alias context")).toBeTruthy();
+    for (const value of ["row:legacy", "profile.dat", "router"]) {
+      fireEvent.change(screen.getByRole("searchbox"), { target: { value } });
+      expect(screen.getByText("Also shown as 1 projection")).toBeTruthy();
+    }
+    expect(screen.getByRole("region", { name: "Changed fields table" })).toBeTruthy();
+  });
+
   it("retries a failed changes load while retaining the search", async () => {
     vi.spyOn(actionReview, "changes").mockRejectedValueOnce(new Error("Change log unavailable")).mockResolvedValue(log);
     renderDocument(<ChangesPanel />);
@@ -246,6 +272,23 @@ describe("semantic changes panel", () => {
     expect(screen.getByRole("button", { name: "Jump to Potion quantity" })).toHaveProperty("disabled", false);
     fireEvent.click(button);
     expect(revert).not.toHaveBeenCalled();
+  });
+
+  it("separates a server navigation denial from revert authority and keeps IDs disclosed on demand", async () => {
+    const navigationDenied = { ...change, canRevert: true, canNavigate: false,
+      navigationTarget: { path: [], available: false, unavailableReason: "The current row was removed." } };
+    vi.spyOn(actionReview, "changes").mockResolvedValue({ ...log, changes: [navigationDenied] });
+    renderDocument(<ChangesPanel />);
+    fireEvent.click(screen.getByText("Changes against original"));
+    const jump = await screen.findByRole("button", { name: "Jump to Potion quantity" });
+    expect(jump).toHaveProperty("disabled", true);
+    const reason = screen.getByText("The current row was removed.");
+    expect(jump.getAttribute("aria-describedby")).toBe(reason.id);
+    expect(screen.getByRole("button", { name: "Revert Potion quantity" })).toHaveProperty("disabled", false);
+    const technical = screen.getByRole("button", { name: "Technical details" });
+    expect(technical.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(screen.getByText("Technical details"));
+    expect(technical.getAttribute("aria-expanded")).toBe("true");
   });
 
   it("loads changes against original, filters them and reverts with the log revision", async () => {
