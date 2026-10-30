@@ -67,6 +67,7 @@ export function suiteRecord(inventory, availableIDs, selectedIDs) {
     patterns: inventory?.suite?.patterns ?? [],
     declaredFiles: inventory?.declared ?? [],
     matchedFiles: inventory?.matched ?? [],
+    optionalFiles: inventory?.suite?.optionalFiles ?? [],
     availableIDs,
     selectedIDs,
     availableCount: availableIDs.length,
@@ -83,6 +84,8 @@ export function composeDiscovery({ manifest, inventories, args: discoveryArgs, d
   const selectedAll = normalizeIds("filtered", discover("", discoveryArgs));
   const available = new Map([[complement.id, normalizeIds(complement.id, discover(complement.id, []))]]);
   const selected = new Map([[complement.id, normalizeIds(complement.id, discover(complement.id, discoveryArgs))]]);
+  if (!available.get(complement.id).length)
+    throw new Error(`E2E suite '${complement.id}' is present but has no discoverable tests.`);
 
   for (const feature of features) {
     const inventory = inventoryById.get(feature.id);
@@ -102,6 +105,11 @@ export function composeDiscovery({ manifest, inventories, args: discoveryArgs, d
   const selectedParts = suiteIds.map(id => ({ id, ids: selected.get(id) ?? [] }));
   assertPartition("available", availableAll, availableParts);
   assertPartition("filtered", selectedAll, selectedParts);
+  for (const { id, ids } of selectedParts) {
+    const availableIDs = new Set(available.get(id));
+    if (ids.some(testID => !availableIDs.has(testID)))
+      throw new Error(`E2E suite '${id}' selected IDs outside its unfiltered availability.`);
+  }
 
   const records = Object.fromEntries(suiteIds.map(id => [id,
     suiteRecord(inventoryById.get(id), available.get(id) ?? [], selected.get(id) ?? [])]));

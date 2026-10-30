@@ -10,6 +10,7 @@ import {
   featureSuites,
   filesForSuite,
   readSuiteManifest,
+  validateSuiteManifest,
   validateFeatureInventory,
 } from "./e2e-suite-manifest.mjs";
 import { composeDiscovery, identities, orchestrateSuites } from "./run-e2e.mjs";
@@ -27,7 +28,7 @@ function fixtureManifest() {
 }
 
 function inventoryFor(manifest, states = new Map()) {
-  return featureSuites(manifest).map(suite => ({ suite, state: states.get(suite.id) ?? "present",
+  return manifest.suites.map(suite => ({ suite, state: states.get(suite.id) ?? "present",
     declared: [...suite.files], matched: [...suite.files] }));
 }
 
@@ -48,8 +49,9 @@ it("records published ownership without requiring future feature files to be abs
   expect(complementSuite(manifest).files).toEqual([
     "actions.e2e.ts", "bundle.e2e.ts", "failure-document.e2e.ts", "failure-lifetimes.e2e.ts",
     "failure-reference.e2e.ts", "failure-review-export.e2e.ts", "field-reference.e2e.ts", "import.e2e.ts",
-    "keyboard.e2e.ts", "map-accessibility.e2e.ts", "reference-batch.e2e.ts", "review.e2e.ts",
-    "selection-binding.e2e.ts", "smoke.e2e.ts", "table.e2e.ts", "workspace.e2e.ts",
+    "keyboard.e2e.ts", "map-accessibility.e2e.ts", "presets.e2e.ts", "reference-batch.e2e.ts",
+    "review.e2e.ts", "selection-binding.e2e.ts",
+    "smoke.e2e.ts", "table.e2e.ts", "workspace.e2e.ts",
   ]);
   expect(featureSuites(manifest).map(suite => suite.id)).toEqual([
     "unreal", "text-capacity", "ff7", "transfer", "caption", "action-effects",
@@ -79,6 +81,7 @@ it("records published ownership without requiring future feature files to be abs
     "canonical", "unreal", "text-capacity", "ff7", "transfer", "caption", "action-effects",
   ]);
   expect(inventory[0]).toMatchObject({ state: "present", declared: complementSuite(manifest).files });
+  expect(inventory[0].matched).toEqual(complementSuite(manifest).files.filter(file => existsSync(path.join(webRoot, "e2e", file))));
   for (const entry of inventory.slice(1)) {
     expect(["absent", "present"]).toContain(entry.state);
     if (entry.state === "present") expect(entry.matched).toEqual(entry.declared);
@@ -144,6 +147,58 @@ it("proves the published action-effects partition is explicit when present", () 
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+it("allows the declared optional canonical file absent or present without accepting unknown specs", () => {
+  const manifest = readSuiteManifest();
+  const canonical = complementSuite(manifest);
+  const root = mkdtempSync(path.join(tmpdir(), "savetoolkit-e2e-optional-"));
+  try {
+    const required = canonical.files.filter(file => !canonical.optionalFiles.includes(file));
+    writeFixtureFiles(root, required);
+    expect(validateFeatureInventory(manifest, root)[0].matched).toEqual(required);
+    writeFixtureFiles(root, canonical.optionalFiles);
+    expect(validateFeatureInventory(manifest, root)[0].matched).toEqual(canonical.files);
+    writeFixtureFiles(root, ["presets-new.e2e.ts"]);
+    expect(() => validateFeatureInventory(manifest, root)).toThrow(/undeclared/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+it.each(featureSuites(readSuiteManifest()).map(suite => [suite.id, suite.files]))(
+  "validates absent, full and incomplete ownership for %s with marker files only", (id, files) => {
+    const manifest = readSuiteManifest();
+    const root = mkdtempSync(path.join(tmpdir(), "savetoolkit-e2e-features-"));
+    try {
+      writeFixtureFiles(root, complementSuite(manifest).files);
+      expect(validateFeatureInventory(manifest, root).find(entry => entry.suite.id === id).state).toBe("absent");
+      writeFixtureFiles(root, files);
+      expect(validateFeatureInventory(manifest, root).find(entry => entry.suite.id === id))
+        .toMatchObject({ state: "present", matched: [...files].sort() });
+      if (files.length > 1) {
+        rmSync(path.join(root, files[0]));
+        expect(() => validateFeatureInventory(manifest, root)).toThrow(/incomplete feature-file inventory/);
+      }
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+it.each([
+  ["schema", manifest => { manifest.version = 1; }],
+  ["empty suite ID", manifest => { manifest.suites[1].id = ""; }],
+  ["duplicate suite ID", manifest => { manifest.suites[1].id = "canonical"; }],
+  ["invalid file path", manifest => { manifest.suites[0].files = ["../bad.e2e.ts"]; }],
+  ["optional outside allowlist", manifest => { manifest.suites[0].optionalFiles = ["other.e2e.ts"]; }],
+  ["optional feature file", manifest => { manifest.suites[1].optionalFiles = manifest.suites[1].files; }],
+])("rejects malformed manifest %s before discovery or launch", (_name, change) => {
+  const manifest = fixtureManifest();
+  change(manifest);
+  const discover = vi.fn();
+  const launch = vi.fn();
+  expect(() => {
+    validateSuiteManifest(manifest);
+    orchestrateSuites({ manifest, inventories: [], args: [], discover, launch, reportError: vi.fn() });
+  }).toThrow();
+  expect(discover).not.toHaveBeenCalled();
+  expect(launch).not.toHaveBeenCalled();
 });
 
 it.each([
@@ -367,3 +422,64 @@ it("fails persistence before launching any valid suite", () => {
     .toThrow(/synthetic discovery persistence failure/);
   expect(launch).not.toHaveBeenCalled();
 });
+
+it("rejects filtered phantom IDs even when filtered whole-tree and partitions agree", () => {
+  const { manifest, inventories, ids } = discoveryFixture();
+  const launch = vi.fn();
+  const discover = (suite, args) => args.length
+    ? (suite && suite !== "canonical" ? [] : ["synthetic-not-available"])
+    : suite ? ids[suite] : Object.values(ids).flat();
+  expect(() => orchestrateSuites({ manifest, inventories, args: ["--grep", "phantom"], discover, launch,
+    reportError: vi.fn() })).toThrow(/outside its unfiltered availability/);
+  expect(launch).not.toHaveBeenCalled();
+});
+
+it("persists list discovery once before returning without actual launches", () => {
+  const { manifest, inventories, discover } = discoveryFixture();
+  const beforeExecute = vi.fn();
+  const launch = vi.fn();
+  const result = orchestrateSuites({ manifest, inventories, args: [], discover, launch,
+    reportError: vi.fn(), beforeExecute, execute: false });
+  expect(result.exitCode).toBe(0);
+  expect(beforeExecute).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ discovery: result.discovery }));
+  expect(discover).toHaveBeenCalledTimes(8);
+  expect(launch).not.toHaveBeenCalled();
+});
+
+it("retains full seven-suite selection and continues through later failures", () => {
+  const manifest = readSuiteManifest();
+  const inventories = inventoryFor(manifest);
+  const names = manifest.suites.map(suite => suite.id);
+  const discover = suite => suite ? [`synthetic-${suite}`] : names.map(id => `synthetic-${id}`);
+  const launch = vi.fn(suite => {
+    if (suite === "text-capacity") return { error: new Error("synthetic returned launch error"), status: null };
+    if (suite === "ff7") throw new Error("synthetic thrown launch error");
+    if (suite === "transfer") return { signal: "SIGTERM", status: null };
+    if (suite === "caption") return { status: 1 };
+    return { status: 0 };
+  });
+  const reportError = vi.fn();
+  const result = orchestrateSuites({ manifest, inventories, args: [], discover, launch, reportError });
+  expect(result.exitCode).toBe(1);
+  expect(launch.mock.calls).toEqual(names.map(id => [id]));
+  expect(result.discovery.all.availableIDs).toEqual(names.map(id => `synthetic-${id}`).sort());
+  expect(reportError.mock.calls).toEqual([
+    ["E2E suite 'text-capacity' could not launch: synthetic returned launch error"],
+    ["E2E suite 'ff7' could not launch: synthetic thrown launch error"],
+  ]);
+});
+
+it.each(readSuiteManifest().suites.map(suite => suite.id))(
+  "rejects present but empty %s before persistence and launch", emptySuite => {
+    const manifest = readSuiteManifest();
+    const inventories = inventoryFor(manifest);
+    const names = manifest.suites.map(suite => suite.id).filter(id => id !== emptySuite);
+    const discover = suite => suite ? (suite === emptySuite ? [] : [`synthetic-${suite}`])
+      : names.map(id => `synthetic-${id}`);
+    const launch = vi.fn();
+    const beforeExecute = vi.fn();
+    expect(() => orchestrateSuites({ manifest, inventories, args: [], discover, launch,
+      reportError: vi.fn(), beforeExecute })).toThrow(/present but has no discoverable tests/);
+    expect(beforeExecute).not.toHaveBeenCalled();
+    expect(launch).not.toHaveBeenCalled();
+  });

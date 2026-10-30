@@ -8,26 +8,33 @@ const manifestVersion = 2;
 function normalizedTestFile(file) {
   const normalized = file.replaceAll("\\", "/");
   const parts = normalized.split("/");
-  if (!normalized || normalized.startsWith("/") || parts.some(part => !part || part === "..")
+  if (!normalized || normalized.startsWith("/") || normalized.includes(":")
+    || parts.some(part => !part || part === "." || part === "..")
     || !normalized.endsWith(".e2e.ts"))
     throw new Error(`E2E suite manifest contains an invalid test file '${file}'.`);
   return normalized;
 }
 
 export function readSuiteManifest() {
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-  if (manifest.version !== manifestVersion || manifest.testDirectory !== "e2e" || !Array.isArray(manifest.suites))
+  return validateSuiteManifest(JSON.parse(readFileSync(manifestPath, "utf8")));
+}
+
+export function validateSuiteManifest(manifest) {
+  if (!manifest || manifest.version !== manifestVersion || manifest.testDirectory !== "e2e" || !Array.isArray(manifest.suites))
     throw new Error(`E2E suite manifest must declare version ${manifestVersion} and the e2e test directory.`);
 
   const ids = new Set();
   const files = new Map();
   let complements = 0;
   for (const suite of manifest.suites) {
-    if (!suite || typeof suite.id !== "string" || ids.has(suite.id))
+    if (!suite || typeof suite.id !== "string" || !suite.id.trim() || ids.has(suite.id))
       throw new Error("E2E suite manifest contains a missing or duplicate suite ID.");
     if (!Array.isArray(suite.patterns) || !suite.patterns.every(pattern => typeof pattern === "string")
       || !Array.isArray(suite.files) || !suite.files.every(file => typeof file === "string"))
       throw new Error(`E2E suite '${suite.id}' must declare patterns and files.`);
+    if (suite.optionalFiles !== undefined
+      && (!Array.isArray(suite.optionalFiles) || !suite.optionalFiles.every(file => typeof file === "string")))
+      throw new Error(`E2E suite '${suite.id}' must declare optional files as an array.`);
     if (suite.role !== "feature" && suite.role !== "complement")
       throw new Error(`E2E suite '${suite.id}' has an unknown role.`);
     if (suite.role === "feature" && (!suite.patterns.length || !suite.files.length))
@@ -36,6 +43,11 @@ export function readSuiteManifest() {
       throw new Error("The canonical complement suite must declare an explicit file allowlist and no patterns.");
     suite.patterns = suite.patterns.map(pattern => pattern.replaceAll("\\", "/"));
     suite.files = suite.files.map(normalizedTestFile);
+    suite.optionalFiles = (suite.optionalFiles ?? []).map(normalizedTestFile);
+    if (suite.optionalFiles.some(file => !suite.files.includes(file)))
+      throw new Error(`E2E suite '${suite.id}' has an optional file outside its allowlist.`);
+    if (suite.role === "feature" && suite.optionalFiles.length)
+      throw new Error(`E2E feature suite '${suite.id}' cannot declare optional files.`);
     for (const pattern of suite.patterns) globRegex(pattern);
     for (const file of suite.files) {
       if (files.has(file)) throw new Error(`E2E suite files overlap between '${files.get(file)}' and '${suite.id}'.`);
@@ -75,6 +87,7 @@ export function testFiles(testDirectory) {
 }
 
 function globRegex(pattern) {
+  // Supported subset: leading **/ for whole directories, then component-local * and ?.
   const normalized = pattern.replaceAll("\\", "/");
   if (!normalized.startsWith("**/"))
     throw new Error(`Unsupported E2E ownership pattern '${pattern}': expected a **/ prefix.`);
@@ -119,6 +132,7 @@ function validatePatternOwnership(manifest) {
 }
 
 export function validateFeatureInventory(manifest, testDirectory) {
+  validateSuiteManifest(manifest);
   const ownership = validatePatternOwnership(manifest);
   const files = testFiles(testDirectory);
   const unknown = files.filter(file => !ownership.has(file));
@@ -127,9 +141,10 @@ export function validateFeatureInventory(manifest, testDirectory) {
   return manifest.suites.map(suite => {
     const suiteFiles = [...suite.files].sort();
     if (suite.role === "complement") {
-      const missing = suiteFiles.filter(file => !files.includes(file));
+      const optional = new Set(suite.optionalFiles ?? []);
+      const missing = suiteFiles.filter(file => !files.includes(file) && !optional.has(file));
       if (missing.length) throw new Error(`E2E canonical file allowlist is missing: ${missing.join(", ")}.`);
-      return { suite, state: "present", declared: suiteFiles, matched: suiteFiles };
+      return { suite, state: "present", declared: suiteFiles, matched: suiteFiles.filter(file => files.includes(file)) };
     }
 
     const matched = filesForSuite(suite, files);

@@ -422,12 +422,16 @@ The Ubuntu-only `e2e` CI job runs alongside validation with a 12-minute limit. T
 canonical file allowlist plus each named feature partition (Unreal, text-capacity, FF7, transfer,
 caption and action-effects) sequentially whenever its complete owned file inventory is present.
 Every available `.e2e.ts` file must be declared exactly once; an unknown file, overlapping pattern,
-missing canonical file, partial feature inventory or present-but-empty feature discovery fails before
+missing required canonical file, partial feature inventory or present-but-empty discovery fails before
 any actual suite launch. Each selected suite retains the unchanged 180-second overall deadline,
-30-second test timeout, one worker, zero retries, traces and teardown. The aggregate allowance is
+30-second default test timeout, one worker, zero retries, traces and teardown. Existing spec-specific
+overrides, including the transfer library's 60-second test timeout, are unchanged. The aggregate allowance is
 additive across the partitions that are actually present; neither four-suite nor six-suite ceiling
 arithmetic includes discovery, startup, reporting or teardown overhead or proves the complete run fits.
 The complete composed run still has to fit the unchanged 12-minute CI job.
+The canonical allowlist explicitly marks `presets.e2e.ts` optional until its published feature is
+composed; when present, all its actual registrations participate in canonical discovery and execution.
+Optional means declared absence is allowed, never that a present file or its IDs may be skipped.
 Discovery records the full declared-file, matched-file and pattern inventory together with unfiltered
 available IDs, filtered selected IDs and each suite's `absent`, `filtered-out` or `selected` state.
 It verifies exact disjoint unions against complete unfiltered and filtered discovery, rejects malformed
