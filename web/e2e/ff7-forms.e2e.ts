@@ -61,13 +61,14 @@ for (const width of [375, 768, 1024, 1440]) {
     await panel.getByLabel("Filter presets", { exact: true }).fill(`FF7 ${width} ${actions.restock}`);
     await panel.getByLabel("Title", { exact: true }).fill(binary.titleId);
     await panel.getByLabel("Plugin", { exact: true }).fill("ff7r");
-    await panel.getByLabel("Compatibility", { exact: true }).selectOption("ready");
+    await panel.getByRole("combobox", { name: "Compatibility", exact: true }).selectOption("ready");
     await expect(panel.getByRole("list", { name: "Saved toolkit presets" }).getByRole("listitem")).toHaveCount(1);
     await tabTo(page, row.getByRole("button", { name: "Rename", exact: true }));
     await page.keyboard.press("Enter");
     const longName = `FF7 ${width} ${"authored-long-name ".repeat(4)}`;
-    await row.getByLabel("Preset name", { exact: true }).fill(longName);
-    await row.getByLabel("Preset name", { exact: true }).press("Enter");
+    const nameInput = panel.getByRole("textbox", { name: "Preset name", exact: true });
+    await nameInput.fill(longName);
+    await nameInput.press("Enter");
     await panel.getByLabel("Filter presets", { exact: true }).fill(longName);
     const renamed = saved(page, longName);
     await expect(renamed).toBeVisible();
