@@ -74,6 +74,8 @@ Mixed batches, explicit unions, derived effects and structural/memento outcomes
 retain their original rows and replay path. Byte differences, including signed
 zero or an unreported secondary-file mutation, prevent suppression. This is not
 a repair for a provider that violates atomicity or omits all mutation reports.
+Reported-row membership uses one ordinal-ID lookup with canonical typed values,
+so a large repeated batch does not rescan every request for every reported row.
 
 The actual Jedi setter may mark its internal buffer dirty on a repeated write.
 After a byte-identical proof, the host stays clean (or keeps its prior history);
@@ -116,6 +118,8 @@ no omissions or duplicates, and runs both with separate unchanged 180-second,
 one-worker, zero-retry gates. Each has a unique server/scratch/report lifecycle;
 the aggregate allowance includes both mandatory suites. Hosted CI collects both
 reports and discovers the fixture unit project; no private data is required.
+Suite launch errors are identified and retained as aggregate failures while later
+selected suites are still attempted, just like ordinary nonzero process exits.
 
 Unresolved/deleted references are not emitted by these supported scalar fixtures.
 Their UI state remains covered by separate framework/component tests; this suite

@@ -28,11 +28,20 @@ internal static class ScalarEditEffectiveness
         if (before is null || !outcome.Succeeded || outcome.StructureChanged || outcome.Revert is not null
             || outcome.Changes.Count == 0) return outcome;
 
-        // Derived rows, mixed effective batches and explicit union assignments retain their original semantics.
-        if (outcome.Changes.Any(change => change.OldValue != change.NewValue
-            || !edits.Any(edit => edit.ValueId == change.ValueId && edit.Value == change.NewValue))) return outcome;
         try
         {
+            // Build membership once: IDs are ordinal and values use canonical FieldValue equality.
+            // Multiple requested representations for an ID retain the original membership semantics.
+            var assignments = new Dictionary<string, HashSet<FieldValue>>(StringComparer.Ordinal);
+            foreach (var edit in edits)
+            {
+                if (!assignments.TryGetValue(edit.ValueId, out var values))
+                    assignments.Add(edit.ValueId, values = []);
+                values.Add(edit.Value);
+            }
+            // Derived rows and mixed effective batches retain their original semantics.
+            if (outcome.Changes.Any(change => change.OldValue != change.NewValue
+                || !assignments.TryGetValue(change.ValueId, out var values) || !values.Contains(change.NewValue))) return outcome;
             var after = DocumentOutputSnapshot.TryCapture(document, MaxProofBytes, CancellationToken.None);
             if (after is null || before.Count != after.Count) return outcome;
             for (var index = 0; index < before.Count; index++)
