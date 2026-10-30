@@ -12,7 +12,6 @@ public static class PresetPackageCodec
     public const int MaxBytes = 512 * 1024;
     public const int MaxPresets = PresetTransferLimits.MaxRecords;
     public const int MaxDepth = 16;
-    private const int MaxTextLength = 4096;
     internal static JsonSerializerOptions JsonOptions { get; } = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = false,
@@ -148,11 +147,11 @@ public static class PresetPackageCodec
 
     private static void ValidateValue(JsonElement value)
     {
-        if (value.ValueKind == JsonValueKind.String && value.GetString()!.Length <= MaxTextLength) return;
-        if (value.ValueKind == JsonValueKind.Number && value.GetRawText().Length <= MaxTextLength) return;
+        // The package byte cap already bounds every scalar, including accepted long text and exact numbers.
+        if (value.ValueKind is JsonValueKind.String or JsonValueKind.Number) return;
         if (value.ValueKind is JsonValueKind.True or JsonValueKind.False or JsonValueKind.Null) return;
         // Tagged exact/union values are validated structurally, without converting numbers to doubles.
-        if (value.ValueKind == JsonValueKind.Object && value.GetRawText().Length <= MaxTextLength)
+        if (value.ValueKind == JsonValueKind.Object)
         {
             _ = value.Deserialize<SaveToolkit.Sdk.Values.FieldValue>(JsonOptions);
             return;

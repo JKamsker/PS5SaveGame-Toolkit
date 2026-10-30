@@ -20,7 +20,7 @@ internal sealed class OpenApiPresetPackageSchemas : IOpenApiDocumentTransformer
                 Type = JsonSchemaType.Object, MaxProperties = 128,
                 AdditionalProperties = new OpenApiSchemaReference(nameof(FieldValue), document),
                 Description = "At most 128 parameter IDs (1–256 UTF-16 units, nonblank, no controls). " +
-                    "Numbers retain exact JSON lexemes; strings and tagged values are bounded to 4096 units. Arrays and loose save objects are rejected.",
+                    "Numbers retain exact JSON lexemes; parameter values share the 512 KiB package byte limit. Arrays and loose save objects are rejected.",
             };
         }
         if (document.Components.Schemas.TryGetValue(nameof(PresetPackageCompatibilityDto), out var compatibility)
