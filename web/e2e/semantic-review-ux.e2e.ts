@@ -69,11 +69,14 @@ test("metadata-backed review renders canonical aliases, member context and safe 
   await expect(tableRegion).toBeVisible();
   await tableRegion.focus();
   await expect(tableRegion).toBeFocused();
+  await primary.getByRole("button", { name: "Technical details" }).click();
   await expect(primary).toContainText("Technical ID: character/balance");
   await primary.getByText(/Also shown as 1 projection/).click();
-  await expect(primary).toContainText("character/raw/balance");
+  await primary.getByRole("button", { name: "Technical details" }).nth(1).click();
+  await expect(primary).toContainText("Technical ID: character/raw/balance");
   await expect(primary).toContainText("Derived");
   await expect(primary).toContainText("Changed projection");
+  await expect(primary).toContainText("Alias annotation is current and read-only");
 
   const search = review.getByRole("searchbox", { name: "Find a changed field" });
   await search.fill("character/raw/balance");

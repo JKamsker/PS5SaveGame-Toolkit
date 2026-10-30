@@ -284,10 +284,10 @@ describe("semantic changes panel", () => {
     const reason = screen.getByText("The current row was removed.");
     expect(jump.getAttribute("aria-describedby")).toBe(reason.id);
     expect(screen.getByRole("button", { name: "Revert Potion quantity" })).toHaveProperty("disabled", false);
-    const technical = screen.getByText("Technical details").closest("details");
-    expect(technical).toHaveProperty("open", false);
+    const technical = screen.getByRole("button", { name: "Technical details" });
+    expect(technical.getAttribute("aria-expanded")).toBe("false");
     fireEvent.click(screen.getByText("Technical details"));
-    expect(technical).toHaveProperty("open", true);
+    expect(technical.getAttribute("aria-expanded")).toBe("true");
   });
 
   it("loads changes against original, filters them and reverts with the log revision", async () => {
