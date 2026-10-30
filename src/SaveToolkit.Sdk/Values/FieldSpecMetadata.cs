@@ -102,6 +102,10 @@ public static class FieldSpecMetadata
                 }
                 else if (frame.Spec is UnionSpec union)
                 {
+                    // Each option costs at least its existing 40-byte record charge. Reject
+                    // an impossible aggregate before starting any provider-owned enumeration.
+                    if (union.Options.Count < 0 || union.Options.Count > FieldMetadataLimits.MaxClosureIds
+                        || union.Options.Count > (limit - bytes) / 40) return false;
                     var unionOptions = BoundedMetadataCollections.Enumerate(union.Options,
                         FieldMetadataLimits.MaxClosureIds, cancellationToken).GetEnumerator();
                     pending.Push(frame with { Options = unionOptions });
