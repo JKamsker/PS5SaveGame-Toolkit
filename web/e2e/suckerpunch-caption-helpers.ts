@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import type { SaveDocument } from "../src/api/protocol";
 import { archive, downloadedFiles, home, type SaveFiles, upload } from "./helpers";
+import { unzipSync } from "fflate";
 
 const repositoryRoot = fileURLToPath(new URL("../..", import.meta.url));
 export const captionPrimaryPath = "PPSA02225/sdimg_CAPTION/dis.dat";
@@ -63,8 +64,12 @@ export async function openSuckerPunch(page: Page, files: SaveFiles, fileName = "
 }
 
 export function expectedGlyphSfo(source: Uint8Array): Buffer {
+  return expectedCaptionSfo(source, editedCaption);
+}
+
+export function expectedCaptionSfo(source: Uint8Array, value: string): Buffer {
   const original = Buffer.from("Moon\0", "utf8");
-  const replacement = Buffer.from(`${editedCaption}\0`, "utf8");
+  const replacement = Buffer.from(`${value}\0`, "utf8");
   expect(replacement.length).toBe(original.length);
   const offset = Buffer.from(source).indexOf(original);
   expect(offset).toBeGreaterThanOrEqual(0);
@@ -72,6 +77,20 @@ export function expectedGlyphSfo(source: Uint8Array): Buffer {
   const expected = Buffer.from(source);
   replacement.copy(expected, offset);
   return expected;
+}
+
+export function isCaptionDocumentRequest(url: string, documentPath: string, suffix: string): boolean {
+  return new URL(url).pathname.endsWith(`${documentPath}${suffix}`);
+}
+
+/** Downloads a whole-dump export through the real workspace endpoint without opening a second modal. */
+export async function exportCaptionApi(page: Page, documentPath: string): Promise<SaveFiles> {
+  const workspacePath = documentPath.slice(0, documentPath.indexOf("/documents/"));
+  const response = await page.request.post(`${workspacePath}/export`, {
+    data: { scope: "Everything", mirrorBackups: false },
+  });
+  expect(response.ok()).toBe(true);
+  return unzipSync(await response.body());
 }
 
 export async function exportCaptionScope(page: Page, testInfo: TestInfo, label: RegExp, name: string): Promise<SaveFiles> {
