@@ -3,6 +3,8 @@ import type { ExportPlan, ExportScope } from "../../api/protocol";
 import { formatBytes } from "../../lib/values";
 import { useExportDialog } from "./useExportDialog";
 
+const MAX_PREVIEW_FILES = 8;
+
 const scopes: { value: ExportScope; label: string; hint: string }[] = [
   { value: "ChangedDirectories", label: "Changed save folders", hint: "Complete folders including sce_sys, ready to restore with your save manager." },
   { value: "ChangedFiles", label: "Only changed files", hint: "Just the rewritten files, same paths as the import." },
@@ -87,12 +89,13 @@ function ExportSummary({ plan }: { plan: ExportPlan }) {
       {plan.changedCount === 0 ? "Nothing has been changed yet." : <>
         {changed.length} rewritten, {plan.files.length} files in total
         <ul style={{ margin: "8px 0 0", paddingLeft: 18 }}>
-          {changed.slice(0, 8).map((f) => (
+          {changed.slice(0, MAX_PREVIEW_FILES).map((f) => (
             <li key={f.relativePath}>
               <span className="mono">{f.relativePath}</span> — {f.reason}, {formatBytes(f.length)}
             </li>
           ))}
         </ul>
+        {changed.length > MAX_PREVIEW_FILES && <p>Showing the first {MAX_PREVIEW_FILES} of {changed.length} rewritten files.</p>}
       </>}
     </div>
   );

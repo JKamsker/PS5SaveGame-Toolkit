@@ -10,6 +10,21 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 const empty: ExportPlan = { changedCount: 0, files: [] };
 const changed: ExportPlan = { changedCount: 1, files: [{ relativePath: "save.dat", length: 1, reason: "edited" }] };
 
+it.each([8, 9])("identifies a shortened export preview when there are %s rewritten files", async count => {
+  const files = Array.from({ length: count }, (_, index) => ({
+    relativePath: `slot-${index}/save.dat`, length: 1, reason: "edited",
+  }));
+  vi.spyOn(api, "exportPlan").mockResolvedValue({ changedCount: count, files: [
+    ...files, { relativePath: "sce_sys/param.sfo", length: 1, reason: "unchanged" },
+  ] });
+  const { client } = setup();
+  await screen.findByText("slot-0/save.dat");
+  expect(screen.getAllByRole("listitem")).toHaveLength(Math.min(count, 8));
+  if (count > 8) expect(screen.getByText(`Showing the first 8 of ${count} rewritten files.`)).not.toBeNull();
+  else expect(screen.queryByText(/Showing the first/)).toBeNull();
+  client.clear();
+});
+
 function setup() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000, gcTime: 0 } } });
   const toast = vi.fn();
