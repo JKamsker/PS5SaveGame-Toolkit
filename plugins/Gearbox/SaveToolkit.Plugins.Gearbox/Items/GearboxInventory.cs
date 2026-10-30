@@ -12,7 +12,7 @@ internal sealed class GearboxInventory
     internal const int DirectLookupWorkLimit = 4096;
     private readonly GearboxDocument _document;
     private readonly Dictionary<string, List<string>> _ids;
-    private readonly Dictionary<string, (string List, int Index, int FieldPosition)> _locations = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, (string List, int Index)> _locations = new(StringComparer.Ordinal);
     private bool _identitiesInitialized;
     private int _nextId;
     private ProtoMessage? _indexedRoot;
@@ -55,11 +55,12 @@ internal sealed class GearboxInventory
             _serials.Clear();
         }
         if (_directEntries.TryGetValue(id, out var cached)) { entry = cached; return true; }
-        // Root.Clone preserves field order. Restore and structural actions rebuild these positions.
+        // A scalar can remove another root tag between setters. The model maintains each tag's
+        // own ordinals during that mutation, so a category cannot shift an inventory identity.
         if (_locations.TryGetValue(id, out var location))
         {
-            if ((uint)location.FieldPosition >= (uint)_document.Root.Fields.Count) return false;
-            var field = _document.Root.Fields[location.FieldPosition];
+            var field = _document.Root.FieldAt(location.List, location.Index);
+            if (field is null) return false;
             LastDirectFieldsVisited++;
             DirectFieldsVisited++;
             if (field.Spec?.Name != location.List) return false;
@@ -91,6 +92,7 @@ internal sealed class GearboxInventory
         ProtoField? field = null;
         foreach (var candidate in _document.Root.Fields)
         {
+            _document.Root.CountTargetedVisit();
             DirectFieldsVisited++;
             if (++LastDirectFieldsVisited > DirectLookupWorkLimit)
             {
@@ -245,14 +247,8 @@ internal sealed class GearboxInventory
     private void RebuildLocations()
     {
         _locations.Clear();
-        var indices = _ids.Keys.ToDictionary(list => list, _ => 0, StringComparer.Ordinal);
-        for (var position = 0; position < _document.Root.Fields.Count; position++)
-        {
-            var name = _document.Root.Fields[position].Spec?.Name;
-            if (name is null || !indices.TryGetValue(name, out var index)) continue;
-            if (index < _ids[name].Count) _locations[_ids[name][index]] = (name, index, position);
-            indices[name] = index + 1;
-        }
+        foreach (var (list, ids) in _ids)
+            for (var index = 0; index < ids.Count; index++) _locations[ids[index]] = (list, index);
     }
 
     private int CountBounded(string list)
@@ -260,6 +256,7 @@ internal sealed class GearboxInventory
         var count = 0;
         foreach (var field in _document.Root.Fields)
         {
+            _document.Root.CountTargetedVisit();
             DirectFieldsVisited++;
             if (++LastDirectFieldsVisited > DirectLookupWorkLimit)
             {

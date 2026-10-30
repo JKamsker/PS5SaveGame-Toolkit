@@ -16,6 +16,7 @@ internal static class GearboxMetadataLookup
         var records = 0;
         foreach (var field in root.Fields)
         {
+            root.CountTargetedVisit();
             if (++records > GearboxInventory.DirectLookupWorkLimit)
             {
                 exhausted = true;
@@ -37,7 +38,7 @@ internal static class GearboxMetadataLookup
 
     internal static ProtoMessage RequireChild(ProtoMessage root, string name, int index, bool bounded) =>
         bounded ? RequireChild(root, name, index) :
-        root.All(name).ElementAtOrDefault(index)?.Message ??
+        root.FieldAt(name, index)?.Message ??
         throw new SaveFormatException("The requested Gearbox record is no longer present.");
 
     internal static bool TryChildrenWhere(ProtoMessage root, string name, Func<ProtoMessage, bool> predicate,
@@ -49,6 +50,7 @@ internal static class GearboxMetadataLookup
         var index = 0;
         foreach (var field in root.Fields)
         {
+            root.CountTargetedVisit();
             if (++visited > GearboxInventory.DirectLookupWorkLimit)
             {
                 exhausted = true;
@@ -67,6 +69,7 @@ internal static class GearboxMetadataLookup
         var visited = 0;
         foreach (var field in root.Fields)
         {
+            root.CountTargetedVisit();
             if (++visited > GearboxInventory.DirectLookupWorkLimit)
             {
                 exhausted = true;
@@ -83,6 +86,7 @@ internal static class GearboxMetadataLookup
         var visited = 0;
         foreach (var field in root.Fields)
         {
+            root.CountTargetedVisit();
             if (++visited > GearboxInventory.DirectLookupWorkLimit) return false;
             if (field.Spec?.Name == name && ++count > GearboxInventory.DirectLookupWorkLimit) return false;
         }
@@ -96,6 +100,7 @@ internal static class GearboxMetadataLookup
         var visited = 0;
         foreach (var field in root.Fields)
         {
+            root.CountTargetedVisit();
             if (++visited > GearboxInventory.DirectLookupWorkLimit) return false;
             if (field.Spec?.Name == name && field.Message is { } candidate && predicate(candidate))
             {

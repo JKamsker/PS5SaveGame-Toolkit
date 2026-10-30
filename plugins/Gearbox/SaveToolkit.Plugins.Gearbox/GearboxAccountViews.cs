@@ -172,6 +172,7 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
         visited = 0;
         foreach (var field in message.Fields)
         {
+            message.CountTargetedVisit();
             visited++;
             if (bounded && visited > GearboxInventory.DirectLookupWorkLimit) return false;
             if (field.Spec?.Name != name) continue;
@@ -184,6 +185,7 @@ internal sealed class GearboxAccountViews(GearboxDocument document, GearboxLazyV
             using var reader = new CodedInputStream(bytes);
             while (!reader.IsAtEnd)
             {
+                message.CountTargetedVisit();
                 visited++;
                 if (bounded && visited > GearboxInventory.DirectLookupWorkLimit) return false;
                 if (ordinal++ == index) { value = reader.ReadInt32(); return true; }

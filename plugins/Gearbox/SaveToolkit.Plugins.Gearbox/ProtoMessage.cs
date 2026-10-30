@@ -7,6 +7,13 @@ namespace SaveToolkit.Plugins.Gearbox;
 internal sealed class ProtoMessage(GearboxSchema schema, string type, List<ProtoField> fields)
 {
     private static readonly UTF8Encoding StrictUtf8 = new(false, true);
+    // Built with the parsed/cloned model, never by metadata observation. Keep actual wire order
+    // within each known tag so scalar last-occurrence and repeated-record ordinals stay exact.
+    private readonly Dictionary<int, List<ProtoField>> _byTag = Index(schema, type, fields);
+    internal int IndexConstructionVisits { get; } = fields.Count;
+    internal long IndexedFieldReads { get; private set; }
+    internal long TargetedFieldVisits { get; private set; }
+    internal void CountTargetedVisit() => TargetedFieldVisits++;
     public string Type { get; } = type;
     public IReadOnlyList<ProtoField> Fields => fields;
     public GearboxSchema Schema { get; } = schema;
@@ -66,11 +73,21 @@ internal sealed class ProtoMessage(GearboxSchema schema, string type, List<Proto
     public IEnumerable<ProtoField> All(string name)
     {
         var tag = Schema.Tag(Type, name);
-        return fields.Where(f => f.Number == tag);
+        return _byTag.GetValueOrDefault(tag) ?? Enumerable.Empty<ProtoField>();
     }
     public IEnumerable<ProtoMessage> Children(string name) => All(name).Select(f => f.Message!);
-    public ProtoMessage? Child(string name) => Children(name).LastOrDefault();
-    public ProtoField? Last(string name) => All(name).LastOrDefault();
+    public ProtoMessage? Child(string name) => Last(name)?.Message;
+    public ProtoField? Last(string name) => Indexed(name, null);
+    internal ProtoField? FieldAt(string name, int index) => Indexed(name, index);
+
+    private ProtoField? Indexed(string name, int? index)
+    {
+        var entries = _byTag.GetValueOrDefault(Schema.Tag(Type, name));
+        var position = index ?? (entries?.Count - 1 ?? -1);
+        if (entries is null || (uint)position >= (uint)entries.Count) return null;
+        IndexedFieldReads++;
+        return entries[position];
+    }
     public long Integer(string name) => unchecked((long)(ulong)(Last(name)?.Value ?? 0UL));
     public string Text(string name) => (string?)Last(name)?.Value ?? string.Empty;
     public float Float(string name) => BitConverter.UInt32BitsToSingle((uint)(Last(name)?.Value ?? 0U));
@@ -89,9 +106,9 @@ internal sealed class ProtoMessage(GearboxSchema schema, string type, List<Proto
             var child = new ProtoMessage(Schema, spec.Type, []);
             child.SetInteger("base_category_definition_hash", hash);
             field = new ProtoField(Schema.Tag(Type, list), 2, spec, [], Array.Empty<byte>(), child);
-            fields.Add(field);
+            Add(field);
         }
-        if (quantity == 0 && field.Original.Length == 0) fields.Remove(field);
+        if (quantity == 0 && field.Original.Length == 0) Remove(field);
         else field.Message!.SetInteger("quantity", quantity);
     }
 
@@ -104,10 +121,15 @@ internal sealed class ProtoMessage(GearboxSchema schema, string type, List<Proto
         if (Last(name) is not null && Float(name).Equals(value)) return;
         Set(name, BitConverter.SingleToUInt32Bits(value));
     }
-    public void Add(ProtoField field) => fields.Add(field);
+    public void Add(ProtoField field)
+    {
+        fields.Add(field);
+        AddIndexed(_byTag, Schema, Type, field);
+    }
     public void Remove(ProtoField field)
     {
         if (!fields.Remove(field)) throw new InvalidOperationException("Item is no longer present.");
+        if (_byTag.TryGetValue(field.Number, out var entries)) entries.Remove(field);
     }
 
     private void Set(string name, object value)
@@ -117,9 +139,23 @@ internal sealed class ProtoMessage(GearboxSchema schema, string type, List<Proto
         {
             var spec = Schema.Spec(Type, name);
             field = new ProtoField(Schema.Tag(Type, name), spec.WireType, spec, [], null, null);
-            fields.Add(field);
+            Add(field);
         }
         field.Set(value);
+    }
+
+    private static Dictionary<int, List<ProtoField>> Index(GearboxSchema schema, string type, List<ProtoField> fields)
+    {
+        var index = new Dictionary<int, List<ProtoField>>();
+        foreach (var field in fields) AddIndexed(index, schema, type, field);
+        return index;
+    }
+
+    private static void AddIndexed(Dictionary<int, List<ProtoField>> index, GearboxSchema schema, string type, ProtoField field)
+    {
+        if (schema.Find(type, field.Number) is null) return;
+        if (!index.TryGetValue(field.Number, out var entries)) index[field.Number] = entries = [];
+        entries.Add(field);
     }
 
     public byte[] Encode()
