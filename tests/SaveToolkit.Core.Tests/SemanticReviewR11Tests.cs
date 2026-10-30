@@ -105,13 +105,18 @@ public sealed class SemanticReviewR11Tests : IDisposable
         Assert.True(first.Succeeded);
         Assert.Equal(3064, snapshot.Bytes);
         Assert.Equal(SemanticSnapshot.Estimate(snapshot.Fields["A"]), snapshot.Bytes);
-        var before = snapshot.Clone();
         document.PathLengthA = 1900;
         var replacement = capture.Capture(document, snapshot, ["A"], CancellationToken.None);
-        Assert.False(replacement.Succeeded);
+        Assert.True(replacement.Succeeded);
+        Assert.Equal(4064, snapshot.Bytes);
+        Assert.Equal(SemanticSnapshot.Estimate(snapshot.Fields["A"]), snapshot.Bytes);
+        var before = snapshot.Clone();
+        document.PathLengthA = 2000;
+        var overflow = capture.Capture(document, snapshot, ["A"], CancellationToken.None);
+        Assert.False(overflow.Succeeded);
         Assert.Equal(before.Bytes, snapshot.Bytes);
         Assert.Equal(before.Fields["A"].Path, snapshot.Fields["A"].Path);
-        document.PathLengthA = 1400;
+        document.PathLengthA = 1900;
         var rejected = capture.Capture(document, snapshot, ["B"], CancellationToken.None);
         Assert.False(rejected.Succeeded);
         Assert.Equal(before.Bytes, snapshot.Bytes);
@@ -121,6 +126,10 @@ public sealed class SemanticReviewR11Tests : IDisposable
         Assert.Equal(before.Fields["A"].Value, snapshot.Fields["A"].Value);
         Assert.Equal(before.Complete, snapshot.Complete);
 
+        // Make actual room for the independent B field; a shrink never refunds retained charge.
+        snapshot = new SemanticSnapshot(new(StringComparer.Ordinal) { ["A"] = a }, true,
+            SemanticSnapshot.Estimate(a));
+        before = snapshot.Clone();
         document.PathLengthB = 100;
         using var cancellation = new CancellationTokenSource();
         document.AfterResolve = () => cancellation.Cancel();

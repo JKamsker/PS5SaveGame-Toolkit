@@ -30,7 +30,9 @@ internal static class SemanticChangedMetadataProjection
             ids = ids[..FieldMetadataLimits.MaxClosureIds];
         }
 
-        var index = new FieldMetadataIndex(document, Math.Max(0, maxBytes - current.Bytes));
+        var protectedIds = ids.ToHashSet(StringComparer.Ordinal);
+        var index = SemanticMetadataAdmission.Create(document, current, maxBytes, cancellationToken,
+            prioritize: true, protectedIds);
         foreach (var id in ids)
         {
             cancellationToken.ThrowIfCancellationRequested();

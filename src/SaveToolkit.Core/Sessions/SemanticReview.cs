@@ -97,6 +97,9 @@ internal sealed class SemanticReview
             // structural mutation could have created that identity.
             if (structural || _structureChanged)
             {
+                // A hidden consequence needs a fresh immutable-original descriptor, never a
+                // guessed original from a post-structure report. Query retries prove its identity.
+                if (_originalMetadataAvailable == true) _coverage.RegisterRetryIds([change.ValueId]);
                 // Newly exposed fields are reviewed as additions by the view walk. Unknown
                 // internal identities after structure changes cannot be matched to the original.
                 if (!structural && !indexed(change.ValueId)) _unreviewedReportedChanges = true;
@@ -268,6 +271,8 @@ internal sealed class SemanticReview
     {
         var previous = _original;
         var hadBaseline = previous is not null;
+        var rollback = _originalMetadataAvailable == true ? CancellationRollback() : null;
+        if (rollback is not null) _original = previous?.Clone();
         try
         {
             EnsureOriginal(openOriginal, cancellationToken);
@@ -287,11 +292,12 @@ internal sealed class SemanticReview
                 }
                 _originalMetadataAttempted = metadata.Applied && _coverage.RetryIds.Count == 0;
             }
-            return Query(document, index, expandedLazy, revision, cancellationToken);
+            return Query(document, index, expandedLazy, revision, cancellationToken, openOriginal);
         }
         catch (OperationCanceledException)
         {
-            _original = previous;
+            if (rollback is not null) rollback();
+            else _original = previous;
             throw;
         }
     }
@@ -300,9 +306,10 @@ internal sealed class SemanticReview
         => Query(document, index, expandedLazy, revision, CancellationToken.None);
 
     private SemanticChangeLog Query(ISaveDocument document, Action<FieldNode> index, Action<string> expandedLazy,
-        long revision, CancellationToken cancellationToken)
+        long revision, CancellationToken cancellationToken, Func<ISaveDocument>? openOriginal = null)
     {
-        var original = _original ?? throw new InvalidOperationException("Capture the original before querying changes.");
+        var baseline = _original ?? throw new InvalidOperationException("Capture the original before querying changes.");
+        var original = _memberContext is null ? baseline : baseline.Clone();
         var current = new SemanticSnapshot(new Dictionary<string, SemanticField>(StringComparer.Ordinal), true, 0);
         var targetedCaptured = CaptureTargeted(document, current, _targeted.ToArray(), revokeOnFailure: true, cancellationToken);
         var recoveryIds = _coverage.RetryIds.Where(id => !_targeted.Contains(id)).ToArray();
@@ -339,6 +346,12 @@ internal sealed class SemanticReview
         }
         foreach (var id in targetedCaptured.IncompleteIds) current.Fields.Remove(id);
         SemanticChangedMetadataProjection.Apply(original, current, document, _maxBytes, cancellationToken);
+        if (openOriginal is not null && current.Fields.Values.Any(field => original.Fields.TryGetValue(field.ValueId, out var before)
+                && !before.MetadataPublished && before.Value != field.Value) && _originalMetadataAvailable == true)
+        {
+            using var freshOriginal = openOriginal();
+            SemanticChangedMetadataProjection.Apply(current, original, freshOriginal, _maxBytes, cancellationToken);
+        }
         foreach (var id in recoveryCaptured.IncompleteIds) current.Fields.Remove(id);
         // A retry ID already contributes one original-coverage omission. Do not count the
         // same known identity a second time when the current target is still unavailable.
@@ -370,12 +383,14 @@ internal sealed class SemanticReview
         var noContext = new Dictionary<string, SemanticMemberContext>(StringComparer.Ordinal);
         var uncontextualized = SemanticSnapshotComparison.Compare(original.Fields, original.Complete,
             current.Fields, current.Complete, document, noContext, cancellationToken);
-        var contextResolution = ResolveMemberContext(uncontextualized, Math.Max(original.Bytes, current.Bytes), cancellationToken);
+        var contextResolution = SemanticContextAdmission.Resolve(_memberContext, uncontextualized,
+            original, current, _maxBytes, cancellationToken, _targeted, _reported);
         var changes = contextResolution.Contexts.Count == 0
             ? uncontextualized
             : SemanticSnapshotComparison.Compare(original.Fields, original.Complete,
                 current.Fields, current.Complete, document, contextResolution.Contexts, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
+        if (_memberContext is not null) _original = original;
 
         var complete = original.Complete && current.Complete && !_unreviewedReportedChanges
             && !_coverage.HasFailures && _coverage.OmittedCount == 0 && contextResolution.Complete;
@@ -397,8 +412,6 @@ internal sealed class SemanticReview
         return new SemanticChangeLog(changes, complete, allWarnings, revision) { Coverage = coverage };
     }
 
-    private MemberContextResolution ResolveMemberContext(IReadOnlyList<SemanticChange> changes, long usedBytes, CancellationToken cancellationToken) =>
-        SemanticMemberContextResolver.Resolve(_memberContext, changes, usedBytes, _maxBytes, cancellationToken);
     public bool TryOriginal(string id, out FieldValue value)
     {
         if (_original?.Fields.GetValueOrDefault(id) is { } field)

@@ -15,7 +15,7 @@ internal static class SemanticPresentationProjection
             .Select(field => field.ValueId).ToArray();
         if (ids.Length == 0) return;
         var working = snapshot.Clone();
-        var index = new FieldMetadataIndex(document, Math.Max(0, maxBytes - working.Bytes));
+        var index = SemanticMetadataAdmission.Create(document, working, maxBytes, cancellationToken, presentationOnly: true);
         foreach (var batch in ids.Chunk(FieldMetadataIndex.BatchSize))
         {
             cancellationToken.ThrowIfCancellationRequested();

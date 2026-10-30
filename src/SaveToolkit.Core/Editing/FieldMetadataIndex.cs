@@ -6,7 +6,8 @@ using SaveToolkit.Sdk.Values;
 namespace SaveToolkit.Core.Editing;
 
 /// <summary>Targeted, bounded discovery against the current document, never a rendered page.</summary>
-internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetadataBytes = null)
+internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetadataBytes = null,
+    Action<IReadOnlyDictionary<string, FieldMetadata>>? admitSemantic = null, Action? publishSemantic = null)
 {
     internal const int BatchSize = 200;
     private readonly Dictionary<string, FieldMetadata> _fields = new(StringComparer.Ordinal);
@@ -18,7 +19,7 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
     internal void SetBudget(long? bytes) => _maxMetadataBytes = bytes;
     internal FieldMetadataIndex Copy(CancellationToken cancellationToken)
     {
-        var copy = new FieldMetadataIndex(document, _maxMetadataBytes);
+        var copy = new FieldMetadataIndex(document, _maxMetadataBytes, admitSemantic, publishSemantic);
         copy._fields.EnsureCapacity(_fields.Count);
         foreach (var entry in _fields)
         {
@@ -109,19 +110,20 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
                 var delta = incomingCost - previousCost;
                 if (delta > 0 && _maxMetadataBytes is { } limit && retainedBytes > limit - delta)
                     throw new InvalidOperationException("Field metadata exceeds the bounded review budget.");
-                var changed = previous is null || !Agree(previous, field);
+                var changed = admitSemantic is not null || previous is null || !Agree(previous, field);
                 admissions.Add((id, field, delta, changed));
                 retainedBytes += delta;
             }
 
             // Validate live bindings only after the whole batch has been admitted. A descriptor
             // that cannot fit the remaining aggregate budget must not trigger a plugin getter.
-            foreach (var (_, field, _, _) in admissions)
-                _ = document.GetValue(field.ValueId);
+            if (admitSemantic is null)
+                foreach (var (_, field, _, _) in admissions)
+                    _ = document.GetValue(field.ValueId);
             foreach (var (id, field, _, changed) in admissions)
             {
                 if (changed)
-                    cache[id] = Snapshot(field);
+                    cache[id] = admitSemantic is null ? Snapshot(field) : field;
                 touched.Add(id);
                 fetched.Add(id);
             }
@@ -140,12 +142,25 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
 
             // A target that has arrived can reject an alias-of-derived relationship immediately;
             // no recursive chain traversal is needed. Final agreement waits until all batches finish.
-            foreach (var field in cache.Values.Where(field => touched.Contains(field.ValueId)))
-                if (HasAvailableTarget(field, fetched)) ValidateCanonical(field, cache);
+            if (admitSemantic is null)
+                foreach (var field in cache.Values.Where(field => touched.Contains(field.ValueId)))
+                    if (HasAvailableTarget(field, fetched)) ValidateCanonical(field, cache);
         }
+        // Semantic callers have an immutable entry snapshot and a separate full-payload staging
+        // cap. Admit the whole closure before equality buffers, getters, or detached copies.
+        admitSemantic?.Invoke(cache);
         foreach (var field in cache.Values.Where(field => touched.Contains(field.ValueId)
             || touched.Contains(Normalize(field).CanonicalValueId)))
             ValidateCanonical(field, cache);
+        if (admitSemantic is not null)
+            foreach (var id in touched)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                _ = document.GetValue(id);
+                cache[id] = Snapshot(cache[id]);
+            }
+        cancellationToken.ThrowIfCancellationRequested();
+        publishSemantic?.Invoke();
     }
 
     private static bool HasAvailableTarget(FieldMetadata field, IReadOnlySet<string> fetched) =>

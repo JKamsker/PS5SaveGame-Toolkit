@@ -39,13 +39,13 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
     private void CaptureCore(ISaveDocument document, SemanticSnapshot snapshot, IReadOnlyList<string> ids,
         ISet<string> captured, bool markIncomplete, CancellationToken cancellationToken)
     {
-        var index = new FieldMetadataIndex(document, Math.Max(0, maxBytes - snapshot.Bytes));
-        for (var offset = 0; offset < ids.Count && snapshot.Bytes < maxBytes; offset += FieldMetadataLimits.MaxBatchSize)
+        var index = SemanticMetadataAdmission.Create(document, snapshot, maxBytes, cancellationToken, prioritize: true);
+        index.ResolveAll(ids, cancellationToken);
+        for (var offset = 0; offset < ids.Count; offset += FieldMetadataLimits.MaxBatchSize)
         {
             var batch = ids.Skip(offset).Take(FieldMetadataLimits.MaxBatchSize).ToArray();
             cancellationToken.ThrowIfCancellationRequested();
             var requested = batch.ToHashSet(StringComparer.Ordinal);
-            index.ResolveAll(batch, cancellationToken);
             var descriptors = batch.Select(index.Cached).Where(field => field is not null).Cast<FieldMetadata>().ToArray();
             var seen = new HashSet<string>(StringComparer.Ordinal);
             foreach (var field in descriptors)
@@ -54,12 +54,6 @@ internal sealed class SemanticTargetedCapture(long maxBytes)
                 if (!requested.Contains(field.ValueId) || !seen.Add(field.ValueId) || string.IsNullOrEmpty(field.Label)
                     || field.Spec is null || !Enum.IsDefined(field.BindingKind))
                     throw new InvalidOperationException("Invalid targeted field metadata.");
-
-                if (!SemanticMetadataBudget.TryEstimate(field, maxBytes - snapshot.Bytes, out _))
-                {
-                    if (markIncomplete) snapshot.Complete = false;
-                    continue;
-                }
 
                 var canonical = string.IsNullOrEmpty(field.CanonicalValueId) ? field.ValueId : field.CanonicalValueId;
                 if (snapshot.Fields.TryGetValue(field.ValueId, out var existing))

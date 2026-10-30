@@ -52,7 +52,7 @@ internal static class SemanticTargetedAuthority
     public static CanonicalMetadataOutcome ApplyCanonicalMetadata(ISaveDocument document, SemanticSnapshot snapshot,
         long maxBytes, CancellationToken cancellationToken)
     {
-        var index = new FieldMetadataIndex(document, Math.Max(0, maxBytes - snapshot.Bytes));
+        var index = SemanticMetadataAdmission.Create(document, snapshot, maxBytes, cancellationToken);
         if (!index.Enabled || snapshot.Fields.Count == 0) return new(true, []);
 
         var working = snapshot.Clone();
