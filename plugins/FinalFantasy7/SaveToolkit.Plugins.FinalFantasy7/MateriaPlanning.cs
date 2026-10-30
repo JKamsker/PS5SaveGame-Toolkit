@@ -26,7 +26,7 @@ internal sealed class MateriaPlanning(Ff7Schema schema, GameplayFields gameplay,
             {
                 Assess = record => new ReferenceEligibility
                 {
-                    Eligible = uint.TryParse(record.Key, out var type) && IsTypeEligible(type),
+                    Eligible = uint.TryParse(record.Key, NumberStyles.Integer, CultureInfo.InvariantCulture, out var type) && IsTypeEligible(type),
                     Reasons = ["Only owned, ordinary materia with coherent AP and stored stars can be edited."],
                 },
             }, FieldValue.Of(DefaultType())) { Description = EmbeddedCatalogs.Attribution },

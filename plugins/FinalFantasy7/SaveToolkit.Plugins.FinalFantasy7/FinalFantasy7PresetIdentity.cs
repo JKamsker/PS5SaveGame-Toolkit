@@ -84,7 +84,7 @@ internal static class FinalFantasy7PresetIdentity
             : target.Domain == PresetIdentityDomain.CharacterIndex
                 ? new("ff7.character-index", $"ff7:character-index/{target.Id}",
                     references.Character((int)target.Id), "character-index", candidate.RowKey, Provenance: candidate.Source)
-                : new("ff7.materia-candidate", $"ff7:materia-candidate/{candidate.InstanceId ?? 0}/{candidate.TypeId}/{candidate.Slot ?? -1}",
+                : new("ff7.materia-candidate", FormattableString.Invariant($"ff7:materia-candidate/{candidate.InstanceId ?? 0}/{candidate.TypeId}/{candidate.Slot ?? -1}"),
                     references.Materia(candidate.TypeId), "materia-detail", string.IsNullOrEmpty(candidate.RowKey) ? null : candidate.RowKey,
                     Provenance: candidate.Source);
 
@@ -92,7 +92,7 @@ internal static class FinalFantasy7PresetIdentity
         IReadOnlyList<PresetCandidate> candidates, ReferenceData references)
     {
         var signature = string.Join("\n", candidates.OrderBy(candidate => candidate.RowKey, StringComparer.Ordinal)
-            .Select(candidate => $"{candidate.RowKey}\0{candidate.InstanceId}\0{candidate.TypeId}\0{candidate.DetailStatus}"));
+            .Select(candidate => FormattableString.Invariant($"{candidate.RowKey}\0{candidate.InstanceId}\0{candidate.TypeId}\0{candidate.DetailStatus}")));
         var fingerprint = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(signature)));
         return new("ff7.materia-all-copies", $"ff7:materia-type/{target.Id}/all-copies/{fingerprint}",
             references.Materia(target.Id), "materia-all-copies", Provenance: references.Source("ff7r-materia", target.Id));
