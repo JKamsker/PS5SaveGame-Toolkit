@@ -29,8 +29,10 @@ internal static class PresetEndpoints
             .AddEndpointFilter<DocumentRevisionFilter>()
             .WithApiErrors(Status412PreconditionFailed);
         docs.MapPost("/preview", Preview)
+            .Produces<PresetPreviewDto>()
             .WithMetadata(new PresetRequestBodyLimitMetadata(PresetRequestBodyLimits.PreviewBytes));
         docs.MapPost("/apply", Apply)
+            .Produces<SessionEditResult>()
             .WithMetadata(new PresetRequestBodyLimitMetadata(PresetRequestBodyLimits.ApplyBytes));
         var capture = api.MapGroup("/workspaces/{workspaceId}/documents/{documentId}/presets")
             .AddEndpointFilter<DocumentRevisionFilter>()
@@ -38,6 +40,7 @@ internal static class PresetEndpoints
         capture.MapGet("", (DocumentRef document, PresetStore store) =>
             store.List().Select(p => p.ToDocumentDto(document.Value)));
         capture.MapPost("/capture", Capture)
+            .Produces<PresetDto>()
             .WithMetadata(new PresetRequestBodyLimitMetadata(PresetRequestBodyLimits.CaptureBytes));
     }
 

@@ -9,6 +9,7 @@ internal static class OpenApiRegistration
         options.AddSchemaTransformer<OpenApiWireSchemas>();
         options.AddDocumentTransformer<OpenApiPolymorphismSchemas>();
         options.AddDocumentTransformer<OpenApiPresetPackageSchemas>();
+        options.AddDocumentTransformer<OpenApiPresetResponseSchemas>();
     });
 
     // Produces metadata is descriptive only: these conventions never change request handling.
