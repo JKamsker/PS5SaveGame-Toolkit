@@ -32,14 +32,14 @@ public sealed record PresetPackageCompatibilityDto(
     [property: StringLength(PresetContractValidation.MaxKeyLength, MinimumLength = 1)] string PluginId,
     [property: StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string PluginVersion,
     [property: MinLength(1), MaxLength(PresetContractValidation.MaxMapEntries)] IReadOnlyList<string> TitleIds,
-    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? GameBuild,
-    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? FormatVariant,
-    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? ReferencePackIdentity,
+    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength)] string? GameBuild,
+    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength)] string? FormatVariant,
+    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength)] string? ReferencePackIdentity,
     bool RequiresExplicitInstanceResolution,
     [property: StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string PresetKind,
-    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? SchemaFingerprint,
-    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? FileRole,
-    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? CapabilitySchemaVersion);
+    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength)] string? SchemaFingerprint,
+    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength)] string? FileRole,
+    [property: JsonRequired, JsonIgnore(Condition = JsonIgnoreCondition.Never), StringLength(PresetContractValidation.MaxMetadataLength)] string? CapabilitySchemaVersion);
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record PresetPackageActionDto(
@@ -52,8 +52,8 @@ public sealed record PresetPackageActionDto(
 public sealed record PresetPackageInstanceDto(
     [property: StringLength(PresetContractValidation.MaxKeyLength, MinimumLength = 1)] string Kind,
     [property: StringLength(256, MinimumLength = 1)] string StableId,
-    [property: StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? Label = null,
-    [property: StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? Role = null,
-    [property: StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? Path = null,
-    [property: StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? Build = null,
-    [property: StringLength(PresetContractValidation.MaxMetadataLength, MinimumLength = 1)] string? Provenance = null);
+    [property: StringLength(PresetContractValidation.MaxMetadataLength)] string? Label = null,
+    [property: StringLength(PresetContractValidation.MaxMetadataLength)] string? Role = null,
+    [property: StringLength(PresetContractValidation.MaxMetadataLength)] string? Path = null,
+    [property: StringLength(PresetContractValidation.MaxMetadataLength)] string? Build = null,
+    [property: StringLength(PresetContractValidation.MaxMetadataLength)] string? Provenance = null);

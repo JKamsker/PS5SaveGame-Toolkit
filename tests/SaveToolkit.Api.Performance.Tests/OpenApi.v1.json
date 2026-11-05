@@ -3097,7 +3097,7 @@
         "properties": {
           "capabilitySchemaVersion": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3105,7 +3105,7 @@
           },
           "fileRole": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3113,7 +3113,7 @@
           },
           "formatVariant": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3121,7 +3121,7 @@
           },
           "gameBuild": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3144,7 +3144,7 @@
           },
           "referencePackIdentity": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3155,7 +3155,7 @@
           },
           "schemaFingerprint": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3218,7 +3218,7 @@
         "properties": {
           "build": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3231,7 +3231,7 @@
           },
           "label": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3239,7 +3239,7 @@
           },
           "path": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3247,7 +3247,7 @@
           },
           "provenance": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3255,7 +3255,7 @@
           },
           "role": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3377,6 +3377,2221 @@
             ]
           }
         },
+        "type": "object"
+      },
+      "PresetPreviewDto": {
+        "properties": {
+          "preset": {
+            "$ref": "#/components/schemas/PresetDto"
+          },
+          "preview": {
+            "$ref": "#/components/schemas/ActionPreview"
+          }
+        },
+        "required": [
+          "preset",
+          "preview"
+        ],
+        "type": "object"
+      },
+      "PresetSemanticPreviewDto": {
+        "properties": {
+          "preset": {
+            "properties": {
+              "actions": {
+                "items": {
+                  "description": "One action configuration persisted by a toolkit preset.",
+                  "properties": {
+                    "actionId": {
+                      "type": "string"
+                    },
+                    "instances": {
+                      "items": {
+                        "description": "A semantic instance reference. Stable ids are supplied by a plugin; session ids are forbidden.",
+                        "properties": {
+                          "build": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          },
+                          "kind": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          },
+                          "path": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          },
+                          "provenance": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          },
+                          "role": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          },
+                          "stableId": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "stableId"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "parameters": {
+                      "type": "object"
+                    },
+                    "scopeKind": {
+                      "default": "document",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "actionId",
+                    "parameters"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "compatibility": {
+                "description": "Stable title, plugin and optional game-build identity used by an external toolkit preset.",
+                "properties": {
+                  "capabilitySchemaVersion": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "fileRole": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "formatVariant": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "gameBuild": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "pluginId": {
+                    "type": "string"
+                  },
+                  "pluginVersion": {
+                    "type": "string"
+                  },
+                  "presetKind": {
+                    "default": "toolkit.action-parameters",
+                    "type": "string"
+                  },
+                  "referencePackIdentity": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "requiresExplicitInstanceResolution": {
+                    "default": true,
+                    "type": "boolean"
+                  },
+                  "schemaFingerprint": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "titleIds": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "pluginId",
+                  "pluginVersion",
+                  "titleIds"
+                ],
+                "type": "object"
+              },
+              "createdAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "schemaVersion": {
+                "type": "string"
+              },
+              "updatedAt": {
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "schemaVersion",
+              "id",
+              "name",
+              "compatibility",
+              "actions",
+              "createdAt",
+              "updatedAt"
+            ],
+            "type": "object"
+          },
+          "preview": {
+            "properties": {
+              "code": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "plan": {
+                "description": "Deterministic preview of ordered consequences and diagnostics, calculated without mutating the document.",
+                "properties": {
+                  "changes": {
+                    "description": "Every proposed direct and derived consequence in deterministic order.",
+                    "items": {
+                      "description": "Named, game-level consequences. Null before/after means absence only when the corresponding Exists flag is false.",
+                      "properties": {
+                        "derived": {
+                          "description": "True for a consequence of another edit; the plugin decides which consequences require actual assignments.",
+                          "type": "boolean"
+                        },
+                        "effect": {
+                          "description": "Read-only metadata for a consequence that is not a parsed canonical field. The enclosing\nPlannedChange owns identity, labels and typed before/after values.",
+                          "properties": {
+                            "kind": {
+                              "description": "How an action-owned consequence is restored by the host.",
+                              "enum": [
+                                "Observation",
+                                "StructuralMemento"
+                              ]
+                            },
+                            "path": {
+                              "description": "Optional document-relative navigation path for the action-owned row.",
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": [
+                                "null",
+                                "array"
+                              ]
+                            },
+                            "presentation": {
+                              "description": "Complete canonical field annotations for presentation without loading its view. An empty instance\nexplicitly declares no annotations; null FieldMetadata.Presentation means annotations are unspecified.\nDoes not grant write permission or replace the canonical spec or binding kind.",
+                              "properties": {
+                                "confidence": {
+                                  "enum": [
+                                    "Verified",
+                                    "Inferred",
+                                    "Unknown",
+                                    null
+                                  ]
+                                },
+                                "description": {
+                                  "description": "Canonical explanation or attribution, before any contextual reference description.",
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "warning": {
+                                  "description": "Canonical caution that must accompany every editor, including unloaded projections.",
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                }
+                              },
+                              "type": "object"
+                            },
+                            "source": {
+                              "description": "Optional bounded provenance supplied by the provider.",
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "spec": {
+                              "anyOf": [
+                                {
+                                  "description": "A Boolean field accepting only true or false.",
+                                  "properties": {
+                                    "kind": {
+                                      "enum": [
+                                        "bool"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "readOnly": {
+                                      "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                      "type": "boolean"
+                                    },
+                                    "unit": {
+                                      "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    }
+                                  }
+                                },
+                                {
+                                  "description": "An exact integer constrained by inclusive minimum and maximum bounds.",
+                                  "properties": {
+                                    "format": {
+                                      "description": "Display format for an integer; the underlying value remains an exact integer.",
+                                      "enum": [
+                                        "Decimal",
+                                        "Hex",
+                                        "Duration"
+                                      ]
+                                    },
+                                    "kind": {
+                                      "enum": [
+                                        "integer"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "max": {
+                                      "pattern": "^-?[0-9]\u002B$",
+                                      "type": "string"
+                                    },
+                                    "min": {
+                                      "pattern": "^-?[0-9]\u002B$",
+                                      "type": "string"
+                                    },
+                                    "readOnly": {
+                                      "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                      "type": "boolean"
+                                    },
+                                    "unit": {
+                                      "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    },
+                                    "unitsPerSecond": {
+                                      "description": "For IntegerFormat.Duration: raw units per second (e.g. 1_000_000 for \u00B5s).",
+                                      "format": "int64",
+                                      "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                      "type": [
+                                        "null",
+                                        "integer",
+                                        "string"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "min",
+                                    "max"
+                                  ]
+                                },
+                                {
+                                  "description": "A finite floating-point field with optional inclusive bounds and float32 rounding.",
+                                  "properties": {
+                                    "format": {
+                                      "description": "Display format for a floating-point value, with optional elapsed-time presentation.",
+                                      "enum": [
+                                        "Decimal",
+                                        "Duration"
+                                      ]
+                                    },
+                                    "kind": {
+                                      "enum": [
+                                        "float"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "max": {
+                                      "description": "Inclusive upper bound, or null for no additional bound.",
+                                      "format": "double",
+                                      "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+                                      "type": [
+                                        "null",
+                                        "number",
+                                        "string"
+                                      ]
+                                    },
+                                    "min": {
+                                      "description": "Inclusive lower bound, or null for no additional bound.",
+                                      "format": "double",
+                                      "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+                                      "type": [
+                                        "null",
+                                        "number",
+                                        "string"
+                                      ]
+                                    },
+                                    "readOnly": {
+                                      "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                      "type": "boolean"
+                                    },
+                                    "singlePrecision": {
+                                      "description": "True when the stored value is float32, so the browser can round accordingly.",
+                                      "type": "boolean"
+                                    },
+                                    "unit": {
+                                      "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    },
+                                    "unitsPerSecond": {
+                                      "description": "Raw units per second for Duration; defaults to seconds. Must be finite and positive.",
+                                      "format": "double",
+                                      "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+                                      "type": [
+                                        "number",
+                                        "string"
+                                      ]
+                                    }
+                                  }
+                                },
+                                {
+                                  "description": "A text field with independent optional UTF-16 and UTF-8 bounds and an explicit line-break policy.",
+                                  "properties": {
+                                    "kind": {
+                                      "enum": [
+                                        "text"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "maxLength": {
+                                      "description": "Maximum length in UTF-16 code units, or null for unbounded.",
+                                      "format": "int32",
+                                      "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                      "type": [
+                                        "null",
+                                        "integer",
+                                        "string"
+                                      ]
+                                    },
+                                    "maxUtf8Bytes": {
+                                      "description": "Optional inclusive UTF-8 byte limit for the logical value, excluding storage terminators and any\nencoding preamble. A literal U\u002BFEFF in the value counts as three bytes. Must be nonnegative;\nzero accepts only empty text. When present, edits must contain valid Unicode scalar sequences.\nNo normalization, replacement, or truncation is performed. Independent of int? TextSpec.MaxLength.",
+                                      "format": "int32",
+                                      "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                      "type": [
+                                        "null",
+                                        "integer",
+                                        "string"
+                                      ]
+                                    },
+                                    "multiline": {
+                                      "description": "Allows carriage returns and line feeds; false requires a single line.",
+                                      "type": "boolean"
+                                    },
+                                    "readOnly": {
+                                      "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                      "type": "boolean"
+                                    },
+                                    "unit": {
+                                      "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    }
+                                  }
+                                },
+                                {
+                                  "description": "One-of choice. The value is the option\u0027s string EnumOption.Value as text.\nWith bool EnumSpec.AllowCustom, values outside the list are accepted (useful for partially\nmapped hash IDs); the plugin must then validate them itself.",
+                                  "properties": {
+                                    "allowCustom": {
+                                      "description": "Accepts raw values outside the published list; native-format validation remains the plugin\u0027s responsibility.",
+                                      "type": "boolean"
+                                    },
+                                    "kind": {
+                                      "enum": [
+                                        "enum"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "options": {
+                                      "items": {
+                                        "description": "A stable raw option value and its display label; labels are never written to the save.",
+                                        "properties": {
+                                          "description": {
+                                            "description": "Optional explanation or attribution for this option.",
+                                            "type": [
+                                              "null",
+                                              "string"
+                                            ]
+                                          },
+                                          "label": {
+                                            "type": "string"
+                                          },
+                                          "value": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "value",
+                                          "label"
+                                        ],
+                                        "type": "object"
+                                      },
+                                      "type": "array"
+                                    },
+                                    "readOnly": {
+                                      "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                      "type": "boolean"
+                                    },
+                                    "unit": {
+                                      "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "options"
+                                  ]
+                                },
+                                {
+                                  "description": "Bit set stored as an integer value; unnamed bits are preserved by the browser.",
+                                  "properties": {
+                                    "bitWidth": {
+                                      "format": "int32",
+                                      "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                      "type": [
+                                        "integer",
+                                        "string"
+                                      ]
+                                    },
+                                    "bits": {
+                                      "items": {
+                                        "description": "A named zero-based bit position within a FlagsSpec integer.",
+                                        "properties": {
+                                          "bit": {
+                                            "format": "int32",
+                                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                            "type": [
+                                              "integer",
+                                              "string"
+                                            ]
+                                          },
+                                          "description": {
+                                            "description": "Optional explanation of the named bit\u0027s meaning.",
+                                            "type": [
+                                              "null",
+                                              "string"
+                                            ]
+                                          },
+                                          "label": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "bit",
+                                          "label"
+                                        ],
+                                        "type": "object"
+                                      },
+                                      "type": "array"
+                                    },
+                                    "kind": {
+                                      "enum": [
+                                        "flags"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "readOnly": {
+                                      "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                      "type": "boolean"
+                                    },
+                                    "unit": {
+                                      "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "bits",
+                                    "bitWidth"
+                                  ]
+                                },
+                                {
+                                  "description": "ISO-8601 timestamp text. Set bool DateTimeSpec.HasTimeZone false for local/unknown-zone clocks.",
+                                  "properties": {
+                                    "hasTimeZone": {
+                                      "description": "True validates an offset-aware timestamp; false retains an unspecified local clock.",
+                                      "type": "boolean"
+                                    },
+                                    "kind": {
+                                      "enum": [
+                                        "datetime"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "readOnly": {
+                                      "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                      "type": "boolean"
+                                    },
+                                    "unit": {
+                                      "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    }
+                                  }
+                                },
+                                {
+                                  "description": "A JSON number lexeme, preserved byte-for-byte rather than converted to a machine number.",
+                                  "properties": {
+                                    "kind": {
+                                      "enum": [
+                                        "exactNumber"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "max": {
+                                      "description": "Inclusive upper bound as an exact JSON number lexeme, or null for no bound.",
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    },
+                                    "maxAbsoluteExponent": {
+                                      "description": "Maximum absolute exponent, without expanding exponent zeros.",
+                                      "format": "int32",
+                                      "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                      "type": [
+                                        "integer",
+                                        "string"
+                                      ]
+                                    },
+                                    "maxLength": {
+                                      "description": "Maximum lexeme length, bounded by the exact-number validator\u0027s hard limit.",
+                                      "format": "int32",
+                                      "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                      "type": [
+                                        "integer",
+                                        "string"
+                                      ]
+                                    },
+                                    "min": {
+                                      "description": "Inclusive bounds, themselves JSON number lexemes. Comparisons use exact decimal arithmetic.",
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    },
+                                    "readOnly": {
+                                      "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                      "type": "boolean"
+                                    },
+                                    "unit": {
+                                      "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    }
+                                  }
+                                },
+                                {
+                                  "description": "Explicit null or a value conforming to Inner. Null never means a missing property.",
+                                  "properties": {
+                                    "inner": {
+                                      "anyOf": [
+                                        {
+                                          "description": "A Boolean field accepting only true or false.",
+                                          "properties": {
+                                            "kind": {
+                                              "enum": [
+                                                "bool"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "readOnly": {
+                                              "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                              "type": "boolean"
+                                            },
+                                            "unit": {
+                                              "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                              "type": [
+                                                "null",
+                                                "string"
+                                              ]
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "description": "An exact integer constrained by inclusive minimum and maximum bounds.",
+                                          "properties": {
+                                            "format": {
+                                              "description": "Display format for an integer; the underlying value remains an exact integer.",
+                                              "enum": [
+                                                "Decimal",
+                                                "Hex",
+                                                "Duration"
+                                              ]
+                                            },
+                                            "kind": {
+                                              "enum": [
+                                                "integer"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "max": {
+                                              "pattern": "^-?[0-9]\u002B$",
+                                              "type": "string"
+                                            },
+                                            "min": {
+                                              "pattern": "^-?[0-9]\u002B$",
+                                              "type": "string"
+                                            },
+                                            "readOnly": {
+                                              "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                              "type": "boolean"
+                                            },
+                                            "unit": {
+                                              "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                              "type": [
+                                                "null",
+                                                "string"
+                                              ]
+                                            },
+                                            "unitsPerSecond": {
+                                              "description": "For IntegerFormat.Duration: raw units per second (e.g. 1_000_000 for \u00B5s).",
+                                              "format": "int64",
+                                              "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                              "type": [
+                                                "null",
+                                                "integer",
+                                                "string"
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "min",
+                                            "max"
+                                          ]
+                                        },
+                                        {
+                                          "description": "A finite floating-point field with optional inclusive bounds and float32 rounding.",
+                                          "properties": {
+                                            "format": {
+                                              "description": "Display format for a floating-point value, with optional elapsed-time presentation.",
+                                              "enum": [
+                                                "Decimal",
+                                                "Duration"
+                                              ]
+                                            },
+                                            "kind": {
+                                              "enum": [
+                                                "float"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "max": {
+                                              "description": "Inclusive upper bound, or null for no additional bound.",
+                                              "format": "double",
+                                              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+                                              "type": [
+                                                "null",
+                                                "number",
+                                                "string"
+                                              ]
+                                            },
+                                            "min": {
+                                              "description": "Inclusive lower bound, or null for no additional bound.",
+                                              "format": "double",
+                                              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+                                              "type": [
+                                                "null",
+                                                "number",
+                                                "string"
+                                              ]
+                                            },
+                                            "readOnly": {
+                                              "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                              "type": "boolean"
+                                            },
+                                            "singlePrecision": {
+                                              "description": "True when the stored value is float32, so the browser can round accordingly.",
+                                              "type": "boolean"
+                                            },
+                                            "unit": {
+                                              "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                              "type": [
+                                                "null",
+                                                "string"
+                                              ]
+                                            },
+                                            "unitsPerSecond": {
+                                              "description": "Raw units per second for Duration; defaults to seconds. Must be finite and positive.",
+                                              "format": "double",
+                                              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+                                              "type": [
+                                                "number",
+                                                "string"
+                                              ]
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "description": "A text field with independent optional UTF-16 and UTF-8 bounds and an explicit line-break policy.",
+                                          "properties": {
+                                            "kind": {
+                                              "enum": [
+                                                "text"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "maxLength": {
+                                              "description": "Maximum length in UTF-16 code units, or null for unbounded.",
+                                              "format": "int32",
+                                              "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                              "type": [
+                                                "null",
+                                                "integer",
+                                                "string"
+                                              ]
+                                            },
+                                            "maxUtf8Bytes": {
+                                              "description": "Optional inclusive UTF-8 byte limit for the logical value, excluding storage terminators and any\nencoding preamble. A literal U\u002BFEFF in the value counts as three bytes. Must be nonnegative;\nzero accepts only empty text. When present, edits must contain valid Unicode scalar sequences.\nNo normalization, replacement, or truncation is performed. Independent of int? TextSpec.MaxLength.",
+                                              "format": "int32",
+                                              "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                              "type": [
+                                                "null",
+                                                "integer",
+                                                "string"
+                                              ]
+                                            },
+                                            "multiline": {
+                                              "description": "Allows carriage returns and line feeds; false requires a single line.",
+                                              "type": "boolean"
+                                            },
+                                            "readOnly": {
+                                              "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                              "type": "boolean"
+                                            },
+                                            "unit": {
+                                              "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                              "type": [
+                                                "null",
+                                                "string"
+                                              ]
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "description": "One-of choice. The value is the option\u0027s string EnumOption.Value as text.\nWith bool EnumSpec.AllowCustom, values outside the list are accepted (useful for partially\nmapped hash IDs); the plugin must then validate them itself.",
+                                          "properties": {
+                                            "allowCustom": {
+                                              "description": "Accepts raw values outside the published list; native-format validation remains the plugin\u0027s responsibility.",
+                                              "type": "boolean"
+                                            },
+                                            "kind": {
+                                              "enum": [
+                                                "enum"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "options": {},
+                                            "readOnly": {
+                                              "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                              "type": "boolean"
+                                            },
+                                            "unit": {
+                                              "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                              "type": [
+                                                "null",
+                                                "string"
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "options"
+                                          ]
+                                        },
+                                        {
+                                          "description": "Bit set stored as an integer value; unnamed bits are preserved by the browser.",
+                                          "properties": {
+                                            "bitWidth": {
+                                              "format": "int32",
+                                              "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                              "type": [
+                                                "integer",
+                                                "string"
+                                              ]
+                                            },
+                                            "bits": {},
+                                            "kind": {
+                                              "enum": [
+                                                "flags"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "readOnly": {
+                                              "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                              "type": "boolean"
+                                            },
+                                            "unit": {
+                                              "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                              "type": [
+                                                "null",
+                                                "string"
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "bits",
+                                            "bitWidth"
+                                          ]
+                                        },
+                                        {
+                                          "description": "ISO-8601 timestamp text. Set bool DateTimeSpec.HasTimeZone false for local/unknown-zone clocks.",
+                                          "properties": {
+                                            "hasTimeZone": {
+                                              "description": "True validates an offset-aware timestamp; false retains an unspecified local clock.",
+                                              "type": "boolean"
+                                            },
+                                            "kind": {
+                                              "enum": [
+                                                "datetime"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "readOnly": {
+                                              "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                              "type": "boolean"
+                                            },
+                                            "unit": {
+                                              "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                              "type": [
+                                                "null",
+                                                "string"
+                                              ]
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "description": "A JSON number lexeme, preserved byte-for-byte rather than converted to a machine number.",
+                                          "properties": {
+                                            "kind": {
+                                              "enum": [
+                                                "exactNumber"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "max": {
+                                              "description": "Inclusive upper bound as an exact JSON number lexeme, or null for no bound.",
+                                              "type": [
+                                                "null",
+                                                "string"
+                                              ]
+                                            },
+                                            "maxAbsoluteExponent": {
+                                              "description": "Maximum absolute exponent, without expanding exponent zeros.",
+                                              "format": "int32",
+                                              "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                              "type": [
+                                                "integer",
+                                                "string"
+                                              ]
+                                            },
+                                            "maxLength": {
+                                              "description": "Maximum lexeme length, bounded by the exact-number validator\u0027s hard limit.",
+                                              "format": "int32",
+                                              "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                              "type": [
+                                                "integer",
+                                                "string"
+                                              ]
+                                            },
+                                            "min": {
+                                              "description": "Inclusive bounds, themselves JSON number lexemes. Comparisons use exact decimal arithmetic.",
+                                              "type": [
+                                                "null",
+                                                "string"
+                                              ]
+                                            },
+                                            "readOnly": {
+                                              "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                              "type": "boolean"
+                                            },
+                                            "unit": {
+                                              "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                              "type": [
+                                                "null",
+                                                "string"
+                                              ]
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "description": "Explicit null or a value conforming to Inner. Null never means a missing property.",
+                                          "properties": {
+                                            "inner": {
+                                              "description": "Describes the data type and constraints of an editable value. The browser picks a control from the\nspec; plugins never choose widgets or styling. The framework validates every incoming edit against\nthe spec before the plugin sees it.",
+                                              "discriminator": {
+                                                "mapping": {
+                                                  "bool": "#/components/schemas/FieldSpecBoolSpec",
+                                                  "datetime": "#/components/schemas/FieldSpecDateTimeSpec",
+                                                  "enum": "#/components/schemas/FieldSpecEnumSpec",
+                                                  "exactNumber": "#/components/schemas/FieldSpecExactNumberSpec",
+                                                  "flags": "#/components/schemas/FieldSpecFlagsSpec",
+                                                  "float": "#/components/schemas/FieldSpecFloatSpec",
+                                                  "integer": "#/components/schemas/FieldSpecIntegerSpec",
+                                                  "nullable": "#/components/schemas/FieldSpecNullableSpec",
+                                                  "reference": "#/components/schemas/FieldSpecReferenceSpec",
+                                                  "text": "#/components/schemas/FieldSpecTextSpec",
+                                                  "union": "#/components/schemas/FieldSpecUnionSpec"
+                                                },
+                                                "propertyName": "kind"
+                                              }
+                                            },
+                                            "kind": {
+                                              "enum": [
+                                                "nullable"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "readOnly": {
+                                              "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                              "type": "boolean"
+                                            },
+                                            "unit": {
+                                              "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                              "type": [
+                                                "null",
+                                                "string"
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "inner"
+                                          ]
+                                        },
+                                        {
+                                          "description": "An explicit choice among inner specs. Values use FieldValue.Union(optionId, value), so choices\nwith identical scalar wire shapes (such as integer and text) stay distinguishable.\nWrap in NullableSpec to allow a null independently of the chosen type.",
+                                          "properties": {
+                                            "kind": {
+                                              "enum": [
+                                                "union"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "options": {
+                                              "items": {
+                                                "description": "A named type choice. Id is stable and unique within the enclosing union.",
+                                                "properties": {
+                                                  "id": {
+                                                    "type": "string"
+                                                  },
+                                                  "label": {
+                                                    "type": "string"
+                                                  },
+                                                  "spec": {
+                                                    "anyOf": [
+                                                      {
+                                                        "description": "A Boolean field accepting only true or false.",
+                                                        "properties": {
+                                                          "kind": {
+                                                            "enum": [
+                                                              "bool"
+                                                            ],
+                                                            "type": "string"
+                                                          },
+                                                          "readOnly": {
+                                                            "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "unit": {
+                                                            "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                                            "type": [
+                                                              "null",
+                                                              "string"
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "description": "An exact integer constrained by inclusive minimum and maximum bounds.",
+                                                        "properties": {
+                                                          "format": {
+                                                            "description": "Display format for an integer; the underlying value remains an exact integer.",
+                                                            "enum": [
+                                                              "Decimal",
+                                                              "Hex",
+                                                              "Duration"
+                                                            ]
+                                                          },
+                                                          "kind": {
+                                                            "enum": [
+                                                              "integer"
+                                                            ],
+                                                            "type": "string"
+                                                          },
+                                                          "max": {
+                                                            "pattern": "^-?[0-9]\u002B$",
+                                                            "type": "string"
+                                                          },
+                                                          "min": {
+                                                            "pattern": "^-?[0-9]\u002B$",
+                                                            "type": "string"
+                                                          },
+                                                          "readOnly": {
+                                                            "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "unit": {
+                                                            "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                                            "type": [
+                                                              "null",
+                                                              "string"
+                                                            ]
+                                                          },
+                                                          "unitsPerSecond": {
+                                                            "description": "For IntegerFormat.Duration: raw units per second (e.g. 1_000_000 for \u00B5s).",
+                                                            "format": "int64",
+                                                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                                            "type": [
+                                                              "null",
+                                                              "integer",
+                                                              "string"
+                                                            ]
+                                                          }
+                                                        },
+                                                        "required": [
+                                                          "min",
+                                                          "max"
+                                                        ]
+                                                      },
+                                                      {
+                                                        "description": "A finite floating-point field with optional inclusive bounds and float32 rounding.",
+                                                        "properties": {
+                                                          "format": {
+                                                            "description": "Display format for a floating-point value, with optional elapsed-time presentation.",
+                                                            "enum": [
+                                                              "Decimal",
+                                                              "Duration"
+                                                            ]
+                                                          },
+                                                          "kind": {
+                                                            "enum": [
+                                                              "float"
+                                                            ],
+                                                            "type": "string"
+                                                          },
+                                                          "max": {
+                                                            "description": "Inclusive upper bound, or null for no additional bound.",
+                                                            "format": "double",
+                                                            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+                                                            "type": [
+                                                              "null",
+                                                              "number",
+                                                              "string"
+                                                            ]
+                                                          },
+                                                          "min": {
+                                                            "description": "Inclusive lower bound, or null for no additional bound.",
+                                                            "format": "double",
+                                                            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+                                                            "type": [
+                                                              "null",
+                                                              "number",
+                                                              "string"
+                                                            ]
+                                                          },
+                                                          "readOnly": {
+                                                            "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "singlePrecision": {
+                                                            "description": "True when the stored value is float32, so the browser can round accordingly.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "unit": {
+                                                            "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                                            "type": [
+                                                              "null",
+                                                              "string"
+                                                            ]
+                                                          },
+                                                          "unitsPerSecond": {
+                                                            "description": "Raw units per second for Duration; defaults to seconds. Must be finite and positive.",
+                                                            "format": "double",
+                                                            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+                                                            "type": [
+                                                              "number",
+                                                              "string"
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "description": "A text field with independent optional UTF-16 and UTF-8 bounds and an explicit line-break policy.",
+                                                        "properties": {
+                                                          "kind": {
+                                                            "enum": [
+                                                              "text"
+                                                            ],
+                                                            "type": "string"
+                                                          },
+                                                          "maxLength": {
+                                                            "description": "Maximum length in UTF-16 code units, or null for unbounded.",
+                                                            "format": "int32",
+                                                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                                            "type": [
+                                                              "null",
+                                                              "integer",
+                                                              "string"
+                                                            ]
+                                                          },
+                                                          "maxUtf8Bytes": {
+                                                            "description": "Optional inclusive UTF-8 byte limit for the logical value, excluding storage terminators and any\nencoding preamble. A literal U\u002BFEFF in the value counts as three bytes. Must be nonnegative;\nzero accepts only empty text. When present, edits must contain valid Unicode scalar sequences.\nNo normalization, replacement, or truncation is performed. Independent of int? TextSpec.MaxLength.",
+                                                            "format": "int32",
+                                                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                                            "type": [
+                                                              "null",
+                                                              "integer",
+                                                              "string"
+                                                            ]
+                                                          },
+                                                          "multiline": {
+                                                            "description": "Allows carriage returns and line feeds; false requires a single line.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "readOnly": {
+                                                            "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "unit": {
+                                                            "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                                            "type": [
+                                                              "null",
+                                                              "string"
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "description": "One-of choice. The value is the option\u0027s string EnumOption.Value as text.\nWith bool EnumSpec.AllowCustom, values outside the list are accepted (useful for partially\nmapped hash IDs); the plugin must then validate them itself.",
+                                                        "properties": {
+                                                          "allowCustom": {
+                                                            "description": "Accepts raw values outside the published list; native-format validation remains the plugin\u0027s responsibility.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "kind": {
+                                                            "enum": [
+                                                              "enum"
+                                                            ],
+                                                            "type": "string"
+                                                          },
+                                                          "options": {},
+                                                          "readOnly": {
+                                                            "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "unit": {
+                                                            "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                                            "type": [
+                                                              "null",
+                                                              "string"
+                                                            ]
+                                                          }
+                                                        },
+                                                        "required": [
+                                                          "options"
+                                                        ]
+                                                      },
+                                                      {
+                                                        "description": "Bit set stored as an integer value; unnamed bits are preserved by the browser.",
+                                                        "properties": {
+                                                          "bitWidth": {
+                                                            "format": "int32",
+                                                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                                            "type": [
+                                                              "integer",
+                                                              "string"
+                                                            ]
+                                                          },
+                                                          "bits": {},
+                                                          "kind": {
+                                                            "enum": [
+                                                              "flags"
+                                                            ],
+                                                            "type": "string"
+                                                          },
+                                                          "readOnly": {
+                                                            "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "unit": {
+                                                            "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                                            "type": [
+                                                              "null",
+                                                              "string"
+                                                            ]
+                                                          }
+                                                        },
+                                                        "required": [
+                                                          "bits",
+                                                          "bitWidth"
+                                                        ]
+                                                      },
+                                                      {
+                                                        "description": "ISO-8601 timestamp text. Set bool DateTimeSpec.HasTimeZone false for local/unknown-zone clocks.",
+                                                        "properties": {
+                                                          "hasTimeZone": {
+                                                            "description": "True validates an offset-aware timestamp; false retains an unspecified local clock.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "kind": {
+                                                            "enum": [
+                                                              "datetime"
+                                                            ],
+                                                            "type": "string"
+                                                          },
+                                                          "readOnly": {
+                                                            "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "unit": {
+                                                            "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                                            "type": [
+                                                              "null",
+                                                              "string"
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "description": "A JSON number lexeme, preserved byte-for-byte rather than converted to a machine number.",
+                                                        "properties": {
+                                                          "kind": {
+                                                            "enum": [
+                                                              "exactNumber"
+                                                            ],
+                                                            "type": "string"
+                                                          },
+                                                          "max": {
+                                                            "description": "Inclusive upper bound as an exact JSON number lexeme, or null for no bound.",
+                                                            "type": [
+                                                              "null",
+                                                              "string"
+                                                            ]
+                                                          },
+                                                          "maxAbsoluteExponent": {
+                                                            "description": "Maximum absolute exponent, without expanding exponent zeros.",
+                                                            "format": "int32",
+                                                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                                            "type": [
+                                                              "integer",
+                                                              "string"
+                                                            ]
+                                                          },
+                                                          "maxLength": {
+                                                            "description": "Maximum lexeme length, bounded by the exact-number validator\u0027s hard limit.",
+                                                            "format": "int32",
+                                                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                                            "type": [
+                                                              "integer",
+                                                              "string"
+                                                            ]
+                                                          },
+                                                          "min": {
+                                                            "description": "Inclusive bounds, themselves JSON number lexemes. Comparisons use exact decimal arithmetic.",
+                                                            "type": [
+                                                              "null",
+                                                              "string"
+                                                            ]
+                                                          },
+                                                          "readOnly": {
+                                                            "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "unit": {
+                                                            "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                                            "type": [
+                                                              "null",
+                                                              "string"
+                                                            ]
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "description": "Explicit null or a value conforming to Inner. Null never means a missing property.",
+                                                        "properties": {
+                                                          "inner": {
+                                                            "description": "Describes the data type and constraints of an editable value. The browser picks a control from the\nspec; plugins never choose widgets or styling. The framework validates every incoming edit against\nthe spec before the plugin sees it.",
+                                                            "discriminator": {
+                                                              "mapping": {
+                                                                "bool": "#/components/schemas/FieldSpecBoolSpec",
+                                                                "datetime": "#/components/schemas/FieldSpecDateTimeSpec",
+                                                                "enum": "#/components/schemas/FieldSpecEnumSpec",
+                                                                "exactNumber": "#/components/schemas/FieldSpecExactNumberSpec",
+                                                                "flags": "#/components/schemas/FieldSpecFlagsSpec",
+                                                                "float": "#/components/schemas/FieldSpecFloatSpec",
+                                                                "integer": "#/components/schemas/FieldSpecIntegerSpec",
+                                                                "nullable": "#/components/schemas/FieldSpecNullableSpec",
+                                                                "reference": "#/components/schemas/FieldSpecReferenceSpec",
+                                                                "text": "#/components/schemas/FieldSpecTextSpec",
+                                                                "union": "#/components/schemas/FieldSpecUnionSpec"
+                                                              },
+                                                              "propertyName": "kind"
+                                                            }
+                                                          },
+                                                          "kind": {
+                                                            "enum": [
+                                                              "nullable"
+                                                            ],
+                                                            "type": "string"
+                                                          },
+                                                          "readOnly": {
+                                                            "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "unit": {
+                                                            "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                                            "type": [
+                                                              "null",
+                                                              "string"
+                                                            ]
+                                                          }
+                                                        },
+                                                        "required": [
+                                                          "inner"
+                                                        ]
+                                                      },
+                                                      {
+                                                        "description": "An explicit choice among inner specs. Values use FieldValue.Union(optionId, value), so choices\nwith identical scalar wire shapes (such as integer and text) stay distinguishable.\nWrap in NullableSpec to allow a null independently of the chosen type.",
+                                                        "properties": {
+                                                          "kind": {
+                                                            "enum": [
+                                                              "union"
+                                                            ],
+                                                            "type": "string"
+                                                          },
+                                                          "options": {},
+                                                          "readOnly": {
+                                                            "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "unit": {
+                                                            "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                                            "type": [
+                                                              "null",
+                                                              "string"
+                                                            ]
+                                                          }
+                                                        },
+                                                        "required": [
+                                                          "options"
+                                                        ]
+                                                      },
+                                                      {
+                                                        "description": "A catalog-backed choice. The field value is the exact raw id as text, including unknown current\nids. Catalog metadata is resolved on demand rather than embedding every option in the view.",
+                                                        "properties": {
+                                                          "allowCustom": {
+                                                            "description": "Allow new ids absent from the pinned catalog. Known candidates still obey eligibility.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "catalogId": {
+                                                            "type": "string"
+                                                          },
+                                                          "kind": {
+                                                            "enum": [
+                                                              "reference"
+                                                            ],
+                                                            "type": "string"
+                                                          },
+                                                          "readOnly": {
+                                                            "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                                            "type": "boolean"
+                                                          },
+                                                          "unit": {
+                                                            "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                                            "type": [
+                                                              "null",
+                                                              "string"
+                                                            ]
+                                                          }
+                                                        },
+                                                        "required": [
+                                                          "catalogId"
+                                                        ]
+                                                      }
+                                                    ],
+                                                    "description": "Describes the data type and constraints of an editable value. The browser picks a control from the\nspec; plugins never choose widgets or styling. The framework validates every incoming edit against\nthe spec before the plugin sees it.",
+                                                    "discriminator": {
+                                                      "mapping": {
+                                                        "bool": "#/components/schemas/FieldSpecBoolSpec",
+                                                        "datetime": "#/components/schemas/FieldSpecDateTimeSpec",
+                                                        "enum": "#/components/schemas/FieldSpecEnumSpec",
+                                                        "exactNumber": "#/components/schemas/FieldSpecExactNumberSpec",
+                                                        "flags": "#/components/schemas/FieldSpecFlagsSpec",
+                                                        "float": "#/components/schemas/FieldSpecFloatSpec",
+                                                        "integer": "#/components/schemas/FieldSpecIntegerSpec",
+                                                        "nullable": "#/components/schemas/FieldSpecNullableSpec",
+                                                        "reference": "#/components/schemas/FieldSpecReferenceSpec",
+                                                        "text": "#/components/schemas/FieldSpecTextSpec",
+                                                        "union": "#/components/schemas/FieldSpecUnionSpec"
+                                                      },
+                                                      "propertyName": "kind"
+                                                    },
+                                                    "required": [
+                                                      "kind"
+                                                    ],
+                                                    "type": "object"
+                                                  }
+                                                },
+                                                "required": [
+                                                  "id",
+                                                  "label",
+                                                  "spec"
+                                                ],
+                                                "type": "object"
+                                              },
+                                              "type": "array"
+                                            },
+                                            "readOnly": {
+                                              "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                              "type": "boolean"
+                                            },
+                                            "unit": {
+                                              "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                              "type": [
+                                                "null",
+                                                "string"
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "options"
+                                          ]
+                                        },
+                                        {
+                                          "description": "A catalog-backed choice. The field value is the exact raw id as text, including unknown current\nids. Catalog metadata is resolved on demand rather than embedding every option in the view.",
+                                          "properties": {
+                                            "allowCustom": {
+                                              "description": "Allow new ids absent from the pinned catalog. Known candidates still obey eligibility.",
+                                              "type": "boolean"
+                                            },
+                                            "catalogId": {
+                                              "type": "string"
+                                            },
+                                            "kind": {
+                                              "enum": [
+                                                "reference"
+                                              ],
+                                              "type": "string"
+                                            },
+                                            "readOnly": {
+                                              "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                              "type": "boolean"
+                                            },
+                                            "unit": {
+                                              "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                              "type": [
+                                                "null",
+                                                "string"
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "catalogId"
+                                          ]
+                                        }
+                                      ],
+                                      "description": "Describes the data type and constraints of an editable value. The browser picks a control from the\nspec; plugins never choose widgets or styling. The framework validates every incoming edit against\nthe spec before the plugin sees it.",
+                                      "discriminator": {
+                                        "mapping": {
+                                          "bool": "#/components/schemas/FieldSpecBoolSpec",
+                                          "datetime": "#/components/schemas/FieldSpecDateTimeSpec",
+                                          "enum": "#/components/schemas/FieldSpecEnumSpec",
+                                          "exactNumber": "#/components/schemas/FieldSpecExactNumberSpec",
+                                          "flags": "#/components/schemas/FieldSpecFlagsSpec",
+                                          "float": "#/components/schemas/FieldSpecFloatSpec",
+                                          "integer": "#/components/schemas/FieldSpecIntegerSpec",
+                                          "nullable": "#/components/schemas/FieldSpecNullableSpec",
+                                          "reference": "#/components/schemas/FieldSpecReferenceSpec",
+                                          "text": "#/components/schemas/FieldSpecTextSpec",
+                                          "union": "#/components/schemas/FieldSpecUnionSpec"
+                                        },
+                                        "propertyName": "kind"
+                                      },
+                                      "required": [
+                                        "kind"
+                                      ],
+                                      "type": "object"
+                                    },
+                                    "kind": {
+                                      "enum": [
+                                        "nullable"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "readOnly": {
+                                      "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                      "type": "boolean"
+                                    },
+                                    "unit": {
+                                      "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "inner"
+                                  ]
+                                },
+                                {
+                                  "description": "An explicit choice among inner specs. Values use FieldValue.Union(optionId, value), so choices\nwith identical scalar wire shapes (such as integer and text) stay distinguishable.\nWrap in NullableSpec to allow a null independently of the chosen type.",
+                                  "properties": {
+                                    "kind": {
+                                      "enum": [
+                                        "union"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "options": {},
+                                    "readOnly": {
+                                      "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                      "type": "boolean"
+                                    },
+                                    "unit": {
+                                      "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "options"
+                                  ]
+                                },
+                                {
+                                  "description": "A catalog-backed choice. The field value is the exact raw id as text, including unknown current\nids. Catalog metadata is resolved on demand rather than embedding every option in the view.",
+                                  "properties": {
+                                    "allowCustom": {
+                                      "description": "Allow new ids absent from the pinned catalog. Known candidates still obey eligibility.",
+                                      "type": "boolean"
+                                    },
+                                    "catalogId": {
+                                      "type": "string"
+                                    },
+                                    "kind": {
+                                      "enum": [
+                                        "reference"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "readOnly": {
+                                      "description": "Prevents edits through the host while preserving the field\u0027s value and display metadata.",
+                                      "type": "boolean"
+                                    },
+                                    "unit": {
+                                      "description": "Optional unit label, e.g. \u0022HP\u0022 or \u0022\u00B5s\u0022.",
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "catalogId"
+                                  ]
+                                }
+                              ],
+                              "description": "Describes the data type and constraints of an editable value. The browser picks a control from the\nspec; plugins never choose widgets or styling. The framework validates every incoming edit against\nthe spec before the plugin sees it.",
+                              "discriminator": {
+                                "mapping": {
+                                  "bool": "#/components/schemas/FieldSpecBoolSpec",
+                                  "datetime": "#/components/schemas/FieldSpecDateTimeSpec",
+                                  "enum": "#/components/schemas/FieldSpecEnumSpec",
+                                  "exactNumber": "#/components/schemas/FieldSpecExactNumberSpec",
+                                  "flags": "#/components/schemas/FieldSpecFlagsSpec",
+                                  "float": "#/components/schemas/FieldSpecFloatSpec",
+                                  "integer": "#/components/schemas/FieldSpecIntegerSpec",
+                                  "nullable": "#/components/schemas/FieldSpecNullableSpec",
+                                  "reference": "#/components/schemas/FieldSpecReferenceSpec",
+                                  "text": "#/components/schemas/FieldSpecTextSpec",
+                                  "union": "#/components/schemas/FieldSpecUnionSpec"
+                                },
+                                "propertyName": "kind"
+                              },
+                              "required": [
+                                "kind"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "spec"
+                          ],
+                          "type": "object"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "newExists": {
+                          "description": "False when the action removes the field, distinct from assigning null.",
+                          "type": "boolean"
+                        },
+                        "newValue": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "properties": {
+                                "kind": {
+                                  "enum": [
+                                    "exactNumber"
+                                  ],
+                                  "type": "string"
+                                },
+                                "text": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "text",
+                                "kind"
+                              ],
+                              "type": "object"
+                            },
+                            {
+                              "properties": {
+                                "kind": {
+                                  "enum": [
+                                    "union"
+                                  ],
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "value": {
+                                  "$ref": "#/components/schemas/FieldValue"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "value",
+                                "kind"
+                              ],
+                              "type": "object"
+                            }
+                          ],
+                          "description": "FieldSpec determines the value type. Integers use decimal strings to preserve Int128 precision."
+                        },
+                        "oldExists": {
+                          "description": "False when the field did not exist before the action, distinct from an existing null value.",
+                          "type": "boolean"
+                        },
+                        "oldValue": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "properties": {
+                                "kind": {
+                                  "enum": [
+                                    "exactNumber"
+                                  ],
+                                  "type": "string"
+                                },
+                                "text": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "text",
+                                "kind"
+                              ],
+                              "type": "object"
+                            },
+                            {
+                              "properties": {
+                                "kind": {
+                                  "enum": [
+                                    "union"
+                                  ],
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "value": {
+                                  "$ref": "#/components/schemas/FieldValue"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "value",
+                                "kind"
+                              ],
+                              "type": "object"
+                            }
+                          ],
+                          "description": "FieldSpec determines the value type. Integers use decimal strings to preserve Int128 precision."
+                        },
+                        "valueId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "valueId",
+                        "label",
+                        "oldValue",
+                        "newValue"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "errors": {
+                    "description": "Validation failures that prevent the plan from being applied.",
+                    "items": {
+                      "description": "A user-facing rejection associated with a field or action ID; an empty ID denotes a general error.",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        },
+                        "valueId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "valueId",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "skippedRows": {
+                    "description": "Selected rows that cannot or need not change, with their reasons.",
+                    "items": {
+                      "description": "A selected row left unchanged, with a user-facing explanation.",
+                      "properties": {
+                        "reason": {
+                          "type": "string"
+                        },
+                        "rowKey": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "rowKey",
+                        "reason"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "warnings": {
+                    "description": "Limitations and notices to review before applying.",
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              },
+              "planId": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "preset": {
+                "description": "Versioned, host-owned preset payload. It is never embedded in save bytes.",
+                "properties": {
+                  "actions": {
+                    "items": {
+                      "description": "One action configuration persisted by a toolkit preset.",
+                      "properties": {
+                        "actionId": {
+                          "type": "string"
+                        },
+                        "instances": {
+                          "items": {
+                            "description": "A semantic instance reference. Stable ids are supplied by a plugin; session ids are forbidden.",
+                            "properties": {
+                              "build": {
+                                "type": [
+                                  "null",
+                                  "string"
+                                ]
+                              },
+                              "kind": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": [
+                                  "null",
+                                  "string"
+                                ]
+                              },
+                              "path": {
+                                "type": [
+                                  "null",
+                                  "string"
+                                ]
+                              },
+                              "provenance": {
+                                "type": [
+                                  "null",
+                                  "string"
+                                ]
+                              },
+                              "role": {
+                                "type": [
+                                  "null",
+                                  "string"
+                                ]
+                              },
+                              "stableId": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "stableId"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "parameters": {
+                          "type": "object"
+                        },
+                        "scopeKind": {
+                          "default": "document",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "actionId",
+                        "parameters"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "compatibility": {
+                    "description": "Stable title, plugin and optional game-build identity used by an external toolkit preset.",
+                    "properties": {
+                      "capabilitySchemaVersion": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "fileRole": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "formatVariant": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "gameBuild": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "pluginId": {
+                        "type": "string"
+                      },
+                      "pluginVersion": {
+                        "type": "string"
+                      },
+                      "presetKind": {
+                        "default": "toolkit.action-parameters",
+                        "type": "string"
+                      },
+                      "referencePackIdentity": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "requiresExplicitInstanceResolution": {
+                        "default": true,
+                        "type": "boolean"
+                      },
+                      "schemaFingerprint": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "titleIds": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      }
+                    },
+                    "required": [
+                      "pluginId",
+                      "pluginVersion",
+                      "titleIds"
+                    ],
+                    "type": "object"
+                  },
+                  "createdAt": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "schemaVersion": {
+                    "type": "string"
+                  },
+                  "updatedAt": {
+                    "format": "date-time",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "schemaVersion",
+                  "id",
+                  "name",
+                  "compatibility",
+                  "actions",
+                  "createdAt",
+                  "updatedAt"
+                ],
+                "type": "object"
+              },
+              "resolution": {
+                "description": "Pure resolution output for a preset before any mutation is attempted.",
+                "properties": {
+                  "instances": {
+                    "items": {
+                      "description": "Resolution result for one persisted instance reference; never guesses on ambiguity.",
+                      "properties": {
+                        "candidates": {
+                          "items": {
+                            "description": "A semantic instance reference. Stable ids are supplied by a plugin; session ids are forbidden.",
+                            "properties": {
+                              "build": {
+                                "type": [
+                                  "null",
+                                  "string"
+                                ]
+                              },
+                              "kind": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": [
+                                  "null",
+                                  "string"
+                                ]
+                              },
+                              "path": {
+                                "type": [
+                                  "null",
+                                  "string"
+                                ]
+                              },
+                              "provenance": {
+                                "type": [
+                                  "null",
+                                  "string"
+                                ]
+                              },
+                              "role": {
+                                "type": [
+                                  "null",
+                                  "string"
+                                ]
+                              },
+                              "stableId": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "stableId"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "message": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "requested": {
+                          "description": "A semantic instance reference. Stable ids are supplied by a plugin; session ids are forbidden.",
+                          "properties": {
+                            "build": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "path": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "provenance": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "role": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "stableId": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "stableId"
+                          ],
+                          "type": "object"
+                        },
+                        "status": {
+                          "description": "Outcome of matching a persisted semantic instance reference.",
+                          "enum": [
+                            "Resolved",
+                            "Missing",
+                            "Ambiguous",
+                            "Unsupported"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "requested",
+                        "status"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "succeeded": {
+                    "description": "True only when every requested instance resolved exactly once.",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "instances"
+                ],
+                "type": "object"
+              },
+              "revision": {
+                "format": "int64",
+                "pattern": "^-?(?:0|[1-9]\\d*)$",
+                "type": [
+                  "integer",
+                  "string"
+                ]
+              },
+              "stale": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "revision",
+              "preset",
+              "resolution",
+              "plan"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "preset",
+          "preview"
+        ],
         "type": "object"
       },
       "QueryableCollectionQuery": {
@@ -9481,6 +11696,16 @@
           "required": true
         },
         "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetDto"
+                }
+              }
+            },
+            "description": "OK"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -9732,6 +11957,16 @@
           "required": true
         },
         "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionEditResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -9756,7 +11991,21 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OpenApiError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/OpenApiError"
+                    },
+                    {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/OpenApiError"
+                        },
+                        {
+                          "$ref": "#/components/schemas/SessionEditResult"
+                        }
+                      ]
+                    }
+                  ]
                 }
               }
             },
@@ -9786,7 +12035,21 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OpenApiError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/OpenApiError"
+                    },
+                    {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/OpenApiError"
+                        },
+                        {
+                          "$ref": "#/components/schemas/SessionEditResult"
+                        }
+                      ]
+                    }
+                  ]
                 }
               }
             },
@@ -9855,6 +12118,23 @@
           "required": true
         },
         "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PresetPreviewDto"
+                    },
+                    {
+                      "$ref": "#/components/schemas/PresetSemanticPreviewDto"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "OK"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -9879,7 +12159,28 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OpenApiError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/OpenApiError"
+                    },
+                    {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/OpenApiError"
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "$ref": "#/components/schemas/PresetPreviewDto"
+                            },
+                            {
+                              "$ref": "#/components/schemas/PresetSemanticPreviewDto"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               }
             },
@@ -9909,7 +12210,28 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OpenApiError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/OpenApiError"
+                    },
+                    {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/OpenApiError"
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "$ref": "#/components/schemas/PresetPreviewDto"
+                            },
+                            {
+                              "$ref": "#/components/schemas/PresetSemanticPreviewDto"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               }
             },
