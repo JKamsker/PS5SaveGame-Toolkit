@@ -43,7 +43,7 @@ public sealed class DiskSaveSet : ISaveSet
                 && candidate.IsBackup != directory.IsBackup
                 && candidate.Generation == directory.Generation
                 && string.Equals(candidate.TitleId, directory.TitleId, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(candidate.Name, directory.Name, StringComparison.Ordinal)) return candidate;
+                && string.Equals(candidate.Name, directory.Name, StringComparison.OrdinalIgnoreCase)) return candidate;
         }
         return null;
     }

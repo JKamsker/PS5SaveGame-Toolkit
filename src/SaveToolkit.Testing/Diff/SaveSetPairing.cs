@@ -8,10 +8,14 @@ namespace SaveToolkit.Testing.Diff;
 internal sealed record SetEntry(ISaveFile File, string TitleId, string Directory, bool IsBackup, string Path, int Generation, int Rank)
 {
     /// <summary>Case-insensitive identity of the logical path (computed once; copied by <c>with</c>).</summary>
-    public string PathKey { get; } = MakeKey(TitleId, Directory, IsBackup, Path);
+    public string PathKey { get; } = MakeKey(TitleId, Directory, IsBackup, Path,
+        File.Directory.RawName.StartsWith("sdimg_", StringComparison.OrdinalIgnoreCase));
 
-    public static string MakeKey(string titleId, string directory, bool isBackup, string path) =>
-        string.Join('\u0001', titleId.ToUpperInvariant(), directory.ToUpperInvariant(), isBackup ? "bu" : "main", path.ToUpperInvariant());
+    public bool IsConsoleSave => File.Directory.RawName.StartsWith("sdimg_", StringComparison.OrdinalIgnoreCase);
+
+    public static string MakeKey(string titleId, string directory, bool isBackup, string path, bool isConsoleSave = true) =>
+        string.Join('\u0001', isConsoleSave ? "console" : "loose", titleId.ToUpperInvariant(),
+            directory.ToUpperInvariant(), isBackup ? "bu" : "main", path.ToUpperInvariant());
 }
 
 internal sealed record PairedFile(SetEntry? Before, SetEntry? After)
@@ -80,9 +84,10 @@ internal static class SaveSetPairing
     public static TwinSummary Twins(IReadOnlyList<SetEntry> entries, Fingerprints fingerprints)
     {
         static string TwinKey(SetEntry e) => $"{SetEntry.MakeKey(e.TitleId, e.Directory, false, e.Path)}\u0002{e.Generation}";
-        var mains = entries.Where(e => !e.IsBackup).GroupBy(TwinKey, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
-        var backups = entries.Where(e => e.IsBackup).GroupBy(TwinKey, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
-        var directories = entries.Select(e => DirKey(e, e.IsBackup)).ToHashSet(StringComparer.Ordinal);
+        var consoleEntries = entries.Where(e => e.IsConsoleSave).ToArray();
+        var mains = consoleEntries.Where(e => !e.IsBackup).GroupBy(TwinKey, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+        var backups = consoleEntries.Where(e => e.IsBackup).GroupBy(TwinKey, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+        var directories = consoleEntries.Select(e => DirKey(e, e.IsBackup)).ToHashSet(StringComparer.Ordinal);
         var identical = 0;
         var mismatches = new List<TwinCheck>();
         foreach (var (key, main) in mains)

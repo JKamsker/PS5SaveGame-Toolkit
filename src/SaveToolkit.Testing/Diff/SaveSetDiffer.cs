@@ -30,7 +30,7 @@ public static class SaveSetDiffer
             diffs[pair] = Diff(pair, options, fingerprints, mirror: null);
         }
 
-        var mains = pairs.Where(p => !p.Any.IsBackup).ToDictionary(p => (p.Any.PathKey, p.Any.Rank));
+        var mains = pairs.Where(p => p.Any.IsConsoleSave && !p.Any.IsBackup).ToDictionary(p => (p.Any.PathKey, p.Any.Rank));
         foreach (var pair in pairs.Where(p => p.Any.IsBackup))
         {
             var e = pair.Any;
