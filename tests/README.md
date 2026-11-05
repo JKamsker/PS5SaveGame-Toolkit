@@ -38,6 +38,118 @@ xUnit runner; use the linked MTP configuration instead. See the
 [Stryker configuration reference](https://stryker-mutator.io/docs/stryker-net/configuration/)
 and [MTP configuration reference](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-config).
 
+## Rotating nightly slices
+
+The nightly uses **nine slices** for each project, completing a pass in nine nights
+(about a week). SHA-256 of `9402:<project-relative POSIX path>`, interpreted as a
+big-endian integer modulo 9 plus 1, assigns files. The seed is fixed: adding files
+moves no existing files. The UTC date ordinal (`date.toordinal() % 9 + 1`) selects
+the nightly slice. Dispatch `slice=1` through `slice=9` overrides it; blank uses the
+date, and `all` requests every file under the same 90-minute limit. Missed slices
+need manual catch-up. `bin`/`obj` are excluded, with no source allowlist to go stale.
+The helper writes exact project-relative `mutate` globs to the scratch config.
+Each artifact name identifies project/slice/count, and includes `slice.json` and
+the generated config. Summaries list selected files, score and mutant statuses;
+`thresholds.break = 0` remains informational, while missing reports and execution
+failures fail the job. A slice score is not a whole-project score.
+
+Sizing evidence (2026-11-05): [hosted run 42068836593](https://github.com/JKamsker/PS5SaveGame-Toolkit/actions/runs/42068836593) captured 1,842 tests, queued
+5,479 Core / 2,670 SDK mutants, and exceeded 90 minutes for both projects. Its debug
+logs map generated mutant IDs to source paths: 8,109 Core / 3,662 SDK generated
+mutants, including compiler exclusions. The busiest unsalted seven-way Core bucket
+contains 1,983 generated mutants, too large for the target budget. Nine buckets
+with fixed seed 9402 were calibrated against that recorded workload. Current file
+counts are also checked for balance in the helper's unit tests. Growth can increase
+workload; revisit these estimates when hosted timings change.
+
+Core generated counts for slices 1–9 are 989, 1,019, 989, 1,018, 984, 1,020, 659,
+925 and 506. SDK counts are 438, 395, 413, 550, 709, 162, 257, 491 and 247.
+Core's hosted mutation phase started at 16:59:51 UTC and had launched 971 individual
+mutant runs by 18:22:17 (82.4 minutes). Applying that observed throughput, the
+5,479 / 8,109 tested/generated ratio and a rounded eight-minute setup/coverage
+allowance projects Core slices at **65, 66, 65, 66, 64, 66, 46, 61 and 37 minutes**.
+These are planning estimates, not measured hosted slice durations: test selection,
+timeouts and compiler exclusions differ by file. The target is around 70 minutes
+with the hard job limit retained at 90. The preview runner's coverage-relay timeouts
+remain visible in logs. Hosted verification must confirm the budget, especially
+Core slice 6 (largest generated workload) and SDK slice 5.
+
+Local Linux proof (2026-11-05, source baseline `8140888f` plus the canonical-path
+fix): `mcr.microsoft.com/dotnet/sdk:10.0`, SDK 10.0.403, Stryker 5.0.0, native MTP,
+Release/net10.0, concurrency 4. **SDK slice 6/9 completed in 22m05s** (Stryker's
+reported elapsed time, including analysis/build/coverage), exit 0. It captured
+1,843 tests with the unchanged nightly class exclusions, selected 12 source files,
+and tested 120 mutants: **83 Killed, 37 Timeout, 0 Survived, 0 Pending**. Both JSON
+and HTML reports were produced. All active report mutants map back to slice 6;
+2,834 mutants were excluded by the mutate filter. Report paths are absolute in
+solution mode, so strip the `SaveToolkit.Sdk/` project prefix before checking the
+path hash. Reports also retain ignored/compiler-error entries outside the slice.
+This proof used the generated config without a CLI mutate override or extra test
+filters. Its 100% score includes timeouts and preview-runner relay failures; it
+establishes completion, not test effectiveness. Local timing does not establish
+hosted Core timing. After an authorized push, verify Core slice 6 and SDK slice 5:
+
+```powershell
+gh workflow run nightly-stryker.yml --repo JKamsker/PS5SaveGame-Toolkit --ref ci/stryker-rotating-slices -f slice=6
+gh workflow run nightly-stryker.yml --repo JKamsker/PS5SaveGame-Toolkit --ref ci/stryker-rotating-slices -f slice=5
+```
+
+Each dispatch runs both matrix projects; inspect the targeted project in each run.
+Require completed JSON/HTML reports, no Pending mutants, slice/file lists in summaries
+and artifacts, and completion comfortably inside the 90-minute limit.
+
+## Linux nightly reproduction
+
+The hosted zero-test failure was reproduced with the unchanged 5.0.0 tool in the clean
+`mcr.microsoft.com/dotnet/sdk:10.0` image (.NET SDK 10.0.403). The cause is solution-path
+configuration lookup, before MTP starts any test server. Stryker's
+[solution reader](https://github.com/stryker-mutator/stryker-net/blob/dotnet-stryker%405.0.0/src/Stryker.Solutions/SolutionFile.cs)
+indexes paths containing `..` but looks them up by canonical path on Linux. On a miss it
+uses solution platform `Any CPU` instead of project platform `AnyCPU`. Analysis then points
+to `bin/Any CPU/Release/net10.0`, while the solution build writes `bin/Release/net10.0`.
+The [native runner](https://github.com/stryker-mutator/stryker-net/blob/dotnet-stryker%405.0.0/src/Stryker.TestRunner.MicrosoftTestPlatform/MicrosoftTestingPlatformRunner.cs)
+skips a nonexistent assembly. Its final VSTest/unsupported-MTP message does not diagnose this.
+The target-framework warning also occurs on successful Windows runs because the framework
+comes from `Directory.Build.props`; neither that warning nor empty samples explains zero tests.
+
+The nightly workflow uses canonical absolute paths for the three temporary solution entries after `dotnet sln add`.
+Keep native MTP and Stryker 5.0.0; no adapter/version change is needed. To reproduce locally:
+
+1. Set Windows `TEMP`/`TMP` to a new D: scratch directory. Export tracked sources with
+   `git archive --format=tar --output=<scratch>/source.tar HEAD` (no samples or build outputs).
+2. Run `docker run --rm -it --mount type=bind,source=<checkout>,target=/source,readonly
+   --mount type=bind,source=<scratch>,target=/scratch mcr.microsoft.com/dotnet/sdk:10.0 bash`.
+3. In the container, extract the archive to `/scratch/repo`. Set `NUGET_PACKAGES=/scratch/packages`,
+   `TEMP`, `TMP`, `TMPDIR` to `/scratch/stryker`, `SAVETOOLKIT_TEST_TEMP=/scratch/stryker/tests`,
+   `SAVETOOLKIT_ARTIFACTS=/scratch/stryker/empty-samples`, and `TESTINGPLATFORM_PIPE_DIRECTORY=/tmp`.
+   Create those directories; use the workflow's MTP exclusion JSON and set
+   `SAVETOOLKIT_MUTATION_CONFIG=/scratch/stryker/mutation.testconfig.json`.
+4. From `/scratch/repo`, restore tools and run the workflow's temporary-solution setup,
+   including its absolute-path normalization and copies of `global.json` and the tool manifest.
+   Run from `/scratch/stryker`:
+
+   ```bash
+   dotnet stryker --config-file /scratch/stryker/stryker-config.json \
+     --solution /scratch/stryker/Stryker.slnx --project SaveToolkit.Sdk.csproj \
+     --output /scratch/stryker/output --skip-version-check --log-to-file
+   ```
+
+Before running, generate the slice config from the exported checkout with
+`python -B .github/scripts/stryker_slices.py --project Sdk --slice 6 --scratch /scratch/stryker`.
+(The SDK image may need Python installed; alternatively generate the config on the host.)
+The helper copies the shared config and enables HTML reports. Do not pass `--mutate` on
+the Stryker CLI: it would override the selected files. For Core use `--project Core` in the
+helper and `--project SaveToolkit.Core.csproj` in Stryker. To reproduce the original failure,
+omit only the absolute-path normalization. Inspect `output/reports/mutation-report.json`
+and confirm actual killed mutants, not merely a successful exit. After pushing an authorized
+branch, dispatch `nightly-stryker.yml` on that branch and verify both matrix jobs and their
+uploaded reports; local container success alone cannot establish hosted success.
+For a focused local ActionPlans run, the MTP configuration can additionally set
+`commandLineOptions.filter-class` to `["*.SdkHelpers.ActionPlans*"]`, as the existing
+`Invoke-Mutations.ps1 -Area ActionPlans` runner does. This bounds local proof time; it is
+not the nightly's test selection. Broad local runs can encounter workspace expiry assertion
+flakiness and preview-runner coverage relay timeouts; retain those diagnostics separately.
+
 The mutation score is `(Killed + Timeout) / (Killed + Timeout + Survived + NoCoverage)`.
 Compile-error and ignored mutants are excluded. Stryker's safe-mode compilation
 fallback excludes whole methods when generated mutations break definite assignment;

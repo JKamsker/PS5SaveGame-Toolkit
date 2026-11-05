@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: '47 1 * * *'
   workflow_dispatch:
+    inputs:
+      slice:
+        description: 'Slice 1-9, all, or blank for the UTC date'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -50,9 +56,16 @@ jobs:
             '*Allocation*', '*Api*', '*MutationFuzz*', '*Conformance*',
             '*SaveMutation*', '*TestScratch*', '*Documentation*'
           ) } } | ConvertTo-Json -Depth 5 | Set-Content "$scratch/mutation.testconfig.json"
-          $config = Get-Content tests/stryker-config.json -Raw | ConvertFrom-Json
-          $config.'stryker-config'.reporters = @('progress', 'html', 'json')
-          $config | ConvertTo-Json -Depth 5 | Set-Content "$scratch/stryker-config.json"
+
+      # The helper derives mutate globs from tests/stryker-config.json.
+      - name: Select rotating source slice
+        id: slice
+        env:
+          REQUESTED_SLICE: ${{ inputs.slice }}
+        run: |
+          python -B .github/scripts/stryker_slices.py --project "$env:MUTATION_PROJECT" `
+            --slice "$env:REQUESTED_SLICE" --scratch "$env:MUTATION_SCRATCH"
+          exit $LASTEXITCODE
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
@@ -80,6 +93,16 @@ jobs:
             src/SaveToolkit.Sdk/SaveToolkit.Sdk.csproj `
             tests/SaveToolkit.Core.Tests/SaveToolkit.Core.Tests.csproj
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # Stryker 5.0.0 looks up project configuration by canonical path on Linux,
+          # but indexes relative solution paths without collapsing '..'. A missed
+          # lookup uses solution 'Any CPU' instead of project 'AnyCPU', so discovery
+          # looks in bin/Any CPU/Release while the solution builds bin/Release.
+          $solutionPath = "$env:MUTATION_SCRATCH/Stryker.slnx"
+          $solution = [xml](Get-Content -LiteralPath $solutionPath -Raw)
+          foreach ($project in $solution.Solution.Project) {
+            $project.Path = [IO.Path]::GetFullPath($project.Path, $env:MUTATION_SCRATCH)
+          }
+          $solution.Save($solutionPath)
           # Solution mode runs from scratch, with the same SDK and pinned local tools.
           Copy-Item global.json "$env:MUTATION_SCRATCH/global.json"
           Copy-Item .config/dotnet-tools.json "$env:MUTATION_SCRATCH/dotnet-tools.json"
@@ -88,13 +111,19 @@ jobs:
         run: |
           dotnet stryker --config-file "$env:MUTATION_SCRATCH/stryker-config.json" `
             --solution "$env:MUTATION_SCRATCH/Stryker.slnx" `
-            --project "SaveToolkit.$env:MUTATION_PROJECT.csproj" --mutate '**/*.cs' `
+            --project "SaveToolkit.$env:MUTATION_PROJECT.csproj" `
             --output "$env:MUTATION_SCRATCH/output" --skip-version-check --log-to-file
           exit $LASTEXITCODE
       - name: Summarize project mutation score
         if: always()
         run: |
           "### Stryker: SaveToolkit.$env:MUTATION_PROJECT" >> $env:GITHUB_STEP_SUMMARY
+          $manifestPath = "$env:MUTATION_SCRATCH/slice.json"
+          if (Test-Path -LiteralPath $manifestPath) {
+            $slice = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+            "Slice **$($slice.slice)/$($slice.count)**: $($slice.files.Count) source files." >> $env:GITHUB_STEP_SUMMARY
+            foreach ($file in $slice.files) { "- ``$file``" >> $env:GITHUB_STEP_SUMMARY }
+          }
           $path = "$env:MUTATION_SCRATCH/output/reports/mutation-report.json"
           if (!(Test-Path -LiteralPath $path)) {
             'Report unavailable: mutation testing failed, timed out or was cancelled. See the job log.' >> $env:GITHUB_STEP_SUMMARY
@@ -121,8 +150,10 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: stryker-${{ matrix.project }}-${{ github.run_id }}
+          name: stryker-${{ matrix.project }}-slice-${{ steps.slice.outputs.slice }}-of-${{ steps.slice.outputs.count }}-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/stryker/output/**
+            ${{ runner.temp }}/stryker/slice.json
+            ${{ runner.temp }}/stryker/stryker-config.json
           if-no-files-found: warn
           retention-days: 3

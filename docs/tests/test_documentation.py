@@ -502,15 +502,27 @@ class DocumentationTests(unittest.TestCase):
                          "timeout-minutes: 90", "fail-fast: false", "project: [Core, Sdk]",
                          "tests/SaveToolkit.Core.Tests/SaveToolkit.Core.Tests.csproj", "dotnet tool restore",
                          "--include-references false", "working-directory: ${{ runner.temp }}/stryker",
+                         "[IO.Path]::GetFullPath($project.Path, $env:MUTATION_SCRATCH)",
+                         "$solution.Save($solutionPath)", "stryker_slices.py",
                          f"Restore pinned Stryker.NET {version}", "tests/stryker-config.json",
-                         "@('progress', 'html', 'json')", "SAVETOOLKIT_ARTIFACTS=$scratch/empty-samples",
+                         "SAVETOOLKIT_ARTIFACTS=$scratch/empty-samples",
                          "GITHUB_STEP_SUMMARY", "/stryker/output/**", "retention-days: 3"):
             self.assertIn(fragment, workflow)
+        for fragment in ("inputs.slice", "id: slice", "--slice", "slice.json",
+                         "-slice-${{ steps.slice.outputs.slice }}-of-${{ steps.slice.outputs.count }}"):
+            self.assertIn(fragment, workflow)
+        self.assertNotIn("--mutate '**/*.cs'", workflow)
+        for text in (releasing, document("tests/README.md")):
+            for fragment in ("SHA-256", "nine slices", "ordinal", "all", "slice.json"):
+                self.assertIn(fragment, text)
         self.assertEqual(2, workflow.count("if: always()"))
         for fragment in ("pull_request:", "push:", "secrets.", "contents: write", "23 3 * * *"):
             self.assertNotIn(fragment, workflow)
         for fragment in ("01:47 UTC", "90-minute timeout", "3-day retention", f"Stryker.NET {version}"):
             self.assertIn(fragment, releasing)
+        for text in (releasing, document("tests/README.md")):
+            for fragment in ("canonical absolute paths", "AnyCPU", "bin/Any CPU/Release", "bin/Release"):
+                self.assertIn(fragment, text)
 
     def test_coverage_platforms_and_nightly_fuzz_match_workflows(self):
         workflow = document(".github/workflows/ci.yml")
