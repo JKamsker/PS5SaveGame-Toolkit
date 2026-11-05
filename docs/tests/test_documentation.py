@@ -503,11 +503,18 @@ class DocumentationTests(unittest.TestCase):
                          "tests/SaveToolkit.Core.Tests/SaveToolkit.Core.Tests.csproj", "dotnet tool restore",
                          "--include-references false", "working-directory: ${{ runner.temp }}/stryker",
                          "[IO.Path]::GetFullPath($project.Path, $env:MUTATION_SCRATCH)",
-                         "$solution.Save($solutionPath)", "--mutate '**/*.cs'",
+                         "$solution.Save($solutionPath)", "stryker_slices.py",
                          f"Restore pinned Stryker.NET {version}", "tests/stryker-config.json",
-                         "@('progress', 'html', 'json')", "SAVETOOLKIT_ARTIFACTS=$scratch/empty-samples",
+                         "SAVETOOLKIT_ARTIFACTS=$scratch/empty-samples",
                          "GITHUB_STEP_SUMMARY", "/stryker/output/**", "retention-days: 3"):
             self.assertIn(fragment, workflow)
+        for fragment in ("inputs.slice", "id: slice", "--slice", "slice.json",
+                         "-slice-${{ steps.slice.outputs.slice }}-of-${{ steps.slice.outputs.count }}"):
+            self.assertIn(fragment, workflow)
+        self.assertNotIn("--mutate '**/*.cs'", workflow)
+        for text in (releasing, document("tests/README.md")):
+            for fragment in ("SHA-256", "nine slices", "ordinal", "all", "slice.json"):
+                self.assertIn(fragment, text)
         self.assertEqual(2, workflow.count("if: always()"))
         for fragment in ("pull_request:", "push:", "secrets.", "contents: write", "23 3 * * *"):
             self.assertNotIn(fragment, workflow)

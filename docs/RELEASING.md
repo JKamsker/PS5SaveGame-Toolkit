@@ -126,8 +126,9 @@ in normal Core tests; its external-sample check skips when no matching archives 
 
 The independent [nightly Stryker workflow](../.github/workflows/nightly-stryker.yml) runs at
 **01:47 UTC** and through Actions → Nightly Stryker (informational) → Run workflow. Separate
-Core/SDK matrix jobs mutate all production C# files in `src/SaveToolkit.Core` and
-`src/SaveToolkit.Sdk`, using `tests/SaveToolkit.Core.Tests`. Each job has a **90-minute timeout**,
+Core/SDK matrix jobs rotate production C# files in `src/SaveToolkit.Core` and
+`src/SaveToolkit.Sdk` through nine slices, using `tests/SaveToolkit.Core.Tests`.
+Each job has a **90-minute timeout**,
 no score gate (`thresholds.break = 0`); low scores and surviving mutants do not fail the run.
 Build/tool failures, missing reports and timeouts fail the workflow so GitHub Actions can surface
 execution failures; recipient delivery depends on maintainers' Actions notification settings.
@@ -151,6 +152,20 @@ The existing optional Core-test MTP configuration link excludes allocation, API-
 mutation-fuzz, conformance, save-mutation, scratch and documentation test classes from this
 sweep; ordinary CI retains them. No private samples are downloaded: `SAVETOOLKIT_ARTIFACTS`
 points to an existing empty scratch directory, and all temporary data/reports use `runner.temp`.
+
+The partition helper `.github/scripts/stryker_slices.py` hashes each project-relative,
+case-sensitive POSIX file path with SHA-256 of `9402:<path>` (big-endian integer modulo 9, plus 1).
+The fixed seed balances the recorded workload; do not change it casually. The UTC date
+ordinal (Python `date.toordinal()`, modulo 9, plus 1) selects the slice at job start. Adding a source
+file assigns it immediately and never moves existing paths. `bin`/`obj` are excluded.
+The optional dispatch `slice` input accepts `1`–`9`, `all`, or blank for today's slice;
+invalid/empty selections fail rather than falling back to a full sweep. `all` is a manual
+diagnostic escape hatch and may exceed the unchanged time limit. A missed night is not
+retried automatically; dispatch its slice to catch up. Scores describe that slice only.
+The generated config supplies exact project-relative `mutate` globs, without a CLI override.
+Artifacts identify project and slice index/count and include `slice.json` with the full file
+list and generated config. The step summary includes the slice and file list even when
+mutation execution fails. See [runtime evidence and estimates](../tests/README.md#rotating-nightly-slices).
 
 Each project writes its mutation score and status counts to the step summary, explicitly
 reporting unavailable results after a failure. The score is `(Killed + Timeout) / (Killed +

@@ -9,6 +9,10 @@ Invoke-Case 'scheduled diagnostic jobs surface execution failures without gating
     Assert-True ($stryker.Contains('if: always()')) 'Failure diagnostics must still be uploaded.'
     Assert-True ($stryker.Contains('/stryker/output/**')) 'Retain Stryker diagnostic logs when no report is produced.'
     Assert-True ($stryker.Contains('--log-to-file')) 'Enable diagnostic logs even when test discovery fails.'
+    Assert-True ($stryker.Contains('stryker_slices.py')) 'Use the tested stable partition helper.'
+    Assert-True ($stryker.Contains('REQUESTED_SLICE: ${{ inputs.slice }}')) 'Pass dispatch input as data.'
+    Assert-True ($stryker -notmatch '--mutate') 'Do not override the generated slice selection.'
+    Assert-True ($stryker.Contains('steps.slice.outputs.count')) 'Artifact names identify slice/count.'
 }
 
 foreach ($reportState in @('survivors', 'missing', 'malformed')) {
@@ -23,6 +27,8 @@ foreach ($reportState in @('survivors', 'missing', 'malformed')) {
         Set-Content -LiteralPath $scriptPath -Value ("`$ErrorActionPreference = 'Stop'`n" + $scriptText)
         $reports = Join-Path $fixture 'output/reports'
         New-Item -ItemType Directory -Force $reports | Out-Null
+        @{ project = 'Core'; slice = '3'; count = 9; files = @('Sessions/Workspace.cs') } |
+            ConvertTo-Json | Set-Content -LiteralPath (Join-Path $fixture 'slice.json')
         if ($reportState -eq 'survivors') {
             @{ files = @{ 'source.cs' = @{ mutants = @(@{ status = 'Survived' }, @{ status = 'NoCoverage' }) } } } |
                 ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $reports 'mutation-report.json')
@@ -41,6 +47,8 @@ foreach ($reportState in @('survivors', 'missing', 'malformed')) {
                 Assert-True ($code -eq 0) 'Surviving/uncovered mutants and a zero score must not fail the job.'
                 $summary = Get-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Raw
                 Assert-True ($summary.Contains('**0.00%**')) 'The real summary must report the zero score.'
+                Assert-True ($summary.Contains('**3/9**')) 'Summary identifies the slice.'
+                Assert-True ($summary.Contains('Sessions/Workspace.cs')) 'Summary lists selected files.'
             }
             else { Assert-True ($code -ne 0) 'A missing or malformed report must fail the job.' }
         }
