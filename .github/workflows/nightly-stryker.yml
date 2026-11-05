@@ -17,7 +17,7 @@ jobs:
     name: Stryker ${{ matrix.project }} (report-only)
     runs-on: ubuntu-latest
     timeout-minutes: 90
-    continue-on-error: true
+    # break=0 keeps scores informational; execution failures must remain visible.
     strategy:
       fail-fast: false
       matrix:
@@ -89,7 +89,7 @@ jobs:
           dotnet stryker --config-file "$env:MUTATION_SCRATCH/stryker-config.json" `
             --solution "$env:MUTATION_SCRATCH/Stryker.slnx" `
             --project "SaveToolkit.$env:MUTATION_PROJECT.csproj" --mutate '**/*.cs' `
-            --output "$env:MUTATION_SCRATCH/output" --skip-version-check
+            --output "$env:MUTATION_SCRATCH/output" --skip-version-check --log-to-file
           exit $LASTEXITCODE
       - name: Summarize project mutation score
         if: always()
@@ -98,7 +98,7 @@ jobs:
           $path = "$env:MUTATION_SCRATCH/output/reports/mutation-report.json"
           if (!(Test-Path -LiteralPath $path)) {
             'Report unavailable: mutation testing failed, timed out or was cancelled. See the job log.' >> $env:GITHUB_STEP_SUMMARY
-            exit 0
+            throw 'Mutation report unavailable; the informational sweep did not complete.'
           }
           $report = Get-Content -LiteralPath $path -Raw | ConvertFrom-Json -AsHashtable
           $mutants = @($report.files.Values | ForEach-Object { $_.mutants })
@@ -117,13 +117,12 @@ jobs:
           }
           '' >> $env:GITHUB_STEP_SUMMARY
           'Informational only. Native MTP is preview; compile-error/ignored mutants are excluded from the score. Inspect exclusions and the HTML report before interpreting results.' >> $env:GITHUB_STEP_SUMMARY
-      - name: Upload HTML and JSON mutation reports
+      - name: Upload mutation reports and failure diagnostics
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: stryker-${{ matrix.project }}-${{ github.run_id }}
           path: |
-            ${{ runner.temp }}/stryker/output/reports/mutation-report.html
-            ${{ runner.temp }}/stryker/output/reports/mutation-report.json
+            ${{ runner.temp }}/stryker/output/**
           if-no-files-found: warn
           retention-days: 3

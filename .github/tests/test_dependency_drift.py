@@ -67,7 +67,7 @@ class DriftTests(unittest.TestCase):
                   patch.object(self.drift.subprocess, "run", side_effect=replies) as run,
                   patch.object(sys, "argv", ["dependency_drift.py", "--output-directory", str(output)]),
                   patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(summary)})):
-                self.drift.main()
+                self.assertEqual(1, self.drift.main())
             text = summary.read_text(encoding="utf-8")
             self.assertIn("NuGet report unavailable", text)
             self.assertIn("npm: **1** direct dependency update(s)", text)
@@ -94,7 +94,7 @@ class DriftTests(unittest.TestCase):
                   patch.object(self.drift.subprocess, "run", side_effect=replies) as run,
                   patch.object(sys, "argv", ["dependency_drift.py", "--output-directory", str(output)]),
                   patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(summary)})):
-                self.drift.main()
+                self.assertEqual(0, self.drift.main())
             text = summary.read_text(encoding="utf-8")
             self.assertIn("NuGet: **1** distinct package/version update(s)", text)
             self.assertIn("npm: **0** direct dependency update(s)", text)

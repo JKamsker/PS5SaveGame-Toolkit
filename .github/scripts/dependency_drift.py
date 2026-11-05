@@ -79,7 +79,9 @@ def main():
     (output / "summary.md").write_text(report, encoding="utf-8")
     with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
         summary.write(report)
+    # Available upgrades are informational; missing reports are an execution failure.
+    return int(nuget is None or not nuget.get("projects") or npm_data is None)
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
