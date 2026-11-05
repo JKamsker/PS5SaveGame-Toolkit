@@ -1,6 +1,6 @@
 import { defaultScheduler, notifyManager, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router";
+import { Link, MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from "vitest";
 import { api } from "../../api/client";
 import type { SaveDocument, Workspace } from "../../api/protocol";
@@ -24,19 +24,34 @@ async function mount() {
     state: { revision: 1, isDirty: false, canUndo: false, canRedo: false },
     view: { type: "field", valueId: "flag", label: "Flag", value: false, spec: { kind: "bool" } },
   };
-  vi.spyOn(api, "workspace").mockResolvedValue(workspace);
+  vi.spyOn(api, "workspace").mockImplementation(async id => ({ ...workspace, id }));
   vi.spyOn(api, "document").mockResolvedValue(snapshot);
   vi.spyOn(api, "sources").mockResolvedValue({ datasets: [] });
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
   clients.push(client);
   render(<MemoryRouter initialEntries={["/w/w?doc=d"]}><QueryClientProvider client={client}>
+    <Link to="/w/other">Other workspace</Link>
     <Routes><Route path="/w/:workspaceId" element={<WorkspacePage />} /></Routes>
   </QueryClientProvider></MemoryRouter>);
   await screen.findByRole("switch", { name: "Flag" });
   return snapshot.state;
 }
 
-const texts = (role: "status" | "alert") => screen.queryAllByRole(role).map(element => element.textContent);
+const texts = (role: "status" | "alert") => screen.queryAllByRole(role)
+  .flatMap(element => [...element.querySelectorAll(".toast")].map(toast => toast.textContent));
+
+it("retires notifications when switching workspace on the same route", async () => {
+  const state = await mount();
+  vi.spyOn(api, "edit").mockResolvedValue({
+    ok: true, errors: [], warnings: ["Warning from the first workspace"], changes: [],
+    structureChanged: false, state,
+  });
+  await act(async () => { fireEvent.click(screen.getByRole("switch", { name: "Flag" })); });
+  expect(screen.getByText("Warning from the first workspace")).toBeTruthy();
+  await act(async () => { fireEvent.click(screen.getByRole("link", { name: "Other workspace" })); });
+  await screen.findByRole("heading", { name: "Pick a save file" });
+  expect(screen.queryByText("Warning from the first workspace")).toBeNull();
+});
 
 it.each([true, false])("shows every diagnostic from one edit at once and expires each on its own interval (ok=%s)", async ok => {
   const state = await mount();

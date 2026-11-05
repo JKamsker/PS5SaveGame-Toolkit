@@ -3,14 +3,14 @@ import { describeRange, displayValue, parseDraft, toDraft } from "./values";
 
 afterEach(() => vi.restoreAllMocks());
 
-describe("German numeric drafts", () => {
-  const NumberFormat = Intl.NumberFormat;
-  function germanLocale() {
-    vi.spyOn(Intl, "NumberFormat").mockImplementation(function (locale, options) {
-      return new NumberFormat(locale ?? "de-DE", options);
-    });
-  }
+const NumberFormat = Intl.NumberFormat;
+function germanLocale() {
+  vi.spyOn(Intl, "NumberFormat").mockImplementation(function (locale, options) {
+    return new NumberFormat(locale ?? "de-DE", options);
+  });
+}
 
+describe("German numeric drafts", () => {
   it.each(["1,5", "-1234,5", "1,5e2"])("accepts the locale decimal separator in %s", text => {
     germanLocale();
     expect(parseDraft({ kind: "float", singlePrecision: false }, text)).toEqual({ ok: true, value: Number(text.replace(",", ".")) });
@@ -25,9 +25,17 @@ describe("German numeric drafts", () => {
     expect(JSON.stringify(parseDraft(spec, "1234,5"))).toBe('{"ok":true,"value":1234.5}');
   });
 
-  it.each(["1.234,5", "1,234.5", "1,2,3", "1,5oops"])("rejects grouping, mixed separators and partial input %s", text => {
+  it.each(["1.000,5", "1.234,5", "1,234.5", "1,2,3", "1,5oops"])("rejects grouping, mixed separators and partial input %s", text => {
     germanLocale();
     expect(parseDraft({ kind: "float", singlePrecision: false }, text).ok).toBe(false);
+  });
+
+  it.each([true, false])("keeps signed zero and invariant dot decimals (float32=%s)", singlePrecision => {
+    germanLocale();
+    const spec = { kind: "float" as const, singlePrecision };
+    expect(parseDraft(spec, "-0")).toEqual({ ok: true, value: -0 });
+    expect(parseDraft(spec, "-0,0")).toEqual({ ok: true, value: -0 });
+    expect(parseDraft(spec, "1.000")).toEqual({ ok: true, value: 1 });
   });
 
   it("checks bounds and single precision after decimal-comma normalization", () => {

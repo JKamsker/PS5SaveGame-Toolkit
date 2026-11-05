@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, beforeAll, expect, it, vi } from "vitest";
 import { api, ApiError } from "../../api/client";
@@ -51,17 +51,18 @@ it.each([400, 409, 503, 0])("retains drafts, selection and live undo state after
   vi.mocked(api.workspace).mockRejectedValueOnce(new ApiError("Workspace temporarily unavailable", status));
   await act(async () => { await client.refetchQueries({ queryKey: ["workspace", "w"] }); });
   // Query notifications are scheduled separately from the completed network promise.
-  expect((await screen.findByRole("alert")).textContent).toContain("Workspace temporarily unavailable");
+  expect((await within(screen.getByRole("main")).findByRole("alert")).textContent).toContain("Workspace temporarily unavailable");
   expect(screen.getByRole("textbox", { name: /Quantity/ })).toBe(field);
   expect(field.value).toBe("9");
   expect(selected.checked).toBe(true);
   expect(document.activeElement).toBe(field);
   expect(screen.getByRole("button", { name: "Undo" })).toHaveProperty("disabled", false);
   fireEvent.click(screen.getByRole("button", { name: "Retry workspace" }));
-  await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+  await waitFor(() => expect(within(screen.getByRole("main")).queryByRole("alert")).toBeNull());
   expect(api.document).toHaveBeenCalledOnce();
   fireEvent.click(screen.getByRole("button", { name: "Undo" }));
-  expect(await screen.findByRole("alert")).toHaveProperty("textContent", "Undo unavailable");
+  await waitFor(() => expect(within(screen.getByRole("region", { name: "Notifications" })).getByRole("alert"))
+    .toHaveProperty("textContent", "Undo unavailable"));
   expect(field.value).toBe("9");
   expect(selected.checked).toBe(true);
   expect(screen.getByRole("button", { name: "Undo" })).toHaveProperty("disabled", false);
