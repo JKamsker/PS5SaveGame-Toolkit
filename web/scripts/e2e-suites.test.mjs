@@ -17,6 +17,19 @@ import { assertPartition, identities, orchestrateSuites } from "./run-e2e.mjs";
 
 const webRoot = fileURLToPath(new URL("..", import.meta.url));
 
+it("counts repeated executions once per spec and project for ownership discovery", () => {
+  const spec = { id: "opaque", file: "ff7-history.e2e.ts", tests: [
+    { projectName: "chromium" }, { projectName: "chromium" }, { projectName: "firefox" },
+  ] };
+  expect(identities({ suites: [{ specs: [spec] }] })).toEqual([
+    { id: "opaque:chromium", file: spec.file }, { id: "opaque:firefox", file: spec.file },
+  ]);
+  // Duplicate specifications must still fail partition validation.
+  const duplicates = identities({ suites: [{ specs: [spec, spec] }] }).map(test => test.id);
+  expect(() => assertPartition("duplicate specs", duplicates, [{ id: "ff7", ids: duplicates }]))
+    .toThrow(/exactly once/);
+});
+
 function fixtureManifest() {
   return { version: 2, testDirectory: "e2e", suites: [
     { id: "canonical", role: "complement", patterns: [], files: ["canonical.e2e.ts"] },
