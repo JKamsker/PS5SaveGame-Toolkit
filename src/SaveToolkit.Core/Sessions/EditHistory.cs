@@ -124,15 +124,20 @@ internal sealed class EditHistory(DocumentSessionOptions options)
 
     private IReadOnlyList<string> Enforce()
     {
+        List<string> warnings = [];
+        var exceededEntryLimit = _undo.Count > options.MaxHistory;
         while (_undo.Count > options.MaxHistory)
         {
             RemoveFirst(_undo);
             IrreversiblyChanged = true;
         }
 
+        if (exceededEntryLimit)
+            warnings.Add($"Undo history was trimmed to stay within the limit of {options.MaxHistory} entries; the oldest steps can no longer be undone.");
+
         if (_bytes <= options.MaxSnapshotBytes)
         {
-            return [];
+            return warnings;
         }
 
         // Oldest undo first (furthest from the current state), then the deepest redo entries.
@@ -147,7 +152,8 @@ internal sealed class EditHistory(DocumentSessionOptions options)
             RemoveFirst(_redo);
         }
 
-        return [$"Undo history was trimmed to stay within the {Mib(options.MaxSnapshotBytes)} MiB limit; the oldest steps can no longer be undone."];
+        warnings.Add($"Undo history was trimmed to stay within the {Mib(options.MaxSnapshotBytes)} MiB limit; the oldest steps can no longer be undone.");
+        return warnings;
     }
 
     private void Push(LinkedList<HistoryEntry> list, HistoryEntry entry)
