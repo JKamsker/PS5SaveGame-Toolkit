@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 const tokens = readFileSync("src/styles/tokens.css", "utf8");
 const viewStyles = readFileSync("src/styles/view.css", "utf8") + readFileSync("src/styles/table.css", "utf8");
 const uiStyles = readFileSync("src/styles/ui.css", "utf8");
+const documentStyles = readFileSync("src/styles/view.css", "utf8") + readFileSync("src/styles/sources.css", "utf8");
 
 type Palette = Record<string, string>;
 const themes = [...tokens.matchAll(/:root\s*\{([^}]+)\}/g)].map(match =>
@@ -26,9 +27,9 @@ function contrast(first: string, second: string): number {
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
 
-function uiColor(selector: string, property: string, palette: Palette): string {
-  const escaped = selector.replaceAll(".", "\\.");
-  const block = new RegExp(`${escaped}\\s*\\{([^}]+)\\}`).exec(uiStyles)![1]!;
+function uiColor(selector: string, property: string, palette: Palette, styles = uiStyles): string {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const block = new RegExp(`${escaped}\\s*\\{([^}]+)\\}`).exec(styles)![1]!;
   const value = new RegExp(`(?:^|;)\\s*${property}:\\s*([^;]+)`).exec(block)![1]!;
   const token = /var\(--([\w-]+)\)/.exec(value)?.[1];
   const color = token ? palette[token]! : value.trim();
@@ -36,6 +37,10 @@ function uiColor(selector: string, property: string, palette: Palette): string {
 }
 
 describe.each([["light", light], ["dark", dark]] as const)("%s confidence contrast", (_name, palette) => {
+  it.each(['.tabs__tab[aria-selected="true"]', ".sources__count"])("keeps %s text readable on the selected surface", selector => {
+    expect(contrast(uiColor(selector, "color", palette, documentStyles), uiColor(selector, "background", palette, documentStyles))).toBeGreaterThanOrEqual(4.5);
+  });
+
   it.each([".btn__count", ".toast", ".toast--error"])("keeps %s status text readable", selector => {
     expect(contrast(uiColor(selector, "color", palette), uiColor(selector, "background", palette))).toBeGreaterThanOrEqual(4.5);
   });

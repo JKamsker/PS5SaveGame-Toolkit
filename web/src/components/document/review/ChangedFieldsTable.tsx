@@ -1,5 +1,5 @@
 import { reviewValue, type SemanticChange } from "../../../api/actionReview";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { ReviewPager } from "./paging";
 import type { useChangesPanel } from "./useChangesPanel";
 
@@ -19,12 +19,12 @@ export function ChangedFieldsTable({ review, focusSummary }: ReviewProps) {
 function ChangedFieldRow({ change, review, focusSummary }: ReviewProps & { change: SemanticChange }) {
   const { disabled, canEdit, navigate, revert } = review;
   const canNavigate = change.canNavigate ?? Boolean(change.target || change.path.length > 0);
-  const reasonId = `change-reason-${change.valueId.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
-  const navigationReasonId = `change-navigation-${change.valueId.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+  const rowId = useId();
+  const reasonId = `${rowId}-reason`;
+  const navigationReasonId = `${rowId}-navigation`;
   const readOnlyReason = change.revertReason ?? (change.bindingKind === "Derived"
     ? "Derived fields update when the canonical primary changes."
     : "This field cannot be reverted safely.");
-  const technicalId = `change-technical-${change.valueId.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
   return <tr>
     <th scope="row">
       <span>{change.label}</span>
@@ -35,7 +35,7 @@ function ChangedFieldRow({ change, review, focusSummary }: ReviewProps & { chang
         {change.member.groupTitle && <> · {change.member.groupTitle}</>}
         {change.member.provenance && <> · {change.member.provenance}</>}
       </span>}
-      <TechnicalDetails id={technicalId} valueId={change.valueId} canonicalValueId={change.canonicalValueId} />
+      <TechnicalDetails valueId={change.valueId} canonicalValueId={change.canonicalValueId} />
       {change.aliases && <details className="review-aliases">
         <summary>Also shown as {change.aliases.length} projection{change.aliases.length === 1 ? "" : "s"}</summary>
         <ul>{change.aliases.map(alias => <li key={alias.valueId}>
@@ -49,8 +49,7 @@ function ChangedFieldRow({ change, review, focusSummary }: ReviewProps & { chang
             {alias.member.groupTitle && <> · {alias.member.groupTitle}</>}
             {alias.member.provenance && <> · {alias.member.provenance}</>}
           </span>}
-          <TechnicalDetails id={`${technicalId}-${alias.valueId.replace(/[^a-zA-Z0-9_-]/g, "-")}`}
-            valueId={alias.valueId} path={alias.path} />
+          <TechnicalDetails valueId={alias.valueId} path={alias.path} />
         </li>)}</ul>
       </details>}
       {!change.canRevert && <span id={reasonId} className="review-reason">{readOnlyReason}</span>}
@@ -74,11 +73,11 @@ function ChangedFieldRow({ change, review, focusSummary }: ReviewProps & { chang
   </tr>;
 }
 
-function TechnicalDetails({ id, valueId, canonicalValueId, path }: {
-  id: string; valueId: string; canonicalValueId?: string; path?: string[]
+function TechnicalDetails({ valueId, canonicalValueId, path }: {
+  valueId: string; canonicalValueId?: string; path?: string[]
 }) {
   const [open, setOpen] = useState(false);
-  const contentId = `${id}-content`;
+  const contentId = useId();
   return <div className="review-technical">
     <button type="button" className="review-technical__toggle" aria-expanded={open}
       aria-controls={contentId} onClick={() => setOpen(value => !value)}>Technical details</button>

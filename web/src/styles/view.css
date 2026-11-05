@@ -30,7 +30,7 @@
 }
 .tabs__tab:hover { color: var(--ink); background: var(--surface-sunk); }
 .tabs__tab:active { background: var(--signal-soft); }
-.tabs__tab[aria-selected="true"] { color: var(--signal); background: var(--signal-soft); }
+.tabs__tab[aria-selected="true"] { color: var(--signal-text); background: var(--signal-soft); }
 .tabs__tab:focus-visible { outline-offset: -3px; }
 .tabs__tab[aria-selected="true"]::after {
   content: "";

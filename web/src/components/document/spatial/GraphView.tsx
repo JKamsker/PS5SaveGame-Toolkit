@@ -20,12 +20,21 @@ function BoundedGraph({ node }: { node: GraphNode }) {
   const [branch, setBranch] = useState("");
   const jump = useSpatialJump();
   const layout = useMemo(() => graphLayout(node), [node]);
-  const labels = new Map(node.items.map(item => [item.id, item.label]));
+  const incomingLabels = useMemo(() => {
+    const labels = new Map(node.items.map(item => [item.id, item.label]));
+    const incoming = new Map<string, string[]>();
+    for (const edge of node.edges) {
+      const prerequisites = incoming.get(edge.to) ?? [];
+      prerequisites.push(labels.get(edge.from) ?? edge.from);
+      incoming.set(edge.to, prerequisites);
+    }
+    return incoming;
+  }, [node]);
   const groups = [...new Set(node.items.flatMap(item => item.branch ? [item.branch] : []))].sort();
   const needle = query.trim().toLowerCase();
   const items = node.items.filter(item => (!status || item.state === status) && (!branch || item.branch === branch)
     && `${item.label} ${item.description ?? ""} ${item.cost ?? ""}`.toLowerCase().includes(needle));
-  const prerequisites = (item: GraphItem) => node.edges.filter(edge => edge.to === item.id).map(edge => labels.get(edge.from) ?? edge.from);
+  const prerequisites = (item: GraphItem) => incomingLabels.get(item.id) ?? [];
   const activate = (item: GraphItem) => { if (item.target) jump(item.target); };
 
   return <section className="spatial" aria-label={node.title}>
