@@ -470,7 +470,9 @@ by projects named `*.Tests` in `Directory.Packages.props`; new test projects sho
 
 ## Built app browser smoke tests
 
-The Ubuntu-only `e2e` CI job runs alongside validation with a 12-minute limit. The official
+The Ubuntu-only `e2e` CI job runs alongside validation. Its test step has a 12-minute limit; the
+Chromium system-dependency install is bounded separately (10 minutes), because slow apt mirrors
+once consumed the whole job budget before any test started, and the job allows 25 minutes overall. The official
 `npm run e2e` entry reads the schema-2 `web/scripts/e2e-suites.json` manifest and runs the explicit
 canonical file allowlist plus each named feature partition (Unreal, text-capacity, FF7, transfer,
 caption and action-effects) sequentially whenever its complete owned file inventory is present.
@@ -481,7 +483,7 @@ any actual suite launch. Each selected suite retains the unchanged 180-second ov
 overrides, including the transfer library's 60-second test timeout, are unchanged. The aggregate allowance is
 additive across the partitions that are actually present; neither four-suite nor six-suite ceiling
 arithmetic includes discovery, startup, reporting or teardown overhead or proves the complete run fits.
-The complete composed run still has to fit the unchanged 12-minute CI job.
+The complete composed run still has to fit the unchanged 12-minute test step.
 The canonical allowlist explicitly marks `presets.e2e.ts` optional until its published feature is
 composed; when present, all its actual registrations participate in canonical discovery and execution.
 Optional means declared absence is allowed, never that a present file or its IDs may be skipped.

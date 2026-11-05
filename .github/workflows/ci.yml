@@ -26,7 +26,8 @@ jobs:
   e2e:
     name: Built app smoke (Chromium)
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    # Job bound = step bounds below plus checkout/setup/upload; the composed run keeps its 12 minutes.
+    timeout-minutes: 25
     env:
       DOTNET_NOLOGO: true
       DOTNET_CLI_TELEMETRY_OPTOUT: true
@@ -80,9 +81,12 @@ jobs:
         working-directory: web
         run: npx playwright install chromium
       - name: Install Chromium system dependencies (also on cache hits)
+        # apt mirrors occasionally take ~9 minutes; bound them separately from the tests.
+        timeout-minutes: 10
         working-directory: web
         run: npx playwright install-deps chromium
       - name: Run built app smoke tests
+        timeout-minutes: 12
         working-directory: web
         run: npm run e2e -- --reporter=list,html,junit
       - name: Browser test summary
