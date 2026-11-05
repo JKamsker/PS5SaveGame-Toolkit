@@ -170,13 +170,6 @@
   box-shadow: var(--shadow-lift);
   animation: toast-in var(--duration-normal) var(--ease-out);
 }
-.toast-stack__group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  width: 100%;
-  flex-shrink: 0;
-}
 .toast--error {
   background: var(--danger);
   color: var(--surface);

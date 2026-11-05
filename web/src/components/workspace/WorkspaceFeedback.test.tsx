@@ -38,7 +38,7 @@ async function mount() {
 }
 
 const texts = (role: "status" | "alert") => screen.queryAllByRole(role)
-  .flatMap(element => [...element.querySelectorAll(".toast")].map(toast => toast.textContent));
+  .filter(element => element.classList.contains("toast")).map(element => element.textContent);
 
 it("retires notifications when switching workspace on the same route", async () => {
   const state = await mount();
