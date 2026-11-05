@@ -685,6 +685,10 @@ class SizeGuardTests(unittest.TestCase):
             self.assertEqual(17, result.returncode, result.stdout + result.stderr)
             self.assertEqual(["first", "two words"], arguments_path.read_text().splitlines())
             arguments_path.unlink()
+            if os.name == "nt":
+                # MSYS `[ -x ]` treats any `#!` file as executable regardless of mode bits,
+                # so a chmod-disabled original cannot be expressed on Windows.
+                return
             original.chmod(0o644)
             disabled = subprocess.run([shell, str(hook), "disabled"], cwd=root,
                                       env={**os.environ, "HOOK_ARGS_PATH": str(arguments_path)},
