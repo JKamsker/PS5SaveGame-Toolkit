@@ -1,9 +1,12 @@
 # Remaining title work: issue #81 triage
 
 Research snapshot: **2026-10-30**, code/main `0126f8f41c678c792f6206c11c4a5bb2bf9f0925`.
+Status reconciliation: **2026-11-05**, against main `6fc866ef`. GB-01 and GJ-01 have merged;
+the remaining capture/integrity dispositions retain the research snapshot below.
 This disposes of the 17-title table in [#81 section B](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/81).
 The per-title plans are historical; current code and tests take precedence over their unchecked proposals.
-Each row has exactly one disposition: **READY** (bounded implementation with existing evidence),
+Each row has exactly one disposition: **DELIVERED** (merged bounded implementation),
+**READY** (bounded implementation with existing evidence),
 **NEEDS-CAPTURE** (specified observations/joins), **NEEDS-INTEGRITY** (specified unresolved envelope or
 integrity), or **OUT** (no justified implementation investment). These are gaps, not promises of writers.
 
@@ -20,9 +23,9 @@ Experimental/Inferred/Unknown. Only the owner promotes Stable.
 
 This pass read production code, committed tests, READMEs and the linked plans; it did not execute
 plugin suites or renew their historical sample/console claims. No private samples were opened or copied.
-READY decisions below use code and authored-fixture infrastructure already committed. Future sample
+The original READY decisions used code and authored-fixture infrastructure already committed. Future sample
 checks must use `SAVETOOLKIT_ARTIFACTS=C:/Users/Jonas/repos/private/JKamsker/PS5SaveGame-Toolkit/artifacts`;
-never commit samples or extracted values. The two READY tasks are independent; Gearbox has higher user value.
+never commit samples or extracted values. Both original READY tasks are now DELIVERED; neither closes its native evidence gaps.
 
 ## AstroPlayroom
 
@@ -124,7 +127,7 @@ never commit samples or extracted values. The two READY tasks are independent; G
 
 | Remaining item | Status | Bounded task or exact missing evidence |
 | --- | --- | --- |
-| GB-01: production action effects and reliable structural review (#81 A) | READY | Adopt `IActionEffectDocument`/`PlannedChange.Effect` for existing BL3/TTWL standalone/group import, duplicate/remove and deposit/withdraw/claim. Retain canonical parsed scalar/count/presence/slot metadata; replace fake import/absent structural field authority with ordered typed effects. Make cold/warm planning identity-pure; validate destination, ownership, moved-ID uniqueness and capacity before mutation. Preserve complete rollback/history/rebinding. Files and production-provider acceptance below; no new gameplay writer or BL4 support. |
+| GB-01: production action effects and reliable structural review (#81 A) | DELIVERED | Merged in `843f0dd6`: BL3/TTWL standalone/group import, duplicate/remove and deposit/withdraw/claim use typed effects alongside canonical parsed metadata. Planning and rejection tests cover identity preservation, destination/ownership/capacity checks and rollback; session tests cover reviewed outputs/history. No new gameplay writer or BL4 support; console acceptance remains unproven. |
 | Legal parts, generated effects and class/skill builds | NEEDS-CAPTURE | Separate same-item regular-part/anointment/reroll changes and named passive allocation/respec, with exact card, class/tree/rank, costs, DLC/hotfix/build and native subobject IDs. Supply versioned balance→part pools and prerequisites with provenance; category/bit-width validity and calculator order do not prove legality or a saved skill crosswalk. |
 | Account/profile precedence and Guardian/Myth dependencies | NEEDS-CAPTURE | Export matching profile plus every affected character before/after one Guardian token/perk, then after loading each character without other actions. For level-40 Myth capture one allocation per tree, rotation and capped-stat boundary separately, recording XP/rank/points. Existing groups intentionally expose mirrors without choosing authority. |
 | Mission/collectible repair | NEEDS-CAPTURE | Named mission objective/branch, completion, reward claim and collectible pickup separately, retaining character/profile/backups together. Need exact mission/opaque-subobject IDs, reward-once and reversal dependencies; named reference/checklist views already ship. |
@@ -132,28 +135,18 @@ never commit samples or extracted values. The two READY tasks are independent; G
 | BL4 PS5 inner envelope | NEEDS-INTEGRITY | PS5 codec/derivation, compression/framing, padding and any trailer coverage remain unestablished; PC Steam/Epic algorithms do not identify this envelope. Require lawful local codec evidence and independent no-op/validation across role-identified samples. Do not request secrets or try account-derived material in reports. |
 | Platform conversion, premium entitlements and exact combat simulation | OUT | No supported dependency/entitlement model or justified bounded user workflow; these are historical non-goals, not work unblocked by action effects. |
 
-GB-01 code check: neither production document declares the
-[effect interface](../../src/SaveToolkit.Sdk/IActionEffectDocument.cs).
-`GearboxMetadata.TryActionObservation` fabricates `import/serial`; import planning emits it with
-`OldExists = false`. Transfer planning emits destination identities absent from parsed fields.
-`GearboxInventory.EnsureCapacity` calls `EnsureIdentities`, which advances `_nextId`; transfer selection
-also visits `Entries`. Existing group mementos provide the starting mechanism, not proof of pure planning.
-[MetadataR6Data](../../plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/MetadataR6Data.cs),
-[MetadataR7Data](../../plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/MetadataR7Data.cs) and their
-authored fixture builders already support production documents; existing
-[group-write tests](../../plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/GroupWriteTests.cs)
-also show the export/history paths. These tests were read, not rerun; synthetic renderer acceptance alone
-does not satisfy this new production-provider task. Host/API/web acceptance changes require their owning scope.
-
-GB-01 implementation files: the linked planners/inventory, `GearboxDocument.cs`, `GearboxMetadata.cs`,
-`Groups/GearboxGroupDocument.cs` and `Groups/GearboxGroupIdentity.cs`; plugin regressions extend the
-authored fixture helpers above. Add real Gearbox host-session/API cases beside
-[Core action-effect tests](../../tests/SaveToolkit.Core.Tests/ActionEffectTests.cs) and production-provider
-browser cases beside [the synthetic suite](../../web/e2e/action-effects.e2e.ts).
-Require nonempty import/deposit/withdraw/claim fixtures, exact ordered effect/cardinality assertions,
-absence/null and long serials, genuine role/path, preview/cancel/stale/rejection/rollback, one undo/redo
-unit, every owned output once, complete-byte export/reopen and current-candidate bindings. Exercise
-keyboard/focus and 375/768/1024/1440 widths; update the owning mandatory browser inventory if adding cases.
+GB-01 production evidence: both `GearboxDocument` and `GearboxGroupDocument` implement
+[the effect interface](../../src/SaveToolkit.Sdk/IActionEffectDocument.cs).
+[Planning tests](../../plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectPlanningTests.cs)
+check cold/warm/rejected/cancelled preview identity preservation.
+[Rejection tests](../../plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectRejectionTests.cs)
+check ownership, capacity, projected identities and host candidate rollback.
+[Session tests](../../plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectSessionTests.cs)
+exercise production standalone imports and group import/deposit/withdraw/claim with authored BL3/TTWL
+fixtures: ordered effects, one undo/redo unit, complete-byte export/reopen and current bindings.
+These tests were read, not rerun in this documentation pass. The
+[synthetic browser suite](../../web/e2e/action-effects.e2e.ts) still intercepts responses;
+it does not establish a production Gearbox browser journey or native acceptance.
 
 ## GenericJson
 
@@ -163,23 +156,23 @@ keyboard/focus and 375/768/1024/1440 widths; update the owning mandatory browser
 
 | Remaining item | Status | Bounded task or exact missing evidence |
 | --- | --- | --- |
-| GJ-01: cross-container JSON move, syntax-only subset | READY | Add same-document **array→array** subtree move by live source/destination identity and insertion index. Reuse clone/preflight, mementos and token writer; preserve subtree IDs/lexemes/duplicates, reject self/descendant destinations and stale/type/bounds/size/depth/review failures atomically. Files: linked array/structure actions, `JsonTokenTree.cs`, `JsonTreeWriter.cs`, `JsonSaveDocument.cs` and focused `JsonSessionFixture` tests. Existing `move` only reorders one array; no cross-file/object-member move or title-safe inventory transaction. |
+| GJ-01: cross-container JSON move, syntax-only subset | DELIVERED | Merged in `a2a3b26c`: **Move subtree to array** moves a live direct source entry to a same-document destination array by identity and zero-based index after removal. Preserves subtree IDs/lexemes/duplicate members; preflights bounds, depth and byte limits. No cross-file/object-member move or title-safe inventory transaction. |
 | Title definitions, absent-key templates and dependencies | NEEDS-CAPTURE | Cyberpunk: one enum/scalar/default reset and dynamic language/HDR choice per pair, including a second settings version, to prove value/index authority. It Takes Two: fresh profile, one minigame discovery/play and separate Cody/May score/win, chapter/checkpoint transition; record Continue/replay effects. Ridge Racer: one PSP wrapper filter/upscale/AA change per pair with wrapper build. Return exact raw-key/menu-label joins and required/optional defaults; current present-key presets already ship. |
 | Reference catalogues and rights | NEEDS-CAPTURE | Alongside the above events supply exact build/locale label→raw-key maps, complete checkpoint/minigame aliases, pinned source/provenance and applicable reuse basis. Existing six-record Cyberpunk pack and original word splitting are implemented; other title IDs do not inherit their definitions or reference-media rights. |
 | Companion ownership | NEEDS-CAPTURE | Capture all members around one suspected shared change; demonstrate a minimal cross-file invariant and whether a one-member edit is overwritten/rejected while a coordinated one persists. Profile/CloudSettings/LocalSettings are sections, and identical backups/co-location do not establish F7 ownership. |
 | Full JSON Schema engine or blanket enum/helper rewrite | OUT | Current explicit local-schema subset and exact-null/union/search/breadcrumb/reset support already cover the delivered workbench. No concrete title requirement justifies a full standards engine or a migration for its own sake. |
 
-GJ-01 code check: `JsonArrayActions.Mutate` removes/inserts within its single `array` argument;
-no destination container exists. The [tree](../../plugins/GenericJson/SaveToolkit.Plugins.GenericJson/JsonTokenTree.cs)
-already clones/reindexes live parent links without replacing stable node IDs, and the
-[writer](../../plugins/GenericJson/SaveToolkit.Plugins.GenericJson/JsonTreeWriter.cs) serializes changed
-memberships from retained token slices and validates the result. The
-[document](../../plugins/GenericJson/SaveToolkit.Plugins.GenericJson/JsonSaveDocument.cs) already owns
-structural rollback and snapshot restoration. Extend
-[array-edit/history tests](../../plugins/GenericJson/SaveToolkit.Plugins.GenericJson.Tests/JsonArrayEditingTests.cs);
-existing same-array coverage is infrastructure, not evidence that cross-array moves already work.
-Acceptance: pure preview, both parent reviews, destination trivia, overlay rematching, stale identities,
-mixed scalar/structural undo/redo and exact original bytes after undo, with byte-preserving reopen.
+GJ-01 production evidence: `JsonArrayActions.MoveTo` resolves live source/destination identities,
+requires a direct source entry and an array destination, rejects self/descendant targets, and uses
+an insertion index measured after removal. Destination entry-boundary trivia is adopted while
+subtree token slices and IDs remain intact.
+[Move tests](../../plugins/GenericJson/SaveToolkit.Plugins.GenericJson.Tests/JsonArrayMoveTests.cs)
+cover token preservation, same/nested arrays and mixed scalar/structural history.
+[Guard tests](../../plugins/GenericJson/SaveToolkit.Plugins.GenericJson.Tests/JsonArrayMoveGuardTests.cs)
+cover stale/invalid identities, types, bounds, depth and exact byte limits.
+[Integration tests](../../plugins/GenericJson/SaveToolkit.Plugins.GenericJson.Tests/JsonArrayMoveIntegrationTests.cs)
+cover overlay rematching, current parentage/search, inserted subtree identities and row-scope rejection.
+These are syntax/model claims from authored tests, not title-specific dependency or console evidence.
 
 ## XorJson
 

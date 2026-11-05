@@ -1837,9 +1837,11 @@ remain choices, not reopened SDK gaps. Browser tests and native evidence remain 
 Actions that report absent/new records or action payloads may opt into `IActionEffectDocument` in
 addition to `IActionPlanningDocument` and `IFieldMetadataDocument`. Add `PlannedChange.Effect` with
 a read-only `FieldSpec` and an explicit `ActionEffectKind` (`Observation` or `StructuralMemento`).
-The enclosing row owns identity, label, typed old/new values, and existence flags: use
-`FieldValue.Null` only when the matching `OldExists`/`NewExists` is false. Core resolves exact
-canonical metadata first, so effects cannot shadow genuine fields or invent aliases. Reference
+The enclosing row owns identity, label, typed old/new values, and existence flags. An absent side
+(`OldExists`/`NewExists` is false) must use `FieldValue.Null`. A present side may also contain an
+explicit null when its `NullableSpec` permits it; keep the existence flag true in that case.
+`Observation` requires both sides to exist; use `StructuralMemento` for absence/presence changes.
+Core resolves exact canonical metadata first, so effects cannot shadow genuine fields or invent aliases. Reference
 effects are display-only (`Assess = null`).
 
 The capability must implement `CaptureMemento` as a pure, complete, size-accounted snapshot accepted
@@ -1864,8 +1866,11 @@ Optional float bounds may be absent independently, but supplied bounds must be f
 The preview's exact union copy is tagged JSON so opaque option IDs and nested typed values cannot
 collide with delimiter-containing text; scalar text copying remains complete and untruncated.
 
-The SDK/Core/API and synthetic preview renderer are delivered; no production plugin implements
-`IActionEffectDocument` in this checkout. Gearbox adoption and pure import/transfer planning remain
-[#81](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/81) work. Core `ActionEffect*Tests.cs`
-exercise the host contract; `web/e2e/action-effects.e2e.ts` intercepts responses and proves renderer
-behavior only. Neither establishes production Gearbox preview/apply or console acceptance.
+Gearbox's BL3/TTWL standalone and grouped documents implement `IActionEffectDocument` for
+existing import, duplicate/remove and grouped deposit/withdraw/claim operations. Its
+[production session tests](../plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectSessionTests.cs)
+exercise host preview/apply, complete-byte export/reopen and coordinated undo/redo; planning and
+rejection tests cover identity-pure previews and atomic validation/rollback. Core `ActionEffect*Tests.cs`
+exercise the host contract. `web/e2e/action-effects.e2e.ts` intercepts responses and proves renderer
+behavior only; it is not a production Gearbox browser journey. None establishes console acceptance,
+legal part pools, account precedence or BL4 support.

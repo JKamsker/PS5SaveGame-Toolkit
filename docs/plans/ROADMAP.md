@@ -1,10 +1,10 @@
 # PS5 Save Toolkit: cross-plugin requirements roadmap
 
 For the current disposition of the remaining 17-title work in issue #81 section B, see
-[the title-gap triage](TITLE_GAP_TRIAGE.md): bounded READY tasks, exact #31 capture requests,
+[the title-gap triage](TITLE_GAP_TRIAGE.md): delivered bounded tasks, exact #31 capture requests,
 unresolved integrity evidence and work not justified by the current implementation.
 
-## Current status — 2026-10-30 (#40 / #81)
+## Current status — 2026-11-05 (#40 / #81)
 
 This status supersedes the historical proposals below. F1–F14 are implemented on local `main`;
 feature availability does not imply every plugin uses every feature, or that an edited save has
@@ -36,8 +36,8 @@ and current-candidate group forwarding. Adoption remains selective; see the
 [SDK ledger](../SDK_REQUESTS.md) and [plugin guide](../PLUGIN_GUIDE.md#selective-helper-adoption).
 
 **41 SDK requests: 1 open, 0 partially resolved, 37 resolved, 3 obsolete.** SDK-10 alone remains open
-for automatic gameplay-to-SUBTITLE synchronization. Gearbox action-effect adoption is separate
-unimplemented consumer work in [#81](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/81).
+for automatic gameplay-to-SUBTITLE synchronization. Gearbox action-effect adoption is delivered;
+remaining title/native evidence is tracked in [#81](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/81).
 
 | Contract | Delivered foundation | Production adoption | Remaining native/title evidence |
 | --- | --- | --- | --- |
@@ -47,14 +47,16 @@ unimplemented consumer work in [#81](https://github.com/JKamsker/PS5SaveGame-Too
 | SDK-10 SFO | Pure existing-entry patches, explicit output ownership and whole-byte history/export | SuckerPunch manual Tsushima caption action | Automatic timer/difficulty synchronization requires controlled authority evidence; manual captions do not close SDK-10. |
 | F13 targeted metadata | Explicit aliases, bounded original/current review, member metadata/context forwarding | Pragmata quantities; Gearbox parsed fields/group context; XorJson scalars/groups; Unreal scalars; SuckerPunch Tsushima fields/caption | Metadata cannot establish gameplay semantics or native acceptance. |
 | UTF-8 capacity | TextSpec.MaxUtf8Bytes, strict validation and field/action UI hints | Manual SuckerPunch caption uses payload capacity after reserving the SFO NUL byte | Byte/history tests do not prove console acceptance. |
-| Action effects | IActionEffectDocument, typed ordered effects, whole-action mementos and API/preview | No production Gearbox adopter yet | Import/move effects and pure planning remain #81 work. |
+| Action effects | IActionEffectDocument, typed ordered effects, whole-action mementos and API/preview | Gearbox BL3/TTWL standalone/group import, duplicate/remove and deposit/withdraw/claim | Legal part pools, account precedence, BL4 and console acceptance remain unproven. |
 
 ### Browser coverage and execution
 
 Merged browser tests exercise production FF7 presets, Unreal references and manual SuckerPunch
 captions using authored fixtures; transfer and text capacity have dedicated suites. F13 review has
 synthetic semantic-review renderer coverage. The action-effects suite also intercepts responses
-and proves renderer behavior only. See `web/e2e/ff7-*.e2e.ts`, `unreal-*.e2e.ts`, `suckerpunch-caption-*.e2e.ts`,
+and proves renderer behavior only. Gearbox's
+[ActionEffectSessionTests.cs](../../plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectSessionTests.cs)
+provide production-provider backend evidence, separate from that browser suite. See `web/e2e/ff7-*.e2e.ts`, `unreal-*.e2e.ts`, `suckerpunch-caption-*.e2e.ts`,
 `preset-transfer*.e2e.ts`, `text-capacity.e2e.ts`, `semantic-review-ux.e2e.ts` and
 `action-effects.e2e.ts`; ownership is declared in `web/scripts/e2e-suite-manifest.mjs`.
 
@@ -84,8 +86,8 @@ F12/F13 adoption varies by README; a plugin's old starting-main note does not ma
 | [EldenRing](../../plugins/EldenRing/README.md) | Complete; six existing operations, progress/class references, F8/F9 and F12/F13; broader stats/equipment/world dependencies unmodeled |
 | [FinalFantasy16](../../plugins/FinalFantasy16/README.md) | Complete; fixed-width edits, inventory query actions, ability/location references and F12/F13; allocator and saved ability joins need evidence |
 | [FinalFantasy7](../../plugins/FinalFantasy7/README.md) | Complete; supported variant writes, restock/star presets and F12/F13; full socket/upgrade/reward/structural model remains incomplete |
-| [Gearbox](../../plugins/Gearbox/README.md) | Complete historical round; serial-part editing, structural inventory/F7, skill references and F12/F13; action-effect adoption/pure planning remain unimplemented; legal pools/account precedence and BL4 evidence remain open |
-| [GenericJson](../../plugins/GenericJson/README.md) | Complete; title adapters, bounded browsing, F9, decoder/inspection; missing title definitions/dependency templates need captures |
+| [Gearbox](../../plugins/Gearbox/README.md) | Complete historical round; serial-part editing, structural inventory/F7, skill references and F12/F13; action-effect adoption and pure structural planning delivered; legal pools/account precedence and BL4 evidence remain open |
+| [GenericJson](../../plugins/GenericJson/README.md) | Complete; title adapters, bounded browsing, F9, decoder/inspection and syntax-only same-document array subtree moves; missing title definitions/dependency templates need captures |
 | [GodOfWarRagnarok](../../plugins/GodOfWarRagnarok/README.md) | Complete; counters/time/restore and F9/F12/F13; integrity and gear/story grammar remain unknown |
 | [Insomniac](../../plugins/Insomniac/README.md) | Complete; scalar writes/bolt planning, F8/F9 and F12/F13; inventory identity, upgrade and location joins need captures |
 | [Pragmata](../../plugins/Pragmata/README.md) | Complete; six added write surfaces, retained quantities/clocks, mission references and F12/F13; RSA and structural resizing remain unsupported |
