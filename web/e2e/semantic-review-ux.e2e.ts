@@ -90,7 +90,7 @@ test("metadata-backed review renders canonical aliases, member context and safe 
   await expect(removed.getByRole("button", { name: "Jump to Profile removed field" })).toBeDisabled();
   const revert = removed.getByRole("button", { name: "Revert Profile removed field" });
   await expect(revert).toBeDisabled();
-  await expect(revert).toHaveAttribute("aria-describedby", /change-reason/);
+  await expect(revert).toHaveAccessibleDescription("The reviewed target is unavailable; use Undo for this structural change.");
   await expect(removed).toContainText("The reviewed target is unavailable");
 
   await search.fill("");
