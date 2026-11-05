@@ -4,6 +4,31 @@ import { ToastStack } from "./Toast";
 
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
+it("primes role-free announcement channels before inserting feedback and never announces removals", async () => {
+  vi.useFakeTimers();
+  const onDone = vi.fn();
+  const view = render(<ToastStack messages={[]} onDone={onDone} />);
+  const polite = view.container.querySelector('[aria-live="polite"]');
+  const urgent = view.container.querySelector('[aria-live="assertive"]');
+  expect(polite).not.toBeNull();
+  expect(urgent).not.toBeNull();
+  expect(polite?.textContent).toBe("");
+  const messages = [{ id: 1, text: "Saved", isError: false }, { id: 2, text: "Failed", isError: true }];
+  view.rerender(<ToastStack messages={messages} onDone={onDone} />);
+  expect(polite?.textContent).toBe("");
+  await act(async () => { await vi.advanceTimersByTimeAsync(100); });
+  expect(polite?.textContent).toBe("Saved");
+  expect(urgent?.textContent).toBe("Failed");
+  expect(screen.getByRole("status").getAttribute("aria-live")).toBe("off");
+  expect(screen.getByRole("alert").getAttribute("aria-live")).toBe("off");
+  view.rerender(<ToastStack messages={[]} onDone={onDone} />);
+  await act(async () => { await vi.advanceTimersByTimeAsync(100); });
+  expect(view.container.querySelector('[aria-live="polite"]')).toBe(polite);
+  expect(polite?.getAttribute("aria-relevant")).toBe("additions text");
+  expect(screen.queryByRole("status")).toBeNull();
+  expect(screen.queryByRole("alert")).toBeNull();
+});
+
 it("adds no live role to the page without feedback and gives each message its own role", () => {
   const onDone = vi.fn();
   const view = render(<><button>Editor</button><ToastStack messages={[]} onDone={onDone} /></>);
