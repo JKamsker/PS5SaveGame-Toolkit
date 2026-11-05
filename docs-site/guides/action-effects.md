@@ -8,10 +8,10 @@ description: Choose the intended action scope, inspect typed consequences, and r
 Choose a supported planned action to review its proposed changes before committing. Current
 examples include FF7's existing consumable/materia/character actions and the
 [manual Tsushima caption](manual-caption.md). Their canonical field changes are available today.
-The additional typed **Action effects** presentation is shipped in the host and UI, with
-synthetic tests. No production plugin in this checkout implements its effect provider;
-Gearbox's production action-effect adoption has not landed. Do not expect Gearbox transfers or
-imports to show these typed effect rows today.
+The typed **Action effects** presentation is shipped in the host and UI. Gearbox's BL3/TTWL
+standalone and grouped documents supply production effects for existing serial import,
+duplicate/remove and grouped deposit/withdraw/claim actions. These describe the supported
+structural operations; they do not establish legal item builds, BL4 support or console acceptance.
 
 ## Choose the action's scope
 
@@ -83,5 +83,13 @@ also synthetic; it does not validate a production plugin's mutation or native sa
 [Host effect tests](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/tests/SaveToolkit.Core.Tests/ActionEffectTests.cs)
 and [authority-boundary tests](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/tests/SaveToolkit.Core.Tests/ActionEffectAuthorityBoundaryTests.cs)
 exercise the contract using test providers. The production scalar journeys linked above establish
-their own narrower behavior. They do not establish Gearbox structural effect planning, rollback
-or console acceptance.
+their own narrower behavior.
+
+Gearbox's [production session tests](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectSessionTests.cs)
+exercise standalone imports and grouped import/deposit/withdraw/claim using authored BL3/TTWL
+fixtures, including ordered effects, one undo/redo unit, complete-byte export/reopen and current
+bindings. Its [planning tests](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectPlanningTests.cs)
+check cold/warm planning identity preservation; [rejection tests](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectRejectionTests.cs)
+check ownership, capacity, moved identities and candidate rollback. This is production-provider
+backend evidence; the synthetic browser journey does not exercise that provider or prove console
+acceptance.

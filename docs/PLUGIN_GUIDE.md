@@ -1864,8 +1864,11 @@ Optional float bounds may be absent independently, but supplied bounds must be f
 The preview's exact union copy is tagged JSON so opaque option IDs and nested typed values cannot
 collide with delimiter-containing text; scalar text copying remains complete and untruncated.
 
-The SDK/Core/API and synthetic preview renderer are delivered; no production plugin implements
-`IActionEffectDocument` in this checkout. Gearbox adoption and pure import/transfer planning remain
-[#81](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/81) work. Core `ActionEffect*Tests.cs`
-exercise the host contract; `web/e2e/action-effects.e2e.ts` intercepts responses and proves renderer
-behavior only. Neither establishes production Gearbox preview/apply or console acceptance.
+Gearbox's BL3/TTWL standalone and grouped documents implement `IActionEffectDocument` for
+existing import, duplicate/remove and grouped deposit/withdraw/claim operations. Its
+[production session tests](../plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectSessionTests.cs)
+exercise host preview/apply, complete-byte export/reopen and coordinated undo/redo; planning and
+rejection tests cover identity-pure previews and atomic validation/rollback. Core `ActionEffect*Tests.cs`
+exercise the host contract. `web/e2e/action-effects.e2e.ts` intercepts responses and proves renderer
+behavior only; it is not a production Gearbox browser journey. None establishes console acceptance,
+legal part pools, account precedence or BL4 support.

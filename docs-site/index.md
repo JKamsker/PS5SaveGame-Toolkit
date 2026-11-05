@@ -47,8 +47,10 @@ presentation contracts:
 GenericJson and XorJson use the lossless JSON substrate, eligible UnrealGvas projections use
 canonical field references, and the manual Tsushima caption uses the SFO substrate. The tutorials
 link those consumers and tests. The central [SDK request ledger](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/SDK_REQUESTS.md)
-tracks remaining adoption and evidence separately; automatic gameplay-to-caption synchronization
-and production Gearbox action effects are not delivered by these journeys.
+tracks remaining adoption and evidence separately. Gearbox supplies production BL3/TTWL action
+effects with [backend session evidence](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectSessionTests.cs);
+the action-effects browser journey remains synthetic. Automatic gameplay-to-caption
+synchronization and console acceptance remain unproven.
 
 ## Before you begin
 

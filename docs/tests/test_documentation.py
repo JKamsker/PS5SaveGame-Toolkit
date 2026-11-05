@@ -119,6 +119,32 @@ def licence_rows(heading):
 
 
 class DocumentationTests(unittest.TestCase):
+    def test_current_action_effect_adoption_matches_production_documents(self):
+        for path in (
+            "plugins/Gearbox/SaveToolkit.Plugins.Gearbox/GearboxDocument.cs",
+            "plugins/Gearbox/SaveToolkit.Plugins.Gearbox/Groups/GearboxGroupDocument.cs",
+        ):
+            self.assertIn("IActionEffectDocument", source(path))
+        for page in (
+            "docs/PLUGIN_GUIDE.md", "docs/SDK_REQUESTS.md", "docs/plans/ROADMAP.md",
+            "docs-site/guides/action-effects.md", "docs-site/reference/index.md", "docs-site/index.md",
+        ):
+            with self.subTest(page=page):
+                text = document(page)
+                self.assertIn("ActionEffectSessionTests.cs", text)
+                self.assertNotRegex(text, r"(?is)no production plugin.{0,50}implements")
+
+    def test_title_gap_triage_records_merged_bounded_tasks(self):
+        triage = document("docs/plans/TITLE_GAP_TRIAGE.md")
+        for task in ("GB-01", "GJ-01"):
+            with self.subTest(task=task):
+                row = next(line for line in triage.splitlines() if line.startswith(f"| {task}:"))
+                self.assertEqual("DELIVERED", row.split("|")[2].strip())
+        self.assertIn('case "move-to":', source(
+            "plugins/GenericJson/SaveToolkit.Plugins.GenericJson/JsonArrayActions.cs"))
+        self.assertIn("JsonArrayMoveTests.cs", triage)
+        self.assertNotIn("no destination container exists", triage)
+
     def test_api_headings_match_openapi_contract_in_both_directions(self):
         contract = json.loads(document("tests/SaveToolkit.Api.Performance.Tests/OpenApi.v1.json"))
         self.assertTrue(contract["openapi"].startswith("3."))
