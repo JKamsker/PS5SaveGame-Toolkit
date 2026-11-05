@@ -7,6 +7,16 @@ import { graph, renderSpatial } from "./spatialTestUtils";
 afterEach(cleanup);
 
 describe("graph views", () => {
+  it("indexes prerequisites once instead of scanning every edge for each rendered skill", () => {
+    const items = Array.from({ length: 256 }, (_, i) => ({ id: String(i), label: `Skill ${i}`, state: "Unknown" as const }));
+    let edgeReads = 0;
+    const edges = items.slice(1).map((item, i) => ({ from: String(i), get to() { edgeReads++; return item.id; } }));
+    renderSpatial(<GraphView node={{ ...graph, items, edges }} />);
+    expect(screen.getAllByRole("listitem")).toHaveLength(50);
+    // Allow layout validation and edge drawing too; a per-skill edge scan exceeds this by far.
+    expect(edgeReads).toBeLessThan(edges.length * 16);
+  });
+
   it("renders states, costs, directed prerequisites and a full text alternative", () => {
     const { container } = renderSpatial(<GraphView node={graph} />);
     expect(screen.getByRole("button", { name: "Dash: Available, cost 2 points, jump to control" }).tagName).toBe("BUTTON");
