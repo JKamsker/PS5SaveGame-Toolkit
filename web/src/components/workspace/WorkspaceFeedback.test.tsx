@@ -36,7 +36,9 @@ async function mount() {
   return snapshot.state;
 }
 
-it.each([true, false])("renders every diagnostic from one edit instead of overwriting earlier feedback (ok=%s)", async ok => {
+const texts = (role: "status" | "alert") => screen.queryAllByRole(role).map(element => element.textContent);
+
+it.each([true, false])("shows every diagnostic from one edit at once and expires each on its own interval (ok=%s)", async ok => {
   const state = await mount();
   const warnings = ["Earlier undo history was cleared.", "Some original fields could not be matched."];
   const message = ok ? "Flag updated." : undefined;
@@ -48,12 +50,27 @@ it.each([true, false])("renders every diagnostic from one edit instead of overwr
   });
   vi.useFakeTimers();
   await act(async () => { fireEvent.click(screen.getByRole("switch", { name: "Flag" })); });
-  const messages = [...(message ? [message] : []), ...warnings, ...(ok ? [] : [failure])];
-  for (const text of messages) {
-    const isError = text === failure;
-    expect(screen.getByRole(isError ? "alert" : "status")).toHaveProperty("textContent", text);
-    await act(async () => { await vi.advanceTimersByTimeAsync(isError ? 9000 : 4500); });
-  }
-  expect(screen.queryByRole("status")).toBeNull();
-  expect(screen.queryByRole("alert")).toBeNull();
+  // Nothing waits behind earlier feedback: a confirmation emitted after several warnings is visible immediately.
+  expect(texts("status")).toEqual([...(message ? [message] : []), ...warnings]);
+  expect(texts("alert")).toEqual(ok ? [] : [failure]);
+  await act(async () => { await vi.advanceTimersByTimeAsync(4500); });
+  expect(texts("status")).toEqual([]);
+  expect(texts("alert")).toEqual(ok ? [] : [failure]);
+  await act(async () => { await vi.advanceTimersByTimeAsync(4500); });
+  expect(texts("alert")).toEqual([]);
+});
+
+it("keeps identical consecutive diagnostics as separate notifications", async () => {
+  const state = await mount();
+  const warning = "Earlier undo history was cleared.";
+  vi.spyOn(api, "edit").mockResolvedValue({
+    ok: true, errors: [], warnings: [warning, warning], message: undefined,
+    changes: [{ valueId: "flag", oldValue: false, newValue: true }],
+    structureChanged: false, state: { ...state, isDirty: true },
+  });
+  vi.useFakeTimers();
+  await act(async () => { fireEvent.click(screen.getByRole("switch", { name: "Flag" })); });
+  expect(texts("status")).toEqual([warning, warning]);
+  await act(async () => { await vi.advanceTimersByTimeAsync(4500); });
+  expect(texts("status")).toEqual([]);
 });
