@@ -149,6 +149,19 @@ collection queries remain plugin-local rather than using `InMemoryCollection<T>`
 for both inventory actions. FString writing remains local to
 `InventoryPatcher`; the shared string codec is used for reading.
 
+## Sample-backed review (2026-11-05)
+
+Round-3 sample-backed data-safety/performance review (2026-11-05): all 253 existing
+Release tests passed with samples and zero skips, including managed Kraken decode,
+independent stored-frame output checks and host edit/export/history coverage.
+An exhaustive traversal of both supplied files visited 8,306 F8 rows and 16,600
+lazy sections and retained byte-identical no-op output. Aggregate open/walk/export
+costs were 711/348/7 ms on the shared Windows workstation (diagnostic, not a budget).
+`StoredWriterPerformanceTests` additionally guards sample-free allocation scaling:
+32/64 changed 128-KiB frames allocate 8,393,376/16,786,168 bytes, respectively.
+This verifies stored framing and linear allocation, not independent decoding of the
+original compressed corpus or console acceptance. No codec or write policy changed.
+
 ## F14 table audit (2026-10-29)
 
 The inventory previously appeared both as a searchable F8 table and as a second
