@@ -92,6 +92,12 @@ internal sealed class CsavContainer
 
     private static byte[] DecodePayload(byte[] bytes, CsavChunk[] chunks)
     {
+        // Check every block first, including late failures, before trusting the combined size.
+        foreach (var chunk in chunks)
+            if (chunk.Compressed)
+                Lz4BlockValidation.Validate(bytes.AsSpan(chunk.Offset + WrapperSize, chunk.StoredSize - WrapperSize),
+                    chunk.ExpandedSize);
+
         var last = chunks[^1];
         var payload = new byte[last.PayloadOffset + last.ExpandedSize];
         foreach (var chunk in chunks)
