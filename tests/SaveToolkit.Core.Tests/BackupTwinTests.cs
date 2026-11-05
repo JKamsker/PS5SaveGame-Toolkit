@@ -10,6 +10,17 @@ namespace SaveToolkit.Core.Tests;
 
 public sealed class BackupTwinTests
 {
+    [Fact]
+    public void ConsolePairMatchesLogicalNamesIgnoringCase()
+    {
+        var set = Import(("PPSA99999/sdimg_Save/save.dat", [1]),
+            ("PPSA99999/sdimg_sce_bu_SAVE/save.dat", [1]));
+        var primary = set.Directories.Single(d => !d.IsBackup);
+        var backup = set.Directories.Single(d => d.IsBackup);
+        Assert.Same(backup, set.Twin(primary));
+        Assert.Same(primary, set.Twin(backup));
+    }
+
     [Theory]
     [InlineData(false, false)]
     [InlineData(false, true)]
