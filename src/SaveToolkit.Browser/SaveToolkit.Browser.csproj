@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>SaveToolkit.Browser</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+    <TrimMode>partial</TrimMode>
+    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SaveToolkit.Core\SaveToolkit.Core.csproj" />
+    <ProjectReference Include="..\SaveToolkit.Codecs\SaveToolkit.Codecs.csproj" />
+    <ProjectReference Include="..\..\plugins\*\*\SaveToolkit.Plugins.*.csproj" Exclude="..\..\plugins\**\*.Tests.csproj" />
+  </ItemGroup>
+</Project>
