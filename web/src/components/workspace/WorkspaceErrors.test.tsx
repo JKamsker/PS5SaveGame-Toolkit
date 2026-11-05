@@ -61,7 +61,8 @@ it.each([400, 409, 503, 0])("retains drafts, selection and live undo state after
   await waitFor(() => expect(within(screen.getByRole("main")).queryByRole("alert")).toBeNull());
   expect(api.document).toHaveBeenCalledOnce();
   fireEvent.click(screen.getByRole("button", { name: "Undo" }));
-  expect(await within(screen.getByRole("main")).findByRole("alert")).toHaveProperty("textContent", "Undo unavailable");
+  await waitFor(() => expect(within(screen.getByRole("region", { name: "Notifications" })).getByRole("alert"))
+    .toHaveProperty("textContent", "Undo unavailable"));
   expect(field.value).toBe("9");
   expect(selected.checked).toBe(true);
   expect(screen.getByRole("button", { name: "Undo" })).toHaveProperty("disabled", false);
