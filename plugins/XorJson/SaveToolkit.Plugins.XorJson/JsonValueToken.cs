@@ -17,7 +17,9 @@ internal sealed class JsonValueToken(int index, string label, JsonTokenType kind
     public byte[] Source { get; init; } = [];
     public JsonValueToken? Parent { get; set; }
     public JsonPathSegment? Segment { get; set; }
-    public List<JsonValueToken> Children { get; } = [];
+    private List<JsonValueToken>? _children;
+    public IReadOnlyList<JsonValueToken> Children => _children ?? (IReadOnlyList<JsonValueToken>)Array.Empty<JsonValueToken>();
+    internal List<JsonValueToken> MutableChildren => _children ??= [];
     public int[] OriginalChildren { get; set; } = [];
     public FieldSpec? Spec { get; set; }
     public FieldValue Original { get; set; }

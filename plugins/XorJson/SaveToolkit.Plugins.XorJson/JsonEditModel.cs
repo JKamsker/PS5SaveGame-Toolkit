@@ -11,7 +11,7 @@ internal sealed class JsonEditModel
     private const int EstimatedNodeBytes = 256;
     private int _nextId;
     private readonly LosslessJsonDocument _losslessDocument;
-    private Dictionary<int, JsonValueToken> _index;
+    private Dictionary<int, JsonValueToken>? _index;
     private IReadOnlyList<JsonValueToken>? _nodes;
     public JsonValueToken Root { get; private set; }
     public IReadOnlyList<JsonValueToken> Nodes => _nodes ??= Walk(Root).ToArray();
@@ -22,17 +22,22 @@ internal sealed class JsonEditModel
         _losslessDocument = tree.Lossless;
         _nextId = tree.Nodes.Count;
         _nodes = tree.Nodes;
-        _index = tree.Nodes.ToDictionary(node => node.Index);
     }
 
-    // The current identity index is maintained by parse, structural publication and restore.
+    // Imported identities are contiguous preorder indices into Nodes. Structural changes
+    // switch to a dictionary because retired IDs and inserted subtrees break that ordering.
     // Even a cold miss must not enumerate Nodes or materialize an unrelated subtree.
-    public JsonValueToken Find(int id) =>
-        _index.GetValueOrDefault(id) ?? throw new KeyNotFoundException("The JSON record no longer exists.");
+    public JsonValueToken Find(int id)
+    {
+        var node = _index?.GetValueOrDefault(id);
+        if (_index is null && id >= 0 && id < Nodes.Count) node = Nodes[id];
+        return node ?? throw new KeyNotFoundException("The JSON record no longer exists.");
+    }
 
     public void Change(string operation, int id, string? json, string? key)
     {
         var target = Find(id);
+        _index ??= Nodes.ToDictionary(node => node.Index);
         var retired = operation == "add" ? [] : Walk(target).Select(node => node.Index).ToArray();
         JsonValueToken? inserted = null;
         if (operation == "add" && !target.IsContainer) throw new SaveFormatException("Add requires an object or array.");
@@ -42,8 +47,8 @@ internal sealed class JsonEditModel
             (key is null || target.Children.Any(n => n.Segment is JsonMemberPath p && p.Name == key)))
             throw new SaveFormatException("Object additions require a new, unique member name.");
         var parent = operation == "add" ? target : target.Parent!;
-        var position = operation == "add" ? parent.Children.Count : parent.Children.IndexOf(target);
-        if (operation == "remove") parent.Children.RemoveAt(position);
+        var position = operation == "add" ? parent.Children.Count : parent.MutableChildren.IndexOf(target);
+        if (operation == "remove") parent.MutableChildren.RemoveAt(position);
         else
         {
             inserted = CreateFragment(parent, target, operation, json, key);
@@ -53,9 +58,9 @@ internal sealed class JsonEditModel
                 inserted.Index = target.Index;
                 inserted.Segment = target.Segment;
                 inserted.Label = target.Label;
-                parent.Children[position] = inserted;
+                parent.MutableChildren[position] = inserted;
             }
-            else parent.Children.Add(inserted);
+            else parent.MutableChildren.Add(inserted);
         }
         UpdateChildPaths(parent);
         foreach (var retiredId in retired) _index.Remove(retiredId);
@@ -148,7 +153,7 @@ internal sealed class JsonEditModel
             Parent = parent, Segment = node.Segment, Spec = node.Spec, Current = node.Current,
             Original = node.Original, Warning = node.Warning, OriginalChildren = node.OriginalChildren.ToArray(),
         };
-        foreach (var child in node.Children) copy.Children.Add(Clone(child, copy, sources));
+        foreach (var child in node.Children) copy.MutableChildren.Add(Clone(child, copy, sources));
         return copy;
     }
 

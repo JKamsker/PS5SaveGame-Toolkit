@@ -15,11 +15,15 @@ internal sealed class JsonTokenTree
         MaxLength = ExactJsonNumber.HardMaxLength,
         MaxAbsoluteExponent = ExactJsonNumber.HardMaxAbsoluteExponent,
     };
+    private static readonly NullableSpec StringSpec = new(new TextSpec { MaxLength = MaxBytes });
+    private static readonly NullableSpec BooleanSpec = new(new BoolSpec());
+    private static readonly NullableSpec NullableNumberSpec = new(NumberSpec);
+    private static readonly TextSpec OversizedNumberSpec = new() { ReadOnly = true };
     internal static NullableSpec NullSpec { get; } = new(new UnionSpec([
         new("number", "Number", NumberSpec), new("string", "String", new TextSpec { MaxLength = MaxBytes }), new("boolean", "Boolean", new BoolSpec()),
     ]));
 
-    public List<JsonValueToken> Nodes { get; } = [];
+    public List<JsonValueToken> Nodes { get; private init; } = [];
     internal LosslessJsonDocument Lossless { get; private init; } = null!;
 
     public static JsonTokenTree Parse(byte[] bytes)
@@ -39,12 +43,13 @@ internal sealed class JsonTokenTree
             throw new SaveFormatException(ParseDiagnostic(ex), ex);
         }
 
-        var tree = new JsonTokenTree { Lossless = document };
+        var tree = new JsonTokenTree { Lossless = document, Nodes = new(document.Nodes.Count) };
         var source = SourceArray(document.OriginalBytes, bytes);
-        var mapped = new Dictionary<int, JsonValueToken>();
+        // SDK identities are contiguous preorder indices. Parents have already been
+        // adapted, so the node list is also the parent lookup; no duplicate index is needed.
         foreach (var sourceNode in document.Nodes)
         {
-            var parent = sourceNode.Parent is { } sourceParent ? mapped[sourceParent.Id] : null;
+            var parent = sourceNode.Parent is { } sourceParent ? tree.Nodes[sourceParent.Id] : null;
             var token = new JsonValueToken(sourceNode.Id, Label(sourceNode, parent), Kind(sourceNode),
                 sourceNode.OriginalSpan.Offset, sourceNode.OriginalSpan.Length)
             {
@@ -65,11 +70,17 @@ internal sealed class JsonTokenTree
                     ? parent.Offset + 1 : parent.Children[^1].Offset + parent.Children[^1].Length;
                 token.EntryOffset = sourceNode.PropertyNameSpan is { } propertySpan
                     ? propertySpan.Offset : token.Offset;
-                parent.Children.Add(token);
+                parent.MutableChildren.Add(token);
             }
-            if (!sourceNode.IsScalar) token.OriginalChildren = sourceNode.Children.Select(child => child.Id).ToArray();
+            if (!sourceNode.IsScalar)
+            {
+                var children = sourceNode.Children;
+                token.MutableChildren.EnsureCapacity(children.Count);
+                var originalChildren = new int[children.Count];
+                for (var i = 0; i < children.Count; i++) originalChildren[i] = children[i].Id;
+                token.OriginalChildren = originalChildren;
+            }
             else ReadScalar(token, sourceNode);
-            mapped.Add(token.Index, token);
             tree.Nodes.Add(token);
         }
         return tree;
@@ -114,23 +125,23 @@ internal sealed class JsonTokenTree
         switch (source.Kind)
         {
             case LosslessJsonNodeKind.String:
-                node.Spec = new NullableSpec(new TextSpec { MaxLength = MaxBytes });
+                node.Spec = StringSpec;
                 node.Current = FieldValue.Of(source.StringValue!);
                 break;
             case LosslessJsonNodeKind.Boolean:
-                node.Spec = new NullableSpec(new BoolSpec());
+                node.Spec = BooleanSpec;
                 node.Current = FieldValue.Of(source.BooleanValue == true);
                 break;
             case LosslessJsonNodeKind.Number:
                 var raw = source.OriginalLexeme!;
                 if (ExactJsonNumber.Validate(raw, NumberSpec) is null)
                 {
-                    node.Spec = new NullableSpec(NumberSpec);
+                    node.Spec = NullableNumberSpec;
                     node.Current = FieldValue.ExactNumber(raw);
                 }
                 else
                 {
-                    node.Spec = new TextSpec { ReadOnly = true };
+                    node.Spec = OversizedNumberSpec;
                     node.Current = FieldValue.Of(raw);
                     node.Warning = "Number exceeds the exact-number safety limits; preserved verbatim and read-only.";
                 }

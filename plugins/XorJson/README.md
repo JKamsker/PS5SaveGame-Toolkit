@@ -468,6 +468,15 @@ transactions) and SDK-23 (overlay preservation) are resolved and adopted here.
 
 ## Performance review
 
+The November 5 sample-opening regression was bisected to SDK06 adoption
+`8d7c4c17` (October 29). On main `88bdc33f`, targeted thread-local measurements
+showed 2,616,896 bytes for opening the 40,062-byte sample. Removing duplicate
+identity indexes, repeated immutable scalar specs, empty scalar child lists and
+adapter buffer growth reduces this to 2,051,728 bytes. The existing 2 MiB opening
+budget is unchanged; first view remains below 128 KiB. A synthetic wide-array
+guard exercises the adapter without samples. See the November follow-up in
+[PERFORMANCE.md](PERFORMANCE.md) for attribution and reproduction.
+
 See [PERFORMANCE.md](PERFORMANCE.md) for the #40 findings, reproducible D: harness,
 baseline/final allocation and latency measurements, regression budgets and cache
 invalidation rules. Measurements use Microsoft's
