@@ -2,13 +2,14 @@ using Microsoft.AspNetCore.Http.Features;
 using SaveToolkit.Api.Contracts;
 using SaveToolkit.Api.Infrastructure;
 using SaveToolkit.Core.Presets;
+using SaveToolkit.LocalApi.Protocol;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace SaveToolkit.Api.Endpoints;
 
 internal static class PresetTransferEndpoints
 {
-    private const int ControlRequestLimit = PresetTransferLimits.MaxControlBytes;
+    private const int ControlRequestLimit = PresetTransferControl.ControlRequestLimit;
 
     public static void MapPresetTransferApi(this IEndpointRouteBuilder app)
     {
@@ -47,7 +48,7 @@ internal static class PresetTransferEndpoints
     private static async Task<IResult> Preview(HttpRequest request, PresetTransferService service, CancellationToken ct)
     {
         LimitBody(request, PresetPackageCodec.MaxBytes);
-        var bytes = await PresetPackageCodec.ReadBoundedAsync(request.Body, request.ContentLength, ct);
+        var bytes = await PresetTransferControl.ReadPackageAsync(request.Body, request.ContentLength, ct);
         return Results.Ok(service.Preview(bytes));
     }
 
@@ -55,8 +56,7 @@ internal static class PresetTransferEndpoints
     {
         var selection = await ReadControl<PresetExportRequest>(request, ct);
         var bytes = service.Export(selection);
-        // Deliberately no save/title/path input in the download filename.
-        return Results.File(bytes, "application/json", "Toolkit presets.toolkit-presets.json");
+        return Results.File(bytes, "application/json", PresetTransferControl.ExportFileName);
     }
 
     private static async Task<IResult> Resolve(HttpRequest request, PresetTransferService service, CancellationToken ct) =>
@@ -68,38 +68,13 @@ internal static class PresetTransferEndpoints
     private static async Task<T> ReadControl<T>(HttpRequest request, CancellationToken ct)
     {
         LimitBody(request, ControlRequestLimit);
-        // The same streaming guard also covers chunked requests before deserialization.
-        byte[] bytes;
-        try { bytes = await PresetPackageCodec.ReadBoundedAsync(request.Body, request.ContentLength, ct, ControlRequestLimit); }
-        catch (PresetTransferException ex) when (ex.StatusCode == Status413PayloadTooLarge)
-        {
-            throw new PresetTransferException("presetTransferRequestTooLarge", "The transfer control request exceeds its finite byte limit.", 413);
-        }
-        try
-        {
-            return System.Text.Json.JsonSerializer.Deserialize<T>(bytes, ControlJson)
-                ?? throw new System.Text.Json.JsonException();
-        }
-        catch (System.Text.Json.JsonException)
-        {
-            throw new PresetTransferException("invalidPresetTransferRequest", "The preset selection or import decisions are malformed.", 400);
-        }
+        return await PresetTransferControl.ReadControlAsync<T>(request.Body, request.ContentLength, ct);
     }
 
     private static void LimitBody(HttpRequest request, int limit)
     {
-        if (request.ContentLength > limit)
-            throw new PresetTransferException("presetTransferRequestTooLarge", $"The request exceeds the {limit / 1024} KiB limit.", 413);
+        PresetTransferControl.CheckDeclaredLength(request.ContentLength, limit);
         var feature = request.HttpContext.Features.Get<IHttpMaxRequestBodySizeFeature>();
         if (feature is { IsReadOnly: false }) feature.MaxRequestBodySize = limit;
     }
-
-    private static readonly System.Text.Json.JsonSerializerOptions ControlJson = new(System.Text.Json.JsonSerializerDefaults.Web)
-    {
-        MaxDepth = 8,
-        AllowDuplicateProperties = false,
-        UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow,
-        RespectNullableAnnotations = true,
-        RespectRequiredConstructorParameters = true,
-    };
 }

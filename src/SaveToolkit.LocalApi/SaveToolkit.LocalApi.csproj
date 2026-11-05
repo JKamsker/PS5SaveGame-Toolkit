@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Transport-independent implementation of the toolkit's /api contract. It has no ASP.NET Core
+    dependency, so the same router runs in-process in browser WebAssembly (SaveToolkit.Browser).
+    SaveToolkit.Api references it for the shared DTOs, validation, error classification and the
+    endpoint operations both hosts execute.
+  -->
+  <PropertyGroup>
+    <RootNamespace>SaveToolkit.LocalApi</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SaveToolkit.Core\SaveToolkit.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="SaveToolkit.Api" />
+    <InternalsVisibleTo Include="SaveToolkit.Core.Tests" />
+    <InternalsVisibleTo Include="SaveToolkit.Api.Performance.Tests" />
+    <InternalsVisibleTo Include="SaveToolkit.LocalApi.Tests" />
+  </ItemGroup>
+</Project>

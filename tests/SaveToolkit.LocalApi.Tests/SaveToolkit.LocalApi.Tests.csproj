@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SaveToolkit.Sdk\SaveToolkit.Sdk.csproj" />
+    <ProjectReference Include="..\..\src\SaveToolkit.Core\SaveToolkit.Core.csproj" />
+    <ProjectReference Include="..\..\src\SaveToolkit.Api\SaveToolkit.Api.csproj" />
+    <ProjectReference Include="..\..\src\SaveToolkit.LocalApi\SaveToolkit.LocalApi.csproj" />
+    <ProjectReference Include="..\..\src\SaveToolkit.Testing\SaveToolkit.Testing.csproj" />
+  </ItemGroup>
+  <!-- Synthetic fake plugins shared with the framework tests; no private samples are needed. -->
+  <ItemGroup>
+    <Compile Include="..\SaveToolkit.Core.Tests\Fakes\CounterPlugin.cs" Link="Fakes\CounterPlugin.cs" />
+    <Compile Include="..\SaveToolkit.Core.Tests\Fakes\ItemsPlugin.cs" Link="Fakes\ItemsPlugin.cs" />
+    <Compile Include="..\SaveToolkit.Core.Tests\Fakes\QueryablePlugin.cs" Link="Fakes\QueryablePlugin.cs" />
+    <Compile Include="..\SaveToolkit.Core.Tests\Fakes\PlanningPlugin.cs" Link="Fakes\PlanningPlugin.cs" />
+    <EmbeddedResource Include="..\SaveToolkit.Core.Tests\Fakes\ReferencePacks\test.items.en\**\*"
+                      LogicalName="refpacks/test.items.en/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\SaveToolkit.Core.Tests\Fakes\DownloadPlugin.cs" Link="Fakes\DownloadPlugin.cs" />
+    <Compile Include="..\SaveToolkit.Core.Tests\References\PackBuilder.cs" Link="Fakes\PackBuilder.cs" />
+    <Compile Include="..\CultureMatrix.cs" Link="CultureMatrix.cs" />
+  </ItemGroup>
+  <!-- The framework's HTTP contract tests, unchanged, run against LocalApiHost via Reused/ApiContractFixture.cs. -->
+  <ItemGroup>
+    <Compile Include="..\SaveToolkit.Core.Tests\ApiProblemContractTests.cs" Link="Reused\ApiProblemContractTests.cs" />
+    <Compile Include="..\SaveToolkit.Core.Tests\ApiRevisionContractTests.cs" Link="Reused\ApiRevisionContractTests.cs" />
+    <Compile Include="..\SaveToolkit.Core.Tests\ApiDownloadContractTests.cs" Link="Reused\ApiDownloadContractTests.cs" />
+    <Compile Include="..\SaveToolkit.Core.Tests\VerifiedDownloadApiTests.cs" Link="Reused\VerifiedDownloadApiTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

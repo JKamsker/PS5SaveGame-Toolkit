@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SaveToolkit.Api.Infrastructure;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
@@ -27,12 +25,3 @@ internal static class ActionReviewEndpoints
             .Produces<SessionEditResult>().WithApiErrors(Status415UnsupportedMediaType);
     }
 }
-
-/// <summary>
-/// HTTP action-planning request. Omitting or sending null for Scope selects document scope; the
-/// response contains the normalized scope used for planning.
-/// </summary>
-public sealed record PlanActionRequest(string ActionId, Dictionary<string, JsonElement>? Parameters,
-    ActionScope? Scope = null, long? Revision = null);
-public sealed record ApplyActionPlanRequest(string PlanId, [property: JsonRequired] long Revision);
-public sealed record RevertChangeRequest(string ValueId, [property: JsonRequired] long Revision);

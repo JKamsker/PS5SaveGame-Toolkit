@@ -34,6 +34,12 @@ def source(path):
     )
 
 
+def moved_source(*paths):
+    """Reads the first path present at CODE_REF (shared API code moved from SaveToolkit.Api to LocalApi)."""
+    present = source_paths()
+    return source(next((path for path in paths if path in present), paths[0]))
+
+
 @lru_cache(maxsize=None)
 def source_paths():
     return set(subprocess.check_output(
@@ -786,8 +792,10 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("ReferenceIconOptions? options)", source("src/SaveToolkit.Sdk/References/ReferenceViews.cs"))
 
     def test_collection_query_docs_explain_cleared_values(self):
-        code = source("src/SaveToolkit.Api/Endpoints/WorkspaceEndpoints.cs")
-        self.assertIn('request.Query["sort"].FirstOrDefault() is { Length: > 0 } sort ? sort : null', code)
+        code = moved_source("src/SaveToolkit.LocalApi/Protocol/CollectionQueryBinder.cs",
+                            "src/SaveToolkit.Api/Endpoints/WorkspaceEndpoints.cs")
+        self.assertTrue('request.First("sort") is { Length: > 0 } sort ? sort : null' in code
+                        or 'request.Query["sort"].FirstOrDefault() is { Length: > 0 } sort ? sort : null' in code)
         self.assertIn("filter.Value.Length == 0", code)
         self.assertIn("filters.Remove(key)", code)
         text = document("docs/API.md")
@@ -884,14 +892,17 @@ class DocumentationTests(unittest.TestCase):
         for method, route in routes:
             heading = f"### `{method} /api/workspaces/{{workspaceId}}/documents/{{documentId}}{route}`"
             self.assertEqual(1, api.count(heading))
-        limit = re.search(r"MaxPairs = (\d+)", source("src/SaveToolkit.Api/Contracts/ReferenceBatchDtos.cs"))[1]
+        limit = re.search(r"MaxPairs = (\d+)", moved_source("src/SaveToolkit.LocalApi/Contracts/ReferenceBatchDtos.cs",
+                                                           "src/SaveToolkit.Api/Contracts/ReferenceBatchDtos.cs"))[1]
         batch = markdown_section(api,
             "### `POST /api/workspaces/{workspaceId}/documents/{documentId}/reference-fields/records`")
         self.assertIn(f"at most {limit} pairs", guide)
         self.assertIn(f"**{limit} pairs**", batch)
         self.assertIn("**413**", batch)
-        self.assertIn("StatusCodes.Status413PayloadTooLarge",
-                      source("src/SaveToolkit.Api/Infrastructure/ApiRequestValidation.cs"))
+        validation = moved_source("src/SaveToolkit.LocalApi/Protocol/ApiRequestValidation.cs",
+                                  "src/SaveToolkit.Api/Infrastructure/ApiRequestValidation.cs")
+        self.assertTrue("reference pairs are allowed.\", 413)" in validation
+                        or "StatusCodes.Status413PayloadTooLarge" in validation)
 
     def test_selective_helper_inventory_matches_production_calls(self):
         section = markdown_section(document("docs/PLUGIN_GUIDE.md"), "### Selective helper adoption")
