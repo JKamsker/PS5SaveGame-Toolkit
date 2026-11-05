@@ -541,6 +541,12 @@ These helper-required failures replace the old loop's silent acceptance of incom
 
 ## Research log and validation
 
+Round-3 sample-backed review adds `FullCorpusTraversalTests`: every matching
+sample (including backups/generations), all lazy descendants and F8 pages,
+unique collection row keys, live field getters, byte-identical no-op exports
+and re-opening each exported file. Traversal allocation/timing totals are
+diagnostics; these tests do not establish console acceptance or new write scope.
+
 Research date: 2026-10-28. Read upstream code as untrusted text; no downloaded code was executed.
 
 1. Started with the repository's three title reports and the linked-chunk reconnaissance.

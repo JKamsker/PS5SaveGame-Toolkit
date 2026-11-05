@@ -470,14 +470,21 @@ clean rejections, so byte mutation does not imply coverage of every decrypted ty
 
 ## Validation and development
 
+Round-3 sample-backed review adds `FullCorpusTraversalTests`: every matching
+sample (including backups/generations), all lazy descendants and F8 pages,
+unique collection row keys, live field getters, byte-identical no-op exports
+and re-opening each exported file. Traversal allocation/timing totals are
+diagnostics; these tests do not establish console acceptance or new write scope.
+
 SDK-41 selection adoption, **2026-10-29**: production changes only declare the eager
 table's selection identity and bind the two sibling quantity toolbar controls to it.
 New synthetic declaration, opt-in `SelectionScopeFixture` and session regressions
 cover eager/F8 selection, meaningful Set/Restore staging, canonical/derived metadata,
 query exclusions, empty selection, matching-row budgets, pure preview, exact output
 and undo/redo. The advisory fixture explicitly distinguishes Passed, Failed and
-NotEvaluated; its 300-expansion limit includes the 251-row Raw tree. These new tests
-are authored but **not yet executed** in this implementation worker. Browser request
+NotEvaluated; its 300-expansion limit includes the 251-row Raw tree. These backend tests
+passed in the round-3 Release review with real samples (357 passed, no failures
+or skips). Browser request
 wiring and inactive-table behavior still require the dedicated integration smoke;
 backend scopes alone do not establish UI behavior. Existing software-validation
 results below are historical and do not validate this change.
@@ -609,6 +616,38 @@ is an adoption task, not a missing SDK capability. Both quantity actions now use
 are inapplicable: strings use counted UTF-16LE and integrity uses CityHash64/Murmur3.
 
 ## SDK requests
+
+Fixed round-3 metadata allocation finding: repeated `Collections` reads after
+view discovery now reuse snapshots, invalidated when an evidence collection is
+added/replaced. The combined inventory/evidence list reuses that snapshot too;
+old snapshots remain unchanged. The sample-free 4,000-collection / 100-read
+guard failed before the fix at 6,488,800 B and passes at 30,400 B (assertion
+bookkeeping included). Eager and paged inventories, new discovery and replacement
+are covered. The host still searches collection metadata linearly in
+`DocumentSession.QueryCollection`; indexed host lookup is a separate Core
+performance follow-up. This fix does not attribute or claim to fix semantic
+review time, whose traversal does not read `Collections` per page.
+
+Round-3 sample-backed performance investigation (2026-11-05):
+`FullViewPerformanceTests` walks every lazy node and every F8 page on authored
+2,000/4,000-row inventories. Rendering scales from 34,063 to 68,073 nodes and
+26.8 to 53.5 MB allocated (76/165 ms on the review machine). On the largest
+real sample, the cold provider walk renders 353,873 nodes in 2.93 s, allocating
+1.52 GB. A contended suite run took 51.8 s for the same 353,873 nodes
+and 1.49 GB; wall times are diagnostic, not portable timing limits.
+Synthetic doubling retained linear allocation growth; no plugin-side
+super-linear construction was demonstrated. The sample-free allocation-ratio guard allows 2.3x for twice the rendered work.
+
+The host semantic review on the same pinned sample exceeded a 60-second
+cancellation deadline after the provider walk. Deferred host investigation:
+profile semantic snapshot/index/metadata publication with the real
+`IFieldMetadataDocument` capability retained. The older API measurement's
+`CountingReviewDocument` wrapper hides that capability, so its reported 36 s
+is not directly comparable to this direct-document measurement. Concurrent
+corpus runs caused substantial timing variability; this is a profiling follow-up,
+not an attributed host defect. No SDK contract change is
+requested without attribution. The test records host timeout
+as diagnostic evidence; it does not claim a successful complete review.
 
 SDK-41 selection-table binding is adopted using the
 [delivered contract](../../docs/PLUGIN_GUIDE.md#selection-table-binding-and-advisory-conformance-40).

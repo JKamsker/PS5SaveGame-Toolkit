@@ -18,7 +18,9 @@ internal sealed class EvidenceCollections(PragmataDocument document)
         new("details", "Existing values / sources"),
     ];
     private readonly Dictionary<string, Collection> _collections = new(StringComparer.Ordinal);
-    public IReadOnlyList<QueryableCollection> Metadata => _collections.Values.Select(c => c.Metadata).ToArray();
+    private IReadOnlyList<QueryableCollection>? _metadata;
+    public IReadOnlyList<QueryableCollection> Metadata => _metadata ??=
+        Array.AsReadOnly(_collections.Values.Select(c => c.Metadata).ToArray());
 
     public QueryableTableNode Table(SaveNode array, Func<SaveNode, ViewNode> details)
     {
@@ -35,7 +37,10 @@ internal sealed class EvidenceCollections(PragmataDocument document)
         if (_collections.TryGetValue(id, out var existing) && ReferenceEquals(existing.Array, array))
             existing.Details = details;
         else
+        {
             _collections[id] = new Collection(metadata, array, details);
+            _metadata = null;
+        }
         return new QueryableTableNode(id, metadata.Title, Columns, metadata.TotalCount) { Description = metadata.Description };
     }
 
