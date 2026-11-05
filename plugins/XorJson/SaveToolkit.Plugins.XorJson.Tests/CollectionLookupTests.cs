@@ -25,6 +25,8 @@ public sealed class CollectionLookupTests
         var firstView = AllocationProbe.Measure(() => firstViewDocument!.BuildView(), out _,
             beforeRun: () => firstViewDocument = plugin.Open(file),
             afterRun: () => firstViewDocument?.Dispose());
+        // 88bdc33f measured 2,616,896 B; removing redundant adapter bookkeeping
+        // restores 2,051,728 B without relaxing this gate. See PERFORMANCE.md.
         opening.AssertInRange(1, 2 * 1024 * 1024);
         firstView.AssertInRange(1, 128 * 1024);
         Assert.Equal(file.ReadAllBytes(), document.Serialize().Single().Content.ToArray());

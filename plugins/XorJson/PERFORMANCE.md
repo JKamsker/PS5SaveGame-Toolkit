@@ -121,3 +121,90 @@ loading is owned by Core and was excluded from these plugin-only measurements.
   measures managed allocations on the current thread; native allocations are excluded.
 - xUnit: [selective collection parallelism](https://xunit.net/docs/running-tests-in-parallel#selectively-opting-out-of-parallelism)
   documents isolation of the allocation measurement collection.
+
+## November 5 opening-allocation regression (#40)
+
+This follow-up uses Windows x64 / .NET 10 Release and the same largest supplied
+40,062-byte character input (2,462 nodes: 1,800 scalars and 662 containers).
+No reference pack is pinned. Sample import, input creation and warmup are outside
+measurements. `GC.GetAllocatedBytesForCurrentThread` deltas include returned objects;
+eight warmups precede seven measurements and the minimum is reported. The existing
+`AllocationProbe` test independently takes warmed samples and enforces the budget.
+
+### History and attribution
+
+A real path-limited bisect was run in a detached D: checkout:
+
+```powershell
+git bisect start 0126f8f4 11643c35 -- plugins/XorJson src/SaveToolkit.Sdk src/SaveToolkit.Core
+# At each selected revision, with the documented D: scratch and sample environment:
+dotnet test --project plugins/XorJson/SaveToolkit.Plugins.XorJson.Tests -c Release `
+  --filter-method '*LargestSampleOpeningAndFirstViewStayWithinAllocationBudget'
+```
+
+Every selected revision built and ran the test (no build failures classified as
+allocation regressions). First bad: `8d7c4c17691b1de27e37922bfda3d7cb67177645`,
+`feat(xorjson): adopt SDK06 lossless scalar adapter`, October 29. An independent
+public-API harness confirmed its parent `49a6b80b` opens in 1,446,016 bytes versus
+2,530,392 bytes at the first bad commit; first view is 57,552 bytes on both.
+`0126f8f4` and current main `88bdc33f` both open in 2,616,896 bytes and build their
+first view in 57,824 bytes. Core's immutable shared view-index roots do not affect
+this direct plugin path. F13 metadata is resolved on demand, not during opening.
+
+On current main, measuring each stage separately with identical parser limits:
+
+| Stage | Allocated bytes |
+| --- | ---: |
+| `LosslessJsonDocument.Parse(plain, limits)` | 1,115,608 |
+| `JsonTokenTree.Parse(plain)` (SDK plus adapter) | 2,496,384 |
+| Adapter difference | 1,380,776 |
+| `new JsonEditModel(alreadyParsedTree)` | 78,616 |
+| Complete `plugin.Open(file)` | 2,616,896 |
+
+SDK06 introduced a retained lexical tree alongside the plugin's structural-edit
+model. That explains the historical growth, but avoidable adapter bookkeeping
+pushed opening 519,744 bytes over the 2 MiB gate. The fix retains both models and
+all exact-lexeme/structural-history behavior, removing 565,168 bytes in total:
+
+- Reuse the preorder node list for parent lookup, pre-size that list, and share
+  immutable scalar specs: 382,200 bytes saved together.
+- Size child buffers from SDK counts and fill original-child IDs directly:
+  47,368 bytes saved.
+- Keep scalar children as an empty read-only list, allocating mutable storage
+  only for containers: 57,600 bytes saved.
+- Use imported preorder positions for initial identity lookup; create a dictionary
+  only when structural mutation breaks dense ordering: 78,560 bytes saved.
+
+After the fix: SDK plus adapter **2,009,216 bytes**, edit-model construction
+**56 bytes**, complete opening **2,051,728 bytes**, first view **56,912 bytes**.
+The original **2,097,152-byte opening / 131,072-byte first-view** gates remain.
+No budget increase or SDK/host change is needed. Remaining headroom is modest
+(45,424 bytes for opening), so future justified feature costs require measurement.
+
+### Regression coverage and reproduction
+
+`TokenAdapterAllocationTests.WideScalarArrayKeepsAdapterBookkeepingBounded` needs
+no samples: 4,000 booleans parse in 3,021,424 bytes before, 2,322,280 after. Its
+2,560,000-byte bound gives about 10% headroom. It also checks byte-identical output.
+The companion identity test checks missing IDs, removal, insertion and snapshot
+restore across the dense-list/dictionary transition. Existing metadata, exact
+numbers, rollback, conformance, fuzzing and golden-output tests all pass.
+
+The profiling harnesses, bisect script/transcript and test logs are retained outside
+the repository at `D:/Temp/saveeditor/test-scratch/fix-xorjson-open-allocation/`.
+`profile/Profile.csproj` references this checkout; `history-profile/Profile.csproj`
+references the detached `history/` checkout. Adjust those absolute references if
+moving them. Neither harness prints save contents. Run with the D: TEMP/TMP/TMPDIR
+and SAVETOOLKIT_TEST_TEMP setup from the repository release guide and the authorized
+SAVETOOLKIT_ARTIFACTS directory:
+
+```powershell
+dotnet run --project D:/Temp/saveeditor/test-scratch/fix-xorjson-open-allocation/profile/Profile.csproj -c Release
+./scripts/test.ps1 -Configuration Release -Filter XorJson -ResultsDirectory D:/Temp/saveeditor/test-scratch/fix-xorjson-open-allocation/final-with-samples
+# Point SAVETOOLKIT_ARTIFACTS at an existing empty directory for the sample-free run:
+./scripts/test.ps1 -Configuration Release -Filter XorJson -ResultsDirectory D:/Temp/saveeditor/test-scratch/fix-xorjson-open-allocation/without-samples
+```
+
+Both script runs build the API with zero warnings/errors. With samples: **348 passed,
+0 failed, 0 skipped**. Without samples: **329 passed, 0 failed, 19 expected skips**.
+Changes are confined to `plugins/XorJson/`; the original allocation budget is unchanged.
