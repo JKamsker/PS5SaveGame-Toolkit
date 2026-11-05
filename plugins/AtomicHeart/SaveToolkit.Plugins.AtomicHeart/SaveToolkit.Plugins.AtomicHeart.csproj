@@ -3,6 +3,7 @@
     <RootNamespace>SaveToolkit.Plugins.AtomicHeart</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="SQLitePCLRaw.core" />
     <ProjectReference Include="..\..\..\src\SaveToolkit.Sdk\SaveToolkit.Sdk.csproj" />
     <ProjectReference Include="..\..\..\src\SaveToolkit.Codecs\SaveToolkit.Codecs.csproj" />
     <InternalsVisibleTo Include="SaveToolkit.Plugins.AtomicHeart.Tests" />
