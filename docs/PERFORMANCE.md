@@ -118,14 +118,14 @@ output-directory behavior, so the check never removes or rewrites output.
 | Initial CSS | 9943 | 11000 |
 | index.js | 118587 | 130500 |
 | index.css | 9943 | 11000 |
-| WorkspacePage.js | 5131 | 5700 |
-| DocumentEditor.js | 41652 | 45900 |
-| DocumentEditor.css | 1504 | 1660 |
-| PresetsPanel.js | 5242 | 5800 |
+| WorkspacePage.js | 5645 | 6210 |
+| DocumentEditor.js | 45910 | 50500 |
+| DocumentEditor.css | 1655 | 1820 |
+| PresetsPanel.js | 5800 | 6380 |
 | PresetsPanel.css | 523 | 580 |
 | PresetRows.js | 1195 | 1320 |
 | PresetRows.css | 289 | 320 |
-| PresetPreview.js | 1650 | 1820 |
+| PresetPreview.js | 1766 | 1940 |
 | PresetDeleteDialog.js | 538 | 600 |
 | ImportPresetDialog.js | 2348 | 2600 |
 | ExportPresetDialog.js | 1128 | 1250 |
@@ -145,6 +145,15 @@ PresetsPanel CSS and all existing limits stay unchanged. Vite extracts a shared 
 initial dependency (3328 gzip bytes), with measured aggregate initial JS around 120.1 kB,
 still within its existing 130500-byte limit. New transfer limits retain approximately 10%
 headroom; they do not exempt any emitted chunk from checking.
+
+Remeasured on **2026-11-05** at `63d72cf9` plus the stacked-notification fix. The 2026-10-30
+composition (SDK-07 presets/transfer, F13 targeted review, action-effect preview, undo-loss and
+truncated-export feedback, aligned limits) consumed the original headroom: main's CI failed with
+DocumentEditor.js at 45912/45900 and PresetsPanel.js at 5803/5800. Every chunk with less than 5%
+headroom was rebaselined to approximately 10% over its new measurement: WorkspacePage.js 5645,
+DocumentEditor.js 45910, DocumentEditor.css 1655, PresetsPanel.js 5800 and PresetPreview.js 1766
+gzip bytes. Their table rows above show the new measurement; all other rows and limits are unchanged.
+No runtime dependency was added and the loading graph is unchanged.
 
 CI `validate` runs `npm run check:bundle` immediately after its production build on **both Ubuntu
 and Windows**. Synthetic Vitest regressions cover shared imports/cycles, lazy JS/CSS, aggregate
