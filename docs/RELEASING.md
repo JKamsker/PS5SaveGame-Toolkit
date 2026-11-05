@@ -128,7 +128,10 @@ The independent [nightly Stryker workflow](../.github/workflows/nightly-stryker.
 **01:47 UTC** and through Actions → Nightly Stryker (informational) → Run workflow. Separate
 Core/SDK matrix jobs mutate all production C# files in `src/SaveToolkit.Core` and
 `src/SaveToolkit.Sdk`, using `tests/SaveToolkit.Core.Tests`. Each job has a **90-minute timeout**,
-`continue-on-error: true` and no score gate; it never runs on pushes or pull requests and adds
+no score gate (`thresholds.break = 0`); low scores and surviving mutants do not fail the run.
+Build/tool failures, missing reports and timeouts fail the workflow so GitHub Actions can surface
+execution failures; recipient delivery depends on maintainers' Actions notification settings.
+It never runs on pushes or pull requests and adds
 no work to CI or nightly fuzz. The local manifest pins **Stryker.NET 5.0.0**. The shared
 `tests/stryker-config.json` selects its native preview **MTP** runner, compatible with the
 `global.json` test runner; see [Stryker's MTP support announcement](https://stryker-mutator.io/blog/stryker-net-mtp-runner/).
@@ -145,7 +148,7 @@ points to an existing empty scratch directory, and all temporary data/reports us
 Each project writes its mutation score and status counts to the step summary, explicitly
 reporting unavailable results after a failure. The score is `(Killed + Timeout) / (Killed +
 Timeout + Survived + NoCoverage)`; compile-error and ignored mutants are excluded. HTML and JSON
-reports are uploaded even after a failed sweep when available, with **3-day retention**.
+reports and diagnostic logs are uploaded even after a failed sweep when available, with **3-day retention**.
 Treat scores as diagnostic: native MTP remains preview and compiler fallbacks can exclude
 methods. The [mutation-testing guide](../tests/README.md) records these limitations and the
 local runner. Hosted jobs discard instrumented assemblies with the runner; after local
@@ -711,7 +714,8 @@ merging updates. The separate `dependency-drift.yml` report-only job runs Monday
 or manually, queries stable NuGet and direct npm version drift, and retains JSON/logs/summary for
 14 days as `dependency-drift-<run_id>`. It restores all projects together once and installs the npm
 lockfile with lifecycle scripts disabled; it changes no dependency manifests. Available updates do
-not fail a gate; query/restore errors are reported as unavailable, never as zero drift. The job needs
+not fail a gate; query/restore errors are reported as unavailable, never as zero drift, and fail
+this standalone workflow to surface reporting failures. The job needs
 no secrets, requests only read access and cannot block CI or release. GitHub Actions version drift
 is covered by Dependabot. Container images and release-drafter are intentionally optional and
 are not part of this pipeline. The first real hosted CI/release run must be verified after pushing;

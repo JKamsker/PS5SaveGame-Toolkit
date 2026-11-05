@@ -442,7 +442,7 @@ class DocumentationTests(unittest.TestCase):
         workflow = document(".github/workflows/dependency-drift.yml")
         self.assertIn("cron: '41 5 * * 1'", workflow)
         self.assertIn("workflow_dispatch:", workflow)
-        self.assertIn("continue-on-error: true", workflow)
+        self.assertNotIn("continue-on-error: true", workflow)
         self.assertNotIn("secrets.", workflow)
         self.assertNotIn("contents: write", workflow)
         self.assertNotIn("pull_request:", workflow)
@@ -458,13 +458,15 @@ class DocumentationTests(unittest.TestCase):
         version = manifest["tools"]["dotnet-stryker"]["version"]
         self.assertEqual("mtp", config["test-runner"])
         self.assertEqual(0, config["thresholds"]["break"])
-        for fragment in ("cron: '47 1 * * *'", "workflow_dispatch:", "continue-on-error: true",
+        self.assertNotIn("continue-on-error: true", workflow)
+        self.assertIn("throw 'Mutation report unavailable", workflow)
+        for fragment in ("cron: '47 1 * * *'", "workflow_dispatch:",
                          "timeout-minutes: 90", "fail-fast: false", "project: [Core, Sdk]",
                          "tests/SaveToolkit.Core.Tests/SaveToolkit.Core.Tests.csproj", "dotnet tool restore",
                          "--include-references false", "working-directory: ${{ runner.temp }}/stryker",
                          f"Restore pinned Stryker.NET {version}", "tests/stryker-config.json",
                          "@('progress', 'html', 'json')", "SAVETOOLKIT_ARTIFACTS=$scratch/empty-samples",
-                         "GITHUB_STEP_SUMMARY", "mutation-report.html", "retention-days: 3"):
+                         "GITHUB_STEP_SUMMARY", "/stryker/output/**", "retention-days: 3"):
             self.assertIn(fragment, workflow)
         self.assertEqual(2, workflow.count("if: always()"))
         for fragment in ("pull_request:", "push:", "secrets.", "contents: write", "23 3 * * *"):
