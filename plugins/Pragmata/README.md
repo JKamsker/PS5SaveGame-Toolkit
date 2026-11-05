@@ -610,6 +610,27 @@ are inapplicable: strings use counted UTF-16LE and integrity uses CityHash64/Mur
 
 ## SDK requests
 
+Round-3 sample-backed performance investigation (2026-11-05):
+`FullViewPerformanceTests` walks every lazy node and every F8 page on authored
+2,000/4,000-row inventories. Rendering scales from 34,063 to 68,073 nodes and
+26.8 to 53.5 MB allocated (76/165 ms on the review machine). On the largest
+real sample, the cold provider walk renders 353,873 nodes in 2.93 s, allocating
+1.52 GB. A contended suite run took 51.8 s for the same 353,873 nodes
+and 1.49 GB; wall times are diagnostic, not portable timing limits.
+Synthetic doubling retained linear allocation growth; no plugin-side
+super-linear construction was demonstrated. The sample-free allocation-ratio guard allows 2.3x for twice the rendered work.
+
+The host semantic review on the same pinned sample exceeded a 60-second
+cancellation deadline after the provider walk. Deferred host investigation:
+profile semantic snapshot/index/metadata publication with the real
+`IFieldMetadataDocument` capability retained. The older API measurement's
+`CountingReviewDocument` wrapper hides that capability, so its reported 36 s
+is not directly comparable to this direct-document measurement. Concurrent
+corpus runs caused substantial timing variability; this is a profiling follow-up,
+not an attributed host defect. No SDK contract change is
+requested without attribution. The test records host timeout
+as diagnostic evidence; it does not claim a successful complete review.
+
 SDK-41 selection-table binding is adopted using the
 [delivered contract](../../docs/PLUGIN_GUIDE.md#selection-table-binding-and-advisory-conformance-40).
 Only the sibling Set/Restore controls declare `SelectionTableId`; row-cell actions
