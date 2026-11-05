@@ -12,6 +12,8 @@ namespace SaveToolkit.Plugins.UnrealGvas.Tests;
 
 public sealed class NonHogwartsSampleViewTests
 {
+    private const int MaxPageBytes = 2 * 1024 * 1024;
+
     [Theory]
     [InlineData("PPSA01288", "General", "SaveGame", "Costumes and emotes")]
     [InlineData("PPSA02199", "ue4savegame.dpx.sav", "SaveGame00", "Actors")]
@@ -29,13 +31,9 @@ public sealed class NonHogwartsSampleViewTests
         {
             var first = session.QueryCollection(collection.Id, new() { Limit = 200 }, expectedRevision: null, cancellationToken: TestContext.Current.CancellationToken);
             Assert.Equal(collection.TotalCount, first.TotalCount);
-            Assert.True(JsonSerializer.SerializeToUtf8Bytes(first).Length < 2 * 1024 * 1024);
+            Assert.True(JsonSerializer.SerializeToUtf8Bytes(first).Length < MaxPageBytes);
             Assert.Equal(first.Rows.Count, first.Rows.Select(row => row.Key).Distinct(StringComparer.Ordinal).Count());
-            Assert.All(first.Rows.SelectMany(row => row.Cells.Where(pair => pair.Key != "value").Select(pair => pair.Value)),
-                cell => Assert.IsType<TextNode>(cell));
-            Assert.All(first.Rows, row =>
-                Assert.True(row.Cells["value"] is TextNode or FieldReferenceNode,
-                    $"Unexpected value cell type in {collection.Id}."));
+            AssertHostCells(first);
         }
         Assert.True(session.CanEdit);
         if (tab == "Actors")
@@ -51,6 +49,91 @@ public sealed class NonHogwartsSampleViewTests
         }
         Assert.Equal(sample.ReadAllBytes(), Assert.Single(document.Serialize()).Content.ToArray());
     }
+
+    [Theory]
+    [InlineData("settings", "PPSA02199", "Settings")]
+    [InlineData("jedi", "PPSA02199", "Actors")]
+    [InlineData("sackboy", "PPSA01288", "Costumes and emotes")]
+    public void SyntheticTitleCollectionsResolveCanonicalCellsWithoutChangingBytes(string kind, string title, string tab)
+    {
+        var bytes = kind switch
+        {
+            "settings" => TitleFixture.Settings(),
+            "jedi" => TitleFixture.Scalars("jedi"),
+            _ => SackboyCostumes(),
+        };
+        var plugin = new UnrealGvasPlugin();
+        var references = new ReferencePackStore([plugin]).Pin(plugin, title);
+        using var import = new TestSaveImport(bytes, $"{title}/sdimg_Test/save.sav");
+        using var document = plugin.Open(import.File, references);
+        using var session = new DocumentSession("synthetic-projections", import.File, plugin,
+            plugin.Open(import.File, references), references: references);
+        var queryable = Assert.IsAssignableFrom<IQueryableDocument>(document);
+        var metadata = Assert.IsAssignableFrom<IFieldMetadataDocument>(document);
+        var resolvedFields = new List<FieldNode>();
+        Assert.Equal(PluginMaturity.Experimental, plugin.Info.Maturity);
+        Assert.True(session.CanEdit);
+        Assert.Contains(Assert.IsType<TabsNode>(session.BuildView()).Tabs, item => item.Title == tab);
+        Assert.True(session.QueryableCollections.Count > 1);
+
+        foreach (var collection in session.QueryableCollections)
+        {
+            var query = new QueryableCollectionQuery { Limit = QueryableCollectionLimits.MaxPageSize };
+            var raw = queryable.Query(collection.Id, query);
+            var hosted = session.QueryCollection(collection.Id, query, null, TestContext.Current.CancellationToken);
+            AssertHostCells(hosted);
+            Assert.Equal(raw.Rows.Select(row => row.Key), hosted.Rows.Select(row => row.Key));
+            Assert.Equal(raw.TotalCount, hosted.TotalCount);
+            Assert.True(JsonSerializer.SerializeToUtf8Bytes(hosted).Length < MaxPageBytes);
+            foreach (var (source, target) in raw.Rows.Zip(hosted.Rows))
+            {
+                if (source.Cells["value"] is FieldReferenceNode reference)
+                {
+                    var field = Assert.IsType<FieldNode>(target.Cells["value"]);
+                    var canonical = Assert.Single(metadata.ResolveFieldMetadata([reference.TargetValueId]));
+                    Assert.Equal(reference.TargetValueId, field.ValueId);
+                    Assert.Equal(document.GetValue(field.ValueId), field.Value);
+                    Assert.Equal(canonical.Label, field.Label);
+                    Assert.Equal(canonical.Spec, field.Spec);
+                    Assert.Equal(canonical.Presentation?.Confidence, field.Confidence);
+                    Assert.Equal(canonical.Presentation?.Description, field.Description);
+                    Assert.Equal(canonical.Presentation?.Warning, field.Warning);
+                    resolvedFields.Add(field);
+                }
+                else
+                    Assert.Equal(Assert.IsType<TextNode>(source.Cells["value"]), target.Cells["value"]);
+            }
+        }
+        Assert.Contains(resolvedFields, field => !field.Spec.ReadOnly);
+        if (kind != "settings") Assert.Contains(resolvedFields, field => field.Spec.ReadOnly);
+        Assert.Equal(bytes, Assert.Single(document.Serialize()).Content.ToArray());
+        Assert.Empty(session.Serialize(TestContext.Current.CancellationToken));
+    }
+
+    private static void AssertHostCells(QueryableCollectionPage page)
+    {
+        Assert.All(page.Rows.SelectMany(row => row.Cells.Where(pair => pair.Key != "value").Select(pair => pair.Value)),
+            cell => Assert.IsType<TextNode>(cell));
+        // DocumentSession resolves available canonical references before returning a page to the UI.
+        Assert.All(page.Rows, row =>
+            Assert.True(row.Cells["value"] is TextNode or FieldNode,
+                $"Unexpected value cell type in {page.CollectionId}: {row.Cells["value"].GetType().Name}."));
+    }
+
+    private static byte[] SackboyCostumes() => GvasFixture.Build(writer =>
+    {
+        const int wideTextLength = 256; // Exceeds the 192-character collection-cell fallback threshold.
+        GvasFixture.Property(writer, "CollectabellsStored", "IntProperty", GvasFixture.Body(value => value.Write(TitleFixture.InitialCount)));
+        GvasFixture.Property(writer, "CostumeSaveData", "StructProperty", GvasFixture.Body(body =>
+        {
+            GvasFixture.Property(body, "AuthoredCount", "IntProperty", GvasFixture.Body(value => value.Write(TitleFixture.InitialCount)));
+            GvasFixture.Property(body, "Opaque", "FutureProperty", [0xFE, 0xED]);
+            GvasFixture.Property(body, "Wide", "StrProperty", GvasFixture.Body(value =>
+                GvasFixture.String(value, new string('雪', wideTextLength))));
+            GvasFixture.String(body, "None");
+        }), "AuthoredCostumes");
+        GvasFixture.Property(writer, "Checksum", "UInt32Property", [0x78, 0x56, 0x34, 0x12]);
+    }, minor: 25, patch: 1, packageVersion: 518, saveClass: "/Script/GingerBread.GingerbreadSaveUser");
 
     [Fact]
     public void NamedViewsHaveAttributedStorageCaptionsAndUnknownIdsStayRaw()

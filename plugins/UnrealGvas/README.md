@@ -423,6 +423,22 @@ nested struct-array/map/set size changes, byte-exact undo, atomic rejection,
 bounded views/hex, truncations/corruption, and randomized foreign/mutated input.
 Sample-dependent tests skip through SampleSaves when archives are absent.
 
+`NonHogwartsSampleViewTests` also uses authored synthetic Jedi settings/gameplay
+and Sackboy costume fixtures without private samples. Direct plugin queries emit
+canonical `FieldReferenceNode` scalar cells; host queries resolve these to
+`FieldNode` cells with the same identity, live value, label, spec and presentation.
+Container, opaque, actor-observation and wide-string summaries remain text.
+The synthetic and sample cases share the host-cell assertion, rejecting unresolved
+references for these known fields and preserving byte-identical no-op serialization.
+Git bisect traced the stale sample assertion to `707dbb9fc534f10b1af96419b54901d3e170d9dc`
+(2026-10-29): its immediate parent `a3964566` passes all three sample cases.
+The host/UI behavior is correct; no SDK change or maturity promotion is needed.
+Validation on 2026-11-05 with `./scripts/test.ps1 -Configuration Release -Filter UnrealGvas`:
+398 passed / 0 skipped with private samples; 302 passed / 96 sample-dependent
+skips with `SAVETOOLKIT_ARTIFACTS` pointing to an empty directory. Both runs have
+zero failures and API build warnings. All three synthetic cases reproduced the
+old assertion failure before the correction and pass afterward.
+
 The Hogwarts round adds all-image integrity/no-op checks, F1 row diff evidence,
 F8 host registration/query bounds, F2/F4 attribution and candidate resolution,
 corruption isolation, and stored-frame GVAS reconstruction. Sample
