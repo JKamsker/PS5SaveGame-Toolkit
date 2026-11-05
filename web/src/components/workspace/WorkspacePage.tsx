@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
 import type { Workspace } from "../../api/protocol";
 import { ApiError } from "../../api/client";
 import { WorkspaceActivityContext } from "../../state/workspaceActivity";
@@ -19,6 +19,13 @@ function findActiveFile(workspace: Workspace, fileId: string | undefined) {
 }
 
 export function WorkspacePage() {
+  const { workspaceId } = useParams();
+  // Route parameters can change without unmounting the page. Retire controller state,
+  // modal observers and notification timers together with their owning workspace.
+  return <WorkspaceContent key={workspaceId} />;
+}
+
+function WorkspaceContent() {
   const controller = useWorkspaceController();
   const { workspace, activity, beginSelection, closing, close, open, exportDialog, exportOpen, setExportOpen, notify, toasts, dismissToast, focusHeading } = controller;
   if (workspace.isError && !workspace.data) return <WorkspaceError controller={controller} />;
