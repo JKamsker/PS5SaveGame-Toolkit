@@ -537,6 +537,9 @@ tests skip. The source-size test
 runs with the plugin tests; all source files are below 300 physical lines. No plugin
 hooks, scripts, build targets or repository tooling are installed.
 
+The [round 3 sample-backed review](REVIEW-ROUND3.md) records exhaustive host traversal,
+sample mutations, export/history checks, allocation evidence and exact validation commands.
+
 ## SDK requests
 
 **Resolved:** bounded binary reads/ranges (`BoundedBinaryCursor`), reference icon

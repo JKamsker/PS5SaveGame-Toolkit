@@ -759,9 +759,28 @@ is attributed to CP2077SaveEditor (MIT); its notice is retained in [CP2077SaveEd
 - [Repository reconnaissance](../../docs/formats/PPSA04027.md): initial sample dimensions, independently
   rechecked against every supplied gameplay entry.
 
+## Sample-backed review (2026-11-05, #40)
+
+`CsavContainer` now preflights **every** compressed LZ4 block before allocating the
+combined expanded payload. Previously two authored tiny-block regressions each
+allocated 33,555,096 bytes before rejecting a false 32 MiB declaration. Both failed
+the unchanged 64 KiB regression limit before the fix and pass afterward. A late
+compressed-block size mutation of both real saves also passes that allocation bound.
+The preflight reuses the repository's BG3 literal/match counting algorithm, adapted
+locally to retain CSAV rejection diagnostics. K4os decoding and length verification
+still run afterward. Valid 64/128 KiB authored chunks allocate 65,680/131,216 bytes.
+No write scope, confidence labels or Experimental warnings change.
+
+The [round 3 sample-backed review](REVIEW-ROUND3.md) records exhaustive host traversal,
+sample mutations, export/history checks, allocation evidence and exact validation commands.
+
 ## SDK requests
 
-No outstanding SDK requests. F12 [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32)
+Optional consolidation request: expose an allocation-free LZ4 block validator in the SDK
+so BG3 and CSAV can share pre-allocation length/match validation. The local implementation
+works without host changes; this is not a blocking dependency.
+
+F12 [#32](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/32)
 resolved bounded shared F8 traversal and native decoder registration; `CyberpunkEvidenceDecoder`
 now lives in the production plugin and implements `ISaveDecoderHook`. F13
 [#33](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues/33) resolved read-only inspection:
