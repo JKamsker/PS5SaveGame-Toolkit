@@ -203,8 +203,16 @@ public sealed class ReferencePackStore
         Directory.CreateDirectory(root);
         var target = Path.Combine(root, FileName(packId));
         var temp = target + ".tmp";
-        File.WriteAllBytes(temp, archive.ToArray());
-        File.Move(temp, target, overwrite: true);
+        try
+        {
+            File.WriteAllBytes(temp, archive.Span);
+            File.Move(temp, target, overwrite: true);
+        }
+        finally
+        {
+            // A failed write/rename must not retain a complete unregistered archive.
+            File.Delete(temp);
+        }
     }
 
     private static string FileName(string packId) => FilePrefix + packId + PackExtension;
