@@ -53,7 +53,7 @@ describe("HTTP error diagnostics", () => {
   it("normalizes a network failure and never replays a mutation", async () => {
     const fetch = vi.fn().mockRejectedValue(new TypeError("Failed to fetch"));
     vi.stubGlobal("fetch", fetch);
-    await expect(api.undo("w", "d")).rejects.toMatchObject({ status: 0, message: expect.stringMatching(/server.*running/i) });
+    await expect(api.undo("w", "d")).rejects.toMatchObject({ status: 0, message: expect.stringMatching(/runtime did not respond.*reload/i) });
     expect(fetch).toHaveBeenCalledOnce();
   });
 
@@ -73,7 +73,7 @@ describe("HTTP error diagnostics", () => {
       json: bodyFailure, arrayBuffer: bodyFailure, blob: bodyFailure });
     vi.stubGlobal("fetch", fetch);
     for (const call of [() => request("/test"), () => api.blob("w", "d", "b", 0, 16), () => api.exportZip("w", "Everything", true)]) {
-      await expect(call()).rejects.toMatchObject({ status: 0, message: expect.stringMatching(/server.*running/i) });
+      await expect(call()).rejects.toMatchObject({ status: 0, message: expect.stringMatching(/runtime did not respond.*reload/i) });
     }
     expect(fetch).toHaveBeenCalledTimes(3);
   });
@@ -126,34 +126,37 @@ describe("HTTP error diagnostics", () => {
 });
 
 describe("upload error lifecycle", () => {
-  function upload() {
-    const xhr = { open: vi.fn(), send: vi.fn(), upload: {}, responseType: "", timeout: 0,
-      status: 503, response: problem, onload: null as (() => void) | null,
-      onerror: null as (() => void) | null, onabort: null as (() => void) | null, ontimeout: null as (() => void) | null };
-    vi.stubGlobal("XMLHttpRequest", class { constructor() { return xhr; } });
-    const failure = vi.fn();
-    const settled = api.upload([{ file: new File(["data"], "save.zip"), path: "save.zip" }]).catch(failure);
-    return { xhr, failure, settled };
-  }
+  const files = () => [{ file: new File(["data"], "save.zip"), path: "save.zip" }];
 
   it("uses ProblemDetails on upload failure", async () => {
-    const { xhr, failure, settled } = upload();
-    xhr.onload!();
-    await settled;
-    expect(failure).toHaveBeenCalledWith(expect.objectContaining({ status: 503, message: `${problem.title}: ${problem.detail}` }));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(problem)));
+    await expect(api.upload(files())).rejects.toMatchObject({ status: 503, message: `${problem.title}: ${problem.detail}` });
   });
 
-  it.each(["onabort", "ontimeout", "onerror"] as const)("settles %s and permits a fresh upload", async event => {
-    const { xhr, failure } = upload();
-    xhr[event]?.();
-    await Promise.resolve();
-    expect(failure).toHaveBeenCalledWith(expect.objectContaining({ status: 0, message: expect.stringMatching(
-      event === "onabort" ? /cancelled/i : event === "ontimeout" ? /timed out/i : /server/i) }));
-    expect(xhr.timeout).toBeGreaterThan(0);
-    const next = upload();
-    next.xhr.status = 201;
-    next.xhr.onload!();
-    await next.settled;
-    expect(next.failure).not.toHaveBeenCalled();
+  it("sends real multipart bytes with the file paths and optional name", async () => {
+    const fetch = vi.fn().mockResolvedValue(response({ id: "w1" }, 201));
+    vi.stubGlobal("fetch", fetch);
+    const progress = vi.fn();
+    expect(await api.upload([{ file: new File(["data"], "save.zip"), path: "dir/save.zip" }], "Dump", progress)).toEqual({ id: "w1" });
+    const [url, init] = fetch.mock.calls[0]! as [string, RequestInit];
+    expect(url).toBe("/api/workspaces");
+    expect(init.method).toBe("POST");
+    const form = init.body as FormData;
+    expect((form.get("files") as File).name).toBe("dir/save.zip");
+    expect(form.get("name")).toBe("Dump");
+    expect(progress).toHaveBeenLastCalledWith(1);
+  });
+
+  it.each(["timeout", "network"] as const)("settles after %s and permits a fresh upload", async fault => {
+    vi.useFakeTimers();
+    vi.stubGlobal("fetch", vi.fn((_url: string, init: RequestInit) => fault === "network"
+      ? Promise.reject(new TypeError("worker stopped"))
+      : new Promise<Response>((_resolve, reject) => init.signal!.addEventListener("abort", () => reject(init.signal!.reason)))));
+    const outcome = api.upload(files()).catch(error => error);
+    if (fault === "timeout") await vi.advanceTimersByTimeAsync(5 * 60_000);
+    expect(await outcome).toMatchObject({ status: 0, message: expect.stringMatching(
+      fault === "network" ? /runtime did not respond/i : /timed out/i) });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({ id: "w2" }, 201)));
+    expect(await api.upload(files())).toEqual({ id: "w2" });
   });
 });

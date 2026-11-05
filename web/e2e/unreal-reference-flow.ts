@@ -64,7 +64,7 @@ export async function reviewBrightness(page: Page, documentPath: string, testInf
 
 export async function downloadBrightness(page: Page, testInfo: TestInfo, expected: Buffer): Promise<void> {
   const downloading = page.waitForEvent("download");
-  await page.getByRole("link", { name: "Download file", exact: true }).click();
+  await page.getByRole("button", { name: "Download file", exact: true }).click();
   const download = await downloading;
   const destination = testInfo.outputPath("settings-download.sav");
   await download.saveAs(destination);

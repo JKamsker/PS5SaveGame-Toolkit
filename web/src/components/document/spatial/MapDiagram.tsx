@@ -1,4 +1,5 @@
 import { api } from "../../../api/client";
+import { ApiImage } from "../../ui/ApiImage";
 import type { MapMarker, MapNode } from "../../../api/spatial";
 import { SpatialCanvas } from "./SpatialCanvas";
 import { Attribution } from "./SpatialShared";
@@ -24,9 +25,9 @@ export function MapDiagram({ node, workspaceId, documentId, markers, selected, o
   return <>
     <p>Coordinate space: {node.coordinateSpace}. Unpositioned locations remain in the text list.</p>
     <SpatialCanvas label={node.title} width={MAP_WIDTH} height={MAP_HEIGHT}>
-      {canEmbed && background && failedAsset !== background.assetId && <img className="spatial-background" alt={background.alt}
-        src={api.referenceAssetUrl(workspaceId, documentId, background.assetId)} draggable={false}
-        onError={() => onAssetFailure(background.assetId)} />}
+      {canEmbed && background && failedAsset !== background.assetId && <ApiImage className="spatial-background" alt={background.alt}
+        path={api.referenceAssetPath(workspaceId, documentId, background.assetId)} draggable={false}
+        onFailure={() => onAssetFailure(background.assetId)} />}
       {markers.map(marker => {
         const point = position(marker);
         if (!point) return null;

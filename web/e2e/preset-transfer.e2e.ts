@@ -47,7 +47,7 @@ test("real preset import/export is exact, duplicate-aware, stale-safe and leaves
   await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
   // Native browser download route proves the imported synthetic save itself is unchanged.
   const saveDownload = page.waitForEvent("download");
-  await page.getByRole("link", { name: /Download file/ }).click();
+  await page.getByRole("button", { name: /Download file/ }).click();
   const saved = await saveDownload; const savePath = testInfo.outputPath("save.json"); await saved.saveAs(savePath);
   expect(await readFile(savePath)).toEqual(originalSave);
 });

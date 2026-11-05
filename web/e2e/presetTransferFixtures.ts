@@ -64,7 +64,7 @@ export async function open(page: Page) {
 export async function unchangedSave(page: Page, info: TestInfo) {
   await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
   const downloading = page.waitForEvent("download");
-  await page.getByRole("link", { name: /Download file/ }).click();
+  await page.getByRole("button", { name: /Download file/ }).click();
   const download = await downloading; const destination = info.outputPath("unchanged-save.json");
   await download.saveAs(destination); expect(await readFile(destination)).toEqual(originalSave);
 }

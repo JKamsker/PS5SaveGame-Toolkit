@@ -1,3 +1,5 @@
+import { runtime } from "../runtime";
+
 export class ApiError extends Error {
   constructor(message: string, readonly status: number, readonly body?: unknown) {
     super(message);
@@ -8,7 +10,8 @@ const REQUEST_TIMEOUT_MS = 60_000;
 // Imports/exports may process hundreds of MiB after transfer completes.
 export const TRANSFER_TIMEOUT_MS = 5 * 60_000;
 
-export const networkMessage = "The server could not be reached. Check that it is running and try again.";
+export const networkMessage = "The in-browser editor runtime did not respond. Reload the page and try again.";
+export const runtimeFailedMessage = "The editor runtime could not be loaded in this browser. Reload the page to try again.";
 export const timeoutMessage = "The request timed out. Check the current state before retrying.";
 export const cancelledMessage = "The request was cancelled. Check the current state before retrying.";
 
@@ -32,14 +35,18 @@ export async function readJson(response: Response): Promise<unknown> {
   } catch (error) {
     // Abort/network errors during body transfer belong to the transport handler.
     if (!(error instanceof SyntaxError)) throw error;
-    if (response.ok) throw new ApiError("The server returned an unreadable response. Refresh the current view before retrying.", response.status);
+    if (response.ok) throw new ApiError("The editor returned an unreadable response. Refresh the current view before retrying.", response.status);
     return undefined;
   }
 }
 
-/** The deadline includes consuming the body. Mutations are never replayed here. */
+/**
+ * All `/api` traffic is answered by the in-browser runtime (see runtime/client.ts), never the network.
+ * The deadline starts once the runtime has booted and includes consuming the body. Mutations are never replayed here.
+ */
 export async function fetchApi<T>(path: string, init: RequestInit | undefined,
   read: (response: Response) => Promise<T>, timeout = REQUEST_TIMEOUT_MS): Promise<T> {
+  if (runtime.state().status !== "ready") await waitForRuntime(init?.signal);
   const controller = new AbortController();
   let timedOut = false;
   const cancel = () => controller.abort(init?.signal?.reason);
@@ -47,7 +54,7 @@ export async function fetchApi<T>(path: string, init: RequestInit | undefined,
   else init?.signal?.addEventListener("abort", cancel, { once: true });
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, timeout);
   try {
-    const response = await fetch(`/api${path}`, { ...init, signal: controller.signal });
+    const response = await runtime.fetch(`/api${path}`, { ...init, signal: controller.signal });
     return await read(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
@@ -55,6 +62,14 @@ export async function fetchApi<T>(path: string, init: RequestInit | undefined,
   } finally {
     clearTimeout(timer);
     init?.signal?.removeEventListener("abort", cancel);
+  }
+}
+
+async function waitForRuntime(signal: AbortSignal | null | undefined) {
+  try {
+    await runtime.ready(signal);
+  } catch {
+    throw new ApiError(signal?.aborted ? cancelledMessage : runtimeFailedMessage, 0);
   }
 }
 

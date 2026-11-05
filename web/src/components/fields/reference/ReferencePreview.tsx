@@ -1,11 +1,17 @@
 import type { ReferenceCandidate, ReferenceDatasetInfo } from "../../../api/protocol";
+import { useState } from "react";
 import { api } from "../../../api/client";
+import { ApiImage } from "../../ui/ApiImage";
 
 export function ReferenceIcon({ candidate, workspaceId, documentId }: { candidate: ReferenceCandidate; workspaceId: string; documentId: string }) {
   return candidate.assetId ? (
-    <img className="reference-icon" src={api.referenceAssetUrl(workspaceId, documentId, candidate.assetId)} alt="" width={32} height={32}
-      onError={(event) => { event.currentTarget.hidden = true; }} />
+    <ReferenceAsset key={candidate.assetId} path={api.referenceAssetPath(workspaceId, documentId, candidate.assetId)} />
   ) : <span className="reference-icon reference-icon--empty" aria-hidden="true">◇</span>;
+}
+
+function ReferenceAsset({ path }: { path: string }) {
+  const [failed, setFailed] = useState(false);
+  return <ApiImage className="reference-icon" path={path} alt="" width={32} height={32} hidden={failed} onFailure={() => setFailed(true)} />;
 }
 
 export function ReferencePreview({ candidate, workspaceId, documentId }: { candidate: ReferenceCandidate; workspaceId: string; documentId: string }) {

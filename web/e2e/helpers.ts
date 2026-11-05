@@ -2,6 +2,7 @@ import { expect, type Download, type Page, type TestInfo } from "@playwright/tes
 import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { zipSync, unzipSync } from "fflate";
+import { installApiHooks, waitForApiResponse } from "./apiRoutes";
 
 export type SaveFiles = Record<string, Uint8Array>;
 export const savePath = "PPSA00000/sdimg_E2E/save.json";
@@ -24,12 +25,14 @@ export function archive(files: SaveFiles = originalFiles) {
 }
 
 export async function home(page: Page) {
+  // The /api runs in the page's .NET worker; observe it before the app starts.
+  await installApiHooks(page);
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Open a PS5 save dump" })).toBeVisible();
 }
 
 export async function upload(page: Page, buffer = archive(), name = "synthetic-save.zip") {
-  const importing = page.waitForResponse(response => response.url().endsWith("/api/workspaces") && response.request().method() === "POST");
+  const importing = waitForApiResponse(page, response => response.url.endsWith("/api/workspaces") && response.method === "POST");
   const choosing = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: "Open zip", exact: true }).click();
   await (await choosing).setFiles({ name, mimeType: "application/zip", buffer });

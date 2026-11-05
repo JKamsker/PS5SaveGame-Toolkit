@@ -83,3 +83,16 @@ it("rejects JS/CSS outside the manifest instead of silently skipping copied or s
   writeFileSync(join(directory, "assets/extra.js"), "untracked");
   await expect(measureBundle(directory)).rejects.toThrow(/extra.js/);
 });
+
+it("budgets worker bundles listed as chunk assets and ignores the .NET runtime directory", async () => {
+  const { directory, manifest, saveManifest } = fixture();
+  manifest["index.html"].assets = ["assets/worker-AbC_12-x.js", "assets/font.woff2"];
+  saveManifest();
+  writeFileSync(join(directory, "assets", "worker-AbC_12-x.js"), "worker".repeat(100));
+  mkdirSync(join(directory, "_framework"));
+  writeFileSync(join(directory, "_framework", "dotnet.js"), "runtime");
+  const report = await measureBundle(directory);
+  expect(report.assets.find(asset => asset.file === "assets/worker-AbC_12-x.js")).toMatchObject({ name: "worker.js", initial: false });
+  expect(report.assets.some(asset => asset.file.startsWith("_framework/"))).toBe(false);
+  expect(checkBudgets(report, generousBudgets)).toEqual([expect.stringContaining("worker-AbC_12-x.js")]);
+});

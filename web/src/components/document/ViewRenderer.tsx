@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { api } from "../../api/client";
+import { ApiImage } from "../ui/ApiImage";
 import type { StatsNode, TextNode, ViewNode } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
 import { FieldRow } from "../fields/FieldRow";
@@ -90,5 +91,5 @@ function Stats({ node }: { node: StatsNode }) {
 
 function DocumentImage({ assetId, alt }: { assetId: string; alt: string }) {
   const { workspaceId, documentId } = useDocument();
-  return <img className="image" src={api.assetUrl(workspaceId, documentId, assetId)} alt={alt} loading="lazy" />;
+  return <ApiImage className="image" path={api.assetPath(workspaceId, documentId, assetId)} alt={alt} loading="lazy" />;
 }
