@@ -884,6 +884,36 @@ are listed above and tracked in [#31][owner-validation]; authored syntax is not 
   observations. Report game clamping. Only the owner can promote maturity to Stable.
 - For BL4 use the separate [file-role/codec capture checklist](BL4-feasibility.md). No BL4 writes.
 
+## Sample-backed action-effect review (2026-11-05)
+
+`ActionEffectSampleTests` runs standalone import/duplicate/remove across every
+supplied BL3/TTWL character and profile, including all generations and backups.
+Every proposed pair also exercises deposit/withdraw/claim when a complete source
+serial exists. Production host previews must preserve bytes/history, successful
+applies must match the complete ordered projection, and export/reopen plus one-unit
+undo/redo must preserve complete output bytes. Each title must actually apply
+actions; capacity-only rejections cannot satisfy the test. Full destinations are
+checked for atomic rejection; empty source lists are explicitly not evaluated.
+Detail-owned duplicate/remove actions are expanded through their real row details.
+Existing authored nonempty action-effect fixtures continue to run without samples.
+
+The exhaustive SDK traversal additionally opened all 24 claimed Gearbox files,
+walked all 87,540 F8 rows and 30,484 lazy sections, and verified byte-identical
+no-op output. Shared-workstation aggregate BL3/TTWL open times were 287/46 ms;
+full walks 4,062/3,310 ms; exports 338/51 ms. These are diagnostic corpus totals,
+including duplicate backups, not a latency budget or native acceptance evidence.
+
+The first default-concurrency whole-suite run reached its ten-minute deadline
+after 564 passing tests, with only the two phase-allocation measurements unfinished;
+both passed alone in 12.3 seconds. Keep run deadlines and report incomplete suites
+as incomplete. The complete Release rerun with `--max-threads 2 --timeout 10m`
+passed all 570 tests with zero skips in 4m54s. Sample-free: 432 passed, 138 expected
+private-sample skips. The four final action theories passed separately in 75s:
+BL3 standalone 36 applies and grouped 16 applies; TTWL standalone 26 applies/10
+capacity rejections and grouped 10 applies/2 rejections. Eight empty-source pair
+operations were not evaluated. Mutation fuzz ran 1,200 real/synthetic cases with
+zero failures. None of these checks establishes console acceptance or game legality.
+
 ## Synthetic mutation fuzzing (#40)
 
 Four authored `GearboxTestData.CreateContainer` seeds cover both Borderlands 3
