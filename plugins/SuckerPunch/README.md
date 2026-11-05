@@ -782,6 +782,17 @@ whole-save copies; paged collections retain one document-local result index with
 * Locate the v47 play timer and determine the accounting of per-difficulty float counters and subtitle normalization.
 * Validate enabled Yōtei quantities on console; establish checksum coverage and remaining gameplay joins via #31.
 
+## Sample-backed ownership review (2026-11-05)
+
+Round-3 sample-backed ownership review (2026-11-05): `CaptionSampleTests` checks
+byte-identical no-op output for every claimed Tsushima sample and exercises all
+25 eligible caption owners through production host preview/apply, complete-output
+reopen, export and undo/redo. Primary gameplay bytes and SFO length remain unchanged;
+clean undo emits no overrides. Existing synthetic caption tests remain the CI evidence
+when private samples are absent. Baseline Release suite: 475 passed, zero skips;
+the additional real-sample fact passes. This is metadata ownership evidence, not
+native acceptance or automatic timer/difficulty synchronization.
+
 ## SDK requests
 
 No current blocking SDK request. `TextSpec.MaxUtf8Bytes`, system-output ownership and the manual
