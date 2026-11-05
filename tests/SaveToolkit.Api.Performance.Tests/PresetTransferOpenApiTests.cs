@@ -28,6 +28,7 @@ public sealed class PresetTransferOpenApiTests
             "requiresExplicitInstanceResolution", "presetKind", "schemaFingerprint", "fileRole", "capabilitySchemaVersion");
         foreach (var field in new[] { "gameBuild", "formatVariant", "referencePackIdentity", "schemaFingerprint", "fileRole", "capabilitySchemaVersion" })
         {
+            Assert.Equal(0, compatibility["properties"]![field]!["minLength"]!.GetValue<int>());
             var types = compatibility["properties"]![field]!["type"]!.AsArray().Select(type => type!.GetValue<string>());
             Assert.Contains("null", types);
             Assert.Contains("string", types);
@@ -39,7 +40,10 @@ public sealed class PresetTransferOpenApiTests
         Assert.Equal(PresetContractValidation.MaxMapEntries, compatibility["properties"]!["titleIds"]!["maxItems"]!.GetValue<int>());
         Assert.Equal(PresetContractValidation.MaxKeyLength, compatibility["properties"]!["titleIds"]!["items"]!["maxLength"]!.GetValue<int>());
         foreach (var field in new[] { "label", "role", "path", "build", "provenance" })
+        {
+            Assert.Equal(0, schemas["PresetPackageInstanceDto"]!["properties"]![field]!["minLength"]!.GetValue<int>());
             Assert.Equal(PresetContractValidation.MaxMetadataLength, schemas["PresetPackageInstanceDto"]!["properties"]![field]!["maxLength"]!.GetValue<int>());
+        }
         AssertRequired(schemas["PresetPackageActionDto"]!, "actionId", "parameters", "instances", "scopeKind");
         Assert.Equal("^1$", schemas["PresetPackageDto"]!["properties"]!["schemaVersion"]!["pattern"]!.GetValue<string>());
         Assert.Equal(256, schemas["PresetPackageDto"]!["properties"]!["presets"]!["maxItems"]!.GetValue<int>());

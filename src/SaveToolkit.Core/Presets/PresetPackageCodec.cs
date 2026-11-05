@@ -119,7 +119,7 @@ public static class PresetPackageCodec
         foreach (var (field, value) in new[] { ("gameBuild", compatibility.GameBuild), ("formatVariant", compatibility.FormatVariant),
             ("referencePackIdentity", compatibility.ReferencePackIdentity), ("schemaFingerprint", compatibility.SchemaFingerprint),
             ("fileRole", compatibility.FileRole), ("capabilitySchemaVersion", compatibility.CapabilitySchemaVersion) })
-            if (value is not null) Text(value, $"compatibility.{field}", PresetContractValidation.MaxMetadataLength);
+            OptionalText(value, $"compatibility.{field}");
         foreach (var action in preset.Actions)
         {
             Text(action.ActionId, "action ID", 256);
@@ -137,11 +137,11 @@ public static class PresetPackageCodec
                 if (instance is null) throw Invalid("presetPackageInstance", "A semantic target is missing.");
                 Text(instance.Kind, "semantic target kind", PresetContractValidation.MaxKeyLength);
                 Text(instance.StableId, "semantic target ID", PresetContractValidation.MaxKeyLength);
-                if (instance.Label is not null) Text(instance.Label, "semantic target label", PresetContractValidation.MaxMetadataLength);
-                if (instance.Role is not null) Text(instance.Role, "semantic target role", PresetContractValidation.MaxMetadataLength);
-                if (instance.Path is not null) Text(instance.Path, "semantic target path", PresetContractValidation.MaxMetadataLength);
-                if (instance.Build is not null) Text(instance.Build, "semantic target build", PresetContractValidation.MaxMetadataLength);
-                if (instance.Provenance is not null) Text(instance.Provenance, "semantic target provenance", PresetContractValidation.MaxMetadataLength);
+                OptionalText(instance.Label, "semantic target label");
+                OptionalText(instance.Role, "semantic target role");
+                OptionalText(instance.Path, "semantic target path");
+                OptionalText(instance.Build, "semantic target build");
+                OptionalText(instance.Provenance, "semantic target provenance");
             }
         }
     }
@@ -164,6 +164,13 @@ public static class PresetPackageCodec
     {
         if (element.ValueKind != JsonValueKind.Object || fields.Any(field => !element.TryGetProperty(field, out _)))
             throw Invalid("presetPackageMissingField", "The package is missing required envelope fields. Re-export it with a current toolkit.");
+    }
+
+    // Optional metadata is opaque text: preserve the store's empty/whitespace/control values.
+    private static void OptionalText(string? value, string label)
+    {
+        if (value is { Length: > PresetContractValidation.MaxMetadataLength })
+            throw Invalid("presetPackageField", $"The {label} must contain at most {PresetContractValidation.MaxMetadataLength} UTF-16 units.");
     }
 
     private static void Text(string? value, string label, int maximum)

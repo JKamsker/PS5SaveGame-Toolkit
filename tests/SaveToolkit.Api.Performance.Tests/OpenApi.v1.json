@@ -3097,7 +3097,7 @@
         "properties": {
           "capabilitySchemaVersion": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3105,7 +3105,7 @@
           },
           "fileRole": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3113,7 +3113,7 @@
           },
           "formatVariant": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3121,7 +3121,7 @@
           },
           "gameBuild": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3144,7 +3144,7 @@
           },
           "referencePackIdentity": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3155,7 +3155,7 @@
           },
           "schemaFingerprint": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3218,7 +3218,7 @@
         "properties": {
           "build": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3231,7 +3231,7 @@
           },
           "label": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3239,7 +3239,7 @@
           },
           "path": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3247,7 +3247,7 @@
           },
           "provenance": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
@@ -3255,7 +3255,7 @@
           },
           "role": {
             "maxLength": 512,
-            "minLength": 1,
+            "minLength": 0,
             "type": [
               "null",
               "string"
