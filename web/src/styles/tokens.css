@@ -13,6 +13,8 @@
   --rule: #d3d9e1;
   --rule-strong: #b7c0cc;
   --signal: #2d5bff;
+  /* Small accent text also needs 4.5:1 against signal-soft. */
+  --signal-text: #244ee8;
   --signal-ink: #ffffff;
   --signal-soft: #e5ebff;
   --modified: #d97f00;
@@ -88,6 +90,7 @@
     --rule: #263040;
     --rule-strong: #364256;
     --signal: #6d8cff;
+    --signal-text: #6d8cff;
     --signal-ink: #0c1220;
     --signal-soft: #1c2747;
     --modified: #f0a030;

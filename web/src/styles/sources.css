@@ -35,7 +35,7 @@
   padding: 0 6px;
   border-radius: 999px;
   background: var(--signal-soft);
-  color: var(--signal);
+  color: var(--signal-text);
   font-size: var(--text-xs);
   line-height: 20px;
   text-align: center;
