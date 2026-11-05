@@ -680,3 +680,38 @@ plugin set the nightly cap of 180 seconds.
 
 `MutationFuzzSyntheticSeedsOpenAndRender` checks every unmutated seed before the inherited
 `MutationFuzz` fact supplies deterministic mutations. No samples are required for these checks.
+
+
+## Sample-backed data safety review, round 3 (#40)
+
+`SampleSafetyReviewTests` visits every lazy section and every F8 page, including
+empty rows, for all **2 archive records** (including backups/repeated paths).
+It checks live field values and byte-identical no-op exports, batches all exposed
+writable integer fields, independently reopens the result, then reverses the batch
+to the exact original bytes. Reopening/reversal rebinds fields without repeating
+FF16's read-only raw-word rendering. Separate authored fixtures exercise the same
+traversal and reversible integer edits without samples in CI. Reference/text/float
+writes retain their existing format-specific tests.
+
+Host sessions additionally preview/apply an existing action, build semantic review,
+undo/redo, export and independently reopen wherever the preview has changes.
+No-change previews do not invent history. These are storage checks; console
+acceptance, gameplay dependencies, Experimental maturity and warnings retain their
+existing status. No new SDK/host capability is required.
+
+Release validation (passed / failed / skipped): **437 / 0 / 0; without samples 383 / 0 / 54**.
+API build: zero warnings/errors. Mutation fuzz retains 200 deterministic mutations
+per selected file with a 300-second plugin budget and 10-minute process timeout.
+Run from the repository root with task-owned D: scratch:
+
+```powershell
+dotnet test --project plugins/EldenRing/SaveToolkit.Plugins.EldenRing.Tests -c Release --results-directory <D:/scratch/results> -- --timeout 10m
+```
+
+Set `SAVETOOLKIT_ARTIFACTS` to external private archives or an explicitly empty
+folder for sample-free validation. Set `SAVETOOLKIT_TEST_TEMP`, `TEMP`, `TMP` and
+`TMPDIR` to D: scratch; set `SAVETOOLKIT_FUZZ_TIME_BUDGET=300`. Journey-test output
+records diagnostic open/full-walk/no-op-export times and whole-journey allocations.
+Those allocations include rendering, independent reopens, byte comparisons and
+host history; they are not retained memory or an isolated open budget. Timings
+are diagnostic, never CI assertions. No private bytes are embedded in fixtures.
