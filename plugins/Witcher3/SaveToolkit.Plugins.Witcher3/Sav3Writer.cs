@@ -16,7 +16,6 @@ internal static class Sav3Writer
         var original = container.Payload;
         var patches = edits.OrderBy(p => p.Offset).ToArray();
         var table = directory.VariableTableOffset;
-        var relocation = new Sav3Relocation(original, directory, container.HeaderSize, patches);
         var previousEnd = 16;
         foreach (var patch in patches)
         {
@@ -34,7 +33,7 @@ internal static class Sav3Writer
             throw new SaveFormatException("Edited SAV3 body exceeds the supported size limit.");
         }
 
-        var data = relocation.Apply(tree);
+        var data = new Sav3Relocation(original, directory, container.HeaderSize, patches).Apply(tree);
 
         using var output = new MemoryStream((int)size);
         var position = 0;

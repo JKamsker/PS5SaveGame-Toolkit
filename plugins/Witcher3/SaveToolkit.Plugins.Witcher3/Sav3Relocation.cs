@@ -6,6 +6,7 @@ namespace SaveToolkit.Plugins.Witcher3;
 /// <summary>Repairs known lengths and virtual pointers before the writer splices the original image.</summary>
 internal sealed class Sav3Relocation(byte[] original, Sav3Directory directory, int headerSize, Sav3Patch[] patches)
 {
+    private readonly Sav3PatchIndex _patches = new(patches);
     private readonly int _table = directory.VariableTableOffset;
     private readonly int _roots = BinaryData.PayloadOffset(original, directory.VariableTableOffset - 6, headerSize);
 
@@ -17,7 +18,7 @@ internal sealed class Sav3Relocation(byte[] original, Sav3Directory directory, i
         UpdateRoots(data);
         foreach (var pointer in new[] { _table - 10, _table - 6, original.Length - 6 })
         {
-            Put(data, pointer, Relocate(BinaryData.PayloadOffset(original, pointer, headerSize)) + headerSize);
+            Put(data, pointer, _patches.Relocate(BinaryData.PayloadOffset(original, pointer, headerSize)) + headerSize);
         }
 
         return data;
@@ -27,8 +28,8 @@ internal sealed class Sav3Relocation(byte[] original, Sav3Directory directory, i
     {
         foreach (var node in tree.Nodes)
         {
-            var growth = GrowthInside(node.Offset, node.Size);
-            if (growth == 0 || patches.Any(p => p.Offset == node.Offset && p.Length == node.Size))
+            var growth = _patches.GrowthInside(node.Offset, node.Size);
+            if (growth == 0 || _patches.Replaces(node.Offset, node.Size))
             {
                 continue;
             }
@@ -49,8 +50,8 @@ internal sealed class Sav3Relocation(byte[] original, Sav3Directory directory, i
             var entry = _table + 4 + index * 8;
             var offset = BinaryData.PayloadOffset(original, entry, headerSize);
             var length = BinaryData.Int32(original, entry + 4);
-            Put(data, entry, Relocate(offset) + headerSize);
-            Put(data, entry + 4, length + GrowthInside(offset, length));
+            Put(data, entry, _patches.Relocate(offset) + headerSize);
+            Put(data, entry + 4, length + _patches.GrowthInside(offset, length));
         }
     }
 
@@ -60,22 +61,8 @@ internal sealed class Sav3Relocation(byte[] original, Sav3Directory directory, i
         for (var index = 0; index < rbCount; index++)
         {
             var entry = _roots + 6 + index * 6 + 2;
-            Put(data, entry, Relocate(BinaryData.PayloadOffset(original, entry, headerSize)) + headerSize);
+            Put(data, entry, _patches.Relocate(BinaryData.PayloadOffset(original, entry, headerSize)) + headerSize);
         }
-    }
-
-    private int Relocate(int offset) => offset + patches.Where(p => p.End <= offset).Sum(p => p.Growth);
-    private int GrowthInside(int offset, int length)
-    {
-        foreach (var patch in patches.Where(p => p.Offset < offset + length && p.End > offset))
-        {
-            if (patch.Offset < offset || patch.End > offset + length)
-            {
-                throw new SaveFormatException("SAV3 edit crosses a variable boundary.");
-            }
-        }
-
-        return patches.Where(p => p.Offset >= offset && p.End <= offset + length).Sum(p => p.Growth);
     }
 
     private static void Put(byte[] data, int offset, int value) =>

@@ -132,3 +132,31 @@ Implementation follows the existing attributed format sources in
 review. Allocation versus retained-memory distinctions follow the runtime APIs
 [GC.GetAllocatedBytesForCurrentThread](https://learn.microsoft.com/en-us/dotnet/api/system.gc.getallocatedbytesforcurrentthread)
 and [GC.GetTotalMemory](https://learn.microsoft.com/en-us/dotnet/api/system.gc.gettotalmemory).
+
+
+## Sample-backed round 3 relocation review (#40)
+
+`Sav3Relocation` previously scanned the complete patch batch for every tree node,
+variable-directory entry and root pointer, including zero-growth scalar edits.
+This made relocation O((nodes + directory entries) × patches), with temporary
+LINQ iterators at each range query. A sorted interval index now uses binary
+boundary searches and cumulative growth: O(patches + (nodes + directory entries)
+× log(patches)) after sorting. Crossing ranges still reject; complete-token
+replacements still suppress rewriting their own length headers. Directory order
+and unknown bytes retain their existing preserving-writer behavior.
+
+Two authored wide-archive allocation regressions failed before the fix:
+2,048 patches allocated 726,536 bytes (263,566-byte bound), and 4,096 patches
+allocated 1,447,392 bytes (525,710-byte bound). After the fix they allocate
+157,000 and 312,608 bytes respectively. Repeated measurement batches took
+23.3 and 32.4 ms locally after the fix; timings are diagnostic, never CI gates.
+The tests reparse the output and check every patched byte range. An independent
+small interval oracle checks growth, shrinkage, exact replacement, adjacency,
+empty indexes and crossing rejection at all boundaries.
+
+All eight real sample records also pass full lazy traversal, every collection
+page, a batch of all 134–140 exposed writable integer fields, independent
+reopening and reversal to byte-identical originals. This validates storage
+preservation, not console acceptance or gameplay dependencies. Experimental
+maturity and warnings remain unchanged. The index uses existing format rules
+and sources cited in README.md; no new format assumptions or SDK needs.

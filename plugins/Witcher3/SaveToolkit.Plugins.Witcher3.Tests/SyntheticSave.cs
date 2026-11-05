@@ -11,7 +11,7 @@ internal static class SyntheticSave
     public const int ArchiveOffset = 30;
     public const int BlockOffset = ArchiveOffset + 6 + 16;
 
-    public static byte[] Create(Action<byte[]>? mutatePayload = null)
+    public static byte[] Create(Action<byte[]>? mutatePayload = null, int valueCount = 1)
     {
         using var data = new MemoryStream();
         using var writer = new BinaryWriter(data, Encoding.ASCII, leaveOpen: true);
@@ -29,7 +29,8 @@ internal static class SyntheticSave
         WriteVersion(archiveWriter);
         using var block = new MemoryStream();
         using var blockWriter = new BinaryWriter(block, Encoding.ASCII, leaveOpen: true);
-        WriteValue(blockWriter, "AVAL", 2, 3, BitConverter.GetBytes(42U));
+        for (var index = 0; index < valueCount; index++)
+            WriteValue(blockWriter, "AVAL", 2, 3, BitConverter.GetBytes(42U));
         WriteValue(blockWriter, "PORP", 6, 7, [0x85, .. "hello"u8]);
         WriteValue(blockWriter, "PORP", 8, 9, [1]);
         archiveWriter.Write("BLCK"u8);
