@@ -40,8 +40,13 @@ internal abstract record HistoryStep
 }
 
 /// <summary>Scalar changes, replayed through <see cref="ISaveDocument.ApplyEdits"/>.</summary>
-internal sealed record ValueStep(IReadOnlyList<ValueChange> Changes) : HistoryStep
+internal sealed record ValueStep : HistoryStep
 {
+    // Providers may reuse their result buffers on the next edit, including during replay.
+    // History must own its values independently of provider and response collections.
+    public ValueStep(IReadOnlyList<ValueChange> changes) => Changes = Array.AsReadOnly(changes.ToArray());
+
+    public IReadOnlyList<ValueChange> Changes { get; }
     public override long SizeBytes => 0;
 }
 
