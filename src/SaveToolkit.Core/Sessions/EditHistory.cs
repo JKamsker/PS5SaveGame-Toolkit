@@ -40,8 +40,13 @@ internal abstract record HistoryStep
 }
 
 /// <summary>Scalar changes, replayed through <see cref="ISaveDocument.ApplyEdits"/>.</summary>
-internal sealed record ValueStep(IReadOnlyList<ValueChange> Changes) : HistoryStep
+internal sealed record ValueStep : HistoryStep
 {
+    // Providers may reuse their result buffers on the next edit, including during replay.
+    // History must own its values independently of provider and response collections.
+    public ValueStep(IReadOnlyList<ValueChange> changes) => Changes = Array.AsReadOnly(changes.ToArray());
+
+    public IReadOnlyList<ValueChange> Changes { get; }
     public override long SizeBytes => 0;
 }
 
@@ -119,15 +124,20 @@ internal sealed class EditHistory(DocumentSessionOptions options)
 
     private IReadOnlyList<string> Enforce()
     {
+        List<string> warnings = [];
+        var exceededEntryLimit = _undo.Count > options.MaxHistory;
         while (_undo.Count > options.MaxHistory)
         {
             RemoveFirst(_undo);
             IrreversiblyChanged = true;
         }
 
+        if (exceededEntryLimit)
+            warnings.Add($"Undo history was trimmed to stay within the limit of {options.MaxHistory} entries; the oldest steps can no longer be undone.");
+
         if (_bytes <= options.MaxSnapshotBytes)
         {
-            return [];
+            return warnings;
         }
 
         // Oldest undo first (furthest from the current state), then the deepest redo entries.
@@ -142,7 +152,8 @@ internal sealed class EditHistory(DocumentSessionOptions options)
             RemoveFirst(_redo);
         }
 
-        return [$"Undo history was trimmed to stay within the {Mib(options.MaxSnapshotBytes)} MiB limit; the oldest steps can no longer be undone."];
+        warnings.Add($"Undo history was trimmed to stay within the {Mib(options.MaxSnapshotBytes)} MiB limit; the oldest steps can no longer be undone.");
+        return warnings;
     }
 
     private void Push(LinkedList<HistoryEntry> list, HistoryEntry entry)
