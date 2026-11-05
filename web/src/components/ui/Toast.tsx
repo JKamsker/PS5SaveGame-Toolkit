@@ -10,24 +10,19 @@ const VISIBLE_MS = 4500;
 
 /** Shows every pending notification at once; each expires on its own interval, so later feedback never waits. */
 export function ToastStack({ messages, onDone }: { messages: readonly ToastMessage[]; onDone: (id: number) => void }) {
-  const [hovered, setHovered] = useState(false);
-  const [focused, setFocused] = useState(false);
-  const paused = hovered || focused;
-  // Prime both priorities before feedback arrives. Announce only additions, so adding
-  // or expiring a sibling does not read the entire stack again.
-  // Keyboard entry lets readers scroll a flood while expiry is paused.
+  // Only keyboard focus pauses expiry: a hover pause would keep the stack covering the controls
+  // beneath it for as long as the pointer rests there.
+  const [paused, setPaused] = useState(false);
+  // Nothing renders without feedback: page-level alert/status roles mean visible feedback.
+  // Each message carries its own live role (errors as alerts), so additions announce without
+  // re-reading siblings. Keyboard entry lets readers scroll a flood while expiry is paused.
+  if (messages.length === 0) return null;
   // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-  return <div className="toast-stack" role="region" aria-label="Notifications" tabIndex={messages.length ? 0 : -1}
-    onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
-    onFocus={() => setFocused(true)} onBlur={event => {
-      if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
+  return <div className="toast-stack" role="region" aria-label="Notifications" tabIndex={0}
+    onFocus={() => setPaused(true)} onBlur={event => {
+      if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false);
     }}>
-    <div className="toast-stack__group" role="status" aria-atomic="false" aria-relevant="additions">
-      {messages.filter(message => !message.isError).map(message => <Toast key={message.id} message={message} onDone={onDone} paused={paused} />)}
-    </div>
-    <div className="toast-stack__group" role="alert" aria-atomic="false" aria-relevant="additions">
-      {messages.filter(message => message.isError).map(message => <Toast key={message.id} message={message} onDone={onDone} paused={paused} />)}
-    </div>
+    {messages.map(message => <Toast key={message.id} message={message} onDone={onDone} paused={paused} />)}
   </div>;
 }
 
@@ -40,7 +35,7 @@ function Toast({ message, onDone, paused }: { message: ToastMessage; onDone: (id
   }, [message, onDone, paused]);
 
   return (
-    <div className={`toast${message.isError ? " toast--error" : ""}`}>
+    <div className={`toast${message.isError ? " toast--error" : ""}`} role={message.isError ? "alert" : "status"}>
       {message.text}
     </div>
   );

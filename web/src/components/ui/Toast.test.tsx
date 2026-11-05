@@ -4,22 +4,19 @@ import { ToastStack } from "./Toast";
 
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
-it("primes non-atomic live regions before adding feedback without moving focus", () => {
+it("adds no live role to the page without feedback and gives each message its own role", () => {
   const onDone = vi.fn();
   const view = render(<><button>Editor</button><ToastStack messages={[]} onDone={onDone} /></>);
-  const status = screen.getByRole("status");
-  const alert = screen.getByRole("alert");
-  expect(status.getAttribute("aria-atomic")).toBe("false");
-  expect(alert.getAttribute("aria-atomic")).toBe("false");
-  expect(status.getAttribute("aria-relevant")).toBe("additions");
+  // Page-level "is an error shown?" checks rely on alert/status meaning visible feedback.
+  expect(screen.queryAllByRole("status")).toEqual([]);
+  expect(screen.queryAllByRole("alert")).toEqual([]);
+  expect(screen.queryByRole("region", { name: "Notifications" })).toBeNull();
   screen.getByRole("button").focus();
   view.rerender(<><button>Editor</button><ToastStack messages={[
     { id: 1, text: "Saved", isError: false }, { id: 2, text: "Failed", isError: true },
   ]} onDone={onDone} /></>);
-  expect(screen.getByRole("status")).toBe(status);
-  expect(screen.getByRole("alert")).toBe(alert);
-  expect(status.textContent).toBe("Saved");
-  expect(alert.textContent).toBe("Failed");
+  expect(screen.getAllByRole("status").map(element => element.textContent)).toEqual(["Saved"]);
+  expect(screen.getAllByRole("alert").map(element => element.textContent)).toEqual(["Failed"]);
   expect(document.activeElement).toBe(screen.getByRole("button"));
 });
 
@@ -33,18 +30,25 @@ it("cleans every timer when the stack unmounts", async () => {
   expect(vi.getTimerCount()).toBe(0);
 });
 
-it.each(["hover", "focus"])("keeps a flooded stack readable during %s and resumes expiry on leaving", async mode => {
+it("keeps a flooded stack readable while focused and resumes expiry on leaving", async () => {
   vi.useFakeTimers();
   const onDone = vi.fn();
   render(<ToastStack messages={[{ id: 1, text: "Warning", isError: false }]} onDone={onDone} />);
   const region = screen.getByRole("region", { name: "Notifications" });
   expect(region.tabIndex).toBe(0);
-  if (mode === "hover") fireEvent.mouseEnter(region);
-  else fireEvent.focus(region);
+  fireEvent.focus(region);
   await act(async () => { await vi.advanceTimersByTimeAsync(10000); });
   expect(onDone).not.toHaveBeenCalled();
-  if (mode === "hover") fireEvent.mouseLeave(region);
-  else fireEvent.blur(region);
+  fireEvent.blur(region);
+  await act(async () => { await vi.advanceTimersByTimeAsync(4500); });
+  expect(onDone).toHaveBeenCalledExactlyOnceWith(1);
+});
+
+it("still expires while the pointer rests on the stack, so it never permanently covers controls beneath", async () => {
+  vi.useFakeTimers();
+  const onDone = vi.fn();
+  render(<ToastStack messages={[{ id: 1, text: "Warning", isError: false }]} onDone={onDone} />);
+  fireEvent.mouseEnter(screen.getByRole("region", { name: "Notifications" }));
   await act(async () => { await vi.advanceTimersByTimeAsync(4500); });
   expect(onDone).toHaveBeenCalledExactlyOnceWith(1);
 });
