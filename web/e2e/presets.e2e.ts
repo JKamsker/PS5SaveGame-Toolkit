@@ -1,4 +1,5 @@
-import { expect, test } from "@playwright/test";
+import { test } from "./preset-library-test";
+import { expect } from "@playwright/test";
 import { editCoins, importSave, loadJson, openJson } from "./helpers";
 
 test("preset capture, compatibility summary and preview remain reachable", async ({ page }) => {
