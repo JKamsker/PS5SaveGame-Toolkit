@@ -730,8 +730,10 @@ different directory and use their untouched save backups. Preserve the old `data
 switching versions; no automatic data downgrade is promised. Private saves never belong in releases.
 
 Dependabot proposes weekly NuGet, npm (`/web`) and GitHub Actions version updates, grouping minor
-and patch updates per ecosystem while leaving major upgrades separate. The SQLitePCLRaw major-version
-compatibility exception remains in place. There is no auto-merge. Review and run the same CI before
+and patch updates per ecosystem while leaving major upgrades separate. Dependabot never proposes
+`SQLitePCLRaw.core` on its own: its central pin must equal the SQLitePCLRaw native bundle/provider
+version that `Microsoft.Data.Sqlite` brings in, so move it by hand in the same change that updates
+`Microsoft.Data.Sqlite`. There is no auto-merge. Review and run the same CI before
 merging updates. The separate `dependency-drift.yml` report-only job runs Mondays at **05:41 UTC**
 or manually, queries stable NuGet and direct npm version drift, and retains JSON/logs/summary for
 14 days as `dependency-drift-<run_id>`. It restores all projects together once and installs the npm
