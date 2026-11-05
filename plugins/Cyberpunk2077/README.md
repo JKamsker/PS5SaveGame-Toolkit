@@ -771,6 +771,9 @@ locally to retain CSAV rejection diagnostics. K4os decoding and length verificat
 still run afterward. Valid 64/128 KiB authored chunks allocate 65,680/131,216 bytes.
 No write scope, confidence labels or Experimental warnings change.
 
+The [round 3 sample-backed review](REVIEW-ROUND3.md) records exhaustive host traversal,
+sample mutations, export/history checks, allocation evidence and exact validation commands.
+
 ## SDK requests
 
 Optional consolidation request: expose an allocation-free LZ4 block validator in the SDK

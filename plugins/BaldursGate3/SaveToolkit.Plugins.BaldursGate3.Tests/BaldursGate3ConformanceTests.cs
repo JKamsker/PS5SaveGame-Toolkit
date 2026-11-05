@@ -27,6 +27,8 @@ public sealed class BaldursGate3ConformanceTests : PluginConformanceTests<Baldur
     }
 
     protected override IReadOnlyList<string> SampleTitleIds => ["PPSA18463"];
+    // Include all distinct profile formats and the large LSPK, rather than only the smallest analytics LSF.
+    protected override int MaxMutationFuzzFilesPerTitle => 6;
     protected override IEnumerable<ISaveFile> MutationFuzzSyntheticSeeds =>
     [
         MemorySaveSet.SingleFile("synthetic.lsf", ResourceFixture.Create(), "PPSA18463"),
