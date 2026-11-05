@@ -72,6 +72,7 @@ internal sealed class EditHistory(DocumentSessionOptions options)
     private readonly LinkedList<HistoryEntry> _undo = new();
     private readonly LinkedList<HistoryEntry> _redo = new();
     private long _bytes;
+    private bool _entryLimitAnnounced;
 
     public bool CanUndo => _undo.Count > 0;
 
@@ -132,7 +133,12 @@ internal sealed class EditHistory(DocumentSessionOptions options)
             IrreversiblyChanged = true;
         }
 
-        if (exceededEntryLimit)
+        // Announce the transition into a saturated history once; while it stays full, every later
+        // edit drops a step and repeating the notice would flood the client. Room made by undo or
+        // clearing re-arms it.
+        var announceEntryLimit = exceededEntryLimit && !_entryLimitAnnounced;
+        _entryLimitAnnounced = exceededEntryLimit || (_entryLimitAnnounced && _undo.Count >= options.MaxHistory);
+        if (announceEntryLimit)
             warnings.Add($"Undo history was trimmed to stay within the limit of {options.MaxHistory} entries; the oldest steps can no longer be undone.");
 
         if (_bytes <= options.MaxSnapshotBytes)

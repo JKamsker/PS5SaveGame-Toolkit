@@ -33,5 +33,29 @@ public sealed class HistoryLimitNoticeTests
         Assert.Equal(FieldValue.Of(2), document.GetValue(ScalarBatchDocument.Id(0)));
     }
 
+    [Fact]
+    public void EntryLimitNoticeIsRaisedOncePerSaturationNotOnEveryLaterEdit()
+    {
+        var document = new ScalarBatchDocument(1);
+        using var fixture = new MutationSessionFixture(document,
+            new DocumentSessionOptions { MaxHistory = 2 }, () => new ScalarBatchDocument(1));
+        var session = fixture.Session;
+        _ = session.BuildView();
+        Assert.Empty(session.ApplyEdits([Edit(1)]).Warnings);
+        Assert.Empty(session.ApplyEdits([Edit(2)]).Warnings);
+
+        Assert.Single(session.ApplyEdits([Edit(3)]).Warnings, IsEntryLimitNotice);
+        // History stays saturated: each further edit drops a step, but repeating the notice would flood the UI.
+        Assert.DoesNotContain(session.ApplyEdits([Edit(4)]).Warnings, IsEntryLimitNotice);
+        Assert.DoesNotContain(session.ApplyEdits([Edit(5)]).Warnings, IsEntryLimitNotice);
+
+        // Undo makes room; the next edit refills without trimming, and only the following one trims again.
+        Assert.True(session.Undo().Ok);
+        Assert.DoesNotContain(session.ApplyEdits([Edit(6)]).Warnings, IsEntryLimitNotice);
+        Assert.Single(session.ApplyEdits([Edit(7)]).Warnings, IsEntryLimitNotice);
+    }
+
+    private static bool IsEntryLimitNotice(string warning) => warning.Contains("limit of 2 entries", StringComparison.Ordinal);
+
     private static IncomingEdit Edit(int value) => new(ScalarBatchDocument.Id(0), JsonSerializer.SerializeToElement(value));
 }
