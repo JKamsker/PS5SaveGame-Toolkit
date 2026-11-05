@@ -18,6 +18,23 @@ async function openReview() {
   return summary;
 }
 
+it("keeps descriptions and technical disclosure IDs distinct for punctuation-bearing field IDs", async () => {
+  vi.spyOn(actionReview, "changes").mockResolvedValue({ ...log, changes: [
+    { ...log.changes[0]!, valueId: "a.b", label: "First", canRevert: false, revertReason: "First reason" },
+    { ...log.changes[0]!, valueId: "a/b", label: "Second", canRevert: false, revertReason: "Second reason" },
+  ] });
+  renderDocument(<ChangesPanel />);
+  await openReview();
+  await screen.findByRole("button", { name: "Revert Second" });
+  for (const label of ["First", "Second"]) {
+    const button = screen.getByRole("button", { name: `Revert ${label}` });
+    expect(document.getElementById(button.getAttribute("aria-describedby")!)?.textContent).toBe(`${label} reason`);
+  }
+  for (const button of screen.getAllByRole("button", { name: "Technical details" })) fireEvent.click(button);
+  const ids = [...document.querySelectorAll("[id]")].map(element => element.id);
+  expect(new Set(ids).size).toBe(ids.length);
+});
+
 it("keeps review focus on the summary while reverting the final row", async () => {
   const pending = deferred<EditResult>();
   vi.spyOn(actionReview, "changes").mockResolvedValueOnce(log).mockResolvedValue({ ...log, revision: 2, changes: [] });
