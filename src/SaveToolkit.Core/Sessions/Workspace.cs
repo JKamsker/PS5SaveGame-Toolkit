@@ -103,52 +103,67 @@ public sealed class Workspace : IDisposable
 
     /// <summary>Captures the initial response before publishing a candidate or replacing its clean predecessor.</summary>
     public DocumentSession Open(string fileId, string? pluginId, out DocumentViewSnapshot view)
+        => Open(fileId, pluginId, out view, CancellationToken.None);
+
+    /// <summary>Cancellation leaves an existing owner intact and disposes any unpublished candidate.</summary>
+    public DocumentSession Open(string fileId, string? pluginId, out DocumentViewSnapshot view, CancellationToken cancellationToken)
+    {
+        var opened = WithOwnershipLock(() =>
+        {
+            var session = OpenLocked(fileId, pluginId, out var initialView, cancellationToken);
+            return (Session: session, View: initialView);
+        }, cancellationToken);
+        view = opened.View;
+        return opened.Session;
+    }
+
+    private DocumentSession OpenLocked(string fileId, string? pluginId, out DocumentViewSnapshot view, CancellationToken cancellationToken)
     {
         var file = Set.FindById(fileId) ?? throw new KeyNotFoundException($"Unknown file '{fileId}'.");
         var plugin = pluginId is null
             ? Probe(file).FirstOrDefault()?.Plugin ?? throw new SaveFormatException("No plugin can open this file.")
             : _catalog.Find(pluginId) ?? throw new KeyNotFoundException($"Unknown plugin '{pluginId}'.");
 
-        lock (_openGate)
+        cancellationToken.ThrowIfCancellationRequested();
+        _groups.ThrowIfOwned(file.RelativePath);
+        var existing = _documents.Values.FirstOrDefault(d => d.File.Id == fileId);
+        if (existing is not null)
         {
-            ObjectDisposedException.ThrowIf(_disposed || _idleRetired, this);
-            _groups.ThrowIfOwned(file.RelativePath);
-            var existing = _documents.Values.FirstOrDefault(d => d.File.Id == fileId);
-            if (existing is not null)
+            if (existing.Plugin == plugin)
             {
-                if (existing.Plugin == plugin)
-                {
-                    view = existing.CaptureView();
-                    return existing;
-                }
-
-                if (existing.State.IsDirty)
-                {
-                    throw new InvalidOperationException("This file has unsaved edits in another plugin. Close that document first.");
-                }
+                view = existing.CaptureView();
+                cancellationToken.ThrowIfCancellationRequested();
+                return existing;
             }
 
-            // Reference packs are pinned per document: packs imported later only affect documents opened later.
-            var references = _packs?.Pin(plugin, file.Directory.TitleId) ?? ReferenceContext.None;
-            var document = plugin.Open(file, references);
-            DocumentSession? session = null;
-            try
+            if (existing.State.IsDirty)
             {
-                session = new DocumentSession($"doc{Interlocked.Increment(ref _documentCounter)}", file, plugin, document, references: references);
-                ThrowIfOutputPathOwned(session.OwnedOutputPaths, existing?.Id);
-                view = session.CaptureView();
-                if (existing is not null && !ReleaseCleanDocument(existing.Id))
-                    throw new InvalidOperationException("This file acquired unsaved edits while opening another plugin. No replacement was opened.");
+                throw new InvalidOperationException("This file has unsaved edits in another plugin. Close that document first.");
             }
-            catch (Exception failure) when (failure is not OutOfMemoryException)
-            {
-                SessionOpening.DisposeFailed(session is null ? document : session, failure);
-                throw;
-            }
-            _references[session.Id] = references;
-            _documents[session.Id] = session;
-            return session;
         }
+
+        // Reference packs are pinned per document: packs imported later only affect documents opened later.
+        var references = _packs?.Pin(plugin, file.Directory.TitleId) ?? ReferenceContext.None;
+        var document = plugin.Open(file, references);
+        DocumentSession? session = null;
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            session = new DocumentSession($"doc{Interlocked.Increment(ref _documentCounter)}", file, plugin, document, references: references);
+            ThrowIfOutputPathOwned(session.OwnedOutputPaths, existing?.Id);
+            view = session.CaptureView();
+            cancellationToken.ThrowIfCancellationRequested();
+            if (existing is not null && !ReleaseCleanDocument(existing.Id))
+                throw new InvalidOperationException("This file acquired unsaved edits while opening another plugin. No replacement was opened.");
+        }
+        catch (Exception failure) when (failure is not OutOfMemoryException)
+        {
+            SessionOpening.DisposeFailed(session is null ? document : session, failure);
+            throw;
+        }
+        _references[session.Id] = references;
+        _documents[session.Id] = session;
+        return session;
     }
 
     internal void ThrowIfOutputPathOwned(IReadOnlyList<string> paths, string? releasingDocumentId = null)
