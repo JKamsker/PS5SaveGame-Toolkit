@@ -119,6 +119,18 @@ def licence_rows(heading):
 
 
 class DocumentationTests(unittest.TestCase):
+    def test_action_effect_docs_distinguish_explicit_null_from_absence(self):
+        validation = source("src/SaveToolkit.Core/Editing/FieldMetadataPlanning.cs")
+        self.assertIn('Absent effect', validation)
+        self.assertIn('NullableSpec nullable => value.IsNull || ExactShape(value, nullable.Inner)', validation)
+        renderer_test = source("web/src/components/document/review/ActionPreviewEffects.test.tsx")
+        self.assertIn('oldValue: null, newValue: "null"', renderer_test)
+        self.assertIn('oldExists: true, newExists: true', renderer_test)
+        section = markdown_section(document("docs/PLUGIN_GUIDE.md"), "## Action-owned effect metadata")
+        self.assertNotRegex(section, r"use\s+`FieldValue.Null` only when")
+        self.assertIn("explicit null", section)
+        self.assertIn("NullableSpec", section)
+
     def test_current_action_effect_adoption_matches_production_documents(self):
         for path in (
             "plugins/Gearbox/SaveToolkit.Plugins.Gearbox/GearboxDocument.cs",
