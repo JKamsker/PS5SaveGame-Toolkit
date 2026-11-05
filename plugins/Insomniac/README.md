@@ -348,6 +348,12 @@ separate fixtures or real-sample runs for their distinct parser paths.
 
 ## Validation
 
+Round-3 sample-backed review adds `FullCorpusTraversalTests`: every matching
+sample (including backups/generations), all lazy descendants and F8 pages,
+unique collection row keys, live field getters, byte-identical no-op exports
+and re-opening each exported file. Traversal allocation/timing totals are
+diagnostics; these tests do not establish console acceptance or new write scope.
+
 Use the environment assignment and test command in the **same shell invocation**:
 
 ```powershell

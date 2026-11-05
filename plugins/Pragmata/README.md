@@ -470,14 +470,21 @@ clean rejections, so byte mutation does not imply coverage of every decrypted ty
 
 ## Validation and development
 
+Round-3 sample-backed review adds `FullCorpusTraversalTests`: every matching
+sample (including backups/generations), all lazy descendants and F8 pages,
+unique collection row keys, live field getters, byte-identical no-op exports
+and re-opening each exported file. Traversal allocation/timing totals are
+diagnostics; these tests do not establish console acceptance or new write scope.
+
 SDK-41 selection adoption, **2026-10-29**: production changes only declare the eager
 table's selection identity and bind the two sibling quantity toolbar controls to it.
 New synthetic declaration, opt-in `SelectionScopeFixture` and session regressions
 cover eager/F8 selection, meaningful Set/Restore staging, canonical/derived metadata,
 query exclusions, empty selection, matching-row budgets, pure preview, exact output
 and undo/redo. The advisory fixture explicitly distinguishes Passed, Failed and
-NotEvaluated; its 300-expansion limit includes the 251-row Raw tree. These new tests
-are authored but **not yet executed** in this implementation worker. Browser request
+NotEvaluated; its 300-expansion limit includes the 251-row Raw tree. These backend tests
+passed in the round-3 Release review with real samples (355 passed, no failures
+or skips). Browser request
 wiring and inactive-table behavior still require the dedicated integration smoke;
 backend scopes alone do not establish UI behavior. Existing software-validation
 results below are historical and do not validate this change.

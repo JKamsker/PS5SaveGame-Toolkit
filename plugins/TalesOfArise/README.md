@@ -434,6 +434,12 @@ reject cleanly; the fixture is parser coverage, not console acceptance evidence.
 
 ## Validation
 
+Round-3 sample-backed review adds `FullCorpusTraversalTests`: every matching
+sample (including backups/generations), all lazy descendants and F8 pages,
+unique collection row keys, live field getters, byte-identical no-op exports
+and re-opening each exported file. Traversal allocation/timing totals are
+diagnostics; these tests do not establish console acceptance or new write scope.
+
 SDK-41 inventory-selection adoption, **2026-10-29**: authored synthetic regressions
 in `AriseQuantitySelectionTests` for the published declaration, exact parameter and
 quantity-field identities, selected/unloaded rows, document fallback, query scopes,
