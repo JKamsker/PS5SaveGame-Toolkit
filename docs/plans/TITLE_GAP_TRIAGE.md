@@ -144,9 +144,10 @@ check ownership, capacity, projected identities and host candidate rollback.
 [Session tests](../../plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectSessionTests.cs)
 exercise production standalone imports and group import/deposit/withdraw/claim with authored BL3/TTWL
 fixtures: ordered effects, one undo/redo unit, complete-byte export/reopen and current bindings.
-These tests were read, not rerun in this documentation pass. The
-[synthetic browser suite](../../web/e2e/action-effects.e2e.ts) still intercepts responses;
-it does not establish a production Gearbox browser journey or native acceptance.
+These tests were read, not rerun in the original triage pass. The
+[browser suite](../../web/e2e/action-effects.e2e.ts) also includes eight production BL3/TTWL cases
+using [gearbox-action-effects.ts](../../web/e2e/gearbox-action-effects.ts), alongside a separate
+intercepted renderer case. Host/browser evidence does not establish native acceptance.
 
 ## GenericJson
 
