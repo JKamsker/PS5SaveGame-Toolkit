@@ -26,6 +26,8 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
     private readonly PragmataViews _views;
     private readonly QuantityActions _quantityActions;
     private byte[] _plaintext;
+    private IReadOnlyList<QueryableCollection>? _evidenceMetadata;
+    private IReadOnlyList<QueryableCollection>? _collectionMetadata;
 
     public SaveLayout Layout { get; }
     internal ReferenceReadouts References { get; }
@@ -33,7 +35,21 @@ internal sealed class PragmataDocument : ISaveDocument, IQueryableDocument, IAct
     internal InventoryCollections InventoryRows { get; }
     internal MissionReferences Missions { get; }
     internal ObservedEditBounds Bounds { get; }
-    public IReadOnlyList<QueryableCollection> Collections => InventoryRows.Enabled ? [InventoryRows.Metadata, .. Evidence.Metadata] : Evidence.Metadata;
+    public IReadOnlyList<QueryableCollection> Collections
+    {
+        get
+        {
+            var evidence = Evidence.Metadata;
+            if (!InventoryRows.Enabled) return evidence;
+            // The fixed-size inventory metadata is immutable; only evidence discovery changes this list.
+            if (!ReferenceEquals(evidence, _evidenceMetadata))
+            {
+                _evidenceMetadata = evidence;
+                _collectionMetadata = Array.AsReadOnly<QueryableCollection>([InventoryRows.Metadata, .. evidence]);
+            }
+            return _collectionMetadata!;
+        }
+    }
     public QueryableCollectionPage Query(string collectionId, QueryableCollectionQuery query) => collectionId == InventoryCollections.CollectionId
         ? InventoryRows.Query(query) : Evidence.Query(collectionId, query);
     public bool CanEdit => true;
