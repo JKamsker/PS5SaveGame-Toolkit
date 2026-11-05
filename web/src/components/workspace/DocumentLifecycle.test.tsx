@@ -1,5 +1,5 @@
 import { defaultScheduler, notifyManager, QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { api, ApiError } from "../../api/client";
@@ -111,7 +111,7 @@ it("blocks close while an edit is pending, then keeps the acknowledged dirty doc
   const edit = deferred<EditResult>(); vi.spyOn(api, "edit").mockReturnValue(edit.promise);
   const { close } = await mount();
   await act(async () => { fireEvent.click(screen.getByRole("switch", { name: "Flag" })); fireEvent.click(screen.getByRole("button", { name: "Close document" })); });
-  expect(screen.getByRole("alert").textContent).toMatch(/Wait for pending edits/);
+  expect(within(screen.getByRole("main")).getByRole("alert").textContent).toMatch(/Wait for pending edits/);
   expect(close).not.toHaveBeenCalled();
   await act(async () => { edit.resolve({ ok: true, changes: [{ valueId: "flag", oldValue: false, newValue: true }], warnings: [], errors: [],
     structureChanged: false, state: { ...clean, revision: 1, isDirty: true, canUndo: true } }); await edit.promise; });
@@ -132,7 +132,7 @@ it("retains selection and caches after close failure and permits one explicit re
   fireEvent.keyDown(window, { key: "z", ctrlKey: true, shiftKey: true });
   expect(redo).not.toHaveBeenCalled();
   await act(async () => { pending.reject(new ApiError("Could not close. Try again.", 503)); await pending.promise.catch(() => {}); });
-  expect((await screen.findByRole("alert")).textContent).toContain("Could not close");
+  expect((await within(screen.getByRole("main")).findByRole("alert")).textContent).toContain("Could not close");
   expect(screen.getByLabelText("Selection").textContent).toBe("?doc=old");
   expect(client.getQueryData(["document", "w", "old"])).toBeDefined();
   const retry = await screen.findByRole("button", { name: "Close document" });
@@ -162,7 +162,7 @@ it("releases the interaction guard when the same document is reselected during a
   expect(await screen.findByRole("heading", { name: "Document old" })).toBeTruthy();
   expect(screen.getByRole("article").hasAttribute("inert")).toBe(false);
   expect(screen.getByRole("button", { name: "Close document" })).toHaveProperty("disabled", false);
-  expect(screen.getByRole("alert").textContent).toBe("Retired close failure");
+  expect(within(screen.getByRole("main")).getByRole("alert").textContent).toBe("Retired close failure");
 });
 
 it.each(["success", "failure"])("keeps A protected across A → B → A until deferred close %s settles, preserving B", async outcome => {
@@ -217,7 +217,7 @@ it.each(["success", "failure"])("keeps A protected across A → B → A until de
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: /save.dat/ })); });
   if (outcome === "failure") {
     await screen.findByRole("heading", { name: "Document old" });
-    expect(screen.getByRole("alert").textContent).toMatch(/Close rejected/);
+    expect(within(screen.getByRole("main")).getByRole("alert").textContent).toMatch(/Close rejected/);
     expect(screen.getByRole("button", { name: "Close document" })).toHaveProperty("disabled", false);
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Close document" })); });
     expect(close).toHaveBeenCalledTimes(2);
