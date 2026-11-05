@@ -32,9 +32,14 @@ export function identities(report, rootDirectory = testDirectory) {
       for (const spec of suite.specs ?? []) {
         if (typeof spec.id !== "string" || !Array.isArray(spec.tests))
           throw new Error("E2E discovery returned a malformed test specification.");
+        const projects = new Set();
         for (const test of spec.tests) {
           if (!test || typeof test.projectName !== "string")
             throw new Error("E2E discovery returned a malformed test identity.");
+          // --repeat-each adds identical project records under one spec. Ownership is
+          // per registration, while the original CLI arguments still repeat execution.
+          if (projects.has(test.projectName)) continue;
+          projects.add(test.projectName);
           if (typeof spec.file !== "string") throw new Error("E2E discovery returned a malformed test file.");
           const sourceFile = spec.file.replaceAll("\\", "/");
           const relativeFile = path.isAbsolute(sourceFile)

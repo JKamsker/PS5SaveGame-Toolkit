@@ -1,4 +1,5 @@
-import { test, expect } from "@playwright/test";
+import { test } from "./preset-library-test";
+import { expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import { importSave, openJson, loadJson, originalSave } from "./helpers";
 
