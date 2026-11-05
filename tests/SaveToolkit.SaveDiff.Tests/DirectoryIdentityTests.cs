@@ -35,4 +35,16 @@ public sealed class DirectoryIdentityTests
         Assert.Equal(0, report.Before.Twins.Identical);
         Assert.Empty(report.Before.Twins.Mismatches);
     }
+
+    [Fact]
+    public void MovingBetweenLooseAndConsoleDirectoriesIsNotAnUnchangedFile()
+    {
+        using var before = Load(($"{Title}/SLOT/data.bin", [1]));
+        using var after = Load((Primary("data.bin"), [1]));
+        var report = SaveSetDiffer.Compare(before.Set, after.Set);
+        Assert.Equal(2, report.Files.Count);
+        Assert.Equal(1, report.Totals.Added);
+        Assert.Equal(1, report.Totals.Removed);
+        Assert.True(report.HasChanges);
+    }
 }
