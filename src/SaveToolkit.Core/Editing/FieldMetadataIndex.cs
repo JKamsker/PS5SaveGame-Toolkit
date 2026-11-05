@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
@@ -10,22 +11,18 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
     Action<IReadOnlyDictionary<string, FieldMetadata>>? admitSemantic = null, Action? publishSemantic = null)
 {
     internal const int BatchSize = 200;
-    private readonly Dictionary<string, FieldMetadata> _fields = new(StringComparer.Ordinal);
+    private ImmutableDictionary<string, FieldMetadata> _fields = ImmutableDictionary.Create<string, FieldMetadata>(StringComparer.Ordinal);
     private long? _maxMetadataBytes = maxMetadataBytes;
     public bool Enabled => document is IFieldMetadataDocument
         && (document is not SaveToolkit.Core.Sessions.Groups.StagedGroupDocument staged || staged.MetadataEnabled);
     public IEnumerable<string> Ids => _fields.Keys;
-    public void Clear() => _fields.Clear();
+    public void Clear() => _fields = _fields.Clear();
     internal void SetBudget(long? bytes) => _maxMetadataBytes = bytes;
     internal FieldMetadataIndex Copy(CancellationToken cancellationToken)
     {
         var copy = new FieldMetadataIndex(document, _maxMetadataBytes, admitSemantic, publishSemantic);
-        copy._fields.EnsureCapacity(_fields.Count);
-        foreach (var entry in _fields)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            copy._fields.Add(entry.Key, entry.Value);
-        }
+        cancellationToken.ThrowIfCancellationRequested();
+        copy._fields = _fields;
         return copy;
     }
     public FieldMetadata? Cached(string id) => _fields.GetValueOrDefault(id);
@@ -36,8 +33,8 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
         if (document is null || !Enabled) return [];
         var closure = PlanningMetadataAdmission.Resolve(document, ids, maximumIds, allowance, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
-        foreach (var id in ids) _fields.Remove(id);
-        foreach (var field in closure) _fields[field.ValueId] = field;
+        foreach (var id in ids) _fields = _fields.Remove(id);
+        foreach (var field in closure) _fields = _fields.SetItem(field.ValueId, field);
         return closure;
     }
 
@@ -69,8 +66,7 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
         var working = new Dictionary<string, FieldMetadata>(_fields, StringComparer.Ordinal);
         var retainedBytes = _maxMetadataBytes is null ? 0 : MetadataBytes(working.Values);
         ResolveAll(initial, working, ref retainedBytes, maxInitialIds, cancellationToken);
-        _fields.Clear();
-        foreach (var (id, field) in working) _fields.Add(id, field);
+        _fields = working.ToImmutableDictionary(StringComparer.Ordinal);
     }
 
     private void ResolveAll(IReadOnlyList<string> ids, Dictionary<string, FieldMetadata> cache,

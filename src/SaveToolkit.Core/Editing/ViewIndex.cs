@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Sdk.Collections;
@@ -14,42 +15,31 @@ public sealed class ViewIndex
     private readonly FieldMetadataIndex _metadata;
     public ViewIndex() : this(null) { }
     public ViewIndex(ISaveDocument? document) => _metadata = new FieldMetadataIndex(document);
-    private readonly Dictionary<string, FieldSpec> _specs = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, FieldNode> _fields = new(StringComparer.Ordinal);
-    private readonly HashSet<string> _annotationConflicts = new(StringComparer.Ordinal);
-    private readonly HashSet<string> _registeredFields = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, ActionNode> _actions = new(StringComparer.Ordinal);
-    private readonly HashSet<string> _lazyIds = new(StringComparer.Ordinal);
-    private readonly HashSet<string> _blobIds = new(StringComparer.Ordinal);
-    private readonly HashSet<string> _assetIds = new(StringComparer.Ordinal);
+    private ImmutableDictionary<string, FieldSpec> _specs = ImmutableDictionary.Create<string, FieldSpec>(StringComparer.Ordinal);
+    private ImmutableDictionary<string, FieldNode> _fields = ImmutableDictionary.Create<string, FieldNode>(StringComparer.Ordinal);
+    private ImmutableHashSet<string> _annotationConflicts = ImmutableHashSet.Create<string>(StringComparer.Ordinal);
+    private ImmutableHashSet<string> _registeredFields = ImmutableHashSet.Create<string>(StringComparer.Ordinal);
+    private ImmutableDictionary<string, ActionNode> _actions = ImmutableDictionary.Create<string, ActionNode>(StringComparer.Ordinal);
+    private ImmutableHashSet<string> _lazyIds = ImmutableHashSet.Create<string>(StringComparer.Ordinal);
+    private ImmutableHashSet<string> _blobIds = ImmutableHashSet.Create<string>(StringComparer.Ordinal);
+    private ImmutableHashSet<string> _assetIds = ImmutableHashSet.Create<string>(StringComparer.Ordinal);
     private readonly SelectionBindingIndex _selections = new();
 
     private ViewIndex(ViewIndex source, CancellationToken cancellationToken)
     {
         _metadata = source._metadata.Copy(cancellationToken);
         _selections = source._selections.Copy(cancellationToken);
-        Copy(source._specs, _specs, cancellationToken);
-        Copy(source._fields, _fields, cancellationToken);
-        foreach (var id in source._annotationConflicts)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            _annotationConflicts.Add(id);
-        }
-        foreach (var id in source._registeredFields)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            _registeredFields.Add(id);
-        }
-        Copy(source._actions, _actions, cancellationToken);
-        foreach (var (from, to) in new[] { (source._lazyIds, _lazyIds), (source._blobIds, _blobIds), (source._assetIds, _assetIds) })
-        {
-            to.EnsureCapacity(from.Count);
-            foreach (var id in from)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                to.Add(id);
-            }
-        }
+        // Immutable roots share unchanged entries. Rejected publications discard their new roots;
+        // successful publications retain rollback isolation without copying the accumulated view.
+        cancellationToken.ThrowIfCancellationRequested();
+        _specs = source._specs;
+        _fields = source._fields;
+        _annotationConflicts = source._annotationConflicts;
+        _registeredFields = source._registeredFields;
+        _actions = source._actions;
+        _lazyIds = source._lazyIds;
+        _blobIds = source._blobIds;
+        _assetIds = source._assetIds;
     }
 
     internal ViewIndex Copy(CancellationToken cancellationToken) => new(this, cancellationToken);
@@ -73,16 +63,6 @@ public sealed class ViewIndex
         TabsNode tabs => tabs.Tabs.All(tab => IsIndexNeutral(tab.Children)),
         _ => false,
     };
-
-    private static void Copy<T>(Dictionary<string, T> source, Dictionary<string, T> destination, CancellationToken cancellationToken)
-    {
-        destination.EnsureCapacity(source.Count);
-        foreach (var entry in source)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            destination.Add(entry.Key, entry.Value);
-        }
-    }
 
     /// <summary>Advisory selection-binding diagnostics for the currently indexed view, including loaded expansions/pages.</summary>
     public IReadOnlyList<string> SelectionDiagnostics => _selections.Diagnostics();
@@ -132,7 +112,7 @@ public sealed class ViewIndex
         if (field is not null)
         {
             RequireAgreement(valueId, field.Spec);
-            _registeredFields.Add(valueId);
+            _registeredFields = _registeredFields.Add(valueId);
         }
         return field;
     }
@@ -182,15 +162,15 @@ public sealed class ViewIndex
 
     public void Clear()
     {
-        _specs.Clear();
-        _fields.Clear();
-        _annotationConflicts.Clear();
-        _registeredFields.Clear();
+        _specs = _specs.Clear();
+        _fields = _fields.Clear();
+        _annotationConflicts = _annotationConflicts.Clear();
+        _registeredFields = _registeredFields.Clear();
         _metadata.Clear();
-        _actions.Clear();
-        _lazyIds.Clear();
-        _blobIds.Clear();
-        _assetIds.Clear();
+        _actions = _actions.Clear();
+        _lazyIds = _lazyIds.Clear();
+        _blobIds = _blobIds.Clear();
+        _assetIds = _assetIds.Clear();
         _selections.Clear();
     }
 
@@ -207,7 +187,7 @@ public sealed class ViewIndex
             case SectionNode s:
                 if (s.LazyId is { } lazy)
                 {
-                    _lazyIds.Add(lazy);
+                    _lazyIds = _lazyIds.Add(lazy);
                 }
                 else
                 {
@@ -230,16 +210,16 @@ public sealed class ViewIndex
 
                 if (_fields.TryGetValue(f.ValueId, out var learned) &&
                     (learned.Warning != f.Warning || learned.Confidence != f.Confidence || learned.Description != f.Description))
-                    _annotationConflicts.Add(f.ValueId);
+                    _annotationConflicts = _annotationConflicts.Add(f.ValueId);
 
                 if (Metadata(f.ValueId) is { } registered)
                 {
                     if (!FieldSpecMetadata.Agree(registered.Spec, f.Spec))
                         throw new InvalidOperationException($"Registered and rendered specs conflict for field '{f.ValueId}'.");
-                    _specs[f.ValueId] = registered.Spec;
+                    _specs = _specs.SetItem(f.ValueId, registered.Spec);
                 }
-                else _specs[f.ValueId] = f.Spec;
-                _fields[f.ValueId] = f;
+                else _specs = _specs.SetItem(f.ValueId, f.Spec);
+                _fields = _fields.SetItem(f.ValueId, f);
                 break;
             case FieldReferenceNode reference:
                 reference.Validate();
@@ -271,13 +251,13 @@ public sealed class ViewIndex
                 SpatialViewValidation.Validate(map);
                 break;
             case ActionNode a:
-                _actions[a.ActionId] = a;
+                _actions = _actions.SetItem(a.ActionId, a);
                 break;
             case HexNode h:
-                _blobIds.Add(h.BlobId);
+                _blobIds = _blobIds.Add(h.BlobId);
                 break;
             case ImageNode i:
-                _assetIds.Add(i.AssetId);
+                _assetIds = _assetIds.Add(i.AssetId);
                 break;
         }
     }
