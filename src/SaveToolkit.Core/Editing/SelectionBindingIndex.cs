@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SaveToolkit.Sdk.Views;
 using SaveToolkit.Sdk.Collections;
 
@@ -6,24 +7,14 @@ namespace SaveToolkit.Core.Editing;
 /// <summary>Tracks declarations without rejecting older or incompletely loaded plugin views.</summary>
 internal sealed class SelectionBindingIndex
 {
-    private readonly Dictionary<string, HashSet<ViewNode>> _tables = new(StringComparer.Ordinal);
-    private readonly HashSet<ActionNode> _actions = new(ReferenceEqualityComparer.Instance);
+    private ImmutableDictionary<string, ImmutableHashSet<ViewNode>> _tables =
+        ImmutableDictionary.Create<string, ImmutableHashSet<ViewNode>>(StringComparer.Ordinal);
+    private ImmutableHashSet<ActionNode> _actions = ImmutableHashSet.Create<ActionNode>(ReferenceEqualityComparer.Instance);
 
     internal SelectionBindingIndex Copy(CancellationToken cancellationToken)
     {
-        var copy = new SelectionBindingIndex();
-        foreach (var tables in _tables.Values)
-            foreach (var table in tables)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                copy.Add(table);
-            }
-        foreach (var action in _actions)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            copy.Add(action);
-        }
-        return copy;
+        cancellationToken.ThrowIfCancellationRequested();
+        return new SelectionBindingIndex { _tables = _tables, _actions = _actions };
     }
 
     public void Add(ViewNode node)
@@ -37,10 +28,10 @@ internal sealed class SelectionBindingIndex
         if (id is not null)
         {
             if (!_tables.TryGetValue(id, out var tables))
-                _tables.Add(id, tables = new(ReferenceEqualityComparer.Instance));
-            tables.Add(node);
+                tables = ImmutableHashSet.Create<ViewNode>(ReferenceEqualityComparer.Instance);
+            _tables = _tables.SetItem(id, tables.Add(node));
         }
-        if (node is ActionNode { SelectionTableId: not null } action) _actions.Add(action);
+        if (node is ActionNode { SelectionTableId: not null } action) _actions = _actions.Add(action);
     }
 
     public IReadOnlyList<string> Diagnostics() => _actions.SelectMany(action =>
@@ -55,7 +46,7 @@ internal sealed class SelectionBindingIndex
 
     public void Clear()
     {
-        _tables.Clear();
-        _actions.Clear();
+        _tables = _tables.Clear();
+        _actions = _actions.Clear();
     }
 }

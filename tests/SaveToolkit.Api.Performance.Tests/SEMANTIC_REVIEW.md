@@ -183,3 +183,57 @@ Skipped full-suite cases:
 - `SaveToolkit.Core.Tests.SyntheticFuzzConformanceTests.Probe_ClaimsSampleFiles`
 - `SaveToolkit.Core.Tests.SyntheticFuzzConformanceTests.Serialize_WithoutEdits_IsByteIdentical`
 - `SaveToolkit.Core.Tests.SyntheticFuzzConformanceTests.Open_BuildsValidSerializableView`
+
+## Lazy publication regression investigation (2026-11-05)
+
+`git bisect` between `84308ded` (good) and `a8e8c8a7` (bad) identifies
+`278a2a903970424a5da7d5f491d896da1e3de072`, **publish field reference views
+transactionally**, as the first bad commit. Its parent `e37bfc71` passes the
+synthetic complexity test and all eight isolated sample cases. Neither
+`SemanticReviewMeasurements` nor `ReviewSampleViews` changed between that parent
+and the bad main head.
+
+The transaction copied all accumulated view bindings on each lazy expansion or
+collection page publication. Field-bearing raw trees therefore incurred quadratic
+work. The later neutral-expansion optimization only covered empty/presentation
+output. The fix retains atomic response publication with structurally shared
+immutable maps/sets, including metadata and selection indexes. Rejected candidate
+roots remain isolated; existing rollback/annotation/publication tests still pass.
+
+`LazyExpansionComplexityTests` runs without samples and bounds allocation growth
+when doubling field-bearing expansions from 1,000 to 2,000. Before: 56,307,168 /
+223,285,528 bytes (3.97x, fails). After: 3,699,424 / 7,670,376 bytes (2.07x, passes).
+It measures expansion publication after initial root indexing; no wall-clock
+threshold gates CI.
+
+Isolated runs below include process startup/import/open/edit setup, unlike the
+warm review-only measurements above. Each process uses xUnit theory
+pre-enumeration and an exact display-name filter; a 120-second hard process-tree
+timeout stops runaway cases. All completed runs selected exactly one passing test.
+Times are diagnostic observations on a shared workstation with other tests running.
+
+| Case | Parent full / projection (s) | Bad main full / projection (s) | Fixed full / projection (s) |
+| --- | ---: | ---: | ---: |
+| Pragmata | 34.08 / 24.58 | >120 / >120 | 35.92 / 19.62 |
+| TalesOfArise | 15.15 / 13.02 | 64.37 / 16.88 | 17.54 / 11.33 |
+| FinalFantasy16 | 4.15 / 2.78 | 3.75 / 2.74 | 3.48 / 2.24 |
+| BaldursGate3 | 17.60 / 6.32 | >120 / 6.11 | 19.42 / 5.55 |
+
+The full sample-backed Performance project passes **72/72, zero skips**, in
+152.34 seconds (160.43 seconds including build/CLI startup). The recorded October
+29 project timings were 175.38, 116.09, 131.21 and 96.70 seconds. This restores the
+project to that range; the new synthetic bound provides the deterministic guard.
+
+With the scratch/sample environment from the README configured:
+
+```powershell
+dotnet test --project tests/SaveToolkit.Api.Performance.Tests -c Release --timeout 10m
+dotnet test --project tests/SaveToolkit.Core.Tests -c Release --filter-class '*LazyExpansionComplexityTests' --timeout 2m
+# Native xUnit runner: quote the complete display name as one argument.
+./tests/SaveToolkit.Api.Performance.Tests/bin/Release/net10.0/SaveToolkit.Api.Performance.Tests.exe -preEnumerateTheories -displayName 'SaveToolkit.Api.Performance.Tests.SemanticReviewMeasurements.RealQueryableReview(name: "Pragmata", title: "PPSA02530", projection: False)'
+```
+
+Use an external process-tree deadline around the native runner command. Evidence,
+bisect logs, individual xUnit reports, and timing JSON are under
+`D:/Temp/saveeditor/test-scratch/review-expand-perf/`. No private samples or
+extracted save contents are included in this change.
