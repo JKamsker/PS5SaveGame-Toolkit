@@ -145,6 +145,21 @@ class DocumentationTests(unittest.TestCase):
                 text = document(page)
                 self.assertIn("ActionEffectSessionTests.cs", text)
                 self.assertNotRegex(text, r"(?is)no production plugin.{0,50}implements")
+                self.assertNotRegex(text, r"(?is)browser (?:suite|journey) remains synthetic")
+
+    def test_action_effect_journeys_link_real_browser_acceptance(self):
+        browser = source("web/e2e/action-effects.e2e.ts")
+        self.assertIn("productionGearboxImport(page", browser)
+        self.assertIn("productionGearboxTransfers(page", browser)
+        for page in ("docs-site/guides/action-effects.md", "docs/plans/ROADMAP.md", "docs/PLUGIN_GUIDE.md"):
+            with self.subTest(page=page):
+                text = document(page)
+                self.assertIn("gearbox-action-effects.ts", text)
+                self.assertIn("375/768/1024/1440", text)
+                self.assertNotIn("proves renderer behavior only", text)
+        proposal = document("docs/plans/F13-FIELD-SPEC-PUBLISHING.md")
+        self.assertNotIn("Gearbox has not adopted", proposal)
+        self.assertIn("ActionEffectSessionTests.cs", proposal)
 
     def test_title_gap_triage_records_merged_bounded_tasks(self):
         triage = document("docs/plans/TITLE_GAP_TRIAGE.md")

@@ -47,7 +47,9 @@ below covers host preset-library transfer; transfer is separate from applying a 
 
 Typed effects have host/test-provider and synthetic renderer evidence, plus Gearbox's
 [production session tests](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectSessionTests.cs).
-The latter exercise the BL3/TTWL provider through the host; the browser suite remains synthetic.
+The latter exercise the BL3/TTWL provider through the host; the
+[browser suite](../guides/action-effects.md#what-is-demonstrated-today) adds eight real-provider
+BL3/TTWL cases alongside a separate synthetic renderer case.
 Neither establishes console acceptance.
 
 ## Local HTTP API · OpenAPI 3.1
