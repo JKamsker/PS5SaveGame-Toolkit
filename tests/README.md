@@ -38,6 +38,56 @@ xUnit runner; use the linked MTP configuration instead. See the
 [Stryker configuration reference](https://stryker-mutator.io/docs/stryker-net/configuration/)
 and [MTP configuration reference](https://learn.microsoft.com/en-us/dotnet/core/testing/microsoft-testing-platform-config).
 
+## Linux nightly reproduction
+
+The hosted zero-test failure was reproduced with the unchanged 5.0.0 tool in the clean
+`mcr.microsoft.com/dotnet/sdk:10.0` image (.NET SDK 10.0.403). The cause is solution-path
+configuration lookup, before MTP starts any test server. Stryker's
+[solution reader](https://github.com/stryker-mutator/stryker-net/blob/dotnet-stryker%405.0.0/src/Stryker.Solutions/SolutionFile.cs)
+indexes paths containing `..` but looks them up by canonical path on Linux. On a miss it
+uses solution platform `Any CPU` instead of project platform `AnyCPU`. Analysis then points
+to `bin/Any CPU/Release/net10.0`, while the solution build writes `bin/Release/net10.0`.
+The [native runner](https://github.com/stryker-mutator/stryker-net/blob/dotnet-stryker%405.0.0/src/Stryker.TestRunner.MicrosoftTestPlatform/MicrosoftTestingPlatformRunner.cs)
+skips a nonexistent assembly. Its final VSTest/unsupported-MTP message does not diagnose this.
+The target-framework warning also occurs on successful Windows runs because the framework
+comes from `Directory.Build.props`; neither that warning nor empty samples explains zero tests.
+
+The nightly workflow uses canonical absolute paths for the three temporary solution entries after `dotnet sln add`.
+Keep native MTP and Stryker 5.0.0; no adapter/version change is needed. To reproduce locally:
+
+1. Set Windows `TEMP`/`TMP` to a new D: scratch directory. Export tracked sources with
+   `git archive --format=tar --output=<scratch>/source.tar HEAD` (no samples or build outputs).
+2. Run `docker run --rm -it --mount type=bind,source=<checkout>,target=/source,readonly
+   --mount type=bind,source=<scratch>,target=/scratch mcr.microsoft.com/dotnet/sdk:10.0 bash`.
+3. In the container, extract the archive to `/scratch/repo`. Set `NUGET_PACKAGES=/scratch/packages`,
+   `TEMP`, `TMP`, `TMPDIR` to `/scratch/stryker`, `SAVETOOLKIT_TEST_TEMP=/scratch/stryker/tests`,
+   `SAVETOOLKIT_ARTIFACTS=/scratch/stryker/empty-samples`, and `TESTINGPLATFORM_PIPE_DIRECTORY=/tmp`.
+   Create those directories; use the workflow's MTP exclusion JSON and set
+   `SAVETOOLKIT_MUTATION_CONFIG=/scratch/stryker/mutation.testconfig.json`.
+4. From `/scratch/repo`, restore tools and run the workflow's temporary-solution setup,
+   including its absolute-path normalization and copies of `global.json` and the tool manifest.
+   Run from `/scratch/stryker`:
+
+   ```bash
+   dotnet stryker --config-file /scratch/stryker/stryker-config.json \
+     --solution /scratch/stryker/Stryker.slnx --project SaveToolkit.Sdk.csproj \
+     --mutate '**/*.cs' --output /scratch/stryker/output --skip-version-check --log-to-file
+   ```
+
+The workflow setup also copies `tests/stryker-config.json` into scratch and enables HTML reports.
+For a bounded SDK proof, use `--mutate '**/ActionPlans.cs'`. For Core, use
+`--project SaveToolkit.Core.csproj --mutate '**/Export/*.cs'`;
+the committed nightly keeps `**/*.cs` for both projects. To reproduce the original failure,
+omit only the absolute-path normalization. Inspect `output/reports/mutation-report.json`
+and confirm actual killed mutants, not merely a successful exit. After pushing an authorized
+branch, dispatch `nightly-stryker.yml` on that branch and verify both matrix jobs and their
+uploaded reports; local container success alone cannot establish hosted success.
+For a focused local ActionPlans run, the MTP configuration can additionally set
+`commandLineOptions.filter-class` to `["*.SdkHelpers.ActionPlans*"]`, as the existing
+`Invoke-Mutations.ps1 -Area ActionPlans` runner does. This bounds local proof time; it is
+not the nightly's test selection. Broad local runs can encounter workspace expiry assertion
+flakiness and preview-runner coverage relay timeouts; retain those diagnostics separately.
+
 The mutation score is `(Killed + Timeout) / (Killed + Timeout + Survived + NoCoverage)`.
 Compile-error and ignored mutants are excluded. Stryker's safe-mode compilation
 fallback excludes whole methods when generated mutations break definite assignment;

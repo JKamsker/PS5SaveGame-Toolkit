@@ -80,6 +80,16 @@ jobs:
             src/SaveToolkit.Sdk/SaveToolkit.Sdk.csproj `
             tests/SaveToolkit.Core.Tests/SaveToolkit.Core.Tests.csproj
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # Stryker 5.0.0 looks up project configuration by canonical path on Linux,
+          # but indexes relative solution paths without collapsing '..'. A missed
+          # lookup uses solution 'Any CPU' instead of project 'AnyCPU', so discovery
+          # looks in bin/Any CPU/Release while the solution builds bin/Release.
+          $solutionPath = "$env:MUTATION_SCRATCH/Stryker.slnx"
+          $solution = [xml](Get-Content -LiteralPath $solutionPath -Raw)
+          foreach ($project in $solution.Solution.Project) {
+            $project.Path = [IO.Path]::GetFullPath($project.Path, $env:MUTATION_SCRATCH)
+          }
+          $solution.Save($solutionPath)
           # Solution mode runs from scratch, with the same SDK and pinned local tools.
           Copy-Item global.json "$env:MUTATION_SCRATCH/global.json"
           Copy-Item .config/dotnet-tools.json "$env:MUTATION_SCRATCH/dotnet-tools.json"

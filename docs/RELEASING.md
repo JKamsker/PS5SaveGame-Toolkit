@@ -140,6 +140,13 @@ from a temporary three-project solution (Core, SDK and Core.Tests), created with
 reference inclusion disabled. This bounds test discovery to Core.Tests; referenced plugin test
 projects still build normally but do not join mutation test execution. Scratch also receives
 copies of `global.json` and the tool manifest so SDK/tool selection stays pinned in solution mode.
+The temporary solution's project paths are canonical absolute paths. Stryker 5.0.0's
+[solution configuration lookup](https://github.com/stryker-mutator/stryker-net/blob/dotnet-stryker%405.0.0/src/Stryker.Solutions/SolutionFile.cs)
+does not collapse `..` when indexing Linux solution entries. Relative entries can lose the
+project's `AnyCPU` mapping and analyze `bin/Any CPU/Release` while the solution builds
+`bin/Release`. Native MTP then skips the missing assembly and reports zero tests; its final
+VSTest/unsupported-MTP advice is misleading. Keep this normalization even when relocating scratch.
+See [the Linux reproduction and runner notes](../tests/README.md#linux-nightly-reproduction).
 The existing optional Core-test MTP configuration link excludes allocation, API-hosting,
 mutation-fuzz, conformance, save-mutation, scratch and documentation test classes from this
 sweep; ordinary CI retains them. No private samples are downloaded: `SAVETOOLKIT_ARTIFACTS`

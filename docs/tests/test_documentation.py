@@ -502,6 +502,8 @@ class DocumentationTests(unittest.TestCase):
                          "timeout-minutes: 90", "fail-fast: false", "project: [Core, Sdk]",
                          "tests/SaveToolkit.Core.Tests/SaveToolkit.Core.Tests.csproj", "dotnet tool restore",
                          "--include-references false", "working-directory: ${{ runner.temp }}/stryker",
+                         "[IO.Path]::GetFullPath($project.Path, $env:MUTATION_SCRATCH)",
+                         "$solution.Save($solutionPath)", "--mutate '**/*.cs'",
                          f"Restore pinned Stryker.NET {version}", "tests/stryker-config.json",
                          "@('progress', 'html', 'json')", "SAVETOOLKIT_ARTIFACTS=$scratch/empty-samples",
                          "GITHUB_STEP_SUMMARY", "/stryker/output/**", "retention-days: 3"):
@@ -511,6 +513,9 @@ class DocumentationTests(unittest.TestCase):
             self.assertNotIn(fragment, workflow)
         for fragment in ("01:47 UTC", "90-minute timeout", "3-day retention", f"Stryker.NET {version}"):
             self.assertIn(fragment, releasing)
+        for text in (releasing, document("tests/README.md")):
+            for fragment in ("canonical absolute paths", "AnyCPU", "bin/Any CPU/Release", "bin/Release"):
+                self.assertIn(fragment, text)
 
     def test_coverage_platforms_and_nightly_fuzz_match_workflows(self):
         workflow = document(".github/workflows/ci.yml")
