@@ -25,7 +25,20 @@ internal sealed class ContentDisposition
 
     public string? FileName => Decoded("filename");
 
-    public string? FileNameStar => Raw("filename*") is { } value && TryDecode5987(value, out var decoded) ? decoded : null;
+    /// <exception cref="ArgumentNullException">
+    /// A valueless <c>filename*</c> parameter: ContentDispositionHeaderValue throws the same exception, which both hosts
+    /// report as a 400 with its message.
+    /// </exception>
+    public string? FileNameStar
+    {
+        get
+        {
+            var parameter = _parameters.FirstOrDefault(p => string.Equals(p.Key, "filename*", StringComparison.OrdinalIgnoreCase));
+            if (parameter.Key is null) return null;
+            if (parameter.Value is null) throw new ArgumentNullException("value");
+            return TryDecode5987(parameter.Value, out var decoded) ? decoded : null;
+        }
+    }
 
     public bool IsFile => DispositionType == "form-data" && (!string.IsNullOrEmpty(FileName) || !string.IsNullOrEmpty(FileNameStar));
 

@@ -36,8 +36,8 @@ internal static class HttpSyntax
                 continue;
             }
 
+            // Like HttpRuleParser, bare CR/LF inside a quoted string are allowed (multipart part headers can carry them).
             if (c == '"') return index + 1 - start;
-            if (c is '\r' or '\n') return 0;
             index++;
         }
 

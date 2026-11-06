@@ -124,6 +124,11 @@ public sealed class HttpPrimitiveDifferentialTests
 
     public static TheoryData<string, string> MultipartBodies => new()
     {
+        // Review round 2: bare LF inside quoted part-header values, and a valueless filename* parameter.
+        { "multipart/form-data; boundary=b", "--b\r\nContent-Disposition: form-data; name=\"files\"; filename=\"a\nb.dat\"\r\n\r\nabc\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\nContent-Disposition: form-data; name=\"name\"\r\nContent-Type: text/plain; x=\"1\n2\"; charset=iso-8859-1\r\n\r\n\u00e9\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\nContent-Disposition: form-data; name=\"files\"; filename=\"a.dat\"; filename*\r\n\r\nabc\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\nContent-Disposition: attachment; name=\"files\"; filename*\r\n\r\nabc\r\n--b--" },
         { "multipart/form-data; boundary=b", "--b\r\nContent-Disposition: form-data; name=\"files\"; filename=\"a.zip\"\r\n\r\nabc\r\n--b--" },
         { "multipart/form-data; boundary=\"b\"", "pre\r\n--b \t\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\nNamed\r\n--b\r\nContent-Disposition: form-data; name=\"f\"; filename=\"x\"\r\nContent-Type: text/plain\r\n\r\nline1\r\nline2\r\n--b--\r\nepilogue" },
         { "multipart/form-data; boundary=b", "--b\r\nContent-Disposition: form-data; name=\"f\"; filename=\"\"\r\n\r\nvalue\r\n--b--" },

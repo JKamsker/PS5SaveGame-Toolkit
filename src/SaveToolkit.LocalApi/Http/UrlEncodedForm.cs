@@ -16,6 +16,8 @@ internal static class UrlEncodedForm
     {
         var encoding = Charsets.FormEncoding(contentType);
         // UTF-8 and ASCII take the byte decoder; other encodings decode first and unescape the text.
+        // Known divergence: for UTF-16/UTF-32 bodies over 4 KiB, ASP.NET's FormReader can drop an empty pair that
+        // straddles its first buffer refill; this reader keeps it. Unobservable at the API (uploads need file parts).
         var bytewise = ReferenceEquals(encoding, Encoding.UTF8) || ReferenceEquals(encoding, Encoding.ASCII);
         ReadOnlySpan<byte> equals = bytewise ? "="u8 : encoding.GetBytes("=");
         ReadOnlySpan<byte> and = bytewise ? "&"u8 : encoding.GetBytes("&");
