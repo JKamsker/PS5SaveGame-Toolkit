@@ -40,7 +40,8 @@ test("a German browser gets invariant number formatting from the runtime", async
 async function workerLanguages(workers: Worker[]): Promise<{ language: string; grouped: string }> {
   for (const worker of workers) {
     const probe = await worker.evaluate(() => ({
-      runtime: (globalThis as { name?: string }).name === "savetoolkit-runtime",
+      // runtimeWorkerName (web/src/runtime/persistentChanges.ts): "savetoolkit-runtime <tab nonce>".
+      runtime: /^savetoolkit-runtime( |$)/.test((globalThis as { name?: string }).name ?? ""),
       language: navigator.language,
       grouped: new Intl.NumberFormat().format(1056),
     })).catch(() => null);
