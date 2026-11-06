@@ -112,8 +112,9 @@ what another tab saved. `web/src/runtime/persistence.ts` prevents that:
   the mount with a sentinel time; afterwards, entries still carrying it (and the same node) get their
   stored time back, and all others count as changed and get a time strictly after the stored one
   (`web/src/runtime/idbfsTree.ts`).
-- **Reads** of presets and reference packs (their routes, a document's preset routes and opening a
-  document) after such an announcement reload the mount under a shared lock first, so another tab's
+- **Reads** of presets and reference packs (their routes, a document's preset routes, and opening a
+  document or a document group or proposing groups, which pin the current packs) after such an
+  announcement reload the mount under a shared lock first, so another tab's
   save is visible on the next such request once the announcement has arrived (milliseconds later). They
   wait at most 1 s for the lock: while another tab holds it (a long import, a frozen tab) they answer
   from the cached view, keep it marked stale and do not wait again until the lock is next granted. Other reads

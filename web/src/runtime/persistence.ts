@@ -101,12 +101,29 @@ export function writesDurableData(method: string, url: string): boolean {
 }
 
 /**
- * Whether a read shows presets or reference packs (so it is worth refreshing them first): their own
- * routes, a document's preset routes, and opening a document (which pins the current packs).
+ * Every LocalApi route (src/SaveToolkit.LocalApi/Endpoints) that reads the preset library or the reference
+ * packs, so another tab's saves must be loaded first. A route missing here would answer from (and pin)
+ * this tab's outdated view; `persistence.routes.test.ts` checks the list against the C# route table.
  */
+const DURABLE_READ_ROUTES: readonly RegExp[] = [
+  // PresetRoutes: the library, its reload and transfers (PresetStore, PresetTransferService).
+  /^\/api\/presets(?:\/|$)/,
+  // ReferenceRoutes: the installed packs (ReferencePackStore).
+  /^\/api\/reference-packs(?:\/|$)/,
+  // PresetRoutes under a document: list, preview, apply, capture and transfer compatibility.
+  /^\/api\/workspaces\/[^/]+\/documents\/[^/]+\/presets(?:\/|$)/,
+  // Workspace.Open pins the current packs to the new document (ReferencePackStore.Pin).
+  /^\/api\/workspaces\/[^/]+\/files\/[^/]+\/open\/?$/,
+  // Workspace.ProposeGroups validates each proposal with pinned packs (DocumentGroupRegistry.Pin).
+  /^\/api\/workspaces\/[^/]+\/files\/[^/]+\/group-proposals\/?$/,
+  // Workspace.OpenGroup pins the current packs to the new group document (DocumentGroupRegistry.Pin).
+  /^\/api\/workspaces\/[^/]+\/document-groups\/?$/,
+];
+
+/** Whether a request reads presets or reference packs (so it is worth refreshing them first). */
 export function readsDurableData(url: string): boolean {
   const path = (url.split(/[?#]/, 1)[0] ?? "").toLowerCase();
-  return /\/(presets|reference-packs)(\/|$)/.test(path) || /\/open\/?$/.test(path);
+  return DURABLE_READ_ROUTES.some(route => route.test(path));
 }
 
 class LockUnavailableError extends Error {}
