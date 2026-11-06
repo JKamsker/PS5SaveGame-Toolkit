@@ -134,6 +134,8 @@ test("a runtime crash during an edit fails the pending request, explains the los
   await expect(editFailure).toBeVisible();
   const runtimeAlert = page.getByRole("alert").filter({ hasText: "The editor runtime stopped unexpectedly." });
   await expect(runtimeAlert).toContainText("lost with it");
+  // The detail is the worker's own report of the stop (web/src/runtime/dotnetBoot.ts onExit), not a fabrication.
+  await expect(runtimeAlert).toContainText("The .NET runtime exited with code 1.");
   await apiSettled(page);
   expect(failed.filter(request => request.startsWith("POST ") && request.endsWith("/edits"))).toHaveLength(1);
   await expect(coinsField(page)).toHaveValue(editedCoins);
