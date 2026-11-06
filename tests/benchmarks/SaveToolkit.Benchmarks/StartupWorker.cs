@@ -25,7 +25,8 @@ internal static class StartupWorker
                 return new { plugin.Info.Id, measurement, result.IsMatch, result.Score };
             }).ToArray();
             var heapBefore = RetainedBytes();
-            var packsMeasurement = Measure(() => new ReferencePackStore(catalog.Plugins), out var packs);
+            // Packs are validated on first need; LoadErrors validates all of them, as construction once did.
+            var packsMeasurement = Measure(() => { var store = new ReferencePackStore(catalog.Plugins); _ = store.LoadErrors; return store; }, out var packs);
             var retainedPackBytes = RetainedBytes() - heapBefore;
             if (packs.Packs.Count == 0 || packs.LoadErrors.Count != 0)
                 throw new InvalidOperationException("Embedded pack loading was incomplete or rejected a pack.");

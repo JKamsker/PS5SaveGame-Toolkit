@@ -95,6 +95,28 @@ public sealed class LocalApiHostTests
         Assert.True(Directory.Exists(Path.Combine(root, "presets")));
     }
 
+    [Fact]
+    public async Task Idle_work_validates_reference_packs_without_changing_responses()
+    {
+        LocalApiHost ItemsHost() => new(new LocalApiOptions
+        {
+            DataRoot = ParityHosts.TempDir(), SweepInterval = null, Catalog = new PluginCatalog([new ItemsPlugin()]),
+        });
+        using var onDemand = ItemsHost();
+        var idle = ItemsHost();
+        var steps = 0;
+        while (idle.RunIdleWork()) steps++;
+
+        Assert.True(steps > 1);
+        Assert.False(idle.RunIdleWork());
+        var expected = await SendAsync(onDemand, "GET", "/api/reference-packs");
+        var actual = await SendAsync(idle, "GET", "/api/reference-packs");
+        Assert.Equal(200, actual.Status);
+        Assert.Equal(Encoding.UTF8.GetString(expected.Body), Encoding.UTF8.GetString(actual.Body));
+        idle.Dispose();
+        Assert.Throws<ObjectDisposedException>(() => idle.RunIdleWork());
+    }
+
     private static LocalApiHost Host(LocalApiOptions? options = null)
     {
         options ??= new LocalApiOptions { DataRoot = ParityHosts.TempDir(), SweepInterval = null };
