@@ -22,3 +22,20 @@ export function decodeFrame(frame: Uint8Array): { status: number; headers: Heade
   return { status: head.status, headers, bodyOffset: frame.byteOffset + bodyOffset };
 }
 
+/** Builds a frame in the same layout, for responses the worker answers itself. */
+export function encodeFrame(status: number, headers: HeaderPairs, body: Uint8Array = new Uint8Array()): Uint8Array {
+  const head = new TextEncoder().encode(JSON.stringify({ status, headers }));
+  const frame = new Uint8Array(4 + head.byteLength + body.byteLength);
+  new DataView(frame.buffer).setUint32(0, head.byteLength, true);
+  frame.set(head, 4);
+  frame.set(body, 4 + head.byteLength);
+  return frame;
+}
+
+/** A problem+json frame shaped like the API's own problems (`title`, `detail`, legacy `error`). */
+export function problemFrame(status: number, title: string, detail: string): Uint8Array {
+  const body = { type: "about:blank", title, status, detail, error: detail };
+  return encodeFrame(status, [["Content-Type", "application/problem+json"], ["Cache-Control", "no-cache,no-store"]],
+    new TextEncoder().encode(JSON.stringify(body)));
+}
+

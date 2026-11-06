@@ -4,11 +4,13 @@
 //
 // Environment:
 //   SAVETOOLKIT_SKIP_WASM_BUILD=1     reuse an existing public/_framework (fails if missing)
-//   SAVETOOLKIT_WASM_PUBLISH_DIR      publish output directory (default: <tmp>/savetoolkit-wasm-publish)
+//   SAVETOOLKIT_WASM_PUBLISH_DIR      publish output directory, emptied first (default: a fresh
+//                                     <tmp>/savetoolkit-wasm-publish-* folder per run, removed afterwards,
+//                                     so concurrent builds of other checkouts never delete each other's output)
 //   SAVETOOLKIT_DOTNET_ARTIFACTS      passed to dotnet as --artifacts-path (isolates obj/bin)
 //   DOTNET                            dotnet executable (default: dotnet on PATH)
 import { spawnSync } from "node:child_process";
-import { cp, mkdir, readdir, rm, stat } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readdir, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -30,21 +32,29 @@ if (process.env.SAVETOOLKIT_SKIP_WASM_BUILD === "1") {
   process.exit(0);
 }
 
-const publishDir = process.env.SAVETOOLKIT_WASM_PUBLISH_DIR ?? join(tmpdir(), "savetoolkit-wasm-publish");
+const configuredDir = process.env.SAVETOOLKIT_WASM_PUBLISH_DIR;
+const publishDir = configuredDir ?? await mkdtemp(join(tmpdir(), "savetoolkit-wasm-publish-"));
 const args = ["publish", project, "--configuration", "Release", "--output", publishDir, "--nologo"];
 if (process.env.SAVETOOLKIT_DOTNET_ARTIFACTS) args.push("--artifacts-path", process.env.SAVETOOLKIT_DOTNET_ARTIFACTS);
-await rm(publishDir, { recursive: true, force: true });
-console.log(`dotnet ${args.join(" ")}`);
-const result = spawnSync(process.env.DOTNET ?? "dotnet", args, { stdio: "inherit", env: { DOTNET_CLI_TELEMETRY_OPTOUT: "1", DOTNET_NOLOGO: "1", ...process.env } });
-if (result.error) throw result.error;
-if (result.status !== 0) process.exit(result.status ?? 1);
-
-const source = join(publishDir, "wwwroot", "_framework");
-if (!await exists(join(source, "dotnet.js"))) throw new Error(`Publish did not produce ${source}/dotnet.js.`);
-await rm(target, { recursive: true, force: true });
-await mkdir(target, { recursive: true });
-// Keep raw files (fallback) and .gz siblings (decompressed by the worker); static hosts cannot negotiate .br.
-await cp(source, target, { recursive: true, filter: file => !file.endsWith(".br") });
+try {
+  if (configuredDir) await rm(publishDir, { recursive: true, force: true });
+  console.log(`dotnet ${args.join(" ")}`);
+  const result = spawnSync(process.env.DOTNET ?? "dotnet", args, { stdio: "inherit", env: { DOTNET_CLI_TELEMETRY_OPTOUT: "1", DOTNET_NOLOGO: "1", ...process.env } });
+  if (result.error) throw result.error;
+  if (result.status !== 0) process.exitCode = result.status ?? 1;
+  else {
+    const source = join(publishDir, "wwwroot", "_framework");
+    if (!await exists(join(source, "dotnet.js"))) throw new Error(`Publish did not produce ${source}/dotnet.js.`);
+    await rm(target, { recursive: true, force: true });
+    await mkdir(target, { recursive: true });
+    // Keep raw files (fallback) and .gz siblings (decompressed by the worker); static hosts cannot negotiate .br.
+    await cp(source, target, { recursive: true, filter: file => !file.endsWith(".br") });
+  }
+} finally {
+  // Only the per-run folder is ours to delete; a configured one is left for inspection.
+  if (!configuredDir) await rm(publishDir, { recursive: true, force: true });
+}
+if (process.exitCode) process.exit(process.exitCode);
 const files = await readdir(target);
 let raw = 0, gzip = 0;
 for (const file of files) {

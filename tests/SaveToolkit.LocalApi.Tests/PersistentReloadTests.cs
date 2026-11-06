@@ -4,6 +4,8 @@ using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.Tests.Fakes;
 using SaveToolkit.Core.Tests.References;
 using SaveToolkit.LocalApi.Tests.Parity;
+using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Saves;
 
 namespace SaveToolkit.LocalApi.Tests;
 
@@ -89,7 +91,7 @@ public sealed class PersistentReloadTests
         LocalApiHost FailingHost(Func<Exception, string>? describe) => new(new LocalApiOptions
         {
             DataRoot = ParityHosts.TempDir(), SweepInterval = null, DescribeUnexpectedError = describe,
-            Catalog = new PluginCatalog([new FuzzPlugin { ThrowDuring = "view", Failure = () => new OutOfMemoryException() }]),
+            Catalog = new PluginCatalog([new ExhaustedPlugin()]),
         });
         using var shared = FailingHost(null);
         using var browser = FailingHost(exception => $"described {exception.GetType().Name}");
@@ -99,7 +101,7 @@ public sealed class PersistentReloadTests
         Assert.Equal(500, expected.Status);
         Assert.Equal(500, actual.Status);
         Assert.Equal("Unexpected server error. See the server log for details.", Detail(expected));
-        Assert.Equal("described OutOfMemoryException", Detail(actual));
+        Assert.Equal("described InsufficientMemoryException", Detail(actual));
     }
 
     private static async Task<LocalResponse> OpenFailingDocumentAsync(LocalApiHost host)
@@ -140,6 +142,14 @@ public sealed class PersistentReloadTests
         body.Write(content);
         body.Write("\r\n--x--\r\n"u8);
         return ("multipart/form-data; boundary=x", body.ToArray());
+    }
+
+    /// <summary>Claims every file, then fails to open it the way an exhausted WebAssembly heap does.</summary>
+    private sealed class ExhaustedPlugin : IGamePlugin
+    {
+        public PluginInfo Info { get; } = new("test.exhausted", "Exhausted heap", "1.0.0");
+        public ProbeResult Probe(ISaveFile file) => ProbeResult.Match(ProbeScore.Title);
+        public ISaveDocument Open(ISaveFile file) => throw new InsufficientMemoryException();
     }
 
     /// <summary>Shared durable roots with a private workspace root per host, like tabs of one site.</summary>

@@ -5,8 +5,10 @@
  * The worker runs requests one at a time, in order. A request aborted before the worker starts it is
  * dropped (a cancel message removes it from the worker's queue); one already running completes in the
  * worker, but its caller sees an AbortError immediately and the late result is discarded (the same
- * observable semantics as an aborted network fetch).
+ * observable semantics as an aborted network fetch). `events.onStart` reports when the worker begins a
+ * request, so callers can exclude the time spent queued behind earlier requests from their deadlines.
  */
+import { isOutOfMemory } from "./failures";
 import type { BootInfo, FromWorker, HeaderPairs, ToWorker, WireRequest } from "./protocol";
 
 export type RuntimeState =
@@ -14,8 +16,22 @@ export type RuntimeState =
   | { status: "ready"; boot: BootInfo }
   | { status: "failed"; message: string };
 
+/** Lifecycle callbacks for one request. */
+export interface RequestEvents {
+  /** The worker began executing the request, after any requests queued ahead of it finished. */
+  onStart?(): void;
+}
+
+/** A failure the runtime reported for one request (not a lost or unresponsive worker). */
+export class RuntimeRequestError extends TypeError {
+  constructor(message: string, readonly outOfMemory: boolean) {
+    super(message);
+    this.name = "RuntimeRequestError";
+  }
+}
+
 export interface RuntimeClient {
-  fetch(url: string, init?: RequestInit): Promise<Response>;
+  fetch(url: string, init?: RequestInit, events?: RequestEvents): Promise<Response>;
   state(): RuntimeState;
   subscribe(listener: () => void): () => void;
   /** Starts the runtime if needed and resolves once it has booted. */
@@ -27,6 +43,7 @@ interface Pending {
   resolve: (response: Response) => void;
   reject: (error: unknown) => void;
   settled: boolean;
+  onStart?: () => void;
 }
 
 const abortError = () => new DOMException("The request was aborted.", "AbortError");
@@ -36,7 +53,7 @@ const nullBodyStatus = new Set([101, 103, 204, 205, 304]);
 export function createRuntimeClient(createWorker: () => Worker, frameworkUrl: string): RuntimeClient {
   const client = new WorkerRuntimeClient(createWorker, frameworkUrl);
   return {
-    fetch: (url, init) => client.fetch(url, init),
+    fetch: (url, init, events) => client.fetch(url, init, events),
     state: () => client.current,
     subscribe: listener => client.subscribe(listener),
     ready: signal => client.ready(signal),
@@ -52,7 +69,7 @@ class WorkerRuntimeClient {
 
   constructor(private readonly createWorker: () => Worker, private readonly frameworkUrl: string) {}
 
-  async fetch(url: string, init: RequestInit = {}): Promise<Response> {
+  async fetch(url: string, init: RequestInit = {}, events: RequestEvents = {}): Promise<Response> {
     const signal = init.signal;
     if (signal?.aborted) throw abortError();
     this.start();
@@ -63,7 +80,7 @@ class WorkerRuntimeClient {
     if (state.status === "failed") throw new TypeError(state.message);
     const request: WireRequest = { id: this.nextId++, method: (init.method ?? "GET").toUpperCase(), url, headers, body };
     return new Promise<Response>((resolve, reject) => {
-      const pending: Pending = { id: request.id, resolve, reject, settled: false };
+      const pending: Pending = { id: request.id, resolve, reject, settled: false, onStart: events.onStart };
       this.pending.set(request.id, pending);
       signal?.addEventListener("abort", () => {
         if (!this.pending.delete(request.id)) return;
@@ -120,19 +137,22 @@ class WorkerRuntimeClient {
     this.setState({ status: "failed", message });
     const pending = [...this.pending.values()];
     this.pending.clear();
-    for (const request of pending) settle(request, () => request.reject(new TypeError(message)));
+    // A worker killed by an exhausted heap: say so for the request that triggered it.
+    const error = () => isOutOfMemory(message) ? new RuntimeRequestError(message, true) : new TypeError(message);
+    for (const request of pending) settle(request, () => request.reject(error()));
   }
 
   private receive(message: FromWorker) {
     if (message.type === "progress") this.setState({ status: "loading", loaded: message.loaded, total: message.total, starting: message.starting });
     else if (message.type === "ready") this.setState({ status: "ready", boot: message.boot });
     else if (message.type === "failed") this.fail(message.message);
+    else if (message.type === "started") this.pending.get(message.id)?.onStart?.();
     else {
       // A missing entry was aborted by its caller; its late result is ignored.
       const finished = this.pending.get(message.id);
       if (!finished) return;
       this.pending.delete(message.id);
-      if (message.type === "error") settle(finished, () => finished.reject(new TypeError(message.message)));
+      if (message.type === "error") settle(finished, () => finished.reject(new RuntimeRequestError(message.message, message.outOfMemory === true)));
       else settle(finished, () => finished.resolve(toResponse(message.status, message.headers, message.frame, message.bodyOffset)));
     }
   }

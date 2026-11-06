@@ -250,8 +250,8 @@ system temp directory unless `Toolkit:DataRoot` is configured. The browser app k
 memory and presets/packs in IndexedDB; see [user storage guidance](USER_GUIDE.md#where-your-data-lives).
 
 Building the static site adds its own outputs. `npm run build:wasm` publishes `src/SaveToolkit.Browser`
-to `<temp>/savetoolkit-wasm-publish` (following `TEMP`/`TMPDIR`; override with
-`SAVETOOLKIT_WASM_PUBLISH_DIR`), copies about 100 MB of runtime files into the git-ignored
+to a fresh `<temp>/savetoolkit-wasm-publish-*` folder per run, removed afterwards (following
+`TEMP`/`TMPDIR`; override with `SAVETOOLKIT_WASM_PUBLISH_DIR`, which is emptied first and kept), copies about 100 MB of runtime files into the git-ignored
 `web/public/_framework`, and Vite copies them again into `web/dist`. The native relink keeps
 intermediate objects in the project's `obj/` (or `SAVETOOLKIT_DOTNET_ARTIFACTS`, passed to `dotnet` as
 `--artifacts-path`, which also isolates concurrent builds). The `wasm-tools` workload itself

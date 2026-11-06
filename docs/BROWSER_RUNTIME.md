@@ -38,16 +38,23 @@ and bodies apply unchanged.
 | `Initialize(optionsJson)` | Loads the plugin assemblies, creates the `LocalApiHost` and returns boot info JSON: version, plugin IDs and assemblies that failed to load. Options name the session and persistent roots. |
 | `DispatchAsync(method, url, headersJson, body)` | Runs one request and returns an integer handle. Headers are a JSON array of `[name, value]` pairs; `url` is the percent-encoded path and query. |
 | `TakeResponse(handle)` | Removes and returns the framed response for a handle (source-generated interop cannot return `Task<byte[]>`). |
+| `ReloadPersistent()` | Makes the preset and reference-pack stores re-read their files after the worker reloaded the persistent mount (see [Persistence](#persistence)); returns an error message or an empty string. |
 
 A response frame (`WireFormat.cs`, decoded by `web/src/runtime/framing.ts`) is a 4-byte
 little-endian length N, then N bytes of UTF-8 JSON `{ "status": 200, "headers": [[name, value], ...] }`,
 then the raw body. The worker transfers the frame buffer to the page without copying it again.
 Unhandled host failures become a `500` problem+json frame; a request before initialization gets `503`.
+There is no server log in the browser, so the host replaces the shared "See the server log" detail of
+unexpected `500`s (`LocalApiOptions.DescribeUnexpectedError`) with one that points at the developer
+console, or says the runtime ran out of memory; status and problem shape are unchanged.
 
 Worker messages (`web/src/runtime/protocol.ts`): the page sends `boot`, `request` and `cancel`; the
-worker answers with `progress`, `ready`, `failed`, `response` and `error`. A request aborted before the
-worker starts it is dropped; one already running completes, and its late result is discarded, matching
-an aborted network fetch.
+worker answers with `progress`, `ready`, `failed`, `started`, `response` and `error`. A request aborted
+before the worker starts it is dropped; one already running completes, and its late result is
+discarded, matching an aborted network fetch. `started` marks the moment a request leaves the worker's
+queue: `fetchApi` starts its deadline (60 s, 5 min for transfers) there, so a read queued behind a long
+import does not time out; only the queue wait itself is capped, at 30 minutes. An `error` whose cause
+is an exhausted heap carries `outOfMemory`, and the UI then says so instead of "did not respond".
 
 ## Plugin discovery
 
@@ -63,12 +70,39 @@ rebuilding the static site includes it. An assembly that fails to load is logged
 | Data | Location in the worker | Lifetime |
 | --- | --- | --- |
 | Workspaces (imports, sessions, history, exports) | `/savetoolkit/session` on Emscripten's in-memory file system | The tab. Reloading or closing it discards them; export first. |
-| Presets and reference packs | `/savetoolkit/persist` mounted as IDBFS | IndexedDB of the site's origin. Flushed after every non-GET request. |
+| Presets and reference packs | `/savetoolkit/persist` mounted as IDBFS | IndexedDB of the site's origin, shared by all its tabs. Flushed before a mutation answers. |
 
-Without IndexedDB (some private windows, blocked storage) the persistent root stays in memory and boot
-info reports `persistent: false`. Storage is per origin: the hosted build, a local preview and a
-release archive served on another port each have their own presets and packs. Idle workspaces are
-swept between requests with the same timeout as the Api host, so all work stays serialized.
+Without IndexedDB (some private windows, blocked storage) the persistent root stays in memory, boot
+info reports `persistent: false` and the UI shows a banner that presets and packs will not survive a
+reload. Storage is per origin: the hosted build, a local preview and a release archive served on another
+port each have their own presets and packs. Idle workspaces are swept between requests with the same
+timeout as the Api host, so all work stays serialized.
+
+Every tab has its own in-memory copy of the mount, and `FS.syncfs(false)` mirrors that whole copy onto
+IndexedDB, deleting entries the copy lacks. A tab flushing a stale copy would therefore delete or revert
+what another tab saved. `web/src/runtime/persistence.ts` prevents that:
+
+- **Durable mutations** (every non-GET request except workspace routes; a workspace's `presets/*`
+  routes are included because capture saves a preset) run under an exclusive
+  [Web Lock](https://developer.mozilla.org/docs/Web/API/Web_Locks_API) shared by all tabs. Inside it the
+  worker reloads the mount from IndexedDB (`syncfs(true)`); if the `.generation` marker differs from the
+  one this tab last saw, `ReloadPersistent()` makes the .NET stores re-read their files
+  (`LocalApiHost.ReloadPersistentStores`). Then the request runs and, only if the tree changed, the
+  worker writes a new generation, flushes and announces the change on a `BroadcastChannel`.
+- **Reads** after such an announcement reload the mount under a shared lock first, so another tab's save
+  is visible on the next request once the announcement has arrived (milliseconds later). Until then a
+  read may be stale, but a write never is: it always reloads under the lock first.
+- **A failed flush** (for example `QuotaExceededError`) is never a silent success: the worker reloads
+  what IndexedDB really holds, so this tab's stores match it, and answers `507 Insufficient Storage`
+  (`503` for other storage errors) as problem+json that the UI shows. A request that failed anyway keeps
+  its own error. If IndexedDB cannot be read before a mutation, or another tab holds the lock for more
+  than 30 s, the mutation is refused with `503` without running.
+- Without Web Locks (an insecure `http://` origin other than localhost, or an old browser) the same
+  reload/flush sequence runs unserialized; boot info reports `tabCoordination: false` and the UI asks
+  the user to change presets and packs in one tab at a time.
+
+Boot info also lists plugin assemblies that failed to load (`failedAssemblies`); the UI shows them in
+the same non-blocking banner.
 
 ## Startup
 
@@ -126,5 +160,8 @@ The browser cannot be exercised by every backend test, so correctness is anchore
   fails CI.
 - `web/src/runtime/client.test.ts` covers frame decoding and the worker client: multipart
   serialization, ordering, cancellation, boot failure and `Response` reconstruction.
+  `web/src/runtime/persistence.test.ts` models tabs sharing one IndexedDB (concurrent saves, reloads
+  after another tab's save, quota failures), and `tests/SaveToolkit.LocalApi.Tests/PersistentReloadTests.cs`
+  checks that reloaded stores never write a stale view back.
 - The CI `e2e` job builds `web/dist` (runtime included) and runs the Playwright suites against
   `vite preview`, exercising the real WebAssembly runtime in Chromium with no API process.

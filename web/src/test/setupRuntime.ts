@@ -8,8 +8,8 @@ import type { RuntimeClient } from "../runtime/client";
  */
 vi.mock("../runtime", () => {
   const runtime: RuntimeClient = {
-    fetch: (url, init) => globalThis.fetch(url, init),
-    state: () => ({ status: "ready", boot: { version: "0.0.0-test", plugins: [], failedAssemblies: [], persistent: false, elapsedMs: 0, initializeMs: 0 } }),
+    fetch: (url, init, events) => { events?.onStart?.(); return globalThis.fetch(url, init); },
+    state: () => ({ status: "ready", boot: { version: "0.0.0-test", plugins: [], failedAssemblies: [], persistent: true, tabCoordination: true, elapsedMs: 0, initializeMs: 0 } }),
     subscribe: () => () => undefined,
     ready: () => Promise.resolve(),
   };

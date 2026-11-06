@@ -9,6 +9,11 @@ export interface BootInfo {
   failedAssemblies: string[];
   /** False when IndexedDB is unavailable and presets/reference packs only live for this page. */
   persistent: boolean;
+  /**
+   * True when Web Locks serialize preset and reference-pack writes across tabs. Without them (an
+   * insecure origin or an old browser) tabs of the same site could overwrite each other's saves.
+   */
+  tabCoordination: boolean;
   /** Total boot time in the worker, from importing dotnet.js to a ready API host. */
   elapsedMs: number;
   /** Part of `elapsedMs` spent creating the API host (plugin discovery, embedded reference data). */
@@ -33,8 +38,11 @@ export type ToWorker =
 
 export type FromWorker =
   | { type: "progress"; loaded: number; total: number; starting?: boolean }
+  /** The worker began executing the request (it left the queue); request deadlines start here. */
+  | { type: "started"; id: number }
   | { type: "ready"; boot: BootInfo }
   | { type: "failed"; message: string }
   /** `frame` is the whole framed response (transferred); the body starts at `bodyOffset`. */
   | { type: "response"; id: number; status: number; headers: HeaderPairs; frame: ArrayBuffer; bodyOffset: number }
-  | { type: "error"; id: number; message: string };
+  /** `outOfMemory` marks failures caused by an exhausted WebAssembly heap or buffer allocation. */
+  | { type: "error"; id: number; message: string; outOfMemory?: boolean };

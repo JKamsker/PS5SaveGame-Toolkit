@@ -1,4 +1,6 @@
 import { runtime } from "../runtime";
+// Not from "../runtime": component tests replace that module with a fetch-backed stand-in.
+import { RuntimeRequestError } from "../runtime/client";
 
 export class ApiError extends Error {
   constructor(message: string, readonly status: number, readonly body?: unknown) {
@@ -9,11 +11,21 @@ export class ApiError extends Error {
 const REQUEST_TIMEOUT_MS = 60_000;
 // Imports/exports may process hundreds of MiB after transfer completes.
 export const TRANSFER_TIMEOUT_MS = 5 * 60_000;
+/**
+ * Deadlines start when the worker begins a request; this only bounds the wait behind earlier requests
+ * (several queued imports), so a runtime stuck on one request cannot leave the others pending forever.
+ */
+export const QUEUE_WAIT_LIMIT_MS = 30 * 60_000;
 
 export const networkMessage = "The in-browser editor runtime did not respond. Reload the page and try again.";
 export const runtimeFailedMessage = "The editor runtime could not be loaded in this browser. Reload the page to try again.";
 export const timeoutMessage = "The request timed out. Check the current state before retrying.";
 export const cancelledMessage = "The request was cancelled. Check the current state before retrying.";
+export const outOfMemoryMessage = "The in-browser editor ran out of memory. Import fewer or smaller files at a time and "
+  + "close workspaces you no longer need. If the editor stops responding, reload the page.";
+export const runtimeErrorMessage = (detail: string) =>
+  `The in-browser editor runtime failed while handling the request${detail ? ` (${detail})` : ""}. `
+  + "If it keeps happening, export your work and reload the page.";
 
 /** Only use intentional API messages, never a proxy's HTML or a plain-text exception page. */
 export function responseError(status: number, body: unknown): ApiError {
@@ -42,7 +54,8 @@ export async function readJson(response: Response): Promise<unknown> {
 
 /**
  * All `/api` traffic is answered by the in-browser runtime (see runtime/client.ts), never the network.
- * The deadline starts once the runtime has booted and includes consuming the body. Mutations are never replayed here.
+ * The deadline starts once the worker begins the request (time queued behind earlier requests does not
+ * count, up to QUEUE_WAIT_LIMIT_MS) and includes consuming the body. Mutations are never replayed here.
  */
 export async function fetchApi<T>(path: string, init: RequestInit | undefined,
   read: (response: Response) => Promise<T>, timeout = REQUEST_TIMEOUT_MS): Promise<T> {
@@ -52,13 +65,18 @@ export async function fetchApi<T>(path: string, init: RequestInit | undefined,
   const cancel = () => controller.abort(init?.signal?.reason);
   if (init?.signal?.aborted) cancel();
   else init?.signal?.addEventListener("abort", cancel, { once: true });
-  const timer = setTimeout(() => { timedOut = true; controller.abort(); }, timeout);
+  const expire = () => { timedOut = true; controller.abort(); };
+  let timer = setTimeout(expire, QUEUE_WAIT_LIMIT_MS);
+  const onStart = () => { clearTimeout(timer); timer = setTimeout(expire, timeout); };
   try {
-    const response = await runtime.fetch(`/api${path}`, { ...init, signal: controller.signal });
+    const response = await runtime.fetch(`/api${path}`, { ...init, signal: controller.signal }, { onStart });
     return await read(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
-    throw new ApiError(timedOut ? timeoutMessage : controller.signal.aborted ? cancelledMessage : networkMessage, 0);
+    if (timedOut) throw new ApiError(timeoutMessage, 0);
+    if (controller.signal.aborted) throw new ApiError(cancelledMessage, 0);
+    if (error instanceof RuntimeRequestError) throw new ApiError(error.outOfMemory ? outOfMemoryMessage : runtimeErrorMessage(error.message), 0);
+    throw new ApiError(networkMessage, 0);
   } finally {
     clearTimeout(timer);
     init?.signal?.removeEventListener("abort", cancel);

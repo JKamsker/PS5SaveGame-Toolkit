@@ -1,7 +1,7 @@
 // @vitest-environment node
 // Node supplies a coherent fetch/FormData/File stack (jsdom's File is opaque to undici's Request).
-import { describe, expect, it } from "vitest";
-import { createRuntimeClient } from "./client";
+import { describe, expect, it, vi } from "vitest";
+import { createRuntimeClient, RuntimeRequestError } from "./client";
 import { decodeFrame } from "./framing";
 import type { FromWorker, ToWorker, WireRequest } from "./protocol";
 
@@ -29,7 +29,7 @@ class FakeWorker {
   }
 }
 
-const boot = { version: "1.0.0", plugins: ["builtin.raw"], failedAssemblies: [], persistent: true, elapsedMs: 5, initializeMs: 1 };
+const boot = { version: "1.0.0", plugins: ["builtin.raw"], failedAssemblies: [], persistent: true, tabCoordination: true, elapsedMs: 5, initializeMs: 1 };
 const flush = () => new Promise(resolve => setTimeout(resolve, 0));
 
 function setup() {
@@ -170,4 +170,34 @@ it("runtime client: forwards only headers the caller set, never browser-managed 
   void client.fetch("/api/reference-packs/p1", { method: "DELETE", headers: { "If-Match": "\"3\"", Origin: "https://evil.example", "Sec-Fetch-Site": "cross-site" } });
   await flush();
   expect(worker.requests()[0]!.headers).toEqual([["if-match", "\"3\""]]);
+});
+
+it("runtime client: reports when the worker starts a request, only for live requests", async () => {
+  const { worker, client } = setup();
+  worker.emit({ type: "ready", boot });
+  const onStart = vi.fn();
+  const pending = client.fetch("/api/a", {}, { onStart });
+  await flush();
+  expect(onStart).not.toHaveBeenCalled();
+  const id = worker.requests()[0]!.id;
+  worker.emit({ type: "started", id });
+  expect(onStart).toHaveBeenCalledOnce();
+  worker.reply(worker.requests()[0]!, 200, "1");
+  await pending;
+  worker.emit({ type: "started", id });
+  expect(onStart).toHaveBeenCalledOnce();
+});
+
+it("runtime client: marks runtime failures, including out-of-memory ones", async () => {
+  const { worker, client } = setup();
+  worker.emit({ type: "ready", boot });
+  const exhausted = client.fetch("/api/workspaces", { method: "POST" });
+  const crashed = client.fetch("/api/b");
+  await flush();
+  worker.emit({ type: "error", id: worker.requests()[0]!.id, message: "Out of memory", outOfMemory: true });
+  await expect(exhausted).rejects.toMatchObject({ name: "RuntimeRequestError", outOfMemory: true });
+  worker.onerror?.({ message: "Uncaught RangeError: Array buffer allocation failed" } as ErrorEvent);
+  const error = await crashed.catch((failure: unknown) => failure);
+  expect(error).toBeInstanceOf(RuntimeRequestError);
+  expect(error).toMatchObject({ outOfMemory: true });
 });

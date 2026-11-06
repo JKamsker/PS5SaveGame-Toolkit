@@ -201,6 +201,7 @@
 }
 .runtime-status p { margin: 0; flex-basis: 100%; }
 .runtime-status--failed { background: var(--danger-soft); color: var(--danger); border-bottom-color: var(--danger); }
+.runtime-status--warning { background: var(--modified-soft); }
 .runtime-status__detail { color: var(--ink-soft); overflow-wrap: anywhere; }
 .runtime-status__bar {
   flex: 1 1 160px;
