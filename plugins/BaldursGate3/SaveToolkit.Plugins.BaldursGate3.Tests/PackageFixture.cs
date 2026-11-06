@@ -74,6 +74,7 @@ internal static class PackageFixture
     internal static byte[] Compress(byte[] bytes, byte method, bool framed = false)
     {
         using var output = new MemoryStream();
+        method &= 0x0F; // The high nibble is the recompression level flag; the reader ignores it.
         if (method == 0)
         {
             return bytes;

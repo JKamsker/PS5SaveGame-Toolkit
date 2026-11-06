@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 using SaveToolkit.Core.Plugins;
@@ -32,6 +33,7 @@ internal static class BrowserHost
     public static WireBootInfo Initialize(WireInitOptions options)
     {
         if (_boot is not null) return _boot;
+        UseInvariantCulture();
         var failed = PluginLoader.LoadAll(PluginManifest.AssemblyNames, message => Console.Error.WriteLine(message));
         var catalog = PluginCatalog.Discover();
         var dataRoot = string.IsNullOrWhiteSpace(options.DataRoot) ? DefaultDataRoot : options.DataRoot;
@@ -56,6 +58,23 @@ internal static class BrowserHost
         _ = RunIdleWorkAsync(_host);
         _boot = new WireBootInfo(Version, [.. catalog.Plugins.Select(p => p.Info.Id).Order(StringComparer.Ordinal)], failed);
         return _boot;
+    }
+
+    /// <summary>
+    /// The WebAssembly runtime takes its default culture from the browser language, so culture-
+    /// sensitive plugin text (for example <c>ToString("N0")</c> stats) would read "9.434.752" in a
+    /// German browser. An Api response never depends on the viewer's browser (it formats with its
+    /// own process culture, invariant on the CI and container hosts), so use the invariant culture
+    /// here, before any plugin code runs. The process defaults cover every later request; current
+    /// values are set too because this thread may already have resolved the browser culture.
+    /// </summary>
+    internal static void UseInvariantCulture()
+    {
+        var invariant = CultureInfo.InvariantCulture;
+        CultureInfo.DefaultThreadCurrentCulture = invariant;
+        CultureInfo.DefaultThreadCurrentUICulture = invariant;
+        CultureInfo.CurrentCulture = invariant;
+        CultureInfo.CurrentUICulture = invariant;
     }
 
     public static async Task<byte[]> DispatchAsync(string method, string url, string headersJson, byte[] body)

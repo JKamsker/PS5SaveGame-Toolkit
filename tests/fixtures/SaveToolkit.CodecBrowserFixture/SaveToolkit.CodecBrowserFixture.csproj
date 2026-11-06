@@ -9,11 +9,14 @@
     <Compile Include="../../../plugins/Witcher3/SaveToolkit.Plugins.Witcher3.Tests/SyntheticSave.cs" Link="Witcher3/SyntheticSave.cs" />
     <Compile Include="../../../plugins/Witcher3/SaveToolkit.Plugins.Witcher3.Tests/SyntheticPlayerSave.cs" Link="Witcher3/SyntheticPlayerSave.cs" />
     <Compile Include="../../../plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3.Tests/PackageFixture.cs" Link="BaldursGate3/PackageFixture.cs" />
+    <Compile Include="../../../plugins/Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077.Tests/CsavCorruptionFixture.cs" Link="Cyberpunk2077/CsavCorruptionFixture.cs" />
+    <Compile Include="../../../plugins/Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077.Tests/SyntheticFactsSave.cs" Link="Cyberpunk2077/SyntheticFactsSave.cs" />
   </ItemGroup>
   <ItemGroup>
     <!-- The native plugins produce the expected edited bytes the browser runtime must reproduce exactly. -->
     <ProjectReference Include="../../../plugins/Witcher3/SaveToolkit.Plugins.Witcher3/SaveToolkit.Plugins.Witcher3.csproj" />
     <ProjectReference Include="../../../plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3/SaveToolkit.Plugins.BaldursGate3.csproj" />
+    <ProjectReference Include="../../../plugins/Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077/SaveToolkit.Plugins.Cyberpunk2077.csproj" />
     <ProjectReference Include="../../../src/SaveToolkit.Testing/SaveToolkit.Testing.csproj" />
   </ItemGroup>
 </Project>
