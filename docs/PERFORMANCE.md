@@ -140,7 +140,7 @@ output-directory behavior, so the check never removes or rewrites output.
 | MapView.js | 2141 | 2350 |
 | SpatialShared.js | 1787 | 1970 |
 | SpatialShared.css | 911 | 1010 |
-| worker.js | 5315 | 5850 |
+| worker.js | 6066 | 6670 |
 
 The preset-transfer follow-up adds explicit lazy import/export dialogs and shared native-modal
 code/styles. These new chunks load only on the corresponding toolbar action; the existing
@@ -174,6 +174,9 @@ data (IndexedDB reconnection), bounded read-lock waits and the hung-mutation wat
 developed alongside to 5315; its limit is now **5850** (10% headroom). Refreshing cached images after
 changes that alter them (reference-pack imports in any tab, document edits, closes) grew
 `WorkspacePage.js`, which holds the image cache, to 7350 gzip bytes; its limit is now **8090** (10% headroom).
+An all-or-nothing IndexedDB flush (replacing IDBFS' partial commit after a failed write) and releasing
+the storage lock when the runtime stops mid-mutation, together with the runtime work merged alongside,
+grew `worker.js` to 6066 gzip bytes; its limit is now **6670** (10% headroom).
 
 CI `validate` runs `npm run check:bundle` immediately after its production build on **both Ubuntu
 and Windows**. Synthetic Vitest regressions cover shared imports/cycles, lazy JS/CSS, aggregate

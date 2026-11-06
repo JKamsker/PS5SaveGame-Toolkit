@@ -68,6 +68,11 @@ export interface Persistence {
   readonly coordinated: boolean;
   /** Runs one request; mutations of durable data are serialized across tabs and flushed. */
   run(method: string, url: string, dispatch: () => Promise<Uint8Array>): Promise<Uint8Array>;
+  /**
+   * The runtime stopped: a stopped .NET runtime never settles the dispatch in flight, so stop waiting for
+   * it (releasing the cross-tab lock now rather than after the watchdog) and never touch storage again.
+   */
+  stop(reason: string): void;
 }
 
 const LOCK_NAME = "savetoolkit-persistent-storage";
@@ -84,7 +89,7 @@ export interface CoordinatorTiming {
 }
 
 /** Without persistence (no IndexedDB) every request simply runs. */
-export const memoryOnly: Persistence = { coordinated: false, run: (_method, _url, dispatch) => dispatch() };
+export const memoryOnly: Persistence = { coordinated: false, run: (_method, _url, dispatch) => dispatch(), stop: () => {} };
 
 /**
  * Whether a request may write presets or reference packs. Workspaces live in the session root, so only
@@ -101,17 +106,37 @@ export function writesDurableData(method: string, url: string): boolean {
 }
 
 /**
- * Whether a read shows presets or reference packs (so it is worth refreshing them first): their own
- * routes, a document's preset routes, and opening a document (which pins the current packs).
+ * Every LocalApi route (src/SaveToolkit.LocalApi/Endpoints) that reads the preset library or the reference
+ * packs, so another tab's saves must be loaded first. A route missing here would answer from (and pin)
+ * this tab's outdated view; `persistence.routes.test.ts` checks the list against the C# route table.
  */
+const DURABLE_READ_ROUTES: readonly RegExp[] = [
+  // PresetRoutes: the library, its reload and transfers (PresetStore, PresetTransferService).
+  /^\/api\/presets(?:\/|$)/,
+  // ReferenceRoutes: the installed packs (ReferencePackStore).
+  /^\/api\/reference-packs(?:\/|$)/,
+  // PresetRoutes under a document: list, preview, apply, capture and transfer compatibility.
+  /^\/api\/workspaces\/[^/]+\/documents\/[^/]+\/presets(?:\/|$)/,
+  // Workspace.Open pins the current packs to the new document (ReferencePackStore.Pin).
+  /^\/api\/workspaces\/[^/]+\/files\/[^/]+\/open\/?$/,
+  // Workspace.ProposeGroups validates each proposal with pinned packs (DocumentGroupRegistry.Pin).
+  /^\/api\/workspaces\/[^/]+\/files\/[^/]+\/group-proposals\/?$/,
+  // Workspace.OpenGroup pins the current packs to the new group document (DocumentGroupRegistry.Pin).
+  /^\/api\/workspaces\/[^/]+\/document-groups\/?$/,
+];
+
+/** Whether a request reads presets or reference packs (so it is worth refreshing them first). */
 export function readsDurableData(url: string): boolean {
   const path = (url.split(/[?#]/, 1)[0] ?? "").toLowerCase();
-  return /\/(presets|reference-packs)(\/|$)/.test(path) || /\/open\/?$/.test(path);
+  return DURABLE_READ_ROUTES.some(route => route.test(path));
 }
 
 class LockUnavailableError extends Error {}
 
-/** A mutation's dispatch never settled: this tab's runtime is unusable and must not touch storage again. */
+/**
+ * A mutation's dispatch never settled, or the runtime stopped (aborted, exited, trapped): this tab's
+ * runtime is unusable and must not touch storage again.
+ */
 export class RuntimeHungError extends Error {
   override name = "RuntimeHungError";
 }
@@ -129,6 +154,8 @@ export class PersistenceCoordinator implements Persistence {
   /** A read found the lock held: later reads do not wait for it until a lock is granted again. */
   private lockBusy = false;
   private hung: RuntimeHungError | null = null;
+  /** Rejects the dispatch the running mutation waits for (it holds the exclusive lock until then). */
+  private readonly inFlight = new Set<(error: RuntimeHungError) => void>();
   private readonly timing: CoordinatorTiming;
 
   constructor(private readonly storage: PersistentStorage, private readonly tabs: TabCoordination,
@@ -219,6 +246,8 @@ export class PersistenceCoordinator implements Persistence {
       return problemFrame(503, "Service Unavailable", "Browser storage could not be read, so presets and reference "
         + "packs were not changed. Reload the page and try again.");
     }
+    // The runtime stopped while the tree was reloading: its dispatch would never settle (or fail).
+    if (this.hung) throw this.hung;
     const changes = this.storage.trackChanges();
     let frame: Uint8Array;
     try {
@@ -288,10 +317,21 @@ export class PersistenceCoordinator implements Persistence {
     return true;
   }
 
-  /** Rejects with RuntimeHungError (releasing the lock) when `dispatch` outlives the watchdog. */
+  stop(reason: string) {
+    this.hung ??= new RuntimeHungError(reason);
+    for (const abandon of [...this.inFlight]) abandon(this.hung);
+  }
+
+  /**
+   * Rejects with RuntimeHungError (releasing the lock) when `dispatch` outlives the watchdog, or at once
+   * when the runtime stops meanwhile.
+   */
   private watch(dispatch: Promise<Uint8Array>): Promise<Uint8Array> {
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let abandon: ((error: RuntimeHungError) => void) | undefined;
     const watchdog = new Promise<never>((_, reject) => {
+      abandon = reject;
+      this.inFlight.add(reject);
       timer = setTimeout(() => {
         this.hung = new RuntimeHungError(`The editor runtime did not finish a change to presets or reference packs within `
           + `${Math.round(this.timing.mutationWatchdogMs / 60_000)} minutes and was stopped, so other tabs can save again. `
@@ -300,7 +340,10 @@ export class PersistenceCoordinator implements Persistence {
         reject(this.hung);
       }, this.timing.mutationWatchdogMs);
     });
-    return Promise.race([dispatch, watchdog]).finally(() => clearTimeout(timer));
+    return Promise.race([dispatch, watchdog]).finally(() => {
+      clearTimeout(timer);
+      if (abandon) this.inFlight.delete(abandon);
+    });
   }
 
   private async locked<T>(mode: LockMode, task: () => Promise<T>, waitMs?: number): Promise<T> {

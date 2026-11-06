@@ -94,6 +94,79 @@ export async function verifyMirrored(idbfs: IdbfsSets, mountpoint: string): Prom
     + `(${differing.slice(0, 3).join(", ")}${differing.length > 3 ? ", ..." : ""}).`);
 }
 
+/** A side of an IDBFS sync, as `getLocalSet`/`getRemoteSet` list it. */
+export interface ReconcileSet extends EntrySet {
+  type: "local" | "remote";
+  db?: IDBDatabase;
+}
+
+/** The IDBFS internals `FS.syncfs` uses to apply a difference. */
+export interface IdbfsReconcile {
+  DB_STORE_NAME: string;
+  reconcile(src: ReconcileSet, dst: ReconcileSet, callback: (error: unknown) => void): void;
+  loadLocalEntry(path: string, callback: (error: unknown, entry?: unknown) => void): void;
+}
+
+/**
+ * Makes `syncfs(false)` all or nothing. Emscripten's IDBFS (3.1.56, shipped with .NET 10) calls
+ * `preventDefault()` on every failed put or delete, which keeps the transaction from aborting: it
+ * reports the error at once but still commits the other writes, possibly including a new `.generation`.
+ * The worker would then tell the user the change was not saved while IndexedDB holds part of it, which
+ * its revert (and other tabs) load. This flush aborts the transaction on any failure and reports only
+ * once the transaction has ended, so IndexedDB holds either the whole tree or what it held before.
+ * Loading (`syncfs(true)`, which writes the in-memory tree) keeps IDBFS' own reconcile.
+ */
+export function makeFlushAtomic(idbfs: IdbfsReconcile): void {
+  const reconcile = idbfs.reconcile.bind(idbfs);
+  idbfs.reconcile = (src, dst, callback) => {
+    if (dst.type !== "remote" || !dst.db) return reconcile(src, dst, callback);
+    flushAtomically(idbfs, src, dst.db, dst.entries, callback);
+  };
+}
+
+function flushAtomically(idbfs: IdbfsReconcile, src: ReconcileSet, db: IDBDatabase, stored: EntrySet["entries"],
+  callback: (error: unknown) => void) {
+  const create = Object.keys(src.entries).filter(path => {
+    const entry = stored[path];
+    return !entry || millis(entry.timestamp) !== millis(src.entries[path]!.timestamp);
+  }).sort();
+  // Files before their directories.
+  const remove = Object.keys(stored).filter(path => !src.entries[path]).sort().reverse();
+  if (!create.length && !remove.length) return callback(null);
+  let transaction: IDBTransaction;
+  try {
+    transaction = db.transaction([idbfs.DB_STORE_NAME], "readwrite");
+  } catch (error) {
+    return callback(error);
+  }
+  let failure: unknown;
+  let ended = false;
+  const end = (error: unknown) => {
+    if (ended) return;
+    ended = true;
+    callback(error);
+  };
+  const fail = (error: unknown) => {
+    failure ??= error ?? new Error("IndexedDB refused a write.");
+    try { transaction.abort(); } catch { /* already aborting */ }
+  };
+  // A failed request aborts the transaction by default (its error event is not cancelled here).
+  transaction.oncomplete = () => end(failure ?? null);
+  transaction.onabort = () => end(failure ?? transaction.error ?? new Error("The IndexedDB transaction was aborted."));
+  const store = transaction.objectStore(idbfs.DB_STORE_NAME);
+  const send = (request: () => IDBRequest) => {
+    if (failure !== undefined) return;
+    try {
+      const pending = request();
+      pending.onerror = () => { failure ??= pending.error ?? new Error("IndexedDB refused a write."); };
+    } catch (error) {
+      fail(error);
+    }
+  };
+  for (const path of create) idbfs.loadLocalEntry(path, (error, entry) => error ? fail(error) : send(() => store.put(entry, path)));
+  for (const path of remove) send(() => store.delete(path));
+}
+
 /** One cached IndexedDB connection of IDBFS (an `IDBDatabase`). */
 export interface DatabaseConnection {
   close(): void;
