@@ -232,6 +232,8 @@ export class PersistenceCoordinator implements Persistence {
   }
 
   private async mutate(dispatch: () => Promise<Uint8Array>, changed: readonly PersistentData[]): Promise<Uint8Array> {
+    // The runtime stopped while this mutation waited for the lock: touch neither the tree nor the stores.
+    if (this.hung) throw this.hung;
     try {
       await this.refresh();
     } catch (error) {
