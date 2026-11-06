@@ -1909,6 +1909,8 @@ existing import, duplicate/remove and grouped deposit/withdraw/claim operations.
 [production session tests](../plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectSessionTests.cs)
 exercise host preview/apply, complete-byte export/reopen and coordinated undo/redo; planning and
 rejection tests cover identity-pure previews and atomic validation/rollback. Core `ActionEffect*Tests.cs`
-exercise the host contract. `web/e2e/action-effects.e2e.ts` intercepts responses and proves renderer
-behavior only; it is not a production Gearbox browser journey. None establishes console acceptance,
+exercise the host contract. `web/e2e/action-effects.e2e.ts` also runs eight production BL3/TTWL
+browser/API cases through `gearbox-action-effects.ts`, with complete-byte exports, history and
+375/768/1024/1440 import-preview keyboard/focus checks. Its separate intercepted renderer case
+covers explicit null, pagination and copying. None establishes console acceptance,
 legal part pools, account precedence or BL4 support.

@@ -53,10 +53,13 @@ remaining title/native evidence is tracked in [#81](https://github.com/JKamsker/
 
 Merged browser tests exercise production FF7 presets, Unreal references and manual SuckerPunch
 captions using authored fixtures; transfer and text capacity have dedicated suites. F13 review has
-synthetic semantic-review renderer coverage. The action-effects suite also intercepts responses
-and proves renderer behavior only. Gearbox's
+synthetic semantic-review renderer coverage. The action-effects suite includes eight real-provider
+BL3/TTWL cases using [gearbox-action-effects.ts](../../web/e2e/gearbox-action-effects.ts): imports and
+grouped deposit/withdraw/claim, ordered effects, full-byte exports/reopen and one undo/redo unit.
+Import previews cover long serials, focus, keyboard access and 375/768/1024/1440 widths. Its separate
+intercepted case covers renderer-only explicit-null, pagination and copying behavior. Gearbox's
 [ActionEffectSessionTests.cs](../../plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectSessionTests.cs)
-provide production-provider backend evidence, separate from that browser suite. See `web/e2e/ff7-*.e2e.ts`, `unreal-*.e2e.ts`, `suckerpunch-caption-*.e2e.ts`,
+provide additional production-provider backend rollback and current-binding evidence. See `web/e2e/ff7-*.e2e.ts`, `unreal-*.e2e.ts`, `suckerpunch-caption-*.e2e.ts`,
 `preset-transfer*.e2e.ts`, `text-capacity.e2e.ts`, `semantic-review-ux.e2e.ts` and
 `action-effects.e2e.ts`; ownership is declared in `web/scripts/e2e-suite-manifest.mjs`.
 

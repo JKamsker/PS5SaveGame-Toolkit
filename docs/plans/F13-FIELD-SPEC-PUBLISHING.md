@@ -1,6 +1,6 @@
 # F13: field specs independent of views — delivered opt-in proposal
 
-**Status — 2026-10-30:** storage-only registration, SDK-02 metadata, targeted original/current
+**Status — 2026-11-05:** storage-only registration, SDK-02 metadata, targeted original/current
 semantic-review capture, explicit `CanonicalValueId` aliases and current-candidate group forwarding
 are delivered. The historical proposal below is superseded by the
 [shipped contract](../F13-FIELD-METADATA.md) and
@@ -9,7 +9,9 @@ are delivered. The historical proposal below is superseded by the
 Pragmata publishes proven quantity aliases. Gearbox and XorJson publish current-member metadata
 and selected role/path context; UnrealGvas uses canonical scalar references; SuckerPunch publishes
 Tsushima quantity/timer/checksum and manual-caption metadata. These are selective integrations,
-not blanket metadata coverage. Gearbox has not adopted the separate action-effect contract.
+not blanket metadata coverage. Gearbox separately adopts the action-effect contract for supported
+BL3/TTWL structural operations; [ActionEffectSessionTests.cs](../../plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectSessionTests.cs)
+covers production host behavior. Effects do not turn absent import payloads into canonical fields.
 
 `SemanticTargetedCapture`, `SemanticSnapshotComparison` and `DocumentMemberAdapter` implement the
 host/SDK path. Core `SemanticReviewR*Tests.cs` and `SemanticMemberContextCloseoutTests.cs`, Pragmata

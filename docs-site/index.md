@@ -49,7 +49,8 @@ canonical field references, and the manual Tsushima caption uses the SFO substra
 link those consumers and tests. The central [SDK request ledger](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/SDK_REQUESTS.md)
 tracks remaining adoption and evidence separately. Gearbox supplies production BL3/TTWL action
 effects with [backend session evidence](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectSessionTests.cs);
-the action-effects browser journey remains synthetic. Automatic gameplay-to-caption
+the [action-effects journey](guides/action-effects.md#what-is-demonstrated-today) also has eight
+production BL3/TTWL browser cases, alongside a separate synthetic renderer case. Automatic gameplay-to-caption
 synchronization and console acceptance remain unproven.
 
 ## Before you begin

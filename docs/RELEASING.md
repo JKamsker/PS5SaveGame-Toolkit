@@ -496,9 +496,12 @@ by projects named `*.Tests` in `Directory.Packages.props`; new test projects sho
 
 ## Built app browser smoke tests
 
-The Ubuntu-only `e2e` CI job runs alongside validation with a 25-minute limit: it installs the
-`wasm-tools` workload, builds the complete static site (`npm run build`, including the Release
-WebAssembly publish) and then runs the suites against `web/dist`, with no API process. The official
+The Ubuntu-only `e2e` CI job runs alongside validation. It installs the `wasm-tools` workload and
+builds the complete static site (`npm run build`, including the Release WebAssembly publish; bounded
+to 15 minutes), then runs the suites against `web/dist` with no API process. The Chromium
+system-dependency install is bounded separately (10 minutes), because slow apt mirrors once consumed
+the whole job budget before any test started; the test step has a 25-minute limit (every test boots
+its own WebAssembly runtime) and the job allows 55 minutes overall. The official
 `npm run e2e` entry reads the schema-2 `web/scripts/e2e-suites.json` manifest and runs the explicit
 canonical file allowlist plus each named feature partition (Unreal, text-capacity, FF7, transfer,
 caption and action-effects) sequentially whenever its complete owned file inventory is present.
@@ -509,7 +512,7 @@ any actual suite launch. Each selected suite has a 30-minute overall deadline (e
 overrides, including the transfer library's 60-second test timeout, are unchanged. The aggregate allowance is
 additive across the partitions that are actually present; neither four-suite nor six-suite ceiling
 arithmetic includes discovery, startup, reporting or teardown overhead or proves the complete run fits.
-The complete composed run, together with the static-site build, has to fit the 25-minute CI job.
+The complete composed run has to fit the 25-minute test step.
 The canonical allowlist explicitly marks `presets.e2e.ts` optional until its published feature is
 composed; when present, all its actual registrations participate in canonical discovery and execution.
 Optional means declared absence is allowed, never that a present file or its IDs may be skipped.
@@ -795,8 +798,10 @@ versions, or serve the old version on another port to keep its storage separate.
 downgrade is promised. Private saves never belong in releases.
 
 Dependabot proposes weekly NuGet, npm (`/web`) and GitHub Actions version updates, grouping minor
-and patch updates per ecosystem while leaving major upgrades separate. The SQLitePCLRaw major-version
-compatibility exception remains in place. There is no auto-merge. Review and run the same CI before
+and patch updates per ecosystem while leaving major upgrades separate. Dependabot never proposes
+`SQLitePCLRaw.core` on its own: its central pin must equal the SQLitePCLRaw native bundle/provider
+version that `Microsoft.Data.Sqlite` brings in, so move it by hand in the same change that updates
+`Microsoft.Data.Sqlite`. There is no auto-merge. Review and run the same CI before
 merging updates. The separate `dependency-drift.yml` report-only job runs Mondays at **05:41 UTC**
 or manually, queries stable NuGet and direct npm version drift, and retains JSON/logs/summary for
 14 days as `dependency-drift-<run_id>`. It restores all projects together once and installs the npm

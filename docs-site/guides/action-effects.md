@@ -75,8 +75,8 @@ the parameters or scope and generate a fresh plan. For a lost workspace,
 
 The [effect renderer](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/web/src/components/document/review/ActionPreviewChanges.tsx)
 is exercised by [component tests](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/web/src/components/document/review/ActionPreviewEffects.test.tsx)
-and the [synthetic browser journey](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/web/e2e/action-effects.e2e.ts).
-That browser journey intercepts responses to check ordered typed rows, absent/null distinctions,
+and the [action-effects browser suite](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/web/e2e/action-effects.e2e.ts).
+Its separate synthetic case intercepts responses to check ordered typed rows, absent/null distinctions,
 long payloads, pagination, copying, keyboard access and responsive widths. Its Apply response is
 also synthetic; it does not validate a production plugin's mutation or native save acceptance.
 
@@ -90,6 +90,13 @@ exercise standalone imports and grouped import/deposit/withdraw/claim using auth
 fixtures, including ordered effects, one undo/redo unit, complete-byte export/reopen and current
 bindings. Its [planning tests](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectPlanningTests.cs)
 check cold/warm planning identity preservation; [rejection tests](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/plugins/Gearbox/SaveToolkit.Plugins.Gearbox.Tests/ActionEffectRejectionTests.cs)
-check ownership, capacity, moved identities and candidate rollback. This is production-provider
-backend evidence; the synthetic browser journey does not exercise that provider or prove console
-acceptance.
+check ownership, capacity, moved identities and candidate rollback.
+
+The same browser suite also runs eight production BL3/TTWL cases through
+[gearbox-action-effects.ts](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/web/e2e/gearbox-action-effects.ts)
+without response interception: import and grouped deposit/withdraw/claim, ordered effects and
+cardinality, cancellation, stale rejection, empty scopes, duplicate-row rejection, one undo/redo
+unit, every owned output and full-byte export/reopen. The import preview checks long serials,
+absence, genuine paths, keyboard/focus and 375/768/1024/1440 widths. Explicit null remains a
+separate synthetic renderer case; Gearbox does not emit a present null serial. Failure injection
+and current-candidate rebinding are backend session checks. None proves console acceptance.
