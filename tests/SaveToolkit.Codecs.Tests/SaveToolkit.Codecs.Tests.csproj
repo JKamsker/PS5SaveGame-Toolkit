@@ -5,6 +5,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="xunit.v3" />
+    <!-- Oracle for the managed LZ4 HC encoder in SaveToolkit.Sdk.Compression (byte-identity tests). -->
+    <PackageReference Include="K4os.Compression.LZ4" />
     <ProjectReference Include="../../src/SaveToolkit.Testing/SaveToolkit.Testing.csproj" />
     <ProjectReference Include="../../src/SaveToolkit.Codecs/SaveToolkit.Codecs.csproj" />
   </ItemGroup>
