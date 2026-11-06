@@ -17,14 +17,16 @@ import { runtimeWorker } from "./runtimeFiles";
 const channelName = "savetoolkit-persistent-storage";
 type Announcement = { type: string; tab: string; changed: string[] };
 
-/** Records every change announcement the page receives (its own tab's echo included). */
-function recordAnnouncements(name: string) {
-  const scope = window as unknown as { __announcements: unknown[] };
-  scope.__announcements = [];
-  new BroadcastChannel(name).onmessage = event => { scope.__announcements.push(event.data); };
+/** Records every change announcement the page receives (its own tab's echo included) in `window[key]`. */
+function recordAnnouncements({ name, key }: { name: string; key: string }) {
+  const log: unknown[] = [];
+  (window as unknown as Record<string, unknown[]>)[key] = log;
+  new BroadcastChannel(name).onmessage = event => { log.push(event.data); };
 }
+const recorder = { name: channelName, key: "__announcements" };
 
-const announcements = (page: Page) => page.evaluate(() => (window as unknown as { __announcements: Announcement[] }).__announcements);
+const announcements = (page: Page, key = recorder.key) =>
+  page.evaluate(name => (window as unknown as Record<string, Announcement[]>)[name], key);
 
 /** Counts the storage-lock requests of the page's runtime worker by mode, from now on. */
 async function lockLog(page: Page) {
@@ -123,7 +125,7 @@ test("two tabs share presets, the other tab reloads them, and closing a tab froz
   test.setTimeout(120_000);
   const one = await context.newPage();
   const two = await context.newPage();
-  for (const page of [one, two]) await page.addInitScript(recordAnnouncements, channelName);
+  for (const page of [one, two]) await page.addInitScript(recordAnnouncements, recorder);
 
   // Tab two boots first: its runtime has loaded the (empty) library before tab one saves.
   await home(two);
@@ -220,9 +222,14 @@ test("a pack imported in one tab drops the other tab's cached reference icons, n
   test.setTimeout(90_000);
   const one = await context.newPage();
   const two = await context.newPage();
-  for (const page of [one, two]) await page.addInitScript(recordAnnouncements, channelName);
+  for (const page of [one, two]) await page.addInitScript(recordAnnouncements, recorder);
   const oneIcons = await referenceIcons(one);
   const twoIcons = await referenceIcons(two);
+  // BroadcastChannel delivers a message to the channels of one page in creation order (HTML spec, its
+  // postMessage steps): once this channel, opened after the app's own (apiObjectUrls opened that for the
+  // first icon), has an announcement, the app's handler has already run for it.
+  const processed = { name: channelName, key: "__processedAnnouncements" };
+  await one.evaluate(recordAnnouncements, processed);
 
   const imported = await apiRequest(one).post("/api/reference-packs", { multipart: { pack: referencePack() } });
   expect(imported.status()).toBe(200);
@@ -231,10 +238,12 @@ test("a pack imported in one tab drops the other tab's cached reference icons, n
   await expect.poll(() => announcements(two)).toEqual(expected);
   await expect.poll(() => announcements(one)).toEqual(expected);
   await expect.poll(twoIcons).toBe(2);
-  // A refetch in tab one would start only after its echo re-rendered the picker: let both tabs go
-  // idle, hold a little longer, and make sure every request tab one issued meanwhile was counted.
+  // Now tab one has handled its echo. Had it dropped the icon, the store update (a sync-lane render)
+  // re-renders the picker and its image refetches within that task; two more macrotasks cover a
+  // scheduler hop, then every request tab one issued has reached the hooks and is counted.
+  await expect.poll(() => announcements(one, processed.key)).toEqual(expected);
+  await one.evaluate(() => new Promise<void>(resolve => setTimeout(() => setTimeout(resolve, 0), 0)));
   for (const page of [one, two]) await apiSettled(page);
-  await new Promise(resolve => setTimeout(resolve, 500));
   await apiFlush(one);
   expect(oneIcons()).toBe(1);
 });
