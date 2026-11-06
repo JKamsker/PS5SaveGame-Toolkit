@@ -13,6 +13,7 @@ class FakeWorker {
   postMessage(message: ToWorker) { this.sent.push(message); }
   emit(message: FromWorker) { this.onmessage?.({ data: message } as MessageEvent<FromWorker>); }
   requests(): WireRequest[] { return this.sent.flatMap(message => message.type === "request" ? [message.request] : []); }
+  cancels(): number[] { return this.sent.flatMap(message => message.type === "cancel" ? [message.id] : []); }
 }
 
 const boot = { version: "1", plugins: [], failedAssemblies: [], persistent: true, tabCoordination: true, elapsedMs: 1, initializeMs: 1 };
@@ -21,7 +22,10 @@ const flush = () => new Promise(resolve => setImmediate(resolve));
 const crash = { type: "failed", message: "RuntimeError: unreachable" } as const;
 
 type Gate = { open: () => void; fail: (error: unknown) => void };
-type Call = { url: string; outcome?: string; controller: AbortController; gate?: Gate };
+/** What had happened when the call was aborted: whether it was posted, and whether something else could settle it. */
+type Abort = { posted: boolean; crashed: boolean; bodyFailed: boolean };
+type Call = { url: string; outcome?: string; controller: AbortController; gate?: Gate; bodyFailed?: boolean; aborted?: Abort };
+type Run = { crashed: boolean; posted: (url: string) => boolean };
 
 function setup() {
   const worker = new FakeWorker();
@@ -51,7 +55,7 @@ function lcg(seed: number) {
 }
 
 /** Issues 8 requests (no body, body, slow body, slow body that fails) and returns them with the shuffled actions. */
-function issue(client: ReturnType<typeof setup>["client"], random: () => number, gate: (path: string) => Gate) {
+function issue(client: ReturnType<typeof setup>["client"], random: () => number, gate: (path: string) => Gate, run: Run) {
   const calls: Call[] = [];
   const actions: (() => void)[] = [];
   for (let i = 0; i < 8; i++) {
@@ -60,10 +64,14 @@ function issue(client: ReturnType<typeof setup>["client"], random: () => number,
     const kind = Math.floor(random() * 4);
     const call: Call = { url, controller, gate: kind >= 2 ? gate(url) : undefined };
     const init: RequestInit = kind === 0 ? { signal: controller.signal } : { method: "POST", body: `b${i}`, signal: controller.signal };
-    void client.fetch(url, init).then(() => "ok", (error: unknown) => (error as Error).name).then(outcome => { call.outcome = outcome; });
+    void client.fetch(url, init).then(() => { call.outcome = "ok"; }, (error: unknown) => { call.outcome = (error as Error).name; });
     calls.push(call);
-    if (call.gate) actions.push(kind === 3 ? () => call.gate!.fail(new TypeError("read failed")) : () => call.gate!.open());
-    if (random() < 0.3) actions.push(() => controller.abort());
+    if (call.gate)
+      actions.push(kind === 3 ? () => { call.bodyFailed = true; call.gate!.fail(new TypeError("read failed")); } : () => call.gate!.open());
+    if (random() < 0.3) actions.push(() => {
+      call.aborted ??= { posted: run.posted(url), crashed: run.crashed, bodyFailed: call.bodyFailed === true };
+      controller.abort();
+    });
   }
   return { calls, actions };
 }
@@ -81,11 +89,20 @@ describe("runtime client: posting order under random interleavings", () => {
   it.each(Array.from({ length: 400 }, (_, i) => i + 1))("seed %i", async seed => {
     const random = lcg(seed);
     const { worker, client } = setup();
-    const { calls, actions } = issue(client, random, gates());
+    const run: Run = { crashed: false, posted: url => worker.requests().some(request => request.url === url) };
+    const { calls, actions } = issue(client, random, gates(), run);
     let sentAtCrash = -1;
-    if (random() < 0.25) actions.push(() => { sentAtCrash = worker.requests().length; worker.emit(crash); });
+    if (random() < 0.25) actions.push(() => { sentAtCrash = worker.requests().length; run.crashed = true; worker.emit(crash); });
     shuffle(actions, random);
-    for (const action of actions) { action(); await (random() < 0.5 ? flush() : Promise.resolve()); }
+    let checked = false;
+    for (const action of actions) {
+      action();
+      await (random() < 0.5 || (run.crashed && !checked) ? flush() : Promise.resolve());
+      if (!run.crashed || checked) continue;
+      // A crash fails every request at once, including those still serializing or waiting for their turn.
+      for (const call of calls) expect(call.outcome, `${call.url} settled by the crash`).toBeDefined();
+      checked = true;
+    }
     for (const call of calls) call.gate?.open();
     await flush(); await flush(); await flush();
     for (const request of worker.requests()) worker.emit({ type: "error", id: request.id, message: "x" });
@@ -96,8 +113,23 @@ describe("runtime client: posting order under random interleavings", () => {
     expect(indexes, "posted in call order, each once").toEqual([...new Set(indexes)].sort((a, b) => a - b));
     if (sentAtCrash >= 0) expect(worker.requests(), "nothing posted after the crash").toHaveLength(sentAtCrash);
     for (const call of calls) expect(getEventListeners(call.controller.signal, "abort"), `${call.url} listeners`).toHaveLength(0);
+    for (const call of calls) if (call.aborted) expectAbortHonoured(call, call.aborted, worker);
   });
 });
+
+/**
+ * An aborted call ends with AbortError unless a crash or its failed body could have settled it first; one
+ * aborted before it was posted is never posted, and one aborted after is cancelled exactly once (none
+ * after a crash: the worker has stopped).
+ */
+function expectAbortHonoured(call: Call, aborted: Abort, worker: FakeWorker) {
+  const id = worker.requests().find(request => request.url === call.url)?.id;
+  if (aborted.crashed || aborted.bodyFailed) expect(["AbortError", "TypeError"], `${call.url} outcome`).toContain(call.outcome);
+  else expect(call.outcome, `${call.url} outcome`).toBe("AbortError");
+  if (!aborted.posted) expect(id, `${call.url} aborted before it was posted`).toBeUndefined();
+  const cancels = worker.cancels().filter(cancelled => cancelled === id);
+  expect(cancels, `${call.url} cancels`).toHaveLength(aborted.posted && !aborted.crashed ? 1 : 0);
+}
 
 it("runtime client: cancels a posted request exactly once when it is aborted", async () => {
   const { worker, client } = setup();
@@ -124,3 +156,18 @@ it("runtime client: never posts a request whose turn opens in the tick the runti
   await flush();
   expect(worker.requests()).toEqual([]);
 });
+
+it("runtime client: never posts a request whose turn came just before the runtime failed", async () => {
+  // Crashes after 0, 1, 2, ... microtasks, so one crash lands between the request's turn and its posting.
+  for (let ticks = 0; ticks < 12; ticks++) {
+    const { worker, client } = setup();
+    const outcome = client.fetch("/api/a").then(() => "ok", (error: unknown) => (error as Error).message);
+    for (let i = 0; i < ticks; i++) await Promise.resolve();
+    const sent = worker.requests().length;
+    worker.emit(crash);
+    await flush();
+    expect(worker.requests(), `crash after ${ticks} microtasks`).toHaveLength(sent);
+    if (sent === 0) expect(await outcome, `crash after ${ticks} microtasks`).toBe(crash.message);
+  }
+});
+
