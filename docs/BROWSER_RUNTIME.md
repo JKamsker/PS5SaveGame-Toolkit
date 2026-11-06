@@ -70,6 +70,14 @@ info reports `persistent: false`. Storage is per origin: the hosted build, a loc
 release archive served on another port each have their own presets and packs. Idle workspaces are
 swept between requests with the same timeout as the Api host, so all work stays serialized.
 
+## Startup
+
+Time to first answer is about 1.1 s in headless Chromium. The ~40 embedded reference packs are
+not validated at construction: a document open validates the packs that can apply to its plugin, and
+one second after boot the host validates the remaining packs one at a time while no request is
+running. A request that arrives mid-pack waits for that pack (up to ~0.5 s measured). Every pack is
+still fully checked exactly once; see `ReferencePackStore` and `EmbeddedPackSet` in Core.
+
 ## Build and deployment
 
 - `cd web; npm run build` runs `scripts/build-wasm.mjs` (a Release `dotnet publish` of

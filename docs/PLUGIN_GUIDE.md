@@ -1360,7 +1360,9 @@ the extension. SVG and anything else is rejected.
 </ItemGroup>
 ```
 
-Every `refpacks/<folder>/pack.json` in a plugin assembly is loaded at startup. The conformance suite
+Every `refpacks/<folder>/pack.json` in a plugin assembly is discovered at startup and fully validated
+(manifest, hashes, records, images) the first time it is needed: when a document of that plugin opens,
+when packs are listed, or by the browser host's idle warm-up. Validation is deferred, never skipped. The conformance suite
 test `EmbeddedReferencePacks_AreValid` fails with the loader's message if a pack is broken, for example
 on a hash mismatch. Keep a `*.source.md` next to the data and the README table from rule 9 as well.
 The pack attribution does not replace them.
