@@ -137,7 +137,13 @@ class WorkerRuntimeClient {
         signal.addEventListener("abort", aborted, { once: true });
         pending.release = () => signal.removeEventListener("abort", aborted);
       }
-      this.start().postMessage({ type: "request", request } satisfies ToWorker, body ? [body] : []);
+      try {
+        this.start().postMessage({ type: "request", request } satisfies ToWorker, body ? [body] : []);
+      } catch (error) {
+        // Never sent (for example a DataCloneError): nothing will answer or need cancelling.
+        this.pending.delete(request.id);
+        settle(pending, () => reject(error));
+      }
     });
   }
 

@@ -10,7 +10,12 @@ class FakeWorker {
   readonly sent: ToWorker[] = [];
   onmessage: ((event: MessageEvent<FromWorker>) => void) | null = null;
   onerror: ((event: ErrorEvent) => void) | null = null;
-  postMessage(message: ToWorker) { this.sent.push(message); }
+  /** Thrown by the next request's postMessage, like a DataCloneError. */
+  refuse: Error | null = null;
+  postMessage(message: ToWorker) {
+    if (message.type === "request" && this.refuse) throw this.refuse;
+    this.sent.push(message);
+  }
   emit(message: FromWorker) { this.onmessage?.({ data: message } as MessageEvent<FromWorker>); }
   requests(): WireRequest[] { return this.sent.flatMap(message => message.type === "request" ? [message.request] : []); }
   cancels(): number[] { return this.sent.flatMap(message => message.type === "cancel" ? [message.id] : []); }
@@ -171,3 +176,20 @@ it("runtime client: never posts a request whose turn came just before the runtim
   }
 });
 
+it("runtime client: rejects and forgets a request the worker could not be sent", async () => {
+  const { worker, client } = setup();
+  const controller = new AbortController();
+  worker.refuse = new DOMException("The body could not be cloned.", "DataCloneError");
+  const refused = client.fetch("/api/a", { method: "POST", body: "x", signal: controller.signal });
+  await expect(refused).rejects.toMatchObject({ name: "DataCloneError" });
+  expect(getEventListeners(controller.signal, "abort")).toHaveLength(0);
+  // Never sent: an abort now sends no cancel.
+  controller.abort();
+  expect(worker.cancels()).toEqual([]);
+  worker.refuse = null;
+  const next = client.fetch("/api/b");
+  await flush();
+  expect(worker.requests().map(request => request.id)).toEqual([2]);
+  worker.emit({ type: "response", id: 2, status: 200, headers: [], frame: new ArrayBuffer(0), bodyOffset: 0 });
+  expect((await next).status).toBe(200);
+});
