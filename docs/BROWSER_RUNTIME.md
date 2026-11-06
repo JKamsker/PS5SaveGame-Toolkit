@@ -96,8 +96,9 @@ what another tab saved. `web/src/runtime/persistence.ts` prevents that:
   every mutation is refused with `503` until a reload succeeds, because the request would write that
   stale view back over the other tab's saves. As a second guard, `PresetStore` refuses create, rename
   and delete with `409 presetLibraryReloadRequired` when `presets.json` is no longer the file it last
-  read or wrote (both hosts). User reference packs need no such guard: each is its own file, and a
-  write never touches the others. A store reload keeps the preset library's identity when
+  read or wrote (both hosts); a storage root that cannot be reached (for example a file where its
+  directory should be) is a `503` storage failure there, not a missing library or a conflict. User
+  reference packs need no such guard: each is its own file, and a write never touches the others. A store reload keeps the preset library's identity when
   `presets.json` is byte-for-byte the file the store last read or wrote, so a reviewed preset-package
   import survives unrelated changes in other tabs (a pack import, say) and is refused only when the
   library really changed.

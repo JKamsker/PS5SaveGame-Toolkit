@@ -217,4 +217,32 @@ public sealed class PresetStoreTests
         Assert.True(store.Delete(kept.Id));
         Assert.Equal("fresh", Assert.Single(new PresetStore(new() { StorageRoot = root }).List()).Name);
     }
+
+    [Fact]
+    public void FileInPlaceOfStorageRootIsUnavailableNotAChangedOrEmptyLibrary()
+    {
+        var root = Path.Combine(TestZips.TempDir(), "presets");
+        var store = new PresetStore(new() { StorageRoot = root });
+        var compatibility = new PresetCompatibility("p", "1", ["T"]);
+        PresetAction[] actions = [new("set", new Dictionary<string, JsonElement>())];
+        var kept = store.Create("kept", compatibility, actions);
+        var retained = root + "-retained";
+        Directory.Move(root, retained);
+        File.WriteAllText(root, "not a directory");
+
+        // The OS reports this like a missing directory; it must stay a 503 storage failure, not a
+        // 409 reload conflict, and a refresh must not adopt an empty library.
+        Assert.Throws<PresetStorageException>(() => store.Create("blocked", compatibility, actions));
+        Assert.Throws<PresetStorageException>(() => store.Rename(kept.Id, "renamed"));
+        Assert.Throws<PresetStorageException>(() => store.Delete(kept.Id));
+        Assert.Throws<PresetStorageException>(() => store.Refresh());
+        Assert.Throws<PresetStorageException>(() => store.Reload());
+        Assert.Throws<PresetStorageException>(() => store.Snapshot());
+        Assert.Equal("kept", Assert.Single(store.List()).Name);
+
+        File.Delete(root);
+        Directory.Move(retained, root);
+        Assert.True(store.Delete(kept.Id));
+        Assert.Empty(new PresetStore(new() { StorageRoot = root }).List());
+    }
 }
