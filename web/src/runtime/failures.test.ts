@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { isOutOfMemory, isRuntimeStopped } from "./failures";
+import { describeError, isOutOfMemory, isRuntimeStopped } from "./failures";
 
 it.each([
   new RangeError("Array buffer allocation failed"),
@@ -26,9 +26,22 @@ it.each([
   "unreachable",
   { name: "RuntimeError", message: "table index is out of bounds" },
   new Error("RuntimeError: unreachable executed"),
+  // A trap re-wrapped by the .NET interop, with the managed stack after it.
+  new Error("System.Runtime.InteropServices.JavaScript.JSException: unreachable\n   at Interop.Dispatch()"),
 ])("recognizes a runtime that stopped: %s", error => expect(isRuntimeStopped(error)).toBe(true));
 
 // A JavaScript stack overflow (the worker's own code): managed recursion never surfaces as one.
 it.each([new RangeError("Maximum call stack size exceeded"), new RangeError("Array buffer allocation failed"), new TypeError("interop failure"), new Error("System.OutOfMemoryException: Out of memory."), null,
-  "System.DivideByZeroException: Attempted to divide by zero.", "Index was outside the bounds of the array.", "The save has unreachable records."])(
+  "System.DivideByZeroException: Attempted to divide by zero.", "Index was outside the bounds of the array.", "The save has unreachable records.",
+  // .NET messages quoting save or preset content that happens to read like a trap or an abort.
+  new Error("Preset schema 'RuntimeError: 3' is not supported."), "Invalid record 'memory access out of bounds'.",
+  new Error("Unknown item 'Aborted(1)'."), "Preset schema 'unreachable' is not supported."])(
   "keeps the runtime for failures it survives: %s", error => expect(isRuntimeStopped(error)).toBe(false));
+
+it.each([Object.create(null), new Proxy({}, { has: () => { throw new Error("trap"); }, getPrototypeOf: () => { throw new Error("trap"); } }),
+  { name: "Error", get message(): string { throw new Error("getter"); } }, { toString: () => { throw new Error("toString"); } }])(
+  "never throws, whatever was thrown: %#", error => {
+    expect(isRuntimeStopped(error)).toBe(false);
+    expect(isOutOfMemory(error)).toBe(false);
+    expect(typeof describeError(error)).toBe("string");
+  });

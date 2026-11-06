@@ -24,7 +24,8 @@
  * and the page offers a reload. A synchronous hang blocks the worker's timers too; only closing or
  * reloading that tab releases the lock then.
  */
-import { isRuntimeStopped } from "./failures";
+import { readsDurableData, writesDurableData } from "./durableRoutes";
+import { describeError, isRuntimeStopped } from "./failures";
 import { decodeFrame, problemFrame } from "./framing";
 import { changedData, type PersistentData } from "./persistentChanges";
 
@@ -87,48 +88,10 @@ export interface CoordinatorTiming {
   mutationWatchdogMs: number;
 }
 
+export { readsDurableData, writesDurableData } from "./durableRoutes";
+
 /** Without persistence (no IndexedDB) every request simply runs. */
 export const memoryOnly: Persistence = { coordinated: false, run: (_method, _url, dispatch) => dispatch(), stop: () => {} };
-
-/**
- * Whether a request may write presets or reference packs. Workspaces live in the session root, so only
- * their preset routes take part (capture saves a preset), except those known to only read the library:
- * preview, apply (edits the document) and transfer compatibility. Every other mutation is durable.
- */
-export function writesDurableData(method: string, url: string): boolean {
-  const verb = method.toUpperCase();
-  if (verb === "GET" || verb === "HEAD") return false;
-  const path = (url.split(/[?#]/, 1)[0] ?? "").toLowerCase();
-  if (path === "/api/workspaces" || path.startsWith("/api/workspaces/"))
-    return /\/presets(\/|$)/.test(path) && !/\/presets\/(?:[^/]+\/(?:preview|apply)|transfer\/compatibility)\/?$/.test(path);
-  return true;
-}
-
-/**
- * Every LocalApi route (src/SaveToolkit.LocalApi/Endpoints) that reads the preset library or the reference
- * packs, so another tab's saves must be loaded first. A route missing here would answer from (and pin)
- * this tab's outdated view; `persistence.routes.test.ts` checks the list against the C# route table.
- */
-const DURABLE_READ_ROUTES: readonly RegExp[] = [
-  // PresetRoutes: the library, its reload and transfers (PresetStore, PresetTransferService).
-  /^\/api\/presets(?:\/|$)/,
-  // ReferenceRoutes: the installed packs (ReferencePackStore).
-  /^\/api\/reference-packs(?:\/|$)/,
-  // PresetRoutes under a document: list, preview, apply, capture and transfer compatibility.
-  /^\/api\/workspaces\/[^/]+\/documents\/[^/]+\/presets(?:\/|$)/,
-  // Workspace.Open pins the current packs to the new document (ReferencePackStore.Pin).
-  /^\/api\/workspaces\/[^/]+\/files\/[^/]+\/open\/?$/,
-  // Workspace.ProposeGroups validates each proposal with pinned packs (DocumentGroupRegistry.Pin).
-  /^\/api\/workspaces\/[^/]+\/files\/[^/]+\/group-proposals\/?$/,
-  // Workspace.OpenGroup pins the current packs to the new group document (DocumentGroupRegistry.Pin).
-  /^\/api\/workspaces\/[^/]+\/document-groups\/?$/,
-];
-
-/** Whether a request reads presets or reference packs (so it is worth refreshing them first). */
-export function readsDurableData(url: string): boolean {
-  const path = (url.split(/[?#]/, 1)[0] ?? "").toLowerCase();
-  return DURABLE_READ_ROUTES.some(route => route.test(path));
-}
 
 class LockUnavailableError extends Error {}
 
@@ -288,8 +251,17 @@ export class PersistenceCoordinator implements Persistence {
       return decodeFrame(frame).status >= 400 ? frame : storageFailure(error, reverted);
     }
     this.generation = generation;
-    this.tabs.announce(changed);
+    this.announce(changed);
     return frame;
+  }
+
+  /** Best effort: the change is saved, and other tabs still load it before their next mutation (a new generation). */
+  private announce(changed: readonly PersistentData[]) {
+    try {
+      this.tabs.announce(changed);
+    } catch (error) {
+      this.log.warn("Telling other tabs about saved presets or reference packs failed:", error);
+    }
   }
 
   /**
@@ -342,10 +314,14 @@ export class PersistenceCoordinator implements Persistence {
     for (const abandon of [...this.inFlight]) abandon(this.hung);
   }
 
-  /** Whether the runtime stopped; a trap or an exit (`isRuntimeStopped`) stops this tab's storage now. */
+  /**
+   * Whether the runtime stopped; a trap or an exit (`isRuntimeStopped`) stops this tab's storage now. The
+   * coordinator's own errors never do: a failed store reload quotes .NET text, even preset file content
+   * (a trap cannot reach .NET's catch, so it never arrives as one).
+   */
   private stopped(error: unknown): boolean {
-    if (!this.hung && isRuntimeStopped(error))
-      this.stop(String(typeof error === "object" && error !== null && "message" in error ? error.message : error));
+    const own = error instanceof StoreReloadError || error instanceof LockUnavailableError;
+    if (!this.hung && !own && isRuntimeStopped(error)) this.stop(describeError(error));
     return this.hung !== null;
   }
 

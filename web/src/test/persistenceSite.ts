@@ -20,6 +20,7 @@ export class Site {
   failSave: Error | null = null;
   failLoad: Error | null = null;
   failVerify: Error | null = null;
+  failAnnounce: Error | null = null;
   lockUnavailable = false;
   readonly listeners = new Set<{ tab: Tab; onChange: () => void }>();
   private tail: Promise<unknown> = Promise.resolve();
@@ -43,7 +44,10 @@ export class Site {
         });
         return Promise.race([run, timeout]) as Promise<T>;
       } : null,
-      announce: () => { for (const listener of this.listeners) if (listener.tab !== tab) listener.onChange(); },
+      announce: () => {
+        if (this.failAnnounce) throw this.failAnnounce;
+        for (const listener of this.listeners) if (listener.tab !== tab) listener.onChange();
+      },
       listen: onChange => { this.listeners.add({ tab, onChange }); },
     };
   }

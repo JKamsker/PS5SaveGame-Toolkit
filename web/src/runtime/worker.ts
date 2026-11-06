@@ -3,7 +3,7 @@
  * request at a time, in arrival order; a cancel message drops a request that has not started.
  */
 import { bootDotnet, type BootedRuntime } from "./dotnetBoot";
-import { isOutOfMemory, isRuntimeStopped } from "./failures";
+import { describeError as describe, isOutOfMemory, isRuntimeStopped } from "./failures";
 import { decodeFrame } from "./framing";
 import { RuntimeHungError } from "./persistence";
 import type { FromWorker, ToWorker, WireRequest } from "./protocol";
@@ -22,8 +22,14 @@ self.onmessage = (event: MessageEvent<ToWorker>) => {
   // A cancel for a request that already started or finished has nothing left to drop.
   else if (message.type === "cancel") queued.delete(message.id);
   else {
-    queued.add(message.request.id);
-    queue = queue.then(() => handle(message.request));
+    const { request } = message;
+    queued.add(request.id);
+    // Whatever escapes a request must not reject the chain: every later request would wait forever.
+    queue = queue.then(() => handle(request)).catch((error: unknown) => {
+      // eslint-disable-next-line no-console -- the browser runtime has no server log; the console is where details go.
+      console.error(`Runtime request ${request.method} ${request.url} could not be answered:`, error);
+      try { post({ type: "error", id: request.id, message: describe(error) }); } catch { /* the page gives up on its deadline */ }
+    });
   }
 };
 
@@ -40,8 +46,6 @@ function stop(reason: string) {
   void runtime?.then(booted => booted.persistence.stop(reason), () => undefined);
   post({ type: "failed", message: reason });
 }
-
-const describe = (error: unknown) => error instanceof Error ? error.message : String(error);
 
 // An uncaught error the runtime survives must not reach the page, which would treat the worker as dead.
 self.addEventListener("error", event => {
@@ -115,6 +119,6 @@ async function handle(request: WireRequest) {
     // The .NET runtime aborted (an exhausted heap) or exited during the request: report a crash, not a
     // failed request, since the workspaces in its memory are gone and no later request can succeed.
     if (running && isRuntimeStopped(error)) return stop(describe(error));
-    post({ type: "error", id: request.id, message: error instanceof Error ? error.message : String(error), outOfMemory: isOutOfMemory(error) });
+    post({ type: "error", id: request.id, message: describe(error), outOfMemory: isOutOfMemory(error) });
   }
 }

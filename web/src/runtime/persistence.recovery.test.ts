@@ -191,6 +191,45 @@ describe("a trap the worker has not reported yet", () => {
   });
 });
 
+describe("a library another tab saved that this tab cannot read", () => {
+  // PresetLibraryStaging echoes file content: $"Preset schema '{preset.SchemaVersion}' is not supported."
+  // A .NET message is never a trap (a trap cannot reach .NET's catch), even one that reads exactly like it.
+  const messages = ["Preset schema 'RuntimeError: 3' is not supported.", "RuntimeError: unreachable"];
+
+  it.each(messages)("refuses a mutation with a 503 and keeps the tab usable when the stores report %j", async quoting => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    await b.create("from B");
+    a.reloadError = quoting;
+    expect(read(await a.create("refused")).status).toBe(503);
+    a.reloadError = "";
+    expect(read(await a.create("after the fix")).status).toBe(200);
+    expect(library(site)).toEqual(["from B", "after the fix"]);
+  });
+
+  it.each(messages)("serves preset reads from the last good view when the stores report %j", async quoting => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    await b.create("from B");
+    a.reloadError = quoting;
+    expect(read(await a.list())).toEqual({ status: 200, body: [] });
+    expect(read(await a.coordinator.run("GET", "/api/plugins", async () => frame(200, []))).status).toBe(200);
+  });
+});
+
+describe("a change that was saved but could not be announced", () => {
+  it("still answers the mutation as saved, and other tabs load it before their next change", async () => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    site.failAnnounce = new DOMException("The channel is closed.", "InvalidStateError");
+    expect(read(await a.create("from A")).status).toBe(200);
+    expect(a.log.warn).toHaveBeenCalledWith(expect.stringMatching(/other tabs/), site.failAnnounce);
+    site.failAnnounce = null;
+    expect(read(await b.create("from B")).status).toBe(200);
+    expect(library(site)).toEqual(["from A", "from B"]);
+  });
+});
+
 describe("a runtime that stops while another tab's saves are reloaded", () => {
   it("reports a runtime that stops while a mutation reloads another tab's saves as hung, not as unreadable storage", async () => {
     const site = new Site();
