@@ -30,7 +30,7 @@ export function file(records: RecordFixture[]) {
 /** The durable library file plays the old server's presets.json: tests replace it to model an external change. */
 export async function libraryFile(page: Page) {
   const files = await runtimeFiles(page);
-  return { read: () => files.read(presetLibraryPath), write: (text: string) => files.write(presetLibraryPath, text) };
+  return { read: () => files.read(presetLibraryPath), write: (text: string) => files.change({ kind: "write", path: presetLibraryPath, text }) };
 }
 
 /** Empties the booted page's library through its file and a bounded reload instead of many unrelated CRUD requests. */

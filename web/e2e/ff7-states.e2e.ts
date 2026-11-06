@@ -85,15 +85,14 @@ test("actual storage failure preserves draft, history, whole bytes and library; 
   const files = await runtimeFiles(page);
   const storage = `${persistentRoot}/presets`;
   const retained = `${persistentRoot}/presets-retained`;
-  await files.rename(storage, retained);
+  // Swap in one step each way, so the runtime never observes (or recreates) a missing store in between.
+  await files.change({ kind: "rename", path: storage, to: retained }, { kind: "write", path: storage, text: "Authored FF7 test storage obstacle." });
   try {
-    await files.write(storage, "Authored FF7 test storage obstacle.");
     const saving = waitForApiResponse(page, response => response.url().endsWith("/presets/capture"));
     await panel.getByRole("button", { name: "Save preset", exact: true }).click();
     expect((await saving).status()).toBe(503);
   } finally {
-    await files.unlink(storage);
-    await files.rename(retained, storage);
+    await files.change({ kind: "unlink", path: storage }, { kind: "rename", path: retained, to: storage });
   }
   await unchanged(apiRequest(page), documentPath, before);
   await expect(panel.getByLabel("Name", { exact: true })).toHaveValue("Retain this draft after a real storage error");
