@@ -213,6 +213,32 @@ export function reconnectingSync(idbfs: IdbfsConnections, mountpoint: string, sy
   };
 }
 
+/** The IDBFS internals that open (and cache) a mount's database. */
+export interface IdbfsDatabase {
+  DB_STORE_NAME: string;
+  getDB(name: string, callback: (error: unknown, db?: IDBDatabase) => void): void;
+}
+
+/**
+ * The text IndexedDB holds for the file at `path` of the mount (IDBFS stores each entry under its full
+ * path, a file's bytes as `contents`), "" when it holds none: one `get`, without loading the tree.
+ */
+export function readStoredText(idbfs: IdbfsDatabase, mountpoint: string, path: string): Promise<string> {
+  return new Promise((resolve, reject) => idbfs.getDB(mountpoint, (error, db) => {
+    if (error || !db) return reject(asError(error ?? "No IndexedDB connection."));
+    try {
+      const request = db.transaction([idbfs.DB_STORE_NAME], "readonly").objectStore(idbfs.DB_STORE_NAME).get(path);
+      request.onsuccess = () => {
+        const contents = (request.result as { contents?: unknown } | undefined)?.contents;
+        resolve(contents instanceof Uint8Array ? new TextDecoder().decode(contents) : "");
+      };
+      request.onerror = () => reject(asError(request.error ?? "IndexedDB could not read the entry."));
+    } catch (failure) {
+      reject(asError(failure));
+    }
+  }));
+}
+
 export function asError(error: unknown): Error {
   return error instanceof Error ? error : new Error(String(error));
 }

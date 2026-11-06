@@ -11,7 +11,8 @@
  * 4. announce what changed on a BroadcastChannel, so other tabs reload before their next request.
  *
  * After such an announcement (or when the browser closed the IndexedDB connection, for example "Clear
- * site data"), reads of presets and reference packs refresh under a shared lock, waiting only briefly:
+ * site data", or IndexedDB's generation marker differs from the loaded one because an announcement was
+ * lost), reads of presets and reference packs refresh under a shared lock, waiting only briefly:
  * while another tab holds the lock (a long import, a frozen tab) they answer from the cached view and
  * retry later, and reads of anything else never wait. A failed flush is reported as an error response
  * (never a silent success), and the tab reloads what IndexedDB really holds. When the stores cannot
@@ -43,7 +44,10 @@ export interface PersistentStorage {
   trackChanges(): () => boolean;
   /** After `save()`: rejects unless IndexedDB now holds exactly the in-memory tree. */
   verifySaved(): Promise<void>;
+  /** The generation marker of the in-memory tree ("" when there is none). */
   readGeneration(): string;
+  /** The marker IndexedDB holds now ("" when none), without loading the tree; absent without IDBFS' internals. */
+  readStoredGeneration?(): Promise<string>;
   /** Writes the marker; like every tracked change, IDBFS always sees it as changed. */
   writeGeneration(generation: string): void;
   /** Makes the .NET stores re-read their files; returns an error message, or "" on success. */
@@ -168,7 +172,10 @@ export class PersistenceCoordinator implements Persistence {
   private async request(method: string, url: string, dispatch: () => Promise<Uint8Array>): Promise<Uint8Array> {
     if (this.hung) throw this.hung;
     if (!writesDurableData(method, url)) {
-      if (this.stale && readsDurableData(url)) await this.refreshForRead();
+      if (readsDurableData(url)) {
+        if (!this.stale) await this.checkStoredGeneration();
+        if (this.stale) await this.refreshForRead();
+      }
       // The runtime stopped while the read refreshed: its dispatch would never settle (or fail).
       if (this.hung) throw this.hung;
       return dispatch();
@@ -180,6 +187,20 @@ export class PersistenceCoordinator implements Persistence {
       this.log.warn("Waiting for another tab's storage lock failed:", error.cause);
       return problemFrame(503, "Service Unavailable", "Another tab of this site is still saving presets or reference "
         + "packs, so this change was not made. Try again in a moment.");
+    }
+  }
+
+  /**
+   * A change another tab saved but could not announce (its postMessage failed, no BroadcastChannel) gives
+   * no other sign: compare IndexedDB's generation marker with this tree's (one small read, no lock).
+   */
+  private async checkStoredGeneration() {
+    if (!this.storage.readStoredGeneration) return;
+    try {
+      if (await this.storage.readStoredGeneration() !== this.storage.readGeneration()) this.stale = true;
+    } catch {
+      // Unknown (a closed connection, say): reload, which reconnects and logs if that fails too.
+      this.stale = true;
     }
   }
 
@@ -255,7 +276,7 @@ export class PersistenceCoordinator implements Persistence {
     return frame;
   }
 
-  /** Best effort: the change is saved, and other tabs still load it before their next mutation (a new generation). */
+  /** Best effort: the change is saved, and other tabs see its new generation before their next mutation or durable read. */
   private announce(changed: readonly PersistentData[]) {
     try {
       this.tabs.announce(changed);

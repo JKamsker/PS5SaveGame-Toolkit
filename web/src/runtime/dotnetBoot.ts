@@ -1,6 +1,6 @@
 import { createCompressedResourceLoader, type BootResourceLoader } from "./compressedResources";
-import { asError, makeFlushAtomic, reconnectingSync, trackTreeChanges, verifyMirrored, writeAfter, type IdbfsConnections,
-  type IdbfsReconcile, type IdbfsSets, type TreeFs } from "./idbfsTree";
+import { asError, makeFlushAtomic, readStoredText, reconnectingSync, trackTreeChanges, verifyMirrored, writeAfter,
+  type IdbfsConnections, type IdbfsDatabase, type IdbfsReconcile, type IdbfsSets, type TreeFs } from "./idbfsTree";
 import { browserTabs } from "./browserTabs";
 import { memoryOnly, PersistenceCoordinator, type Persistence, type PersistentStorage } from "./persistence";
 import type { BootInfo } from "./protocol";
@@ -126,7 +126,7 @@ async function mountPersistent(fs: EmscriptenFs, coordinator: PersistenceCoordin
 }
 
 function persistentStorage(fs: EmscriptenFs, interop: InteropExports, onConnectionLost: () => void): PersistentStorage {
-  const idbfs = fs.filesystems.IDBFS as Partial<IdbfsSets & IdbfsConnections>;
+  const idbfs = fs.filesystems.IDBFS as Partial<IdbfsSets & IdbfsConnections & IdbfsDatabase>;
   const sync = (populate: boolean) => syncfs(fs, populate);
   // IDBFS caches its connection forever; without its cache (another Emscripten), sync as it is.
   const synced = typeof idbfs.dbs === "object" && idbfs.dbs !== null
@@ -139,6 +139,9 @@ function persistentStorage(fs: EmscriptenFs, interop: InteropExports, onConnecti
     verifySaved: () => typeof idbfs.getLocalSet === "function" && typeof idbfs.getRemoteSet === "function"
       ? verifyMirrored(idbfs as IdbfsSets, PERSISTENT_ROOT) : Promise.resolve(),
     readGeneration: () => fs.analyzePath(GENERATION_FILE).exists ? fs.readFile(GENERATION_FILE, { encoding: "utf8" }) : "",
+    // Notices another tab's save whose announcement was lost (skipped if a runtime lacks these internals).
+    readStoredGeneration: typeof idbfs.getDB === "function" && typeof idbfs.DB_STORE_NAME === "string"
+      ? () => readStoredText(idbfs as IdbfsDatabase, PERSISTENT_ROOT, GENERATION_FILE) : undefined,
     writeGeneration: generation => writeAfter(fs, GENERATION_FILE, generation),
     reloadStores: () => interop.ReloadPersistent(),
   };

@@ -21,6 +21,8 @@ export class Site {
   failLoad: Error | null = null;
   failVerify: Error | null = null;
   failAnnounce: Error | null = null;
+  /** Makes reading IndexedDB's generation marker alone (not the whole tree) fail. */
+  failMarkerRead: Error | null = null;
   lockUnavailable = false;
   readonly listeners = new Set<{ tab: Tab; onChange: () => void }>();
   private tail: Promise<unknown> = Promise.resolve();
@@ -88,6 +90,10 @@ export class Tab {
       },
       verifySaved: async () => { if (site.failVerify) throw site.failVerify; },
       readGeneration: () => this.local.get(".generation")?.content ?? "",
+      readStoredGeneration: async () => {
+        if (site.failMarkerRead) throw site.failMarkerRead;
+        return site.idb.get(".generation")?.content ?? "";
+      },
       writeGeneration: generation => this.write(".generation", generation),
       reloadStores: () => {
         if (this.reloadError) return this.reloadError;

@@ -25,13 +25,30 @@ self.onmessage = (event: MessageEvent<ToWorker>) => {
     const { request } = message;
     queued.add(request.id);
     // Whatever escapes a request must not reject the chain: every later request would wait forever.
+    // handle() answers every failure itself, but posting that answer can throw too.
     queue = queue.then(() => handle(request)).catch((error: unknown) => {
-      // eslint-disable-next-line no-console -- the browser runtime has no server log; the console is where details go.
-      console.error(`Runtime request ${request.method} ${request.url} could not be answered:`, error);
+      log(`Runtime request ${request.method} ${request.url} could not be answered:`, error);
       try { post({ type: "error", id: request.id, message: describe(error) }); } catch { /* the page gives up on its deadline */ }
     });
   }
 };
+
+/** The browser runtime has no server log, so details go to the console; a console that throws breaks nothing. */
+function log(...details: unknown[]) {
+  try {
+    // eslint-disable-next-line no-console -- the browser runtime has no server log; the console is where details go.
+    console.error(...details);
+  } catch { /* nothing else to tell */ }
+}
+
+/** `instanceof` runs a proxy's `getPrototypeOf` trap, which may throw: then it is not ours. */
+function isHung(error: unknown): error is RuntimeHungError {
+  try {
+    return error instanceof RuntimeHungError;
+  } catch {
+    return false;
+  }
+}
 
 /** Set once the runtime answered `ready`; a later stop is a crash that lost this tab's workspaces. */
 let running = false;
@@ -55,8 +72,7 @@ self.addEventListener("error", event => {
     if (!running) return;
     stop(describe(error));
   } else {
-    // eslint-disable-next-line no-console -- the browser runtime has no server log; the console is where details go.
-    console.error("Uncaught error in the editor runtime worker:", error);
+    log("Uncaught error in the editor runtime worker:", error);
   }
   event.preventDefault();
 });
@@ -111,11 +127,10 @@ async function handle(request: WireRequest) {
     const owned = frame.byteOffset === 0 && frame.byteLength === frame.buffer.byteLength ? frame.buffer as ArrayBuffer : frame.slice().buffer;
     post({ type: "response", id: request.id, status, headers, frame: owned, bodyOffset: bodyOffset - frame.byteOffset }, [owned]);
   } catch (error) {
-    // eslint-disable-next-line no-console -- the browser runtime has no server log; the console is where details go.
-    console.error(`Runtime request ${request.method} ${request.url} failed:`, error);
+    log(`Runtime request ${request.method} ${request.url} failed:`, error);
     // A change that never finished: the runtime is unusable (it released the storage lock); the page
     // reports a crash for every pending request and offers a reload.
-    if (error instanceof RuntimeHungError) return stop(error.message);
+    if (isHung(error)) return stop(error.message);
     // The .NET runtime aborted (an exhausted heap) or exited during the request: report a crash, not a
     // failed request, since the workspaces in its memory are gone and no later request can succeed.
     if (running && isRuntimeStopped(error)) return stop(describe(error));
