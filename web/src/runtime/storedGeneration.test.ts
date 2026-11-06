@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from "vitest";
 import { bootTab, frame, library, read, Site } from "../test/persistenceSite";
-import { PersistenceCoordinator, type PersistentStorage, type TabCoordination } from "./persistence";
+import { PersistenceCoordinator, READ_RETRY_MS, type PersistentStorage, type TabCoordination } from "./persistence";
 
 describe("a marker read that keeps failing", () => {
   it("reloads once, not before every preset read, and still sees announced and later-written changes", async () => {
@@ -24,29 +24,93 @@ describe("a marker read that keeps failing", () => {
     expect(library(site)).toEqual(["announced", "unannounced", "from B"]);
   });
 
-  it("while storage is gone too, answers every read from the cached view and warns once", async () => {
+  it("reloads at most once per retry period, so an unannounced save is still seen", async () => {
     const site = new Site();
-    const b = await bootTab(site);
-    site.failMarkerRead = new DOMException("The database connection is closing.", "InvalidStateError");
-    site.failLoad = new DOMException("Storage is gone.", "UnknownError");
-    for (let i = 0; i < 5; i++) expect(read(await b.list()).status).toBe(200);
-    expect(b.log.warn).toHaveBeenCalledOnce();
-  });
-
-  it("checks again after the retry period, reloading only once the marker can be read and differs", async () => {
-    const site = new Site();
-    const [a, b] = [await bootTab(site), await bootTab(site, true, { markerRetryMs: 0 })];
+    let now = 0;
+    const [a, b] = [await bootTab(site), await bootTab(site, true, { now: () => now })];
     site.failMarkerRead = new DOMException("The database connection is closing.", "InvalidStateError");
     const load = vi.spyOn(b.storage, "load");
     const marker = vi.spyOn(b.storage, "readStoredGeneration");
-    for (let i = 0; i < 3; i++) await b.list();
-    expect(marker).toHaveBeenCalledTimes(3);
-    expect(load).toHaveBeenCalledOnce();
+    await b.list();
+    site.failAnnounce = new DOMException("The channel is closed.", "InvalidStateError");
+    await a.create("unannounced");
+    now = READ_RETRY_MS - 1;
+    expect(read(await b.list()).body).toEqual([]);
+    expect([marker.mock.calls.length, load.mock.calls.length]).toEqual([1, 1]);
+    // After the period the marker is unknown again, and that reload brings the other tab's save.
+    now = READ_RETRY_MS;
+    expect(read(await b.list()).body).toEqual(["unannounced"]);
+    expect([marker.mock.calls.length, load.mock.calls.length]).toEqual([2, 2]);
+    // Once the marker can be read again, a read reloads only when it differs.
     site.failMarkerRead = null;
+    now = 2 * READ_RETRY_MS;
+    await b.list();
+    expect(load).toHaveBeenCalledTimes(2);
+    await a.create("later");
+    expect(read(await b.list()).body).toEqual(["unannounced", "later"]);
+    expect(load).toHaveBeenCalledTimes(3);
+  });
+
+});
+
+describe("the retry period after a failed marker read", () => {
+  it("sees another tab's unannounced save on every read once the period has passed", async () => {
+    const site = new Site();
+    // retryMs: 0 stands for "the retry period has passed before every read".
+    const [a, b] = [await bootTab(site), await bootTab(site, true, { retryMs: 0 })];
+    site.failMarkerRead = new DOMException("The database connection is closing.", "InvalidStateError");
+    await b.list();
     site.failAnnounce = new DOMException("The channel is closed.", "InvalidStateError");
     await a.create("unannounced");
     expect(read(await b.list()).body).toEqual(["unannounced"]);
+  });
+
+  it("does not stretch the retry period when the wall clock steps back", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date("2026-11-06T12:00:00Z"));
+      const site = new Site();
+      const [a, b] = [await bootTab(site), await bootTab(site, true, { retryMs: 50 })];
+      site.failMarkerRead = new DOMException("The database connection is closing.", "InvalidStateError");
+      await b.list();
+      site.failMarkerRead = null;
+      // The clock is corrected back by one hour; then more than the retry period passes.
+      vi.setSystemTime(new Date("2026-11-06T11:00:00Z"));
+      await new Promise(resolve => setTimeout(resolve, 100));
+      site.failAnnounce = new DOMException("The channel is closed.", "InvalidStateError");
+      await a.create("unannounced");
+      expect(read(await b.list()).body).toEqual(["unannounced"]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+describe("a marker read and a reload that both keep failing", () => {
+  it("reload at most once per retry period, answer from the cached view and warn once", async () => {
+    const site = new Site();
+    let now = 0;
+    const b = await bootTab(site, true, { now: () => now });
+    site.failMarkerRead = new DOMException("The database connection is closing.", "InvalidStateError");
+    site.failLoad = new DOMException("Storage is gone.", "UnknownError");
+    const load = vi.spyOn(b.storage, "load");
+    for (let i = 0; i < 5; i++) expect(read(await b.list()).status).toBe(200);
+    expect(load).toHaveBeenCalledOnce();
+    now = READ_RETRY_MS;
+    for (let i = 0; i < 5; i++) expect(read(await b.list()).status).toBe(200);
     expect(load).toHaveBeenCalledTimes(2);
+    expect(b.log.warn).toHaveBeenCalledOnce();
+  });
+
+  it("try again as soon as another tab announces a save", async () => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    site.failMarkerRead = new DOMException("The database connection is closing.", "InvalidStateError");
+    site.failLoad = new DOMException("Storage is gone.", "UnknownError");
+    await b.list();
+    site.failLoad = null;
+    await a.create("announced");
+    expect(read(await b.list()).body).toEqual(["announced"]);
   });
 });
 
@@ -61,6 +125,50 @@ describe("a marker read that never settles", () => {
     expect(await answered(b.list())).toBe("answered");
     expect(await answered(b.list())).toBe("answered");
     expect(marker).toHaveBeenCalledOnce();
+  });
+});
+
+describe("an IndexedDB that never answers", () => {
+  const answered = (request: Promise<unknown>, ms = 500) =>
+    Promise.race([request.then(() => "answered"), new Promise(resolve => setTimeout(() => resolve("pending"), ms))]);
+
+  it("answers a read after a bounded wait for the reload, and later reads neither wait nor reload again", async () => {
+    const site = new Site();
+    const b = await bootTab(site, true, { markerReadMs: 20, readLockWaitMs: 20 });
+    b.storage.readStoredGeneration = vi.fn(() => new Promise<string>(() => undefined));
+    const load = vi.spyOn(b.storage, "load").mockImplementation(() => new Promise<void>(() => undefined));
+    expect(await answered(b.list())).toBe("answered");
+    // A reload is still running: no other read starts one or waits for anything, announced or not.
+    b.coordinator.invalidate();
+    expect(await answered(b.list(), 15)).toBe("answered");
+    expect(load).toHaveBeenCalledOnce();
+    expect(b.storage.readStoredGeneration).toHaveBeenCalledOnce();
+    expect(b.log.warn).toHaveBeenCalledOnce();
+  });
+
+  it("makes a mutation wait for a reload a read gave up on, so its late completion cannot undo the change", async () => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site, true, { readLockWaitMs: 20 })];
+    await a.create("first");
+    // The read's reload captures IndexedDB as it is now, and applies that only much later.
+    let finish!: () => void;
+    const load = vi.spyOn(b.storage, "load").mockImplementationOnce(() => {
+      const captured = site.idb;
+      return new Promise<void>(resolve => { finish = () => { b.local = new Map(captured); resolve(); }; });
+    });
+    expect(read(await b.list()).body).toEqual([]);
+    // The read released the shared lock: another tab can save meanwhile.
+    await a.create("second");
+    expect(read(await b.list()).body).toEqual([]);
+    expect(load).toHaveBeenCalledOnce();
+    let created = false;
+    const create = b.create("from B").then(() => { created = true; });
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(created).toBe(false);
+    finish();
+    await create;
+    expect(library(site)).toEqual(["first", "second", "from B"]);
+    expect(read(await b.list()).body).toEqual(["first", "second", "from B"]);
   });
 });
 

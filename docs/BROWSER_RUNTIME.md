@@ -120,12 +120,21 @@ what another tab saved. `web/src/runtime/persistence.ts` prevents that:
   announcement can be lost (its `postMessage` failed, or the browser has no `BroadcastChannel`), so such a
   read also compares the `.generation` marker in IndexedDB (one small read, without the lock) with the one
   its mount holds, and reloads when they differ or the marker cannot be read. That check converges
-  (`web/src/runtime/storedGeneration.ts`): a marker read that fails or takes over 1 s reloads once, and
-  later reads skip the check for 30 s and stop reloading while it keeps failing; a stored marker a reload
-  could not bring in (IDBFS replaces an entry only when its timestamp differs) does not cause another
-  reload until IndexedDB holds a different one. An announcement or a mutation always reloads. They
-  wait at most 1 s for the lock: while another tab holds it (a long import, a frozen tab) they answer
-  from the cached view, keep it marked stale and do not wait again until the lock is next granted. Other reads
+  (`web/src/runtime/storedGeneration.ts`): a marker read that fails or takes over 1 s reloads, and after
+  it, or after a read's reload that failed, such reads leave storage alone for 30 s (on the monotonic
+  clock, so a wall-clock step cannot stretch it) and answer from the cached view. While IndexedDB keeps
+  failing, reads therefore reload at most once per 30 s, and still see another tab's unannounced save
+  within about that long. An announcement or a dropped connection ends that period early; a stored marker a
+  reload could not bring in (IDBFS replaces an entry only when its timestamp differs) does not cause another
+  reload until IndexedDB holds a different one. After an announcement the next such read reloads
+  (unless a reload given up on still runs, below), and a mutation always does. Such reads wait at most 1 s for the lock: while another tab holds it (a long import, a frozen tab) they answer
+  from the cached view, keep it marked stale and do not wait again until the lock is next granted. They
+  also wait at most 1 s for the reload itself: a hung IndexedDB must not hold the lock and the worker's
+  request queue (which also serves downloads and exports of unsaved edits). The reload they gave up on
+  keeps running, and its late `syncfs(true)` still rewrites the mount, so loads never overlap: until it
+  settles reads start no other one (they answer from the cached view at once), and a mutation's reload
+  waits for it, so it cannot undo files the mutation writes before they are flushed (against a hung
+  IndexedDB the mutation waits as its own reload would). Other reads
   never wait for or touch storage. Until then a read may be stale, but a write never is: it always
   reloads under the lock first.
 - **Cleared site data.** IDBFS opens its IndexedDB connection once and caches it, so after "Clear site

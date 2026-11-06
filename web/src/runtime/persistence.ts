@@ -13,11 +13,12 @@
  * After such an announcement (or when the browser closed the IndexedDB connection, for example "Clear
  * site data", or IndexedDB's generation marker differs from the loaded one because an announcement was
  * lost), reads of presets and reference packs refresh under a shared lock, waiting only briefly:
- * while another tab holds the lock (a long import, a frozen tab) they answer from the cached view and
- * retry later, and reads of anything else never wait. A failed flush is reported as an error response
- * (never a silent success), and the tab reloads what IndexedDB really holds. When the stores cannot
- * re-read another tab's files (for example a library saved by a newer version of the site), the tab
- * keeps its last good view for reads but refuses mutations, which would write that stale view back.
+ * while another tab holds the lock (a long import, a frozen tab) or IndexedDB does not answer the reload,
+ * they answer from the cached view and retry later, and reads of anything else never wait. A failed
+ * flush is reported as an error response (never a silent success), and the tab reloads what IndexedDB
+ * really holds. When the stores cannot re-read another tab's files (for example a library saved by a
+ * newer version of the site), the tab keeps its last good view for reads but refuses mutations, which
+ * would write that stale view back.
  *
  * A mutation whose .NET dispatch never settles would hold the exclusive lock until the tab closes (Web
  * Locks are released with the page and its workers). After MUTATION_WATCHDOG_MS the lock is released and
@@ -29,45 +30,8 @@ import { readsDurableData, writesDurableData } from "./durableRoutes";
 import { describeError, isRuntimeStopped } from "./failures";
 import { decodeFrame, problemFrame } from "./framing";
 import { changedData, type PersistentData } from "./persistentChanges";
-import { StoredGenerationCheck, type GenerationCheckTiming } from "./storedGeneration";
-
-/** The worker's view of the persistent mount and the .NET stores on top of it. */
-export interface PersistentStorage {
-  /** Replaces the in-memory tree with what IndexedDB holds (`FS.syncfs(true)`). */
-  load(): Promise<void>;
-  /** Writes the in-memory tree to IndexedDB (`FS.syncfs(false)`). */
-  save(): Promise<void>;
-  /**
-   * Starts recording changes to the in-memory tree. The returned function stops recording (calling it
-   * again returns the same answer) and tells whether anything changed; changed entries then carry
-   * modification times IDBFS cannot mistake for the stored ones, whatever the clock's resolution.
-   */
-  trackChanges(): () => boolean;
-  /** After `save()`: rejects unless IndexedDB now holds exactly the in-memory tree. */
-  verifySaved(): Promise<void>;
-  /** The generation marker of the in-memory tree ("" when there is none). */
-  readGeneration(): string;
-  /** The marker IndexedDB holds now ("" when none), without loading the tree; absent without IDBFS' internals. */
-  readStoredGeneration?(): Promise<string>;
-  /** Writes the marker; like every tracked change, IDBFS always sees it as changed. */
-  writeGeneration(generation: string): void;
-  /** Makes the .NET stores re-read their files; returns an error message, or "" on success. */
-  reloadStores(): string;
-}
-
-export type LockMode = "shared" | "exclusive";
-
-export interface TabCoordination {
-  /**
-   * Runs `task` holding the site-wide lock; null when the browser has no Web Locks. Waits at most
-   * `waitMs` (default LOCK_WAIT_MS; 0: only if available now); rejects without running `task` when not granted.
-   */
-  lock: (<T>(mode: LockMode, task: () => Promise<T>, waitMs?: number) => Promise<T>) | null;
-  /** Tells the other tabs that persistent data changed, and what. */
-  announce(changed: readonly PersistentData[]): void;
-  /** Registers the handler for the other tabs' announcements. */
-  listen(onChange: () => void): void;
-}
+import type { LockMode, PersistentStorage, TabCoordination } from "./storageContract";
+import { bounded, StorageTimeoutError, StoredGenerationCheck, type GenerationCheckTiming } from "./storedGeneration";
 
 export interface Persistence {
   /** True when Web Locks keep tabs from overwriting each other's presets and packs. */
@@ -83,12 +47,15 @@ export interface Persistence {
 
 /** Longest wait for another tab's write before giving up with an error (never a lost write). */
 export const LOCK_WAIT_MS = 30_000;
-/** Longest wait of a preset or pack read for fresh data; it answers from the cached view after that. */
+/**
+ * Longest wait of a preset or pack read for the lock, and again for the reload of the tree; it answers
+ * from the cached view after that.
+ */
 export const READ_LOCK_WAIT_MS = 1_000;
 /** A mutation still unanswered after this long (twice the UI's longest deadline) is treated as hung. */
 export const MUTATION_WATCHDOG_MS = 10 * 60_000;
-/** After IndexedDB's generation marker could not be read, reads do not try again for this long. */
-export const MARKER_RETRY_MS = 30_000;
+/** After storage failed a preset or pack read (marker unknown, reload failed), reads leave it alone this long. */
+export const READ_RETRY_MS = 30_000;
 
 export interface CoordinatorTiming extends GenerationCheckTiming {
   readLockWaitMs: number;
@@ -96,6 +63,7 @@ export interface CoordinatorTiming extends GenerationCheckTiming {
 }
 
 export { readsDurableData, writesDurableData } from "./durableRoutes";
+export type { LockMode, PersistentStorage, TabCoordination } from "./storageContract";
 
 /** Without persistence (no IndexedDB) every request simply runs. */
 export const memoryOnly: Persistence = { coordinated: false, run: (_method, _url, dispatch) => dispatch(), stop: () => {} };
@@ -124,6 +92,8 @@ export class PersistenceCoordinator implements Persistence {
   private lockBusy = false;
   /** A read's reload of the tree failed: later failures are not reported again until one works. */
   private loadFailing = false;
+  /** The `storage.load()` still running, if any; see load(). */
+  private loading: Promise<void> | null = null;
   private hung: RuntimeHungError | null = null;
   /** Rejects the dispatch the running mutation waits for (it holds the exclusive lock until then). */
   private readonly inFlight = new Set<(error: RuntimeHungError) => void>();
@@ -134,18 +104,22 @@ export class PersistenceCoordinator implements Persistence {
   constructor(private readonly storage: PersistentStorage, private readonly tabs: TabCoordination,
     private readonly log: Pick<Console, "error" | "warn"> = console, timing: Partial<CoordinatorTiming> = {}) {
     this.timing = { readLockWaitMs: READ_LOCK_WAIT_MS, mutationWatchdogMs: MUTATION_WATCHDOG_MS, markerReadMs: READ_LOCK_WAIT_MS,
-      markerRetryMs: MARKER_RETRY_MS, ...timing };
+      retryMs: READ_RETRY_MS, now: () => performance.now(), ...timing };
     this.storedGeneration = new StoredGenerationCheck(storage, this.timing);
-    tabs.listen(() => { this.stale = true; });
+    tabs.listen(() => this.invalidate());
   }
 
   get coordinated() { return this.tabs.lock !== null; }
 
   /**
    * IndexedDB may no longer hold what this tab loaded (its connection was closed, for example because
-   * the site's data was cleared): the next preset or pack read reloads, as after another tab's change.
+   * the site's data was cleared): the next preset or pack read reloads, as after another tab's change,
+   * even within the retry period of an earlier storage failure.
    */
-  invalidate() { this.stale = true; }
+  invalidate() {
+    this.stale = true;
+    this.storedGeneration.retry();
+  }
 
   /**
    * Boot: the first load from IndexedDB, before the .NET host reads the files. Throws when storage is
@@ -155,7 +129,7 @@ export class PersistenceCoordinator implements Persistence {
   async initialLoad(): Promise<boolean> {
     try {
       await this.locked("shared", async () => {
-        await this.storage.load();
+        await this.load();
         this.generation = this.storage.readGeneration();
       });
       return true;
@@ -181,8 +155,10 @@ export class PersistenceCoordinator implements Persistence {
   private async request(method: string, url: string, dispatch: () => Promise<Uint8Array>): Promise<Uint8Array> {
     if (this.hung) throw this.hung;
     if (!writesDurableData(method, url)) {
-      if (readsDurableData(url)) {
-        // A change another tab saved but could not announce gives no other sign (runtime/storedGeneration.ts).
+      // While a reload this tab gave up on still runs, or within the retry period after a storage failure,
+      // the read leaves storage alone and answers from the cached view (runtime/storedGeneration.ts).
+      if (readsDurableData(url) && !this.loading && this.storedGeneration.ready) {
+        // A change another tab saved but could not announce gives no other sign.
         if (!this.stale && await this.storedGeneration.changed()) this.stale = true;
         if (this.stale) await this.refreshForRead();
       }
@@ -201,13 +177,13 @@ export class PersistenceCoordinator implements Persistence {
   }
 
   /**
-   * Another tab saved: serve this read from fresh data if the lock comes quickly, else from the cached
-   * view (still stale, so a later read tries again). Before the first load, or while the lock is known
-   * to be held, do not wait at all: the tab that holds it may hold it for long.
+   * Another tab saved: serve this read from fresh data if the lock and the reload come quickly, else from
+   * the cached view (still stale, so a later read tries again). Before the first load, or while the lock is
+   * known to be held, do not wait for it at all: the tab that holds it may hold it for long.
    */
   private async refreshForRead() {
     const wait = this.generation === null || this.lockBusy ? 0 : this.timing.readLockWaitMs;
-    await this.locked("shared", () => this.refresh(), wait).catch((error: unknown) => {
+    await this.locked("shared", () => this.refresh(this.timing.readLockWaitMs), wait).catch((error: unknown) => {
       // Stopped meanwhile, or the stores' reload trapped: the read must not dispatch on that runtime.
       if (error instanceof RuntimeHungError || this.stopped(error)) throw error;
       if (error instanceof StoreReloadError) {
@@ -221,7 +197,9 @@ export class PersistenceCoordinator implements Persistence {
         this.lockBusy = true;
         return;
       }
-      // Retried by every later preset or pack read (and mutation), but reported once until a reload works.
+      // A failed reload is retried by the first read after the retry period (and by every mutation); one
+      // that timed out by the first read after it settled. Either is reported once until a reload works.
+      if (!(error instanceof StorageTimeoutError)) this.storedGeneration.backOff();
       if (!this.loadFailing) this.log.warn("Reloading presets and reference packs from browser storage failed:", error);
       this.loadFailing = true;
     });
@@ -286,11 +264,12 @@ export class PersistenceCoordinator implements Persistence {
   /**
    * Reloads the tree; the .NET stores re-read their files when another tab changed them. Adopts the new
    * generation only once they did, so a failed reload is retried (and mutations refused) until it works.
+   * A read waits at most `waitMs` for the tree (StorageTimeoutError); a mutation waits for it.
    */
-  private async refresh() {
+  private async refresh(waitMs?: number) {
     this.stale = false;
     try {
-      await this.storage.load();
+      await (waitMs === undefined ? this.load() : bounded(this.load(), waitMs));
     } catch (error) {
       this.stale = true;
       throw this.hung ?? error;
@@ -313,7 +292,7 @@ export class PersistenceCoordinator implements Persistence {
   private async revert(): Promise<boolean> {
     this.generation = null;
     try {
-      await this.storage.load();
+      await this.load();
     } catch (error) {
       this.stale = true;
       this.log.error("Restoring presets and reference packs from browser storage failed:", error);
@@ -328,6 +307,20 @@ export class PersistenceCoordinator implements Persistence {
     }
     this.generation = generation;
     return true;
+  }
+
+  /**
+   * `storage.load()`, never two at once: a read that gave up on a reload leaves it running, and its late
+   * `syncfs(true)` still rewrites the tree. So the next load (a mutation's, a revert's) starts only once it
+   * settled; otherwise the late one could delete or revert files a mutation just wrote, before they are
+   * flushed. Reads do not start one meanwhile, and nothing but a new load relies on the late one's tree.
+   */
+  private load(): Promise<void> {
+    const run = (this.loading ?? Promise.resolve()).catch(() => undefined).then(() => this.storage.load());
+    this.loading = run;
+    const settled = () => { if (this.loading === run) this.loading = null; };
+    run.then(settled, settled);
+    return run;
   }
 
   stop(reason: string) {
