@@ -67,6 +67,8 @@ class WorkerRuntimeClient {
   private readonly listeners = new Set<() => void>();
   private readonly pending = new Map<number, Pending>();
   private nextId = 1;
+  /** Settles once the most recently called request was posted to the worker (or failed before that). */
+  private posted: Promise<void> = Promise.resolve();
 
   constructor(private readonly createWorker: () => Worker, private readonly frameworkUrl: string) {}
 
@@ -75,7 +77,25 @@ class WorkerRuntimeClient {
     if (signal?.aborted) throw abortError();
     this.start();
     if (this.current.status === "failed") throw new TypeError(this.current.message);
-    const { headers, body } = await serialize(url, init);
+    // The request takes its place in the worker's queue now, in call order: serializing a body is
+    // asynchronous, and a later request without one must not overtake it (a GET /download issued after
+    // a POST /edits must see the edit). Each request is posted only after the one called before it was
+    // posted or failed, so a failed or aborted request never holds up the next.
+    const serialized = serialize(url, init);
+    const turn = this.posted;
+    let posted!: () => void;
+    this.posted = new Promise<void>(resolve => { posted = resolve; });
+    try {
+      const { headers, body } = await serialized;
+      await turn;
+      return this.post(url, init, events, headers, body);
+    } finally {
+      posted();
+    }
+  }
+
+  private post(url: string, init: RequestInit, events: RequestEvents, headers: HeaderPairs, body: ArrayBuffer | null): Promise<Response> {
+    const signal = init.signal;
     if (signal?.aborted) throw abortError();
     const state = this.current as RuntimeState; // may have failed while the body was serialized
     if (state.status === "failed") throw new TypeError(state.message);

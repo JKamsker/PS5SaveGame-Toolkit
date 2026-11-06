@@ -108,6 +108,39 @@ it("runtime client: hands requests to the worker in order, matches replies by id
   expect(await (await second).json()).toEqual([]);
 });
 
+it("runtime client: a request with a body reaches the worker before a body-less request called after it", async () => {
+  const { worker, client } = setup();
+  worker.emit({ type: "ready", boot });
+  void client.fetch("/api/workspaces/w/documents/d/edits", {
+    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ edits: [] }),
+  });
+  void client.fetch("/api/workspaces/w/documents/d/download");
+  void client.fetch("/api/workspaces/w/export", { method: "POST", body: new FormData() });
+  void client.fetch("/api/workspaces/w");
+  await vi.waitFor(() => expect(worker.requests()).toHaveLength(4));
+  expect(worker.requests().map(request => `${request.method} ${request.url}`)).toEqual([
+    "POST /api/workspaces/w/documents/d/edits", "GET /api/workspaces/w/documents/d/download",
+    "POST /api/workspaces/w/export", "GET /api/workspaces/w"]);
+  expect(worker.requests().map(request => request.id)).toEqual([1, 2, 3, 4]);
+});
+
+it("runtime client: a request whose body cannot be serialized, or that is aborted meanwhile, does not hold up later ones", async () => {
+  const { worker, client } = setup();
+  worker.emit({ type: "ready", boot });
+  // A stream body without `duplex` is refused while the body is serialized.
+  const unreadable = client.fetch("/api/unreadable", { method: "POST", body: new ReadableStream() });
+  const controller = new AbortController();
+  const aborted = client.fetch("/api/aborted", { method: "POST", body: "x".repeat(1 << 20), signal: controller.signal });
+  controller.abort();
+  const later = client.fetch("/api/later");
+  await expect(unreadable).rejects.toThrow();
+  await expect(aborted).rejects.toMatchObject({ name: "AbortError" });
+  await vi.waitFor(() => expect(worker.requests()).toHaveLength(1));
+  expect(worker.requests()[0]!.url).toBe("/api/later");
+  worker.reply(worker.requests()[0]!, 200, "[]");
+  expect(await (await later).json()).toEqual([]);
+});
+
 it("runtime client: cancels a request the worker has not started and rejects it with AbortError", async () => {
   const { worker, client } = setup();
   worker.emit({ type: "ready", boot });
