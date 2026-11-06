@@ -88,16 +88,17 @@ scripts for items 1 to 3 are in [tools/browser-repros](../../tools/browser-repro
      say what changed and carry a tab nonce.
    - Suspected: the 90 s boot deadline can fire after downloads finish (WASM start, lock wait, store
      load); `isOutsideApp` is case-sensitive while React Router is not.
-5. **e2e harness (partly done in this branch)**:
-   - Done: `FailureMonitor` now fails on unexpected worker API errors, a real runtime-crash e2e test
-     exists (`failure-document.e2e.ts`, using `crashRuntime`), and cancels are forwarded to the worker.
-   - Still to do:
-     - Prove with mutations that both weakenings are now caught: a stray failing request in
-       `client.ts workspace()`, and `fail()` no longer rejecting pending requests.
-     - Make `apiRequest()` reads ordered behind the app's queued requests (`proveUnchangedDraft`,
-       `actions.e2e.ts:179`).
-     - Add one real two-tab preset-recovery e2e test.
-     - Rerun the full suite.
+5. **e2e harness (done)**:
+   - `FailureMonitor` fails on unexpected worker API errors; real runtime-crash (`crashRuntime`) and
+     WebAssembly-trap (`trapRuntime`) tests exist in `failure-document.e2e.ts`; cancels reach the worker.
+   - Mutation-checked: a stray failing request in `api/client.ts` `workspace()` fails all 45
+     FailureMonitor tests (failure-\*, browser-codecs); `runtime/client.ts` `fail()` no longer rejecting
+     pending requests fails both crash tests.
+   - `apiRequest()` is sent once the app is idle (`apiPageHooks.ts` `idle`), so it runs behind writes the
+     app queued, not only those already posted (`api-request-order.e2e.ts`).
+   - The runtime client posts requests in call order even while a body serializes.
+   - `preset-tabs.e2e.ts`: two real tabs share presets (announcement, echo ignored, shared-lock refresh)
+     and recover when a tab frozen mid-save is closed.
 6. **Interrupted review**: round 4 of the persistence and runtime review was stopped unfinished. Rerun
    it on the current code, then continue the loop until a round finds nothing verified.
 
