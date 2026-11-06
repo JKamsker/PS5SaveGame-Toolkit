@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, expect, it, vi } from "vitest";
 import { api } from "../../api/client";
@@ -10,6 +10,7 @@ import { DocumentContext } from "../../state/documentStore";
 import { ReviewNavigationProvider } from "./review/navigation";
 import { WorkspaceActivity, WorkspaceActivityContext } from "../../state/workspaceActivity";
 import { deferred } from "../../test/deferred";
+import { createDocumentFixture } from "../../test/documentFixture";
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
@@ -60,6 +61,57 @@ it("captures only after edits queued before the click have been applied", async 
   expect(capture).not.toHaveBeenCalled();
   edit.resolve();
   await waitFor(() => expect(capture).toHaveBeenCalledWith("w1", "d1", "After edit", expect.objectContaining({ scopeKind: "document" })));
+});
+
+function renderQueuedCapture() {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([]);
+  const capture = vi.spyOn(api, "capturePreset").mockResolvedValue({
+    schemaVersion: "1", id: "p", name: "Queued", compatibility: { pluginId: "test", pluginVersion: "1", titleIds: ["PPSA00001"] },
+    actions: [{ actionId: "capture", parameters: {}, scopeKind: "selected" }], createdAt: "", updatedAt: "",
+  });
+  const activity = new WorkspaceActivity();
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  client.setQueryData(["document", "w1", "d1"], document);
+  const { context } = createDocumentFixture({ acceptMutations: true });
+  const tree = (value: typeof context) => <QueryClientProvider client={client}><DocumentContext.Provider value={value}>
+    <WorkspaceActivityContext.Provider value={activity}><ReviewNavigationProvider>
+      <ViewRenderer node={view} /><PresetsPanel document={document} onToast={vi.fn()} />
+    </ReviewNavigationProvider></WorkspaceActivityContext.Provider></DocumentContext.Provider></QueryClientProvider>;
+  const rendered = render(tree(context));
+  return { capture, activity, client, context, rerender: (value: typeof context) => rendered.rerender(tree(value)) };
+}
+
+async function clickSaveSelectedBehindEdit(activity: WorkspaceActivity) {
+  fireEvent.click(await screen.findByText("Toolkit presets"));
+  await screen.findByRole("button", { name: "Save preset" });
+  fireEvent.click(screen.getByRole("checkbox", { name: "Select all shown rows" }));
+  fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Queued" } });
+  fireEvent.change(screen.getByLabelText("Scope"), { target: { value: "selected" } });
+  const edit = deferred<void>();
+  void activity.track(edit.promise);
+  fireEvent.click(screen.getByRole("button", { name: "Save preset" }));
+  await new Promise(resolve => setTimeout(resolve, 20));
+  return edit;
+}
+
+it("does not capture rows chosen in a view that a queued edit replaced", async () => {
+  const { capture, activity, client } = renderQueuedCapture();
+  const edit = await clickSaveSelectedBehindEdit(activity);
+  // The queued edit reported a structure change: its snapshot read replaced the view (and its row keys).
+  client.setQueryData(["document", "w1", "d1"], { ...document, state: { ...document.state, revision: 1 } });
+  edit.resolve();
+  expect((await screen.findByRole("alert", { name: "Preset save result" })).textContent).toMatch(/document changed/i);
+  expect(capture).not.toHaveBeenCalled();
+});
+
+it("re-checks the snapshot after waiting for queued edits", async () => {
+  const { capture, activity, context, rerender } = renderQueuedCapture();
+  const edit = await clickSaveSelectedBehindEdit(activity);
+  // The queued edit's snapshot read failed while the capture was waiting behind it.
+  rerender({ ...context, refreshState: "failed", refreshError: "Snapshot unavailable" });
+  edit.resolve();
+  expect((await screen.findByRole("alert", { name: "Preset save result" })).textContent).toBe("Refresh the document before using presets.");
+  expect(capture).not.toHaveBeenCalled();
 });
 
 it("reload recovery retains server-incompatible summaries instead of enabling a preset", async () => {

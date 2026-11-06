@@ -101,6 +101,12 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
     const state = currentContext.current.refreshState;
     if (state === "pending" || state === "failed") throw new Error("Refresh the document before using presets.");
   };
+  // Read from the query cache, not the rendered context: a snapshot read inside a queued
+  // write installs (or fails) before React re-renders this panel.
+  const snapshotGeneration = () => {
+    const state = client.getQueryState(["document", context.workspaceId, context.documentId]);
+    return `${state?.dataUpdateCount ?? 0}:${state?.errorUpdateCount ?? 0}`;
+  };
   const recoverStalePreview = async (requestId: number) => {
     if (requestId !== review.current.generation) return;
     setStale(true);
@@ -139,11 +145,16 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
   const create = useMutation({
     mutationFn: async () => {
       requireSnapshot();
+      const view = snapshotGeneration();
+      // Capture resolves the targets against the document: it must see the edits queued before this click.
+      if (activity) await activity.waitForMutations();
+      // A queued edit may have failed or replaced the snapshot: the chosen action and row keys
+      // then belong to an older view, so ask for a fresh choice instead of capturing other rows.
+      requireSnapshot();
+      if (snapshotGeneration() !== view) throw new Error("The document changed. Review the action and selection, then save the preset again.");
       const request = { actionId: activeActionId, parameters: parameters as Record<string, unknown>, scopeKind,
         selectedRowKeys: scopeKind === "selected" ? [...(selection?.selectedKeys ?? [])] : undefined,
         allMatches: scopeKind === "allEligible" || scopeKind === "allCopies" };
-      // Capture resolves the targets against the document: it must see the edits queued before this click.
-      if (activity) await activity.waitForMutations();
       return api.capturePreset(context.workspaceId, context.documentId, name, request);
     },
     onSuccess: result => { setName(""); showMessage(`Saved “${result.name}”.`); void client.invalidateQueries({ queryKey: ["presets"] }); },
