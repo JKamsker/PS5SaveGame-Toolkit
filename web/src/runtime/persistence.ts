@@ -29,6 +29,7 @@ import { readsDurableData, writesDurableData } from "./durableRoutes";
 import { describeError, isRuntimeStopped } from "./failures";
 import { decodeFrame, problemFrame } from "./framing";
 import { changedData, type PersistentData } from "./persistentChanges";
+import { StoredGenerationCheck, type GenerationCheckTiming } from "./storedGeneration";
 
 /** The worker's view of the persistent mount and the .NET stores on top of it. */
 export interface PersistentStorage {
@@ -86,8 +87,10 @@ export const LOCK_WAIT_MS = 30_000;
 export const READ_LOCK_WAIT_MS = 1_000;
 /** A mutation still unanswered after this long (twice the UI's longest deadline) is treated as hung. */
 export const MUTATION_WATCHDOG_MS = 10 * 60_000;
+/** After IndexedDB's generation marker could not be read, reads do not try again for this long. */
+export const MARKER_RETRY_MS = 30_000;
 
-export interface CoordinatorTiming {
+export interface CoordinatorTiming extends GenerationCheckTiming {
   readLockWaitMs: number;
   mutationWatchdogMs: number;
 }
@@ -119,14 +122,20 @@ export class PersistenceCoordinator implements Persistence {
   private stale = false;
   /** A read found the lock held: later reads do not wait for it until a lock is granted again. */
   private lockBusy = false;
+  /** A read's reload of the tree failed: later failures are not reported again until one works. */
+  private loadFailing = false;
   private hung: RuntimeHungError | null = null;
   /** Rejects the dispatch the running mutation waits for (it holds the exclusive lock until then). */
   private readonly inFlight = new Set<(error: RuntimeHungError) => void>();
   private readonly timing: CoordinatorTiming;
+  /** Notices a change another tab saved but could not announce. */
+  private readonly storedGeneration: StoredGenerationCheck;
 
   constructor(private readonly storage: PersistentStorage, private readonly tabs: TabCoordination,
     private readonly log: Pick<Console, "error" | "warn"> = console, timing: Partial<CoordinatorTiming> = {}) {
-    this.timing = { readLockWaitMs: READ_LOCK_WAIT_MS, mutationWatchdogMs: MUTATION_WATCHDOG_MS, ...timing };
+    this.timing = { readLockWaitMs: READ_LOCK_WAIT_MS, mutationWatchdogMs: MUTATION_WATCHDOG_MS, markerReadMs: READ_LOCK_WAIT_MS,
+      markerRetryMs: MARKER_RETRY_MS, ...timing };
+    this.storedGeneration = new StoredGenerationCheck(storage, this.timing);
     tabs.listen(() => { this.stale = true; });
   }
 
@@ -173,7 +182,8 @@ export class PersistenceCoordinator implements Persistence {
     if (this.hung) throw this.hung;
     if (!writesDurableData(method, url)) {
       if (readsDurableData(url)) {
-        if (!this.stale) await this.checkStoredGeneration();
+        // A change another tab saved but could not announce gives no other sign (runtime/storedGeneration.ts).
+        if (!this.stale && await this.storedGeneration.changed()) this.stale = true;
         if (this.stale) await this.refreshForRead();
       }
       // The runtime stopped while the read refreshed: its dispatch would never settle (or fail).
@@ -187,20 +197,6 @@ export class PersistenceCoordinator implements Persistence {
       this.log.warn("Waiting for another tab's storage lock failed:", error.cause);
       return problemFrame(503, "Service Unavailable", "Another tab of this site is still saving presets or reference "
         + "packs, so this change was not made. Try again in a moment.");
-    }
-  }
-
-  /**
-   * A change another tab saved but could not announce (its postMessage failed, no BroadcastChannel) gives
-   * no other sign: compare IndexedDB's generation marker with this tree's (one small read, no lock).
-   */
-  private async checkStoredGeneration() {
-    if (!this.storage.readStoredGeneration) return;
-    try {
-      if (await this.storage.readStoredGeneration() !== this.storage.readGeneration()) this.stale = true;
-    } catch {
-      // Unknown (a closed connection, say): reload, which reconnects and logs if that fails too.
-      this.stale = true;
     }
   }
 
@@ -225,7 +221,9 @@ export class PersistenceCoordinator implements Persistence {
         this.lockBusy = true;
         return;
       }
-      this.log.warn("Reloading presets and reference packs from browser storage failed:", error);
+      // Retried by every later preset or pack read (and mutation), but reported once until a reload works.
+      if (!this.loadFailing) this.log.warn("Reloading presets and reference packs from browser storage failed:", error);
+      this.loadFailing = true;
     });
   }
 
@@ -297,6 +295,8 @@ export class PersistenceCoordinator implements Persistence {
       this.stale = true;
       throw this.hung ?? error;
     }
+    this.loadFailing = false;
+    this.storedGeneration.reloaded();
     // The runtime stopped while the tree was loading (its dispatch would never settle): re-read nothing.
     if (this.hung) throw this.hung;
     const generation = this.storage.readGeneration();

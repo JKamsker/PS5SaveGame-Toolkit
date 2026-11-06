@@ -222,7 +222,7 @@ describe("IDBFS connections the browser closed", () => {
 
 describe("reading one stored file, as IDBFS stores it", () => {
   /** IDBFS' store: entries by full path, a file's bytes as `contents`; `get` answers asynchronously. */
-  const stored = (entries: Record<string, unknown>, failure?: { open?: unknown; transaction?: Error }): IdbfsDatabase => ({
+  const stored = (entries: Record<string, unknown>, failure?: { open?: unknown; transaction?: Error; request?: DOMException | null }): IdbfsDatabase => ({
     DB_STORE_NAME: "FILE_DATA",
     getDB: (name, callback) => {
       if (failure?.open !== undefined) return callback(failure.open);
@@ -232,8 +232,9 @@ describe("reading one stored file, as IDBFS stores it", () => {
           if (failure?.transaction) throw failure.transaction;
           expect([stores, mode]).toEqual([["FILE_DATA"], "readonly"]);
           return { objectStore: () => ({ get: (path: string) => {
-            const request = { result: entries[path], onsuccess: null as (() => void) | null };
-            setTimeout(() => request.onsuccess?.());
+            const request = { result: entries[path], error: failure?.request ?? null,
+              onsuccess: null as (() => void) | null, onerror: null as (() => void) | null };
+            setTimeout(() => failure?.request !== undefined ? request.onerror?.() : request.onsuccess?.());
             return request;
           } }) };
         },
@@ -252,5 +253,14 @@ describe("reading one stored file, as IDBFS stores it", () => {
     await expect(readStoredText(stored({}, { open: "Unable to connect to IndexedDB" }), ROOT, marker)).rejects.toThrow(/Unable to connect/);
     await expect(readStoredText(stored({}, { transaction: new Error("InvalidStateError: closing") }), ROOT, marker))
       .rejects.toThrow(/closing/);
+    await expect(readStoredText(stored({}, { request: new DOMException("The read failed.", "UnknownError") }), ROOT, marker))
+      .rejects.toThrow(/read failed/);
+    await expect(readStoredText(stored({}, { request: null }), ROOT, marker)).rejects.toThrow(/could not read the entry/);
+  });
+
+  it("returns nothing for an entry without a file's bytes (a directory, contents of another shape)", async () => {
+    const idbfs = stored({ [marker]: { timestamp: 5, mode: 16877 }, [`${ROOT}/odd`]: { timestamp: 5, mode: 33206, contents: [103, 101, 110] } });
+    expect(await readStoredText(idbfs, ROOT, marker)).toBe("");
+    expect(await readStoredText(idbfs, ROOT, `${ROOT}/odd`)).toBe("");
   });
 });
