@@ -242,13 +242,17 @@ export class PersistenceCoordinator implements Persistence {
       if (changes()) await this.revert();
       throw error;
     }
+    // The runtime stopped while the dispatch's answer was on its way: nothing is flushed after a stop.
+    if (this.hung) throw this.hung;
     if (!changes()) return frame;
     const generation = newGeneration();
     try {
       this.storage.writeGeneration(generation);
-      await this.storage.save();
-      await this.storage.verifySaved();
+      // A hung IndexedDB never settles these: given up on when the runtime stops, releasing the lock.
+      await this.untilStopped(this.storage.save());
+      await this.untilStopped(this.storage.verifySaved());
     } catch (error) {
+      if (this.hung) throw this.hung;
       this.log.error("Saving presets and reference packs to browser storage failed:", error);
       const reverted = await this.revert();
       return decodeFrame(frame).status >= 400 ? frame : storageFailure(error, reverted);
