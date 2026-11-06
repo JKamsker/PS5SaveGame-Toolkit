@@ -8,6 +8,7 @@
       "patterns": [],
       "files": [
         "actions.e2e.ts",
+        "api-request-order.e2e.ts",
         "browser-codecs.e2e.ts",
         "bundle.e2e.ts",
         "failure-document.e2e.ts",

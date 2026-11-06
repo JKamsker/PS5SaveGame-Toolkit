@@ -11,10 +11,18 @@ export function pageHooks() {
   type Reply = { type: "response"; id: number; status: number; headers: Pairs; frame: ArrayBuffer; bodyOffset: number } | { type: "error"; id: number; message: string };
   interface Wire { id: number; method: string; url: string; headers: Pairs; body: ArrayBuffer | null }
   interface Entry {
-    token: string; cancelled: boolean; forwarded: boolean; started: boolean; fetched?: (reply: Reply) => void;
-    /** Settles once the request was handed to the worker or answered without it (see `dispatch`). */
-    routed: Promise<void>; release: () => void;
+    token: string; label: string; cancelled: boolean; forwarded: boolean; started: boolean; fetched?: (reply: Reply) => void;
+    /**
+     * Settles once the app has its answer (or will never get one: cancelled, or the runtime stopped), or a
+     * test holds the request deliberately (see `idle`).
+     */
+    done: boolean; finished: Promise<void>; release: () => void;
   }
+  /** A direct request waits for the app to stay idle this long, and at least this many event-loop turns. */
+  const QUIET_MS = 50;
+  const QUIET_TURNS = 3;
+  /** A direct request gives up (instead of hanging until the test's timeout) when the app is never idle. */
+  const IDLE_LIMIT_MS = 20_000;
   const scope = window as unknown as {
     __savetoolkitApiHook: (message: unknown) => Promise<Decision | null>;
     __savetoolkitApiDispatch: (method: string, url: string, headers: Pairs, body: string | null) => Promise<{ status: number; headers: Pairs; body: string }>;
@@ -48,6 +56,8 @@ export function pageHooks() {
     private readonly direct = new Map<number, (reply: Reply) => void>();
     /** Set once the runtime reported that it stopped (or the worker died): it answers nothing more. */
     private dead: string | null = null;
+    /** How many requests the app has sent; tells `idle` whether the app sent another one meanwhile. */
+    private issued = 0;
     constructor(url: string | URL, options?: WorkerOptions) {
       super(url, options);
       super.onmessage = event => this.receive(event);
@@ -60,13 +70,49 @@ export function pageHooks() {
 
     /**
      * Test-owned request: negative ids never collide with the app's, and nothing observes or routes it.
-     * It joins the worker's queue behind every request the app sent so far (once routing handed them to
-     * the worker or answered them), so a test's read observes the app's earlier writes, as the app's own
-     * next request would. A request a route handler holds without deciding delays it, like it would the app.
+     * It is sent once the app is idle (see `idle`), so it joins the worker's queue behind every request the
+     * app already sent or queued, and a test's read observes the app's earlier writes.
      */
     async dispatch(request: Omit<Wire, "id">) {
-      await Promise.all([...this.requests.values()].map(entry => entry.routed));
+      await this.idle();
       return this.post(request);
+    }
+
+    /**
+     * Waits until the app is idle: every request it sent has its answer, and it sent nothing new for
+     * QUIET_TURNS event-loop turns and QUIET_MS. Waiting only for the requests already handed to the
+     * worker would not do: the app queues its own writes (a document's edits run one after another, each
+     * sent once the previous answer was handled, web/src/components/document/useDocumentSession.ts), and
+     * serializes a request body before posting it, so a read sent then would overtake those writes and
+     * observe stale state. The app sends its next queued request within microtasks of handling an answer,
+     * which a quiet period of several turns outlasts. A request a route handler holds without deciding (or
+     * holds after route.fetch()) delays the read, like it would delay the app.
+     */
+    private async idle() {
+      const limit = performance.now() + IDLE_LIMIT_MS;
+      let seen = -1;
+      let since = 0;
+      let turns = 0;
+      for (;;) {
+        const busy = [...this.requests.values()].filter(entry => !entry.done);
+        if (busy.length) {
+          const left = limit - performance.now();
+          if (left <= 0) {
+            throw new Error(`The app never became idle, so this test request was not sent; still waiting for: ${
+              busy.map(entry => entry.label).join(", ")}`);
+          }
+          await Promise.race([Promise.all(busy.map(entry => entry.finished)), new Promise(resolve => setTimeout(resolve, left))]);
+          seen = -1;
+          continue;
+        }
+        if (seen !== this.issued) {
+          seen = this.issued;
+          since = performance.now();
+          turns = 0;
+        } else if (turns >= QUIET_TURNS && performance.now() - since >= QUIET_MS) return;
+        await new Promise(resolve => setTimeout(resolve, 0));
+        turns++;
+      }
     }
 
     private post(request: Omit<Wire, "id">) {
@@ -111,9 +157,11 @@ export function pageHooks() {
     }
 
     private async route(request: Wire, message: unknown, transfer: Transferable[]) {
-      let release!: () => void;
-      const routed = new Promise<void>(resolve => { release = resolve; });
-      const entry: Entry = { token: `${realm}:${++tokens}`, cancelled: false, forwarded: false, started: false, routed, release };
+      let resolve!: () => void;
+      const finished = new Promise<void>(settled => { resolve = settled; });
+      const entry: Entry = { token: `${realm}:${++tokens}`, label: `${request.method} ${request.url}`, cancelled: false,
+        forwarded: false, started: false, done: false, finished, release: () => { entry.done = true; resolve(); } };
+      this.issued++;
       this.requests.set(request.id, entry);
       const decision = await hook({ phase: "request", token: entry.token, method: request.method, url: request.url,
         headers: request.headers, body: encode(request.body) });
@@ -125,7 +173,6 @@ export function pageHooks() {
       if (decision?.kind === "hold") return entry.release();
       if (!decision || decision.kind === "continue") {
         entry.forwarded = true;
-        entry.release();
         return super.postMessage(message, transfer);
       }
       this.settle(request.id, decision);
@@ -134,7 +181,6 @@ export function pageHooks() {
     private async fetch(id: number, entry: Entry, message: unknown, transfer: Transferable[]) {
       const real = new Promise<Reply>(resolve => { entry.fetched = resolve; });
       entry.forwarded = true;
-      entry.release();
       // Cancelled while the test decided: the real app's request would have been dropped from the queue.
       if (entry.cancelled) entry.fetched!({ type: "error", id, message: "The request was cancelled before the runtime started it." });
       else super.postMessage(message, transfer);
@@ -146,7 +192,7 @@ export function pageHooks() {
       const decision = await hook({ phase: "fetched", token: entry.token, response });
       if (this.dead) return this.drop(id, entry);
       if (entry.cancelled) return this.requests.delete(id);
-      if (decision?.kind === "hold") return;
+      if (decision?.kind === "hold") return entry.release();
       if (!decision || decision.kind === "continue") return this.deliver(reply);
       this.settle(id, decision);
     }

@@ -71,9 +71,9 @@ it("records published ownership without requiring future feature files to be abs
   const manifest = readSuiteManifest();
   expect(complementSuite(manifest).id).toBe("canonical");
   expect(complementSuite(manifest).files).toEqual([
-    "actions.e2e.ts", "browser-codecs.e2e.ts", "bundle.e2e.ts", "failure-document.e2e.ts", "failure-lifetimes.e2e.ts",
-    "failure-reference.e2e.ts", "failure-review-export.e2e.ts", "field-reference.e2e.ts", "import.e2e.ts",
-    "keyboard.e2e.ts", "map-accessibility.e2e.ts", "presets.e2e.ts", "reference-batch.e2e.ts",
+    "actions.e2e.ts", "api-request-order.e2e.ts", "browser-codecs.e2e.ts", "bundle.e2e.ts", "failure-document.e2e.ts",
+    "failure-lifetimes.e2e.ts", "failure-reference.e2e.ts", "failure-review-export.e2e.ts", "field-reference.e2e.ts",
+    "import.e2e.ts", "keyboard.e2e.ts", "map-accessibility.e2e.ts", "presets.e2e.ts", "reference-batch.e2e.ts",
     "review.e2e.ts", "selection-binding.e2e.ts", "semantic-review-ux.e2e.ts",
     "smoke.e2e.ts", "table.e2e.ts", "workspace.e2e.ts",
   ]);

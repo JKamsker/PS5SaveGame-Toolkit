@@ -4,7 +4,9 @@ import { ApiRequest, ApiResponse, installApiHooks } from "./apiRoutes";
 /**
  * page.request for the in-browser API: sends a request straight to the page's .NET runtime worker
  * (same queue as the app's own requests). Like page.request it bypasses routes and request events.
- * The app must have started its runtime (any page that rendered the UI has).
+ * It is sent once the app is idle, behind every request the app already sent or queued (apiPageHooks'
+ * `idle`), so a read observes the app's earlier writes. The app must have started its runtime (any page
+ * that rendered the UI has).
  */
 
 type FilePart = { name: string; mimeType: string; buffer: Buffer };
