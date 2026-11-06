@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { zipSync } from "fflate";
 import type { FieldNode, ReferenceRecordPair, SaveDocument } from "../src/api/protocol";
 import { apiRequest } from "./apiRequest";
-import { apiFlush, installApiHooks, onApi, routeApi } from "./apiRoutes";
+import { apiFlush, apiSettled, installApiHooks, onApi, routeApi } from "./apiRoutes";
 import { editCoins, home, importSave, loadJson, openJson, upload } from "./helpers";
 import { runtimeWorker } from "./runtimeFiles";
 
@@ -231,6 +231,10 @@ test("a pack imported in one tab drops the other tab's cached reference icons, n
   await expect.poll(() => announcements(two)).toEqual(expected);
   await expect.poll(() => announcements(one)).toEqual(expected);
   await expect.poll(twoIcons).toBe(2);
+  // A refetch in tab one would start only after its echo re-rendered the picker: let both tabs go
+  // idle, hold a little longer, and make sure every request tab one issued meanwhile was counted.
+  for (const page of [one, two]) await apiSettled(page);
+  await new Promise(resolve => setTimeout(resolve, 500));
   await apiFlush(one);
   expect(oneIcons()).toBe(1);
 });
