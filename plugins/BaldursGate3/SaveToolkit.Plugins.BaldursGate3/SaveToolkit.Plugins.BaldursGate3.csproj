@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>SaveToolkit.Plugins.BaldursGate3</RootNamespace>
+    <!-- K4os' ILZ4Encoder exchanges raw pointers; only ManagedLz4HighChainEncoder uses unsafe code. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="K4os.Compression.LZ4" />

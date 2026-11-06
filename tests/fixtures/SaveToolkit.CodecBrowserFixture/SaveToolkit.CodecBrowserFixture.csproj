@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>SaveToolkit.Testing.CodecBrowser</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Reuse the plugin tests' authored synthetic layout builders; never load sample archives. -->
+    <Compile Include="../../../plugins/Witcher3/SaveToolkit.Plugins.Witcher3.Tests/SyntheticSave.cs" Link="Witcher3/SyntheticSave.cs" />
+    <Compile Include="../../../plugins/Witcher3/SaveToolkit.Plugins.Witcher3.Tests/SyntheticPlayerSave.cs" Link="Witcher3/SyntheticPlayerSave.cs" />
+    <Compile Include="../../../plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3.Tests/PackageFixture.cs" Link="BaldursGate3/PackageFixture.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The native plugins produce the expected edited bytes the browser runtime must reproduce exactly. -->
+    <ProjectReference Include="../../../plugins/Witcher3/SaveToolkit.Plugins.Witcher3/SaveToolkit.Plugins.Witcher3.csproj" />
+    <ProjectReference Include="../../../plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3/SaveToolkit.Plugins.BaldursGate3.csproj" />
+    <ProjectReference Include="../../../src/SaveToolkit.Testing/SaveToolkit.Testing.csproj" />
+  </ItemGroup>
+</Project>

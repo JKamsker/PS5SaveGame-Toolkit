@@ -89,6 +89,7 @@
     <Project Path="tests/benchmarks/SaveToolkit.Benchmarks/SaveToolkit.Benchmarks.csproj" />
   </Folder>
   <Folder Name="/tests/fixtures/">
+    <Project Path="tests/fixtures/SaveToolkit.CodecBrowserFixture/SaveToolkit.CodecBrowserFixture.csproj" />
     <Project Path="tests/fixtures/SaveToolkit.Ff7BrowserFixture/SaveToolkit.Ff7BrowserFixture.csproj" />
     <Project Path="tests/fixtures/SaveToolkit.UnrealBrowserFixture/SaveToolkit.UnrealBrowserFixture.csproj" />
   </Folder>

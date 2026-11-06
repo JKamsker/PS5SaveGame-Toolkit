@@ -1099,6 +1099,11 @@ ASP.NET host and in the test projects, so a plugin passing its tests can still f
   ECB/CBC) instead of MD5 and `Aes`. Check the `[UnsupportedOSPlatform("browser")]` annotations before
   relying on any other API, and prefer an attributed managed implementation shared through Codecs
   (record it under `## SDK requests`).
+- **No unsafe structs over 64 KiB.** The Mono interpreter truncates field offsets to 16 bits, so a field
+  more than 64 KiB into a struct (yours or a dependency's) is mis-addressed in the browser only. K4os'
+  LZ4 HC encoder (`LZ4Codec.Encode` or `LZ4Stream.Encode` at `L03_HC` and above) is affected: use
+  `SaveToolkit.Sdk.Compression.Lz4HighCompression`, which writes the same bytes. See
+  [BROWSER_RUNTIME.md](BROWSER_RUNTIME.md#limits).
 - **Memory is bounded.** The 32-bit WebAssembly heap is shared by the runtime, every loaded plugin's
   embedded data and all open workspaces. Keep reference data compact (rule 9) and views bounded (rule 5).
 - **Discovery is automatic.** The browser host references `plugins/*/*/SaveToolkit.Plugins.*.csproj`

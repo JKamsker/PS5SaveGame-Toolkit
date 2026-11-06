@@ -195,6 +195,15 @@ still fully checked exactly once; see `ReferencePackStore` and `EmbeddedPackSet`
   (`PortableMd5`, `IncrementalMd5`, `PortableAes`): the platform implementation natively, a managed
   RFC 1321 / FIPS-197 implementation in the browser, tested against official vectors and the platform.
   See [PLUGIN_GUIDE.md](PLUGIN_GUIDE.md#browser-runtime).
+- **Interpreter field offsets.** The runtime is the Mono interpreter, which encodes struct field offsets
+  in 16 bits ([dotnet/runtime#46622](https://github.com/dotnet/runtime/issues/46622)): unsafe code that
+  reaches a field more than 64 KiB into a struct silently addresses the wrong memory. K4os.Compression.LZ4's
+  high-compression state is such a struct, so its HC encoder (levels 3-12, blocks and frames) traps the
+  runtime with `memory access out of bounds` or writes corrupt blocks. Witcher 3 and Baldur's Gate 3
+  encode HC levels with `SaveToolkit.Sdk.Compression` (`Lz4HighCompression`, `Lz4HighCompressionChain`),
+  a managed port that writes K4os' exact bytes on every platform. K4os decoding and its fast level are
+  unaffected, but the fast level's output on 32-bit WebAssembly is K4os' 32-bit variant: valid LZ4,
+  though not the same bytes the native Api writes for inputs over 64 KiB.
 - **No OpenAPI document.** `/openapi/v1.json` exists only on the ASP.NET host.
 - **Workspaces last as long as the tab.** While this tab's runtime holds a workspace, the page registers a
   `beforeunload` handler so the browser asks before a reload or close discards it, and the workspace header
@@ -204,7 +213,10 @@ still fully checked exactly once; see `ReferencePackStore` and `EmbeddedPackSet`
   shows "This workspace is gone" with that explanation. If the runtime crashes after booting (an
   Emscripten abort such as running out of memory, a WebAssembly trap or a .NET exit, reported by the
   runtime's abort hook or detected on the request that hit it), the UI says the tab's workspaces were lost,
-  offers a reload and stops asking before unload. An uncaught JavaScript error the runtime survives is
+  offers a reload and stops asking before unload. A trap counts as a crash even though the runtime may
+  still answer afterwards: its memory and managed locks are suspect, so the page fails every pending and
+  later request at once (also when a trap only arrives as one request's error text), and the worker never
+  runs a request queued behind the trap. An uncaught JavaScript error the runtime survives is
   logged in the worker and does not end it. A request waiting for a boot that receives no data for 90 s
   (progress counts downloaded bytes, so one large file on a slow connection keeps it alive) fails with a
   message instead of waiting forever; reads that failed that way are fetched again once the runtime is ready.

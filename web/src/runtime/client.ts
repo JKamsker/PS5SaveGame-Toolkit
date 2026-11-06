@@ -8,7 +8,7 @@
  * observable semantics as an aborted network fetch). `events.onStart` reports when the worker begins a
  * request, so callers can exclude the time spent queued behind earlier requests from their deadlines.
  */
-import { isOutOfMemory } from "./failures";
+import { isOutOfMemory, isRuntimeStopped } from "./failures";
 import type { BootInfo, FromWorker, HeaderPairs, ToWorker, WireRequest } from "./protocol";
 
 export type RuntimeState =
@@ -153,6 +153,10 @@ class WorkerRuntimeClient {
     } else if (message.type === "ready") this.setState({ status: "ready", boot: message.boot });
     else if (message.type === "failed") this.fail(message.message);
     else if (message.type === "started") this.pending.get(message.id)?.onStart?.();
+    // A request that hit a WebAssembly trap (or found the runtime aborted) is no ordinary failure: the
+    // runtime's memory is suspect and later requests may wait forever on state the trap left behind, so
+    // fail this and every other request now and refuse new ones (the worker normally says so itself).
+    else if (message.type === "error" && isRuntimeStopped(message.message)) this.fail(message.message);
     else {
       // A missing entry was aborted by its caller; its late result is ignored.
       const finished = this.pending.get(message.id);

@@ -15,11 +15,18 @@ export function isOutOfMemory(error: unknown): boolean {
  * JavaScript error around a request, a failed buffer allocation for an upload) leaves it usable.
  */
 const stopped = /\bAborted\(|program has already aborted|runtime already exited|^ExitStatus\b|Program terminated with exit\(/;
+/**
+ * A WebAssembly trap that reached us as text or under another realm's RuntimeError (for example a request
+ * error reported by the worker, or a trap re-wrapped by the .NET interop). The trap leaves the runtime's
+ * memory and managed locks in an unknown state, so it is fatal even though the runtime may still answer.
+ * Only V8's and SpiderMonkey's trap wording counts: a .NET DivideByZeroException must not end the runtime.
+ */
+const trapped = /^RuntimeError\b|\bRuntimeError: |memory access out of bounds|table index is out of bounds|unreachable executed|^unreachable$/;
 
 export function isRuntimeStopped(error: unknown): boolean {
   if (typeof WebAssembly === "object" && typeof WebAssembly.RuntimeError === "function" && error instanceof WebAssembly.RuntimeError) return true;
   // Emscripten's ExitStatus is a plain object with a name and a message, not an Error.
   const described = typeof error === "object" && error !== null && "message" in error;
   const text = described ? `${String((error as { name?: unknown }).name)}: ${String((error as { message: unknown }).message)}` : String(error);
-  return stopped.test(text);
+  return stopped.test(text) || trapped.test(text);
 }
