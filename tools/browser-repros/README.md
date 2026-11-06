@@ -11,12 +11,14 @@ static site on 4221) and, in another shell, the native Api on the port passed as
 
 | Script | Shows |
 | --- | --- |
-| `w3-oob-crash.cjs <apiPort> [steps]` | Witcher 3 edit then action/download traps the WASM runtime (`memory access out of bounds`); native answers 200 |
-| `w3-download.cjs <apiPort>` | Same crash via `GET /download` after one edit |
+| `w3-oob-crash.cjs <apiPort> [steps]` | Witcher 3 edit then action/download traps the WASM runtime (`memory access out of bounds`); native answers 200. Fixed: K4os' LZ4 HC state is mis-addressed by the Mono interpreter; see [BROWSER_RUNTIME.md](../../docs/BROWSER_RUNTIME.md#limits) |
+| `w3-download.cjs <apiPort>` | Same crash via `GET /download` after one edit (fixed; covered by `web/e2e/browser-codecs.e2e.ts`) |
 | `gearbox-changes-perf.cjs <apiPort>` | `GET /changes` after one edit: ~45 s native, ~190 s WASM (UI timeout 60 s) |
 | `culture-n0.cjs <apiPort> de-DE <zip>` | Browser-language number formatting differs from the Api's invariant output |
 
 Save fixtures are **not committed** (no save data in the repo). The scripts read
 `w3/Manual.sav` and `gearbox-fixture/PPSA01463/sdimg_TEST/{1,profile}` next to themselves: produce
 them from the synthetic saves the Witcher3 and Gearbox plugin test suites build in code (for example
-by writing the bytes a test passes to `MemorySaveSet` to disk), and keep them git-ignored.
+by writing the bytes a test passes to `MemorySaveSet` to disk), and keep them git-ignored. For
+`w3/Manual.sav`, decode the `original` of the `witcher3` entry that
+`dotnet run --project tests/fixtures/SaveToolkit.CodecBrowserFixture` prints (`CODEC_FIXTURE:` line).
