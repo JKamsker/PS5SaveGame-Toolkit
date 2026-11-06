@@ -131,7 +131,10 @@ what another tab saved. `web/src/runtime/persistence.ts` prevents that:
   open; after 10 minutes (twice the UI's longest request deadline) the worker releases it, stops
   touching storage for good and reports the runtime as crashed, and the page offers a reload. A
   synchronous hang also stops the worker's timers, so then only closing or reloading that tab helps;
-  other tabs' writes answer `503` after 30 s meanwhile, and their reads are not delayed.
+  other tabs' writes answer `503` after 30 s meanwhile, and their reads are not delayed. A runtime that
+  stops during a mutation (an abort, exit or trap, for example in an async continuation) never settles
+  that dispatch either: the worker releases the lock as soon as it reports the crash, without waiting
+  for the watchdog, and likewise never touches storage again.
 - **A failed flush** (for example `QuotaExceededError`) is never a silent success: the worker reloads
   what IndexedDB really holds, so this tab's stores match it, and answers `507 Insufficient Storage`
   (`503` for other storage errors) as problem+json that the UI shows. A request that failed anyway keeps
