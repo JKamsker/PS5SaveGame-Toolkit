@@ -725,6 +725,10 @@ establishes that a named source has GPL-2.0-only or no-redistribution terms.
 
 ## SDK requests
 
+**Browser runtime (resolved):** `Aes.Create` throws on browser-wasm, so `AriseCipher` uses the SDK's
+`SaveToolkit.Sdk.Crypto.PortableAes` (platform AES natively, managed FIPS-197 AES in the browser) for
+its per-section AES-256-ECB; output is byte-identical.
+
 Resolved and adopted: F12 native decoder hooks, F13 read-only inspection and
 browse/category/sort contracts, shared `ActionPlans.ApplyScalar` and
 `ReferenceInspection`, SDK-05 `ReferenceViews.Icon` with `ReferenceIconOptions`,

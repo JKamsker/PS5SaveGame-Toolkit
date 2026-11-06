@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Security.Cryptography;
+using SaveToolkit.Sdk.Crypto;
 
 namespace SaveToolkit.Plugins.GodOfWarRagnarok;
 
@@ -39,12 +40,11 @@ internal static class RagnarokAuthentication
         return probes;
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA5351", Justification = "Read-only legacy digest identification; never used to authenticate or protect data.")]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA5350", Justification = "Read-only legacy digest identification; never used to authenticate or protect data.")]
     internal static byte[] Calculate(string algorithm, ReadOnlySpan<byte> bytes) => algorithm switch
     {
         "CRC32C" => CrcBytes(bytes),
-        "MD5" => MD5.HashData(bytes),
+        "MD5" => PortableMd5.HashData(bytes), // MD5.HashData is unsupported on browser-wasm.
         "SHA-1" => SHA1.HashData(bytes),
         "SHA-256" => SHA256.HashData(bytes),
         "SHA-512" => SHA512.HashData(bytes),

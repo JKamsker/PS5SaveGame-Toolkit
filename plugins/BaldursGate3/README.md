@@ -542,6 +542,10 @@ sample mutations, export/history checks, allocation evidence and exact validatio
 
 ## SDK requests
 
+**Browser runtime (resolved):** MD5 is unsupported on browser-wasm, so the LSPK header digest uses the
+SDK's `SaveToolkit.Sdk.Crypto.IncrementalMd5` (platform MD5 natively, managed RFC 1321 MD5 in the
+browser); digests are identical.
+
 **Resolved:** bounded binary reads/ranges (`BoundedBinaryCursor`), reference icon
 resolution (`ReferenceViews.Icon`), F12 bounded F8 semantic traversal, and F13
 browse-only references and catalog filtering/sorting are available and used.
