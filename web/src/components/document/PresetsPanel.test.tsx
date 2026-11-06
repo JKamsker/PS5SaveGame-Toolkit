@@ -8,6 +8,8 @@ import { ViewRenderer } from "./ViewRenderer";
 import { renderSpatial } from "./spatial/spatialTestUtils";
 import { DocumentContext } from "../../state/documentStore";
 import { ReviewNavigationProvider } from "./review/navigation";
+import { WorkspaceActivity, WorkspaceActivityContext } from "../../state/workspaceActivity";
+import { deferred } from "../../test/deferred";
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
@@ -37,6 +39,27 @@ it("captures the current selected table rows through the selected scope", async 
   fireEvent.change(screen.getByLabelText("Scope"), { target: { value: "selected" } });
   fireEvent.click(screen.getByRole("button", { name: "Save preset" }));
   await waitFor(() => expect(capture).toHaveBeenCalledWith("w1", "d1", "Selected", expect.objectContaining({ scopeKind: "selected", selectedRowKeys: ["slot/0"], allMatches: false })));
+});
+
+it("captures only after edits queued before the click have been applied", async () => {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([]);
+  const capture = vi.spyOn(api, "capturePreset").mockResolvedValue({
+    schemaVersion: "1", id: "p", name: "After edit", compatibility: { pluginId: "test", pluginVersion: "1", titleIds: ["PPSA00001"] },
+    actions: [{ actionId: "capture", parameters: {}, scopeKind: "document" }], createdAt: "", updatedAt: "",
+  });
+  const activity = new WorkspaceActivity();
+  renderSpatial(<WorkspaceActivityContext.Provider value={activity}><PresetsPanel document={document} onToast={vi.fn()} /></WorkspaceActivityContext.Provider>);
+  fireEvent.click(await screen.findByText("Toolkit presets"));
+  await screen.findByRole("button", { name: "Save preset" });
+  fireEvent.change(screen.getByLabelText("Name"), { target: { value: "After edit" } });
+  // A field edit committed by the blur that precedes this click, still waiting in the document's queue.
+  const edit = deferred<void>();
+  void activity.track(edit.promise);
+  fireEvent.click(screen.getByRole("button", { name: "Save preset" }));
+  await new Promise(resolve => setTimeout(resolve, 20));
+  expect(capture).not.toHaveBeenCalled();
+  edit.resolve();
+  await waitFor(() => expect(capture).toHaveBeenCalledWith("w1", "d1", "After edit", expect.objectContaining({ scopeKind: "document" })));
 });
 
 it("reload recovery retains server-incompatible summaries instead of enabling a preset", async () => {
