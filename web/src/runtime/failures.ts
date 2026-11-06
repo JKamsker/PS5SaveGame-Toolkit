@@ -16,11 +16,16 @@ export function isOutOfMemory(error: unknown): boolean {
  * `ExitStatus`), so a `RangeError: Maximum call stack size exceeded` is a JavaScript-side overflow that
  * unwound only JavaScript frames, and does not stop the runtime.
  *
- * The text must start with the runtime's wording, after nothing but error names and assertion prefixes
- * ("Error: ", "RuntimeError: ", "Assert failed: "): a .NET message may quote save or preset content
- * ("Preset schema 'RuntimeError: 3' is not supported."), and such a failure must not end the runtime.
+ * The text must start with the runtime's wording, after nothing but the prefixes the runtime and the
+ * browser put before it: "Uncaught " (Chrome's `ErrorEvent.message`; Firefox: "uncaught exception: "),
+ * the names of a trap, an abort, an exit or a re-wrapped JavaScript error ("Error: ", "RuntimeError: ",
+ * "ExitStatus: ", the .NET interop's "JSException: ", an empty name) and the assertion prefixes of
+ * dotnet.js ("Assert failed: ") and Emscripten ("Assertion failed: "). A .NET message may quote save or
+ * preset content ("Preset schema 'RuntimeError: 3' is not supported.", "Path: Aborted(1) is not a valid
+ * preset name."), and such a failure must not end the runtime.
  */
-const prefix = String.raw`^(?:(?:[A-Za-z][\w.]*|Assert(?:ion)? failed): )*`;
+const errorName = String.raw`(?:Error|RuntimeError|ExitStatus|(?:System\.Runtime\.InteropServices\.JavaScript\.)?JSException)`;
+const prefix = String.raw`^(?:Uncaught |uncaught exception: )?(?:${errorName}?: |Assert(?:ion)? failed: )*`;
 const stopped = new RegExp(prefix + String.raw`(?:Aborted\(|program has already aborted|\.NET runtime already exited|ExitStatus\b|Program terminated with exit\()`);
 /**
  * A WebAssembly trap that reached us as text or under another realm's RuntimeError (for example a request
@@ -55,10 +60,17 @@ function errorText(error: unknown): string {
   }
 }
 
-/** The message to report for any thrown value; never throws. */
+/**
+ * The message to report for any thrown value; never throws. An error-like plain object (Emscripten's
+ * `ExitStatus` has no `toString`, so String() would give "[object Object]") reports its message.
+ */
 export function describeError(error: unknown): string {
   try {
-    return error instanceof Error ? error.message : String(error);
+    if (typeof error === "object" && error !== null && "message" in error) {
+      const { message } = error as { message: unknown };
+      if (typeof message === "string") return message;
+    }
+    return String(error);
   } catch {
     return "The editor runtime failed with an error that cannot be described.";
   }
