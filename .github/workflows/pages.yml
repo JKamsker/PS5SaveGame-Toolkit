@@ -111,7 +111,8 @@ jobs:
         run: |
           # GitHub Pages only uses the 404.html at the site root, so the app's own copy of index.html
           # (web/dist/404.html) must live there for a reloaded /app/w/<id> to load the app. Its asset URLs
-          # are absolute (SAVETOOLKIT_WEB_BASE); paths outside the app get the app's plain not-found page.
+          # are absolute (SAVETOOLKIT_WEB_BASE); paths outside the app (such as a moved documentation page)
+          # get a not-found page linking to the documentation home and the editor.
           test -f "$RUNNER_TEMP/pages/$APP_PATH/404.html"
           test ! -e "$RUNNER_TEMP/pages/404.html"
           cp "$RUNNER_TEMP/pages/$APP_PATH/404.html" "$RUNNER_TEMP/pages/404.html"

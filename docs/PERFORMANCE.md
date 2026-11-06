@@ -120,7 +120,7 @@ output-directory behavior, so the check never removes or rewrites output.
 | Initial CSS | 9943 | 11000 |
 | index.js | 118587 | 130500 |
 | index.css | 9943 | 11000 |
-| WorkspacePage.js | 6346 | 6980 |
+| WorkspacePage.js | 7350 | 8090 |
 | DocumentEditor.js | 45910 | 50500 |
 | DocumentEditor.css | 1655 | 1820 |
 | PresetsPanel.js | 5800 | 6380 |
@@ -171,7 +171,9 @@ safe timestamps and storage-failure handling) later grew it to 4240 gzip bytes; 
 is retained for a future split. All other rows and limits are unchanged. Recovering from cleared site
 data (IndexedDB reconnection), bounded read-lock waits and the hung-mutation watchdog then grew
 `worker.js` to 4818 gzip bytes, and the runtime crash reporting and byte-level download progress
-developed alongside to 5315; its limit is now **5850** (10% headroom).
+developed alongside to 5315; its limit is now **5850** (10% headroom). Refreshing cached images after
+changes that alter them (reference-pack imports in any tab, document edits, closes) grew
+`WorkspacePage.js`, which holds the image cache, to 7350 gzip bytes; its limit is now **8090** (10% headroom).
 
 CI `validate` runs `npm run check:bundle` immediately after its production build on **both Ubuntu
 and Windows**. Synthetic Vitest regressions cover shared imports/cycles, lazy JS/CSS, aggregate

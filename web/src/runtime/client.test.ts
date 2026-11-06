@@ -220,6 +220,7 @@ it("runtime client: tells a crash after boot apart from a boot failure", () => {
 
 it("runtime client: a runtime the worker reports stopped after boot is a crash for every pending request", async () => {
   const { worker, client } = setup();
+  void client.ready();
   worker.emit({ type: "ready", boot });
   // A late download (a lazily loaded file) does not send the runtime back to loading.
   worker.emit({ type: "progress", loaded: 1, total: 2, received: 4096 });

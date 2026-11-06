@@ -170,7 +170,8 @@ still fully checked exactly once; see `ReferencePackStore` and `EmbeddedPackSet`
   (`/` or `/<repo>/app/`); a relative base such as `./` would resolve `assets/` below the deep link, so the
   build skips the fallback for it with a warning (`web/src/build/spaFallback.ts`). GitHub Pages only uses
   the `404.html` at the site root, so the Pages workflow copies the app's file there; addresses outside
-  the app's base then show a plain not-found page without downloading the runtime.
+  the app's base (a moved documentation page) then show a not-found page that links to the documentation
+  home and the editor, without downloading the runtime.
 - Static hosts rarely negotiate precompressed files, so the worker fetches each runtime file's `.gz`
   sibling and decompresses it itself, falling back to the raw file. Brotli files are not shipped.
 - [RELEASING.md](RELEASING.md#github-pages) describes the Pages workflow and the release archive.
@@ -195,15 +196,24 @@ still fully checked exactly once; see `ReferencePackStore` and `EmbeddedPackSet`
   RFC 1321 / FIPS-197 implementation in the browser, tested against official vectors and the platform.
   See [PLUGIN_GUIDE.md](PLUGIN_GUIDE.md#browser-runtime).
 - **No OpenAPI document.** `/openapi/v1.json` exists only on the ASP.NET host.
-- **Workspaces last as long as the tab.** While this tab holds a workspace, the page registers a
+- **Workspaces last as long as the tab.** While this tab's runtime holds a workspace, the page registers a
   `beforeunload` handler so the browser asks before a reload or close discards it, and the workspace header
-  says that work is kept only in this tab until exported. A reloaded workspace link shows "This workspace
-  is gone" with that explanation. If the runtime crashes after booting (for example out of memory), the UI
-  says the tab's workspaces were lost, offers a reload and stops asking before unload. A request waiting for
-  a boot that reports no progress for 90 s fails with a message instead of waiting forever.
+  says that work is kept only in this tab until exported. The page tracks workspaces from imports, closes,
+  workspace reads and "workspace not found" answers, and every workspace list replaces that set (an
+  import that timed out in the page but finished in the runtime, an idle sweep). A reloaded workspace link
+  shows "This workspace is gone" with that explanation. If the runtime crashes after booting (an
+  Emscripten abort such as running out of memory, a WebAssembly trap or a .NET exit, reported by the
+  runtime's abort hook or detected on the request that hit it), the UI says the tab's workspaces were lost,
+  offers a reload and stops asking before unload. An uncaught JavaScript error the runtime survives is
+  logged in the worker and does not end it. A request waiting for a boot that receives no data for 90 s
+  (progress counts downloaded bytes, so one large file on a slow connection keeps it alive) fails with a
+  message instead of waiting forever; reads that failed that way are fetched again once the runtime is ready.
 - **Images share the single worker.** Icons and assets are fetched through the runtime, at most two at a
   time, so a user action never waits behind more than two image requests; an image request whose last user
   unmounted before it finished is aborted (dropped unstarted by the worker). Long lists load images lazily.
+  Fetched images are cached by path until a change can alter them: importing or removing a reference pack
+  (in any tab of the site) drops cached reference assets, an edit drops its document's assets, and closing
+  a document or workspace drops everything below it; images on screen then fetch the new bytes.
 
 ## Parity testing
 
