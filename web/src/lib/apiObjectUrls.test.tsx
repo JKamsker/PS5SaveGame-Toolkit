@@ -1,8 +1,10 @@
 import { act, cleanup, render, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { actionReview } from "../api/actionReview";
 import { api } from "../api/client";
 import { ApiImage } from "../components/ui/ApiImage";
-import { acquireObjectUrl, IMAGE_CONCURRENCY, invalidateObjectUrls, staleAfter } from "./apiObjectUrls";
+import { PERSISTENT_CHANGES_CHANNEL, pageTab } from "../runtime/persistentChanges";
+import { acquireObjectUrl, IMAGE_CONCURRENCY, invalidateObjectUrls, objectUrlStamp, staleAfter } from "./apiObjectUrls";
 
 interface Call { url: string; signal: AbortSignal; answer: (response: Response) => void; fail: (error: unknown) => void }
 
@@ -182,16 +184,154 @@ it("drops only what a change can affect", () => {
     expect(stale("POST", path, `${doc}/reference-assets?id=a`)).toBe(true);
     expect(stale("DELETE", path, "/workspaces/w/directories/x/icon")).toBe(false);
   }
-  for (const change of ["edits", "actions", "undo", "redo", "presets/p/apply"]) {
+  for (const change of ["edits", "actions", "actions/apply", "changes/revert", "undo", "redo", "presets/p/apply"]) {
     expect(stale("POST", `${doc}/${change}`, `${doc}/assets?id=a`)).toBe(true);
     expect(stale("POST", `${doc}/${change}`, `${doc}/reference-assets?id=a`)).toBe(false);
     expect(stale("POST", `${doc}/${change}`, "/workspaces/w/documents/other/assets?id=a")).toBe(false);
+    // A value-only outcome keeps the view and its assets; a structural one (or another answer) does not.
+    expect(staleAfter("POST", `${doc}/${change}`, editResult(false))).toBeUndefined();
+    expect(staleAfter("POST", `${doc}/${change}`, editResult(true))?.(`${doc}/assets?id=a`)).toBe(true);
+    expect(staleAfter("POST", `${doc}/${change}`, { structureChanged: false })?.(`${doc}/assets?id=a`)).toBe(true);
   }
-  // Reads sent as POST change nothing.
-  expect(staleAfter("POST", `${doc}/reference-fields/records`)).toBeUndefined();
-  expect(staleAfter("POST", `${doc}/presets/p/preview`)).toBeUndefined();
+  // Reads sent as POST change nothing, whatever they answer.
+  for (const read of ["reference-fields/records", "presets/p/preview", "presets/transfer/compatibility", "presets/capture", "actions/plan"])
+    expect(staleAfter("POST", `${doc}/${read}`)).toBeUndefined();
+  for (const read of ["files/f/open", "document-groups", "export/plan", "export"])
+    expect(staleAfter("POST", `/workspaces/w/${read}`)).toBeUndefined();
   expect(staleAfter("POST", "/workspaces")).toBeUndefined();
+  expect(staleAfter("GET", `${doc}/changes`)).toBeUndefined();
+  for (const [method, path] of [["POST", "/presets"], ["PATCH", "/presets/p"], ["DELETE", "/presets/p"], ["POST", "/presets/transfer/commit"]])
+    expect(staleAfter(method!, path!)).toBeUndefined();
+  // Any other mutation drops everything it could affect.
+  expect(stale("POST", `${doc}/something-new`, `${doc}/reference-assets?id=a`)).toBe(true);
+  expect(stale("PUT", `${doc}/edits`, `${doc}/reference-assets?id=a`)).toBe(true);
+  expect(stale("POST", "/workspaces/w/something-new", "/workspaces/w/directories/x/icon")).toBe(true);
+  expect(stale("POST", "/workspaces/w/something-new", "/workspaces/w2/directories/x/icon")).toBe(false);
+  expect(stale("POST", "/something-new", "/workspaces/w/directories/x/icon")).toBe(true);
   expect(stale("DELETE", doc, `${doc}/reference-assets?id=a`)).toBe(true);
   expect(stale("DELETE", "/workspaces/w", "/workspaces/w/directories/x/icon")).toBe(true);
   expect(stale("DELETE", "/workspaces/w", "/workspaces/w2/directories/x/icon")).toBe(false);
+});
+
+const editResult = (structureChanged: boolean) => ({
+  ok: true, errors: [], changes: [], warnings: [], structureChanged,
+  state: { canUndo: true, canRedo: false, isDirty: true, revision: 2 },
+});
+const documentAssets = (count: number) => {
+  const doc = `/workspaces/w${++sequence}/documents/d`;
+  return { ws: `w${sequence}`, paths: Array.from({ length: count }, (_, i) => `${doc}/assets?id=icon${i}`) };
+};
+const isAsset = (call: Call) => call.url.includes("/assets?");
+/** Answers every image request as the queue hands it to the runtime, until `count` were answered. */
+async function answerImages(answered: Set<Call>, count: number) {
+  for (let round = 0; answered.size < count && round < count * 2; round++) {
+    await flush();
+    for (const call of calls.filter(call => isAsset(call) && !answered.has(call))) { answered.add(call); call.answer(png()); }
+  }
+  await flush();
+}
+
+it("keeps 40 document images on a plain field edit instead of fetching them all again", async () => {
+  const { ws, paths } = documentAssets(40);
+  render(<>{paths.map(path => <ApiImage key={path} path={path} alt={path} />)}</>);
+  const answered = new Set<Call>();
+  await answerImages(answered, 40);
+  expect(calls.filter(isAsset)).toHaveLength(40);
+
+  const edited = api.edit(ws, "d", [{ valueId: "money", value: 5 as never }], 1);
+  await flush();
+  answerJson(calls.at(-1)!, editResult(false));
+  await edited;
+  await flush();
+  expect(calls.filter(isAsset)).toHaveLength(40);
+
+  // A structural edit (an Atomic Heart item's icon changed) fetches every image of the document again.
+  const structural = api.edit(ws, "d", [{ valueId: "slot/asset", value: "x" as never }], 2);
+  await flush();
+  answerJson(calls.at(-1)!, editResult(true));
+  await structural;
+  await answerImages(answered, 80);
+  expect(calls.filter(isAsset).map(call => call.url).slice(40).sort()).toEqual(paths.map(path => `/api${path}`).sort());
+});
+
+it.each([
+  ["applying an action plan", (ws: string) => actionReview.apply(ws, "d", "plan", 1)],
+  ["reverting a change", (ws: string) => actionReview.revert(ws, "d", "money", 1)],
+])("fetches document images again after %s changed structure", async (_name, change) => {
+  const { ws, paths: [path] } = documentAssets(1);
+  const view = render(<ApiImage path={path!} alt="icon" />);
+  await flush();
+  calls[0]!.answer(png());
+  await waitFor(() => expect(view.getByAltText("icon").getAttribute("src")).toBe("blob:test/1"));
+
+  const changed = change(ws);
+  await flush();
+  answerJson(calls[1]!, editResult(true));
+  await changed;
+  await flush();
+  expect(calls.map(call => call.url).slice(2)).toEqual([`/api${path}`]);
+});
+
+it("fetches document images again when a change failed without an answer, but not after a rejection", async () => {
+  const { ws, paths: [path] } = documentAssets(1);
+  const lease = acquireObjectUrl(path!);
+  await flush();
+  calls[0]!.answer(png());
+  await lease.url;
+  const before = objectUrlStamp(path!);
+
+  // A 409 problem changed nothing.
+  const rejected = actionReview.revert(ws, "d", "money", 1).catch(() => undefined);
+  await flush();
+  calls[1]!.answer(new Response(JSON.stringify({ title: "Conflict" }), { status: 409, headers: { "content-type": "application/problem+json" } }));
+  await rejected;
+  expect(objectUrlStamp(path!)).toBe(before);
+
+  // The runtime failed while handling it: it may have been applied.
+  const failed = actionReview.apply(ws, "d", "plan", 1).catch(() => undefined);
+  await flush();
+  calls[2]!.fail(new TypeError("Failed to fetch"));
+  await failed;
+  expect(objectUrlStamp(path!)).not.toBe(before);
+  lease.release();
+});
+
+describe("announcements of saved presets and reference packs", () => {
+  /** Posts like another tab's runtime worker would; waits until the message was delivered. */
+  async function announce(message: unknown) {
+    const channel = new BroadcastChannel(PERSISTENT_CHANGES_CHANNEL);
+    channel.postMessage(message);
+    channel.close();
+    await act(() => new Promise(resolve => setTimeout(resolve, 20)));
+  }
+
+  async function loadedReferenceAsset() {
+    const path = referenceAsset();
+    const lease = acquireObjectUrl(path);
+    await flush();
+    calls[0]!.answer(png());
+    await lease.url;
+    return { path, lease };
+  }
+
+  it("ignores this tab's own echo and preset-only changes, and honours another tab's pack change", async () => {
+    const { path, lease } = await loadedReferenceAsset();
+    const before = objectUrlStamp(path);
+    await announce({ type: "persistentChange", tab: pageTab(), changed: ["referencePacks"] });
+    await announce({ type: "persistentChange", tab: "another-tab", changed: ["presets"] });
+    expect(objectUrlStamp(path)).toBe(before);
+
+    await announce({ type: "persistentChange", tab: "another-tab", changed: ["referencePacks"] });
+    expect(objectUrlStamp(path)).not.toBe(before);
+    lease.release();
+  });
+
+  it.each([["an older version's plain message", "changed"], ["an unknown kind", { type: "persistentChange", tab: "another-tab", changed: ["themes"] }]])(
+    "treats %s as a change of everything by another tab", async (_name, message) => {
+      const { path, lease } = await loadedReferenceAsset();
+      const before = objectUrlStamp(path);
+      await announce(message);
+      expect(objectUrlStamp(path)).not.toBe(before);
+      lease.release();
+    });
 });

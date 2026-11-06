@@ -8,7 +8,7 @@
  * 2. reload the tree from IndexedDB and, when another tab changed it (a generation marker differs),
  *    make the .NET stores re-read their files,
  * 3. run the request, and flush only if the tree changed,
- * 4. announce the change on a BroadcastChannel, so other tabs reload before their next request.
+ * 4. announce what changed on a BroadcastChannel, so other tabs reload before their next request.
  *
  * After such an announcement (or when the browser closed the IndexedDB connection, for example "Clear
  * site data"), reads of presets and reference packs refresh under a shared lock, waiting only briefly:
@@ -25,6 +25,8 @@
  * reloading that tab releases the lock then.
  */
 import { decodeFrame, problemFrame } from "./framing";
+import { changedData, newTabNonce, PERSISTENT_CHANGES_CHANNEL, tabOfWorkerName, type PersistentChangeMessage,
+  type PersistentData } from "./persistentChanges";
 
 /** The worker's view of the persistent mount and the .NET stores on top of it. */
 export interface PersistentStorage {
@@ -55,8 +57,8 @@ export interface TabCoordination {
    * `waitMs` (default LOCK_WAIT_MS; 0: only if available now); rejects without running `task` when not granted.
    */
   lock: (<T>(mode: LockMode, task: () => Promise<T>, waitMs?: number) => Promise<T>) | null;
-  /** Tells the other tabs that persistent data changed. */
-  announce(): void;
+  /** Tells the other tabs that persistent data changed, and what. */
+  announce(changed: readonly PersistentData[]): void;
   /** Registers the handler for the other tabs' announcements. */
   listen(onChange: () => void): void;
 }
@@ -69,7 +71,6 @@ export interface Persistence {
 }
 
 const LOCK_NAME = "savetoolkit-persistent-storage";
-const CHANNEL_NAME = "savetoolkit-persistent-storage";
 /** Longest wait for another tab's write before giving up with an error (never a lost write). */
 export const LOCK_WAIT_MS = 30_000;
 /** Longest wait of a preset or pack read for fresh data; it answers from the cached view after that. */
@@ -171,7 +172,7 @@ export class PersistenceCoordinator implements Persistence {
       return dispatch();
     }
     try {
-      return await this.locked("exclusive", () => this.mutate(dispatch));
+      return await this.locked("exclusive", () => this.mutate(dispatch, changedData(url)));
     } catch (error) {
       if (!(error instanceof LockUnavailableError)) throw error;
       this.log.warn("Waiting for another tab's storage lock failed:", error.cause);
@@ -203,7 +204,7 @@ export class PersistenceCoordinator implements Persistence {
     });
   }
 
-  private async mutate(dispatch: () => Promise<Uint8Array>): Promise<Uint8Array> {
+  private async mutate(dispatch: () => Promise<Uint8Array>, changed: readonly PersistentData[]): Promise<Uint8Array> {
     try {
       await this.refresh();
     } catch (error) {
@@ -241,7 +242,7 @@ export class PersistenceCoordinator implements Persistence {
       return decodeFrame(frame).status >= 400 ? frame : storageFailure(error, reverted);
     }
     this.generation = generation;
-    this.tabs.announce();
+    this.tabs.announce(changed);
     return frame;
   }
 
@@ -326,17 +327,20 @@ export function storageFailure(error: unknown, reverted: boolean): Uint8Array {
   return quota ? problemFrame(507, "Insufficient Storage", detail) : problemFrame(503, "Service Unavailable", detail);
 }
 
-/** Web Locks and a BroadcastChannel, where the browser has them. */
-export function browserTabs(): TabCoordination {
+/**
+ * Web Locks and a BroadcastChannel, where the browser has them. Announcements carry `tab` (the page's
+ * nonce, from this worker's name) so that page can ignore the echo of its own change.
+ */
+export function browserTabs(tab = tabOfWorkerName((globalThis as { name?: unknown }).name) ?? newTabNonce()): TabCoordination {
   const locks = typeof navigator === "object" ? navigator.locks : undefined;
-  const channel = typeof BroadcastChannel === "function" ? new BroadcastChannel(CHANNEL_NAME) : null;
+  const channel = typeof BroadcastChannel === "function" ? new BroadcastChannel(PERSISTENT_CHANGES_CHANNEL) : null;
   return {
     lock: locks
       ? (mode, task, waitMs = LOCK_WAIT_MS) => waitMs <= 0
         ? locks.request(LOCK_NAME, { mode, ifAvailable: true }, lock => lock ? task() : Promise.reject(new DOMException("The storage lock is held by another tab.", "AbortError")))
         : locks.request(LOCK_NAME, { mode, signal: AbortSignal.timeout(waitMs) }, task)
       : null,
-    announce: () => channel?.postMessage("changed"),
+    announce: changed => channel?.postMessage({ type: "persistentChange", tab, changed: [...changed] } satisfies PersistentChangeMessage),
     listen: onChange => { if (channel) channel.onmessage = () => onChange(); },
   };
 }

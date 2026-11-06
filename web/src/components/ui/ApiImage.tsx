@@ -10,7 +10,7 @@ type ApiImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "onError"
 
 /**
  * An image served by the in-browser runtime. `loading="lazy"` defers the fetch until it is near the
- * viewport. When the cached bytes go stale (a re-imported reference pack, an edit), it fetches them again
+ * viewport. When the cached bytes go stale (a re-imported reference pack, a structural edit), it fetches them again
  * and shows the previous picture until the new one has arrived.
  */
 export function ApiImage({ path, onFailure, loading, alt, ...props }: ApiImageProps) {

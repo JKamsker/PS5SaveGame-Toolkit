@@ -1,4 +1,5 @@
 import { fetchBinary, onApiChange } from "../api/client";
+import { PERSISTENT_CHANGES_CHANNEL, pageTab, parsePersistentChange } from "../runtime/persistentChanges";
 import { RequestQueue } from "./RequestQueue";
 
 /**
@@ -14,7 +15,7 @@ import { RequestQueue } from "./RequestQueue";
  *
  * The cache is keyed by path, so a change that can alter the bytes behind a path drops the cached entries
  * it affects (`staleAfter`): an imported or removed reference pack (in this or another tab of the site),
- * an edit to a document (its own assets) and a closed document or workspace. Images showing a dropped
+ * a structural change to a document (its own assets) and a closed document or workspace. Images showing a dropped
  * entry fetch it again (`objectUrlStamp`) and keep the old picture until the new one arrives.
  */
 interface Entry {
@@ -111,38 +112,87 @@ export function invalidateObjectUrls(matches: (path: string) => boolean): void {
 }
 
 const isReferenceAsset = (path: string) => /\/reference-assets\?/.test(path);
+const below = (prefix: string) => (cached: string) => cached.startsWith(`${prefix}/`);
 
-/** Which cached paths a successful request makes stale, if any. Reads (including POST reads) change nothing. */
-export function staleAfter(method: string, path: string): ((cached: string) => boolean) | undefined {
-  if (path === "/reference-packs" || path.startsWith("/reference-packs/")) return isReferenceAsset;
-  const document = /^(\/workspaces\/[^/]+\/documents\/[^/?]+)(\/(?:edits|actions|undo|redo|presets\/[^/?]+\/apply))?$/.exec(path);
-  if (document) {
-    const [, prefix, change] = document;
-    if (method === "DELETE" && !change) return cached => cached.startsWith(`${prefix}/`);
-    if (method === "POST" && change) return cached => cached.startsWith(`${prefix}/assets?`);
-    return undefined;
-  }
-  if (method === "DELETE" && /^\/workspaces\/[^/?]+$/.test(path)) return cached => cached.startsWith(`${path}/`);
-  return undefined;
+/**
+ * Document POSTs that only read (plans and previews), or write the preset library and not the document
+ * (capture runs the plugin's pure capture adapter). Every other document mutation may change its assets.
+ * From the LocalApi route table (src/SaveToolkit.LocalApi/Endpoints): DocumentRoutes, PresetRoutes and
+ * ReferenceRoutes.
+ */
+const DOCUMENT_READS = /^\/(?:actions\/plan|presets\/[^/]+\/preview|presets\/transfer\/compatibility|presets\/capture|reference-fields\/records)$/;
+/** Document mutations whose answer is an edit result; they can change the document's own assets only. */
+const DOCUMENT_EDITS = /^\/(?:edits|actions|actions\/apply|changes\/revert|undo|redo|presets\/[^/]+\/apply)$/;
+/** Workspace POSTs that change no existing document: opening one (always a new document id) and exports. */
+const WORKSPACE_READS = /^\/(?:files\/[^/]+\/open|document-groups|export\/plan|export)$/;
+
+/**
+ * An edit result that kept the document's structure. Asset bytes only change with structure: the
+ * session serves only assets of the published view (DocumentSession.GetAsset checks the view index),
+ * that view and index are rebuilt only for a structural outcome (DocumentSession.AfterChange), and the
+ * SDK requires `StructureChanged` whenever published nodes or view metadata change (an Atomic Heart icon
+ * edit reports it). Every current plugin serves bytes fixed when the document was opened: its pinned
+ * reference packs, or (Baldur's Gate 3) the package entries read at open. A rejected or stale edit
+ * (`ok: false`) also reports `structureChanged: false`: nothing changed. Anything else (another body, no
+ * body, a failed request the runtime may have carried out) counts as possibly structural.
+ */
+function keptStructure(result: unknown): boolean {
+  return typeof result === "object" && result !== null && "structureChanged" in result && result.structureChanged === false
+    && "state" in result && typeof result.state === "object" && result.state !== null;
 }
 
-onApiChange((method, path) => {
-  const stale = staleAfter(method, path);
+/**
+ * Which cached paths a request that may have changed something makes stale, if any; `result` is its
+ * parsed answer (undefined when unknown). Reads sent as POST change nothing; any other mutation does,
+ * unless its answer says otherwise: an unknown route drops everything it could affect.
+ */
+export function staleAfter(method: string, path: string, result?: unknown): ((cached: string) => boolean) | undefined {
+  const verb = method.toUpperCase();
+  if (verb === "GET" || verb === "HEAD") return undefined;
+  path = path.split("?", 1)[0]!;
+  if (path === "/reference-packs" || path.startsWith("/reference-packs/")) return isReferenceAsset;
+  // The preset library has no images; a new workspace has no cached entries yet.
+  if (path === "/presets" || path.startsWith("/presets/") || (verb === "POST" && path === "/workspaces")) return undefined;
+  const document = /^(\/workspaces\/[^/?]+\/documents\/[^/?]+)(\/.*)?$/.exec(path);
+  if (document) {
+    const prefix = document[1]!, route = document[2] ?? "";
+    if (verb === "DELETE" && !route) return below(prefix);
+    if (verb === "POST" && DOCUMENT_READS.test(route)) return undefined;
+    if (keptStructure(result)) return undefined;
+    // Pinned reference packs do not change while the document is open, so its reference assets stay.
+    if (verb === "POST" && DOCUMENT_EDITS.test(route)) return cached => cached.startsWith(`${prefix}/assets?`);
+    return below(prefix);
+  }
+  const workspace = /^(\/workspaces\/[^/?]+)(\/.*)?$/.exec(path);
+  if (workspace) {
+    const prefix = workspace[1]!, route = workspace[2] ?? "";
+    if (verb === "POST" && WORKSPACE_READS.test(route)) return undefined;
+    return below(prefix);
+  }
+  return () => true;
+}
+
+onApiChange((method, path, result) => {
+  const stale = staleAfter(method, path, result);
   if (stale) invalidateObjectUrls(stale);
 });
 
 /**
  * The runtime worker of every tab announces saved preset and reference-pack changes on this channel
- * (runtime/persistence.ts, CHANNEL_NAME); a pack another tab imported or removed may change any asset.
+ * (runtime/persistence.ts). A pack another tab imported or removed may change any reference asset;
+ * presets have no images. The announcement of this tab's own change (BroadcastChannel delivers it to
+ * this page too) is ignored: the answer to the request already dropped what it made stale.
  */
-const PERSISTENT_CHANGES_CHANNEL = "savetoolkit-persistent-storage";
 let otherTabs: BroadcastChannel | null | undefined;
 
 function listenToOtherTabs() {
   if (otherTabs !== undefined) return;
   otherTabs = typeof BroadcastChannel === "function" ? new BroadcastChannel(PERSISTENT_CHANGES_CHANNEL) : null;
   if (!otherTabs) return;
-  otherTabs.onmessage = () => invalidateObjectUrls(isReferenceAsset);
+  otherTabs.onmessage = (event: MessageEvent<unknown>) => {
+    const { tab, changed } = parsePersistentChange(event.data);
+    if (tab !== pageTab() && changed.includes("referencePacks")) invalidateObjectUrls(isReferenceAsset);
+  };
   // Node (tests) would otherwise keep the process alive for the channel.
   (otherTabs as { unref?: () => void }).unref?.();
 }

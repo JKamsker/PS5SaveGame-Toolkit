@@ -38,25 +38,36 @@ export function isStaleError(error: unknown): boolean {
   return typeof body === "object" && body !== null && "code" in body && (body as { code: unknown }).code === "stale";
 }
 
-const changeListeners = new Set<(method: string, path: string) => void>();
+/** `result` is the parsed answer, or undefined when the request failed without a definite rejection. */
+type ChangeListener = (method: string, path: string, result: unknown) => void;
+const changeListeners = new Set<ChangeListener>();
 
-/** Calls `listener` after every non-GET request the runtime answered (cached images drop stale bytes). */
-export function onApiChange(listener: (method: string, path: string) => void): () => void {
+/**
+ * Calls `listener` after every non-GET request that may have changed something (cached images drop
+ * stale bytes): every answered one, and every failed one the runtime may still have carried out (a
+ * timeout, a cancel after the worker started it, a runtime error). A 4xx rejection changed nothing.
+ */
+export function onApiChange(listener: ChangeListener): () => void {
   changeListeners.add(listener);
   return () => { changeListeners.delete(listener); };
 }
 
+const notifyChange = (method: string, path: string, result: unknown) => {
+  if (method !== "GET" && method !== "HEAD") for (const listener of [...changeListeners]) listener(method, path, result);
+};
+
 /**
- * `fetchApi` that reports answered changes to `onApiChange` listeners and notices when the runtime no
+ * `fetchApi` that reports possible changes to `onApiChange` listeners and notices when the runtime no
  * longer holds a workspace, so leaving the page cannot lose it: a 404 for `/workspaces/<id>` itself, or
  * "Workspace not found" for any request below it.
  */
 function fetchApi<T>(path: string, init: RequestInit | undefined, read: (response: Response) => Promise<T>, timeout?: number): Promise<T> {
   const method = (init?.method ?? "GET").toUpperCase();
   return fetchRuntime(path, init, read, timeout).then(result => {
-    if (method !== "GET") for (const listener of [...changeListeners]) listener(method, path);
+    notifyChange(method, path, result);
     return result;
   }, (error: unknown) => {
+    if (!(error instanceof ApiError && error.status >= 400 && error.status < 500)) notifyChange(method, path, undefined);
     const match = /^\/workspaces\/([^/?]+)(.?)/.exec(path);
     if (match && error instanceof ApiError && error.status === 404 && (match[2] === "" || /^Workspace not found\b/.test(error.message))) {
       workspaceClosed(decodeURIComponent(match[1]!));
