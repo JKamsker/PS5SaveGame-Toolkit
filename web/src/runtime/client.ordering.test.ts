@@ -110,7 +110,7 @@ describe("runtime client: posting order under random interleavings", () => {
     }
     for (const call of calls) call.gate?.open();
     await flush(); await flush(); await flush();
-    for (const request of worker.requests()) worker.emit({ type: "error", id: request.id, message: "x" });
+    for (const request of worker.requests()) worker.emit({ type: "error", id: request.id, message: "x", stopped: false });
     await flush(); await flush();
 
     for (const call of calls) expect(call.outcome, `${call.url} settled`).toBeDefined();

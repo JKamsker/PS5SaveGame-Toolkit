@@ -251,7 +251,7 @@ it("runtime client: leaves no abort listener on a long-lived signal once its req
     expect(getEventListeners(signal, "abort")).toHaveLength(2);
     const [a, b] = worker.requests().slice(-2);
     worker.reply(a!, 200, "1");
-    worker.emit({ type: "error", id: b!.id, message: "interop failure" });
+    worker.emit({ type: "error", id: b!.id, message: "interop failure", stopped: false });
     await answered; await failed.catch(() => undefined);
   }
   const crashed = client.fetch("/api/c", { signal });
@@ -279,16 +279,18 @@ it("runtime client: fails queued and future requests when the runtime cannot boo
   expect(client.state()).toEqual({ status: "failed", message: "WebAssembly is disabled." });
 });
 
-it("runtime client: rejects a request the worker could not dispatch and continues with the next", async () => {
+// The worker judged the thrown value (a TypeError("Aborted(1)") is no abort): the page trusts it, not the text.
+it.each(["interop failure", "Aborted(1)"])("runtime client: rejects a request the worker could not dispatch (%s), continues with the next", async message => {
   const { worker, client } = setup();
   worker.emit({ type: "ready", boot });
   const failed = client.fetch("/api/a");
   const next = client.fetch("/api/b");
   await flush();
-  worker.emit({ type: "error", id: worker.requests()[0]!.id, message: "interop failure" });
-  await expect(failed).rejects.toThrow("interop failure");
+  worker.emit({ type: "error", id: worker.requests()[0]!.id, message, stopped: false });
+  await expect(failed).rejects.toThrow(message);
   worker.reply(worker.requests()[1]!, 200, "1");
   expect((await next).ok).toBe(true);
+  expect(client.state().status).not.toBe("failed");
 });
 
 it("runtime client: forwards only headers the caller set, never browser-managed ones", async () => {
@@ -321,7 +323,7 @@ it("runtime client: marks runtime failures, including out-of-memory ones", async
   const exhausted = client.fetch("/api/workspaces", { method: "POST" });
   const crashed = client.fetch("/api/b");
   await flush();
-  worker.emit({ type: "error", id: worker.requests()[0]!.id, message: "Out of memory", outOfMemory: true });
+  worker.emit({ type: "error", id: worker.requests()[0]!.id, message: "Out of memory", outOfMemory: true, stopped: false });
   await expect(exhausted).rejects.toMatchObject({ name: "RuntimeRequestError", outOfMemory: true });
   worker.onerror?.({ message: "Uncaught RangeError: Array buffer allocation failed" } as ErrorEvent);
   const error = await crashed.catch((failure: unknown) => failure);
@@ -362,7 +364,7 @@ it("runtime client: a runtime the worker reports stopped after boot is a crash f
   await expect(client.fetch("/api/presets")).rejects.toThrow("Aborted(OOM)");
 });
 
-it("runtime client: a request that hit a WebAssembly trap crashes the runtime for every pending and later request", async () => {
+it("runtime client: a request the worker answered as stopped (a trap) crashes the runtime for every pending and later request", async () => {
   const { worker, client } = setup();
   void client.ready();
   worker.emit({ type: "ready", boot });
@@ -371,7 +373,7 @@ it("runtime client: a request that hit a WebAssembly trap crashes the runtime fo
   await flush();
   const sent = worker.requests().length;
   // The trapped runtime may still answer, but its workspace state is suspect: do not wait for it.
-  worker.emit({ type: "error", id: worker.requests()[0]!.id, message: "memory access out of bounds" });
+  worker.emit({ type: "error", id: worker.requests()[0]!.id, message: "memory access out of bounds", stopped: true });
   await expect(download).rejects.toThrow("memory access out of bounds");
   await expect(queued).rejects.toThrow("memory access out of bounds");
   expect(client.state()).toEqual({ status: "failed", message: "memory access out of bounds", crashed: true });

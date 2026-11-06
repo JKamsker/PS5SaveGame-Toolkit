@@ -119,7 +119,11 @@ what another tab saved. `web/src/runtime/persistence.ts` prevents that:
   save is visible on the next such request once the announcement has arrived (milliseconds later). An
   announcement can be lost (its `postMessage` failed, or the browser has no `BroadcastChannel`), so such a
   read also compares the `.generation` marker in IndexedDB (one small read, without the lock) with the one
-  its mount holds, and reloads when they differ or the marker cannot be read. They
+  its mount holds, and reloads when they differ or the marker cannot be read. That check converges
+  (`web/src/runtime/storedGeneration.ts`): a marker read that fails or takes over 1 s reloads once, and
+  later reads skip the check for 30 s and stop reloading while it keeps failing; a stored marker a reload
+  could not bring in (IDBFS replaces an entry only when its timestamp differs) does not cause another
+  reload until IndexedDB holds a different one. An announcement or a mutation always reloads. They
   wait at most 1 s for the lock: while another tab holds it (a long import, a frozen tab) they answer
   from the cached view, keep it marked stale and do not wait again until the lock is next granted. Other reads
   never wait for or touch storage. Until then a read may be stale, but a write never is: it always
@@ -237,8 +241,9 @@ still fully checked exactly once; see `ReferencePackStore` and `EmbeddedPackSet`
   runtime's abort hook or detected on the request that hit it), the UI says the tab's workspaces were lost,
   offers a reload and stops asking before unload. A trap counts as a crash even though the runtime may
   still answer afterwards: its memory and managed locks are suspect, so the page fails every pending and
-  later request at once (also when a trap only arrives as one request's error text), and the worker never
-  runs a request queued behind the trap. An uncaught JavaScript error the runtime survives is
+  later request at once, and the worker never runs a request queued behind the trap. Only the worker,
+  which sees the thrown value, judges whether the runtime stopped; its error answers say so (`stopped`),
+  and the page never second-guesses one from its text (a `TypeError("Aborted(1)")` is no abort). An uncaught JavaScript error the runtime survives is
   logged in the worker and does not end it. A request waiting for a boot that receives no data for 90 s
   (progress counts downloaded bytes, so one large file on a slow connection keeps it alive) fails with a
   message instead of waiting forever; reads that failed that way are fetched again once the runtime is ready.

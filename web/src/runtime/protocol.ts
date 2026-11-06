@@ -45,5 +45,9 @@ export type FromWorker =
   | { type: "failed"; message: string }
   /** `frame` is the whole framed response (transferred); the body starts at `bodyOffset`. */
   | { type: "response"; id: number; status: number; headers: HeaderPairs; frame: ArrayBuffer; bodyOffset: number }
-  /** `outOfMemory` marks failures caused by an exhausted WebAssembly heap or buffer allocation. */
-  | { type: "error"; id: number; message: string; outOfMemory?: boolean };
+  /**
+   * `outOfMemory` marks failures caused by an exhausted WebAssembly heap or buffer allocation. `stopped`:
+   * the worker found its runtime stopped (aborted, exited, trapped); the page then fails every request.
+   * Only the worker decides that: it sees the thrown value, the page only its message.
+   */
+  | { type: "error"; id: number; message: string; outOfMemory?: boolean; stopped: boolean };

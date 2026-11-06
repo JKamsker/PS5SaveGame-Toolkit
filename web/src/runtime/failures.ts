@@ -50,11 +50,15 @@ function isWebAssemblyTrap(error: unknown): boolean {
   }
 }
 
-/** `name: message` of an error-like value (Emscripten's ExitStatus is a plain object), else its text; never throws. */
+/**
+ * `name: message` of an error-like value (Emscripten's ExitStatus is a plain object), its message alone
+ * when it has no name (like an empty name), else its text; never throws.
+ */
 function errorText(error: unknown): string {
   try {
-    const described = typeof error === "object" && error !== null && "message" in error;
-    return described ? `${String((error as { name?: unknown }).name)}: ${String((error as { message: unknown }).message)}` : String(error);
+    if (typeof error !== "object" || error === null || !("message" in error)) return String(error);
+    const { name, message } = error as { name?: unknown; message: unknown };
+    return name === undefined ? String(message) : `${String(name)}: ${String(message)}`;
   } catch {
     return "";
   }

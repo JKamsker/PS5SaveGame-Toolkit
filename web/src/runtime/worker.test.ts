@@ -63,9 +63,17 @@ it("runtime worker: answers a failure whose `instanceof` check throws as a faile
   send({ type: "request", request: request(4) });
   await settle(); await settle();
   expect(answers()).toEqual([
-    { type: "error", id: 3, message: "The editor runtime failed with an error that cannot be described.", outOfMemory: false },
+    { type: "error", id: 3, message: "The editor runtime failed with an error that cannot be described.", outOfMemory: false, stopped: false },
     expect.objectContaining({ type: "response", id: 4, status: 200 }),
   ]);
+});
+
+it("runtime worker: tells the page it kept a runtime whose failure merely reads like an abort", async () => {
+  // A TypeError is no abort, whatever its text; the page must not judge "Aborted(1)" alone (runtime/client.ts).
+  run.mockRejectedValueOnce(new TypeError("Aborted(1)"));
+  send({ type: "request", request: request(8) });
+  await settle(); await settle();
+  expect(answers()).toEqual([{ type: "error", id: 8, message: "Aborted(1)", outOfMemory: false, stopped: false }]);
 });
 
 it("runtime worker: a value that makes handle() itself reject still lets later requests run", async () => {
@@ -90,4 +98,9 @@ it("runtime worker: reports a managed exit (an ExitStatus out of the dispatch) a
   send({ type: "request", request: request(7) });
   await settle(); await settle();
   expect(answers()).toEqual([{ type: "failed", message: "Program terminated with exit(1)" }]);
+  // A request after the stop never runs; its answer says the runtime stopped.
+  posted.length = 0;
+  send({ type: "request", request: request(9) });
+  await settle();
+  expect(answers()).toEqual([{ type: "error", id: 9, message: "Program terminated with exit(1)", stopped: true }]);
 });

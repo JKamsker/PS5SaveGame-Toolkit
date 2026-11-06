@@ -33,8 +33,12 @@ it.each([
   "Uncaught RuntimeError: Aborted(OOM). Build with -sASSERTIONS for more info.",
   // An error whose name is empty.
   Object.assign(new Error("Aborted(OOM)"), { name: "" }),
-  // dotnet.js' mono_exit(1, trap) after a trap in a timer or background job: an ExitStatus with the trap's message.
-  { name: "ExitStatus", message: "memory access out of bounds", status: 1 },
+  // dotnet.js' mono_exit(code, reason) keeps an object reason as it is; only a string reason (such as
+  // "OOM") becomes an ExitStatus carrying it as its message, which stops the runtime by its name alone.
+  { name: "ExitStatus", message: "OOM", status: 1 },
+  // A nameless error-like object is judged by its message, like one with an empty name.
+  { message: "Aborted(OOM)" },
+  { message: "memory access out of bounds" },
 ])("recognizes a runtime that stopped: %s", error => expect(isRuntimeStopped(error)).toBe(true));
 
 // A JavaScript stack overflow (the worker's own code): managed recursion never surfaces as one.
@@ -45,7 +49,9 @@ it.each([new RangeError("Maximum call stack size exceeded"), new RangeError("Arr
   new Error("Unknown item 'Aborted(1)'."), "Preset schema 'unreachable' is not supported.",
   // Only the runtime's and the browser's own prefixes count, not any `Word: ` before the wording.
   "Path: Aborted(1) is not a valid preset name.", "Preset: RuntimeError is not supported.", "Field.Name: unreachable",
-  new Error("Path: Aborted(1) is not a valid preset name.")])(
+  new Error("Path: Aborted(1) is not a valid preset name."), { message: "Unknown item 'Aborted(1)'." },
+  // The worker answered it as a failed request: its name is no abort's, whatever its text (runtime/client.ts trusts that).
+  new TypeError("Aborted(1)")])(
   "keeps the runtime for failures it survives: %s", error => expect(isRuntimeStopped(error)).toBe(false));
 
 it("reports Emscripten's ExitStatus (a plain object without toString) by its message", () => {

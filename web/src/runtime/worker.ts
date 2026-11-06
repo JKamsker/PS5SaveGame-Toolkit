@@ -28,7 +28,7 @@ self.onmessage = (event: MessageEvent<ToWorker>) => {
     // handle() answers every failure itself, but posting that answer can throw too.
     queue = queue.then(() => handle(request)).catch((error: unknown) => {
       log(`Runtime request ${request.method} ${request.url} could not be answered:`, error);
-      try { post({ type: "error", id: request.id, message: describe(error) }); } catch { /* the page gives up on its deadline */ }
+      try { post({ type: "error", id: request.id, message: describe(error), stopped: false }); } catch { /* the page gives up on its deadline */ }
     });
   }
 };
@@ -108,7 +108,7 @@ async function handle(request: WireRequest) {
   if (!queued.delete(request.id)) return;
   // Requests queued before the page learned of the stop never run: a trapped runtime's memory may be
   // corrupt, and a durable request would flush it to IndexedDB. The page has already failed them.
-  if (stopped !== null) return post({ type: "error", id: request.id, message: stopped });
+  if (stopped !== null) return post({ type: "error", id: request.id, message: stopped, stopped: true });
   // Leaving the queue: the page starts the request's deadline now, not while it waited behind others.
   post({ type: "started", id: request.id });
   try {
@@ -134,6 +134,6 @@ async function handle(request: WireRequest) {
     // The .NET runtime aborted (an exhausted heap) or exited during the request: report a crash, not a
     // failed request, since the workspaces in its memory are gone and no later request can succeed.
     if (running && isRuntimeStopped(error)) return stop(describe(error));
-    post({ type: "error", id: request.id, message: describe(error), outOfMemory: isOutOfMemory(error) });
+    post({ type: "error", id: request.id, message: describe(error), outOfMemory: isOutOfMemory(error), stopped: false });
   }
 }
