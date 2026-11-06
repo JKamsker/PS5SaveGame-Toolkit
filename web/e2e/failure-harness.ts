@@ -8,9 +8,13 @@ export const failures = [
 ] as const;
 
 export type Failure = typeof failures[number] | { name: "network"; status: 0; message: string };
-/** A transport failure: the in-browser runtime did not answer (the network failure of the old server). */
+/**
+ * A transport failure (the old server's network failure): the runtime worker answers the request with an
+ * error. apiRoutes' abort reports "Failed to fetch" as the detail, which the UI shows verbatim.
+ */
 export const networkFailure: Failure = {
-  name: "network", status: 0, message: "The in-browser editor runtime did not respond. Reload the page and try again.",
+  name: "network", status: 0, message: "The in-browser editor runtime failed while handling the request (Failed to fetch). "
+    + "If it keeps happening, export your work and reload the page.",
 };
 
 /** A failed-resource browser diagnostic is expected only for explicitly injected API faults. */

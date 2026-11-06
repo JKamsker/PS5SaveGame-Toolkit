@@ -27,6 +27,7 @@ import type {
 } from "./protocol";
 import { ApiError, fetchApi, readJson, responseError, TRANSFER_TIMEOUT_MS } from "./http";
 import { documentPath, postJson, workspacePath } from "./requests";
+import { workspaceClosed, workspaceOpened } from "../state/tabWorkspaces";
 
 export { ApiError } from "./http";
 
@@ -64,11 +65,18 @@ export function fetchBinary(path: string, signal?: AbortSignal, timeout?: number
   }, timeout);
 }
 
+/** A 404 for a workspace means this tab no longer holds it, so leaving the page cannot lose it. */
+const forgetMissing = (id: string) => (error: unknown): never => {
+  if (error instanceof ApiError && error.status === 404) workspaceClosed(id);
+  throw error;
+};
+
 export const api = {
   plugins: () => request<Plugin[]>("/plugins"),
   workspaces: () => request<WorkspaceSummary[]>("/workspaces"),
-  workspace: (id: string) => request<Workspace>(workspacePath(id)),
-  deleteWorkspace: (id: string) => request<void>(workspacePath(id), { method: "DELETE" }),
+  workspace: (id: string) => request<Workspace>(workspacePath(id)).catch(forgetMissing(id)),
+  deleteWorkspace: (id: string) => request<void>(workspacePath(id), { method: "DELETE" })
+    .then(() => workspaceClosed(id), forgetMissing(id)),
 
   titles: () => request<TitleInfo[]>("/titles"),
   presets: () => request<ToolkitPreset[]>("/presets"),
@@ -93,7 +101,9 @@ export const api = {
       onProgress?.(1);
       const body = await readJson(response);
       if (!response.ok || !body) throw responseError(response.status, body);
-      return body as Workspace;
+      const workspace = body as Workspace;
+      workspaceOpened(workspace.id);
+      return workspace;
     }, TRANSFER_TIMEOUT_MS);
   },
 

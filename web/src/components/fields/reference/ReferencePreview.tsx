@@ -11,7 +11,7 @@ export function ReferenceIcon({ candidate, workspaceId, documentId }: { candidat
 
 function ReferenceAsset({ path }: { path: string }) {
   const [failed, setFailed] = useState(false);
-  return <ApiImage className="reference-icon" path={path} alt="" width={32} height={32} hidden={failed} onFailure={() => setFailed(true)} />;
+  return <ApiImage className="reference-icon" path={path} alt="" width={32} height={32} loading="lazy" hidden={failed} onFailure={() => setFailed(true)} />;
 }
 
 export function ReferencePreview({ candidate, workspaceId, documentId }: { candidate: ReferenceCandidate; workspaceId: string; documentId: string }) {

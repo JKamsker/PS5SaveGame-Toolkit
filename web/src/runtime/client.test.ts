@@ -201,3 +201,19 @@ it("runtime client: marks runtime failures, including out-of-memory ones", async
   expect(error).toBeInstanceOf(RuntimeRequestError);
   expect(error).toMatchObject({ outOfMemory: true });
 });
+
+it("runtime client: tells a crash after boot apart from a boot failure", () => {
+  const booting = setup();
+  void booting.client.ready().catch(() => undefined);
+  booting.worker.onerror?.({ message: "Script error." } as ErrorEvent);
+  expect(booting.client.state()).toEqual({ status: "failed", message: "Script error." });
+
+  const running = setup();
+  void running.client.ready();
+  running.worker.emit({ type: "ready", boot });
+  running.worker.onerror?.({ message: "Aborted(OOM)" } as ErrorEvent);
+  expect(running.client.state()).toEqual({ status: "failed", message: "Aborted(OOM)", crashed: true });
+  // A later report about the same dead worker keeps it a crash.
+  running.worker.onerror?.({ message: "Script error." } as ErrorEvent);
+  expect(running.client.state()).toMatchObject({ crashed: true });
+});

@@ -161,7 +161,7 @@ test("real Unreal rows recover after a transport failure without manufactured re
   const retry = page.getByRole("button", { name: "Retry rows", exact: true });
   await expect(retry).toBeVisible({ timeout: 10_000 });
   expect(failures).toBe(3); // Initial GET and the existing two bounded automatic retries.
-  await expect(page.getByRole("alert")).toContainText("runtime did not respond");
+  await expect(page.getByRole("alert")).toContainText("runtime failed while handling the request");
   await expect(page.getByRole("textbox", { name: brightnessName })).toHaveCount(0);
   failReads = false;
   await retry.focus();

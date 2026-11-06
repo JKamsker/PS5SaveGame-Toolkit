@@ -15,14 +15,15 @@
   cursor: pointer;
   transition: background var(--duration-fast), border-color var(--duration-fast), transform var(--duration-fast);
 }
-.btn:hover:not(:disabled) {
+.btn:hover:not(:disabled, [aria-disabled="true"]) {
   border-color: var(--ink-faint);
   background: var(--surface-sunk);
 }
-.btn:active:not(:disabled) {
+.btn:active:not(:disabled, [aria-disabled="true"]) {
   transform: translateY(1px);
 }
-.btn:disabled {
+.btn:disabled,
+.btn[aria-disabled="true"] {
   opacity: 0.45;
   cursor: not-allowed;
 }
@@ -203,6 +204,7 @@
 .runtime-status--failed { background: var(--danger-soft); color: var(--danger); border-bottom-color: var(--danger); }
 .runtime-status--warning { background: var(--modified-soft); }
 .runtime-status__detail { color: var(--ink-soft); overflow-wrap: anywhere; }
+.runtime-status__files { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
 .runtime-status__bar {
   flex: 1 1 160px;
   max-width: 320px;

@@ -14,7 +14,8 @@ import type { BootInfo, FromWorker, HeaderPairs, ToWorker, WireRequest } from ".
 export type RuntimeState =
   | { status: "loading"; loaded: number; total: number; starting?: boolean }
   | { status: "ready"; boot: BootInfo }
-  | { status: "failed"; message: string };
+  /** `crashed`: the runtime had booted and then stopped (for example out of memory), losing this tab's workspaces. */
+  | { status: "failed"; message: string; crashed?: boolean };
 
 /** Lifecycle callbacks for one request. */
 export interface RequestEvents {
@@ -134,7 +135,8 @@ class WorkerRuntimeClient {
   }
 
   private fail(message: string) {
-    this.setState({ status: "failed", message });
+    const crashed = this.current.status === "ready" || (this.current.status === "failed" && this.current.crashed === true);
+    this.setState(crashed ? { status: "failed", message, crashed } : { status: "failed", message });
     const pending = [...this.pending.values()];
     this.pending.clear();
     // A worker killed by an exhausted heap: say so for the request that triggered it.

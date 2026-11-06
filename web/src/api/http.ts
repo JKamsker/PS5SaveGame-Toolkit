@@ -19,6 +19,13 @@ export const QUEUE_WAIT_LIMIT_MS = 30 * 60_000;
 
 export const networkMessage = "The in-browser editor runtime did not respond. Reload the page and try again.";
 export const runtimeFailedMessage = "The editor runtime could not be loaded in this browser. Reload the page to try again.";
+export const runtimeCrashedMessage = "The in-browser editor runtime stopped unexpectedly, and the workspaces in this tab were lost with it. "
+  + "Reload the page and import your saves again.";
+export const runtimeCrashedOutOfMemoryMessage = "The in-browser editor ran out of memory and stopped, and the workspaces in this tab "
+  + "were lost with it. Reload the page, then import fewer or smaller files at a time.";
+export const runtimeStalledMessage = "The editor runtime stopped loading. Check your connection, then reload the page and try again.";
+/** A boot that reports no progress for this long is treated as stalled; waiting requests fail instead of hanging. */
+export const RUNTIME_STALL_LIMIT_MS = 90_000;
 export const timeoutMessage = "The request timed out. Check the current state before retrying.";
 export const cancelledMessage = "The request was cancelled. Check the current state before retrying.";
 export const outOfMemoryMessage = "The in-browser editor ran out of memory. Import fewer or smaller files at a time and "
@@ -75,6 +82,8 @@ export async function fetchApi<T>(path: string, init: RequestInit | undefined,
     if (error instanceof ApiError) throw error;
     if (timedOut) throw new ApiError(timeoutMessage, 0);
     if (controller.signal.aborted) throw new ApiError(cancelledMessage, 0);
+    const failure = runtimeFailure(error);
+    if (failure) throw new ApiError(failure, 0);
     if (error instanceof RuntimeRequestError) throw new ApiError(error.outOfMemory ? outOfMemoryMessage : runtimeErrorMessage(error.message), 0);
     throw new ApiError(networkMessage, 0);
   } finally {
@@ -83,11 +92,33 @@ export async function fetchApi<T>(path: string, init: RequestInit | undefined,
   }
 }
 
+/** The message for a runtime that is gone: it never booted, or it booted and then stopped (losing workspaces). */
+function runtimeFailure(error?: unknown): string | undefined {
+  const state = runtime.state();
+  if (state.status !== "failed") return undefined;
+  if (!state.crashed) return runtimeFailedMessage;
+  return error instanceof RuntimeRequestError && error.outOfMemory ? runtimeCrashedOutOfMemoryMessage : runtimeCrashedMessage;
+}
+
+/** Waits for the boot; fails once it reports no progress for RUNTIME_STALL_LIMIT_MS instead of waiting forever. */
 async function waitForRuntime(signal: AbortSignal | null | undefined) {
+  const waiting = new AbortController();
+  let stalled = false;
+  const stall = () => { stalled = true; waiting.abort(); };
+  let timer = setTimeout(stall, RUNTIME_STALL_LIMIT_MS);
+  const unsubscribe = runtime.subscribe(() => { clearTimeout(timer); timer = setTimeout(stall, RUNTIME_STALL_LIMIT_MS); });
+  const cancel = () => waiting.abort(signal?.reason);
+  if (signal?.aborted) cancel();
+  else signal?.addEventListener("abort", cancel, { once: true });
   try {
-    await runtime.ready(signal);
+    await runtime.ready(waiting.signal);
   } catch {
-    throw new ApiError(signal?.aborted ? cancelledMessage : runtimeFailedMessage, 0);
+    if (signal?.aborted) throw new ApiError(cancelledMessage, 0);
+    throw new ApiError(stalled ? runtimeStalledMessage : runtimeFailure() ?? runtimeFailedMessage, 0);
+  } finally {
+    clearTimeout(timer);
+    unsubscribe();
+    signal?.removeEventListener("abort", cancel);
   }
 }
 

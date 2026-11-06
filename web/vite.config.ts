@@ -1,5 +1,6 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
+import { spaFallback } from "./src/build/spaFallback.ts";
 
 // tsconfig limits ambient types to vite/client (src must not see Node globals).
 declare const process: { env: Record<string, string | undefined> };
@@ -9,9 +10,12 @@ declare const process: { env: Record<string, string | undefined> };
  * worker and answers /api requests in the browser. Set SAVETOOLKIT_WEB_BASE (e.g. "/PS5SaveGame-Toolkit/")
  * to deploy below a sub-path such as GitHub Pages.
  */
+const base = process.env.SAVETOOLKIT_WEB_BASE ?? "/";
+
 export default defineConfig({
-  base: process.env.SAVETOOLKIT_WEB_BASE ?? "/",
-  plugins: [react()],
+  base,
+  // dist/404.html (a copy of index.html) lets static hosts serve reloaded deep links; see spaFallback.ts.
+  plugins: [react(), spaFallback(base)],
   server: {
     port: 5173,
   },
