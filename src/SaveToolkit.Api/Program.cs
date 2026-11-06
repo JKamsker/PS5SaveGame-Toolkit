@@ -7,9 +7,10 @@ using SaveToolkit.Core.Plugins;
 using SaveToolkit.Core.References;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Presets;
+using SaveToolkit.LocalApi.Protocol;
 
-const long maxUploadBytes = 8L * 1024 * 1024 * 1024;
-const int maxFormValues = 100_000;
+const long maxUploadBytes = ApiLimits.MaxUploadBytes;
+const int maxFormValues = ApiLimits.MaxFormValues;
 
 var builder = WebApplication.CreateBuilder(args);
 

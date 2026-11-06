@@ -1,13 +1,11 @@
-using System.Globalization;
-using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using SaveToolkit.Api.Contracts;
 using SaveToolkit.Api.Infrastructure;
-using SaveToolkit.Core;
 using SaveToolkit.Core.Catalog;
 using SaveToolkit.Core.Export;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Core.Storage;
+using SaveToolkit.LocalApi.Protocol;
 using SaveToolkit.Sdk.Collections;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
@@ -15,8 +13,6 @@ namespace SaveToolkit.Api.Endpoints;
 
 internal static class WorkspaceEndpoints
 {
-    private const int MaxBlobPage = 64 * 1024;
-    private const int MaxFilterKeyLength = 128;
 
     public static void MapToolkitApi(this IEndpointRouteBuilder app)
     {
@@ -53,18 +49,18 @@ internal static class WorkspaceEndpoints
 
         ws.MapPost("/export/plan", (WorkspaceRef w, ExportRequest request, CancellationToken ct) =>
         {
-            var plan = WorkspaceExporter.Plan(w.Value, ToOptions(request), ct);
+            var plan = WorkspaceExporter.Plan(w.Value, ExportNaming.ToOptions(request), ct);
             return new ExportPlanDto(plan.Files, plan.Overrides.Count);
         }).WithApiErrors(Status400BadRequest, Status409Conflict, Status415UnsupportedMediaType, Status422UnprocessableEntity);
         ws.MapPost("/export", (WorkspaceRef w, ExportRequest request, CancellationToken ct) =>
         {
-            var plan = WorkspaceExporter.Plan(w.Value, ToOptions(request), ct);
-            if (plan.Overrides.Count == 0 && request.Scope != ExportScope.Everything)
+            var plan = WorkspaceExporter.Plan(w.Value, ExportNaming.ToOptions(request), ct);
+            if (ExportNaming.NothingToExport(plan, request))
             {
-                return Results.UnprocessableEntity(new ErrorDto("Nothing has been changed yet."));
+                return Results.UnprocessableEntity(new ErrorDto(ExportNaming.NothingChangedMessage));
             }
 
-            return WorkspaceExportResponse.Create(plan, $"{SafeName(w.Value.Name)}-edited.zip", ct);
+            return WorkspaceExportResponse.Create(plan, ExportNaming.DownloadName(w.Value.Name), ct);
         }).Produces<byte[]>(contentType: "application/zip")
             .WithApiErrors(Status400BadRequest, Status409Conflict, Status415UnsupportedMediaType, Status422UnprocessableEntity);
     }
@@ -98,7 +94,7 @@ internal static class WorkspaceEndpoints
         doc.MapGet("/blobs", (DocumentRef d, [FromQuery] string id, [FromQuery] long offset, [FromQuery] int count) =>
             offset < 0
                 ? (IResult)Results.BadRequest(new ErrorDto("Offset cannot be negative."))
-                : Results.Bytes(d.Value.ReadBlob(id, offset, Math.Clamp(count, 0, MaxBlobPage)), "application/octet-stream"))
+                : Results.Bytes(d.Value.ReadBlob(id, offset, Math.Clamp(count, 0, ApiLimits.MaxBlobPage)), "application/octet-stream"))
             .Produces<byte[]>(contentType: "application/octet-stream");
         doc.MapGet("/download", (DocumentRef d, CancellationToken ct) =>
         {
@@ -127,126 +123,8 @@ internal static class WorkspaceEndpoints
         return response;
     }
 
-    private static (QueryableCollectionQuery Query, long? Revision) BindCollectionQuery(HttpRequest request)
-    {
-        var (offset, limit) = ReadCollectionPaging(request);
-        if (!TryBool(request, "descending", false, out var descending)
-            || !TryBool(request, "includeEmpty", false, out var includeEmpty)
-            || !TryLong(request, "revision", out var revision))
-        {
-            throw new BadHttpRequestException("Descending, includeEmpty and revision must be valid values.");
-        }
-
-        var filters = ParseFilters(request);
-        if (filters is null)
-        {
-            throw new BadHttpRequestException("Filters must be a JSON object of string values.");
-        }
-
-        var query = new QueryableCollectionQuery
-        {
-            Text = request.Query["q"].FirstOrDefault() ?? request.Query["text"].FirstOrDefault(),
-            Filters = filters,
-            SortColumn = request.Query["sort"].FirstOrDefault() is { Length: > 0 } sort ? sort : null,
-            Descending = descending,
-            IncludeEmpty = request.Query.ContainsKey("includeEmpty") ? includeEmpty : null,
-            Offset = offset,
-            Limit = limit,
-            Cursor = request.Query["cursor"].FirstOrDefault(),
-        };
-        if (query.Text is { Length: > QueryableCollectionLimits.MaxQueryLength }
-            || query.Cursor is { Length: 0 or > QueryableCollectionLimits.MaxCursorLength }
-            || query.Cursor is not null && offset != 0
-            || query.Filters.Count > QueryableCollectionLimits.MaxFilterCount
-            || query.Filters.Any(f => f.Key.Length == 0 || f.Key.Length > MaxFilterKeyLength || f.Value.Length > QueryableCollectionLimits.MaxFilterLength))
-        {
-            throw new BadHttpRequestException("Collection query exceeds the protocol limits.");
-        }
-
-        // Apply clearing after all overrides and bounds checks, preserving nonempty/whitespace values.
-        foreach (var key in filters.Where(filter => filter.Value.Length == 0).Select(filter => filter.Key).ToArray())
-            filters.Remove(key);
-
-        return (query, revision);
-    }
-
-    private static (int Offset, int Limit) ReadCollectionPaging(HttpRequest request)
-    {
-        if (!TryInt(request, "offset", 0, out var offset) || !TryInt(request, "limit", QueryableCollectionLimits.DefaultPageSize, out var limit))
-        {
-            throw new BadHttpRequestException("Offset and limit must be integers.");
-        }
-
-        if (limit is < 1 or > QueryableCollectionLimits.MaxPageSize)
-        {
-            throw new BadHttpRequestException($"Page size must be between 1 and {QueryableCollectionLimits.MaxPageSize}.");
-        }
-
-        if (offset < 0)
-        {
-            throw new BadHttpRequestException("Offset cannot be negative.");
-        }
-
-        return (offset, limit);
-    }
-
-    private static Dictionary<string, string>? ParseFilters(HttpRequest request)
-    {
-        var filters = new Dictionary<string, string>(StringComparer.Ordinal);
-        if (request.Query["filters"].FirstOrDefault() is { Length: > 0 } json)
-        {
-            try
-            {
-                var parsed = JsonSerializer.Deserialize<Dictionary<string, string>>(json, ToolkitJson.Options);
-                if (parsed is null || parsed.Values.Any(value => value is null)) return null;
-                foreach (var (key, value) in parsed) filters[key] = value;
-            }
-            catch (JsonException)
-            {
-                return null;
-            }
-        }
-
-        foreach (var item in request.Query.Where(p => p.Key.StartsWith("filter.", StringComparison.OrdinalIgnoreCase)))
-        {
-            var key = item.Key["filter.".Length..];
-            if (key.Length == 0 || item.Value.Count == 0) return null;
-            filters[key] = item.Value[^1]!;
-        }
-
-        return filters;
-    }
-
-    private static bool TryInt(HttpRequest request, string name, int fallback, out int value)
-    {
-        if (!request.Query.TryGetValue(name, out var raw))
-        {
-            value = fallback;
-            return true;
-        }
-
-        return int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
-    }
-
-    private static bool TryLong(HttpRequest request, string name, out long? value)
-    {
-        value = null;
-        if (!request.Query.TryGetValue(name, out var raw)) return true;
-        if (!long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)) return false;
-        value = parsed;
-        return true;
-    }
-
-    private static bool TryBool(HttpRequest request, string name, bool fallback, out bool value)
-    {
-        if (!request.Query.TryGetValue(name, out var raw))
-        {
-            value = fallback;
-            return true;
-        }
-
-        return bool.TryParse(raw, out value);
-    }
+    private static (QueryableCollectionQuery Query, long? Revision) BindCollectionQuery(HttpRequest request) =>
+        CollectionQueryBinder.Bind(new QueryCollectionValues(request.Query));
 
     private static async Task<IResult> CreateWorkspace(HttpRequest request, WorkspaceStore store, CancellationToken ct)
     {
@@ -266,9 +144,4 @@ internal static class WorkspaceEndpoints
         var workspace = await Task.Run(() => store.Create(name, sources, ct), ct);
         return Results.Ok(WorkspaceRef.Retain(request.HttpContext, store, workspace.Id).ToDto(store.Catalog));
     }
-
-    private static ExportOptions ToOptions(ExportRequest r) => new() { Scope = r.Scope, MirrorBackups = r.MirrorBackups };
-
-    private static string SafeName(string name) =>
-        string.Concat(name.Select(c => char.IsLetterOrDigit(c) || c is '-' or '_' ? c : '_'));
 }

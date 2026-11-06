@@ -44,6 +44,14 @@
   white-space: nowrap;
 }
 .bar__spacer { flex: 1; }
+.bar__hint {
+  min-width: 0;
+  max-width: 34rem;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--text-xs);
+  text-align: right;
+}
 .bar__actions {
   display: flex;
   flex-shrink: 0;
@@ -264,6 +272,7 @@
   color: var(--ink-soft);
   text-align: center;
 }
+.empty h1,
 .empty h2 {
   margin: 0;
   color: var(--ink);
@@ -296,6 +305,7 @@
   .bar__workspace { flex: 1 1 10rem; }
   .bar__spacer { display: none; }
   .bar > .bar__actions { margin-left: auto; }
+  .bar__hint { order: 1; flex-basis: 100%; max-width: none; text-align: left; }
   .rail { max-height: 40vh; border-right: 0; border-bottom: 1px solid var(--rule); }
   .editor { padding: var(--space-4); }
 }

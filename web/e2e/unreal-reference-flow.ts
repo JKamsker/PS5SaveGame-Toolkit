@@ -1,13 +1,15 @@
-import { expect, type Page, type Request, type TestInfo } from "@playwright/test";
+import { expect, type Page, type TestInfo } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import type { EditResult, SaveDocument } from "../src/api/protocol";
 import { expectFiles, exportFiles } from "./helpers";
 import type { SemanticChangeLog } from "../src/api/actionReview";
 import { brightnessName, consoleWarning, screenshot, showSearch, tabTo } from "./unreal-helpers";
+import { onApi, waitForApiResponse, type ApiRequest } from "./apiRoutes";
+import { apiRequest } from "./apiRequest";
 
 export async function editBrightness(page: Page): Promise<EditResult> {
   const writes: string[] = [];
-  page.on("request", request => { if (request.method() === "POST" && request.url().endsWith("/edits")) writes.push(request.postData() ?? ""); });
+  onApi(page, "request", request => { if (request.method() === "POST" && request.url().endsWith("/edits")) writes.push(request.postData() ?? ""); });
   await showSearch(page);
   const field = page.getByRole("textbox", { name: brightnessName });
   await expect(field).toHaveValue("1.25");
@@ -21,7 +23,7 @@ export async function editBrightness(page: Page): Promise<EditResult> {
   await expect(field).toHaveAttribute("aria-invalid", "false");
   expect(writes).toEqual([]);
   await field.fill("1.75");
-  const editing = page.waitForResponse(response => response.url().endsWith("/edits") && response.request().method() === "POST");
+  const editing = waitForApiResponse(page, response => response.url().endsWith("/edits") && response.request().method() === "POST");
   await page.keyboard.press("Enter");
   const result = await (await editing).json() as EditResult;
   expect(result.ok).toBe(true);
@@ -38,7 +40,7 @@ export async function reviewBrightness(page: Page, documentPath: string, testInf
   const review = page.locator(".changes-panel");
   await expect(review.getByRole("searchbox", { name: "Find a changed field" })).toBeVisible();
   await expect(review.getByRole("status", { name: "Changes review" })).toHaveText("1 of 1 changed fields");
-  const response = await page.request.get(`${documentPath}/changes`);
+  const response = await apiRequest(page).get(`${documentPath}/changes`);
   expect(response.ok()).toBe(true);
   const log = await response.json() as SemanticChangeLog;
   expect(log.changes).toHaveLength(1);
@@ -64,7 +66,7 @@ export async function reviewBrightness(page: Page, documentPath: string, testInf
 
 export async function downloadBrightness(page: Page, testInfo: TestInfo, expected: Buffer): Promise<void> {
   const downloading = page.waitForEvent("download");
-  await page.getByRole("link", { name: "Download file", exact: true }).click();
+  await page.getByRole("button", { name: "Download file", exact: true }).click();
   const download = await downloading;
   const destination = testInfo.outputPath("settings-download.sav");
   await download.saveAs(destination);
@@ -74,8 +76,8 @@ export async function downloadBrightness(page: Page, testInfo: TestInfo, expecte
 
 export async function proveScalarNoOp(page: Page, documentPath: string, value: number, testInfo: TestInfo,
   stage: string, expectedFiles: Record<string, Buffer>): Promise<void> {
-  const before = await (await page.request.get(documentPath)).json() as SaveDocument;
-  const response = await page.request.post(`${documentPath}/edits`, {
+  const before = await (await apiRequest(page).get(documentPath)).json() as SaveDocument;
+  const response = await apiRequest(page).post(`${documentPath}/edits`, {
     data: { edits: [{ valueId: "property/0", value }], revision: before.state.revision },
   });
   expect(response.ok()).toBe(true);
@@ -83,7 +85,7 @@ export async function proveScalarNoOp(page: Page, documentPath: string, value: n
   expect(result.ok).toBe(true);
   expect(result.changes).toEqual([]);
   expect(result.state).toEqual(before.state);
-  const after = await (await page.request.get(documentPath)).json() as SaveDocument;
+  const after = await (await apiRequest(page).get(documentPath)).json() as SaveDocument;
   expect(after.state).toEqual(before.state);
   await testInfo.attach(`real-api-noop-${stage}.json`, {
     body: JSON.stringify({ before, result, after }, null, 2), contentType: "application/json",
@@ -92,18 +94,18 @@ export async function proveScalarNoOp(page: Page, documentPath: string, value: n
 }
 
 export async function proveUnchangedDraft(page: Page, documentPath: string): Promise<void> {
-  const before = await (await page.request.get(documentPath)).json() as SaveDocument;
+  const before = await (await apiRequest(page).get(documentPath)).json() as SaveDocument;
   const writes: string[] = [];
-  const record = (request: Request) => {
+  const record = (request: ApiRequest) => {
     if (request.method() === "POST" && request.url().endsWith("/edits")) writes.push(request.url());
   };
-  page.on("request", record);
+  const stop = onApi(page, "request", record);
   try {
     const field = page.getByRole("textbox", { name: brightnessName });
     await field.fill("1.75");
     await field.press("Enter");
-    const after = await (await page.request.get(documentPath)).json() as SaveDocument;
+    const after = await (await apiRequest(page).get(documentPath)).json() as SaveDocument;
     expect(after.state).toEqual(before.state);
     expect(writes).toEqual([]);
-  } finally { page.off("request", record); }
+  } finally { stop(); }
 }

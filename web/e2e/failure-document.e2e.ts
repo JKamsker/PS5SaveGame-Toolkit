@@ -1,5 +1,6 @@
 import { failures, test, expect, focusedControl, networkFailure } from "./failure-harness";
-import { archive, coinsField, editCoins, editedCoins, home, importSave, loadJson, openJson, originalCoins, upload } from "./helpers";
+import { archive, coinsField, editCoins, editedCoins, home, importSave, leavePage, loadJson, openJson, originalCoins, runtimeReady, upload } from "./helpers";
+import { apiSettled, onApi, routeApi } from "./apiRoutes";
 
 for (const failure of failures) {
   test(`import ${failure.name} retains upload for an explicit retry`, async ({ page, faults }) => {
@@ -78,22 +79,25 @@ for (const failure of failures) {
   });
 }
 
-test("offline edit is actionable and the same draft commits after reconnection", async ({ page, context, faults }) => {
+test("a runtime transport failure during an edit is actionable and the same draft commits on retry, even offline", async ({ page, context, faults }) => {
   await importSave(page);
   await openJson(page);
   await loadJson(page);
-  faults.expectNetworkFailures(/\/edits$/);
-  await context.setOffline(true);
+  // The runtime runs in the page, so going offline cannot fail an edit; inject the transport failure instead.
+  const blocked = await faults.block("**/edits", networkFailure, "POST");
   await coinsField(page).fill(editedCoins);
   await coinsField(page).press("Enter");
   await expect(page.getByRole("alert").filter({ hasText: networkFailure.message }).first()).toBeVisible();
   await expect(coinsField(page)).toHaveValue(editedCoins);
   await expect(coinsField(page)).toBeFocused();
   await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
-  await context.setOffline(false);
+  expect(blocked.count()).toBe(1);
+  blocked.release();
+  await context.setOffline(true);
   await coinsField(page).press("Enter");
   await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeEnabled();
   await expect(coinsField(page)).toHaveAccessibleName(/modified/);
+  await context.setOffline(false);
 });
 
 test("network failure during import can retry the retained upload", async ({ page, faults }) => {
@@ -107,4 +111,70 @@ test("network failure during import can retry the retained upload", async ({ pag
   blocked.release();
   await page.getByRole("button", { name: "Retry import", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Pick a save file" })).toBeVisible();
+});
+
+// web/src/api/http.ts runtimeCrashedMessage: what a request learns once the runtime stopped.
+const runtimeCrashed = "The in-browser editor runtime stopped unexpectedly, and the workspaces in this tab were lost with it. "
+  + "Reload the page and import your saves again.";
+
+test("a runtime crash during an edit fails the pending request, explains the loss and offers a reload", async ({ page, faults }) => {
+  await importSave(page);
+  await openJson(page);
+  await loadJson(page);
+  // The stopped runtime answers nothing: its pending requests fail, and it logs why it stopped.
+  faults.expectNetworkFailures(/\/edits$/);
+  faults.expectConsoleErrors(/injected runtime crash|exited with code|ExitStatus|program terminated/i);
+  const failed: string[] = [];
+  onApi(page, "requestfailed", request => failed.push(`${request.method()} ${new URL(request.url()).pathname}`));
+  await routeApi(page, "**/edits", route => route.crashRuntime(), { times: 1 });
+  await coinsField(page).fill(editedCoins);
+  await coinsField(page).press("Enter");
+  // The pending edit is rejected at once (not left to its 60 s deadline), with the crash explained.
+  const editFailure = page.getByRole("alert").filter({ hasText: runtimeCrashed }).first();
+  await expect(editFailure).toBeVisible();
+  const runtimeAlert = page.getByRole("alert").filter({ hasText: "The editor runtime stopped unexpectedly." });
+  await expect(runtimeAlert).toContainText("lost with it");
+  // The detail is the worker's own report of the stop (web/src/runtime/dotnetBoot.ts onExit), not a fabrication.
+  await expect(runtimeAlert).toContainText("The .NET runtime exited with code 1.");
+  await apiSettled(page);
+  expect(failed.filter(request => request.startsWith("POST ") && request.endsWith("/edits"))).toHaveLength(1);
+  await expect(coinsField(page)).toHaveValue(editedCoins);
+  await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
+  // Later requests fail immediately with the same explanation instead of reaching the dead worker.
+  await coinsField(page).press("Enter");
+  await expect(editFailure).toBeVisible();
+  // Reload starts a new runtime; the workspace of the crashed one is gone.
+  faults.expectNetworkFailures(/\/api\/workspaces\/[^/]+$/);
+  await leavePage(page, () => runtimeAlert.getByRole("button", { name: "Reload", exact: true }).click());
+  await expect(page.getByRole("heading", { name: "This workspace is gone", exact: true })).toBeVisible({ timeout: 30_000 });
+  await runtimeReady(page);
+  await expect(page.getByRole("alert").filter({ hasText: "The editor runtime stopped unexpectedly." })).toHaveCount(0);
+});
+
+test("a WebAssembly trap during a download fails it and every later request instead of hanging", async ({ page, faults }) => {
+  // The Witcher 3 symptom: an edited document's download trapped the runtime ("memory access out of
+  // bounds"), after which the runtime never answered a workspace request again.
+  await importSave(page);
+  await openJson(page);
+  await loadJson(page);
+  await editCoins(page);
+  faults.expectNetworkFailures(/\/download$/);
+  faults.expectConsoleErrors(/RuntimeError|unreachable/i);
+  await routeApi(page, "**/download", route => route.trapRuntime(), { times: 1 });
+  const download = page.getByRole("button", { name: "Download file", exact: true });
+  await download.click();
+  // The download fails at once with the crash explained (not after its 60 s deadline).
+  await expect(page.getByRole("alert").filter({ hasText: runtimeCrashed }).first()).toBeVisible({ timeout: 10_000 });
+  const runtimeAlert = page.getByRole("alert").filter({ hasText: "The editor runtime stopped unexpectedly." });
+  await expect(runtimeAlert).toContainText("lost with it");
+  await expect(runtimeAlert).toContainText("unreachable");
+  await expect(download).toHaveText("Download file");
+  const crashAlerts = page.getByRole("alert").filter({ hasText: runtimeCrashed });
+  await expect(crashAlerts).toHaveCount(1);
+  // A later request never reaches the trapped runtime: it fails at once (well inside its 60 s deadline).
+  await coinsField(page).fill(originalCoins);
+  await coinsField(page).press("Enter");
+  await expect(crashAlerts).toHaveCount(2, { timeout: 5_000 });
+  await expect(coinsField(page)).toHaveValue(originalCoins);
+  await apiSettled(page);
 });

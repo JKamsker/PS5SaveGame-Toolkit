@@ -1,5 +1,6 @@
 import { expect, type Locator, type Page, type TestInfo } from "@playwright/test";
 import { captionLabel, editedCaption, isCaptionDocumentRequest } from "./suckerpunch-caption-helpers";
+import { waitForApiResponse } from "./apiRoutes";
 
 /** Native Tab must reveal the focused target; no focus/scroll call substitutes for reachability. */
 async function assertUsableFocus(target: Locator, testInfo: TestInfo, name: string, button = false) {
@@ -85,7 +86,7 @@ export async function exerciseCaptionKeyboardLayout(page: Page, documentPath: st
   await tabTo(page, cancel, testInfo, `caption-${width}-parameter-cancel`, true);
   const preview = dialog.getByRole("button", { name: "Preview", exact: true });
   await tabTo(page, preview, testInfo, `caption-${width}-preview`, true);
-  const planning = page.waitForResponse(response => response.request().method() === "POST" &&
+  const planning = waitForApiResponse(page, response => response.request().method() === "POST" &&
     isCaptionDocumentRequest(response.url(), documentPath, "/actions/plan"));
   await page.keyboard.press("Enter");
   expect((await planning).ok()).toBe(true);

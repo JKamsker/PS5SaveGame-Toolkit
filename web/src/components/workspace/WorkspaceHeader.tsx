@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { Link } from "react-router";
 
 interface WorkspaceHeaderProps {
@@ -8,7 +9,11 @@ interface WorkspaceHeaderProps {
   onExport: () => void;
 }
 
+/** Workspaces are held in this tab's memory only (see state/tabWorkspaces.ts). */
+export const tabLifetimeHint = "Kept only in this tab. Export to keep your changes; reloading or closing the tab discards the workspace.";
+
 export function WorkspaceHeader({ name, dirtyCount, closing, onClose, onExport }: WorkspaceHeaderProps) {
+  const hintId = useId();
   return (
     <header className="bar">
       <Link to="/" className="bar__brand">
@@ -17,6 +22,7 @@ export function WorkspaceHeader({ name, dirtyCount, closing, onClose, onExport }
       </Link>
       <span className="bar__workspace">{name}</span>
       <span className="bar__spacer" />
+      <p id={hintId} className="bar__hint">{tabLifetimeHint}</p>
       <div className="bar__actions">
         <button
           type="button"
@@ -26,7 +32,7 @@ export function WorkspaceHeader({ name, dirtyCount, closing, onClose, onExport }
         >
           {closing ? "Closing…" : "Close dump"}
         </button>
-        <button type="button" className="btn btn--primary" onClick={onExport}>
+        <button type="button" className="btn btn--primary" aria-describedby={hintId} onClick={onExport}>
           Export
           {dirtyCount > 0 && <span className="btn__count" aria-label={`${dirtyCount} edited files`}>{dirtyCount}</span>}
         </button>

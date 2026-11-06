@@ -20,7 +20,7 @@ function failure(fault: Fault) {
     status: fault, headers: { "content-type": "application/problem+json" },
   });
 }
-const message = (fault: Fault) => fault === "network" ? /server.*try again/i : fault === "html502" ? /502.*try again/i : /Export unavailable: Try the export again/;
+const message = (fault: Fault) => fault === "network" ? /runtime did not respond.*try again/i : fault === "html502" ? /502.*try again/i : /Export unavailable: Try the export again/;
 
 function mount() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
@@ -64,7 +64,8 @@ it.each(faults)("keeps export choices and avoids phantom downloads after packing
   const fetch = vi.fn(async (url: string) => {
     if (url.endsWith("/plan")) return json(plan);
     if (++attempts === 1) return failure(fault);
-    return new Response(new Blob(["synthetic archive"]), { headers: { "content-disposition": 'attachment; filename="retry.zip"' } });
+    // A string body: jsdom's Blob cannot back an undici Response on every Node version.
+    return new Response("synthetic archive", { headers: { "content-disposition": 'attachment; filename="retry.zip"' } });
   });
   vi.stubGlobal("fetch", fetch);
   const { close, click, create, revoke } = mount();

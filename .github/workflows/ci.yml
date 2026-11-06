@@ -26,8 +26,8 @@ jobs:
   e2e:
     name: Built app smoke (Chromium)
     runs-on: ubuntu-latest
-    # Job bound = step bounds below plus checkout/setup/upload; the composed run keeps its 12 minutes.
-    timeout-minutes: 25
+    # Job bound = step bounds below (site build 15, Chromium deps 10, tests 25) plus checkout/setup/upload.
+    timeout-minutes: 55
     env:
       DOTNET_NOLOGO: true
       DOTNET_CLI_TELEMETRY_OPTOUT: true
@@ -63,9 +63,12 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: web/package-lock.json
-      - name: Build API (Release)
-        run: dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj --configuration Release
-      - name: Install web dependencies and build bundled UI
+      # The static site embeds the .NET WebAssembly runtime; its native relink (SQLite, IDBFS) needs
+      # wasm-tools. Workload packs install into the setup-dotnet root, so they are not cached separately.
+      - name: Install .NET WebAssembly build tools
+        run: dotnet workload install wasm-tools
+      - name: Install web dependencies and build the static site
+        timeout-minutes: 15
         working-directory: web
         run: |
           npm ci --no-audit --no-fund
@@ -86,7 +89,8 @@ jobs:
         working-directory: web
         run: npx playwright install-deps chromium
       - name: Run built app smoke tests
-        timeout-minutes: 12
+        # Every test boots its own WebAssembly runtime, so the composed run needs more than the old 12 minutes.
+        timeout-minutes: 25
         working-directory: web
         run: npm run e2e -- --reporter=list,html,junit
       - name: Browser test summary
@@ -180,7 +184,7 @@ jobs:
   validate:
     name: Validate (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 40
+    timeout-minutes: 50
     strategy:
       fail-fast: false
       matrix:
@@ -267,6 +271,9 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           "### .NET coverage (${{ runner.os }})" >> $env:GITHUB_STEP_SUMMARY
           Get-Content "${{ runner.temp }}/test-results/coverage/backend/Summary.md" >> $env:GITHUB_STEP_SUMMARY
+      # npm run build publishes src/SaveToolkit.Browser (warnings as errors) before the Vite build.
+      - name: Install .NET WebAssembly build tools
+        run: dotnet workload install wasm-tools
       - name: Install web dependencies
         working-directory: web
         run: npm ci --no-audit --no-fund
@@ -330,6 +337,6 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @"
           Backend: warnings as errors; private samples absent (expected skips); optional standalone manual filter.
-          Web: optional lint, TypeScript, Vitest and production build.
+          Web: optional lint, TypeScript, Vitest and static-site build (including the .NET WebAssembly runtime).
           Download test-results-${{ runner.os }} for per-project TRX and web JUnit reports.
           "@ >> $env:GITHUB_STEP_SUMMARY

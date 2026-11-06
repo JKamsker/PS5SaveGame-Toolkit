@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { routeApi, unrouteAllApi } from "./apiRoutes";
 import {
   coinsField, editCoins, editedCoins, expectArchiveBytes, expectFiles, exportFiles,
   fixture, importSave, loadJson, openJson, originalCoins, originalFiles, originalSave,
@@ -52,7 +53,7 @@ test("an in-flight edit cannot replace another document's values or history", as
   const released = new Promise<void>(resolve => { release = resolve; });
   let acknowledge!: () => void;
   const acknowledged = new Promise<void>(resolve => { acknowledge = resolve; });
-  await page.route("**/documents/*/edits", async route => {
+  await routeApi(page, "**/documents/*/edits", async route => {
     // Execute the real mutation, but hold its response while the user switches files.
     const response = await route.fetch();
     expect(response.status()).toBe(200);
@@ -68,7 +69,7 @@ test("an in-flight edit cannot replace another document's values or history", as
     await loadJson(page);
     await editCoins(page, editedProfileCoins);
     release();
-    await page.unrouteAll({ behavior: "wait" });
+    unrouteAllApi(page);
     await expect(coinsField(page)).toHaveValue(editedProfileCoins);
     await page.getByRole("button", { name: "Undo", exact: true }).click();
     await expect(coinsField(page)).toHaveValue(profileCoins);
@@ -81,7 +82,7 @@ test("an in-flight edit cannot replace another document's values or history", as
     });
   } finally {
     release();
-    await page.unrouteAll({ behavior: "wait" });
+    unrouteAllApi(page);
   }
 });
 

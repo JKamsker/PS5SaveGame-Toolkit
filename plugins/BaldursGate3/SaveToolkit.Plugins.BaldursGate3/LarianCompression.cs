@@ -2,6 +2,7 @@ using System.IO.Compression;
 using K4os.Compression.LZ4;
 using K4os.Compression.LZ4.Streams;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Compression;
 
 namespace SaveToolkit.Plugins.BaldursGate3;
 
@@ -75,7 +76,11 @@ internal static class LarianCompression
         if (method == LarianCompressionMethod.Lz4 && !framed)
         {
             var buffer = new byte[LZ4Codec.MaximumOutputSize(source.Length)];
-            var length = LZ4Codec.Encode(source, buffer, lz4Level);
+            // The SDK ports write native K4os' bytes everywhere: K4os' HC encoder traps the browser
+            // runtime, and its fast level there is the 32-bit engine (different bytes over 64 KiB).
+            var length = lz4Level == LZ4Level.L00_FAST
+                ? Lz4FastCompression.Encode(source, buffer)
+                : Lz4HighCompression.Encode(source, buffer, (int)lz4Level);
             BinaryData.Require(length > 0, "Unable to compress an LZ4 block.");
             return buffer[..length];
         }
@@ -87,7 +92,7 @@ internal static class LarianCompression
             {
                 FastLevel => CompressionLevel.Fastest, MaximumLevel => CompressionLevel.SmallestSize, _ => CompressionLevel.Optimal,
             }, true),
-            LarianCompressionMethod.Lz4 => LZ4Stream.Encode(output, new LZ4EncoderSettings { CompressionLevel = lz4Level }, leaveOpen: true),
+            LarianCompressionMethod.Lz4 => Lz4FrameEncoder(output, lz4Level),
             LarianCompressionMethod.Zstd => new ZstdSharp.CompressionStream(output, level switch
             {
                 FastLevel => ZstdFastLevel, MaximumLevel => ZstdMaximumLevel, _ => ZstdDefaultLevel,
@@ -100,4 +105,17 @@ internal static class LarianCompression
 
         return output.ToArray();
     }
+
+    /// <summary>K4os' default LZ4 frame with the managed chain engine swapped in (identical frames).</summary>
+    private static Stream Lz4FrameEncoder(Stream output, LZ4Level level)
+    {
+        var settings = new LZ4EncoderSettings { CompressionLevel = level };
+        return new LZ4EncoderStream(output, settings.CreateDescriptor(), descriptor => descriptor.Chaining
+            ? new ManagedLz4ChainEncoder(Lz4Chain(level), descriptor.BlockSize, extraBlocks: 0)
+            : throw new InvalidOperationException("BG3 LZ4 frames are always block-linked."), leaveOpen: true);
+    }
+
+    private static ILz4CompressionChain Lz4Chain(LZ4Level level) => level < LZ4Level.L03_HC
+        ? new Lz4FastCompressionChain()
+        : new Lz4HighCompressionChain((int)level);
 }

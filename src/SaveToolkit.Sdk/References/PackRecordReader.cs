@@ -52,12 +52,16 @@ internal static class PackRecordReader
                 continue;
             }
 
-            foreach (var (record, index) in parsed.Records.Select((r, i) => (r, i)))
+            for (var index = 0; index < parsed.Records.Count; index++)
             {
-                var where = $"'{file.Path}' record {index}";
-                if (ValidateRecord(record, where, assetPaths, problems))
+                var record = parsed.Records[index];
+                if (ValidateRecord(record, file.Path!, index, assetPaths, problems))
                 {
-                    problems.Check(keys.Add(record.Id!), $"{where}: duplicate id '{record.Id}'");
+                    if (!keys.Add(record.Id!))
+                    {
+                        problems.Add($"{Where(file.Path!, index)}: duplicate id '{record.Id}'");
+                    }
+
                     records.Add(record);
                 }
             }
@@ -67,22 +71,28 @@ internal static class PackRecordReader
         return records;
     }
 
-    private static bool ValidateRecord(RecordModel? r, string where, HashSet<string> assetPaths, PackProblems problems)
+    // Runs for every record of every pack, so diagnostics (including the record location) are only
+    // formatted for records that fail; the messages are the same as formatting them up front.
+    private static string Where(string path, int index) => $"'{path}' record {index}";
+
+    private static bool ValidateRecord(RecordModel? r, string path, int index, HashSet<string> assetPaths, PackProblems problems)
     {
         if (r is null)
         {
-            problems.Add($"{where}: null record");
+            problems.Add($"{Where(path, index)}: null record");
             return false;
         }
 
         var ok = true;
+        void Fail(string message)
+        {
+            ok = false;
+            problems.Add($"{Where(path, index)}: {message}");
+        }
+
         void Check(bool condition, string message)
         {
-            if (!condition)
-            {
-                ok = false;
-                problems.Add($"{where}: {message}");
-            }
+            if (!condition) Fail(message);
         }
 
         Check(PackManifestValidator.IsText(r.Id, MaxKeyLength), "id is required (max 256 characters)");
@@ -91,7 +101,7 @@ internal static class PackRecordReader
         Check(r.Description is null || r.Description.Length <= MaxRecordDescriptionLength, "description is too long");
         Check(r.Limit is null or >= 0, "limit must not be negative");
         Check(r.Source is null || PackPaths.IsHttpUrl(r.Source), "source must be an http(s) URL");
-        Check(r.AssetId is null || assetPaths.Contains(r.AssetId), $"assetId '{r.AssetId}' is not an asset of this pack");
+        if (r.AssetId is not null && !assetPaths.Contains(r.AssetId)) Fail($"assetId '{r.AssetId}' is not an asset of this pack");
         Check(
             r.Attributes is null || (r.Attributes.Count <= MaxAttributes && r.Attributes.All(a => PackManifestValidator.IsText(a.Key, 64) && a.Value is { Length: <= MaxAttributeLength })),
             "attributes: at most 32 entries, keys up to 64 and values up to 1024 characters");

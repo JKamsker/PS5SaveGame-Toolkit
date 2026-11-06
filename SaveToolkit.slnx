@@ -72,6 +72,7 @@
     <Project Path="src/SaveToolkit.Api/SaveToolkit.Api.csproj" />
     <Project Path="src/SaveToolkit.Codecs/SaveToolkit.Codecs.csproj" />
     <Project Path="src/SaveToolkit.Core/SaveToolkit.Core.csproj" />
+    <Project Path="src/SaveToolkit.LocalApi/SaveToolkit.LocalApi.csproj" />
     <Project Path="src/SaveToolkit.Sdk/SaveToolkit.Sdk.csproj" />
     <Project Path="src/SaveToolkit.Testing/SaveToolkit.Testing.csproj" />
   </Folder>
@@ -80,6 +81,7 @@
     <Project Path="tests/SaveToolkit.Api.Performance.Tests/SaveToolkit.Api.Performance.Tests.csproj" />
     <Project Path="tests/SaveToolkit.Codecs.Tests/SaveToolkit.Codecs.Tests.csproj" />
     <Project Path="tests/SaveToolkit.Core.Tests/SaveToolkit.Core.Tests.csproj" />
+    <Project Path="tests/SaveToolkit.LocalApi.Tests/SaveToolkit.LocalApi.Tests.csproj" />
     <Project Path="tests/SaveToolkit.SaveDiff.Tests/SaveToolkit.SaveDiff.Tests.csproj" />
     <Project Path="tests/SaveToolkit.UnrealBrowser.Tests/SaveToolkit.UnrealBrowser.Tests.csproj" />
   </Folder>
@@ -87,6 +89,7 @@
     <Project Path="tests/benchmarks/SaveToolkit.Benchmarks/SaveToolkit.Benchmarks.csproj" />
   </Folder>
   <Folder Name="/tests/fixtures/">
+    <Project Path="tests/fixtures/SaveToolkit.CodecBrowserFixture/SaveToolkit.CodecBrowserFixture.csproj" />
     <Project Path="tests/fixtures/SaveToolkit.Ff7BrowserFixture/SaveToolkit.Ff7BrowserFixture.csproj" />
     <Project Path="tests/fixtures/SaveToolkit.UnrealBrowserFixture/SaveToolkit.UnrealBrowserFixture.csproj" />
   </Folder>

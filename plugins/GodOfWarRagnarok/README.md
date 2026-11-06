@@ -436,6 +436,9 @@ gate the enabled bounded writes. Only the owner may approve Stable.
 
 ## SDK requests
 
+**Browser runtime (resolved):** `MD5.HashData` throws on browser-wasm, so the MD5 digest probe uses the
+SDK's `SaveToolkit.Sdk.Crypto.PortableMd5` (platform MD5 natively, managed RFC 1321 MD5 in the browser).
+
 None blocking. F1/F2/F8 support the model and evidence, and F6 supports planned restoration.
 The IEEE CRC helper is available and adopted; no CRC SDK request remains.
 F5/F7 are available but no safe structural or linked multi-file writer is established for this format.

@@ -2,9 +2,12 @@ import { test } from "./preset-library-test";
 import { expect } from "@playwright/test";
 import { actions, capture, expectFiles, fixture, generateFf7Fixtures, openFf7, recordApi, saved, snapshot, unchanged } from "./ff7-helpers";
 import { contained, screenshot, tabTo } from "./unreal-helpers";
+import { apiRequest } from "./apiRequest";
 
 let directory: string;
 test.use({ trace: "on", screenshot: "on" });
+// Each FF7 case re-imports (a fresh page and in-browser runtime per import) and exports whole saves several times.
+test.describe.configure({ timeout: 60_000 });
 test.beforeAll(async ({ request }, testInfo) => { expect(request).toBeDefined(); directory = await generateFf7Fixtures(testInfo); });
 
 for (const width of [375, 768, 1024, 1440]) {
@@ -18,7 +21,7 @@ for (const width of [375, 768, 1024, 1440]) {
     await expect(action.locator("option")).toHaveCount(5);
     expect((await action.locator("option").evaluateAll(nodes => nodes.map(node => (node as HTMLOptionElement).value))).sort())
       .toEqual(Object.values(actions).sort());
-    const doc = await (await page.request.get(documentPath)).json() as { presetCapability: { actions: { actionId: string; scopeKinds: string[] }[] } };
+    const doc = await (await apiRequest(page).get(documentPath)).json() as { presetCapability: { actions: { actionId: string; scopeKinds: string[] }[] } };
     for (const id of Object.values(actions)) {
       await action.selectOption(id);
       const scopes = await panel.getByRole("combobox", { name: "Scope", exact: true }).locator("option")
@@ -39,7 +42,7 @@ for (const width of [375, 768, 1024, 1440]) {
         await input.fill(value);
         await input.press("Tab");
       }
-      const before = await snapshot(page.request, documentPath);
+      const before = await snapshot(apiRequest(page), documentPath);
       const name = `FF7 ${width} ${id}`;
       const preset = await capture(page, name);
       expect(preset.actions[0]!.actionId).toBe(id);
@@ -50,7 +53,7 @@ for (const width of [375, 768, 1024, 1440]) {
             : id === actions.level ? { level: "25" } : {});
       expect(preset.compatibility.gameBuild ?? null).toBeNull();
       expect(preset.compatibility.referencePackIdentity).toBeTruthy();
-      const after = await snapshot(page.request, documentPath);
+      const after = await snapshot(apiRequest(page), documentPath);
       expect(after.state).toEqual(before.state);
       expectFiles(after.files, before.files);
     }
@@ -76,14 +79,14 @@ for (const width of [375, 768, 1024, 1440]) {
     await contained(page, panel, width);
     await contained(page, renamed, width);
     await screenshot(page, testInfo, `ff7-forms-${width}`);
-    const beforeDelete = await snapshot(page.request, documentPath);
+    const beforeDelete = await snapshot(apiRequest(page), documentPath);
     await renamed.getByRole("button", { name: "Delete", exact: true }).click();
     const dialog = page.getByRole("dialog", { name: `Delete “${longName}”?` });
     await expect(dialog.getByRole("button", { name: "Cancel", exact: true })).toBeFocused();
     await contained(page, dialog, width);
     await page.keyboard.press("Escape");
     await expect(dialog).not.toBeVisible();
-    await unchanged(page.request, documentPath, beforeDelete);
+    await unchanged(apiRequest(page), documentPath, beforeDelete);
     await renamed.getByRole("button", { name: "Delete", exact: true }).click();
     await dialog.getByRole("button", { name: "Delete preset", exact: true }).click();
     await expect(renamed).toHaveCount(0);

@@ -2,9 +2,11 @@ import { test } from "./preset-library-test";
 import { expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import { importSave, openJson, loadJson, originalSave } from "./helpers";
+import { apiRequest } from "./apiRequest";
 
-test("real preset import/export is exact, duplicate-aware, stale-safe and leaves save history untouched", async ({ page, request }, testInfo) => {
+test("real preset import/export is exact, duplicate-aware, stale-safe and leaves save history untouched", async ({ page }, testInfo) => {
   await importSave(page); await openJson(page); await loadJson(page);
+  const request = apiRequest(page);
   await page.getByText("Toolkit presets", { exact: true }).click();
   const transfer = page.getByRole("button", { name: "Import presets", exact: true });
   await transfer.click();
@@ -47,7 +49,7 @@ test("real preset import/export is exact, duplicate-aware, stale-safe and leaves
   await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
   // Native browser download route proves the imported synthetic save itself is unchanged.
   const saveDownload = page.waitForEvent("download");
-  await page.getByRole("link", { name: /Download file/ }).click();
+  await page.getByRole("button", { name: /Download file/ }).click();
   const saved = await saveDownload; const savePath = testInfo.outputPath("save.json"); await saved.saveAs(savePath);
   expect(await readFile(savePath)).toEqual(originalSave);
 });

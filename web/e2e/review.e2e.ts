@@ -2,12 +2,14 @@ import { test, expect } from "@playwright/test";
 import type { SemanticChangeLog } from "../src/api/actionReview";
 import type { EditResult, QueryablePage } from "../src/api/protocol";
 import { expectFiles, exportFiles, fixture, importSave, openJson, savePath } from "./helpers";
+import { onApi, routeApi, waitForApiResponse } from "./apiRoutes";
+import { apiRequest } from "./apiRequest";
 
 test("F8 review jumps to an unloaded page without writes and individually reverts the real save (#40)", async ({ page }, testInfo) => {
   const original = fixture("queryable.json");
   await importSave(page, { [savePath]: original });
   await openJson(page);
-  const firstPage = page.waitForResponse(response => new URL(response.url()).pathname.endsWith("/collections"));
+  const firstPage = waitForApiResponse(page, response => new URL(response.url()).pathname.endsWith("/collections"));
   await page.getByRole("tab", { name: "Search", exact: true }).click();
   const collectionUrl = new URL((await firstPage).url());
   const table = page.getByRole("table", { name: "Whole-tree search", exact: true });
@@ -16,7 +18,7 @@ test("F8 review jumps to an unloaded page without writes and individually revert
   await row.getByRole("button", { name: /^Details for/ }).click();
   const field = page.getByRole("textbox", { name: /^\$\["score_55"\]#1/ });
   await field.fill("555");
-  const edit = page.waitForResponse(response => response.url().endsWith("/edits") && response.request().method() === "POST");
+  const edit = waitForApiResponse(page, response => response.url().endsWith("/edits") && response.request().method() === "POST");
   await field.press("Enter");
   const outcome = await (await edit).json() as EditResult;
   expect(outcome.ok).toBe(true);
@@ -24,7 +26,7 @@ test("F8 review jumps to an unloaded page without writes and individually revert
 
   const query = { offset: 50, limit: 50, includeEmpty: true };
   for (const [key, value] of Object.entries({ ...query, revision: outcome.state.revision! })) collectionUrl.searchParams.set(key, String(value));
-  const response = await page.request.get(collectionUrl.toString());
+  const response = await apiRequest(page).get(collectionUrl.toString());
   expect(response.ok()).toBe(true);
   const targetPage = await response.json() as QueryablePage;
   const targetRow = targetPage.rows.find(row => row.key === valueId)!;
@@ -37,7 +39,7 @@ test("F8 review jumps to an unloaded page without writes and individually revert
   // GenericJson also exposes these identities eagerly, which takes precedence in Core's review.
   // Project its real change onto its real F8 page to exercise the additive navigation contract.
   // Queries, revisions, editing, individual revert, history and export all use the real backend.
-  await page.route("**/changes", async route => {
+  await routeApi(page, "**/changes", async route => {
     const response = await route.fetch();
     const log = await response.json() as SemanticChangeLog;
     await route.fulfill({ response, json: { ...log, changes: log.changes.map(change => change.valueId === valueId ? {
@@ -52,8 +54,8 @@ test("F8 review jumps to an unloaded page without writes and individually revert
   await expect(changed.getByRole("cell").nth(0)).toHaveText("number: 155");
   await expect(changed.getByRole("cell").nth(1)).toHaveText("number: 555");
   const writes: string[] = [];
-  page.on("request", request => { if (request.method() === "POST") writes.push(request.url()); });
-  const jumping = page.waitForResponse(response => {
+  onApi(page, "request", request => { if (request.method() === "POST") writes.push(request.url()); });
+  const jumping = waitForApiResponse(page, response => {
     const url = new URL(response.url());
     return url.pathname.endsWith("/collections") && url.searchParams.get("includeEmpty") === "true";
   });

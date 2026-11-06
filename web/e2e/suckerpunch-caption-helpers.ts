@@ -1,12 +1,15 @@
 import { expect, type Page, type TestInfo } from "@playwright/test";
 import { execFile } from "node:child_process";
 import { mkdir, readFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import type { EditResult, SaveDocument } from "../src/api/protocol";
 import { archive, downloadedFiles, expectFiles, home, type SaveFiles, upload } from "./helpers";
 import { unzipSync } from "fflate";
+import { waitForApiResponse } from "./apiRoutes";
+import { apiRequest } from "./apiRequest";
 
 const repositoryRoot = fileURLToPath(new URL("../..", import.meta.url));
 export const captionPrimaryPath = "PPSA02225/sdimg_CAPTION/dis.dat";
@@ -28,11 +31,14 @@ export interface SuckerPunchFixture {
 }
 
 export async function generateSuckerPunchFixtures(testInfo: TestInfo): Promise<SuckerPunchFixture> {
+  // A cold build of the fixture generator into this run's isolated --artifacts-path can exceed the hook default.
+  testInfo.setTimeout(150_000);
   const directory = testInfo.outputPath("synthetic-suckerpunch");
   await mkdir(directory, { recursive: true });
   const { stdout, stderr } = await promisify(execFile)("dotnet", ["run", "--project",
-    "tests/fixtures/SaveToolkit.SuckerPunchBrowserFixture", "--configuration", "Release", "--", directory],
-  { cwd: repositoryRoot, timeout: 60_000, maxBuffer: 2 * 1024 * 1024 });
+    "tests/fixtures/SaveToolkit.SuckerPunchBrowserFixture", "--configuration", "Release",
+    "--artifacts-path", path.join(tmpdir(), "suckerpunch-fixture-build"), "--", directory],
+  { cwd: repositoryRoot, timeout: 120_000, maxBuffer: 2 * 1024 * 1024 });
   await testInfo.attach("suckerpunch-fixture-generator.log", { body: stdout + stderr, contentType: "text/plain" });
   const manifest = JSON.parse(await readFile(path.join(directory, "manifest.json"), "utf8")) as Omit<SuckerPunchFixture, "files">;
   const files: SaveFiles = {
@@ -53,7 +59,7 @@ export async function openSuckerPunch(page: Page, files: SaveFiles, fileName = "
   const slot = rail.getByRole("button").filter({ hasText: "CAPTION" }).first();
   await expect(slot).toBeVisible();
   await slot.click();
-  const opening = page.waitForResponse(response => response.url().endsWith("/open") && response.request().method() === "POST");
+  const opening = waitForApiResponse(page, response => response.url().endsWith("/open") && response.request().method() === "POST");
   await rail.locator("button.file").filter({ hasText: fileName }).click();
   const response = await opening;
   expect(response.ok()).toBe(true);
@@ -86,7 +92,7 @@ export function isCaptionDocumentRequest(url: string, documentPath: string, suff
 /** Downloads a whole-dump export through the real workspace endpoint without opening a second modal. */
 export async function exportCaptionApi(page: Page, documentPath: string, testInfo?: TestInfo, name?: string): Promise<SaveFiles> {
   const workspacePath = documentPath.slice(0, documentPath.indexOf("/documents/"));
-  const response = await page.request.post(`${workspacePath}/export`, {
+  const response = await apiRequest(page).post(`${workspacePath}/export`, {
     data: { scope: "Everything", mirrorBackups: false },
   });
   expect(response.ok()).toBe(true);
@@ -98,7 +104,7 @@ export async function exportCaptionApi(page: Page, documentPath: string, testInf
 /** Execute the supported scalar endpoint, separately from the UI's disabled empty-plan Apply. */
 export async function assertCaptionServerNoop(page: Page, documentPath: string, value: string,
   before: SaveDocument, files: SaveFiles, testInfo: TestInfo, name: string) {
-  const response = await page.request.post(`${documentPath}/edits`, {
+  const response = await apiRequest(page).post(`${documentPath}/edits`, {
     data: { edits: [{ valueId: captionValueId, value }], revision: before.state.revision },
   });
   expect(response.status()).toBe(200);
@@ -122,7 +128,7 @@ export async function exportCaptionScope(page: Page, testInfo: TestInfo, label: 
 }
 
 export async function documentSnapshot(page: Page, documentPath: string): Promise<SaveDocument> {
-  const response = await page.request.get(documentPath);
+  const response = await apiRequest(page).get(documentPath);
   expect(response.ok()).toBe(true);
   return await response.json() as SaveDocument;
 }

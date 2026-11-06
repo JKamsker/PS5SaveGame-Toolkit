@@ -1,10 +1,9 @@
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using Microsoft.Net.Http.Headers;
 using SaveToolkit.Api.Contracts;
 using SaveToolkit.Api.Endpoints;
 using SaveToolkit.Core.Sessions;
-using SaveToolkit.Sdk;
+using SaveToolkit.LocalApi.Protocol;
 
 namespace SaveToolkit.Api.Infrastructure;
 
@@ -42,27 +41,16 @@ internal sealed class DocumentRevisionFilter : IEndpointFilter
             {
                 var state = document.State;
                 if (expected != state.Revision)
-                    return Results.Conflict(new SessionEditResult
-                    {
-                        Stale = true, State = state,
-                        Errors = [new FieldError(string.Empty, new StaleViewException().Message)],
-                    });
+                    return Results.Conflict(RevisionTag.StaleHistory(state));
             }
 
             object? result = await next(context);
             var value = result is IValueHttpResult response ? response.Value : result;
-            long? revision = value switch
-            {
-                DocumentDto dto => dto.State.Revision,
-                SessionEditResult edit => edit.State.Revision,
-                ActionPreview preview => preview.Revision,
-                _ => null,
-            };
-            if (revision is { } current) http.Response.Headers.ETag = Tag(current);
+            if (RevisionTag.Of(value) is { } current) http.Response.Headers.ETag = Tag(current);
             return result;
         }
         finally { gate.Release(); }
     }
 
-    private static string Tag(long revision) => $"\"{revision.ToString(CultureInfo.InvariantCulture)}\"";
+    private static string Tag(long revision) => RevisionTag.Format(revision);
 }

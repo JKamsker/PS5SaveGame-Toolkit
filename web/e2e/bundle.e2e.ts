@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { coinsField, editCoins, editedCoins, importSave, loadJson, openJson } from "./helpers";
+import { editCoins, importSave, leavePage, loadJson, openJson } from "./helpers";
 
-test("downloads the editor only after file selection and restores edited deep links", async ({ page }) => {
+test("downloads the editor only after file selection and reports an edited deep link as gone after reload", async ({ page }) => {
   const scripts: string[] = [];
   page.on("request", request => { if (request.resourceType() === "script") scripts.push(request.url()); });
   await importSave(page);
@@ -21,9 +21,18 @@ test("downloads the editor only after file selection and restores edited deep li
   expect(scripts.some(url => /\/DocumentEditor-[^/]+\.js$/.test(url))).toBe(true);
   await loadJson(page);
   await editCoins(page);
-  await page.reload();
-  await expect(page.getByRole("tab", { name: "JSON", exact: true })).toBeVisible();
-  await loadJson(page);
-  await expect(coinsField(page)).toHaveValue(editedCoins);
-  await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeEnabled();
+  const deepLink = page.url();
+  // Workspaces live in the page's in-browser runtime memory, so a reload cannot restore the edited
+  // dump. The app must boot cleanly on the deep link and say so, rather than show a blank or stale editor.
+  // The app warns before the reload discards the tab's workspace; the test confirms leaving.
+  expect(await leavePage(page, () => page.reload())).toEqual(["beforeunload"]);
+  expect(page.url()).toBe(deepLink);
+  const gone = page.getByRole("heading", { name: "This workspace is gone", exact: true });
+  // The reloaded page boots a new runtime (download + start) before it can answer.
+  await expect(gone).toBeVisible({ timeout: 30_000 });
+  await expect(gone).toBeFocused();
+  await expect(page.getByRole("tab", { name: "JSON", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Undo", exact: true })).toHaveCount(0);
+  await page.getByRole("link", { name: "Import a save dump", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Open a PS5 save dump" })).toBeVisible();
 });

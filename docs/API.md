@@ -1,13 +1,22 @@
 # HTTP API reference
 
-The locally hosted API uses `/api` (default origin `http://127.0.0.1:5180`).
+The app's `/api` contract is served **in-process**: in the browser, `SaveToolkit.LocalApi` runs inside
+the .NET WebAssembly runtime in a web worker, and the UI's requests never reach the network (see
+[BROWSER_RUNTIME.md](BROWSER_RUNTIME.md)). The optional ASP.NET host (`src/SaveToolkit.Api`, default
+origin `http://127.0.0.1:5180`) serves the same routes over HTTP for tests and tooling. Routes, status
+codes, headers (ETag/If-Match, `Allow`, `Content-Disposition`) and JSON bodies are identical in both
+hosts; `tests/SaveToolkit.LocalApi.Tests` checks that parity. Only the ASP.NET host serves
+`/openapi/v1.json`, static files and SPA navigation.
+
 JSON request bodies require `Content-Type: application/json`; successful JSON
 responses and errors use `application/json`. Property names are camelCase, null
 properties are omitted, and enums serialize as strings. Identifiers are opaque,
 case-sensitive unless stated otherwise; URL-encode them. Use query-string forms
-for IDs containing `/`, because Kestrel preserves encoded slashes in route values.
-There is no version prefix or authentication handshake. This is a local,
-single-user application; workspaces are transient, not persisted across restarts.
+for IDs containing `/`, because Kestrel (and the in-process router, which matches it) preserves
+encoded slashes in route values. There is no version prefix or authentication handshake. This is a
+local, single-user application; workspaces are transient, not persisted across restarts (in the
+browser: across reloads of the tab). Presets and reference packs are durable in both hosts: on disk
+for the ASP.NET host, in IndexedDB for the browser.
 
 Text specs may publish an optional `maxUtf8Bytes` constraint for the logical value;
 see [UTF-8 text capacity and planned actions](TEXT_CAPACITY.md) for byte counting,
@@ -105,7 +114,7 @@ workspace eligible for expiry again. The decision reads host history only, witho
 serializing documents; busy operations are skipped and lease/access state is rechecked.
 Export and direct download leave documents dirty. Explicitly close finished documents or
 DELETE the workspace to release retained resources. Document close requires clean state;
-workspace DELETE, disposal and server shutdown still discard edits. This retention provides
+workspace DELETE, disposal, server shutdown and (in the browser) reloading the tab still discard edits. This retention provides
 no restart persistence.
 
 All API error responses include these ProblemDetails fields and legacy extensions:
@@ -257,6 +266,9 @@ Returns the host-owned `ToolkitPreset[]` list. Presets contain schema version, n
 plugin/version/title/build/variant/reference-pack compatibility and semantic action parameters;
 they never contain save bytes or local paths. All preset routes return a typed `503
 presetStorageUnavailable` when the host library cannot be read or written temporarily.
+Create, rename, delete and capture return `409 presetLibraryReloadRequired` without writing when
+the preset file changed on disk since the host last read or wrote it (another writer, or a file this
+version cannot read); `POST /api/presets/reload` first.
 
 ### `POST /api/presets/reload`
 
@@ -306,7 +318,8 @@ not significant. Optional text field `name` overrides the first filename stem.
 Accepts decrypted ZIP dumps and loose files; loose filenames may carry relative
 paths. Returns a **Workspace** (200, not 201); no Location header. The default
 request/multipart limit is 8 GiB; imported expanded data is capped at 8 GiB and
-50,000 files. HTTP form field count is capped at 100,000. Invalid/incomplete
+50,000 files. In the browser the runtime's 2 GiB WebAssembly heap is the practical limit, well
+below these caps. HTTP form field count is capped at 100,000. Invalid/incomplete
 multipart or no files: 400; malformed archive, invalid entry, failed CRC, excessive
 expanded data/file count, or no save files after import: 422. Failed imports do
 not publish a workspace.

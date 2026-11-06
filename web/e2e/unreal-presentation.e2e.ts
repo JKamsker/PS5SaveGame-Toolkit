@@ -3,6 +3,8 @@ import type { EditResult, ViewNode } from "../src/api/protocol";
 import { expectFiles, exportFiles } from "./helpers";
 import { brightnessName, collection, consoleWarning, contained, generateUnrealFixtures, jediPath,
   openUnreal, scalar, screenshot, tabTo, unrealBytes, wideSummary, wideTail } from "./unreal-helpers";
+import { routeApi } from "./apiRoutes";
+import { apiRequest } from "./apiRequest";
 
 let fixtures: string;
 test.beforeAll(async ({ browserName }, testInfo) => {
@@ -74,7 +76,7 @@ test("real Sackboy projections retain inferred warnings, container summaries and
   await expect(page.locator(".row-details .field__warning")).toHaveText(currency.warning!);
   await page.locator(".row-details .field__warning").scrollIntoViewIfNeeded();
   await screenshot(page, testInfo, "sackboy-inferred-currency");
-  const rejected = await page.request.post(`${documentPath}/edits`, { data: { edits: [{ valueId: "property/2", value: "0" }] } });
+  const rejected = await apiRequest(page).post(`${documentPath}/edits`, { data: { edits: [{ valueId: "property/2", value: "0" }] } });
   expect(rejected.status()).toBe(422);
   const result = await rejected.json() as EditResult;
   expect(result.ok).toBe(false);
@@ -119,7 +121,7 @@ test("real title long-text fallback searches full values and returns 200 bounded
     evidence.push(result);
   }
   // Lazy Search also materializes title fallback text, without inventing writable references.
-  const search = await page.request.get(`${documentPath}/nodes`, { params: { id: "search" } });
+  const search = await apiRequest(page).get(`${documentPath}/nodes`, { params: { id: "search" } });
   expect(search.ok()).toBe(true);
   const nodes = await search.json() as ViewNode[];
   const eager = nodes.find(node => node.type === "table");
@@ -151,7 +153,7 @@ test("real Unreal rows recover after a transport failure without manufactured re
   await openUnreal(page, { [jediPath]: original }, "settings.sav");
   let failReads = true;
   let failures = 0;
-  await page.route("**/collections?**", async route => {
+  await routeApi(page, "**/collections?**", async route => {
     if (failReads) { failures++; await route.abort("failed"); }
     else await route.continue();
   });
@@ -159,7 +161,7 @@ test("real Unreal rows recover after a transport failure without manufactured re
   const retry = page.getByRole("button", { name: "Retry rows", exact: true });
   await expect(retry).toBeVisible({ timeout: 10_000 });
   expect(failures).toBe(3); // Initial GET and the existing two bounded automatic retries.
-  await expect(page.getByRole("alert")).toContainText("server");
+  await expect(page.getByRole("alert")).toContainText("runtime failed while handling the request");
   await expect(page.getByRole("textbox", { name: brightnessName })).toHaveCount(0);
   failReads = false;
   await retry.focus();

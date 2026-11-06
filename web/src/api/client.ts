@@ -25,8 +25,9 @@ import type {
   DocumentPreset,
   PresetPreview,
 } from "./protocol";
-import { ApiError, cancelledMessage, fetchApi, networkMessage, readJson, responseError, timeoutMessage, TRANSFER_TIMEOUT_MS } from "./http";
+import { ApiError, fetchApi as fetchRuntime, readJson, responseError, TRANSFER_TIMEOUT_MS } from "./http";
 import { documentPath, postJson, workspacePath } from "./requests";
+import { workspaceClosed, workspaceOpened, workspacesListing } from "../state/tabWorkspaces";
 
 export { ApiError } from "./http";
 
@@ -35,6 +36,44 @@ export function isStaleError(error: unknown): boolean {
   if (!(error instanceof ApiError) || error.status !== 409) return false;
   const body = error.body;
   return typeof body === "object" && body !== null && "code" in body && (body as { code: unknown }).code === "stale";
+}
+
+/** `result` is the parsed answer, or undefined when the request failed without a definite rejection. */
+type ChangeListener = (method: string, path: string, result: unknown) => void;
+const changeListeners = new Set<ChangeListener>();
+
+/**
+ * Calls `listener` after every non-GET request that may have changed something (cached images drop
+ * stale bytes): every answered one, and every failed one the runtime may still have carried out (a
+ * timeout, a cancel after the worker started it, a runtime error). A 4xx rejection changed nothing.
+ */
+export function onApiChange(listener: ChangeListener): () => void {
+  changeListeners.add(listener);
+  return () => { changeListeners.delete(listener); };
+}
+
+const notifyChange = (method: string, path: string, result: unknown) => {
+  if (method !== "GET" && method !== "HEAD") for (const listener of [...changeListeners]) listener(method, path, result);
+};
+
+/**
+ * `fetchApi` that reports possible changes to `onApiChange` listeners and notices when the runtime no
+ * longer holds a workspace, so leaving the page cannot lose it: a 404 for `/workspaces/<id>` itself, or
+ * "Workspace not found" for any request below it.
+ */
+function fetchApi<T>(path: string, init: RequestInit | undefined, read: (response: Response) => Promise<T>, timeout?: number): Promise<T> {
+  const method = (init?.method ?? "GET").toUpperCase();
+  return fetchRuntime(path, init, read, timeout).then(result => {
+    notifyChange(method, path, result);
+    return result;
+  }, (error: unknown) => {
+    if (!(error instanceof ApiError && error.status >= 400 && error.status < 500)) notifyChange(method, path, undefined);
+    const match = /^\/workspaces\/([^/?]+)(.?)/.exec(path);
+    if (match && error instanceof ApiError && error.status === 404 && (match[2] === "" || /^Workspace not found\b/.test(error.message))) {
+      workspaceClosed(decodeURIComponent(match[1]!));
+    }
+    throw error;
+  });
 }
 
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -51,16 +90,28 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
       }
       throw responseError(response.status, body);
     }
-    if (body === undefined) throw new ApiError("The server returned an unreadable response. Refresh the current view before retrying.", response.status);
+    if (body === undefined) throw new ApiError("The editor returned an unreadable response. Refresh the current view before retrying.", response.status);
     return body as T;
   });
 }
 
+/** Fetches a binary resource; `name` comes from Content-Disposition when present. */
+export function fetchBinary(path: string, signal?: AbortSignal, timeout?: number): Promise<{ blob: Blob; name: string | undefined }> {
+  return fetchApi(path, { signal }, async response => {
+    if (!response.ok) throw responseError(response.status, await readJson(response));
+    return { blob: await response.blob(), name: dispositionName(response) };
+  }, timeout);
+}
+
 export const api = {
   plugins: () => request<Plugin[]>("/plugins"),
-  workspaces: () => request<WorkspaceSummary[]>("/workspaces"),
-  workspace: (id: string) => request<Workspace>(workspacePath(id)),
-  deleteWorkspace: (id: string) => request<void>(workspacePath(id), { method: "DELETE" }),
+  /** The runtime's whole workspace list; it also corrects which workspaces leaving the page would lose. */
+  workspaces: () => {
+    const listed = workspacesListing();
+    return request<WorkspaceSummary[]>("/workspaces").then(list => { listed(list.map(workspace => workspace.id)); return list; });
+  },
+  workspace: (id: string) => request<Workspace>(workspacePath(id)).then(workspace => { workspaceOpened(id); return workspace; }),
+  deleteWorkspace: (id: string) => request<void>(workspacePath(id), { method: "DELETE" }).then(() => workspaceClosed(id)),
 
   titles: () => request<TitleInfo[]>("/titles"),
   presets: () => request<ToolkitPreset[]>("/presets"),
@@ -73,30 +124,26 @@ export const api = {
   renamePreset: (id: string, name: string) => request<ToolkitPreset>(`/presets/${encodeURIComponent(id)}`, { ...postJson({ name }), method: "PATCH" }),
   deletePreset: (id: string) => request<void>(`/presets/${encodeURIComponent(id)}`, { method: "DELETE" }),
 
-  /** Uploads zips or loose files; `path` keeps folder structure for directory drops. */
-  upload: (files: { file: File; path: string }[], name?: string, onProgress?: (fraction: number) => void) =>
-    new Promise<Workspace>((resolve, reject) => {
-      const form = new FormData();
-      for (const { file, path } of files) form.append("files", file, path);
-      if (name) form.append("name", name);
-      // XHR rather than fetch: fetch cannot report upload progress, and dumps can be hundreds of MiB.
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", "/api/workspaces");
-      xhr.responseType = "json";
-      xhr.timeout = TRANSFER_TIMEOUT_MS;
-      xhr.upload.onprogress = (e) => e.lengthComputable && onProgress?.(e.loaded / e.total);
-      xhr.onload = () => {
-        const body = xhr.response as (Workspace & { error?: string }) | null;
-        if (xhr.status >= 200 && xhr.status < 300 && body) resolve(body);
-        else reject(responseError(xhr.status, body));
-      };
-      xhr.onerror = () => reject(new ApiError(networkMessage, 0));
-      xhr.onabort = () => reject(new ApiError(cancelledMessage, 0));
-      xhr.ontimeout = () => reject(new ApiError(timeoutMessage, 0));
-      xhr.send(form);
-    }),
+  /**
+   * Uploads zips or loose files; `path` keeps folder structure for directory drops. The files are read
+   * into one multipart body for the in-browser runtime; progress completes once the runtime has answered.
+   */
+  upload: (files: { file: File; path: string }[], name?: string, onProgress?: (fraction: number) => void) => {
+    const form = new FormData();
+    for (const { file, path } of files) form.append("files", file, path);
+    if (name) form.append("name", name);
+    return fetchApi("/workspaces", { method: "POST", body: form }, async response => {
+      onProgress?.(1);
+      const body = await readJson(response);
+      if (!response.ok || !body) throw responseError(response.status, body);
+      const workspace = body as Workspace;
+      workspaceOpened(workspace.id);
+      return workspace;
+    }, TRANSFER_TIMEOUT_MS);
+  },
 
-  iconUrl: (wsId: string, dirId: string) => `/api${workspacePath(wsId)}/directories/${encodeURIComponent(dirId)}/icon`,
+  /** API-relative paths for binary resources; render them with ApiImage or fetch them with `api.binary`. */
+  iconPath: (wsId: string, dirId: string) => `${workspacePath(wsId)}/directories/${encodeURIComponent(dirId)}/icon`,
 
   open: (wsId: string, fileId: string, pluginId?: string) =>
     request<SaveDocument>(`${workspacePath(wsId)}/files/${encodeURIComponent(fileId)}/open`, postJson({ pluginId: pluginId ?? null })),
@@ -129,14 +176,16 @@ export const api = {
     request<EditResult>(`${documentPath(wsId, docId)}/presets/${encodeURIComponent(presetId)}/apply`, postJson({ planId, revision })),
   undo: (wsId: string, docId: string) => request<EditResult>(`${documentPath(wsId, docId)}/undo`, { method: "POST" }),
   redo: (wsId: string, docId: string) => request<EditResult>(`${documentPath(wsId, docId)}/redo`, { method: "POST" }),
-  assetUrl: (wsId: string, docId: string, assetId: string) => `/api${documentPath(wsId, docId)}/assets?id=${encodeURIComponent(assetId)}`,
+  assetPath: (wsId: string, docId: string, assetId: string) => `${documentPath(wsId, docId)}/assets?id=${encodeURIComponent(assetId)}`,
   blob: async (wsId: string, docId: string, blobId: string, offset: number, count: number) => {
     return fetchApi(`${documentPath(wsId, docId)}/blobs?id=${encodeURIComponent(blobId)}&offset=${offset}&count=${count}`, undefined, async response => {
       if (!response.ok) throw responseError(response.status, await readJson(response));
       return new Uint8Array(await response.arrayBuffer());
     });
   },
-  downloadUrl: (wsId: string, docId: string) => `/api${documentPath(wsId, docId)}/download`,
+  /** The current bytes of one save file, with the server-chosen file name. */
+  download: (wsId: string, docId: string) => fetchBinary(`${documentPath(wsId, docId)}/download`, undefined, TRANSFER_TIMEOUT_MS),
+  binary: fetchBinary,
 
   /** Reference datasets pinned to the document, with attribution (Sources panel). */
   sources: (wsId: string, docId: string) => request<DocumentSources>(`${documentPath(wsId, docId)}/sources`),
@@ -154,8 +203,8 @@ export const api = {
   /** One catalog record with its pack metadata and full dataset provenance. */
   referenceRecord: (wsId: string, docId: string, catalogId: string, key: string, signal?: AbortSignal) =>
     request<ReferenceRecordDetail>(`${documentPath(wsId, docId)}/references/${encodeURIComponent(catalogId)}/record?${referenceParams({ key })}`, { signal }),
-  referenceAssetUrl: (wsId: string, docId: string, assetId: string) =>
-    `/api${documentPath(wsId, docId)}/reference-assets?id=${encodeURIComponent(assetId)}`,
+  referenceAssetPath: (wsId: string, docId: string, assetId: string) =>
+    `${documentPath(wsId, docId)}/reference-assets?id=${encodeURIComponent(assetId)}`,
   referenceCandidates: (wsId: string, docId: string, query: { valueId: string; actionId?: string; q?: string; category?: string; sortBy?: ReferenceSortKey; descending?: boolean; offset?: number; limit?: number; revision?: number }) =>
     request<ReferenceCandidatePage>(`${documentPath(wsId, docId)}/reference-fields/candidates?${referenceParams(query)}`),
   referenceCandidate: (wsId: string, docId: string, query: { valueId: string; rawId: string; actionId?: string; revision?: number }) =>
@@ -175,12 +224,19 @@ export const api = {
   exportZip: async (wsId: string, scope: ExportScope, mirrorBackups: boolean) => {
     return fetchApi(`${workspacePath(wsId)}/export`, postJson({ scope, mirrorBackups }), async response => {
       if (!response.ok) throw responseError(response.status, await readJson(response));
-      const disposition = response.headers.get("content-disposition") ?? "";
-      const name = /filename="?([^";]+)"?/.exec(disposition)?.[1] ?? "savebench-export.zip";
-      return { blob: await response.blob(), name };
+      return { blob: await response.blob(), name: dispositionName(response) ?? "savebench-export.zip" };
     }, TRANSFER_TIMEOUT_MS);
   },
 };
+
+function dispositionName(response: Response): string | undefined {
+  const disposition = response.headers.get("content-disposition") ?? "";
+  const encoded = /filename\*=UTF-8''([^;]+)/i.exec(disposition)?.[1];
+  if (encoded) {
+    try { return decodeURIComponent(encoded); } catch { /* fall back to the plain parameter */ }
+  }
+  return /filename="?([^";]+)"?/.exec(disposition)?.[1];
+}
 
 function referenceParams(query: Record<string, string | number | boolean | undefined>): string {
   return new URLSearchParams(Object.entries(query).filter((entry) => entry[1] !== undefined).map(([key, value]) => [key, String(value)])).toString();

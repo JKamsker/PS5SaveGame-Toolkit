@@ -64,11 +64,11 @@ The document must fit the viewport (`document.documentElement.scrollWidth <= win
 
 ## Automatic publication
 
-The **Documentation** workflow validates pull requests, pushes to `main` and manual dispatches. Pull requests only build and check the site. Pushes to `main` rebuild and deploy the verified static output through the official GitHub Pages artifact/deployment actions. A manual dispatch deploys only when run on `main`.
+The **Documentation** workflow validates pull requests and manual dispatches; it only builds and checks the site. On pushes to `main` (and manual dispatches of **Pages** on `main`), the **Pages** workflow calls the same build, combines the verified documentation (site root) with the browser app (`app/`) and deploys both through the official GitHub Pages artifact/deployment actions, because a repository has a single Pages site.
 
 Repository administrators must select **Settings → Pages → Build and deployment → Source: GitHub Actions** once. The `github-pages` environment should permit deployment only from `main`. No PAT or custom secret is needed. The expected project URL is [jkamsker.github.io/PS5SaveGame-Toolkit/](https://jkamsker.github.io/PS5SaveGame-Toolkit/).
 
-The deployment job alone receives `pages: write` and `id-token: write`; the build has `contents: read`. No fork or pull-request event can deploy. The workflow does not enable Pages, change visibility or provision an external service itself. See the repository's [release guide](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/RELEASING.md) for the CI job inventory.
+The Pages deployment job alone receives `pages: write` and `id-token: write`; the builds have `contents: read`. No fork or pull-request event can deploy. The workflow does not enable Pages, change visibility or provision an external service itself. See the repository's [release guide](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/RELEASING.md) for the CI job inventory.
 
 ## Upstream documentation
 

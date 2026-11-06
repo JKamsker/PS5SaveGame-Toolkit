@@ -34,6 +34,12 @@ def source(path):
     )
 
 
+def moved_source(*paths):
+    """Reads the first path present at CODE_REF (shared API code moved from SaveToolkit.Api to LocalApi)."""
+    present = source_paths()
+    return source(next((path for path in paths if path in present), paths[0]))
+
+
 @lru_cache(maxsize=None)
 def source_paths():
     return set(subprocess.check_output(
@@ -469,7 +475,7 @@ class DocumentationTests(unittest.TestCase):
         self.assertNotIn("backend_filter", release)
 
     def test_ci_caches_match_dependency_inputs_and_keep_browser_system_dependencies(self):
-        for path in ("ci.yml", "nightly-fuzz.yml", "nightly-stryker.yml", "release.yml"):
+        for path in ("ci.yml", "nightly-fuzz.yml", "nightly-stryker.yml", "release.yml", "pages.yml"):
             workflow = document(f".github/workflows/{path}")
             for setup in workflow.split("uses: actions/setup-dotnet@v6")[1:]:
                 setup = setup.split("\n      - ", 1)[0]
@@ -603,7 +609,8 @@ class DocumentationTests(unittest.TestCase):
         self.assertLess(budgets["initial"]["css"], 50000)
         releasing = document("docs/RELEASING.md")
         for text in (releasing, performance):
-            for required in ("npm run check:bundle", "src/SaveToolkit.Api/wwwroot", "gzip level 6",
+            # Vite's output moved from src/SaveToolkit.Api/wwwroot to web/dist with the browser runtime.
+            for required in ("npm run check:bundle", "web/dist", "gzip level 6",
                              "web/bundle-budgets.json"):
                 self.assertIn(required, text)
         self.assertIn("PERFORMANCE.md#web-bundle-budgets", releasing)
@@ -801,8 +808,10 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("ReferenceIconOptions? options)", source("src/SaveToolkit.Sdk/References/ReferenceViews.cs"))
 
     def test_collection_query_docs_explain_cleared_values(self):
-        code = source("src/SaveToolkit.Api/Endpoints/WorkspaceEndpoints.cs")
-        self.assertIn('request.Query["sort"].FirstOrDefault() is { Length: > 0 } sort ? sort : null', code)
+        code = moved_source("src/SaveToolkit.LocalApi/Protocol/CollectionQueryBinder.cs",
+                            "src/SaveToolkit.Api/Endpoints/WorkspaceEndpoints.cs")
+        self.assertTrue('request.First("sort") is { Length: > 0 } sort ? sort : null' in code
+                        or 'request.Query["sort"].FirstOrDefault() is { Length: > 0 } sort ? sort : null' in code)
         self.assertIn("filter.Value.Length == 0", code)
         self.assertIn("filters.Remove(key)", code)
         text = document("docs/API.md")
@@ -899,14 +908,17 @@ class DocumentationTests(unittest.TestCase):
         for method, route in routes:
             heading = f"### `{method} /api/workspaces/{{workspaceId}}/documents/{{documentId}}{route}`"
             self.assertEqual(1, api.count(heading))
-        limit = re.search(r"MaxPairs = (\d+)", source("src/SaveToolkit.Api/Contracts/ReferenceBatchDtos.cs"))[1]
+        limit = re.search(r"MaxPairs = (\d+)", moved_source("src/SaveToolkit.LocalApi/Contracts/ReferenceBatchDtos.cs",
+                                                           "src/SaveToolkit.Api/Contracts/ReferenceBatchDtos.cs"))[1]
         batch = markdown_section(api,
             "### `POST /api/workspaces/{workspaceId}/documents/{documentId}/reference-fields/records`")
         self.assertIn(f"at most {limit} pairs", guide)
         self.assertIn(f"**{limit} pairs**", batch)
         self.assertIn("**413**", batch)
-        self.assertIn("StatusCodes.Status413PayloadTooLarge",
-                      source("src/SaveToolkit.Api/Infrastructure/ApiRequestValidation.cs"))
+        validation = moved_source("src/SaveToolkit.LocalApi/Protocol/ApiRequestValidation.cs",
+                                  "src/SaveToolkit.Api/Infrastructure/ApiRequestValidation.cs")
+        self.assertTrue("reference pairs are allowed.\", 413)" in validation
+                        or "StatusCodes.Status413PayloadTooLarge" in validation)
 
     def test_selective_helper_inventory_matches_production_calls(self):
         section = markdown_section(document("docs/PLUGIN_GUIDE.md"), "### Selective helper adoption")
@@ -952,23 +964,23 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("offer's `errors`", text)
         self.assertIn("listing still returns 200", text)
 
-    def test_quick_start_and_user_guide_match_packaged_launchers(self):
+    def test_quick_start_and_user_guide_match_packaged_static_site(self):
+        # Releases ship the browser app as one static-site archive (no server launchers since the
+        # in-browser runtime); users serve the extracted folder with any static web server.
         package = source("scripts/package.ps1")
-        launch_lines = [line for line in package.splitlines() if "--contentRoot" in line]
-        self.assertEqual(2, len(launch_lines))
-        for line in launch_lines:
-            self.assertIn("--urls http://127.0.0.1:5180", line)
-            self.assertIn("--Toolkit:DataRoot", line)
-            self.assertIn("--Toolkit:PackRoot", line)
-            self.assertNotIn("%*", line)
-            self.assertNotIn('$@', line)
+        self.assertIn('$name = "SaveToolkit-$version-web"', package)
+        self.assertIn("$env:SAVETOOLKIT_WEB_BASE = '/'", package)
+        self.assertIn("python3 -m http.server 8080 --bind 127.0.0.1", package)
+        self.assertNotIn("--contentRoot", package)
         for page in ("README.md", "docs/USER_GUIDE.md"):
             with self.subTest(page=page):
                 text = document(page)
-                for claim in ("http://127.0.0.1:5180", "start.cmd", "./start.sh",
-                              "chmod +x start.sh SaveToolkit.Api", "SaveToolkit-<version>-<runtime>"):
+                for claim in ("SaveToolkit-<version>-web", "python3 -m http.server 8080 --bind 127.0.0.1",
+                              "http://127.0.0.1:8080/", "file://"):
                     self.assertIn(claim, text)
-                self.assertIn("use-another-port", text)
+                for stale in ("start.cmd", "start.sh", "SaveToolkit-<version>-<runtime>"):
+                    self.assertNotIn(stale, text)
+        self.assertIn("use-another-port", heading_anchors(document("docs/USER_GUIDE.md")))
         user = " ".join(document("docs/USER_GUIDE.md").split())
         count = re.search(r"\*\*(\d+) game/format plugins\*\*", user)
         self.assertIsNotNone(count)

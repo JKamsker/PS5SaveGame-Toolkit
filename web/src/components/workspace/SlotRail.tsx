@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api } from "../../api/client";
+import { ApiImage } from "../ui/ApiImage";
 import type { SaveDirectory, SaveFileInfo, Workspace } from "../../api/protocol";
 import { formatBytes } from "../../lib/values";
 
@@ -84,7 +85,7 @@ function Slot({ workspaceId, dir, expanded, dirty, activeFileId, onToggle, onOpe
     <div className={classes}>
       <button type="button" className="slot__head" aria-expanded={expanded} onClick={onToggle}>
         {dir.hasIcon ? (
-          <img className="slot__art" src={api.iconUrl(workspaceId, dir.id)} alt="" loading="lazy" width={52} height={52} />
+          <ApiImage className="slot__art" path={api.iconPath(workspaceId, dir.id)} alt="" loading="lazy" width={52} height={52} />
         ) : (
           <span className="slot__art slot__art--empty">{dir.files.length}</span>
         )}

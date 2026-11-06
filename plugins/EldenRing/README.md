@@ -633,6 +633,10 @@ requests; console evidence is not a prerequisite for the enabled Experimental wr
 
 ## SDK requests
 
+**Browser runtime (resolved):** `Aes.Create` throws on browser-wasm, so `RegulationDecoder` decrypts the
+regulation's AES-256-CBC with the SDK's `SaveToolkit.Sdk.Crypto.PortableAes` (platform AES natively,
+managed FIPS-197 AES in the browser); output is byte-identical.
+
 No blocking SDK request. F9/F8 meet the shipped map/graph/regulation requirements.
 The SDK helper migration (#40) uses `ActionPlans.ApplyScalar` with application warnings preserved,
 all planned writes (including derived history) selected, and unopened bindings registered locally.

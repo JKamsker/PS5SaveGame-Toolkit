@@ -5,6 +5,8 @@ import {
   fixture, loadJson, openJson, originalCoins, originalFiles, originalSave, savePath, withCoins,
 } from "./helpers";
 import { closePreview, editScalar, expectPreview, openTableReset, resetAction as action, searchRow, searchTable } from "./action-helpers";
+import { onApi, waitForApiResponse } from "./apiRoutes";
+import { apiRequest } from "./apiRequest";
 
 const editedPlayer = "Synthetic edited player";
 
@@ -15,7 +17,7 @@ test("bulk preview and cancel preserve edits; apply restores exported values as 
   await editCoins(page);
   const player = page.getByRole("textbox", { name: /^player\s*meaning unknown/ });
   await player.fill(editedPlayer);
-  const editing = page.waitForResponse(response => response.url().endsWith("/edits") && response.request().method() === "POST");
+  const editing = waitForApiResponse(page, response => response.url().endsWith("/edits") && response.request().method() === "POST");
   // Generic JSON strings use a multiline editor and commit on blur.
   await player.press("Tab");
   expect((await editing).status()).toBe(200);
@@ -163,18 +165,18 @@ test("F6 empty table selection means no rows; the action outside the table retai
   await expect(searchTable(page).getByRole("checkbox", { checked: true })).toHaveCount(0);
   const location = new URL(page.url());
   const documentUrl = `/api/workspaces/${location.pathname.split("/").at(-1)}/documents/${location.searchParams.get("doc")}`;
-  const beforeResponse = await page.request.get(documentUrl);
+  const beforeResponse = await apiRequest(page).get(documentUrl);
   expect(beforeResponse.ok()).toBe(true);
   const before = await beforeResponse.json() as SaveDocument;
   expect(before.state.revision).toEqual(expect.any(Number));
   expect(before.state.canUndo).toBe(true);
   let applies = 0;
-  page.on("request", request => { if (request.url().endsWith("/actions/apply")) applies++; });
+  onApi(page, "request", request => { if (request.url().endsWith("/actions/apply")) applies++; });
   await openTableReset(page, "coins");
   await expectPreview(page, "0 selected rows", []);
   await closePreview(page, "Cancel");
   expect(applies).toBe(0);
-  const afterResponse = await page.request.get(documentUrl);
+  const afterResponse = await apiRequest(page).get(documentUrl);
   expect(afterResponse.ok()).toBe(true);
   const after = await afterResponse.json() as SaveDocument;
   expect(after.state).toEqual(before.state);

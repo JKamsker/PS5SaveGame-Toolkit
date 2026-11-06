@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using SaveToolkit.Api.Contracts;
 using SaveToolkit.Api.Infrastructure;
 using SaveToolkit.Core.References;
+using SaveToolkit.LocalApi.Protocol;
 using SaveToolkit.Sdk.References;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
@@ -10,10 +11,7 @@ namespace SaveToolkit.Api.Endpoints;
 /// <summary>Reference packs (import/list/remove) and per-document sources, lookups and assets.</summary>
 internal static class ReferenceEndpoints
 {
-    private const long MultipartEnvelopeAllowanceBytes = 1024 * 1024;
-
-    /// <summary>Default archive limit plus room for the multipart envelope; checked again against the store's limits.</summary>
-    private static readonly long MaxImportBody = new ReferencePackLimits().MaxArchiveBytes + MultipartEnvelopeAllowanceBytes;
+    private static readonly long MaxImportBody = ApiLimits.MaxReferencePackBody;
 
     public static void MapReferenceApi(this IEndpointRouteBuilder app)
     {
@@ -31,15 +29,10 @@ internal static class ReferenceEndpoints
             .WithApiErrors(Status400BadRequest, Status404NotFound, Status409Conflict,
                 Status412PreconditionFailed, Status422UnprocessableEntity, Status500InternalServerError);
         doc.MapReferenceFieldApi();
-        doc.MapGet("/sources", (DocumentRef d) =>
-            new DocumentSourcesDto([.. d.Workspace.References(d.Value.Id).Datasets().Select(s => s.ToDto())]));
+        doc.MapGet("/sources", (DocumentRef d) => ReferenceOperations.Sources(d.Workspace, d.Value));
         doc.MapGet("/references/{catalogId}", Search);
         doc.MapGet("/references/{catalogId}/record", (DocumentRef d, string catalogId, [FromQuery] string key) =>
-        {
-            var catalog = Catalog(d, catalogId);
-            var record = catalog.Find(key) ?? throw new KeyNotFoundException($"No record '{key}' in catalog '{catalogId}'.");
-            return new ReferenceRecordDetailDto(record.ToDto(), catalog.Pack.Title, catalog.Pack.Version, record.Dataset);
-        });
+            ReferenceOperations.Record(d.Workspace, d.Value, catalogId, key));
         doc.MapGet("/reference-assets", (DocumentRef d, [FromQuery] string id, ReferencePackStore store, HttpContext http) =>
         {
             var asset = d.Workspace.References(d.Value.Id).AssetForHost(id);
@@ -60,29 +53,8 @@ internal static class ReferenceEndpoints
         [FromQuery] ReferenceSortKey? sortBy,
         [FromQuery] bool? descending,
         [FromQuery] int? offset,
-        [FromQuery] int? limit)
-    {
-        var catalog = Catalog(d, catalogId);
-        ReferenceSortBinding.Validate(sortBy);
-        var query = new ReferenceQuery
-        {
-            Text = q,
-            Category = string.IsNullOrEmpty(category) ? null : category,
-            SortBy = sortBy,
-            Descending = descending ?? false,
-            Offset = Math.Max(0, offset ?? 0),
-            Limit = Math.Clamp(limit ?? ReferenceQuery.DefaultLimit, 1, ReferenceQuery.MaxLimit),
-        };
-        var page = catalog.Search(query);
-        return new ReferencePageDto(catalogId, catalog.Pack.Id, [.. page.Items.Select(r => r.ToDto())], page.Total, page.Offset, query.Limit, catalog.Categories)
-        {
-            SortKeys = catalog.SortKeys,
-        };
-    }
-
-    private static IReferenceCatalog Catalog(DocumentRef d, string catalogId) =>
-        d.Workspace.References(d.Value.Id).CatalogForHost(catalogId)
-        ?? throw new KeyNotFoundException($"No reference pack for this document provides catalog '{catalogId}'.");
+        [FromQuery] int? limit) =>
+        ReferenceOperations.Search(d.Workspace, d.Value, catalogId, q, category, sortBy, descending, offset, limit);
 
     private static async Task<IResult> ImportPack(HttpRequest request, ReferencePackStore store, CancellationToken ct)
     {
@@ -131,5 +103,5 @@ internal static class ReferenceEndpoints
     }
 
     private static IResult CrossSiteRejected() =>
-        Results.Json(new ErrorDto("Reference packs can only be changed from the toolkit itself."), statusCode: StatusCodes.Status403Forbidden);
+        Results.Json(new ErrorDto(ReferenceOperations.CrossSiteMessage), statusCode: StatusCodes.Status403Forbidden);
 }

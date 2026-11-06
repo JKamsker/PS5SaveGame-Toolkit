@@ -3,9 +3,13 @@ import { expect } from "@playwright/test";
 import { actions, capture, expectFiles, fixture, generateFf7Fixtures, openFf7, patch, preview, recordApi, snapshot, unchanged } from "./ff7-helpers";
 import { applyAndHistory, selectedAction, selectRows, withFiles } from "./ff7-selection-helpers";
 import { screenshot, tabTo } from "./unreal-helpers";
+import { waitForApiRequest, waitForApiResponse } from "./apiRoutes";
+import { apiRequest } from "./apiRequest";
 
 let directory: string;
 test.use({ trace: "on", screenshot: "on" });
+// Each FF7 case re-imports (a fresh page and in-browser runtime per import) and exports whole saves several times.
+test.describe.configure({ timeout: 60_000 });
 test.beforeAll(async ({ request }, testInfo) => { expect(request).toBeDefined(); directory = await generateFf7Fixtures(testInfo); });
 
 test("FF7 selected source identity presents genuine ambiguous candidates and applies only an explicit moved choice", async ({ page }, testInfo) => {
@@ -21,7 +25,7 @@ test("FF7 selected source identity presents genuine ambiguous candidates and app
   expect(preset.actions[0]!.instances![0]!.path ?? null).toBeNull();
   const destination = await fixture(directory, "remake-ambiguous");
   const documentPath = await openFf7(page, destination);
-  const before = await snapshot(page.request, documentPath);
+  const before = await snapshot(apiRequest(page), documentPath);
   const ambiguous = await preview(page, preset.name);
   const resolution = ambiguous.preview.resolution.instances[0]!;
   expect(resolution.status).toBe("Ambiguous");
@@ -32,7 +36,7 @@ test("FF7 selected source identity presents genuine ambiguous candidates and app
   expect(await review.getByRole("radio").evaluateAll(nodes => nodes.some(node => (node as HTMLInputElement).checked))).toBe(false);
   await expect(review.getByRole("button", { name: "Apply preset", exact: true })).toBeDisabled();
   await expect(review.getByRole("button", { name: "Preview again", exact: true })).toBeDisabled();
-  await unchanged(page.request, documentPath, before);
+  await unchanged(apiRequest(page), documentPath, before);
   const index = resolution.candidates.findIndex(candidate => candidate.path === "inventory/7");
   expect(index).toBeGreaterThanOrEqual(0);
   await tabTo(page, review.getByRole("radio").first());
@@ -40,7 +44,7 @@ test("FF7 selected source identity presents genuine ambiguous candidates and app
   await page.keyboard.press("Space");
   await expect(review.getByRole("radio").nth(index)).toBeChecked();
   await screenshot(page, testInfo, "ff7-genuine-ambiguity-choice");
-  const resolving = page.waitForResponse(response => /\/presets\/[^/]+\/preview$/.test(response.url()));
+  const resolving = waitForApiResponse(page, response => /\/presets\/[^/]+\/preview$/.test(response.url()));
   await review.getByRole("button", { name: "Preview again", exact: true }).click();
   const response = await resolving;
   expect(response.status()).toBe(200);
@@ -49,7 +53,7 @@ test("FF7 selected source identity presents genuine ambiguous candidates and app
   const expected = patch(destination, { "inventory/7/quantity": 99 });
   const downloaded = await applyAndHistory(page, documentPath, destination.files, expected, testInfo);
   const reimported = await openFf7(page, withFiles(destination, downloaded));
-  expectFiles((await snapshot(page.request, reimported)).files, expected);
+  expectFiles((await snapshot(apiRequest(page), reimported)).files, expected);
   await flush();
 });
 
@@ -62,17 +66,17 @@ test("Rebirth owned native instance follows a moved detail and excludes its orph
   const preset = await capture(page, "FF7 owned moved detail");
   const destination = await fixture(directory, "rebirth-moved");
   const documentPath = await openFf7(page, destination);
-  const before = await snapshot(page.request, documentPath);
+  const before = await snapshot(apiRequest(page), documentPath);
   const result = await preview(page, preset.name);
   expect(result.preview.resolution.instances[0]).toMatchObject({ status: "Resolved", candidates: [{ path: "materia/7" }] });
   expect(result.preview.resolution.instances[0]!.candidates).toHaveLength(1);
   expect(result.preview.plan.changes.map(change => change.valueId).sort()).toEqual(["materia/7/ap", "materia/7/level"]);
   await expect(page.locator(".presets-preview").getByRole("radio")).toHaveCount(0);
-  await unchanged(page.request, documentPath, before);
+  await unchanged(apiRequest(page), documentPath, before);
   const expected = patch(destination, { "materia/7/ap": destination.secondTierAp, "materia/7/level": 2 });
   const downloaded = await applyAndHistory(page, documentPath, destination.files, expected, testInfo);
   const reimported = await openFf7(page, withFiles(destination, downloaded));
-  expectFiles((await snapshot(page.request, reimported)).files, expected);
+  expectFiles((await snapshot(apiRequest(page), reimported)).files, expected);
   await screenshot(page, testInfo, "ff7-rebirth-moved-owned-reimport");
   await flush();
 });
@@ -83,17 +87,17 @@ test("selected character1 preserves character0 and explicit empty selection neve
   const documentPath = await openFf7(page, binary);
   await selectRows(page, "Characters", []);
   await selectedAction(page, actions.recover);
-  const emptyRequest = page.waitForRequest(request => request.url().endsWith("/presets/capture"));
+  const emptyRequest = waitForApiRequest(page, request => request.url().endsWith("/presets/capture"));
   await capture(page, "FF7 selected empty");
   expect((await emptyRequest).postDataJSON()).toMatchObject({ selectedRowKeys: [], scopeKind: "selected", parameters: {} });
-  const before = await snapshot(page.request, documentPath);
+  const before = await snapshot(apiRequest(page), documentPath);
   const empty = await preview(page, "FF7 selected empty");
   expect(empty.preview.plan.changes).toEqual([]);
   await page.locator(".presets-preview").getByRole("button", { name: "Cancel", exact: true }).click();
-  await unchanged(page.request, documentPath, before);
+  await unchanged(apiRequest(page), documentPath, before);
   await selectRows(page, "Characters", [1]);
   await selectedAction(page, actions.recover);
-  const selectedRequest = page.waitForRequest(request => request.url().endsWith("/presets/capture"));
+  const selectedRequest = waitForApiRequest(page, request => request.url().endsWith("/presets/capture"));
   await capture(page, "FF7 character1 recovery");
   expect((await selectedRequest).postDataJSON()).toMatchObject({ selectedRowKeys: ["character/1"], scopeKind: "selected", parameters: {} });
   const result = await preview(page, "FF7 character1 recovery");
@@ -105,6 +109,6 @@ test("selected character1 preserves character0 and explicit empty selection neve
   });
   const downloaded = await applyAndHistory(page, documentPath, binary.files, expected, testInfo);
   const reopened = await openFf7(page, withFiles(binary, downloaded));
-  expectFiles((await snapshot(page.request, reopened)).files, expected);
+  expectFiles((await snapshot(apiRequest(page), reopened)).files, expected);
   await flush();
 });

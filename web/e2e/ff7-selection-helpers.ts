@@ -1,6 +1,8 @@
 import { expect, type Page, type TestInfo } from "@playwright/test";
 import { actions, expectFiles, manifest, snapshot, state, type Ff7Fixture } from "./ff7-helpers";
 import { exportFiles, type SaveFiles } from "./helpers";
+import { waitForApiResponse } from "./apiRoutes";
+import { apiRequest } from "./apiRequest";
 
 export async function selectRows(page: Page, tab: "Inventory" | "Characters" | "Materia", indices: number[]) {
   await page.getByRole("tab", { name: tab, exact: true }).click();
@@ -24,19 +26,19 @@ export async function selectedAction(page: Page, action: string) {
 }
 
 export async function applyAndHistory(page: Page, documentPath: string, original: SaveFiles, expected: SaveFiles, testInfo: TestInfo) {
-  const applying = page.waitForResponse(response => /\/presets\/[^/]+\/apply$/.test(response.url()));
+  const applying = waitForApiResponse(page, response => /\/presets\/[^/]+\/apply$/.test(response.url()));
   await page.locator(".presets-preview").getByRole("button", { name: "Apply preset", exact: true }).click();
   expect((await applying).status()).toBe(200);
   await expect(page.locator(".presets-preview")).not.toBeVisible();
-  expect(await state(page.request, documentPath)).toMatchObject({ revision: 1, canUndo: true, canRedo: false });
-  expectFiles((await snapshot(page.request, documentPath)).files, expected);
+  expect(await state(apiRequest(page), documentPath)).toMatchObject({ revision: 1, canUndo: true, canRedo: false });
+  expectFiles((await snapshot(apiRequest(page), documentPath)).files, expected);
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
-  expect(await state(page.request, documentPath)).toMatchObject({ revision: 2, canUndo: false, canRedo: true });
-  expectFiles((await snapshot(page.request, documentPath)).files, original);
+  expect(await state(apiRequest(page), documentPath)).toMatchObject({ revision: 2, canUndo: false, canRedo: true });
+  expectFiles((await snapshot(apiRequest(page), documentPath)).files, original);
   await page.getByRole("button", { name: "Redo", exact: true }).click();
   await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeEnabled();
-  expect(await state(page.request, documentPath)).toMatchObject({ revision: 3, canUndo: true, canRedo: false });
+  expect(await state(apiRequest(page), documentPath)).toMatchObject({ revision: 3, canUndo: true, canRedo: false });
   const downloaded = await exportFiles(page, testInfo, "ff7-selected-whole.zip");
   expectFiles(downloaded, expected);
   await manifest(testInfo, "ff7-selected-whole-members", downloaded);

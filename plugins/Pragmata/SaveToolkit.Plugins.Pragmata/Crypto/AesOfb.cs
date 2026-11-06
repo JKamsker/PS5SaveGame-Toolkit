@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+using SaveToolkit.Sdk.Crypto;
 
 namespace SaveToolkit.Plugins.Pragmata.Crypto;
 
@@ -11,16 +11,13 @@ internal static class AesOfb
         if (output.Length != input.Length || key.Length != BlockSize || iv.Length != BlockSize)
             throw new ArgumentException("Invalid AES-128-OFB buffer, key or IV length.");
 
-        using var aes = Aes.Create();
-        aes.Key = key;
-        aes.Mode = CipherMode.ECB;
-        aes.Padding = PaddingMode.None;
-        using var encryptor = aes.CreateEncryptor();
+        // PortableAes also works on browser-wasm, where Aes.Create is unsupported.
+        using var aes = PortableAes.Create(key);
         var feedback = iv.ToArray();
         var stream = new byte[BlockSize];
         for (var offset = 0; offset < input.Length; offset += BlockSize)
         {
-            encryptor.TransformBlock(feedback, 0, BlockSize, stream, 0);
+            aes.EncryptEcb(feedback, stream);
             stream.CopyTo(feedback, 0);
             var used = Math.Min(BlockSize, input.Length - offset);
             for (var i = 0; i < used; i++)

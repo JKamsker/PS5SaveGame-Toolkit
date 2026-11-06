@@ -1,7 +1,9 @@
-import { act, cleanup, fireEvent, screen, within } from "@testing-library/react";
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { act, cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type { EnumSpec, FlagsSpec, IntegerSpec, TableRow, ViewNode } from "../../api/protocol";
 import { field, renderTable, stubViewport, table, text } from "./table/tableTestUtils";
+
+vi.mock("../../lib/apiObjectUrls", async () => (await import("../../test/apiObjectUrls")).fakeObjectUrls);
 
 const count: IntegerSpec = { kind: "integer", min: "0", max: "999" };
 const rarity: EnumSpec = {
@@ -32,7 +34,7 @@ afterEach(cleanup);
 const rowCount = () => screen.getByText(/rows$/).textContent;
 
 describe("TableView cells", () => {
-  it("renders every node type and a visible placeholder for unknown ones", () => {
+  it("renders every node type and a visible placeholder for unknown ones", async () => {
     const cells: Record<string, ViewNode> = {
       name: text("Potion"),
       icon: { type: "image", assetId: "icons/potion", alt: "Potion icon" },
@@ -45,7 +47,7 @@ describe("TableView cells", () => {
     renderTable(table([{ key: "r1", cells }], Object.keys(cells)));
 
     const img = screen.getByRole("img", { name: "Potion icon" });
-    expect(img.getAttribute("src")).toContain("icons%2Fpotion");
+    await waitFor(() => expect(img.getAttribute("src")).toContain("icons%2Fpotion"));
     expect(screen.getByRole("button", { name: "Sell: Potion" }).getAttribute("title")).toBe("Sell for gold");
     expect(screen.getByText("Level 12")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Show Raw record for Potion" })).toBeTruthy();

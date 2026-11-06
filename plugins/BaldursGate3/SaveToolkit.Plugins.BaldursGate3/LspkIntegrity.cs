@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+using SaveToolkit.Sdk.Crypto;
 
 namespace SaveToolkit.Plugins.BaldursGate3;
 
@@ -8,9 +8,8 @@ internal static class LspkIntegrity
     // This legacy checksum detects accidental changes; it is not authentication.
     internal static byte[] Compute(IEnumerable<byte[]> payloads)
     {
-#pragma warning disable CA5351
-        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.MD5);
-#pragma warning restore CA5351
+        // IncrementalMd5 also works on browser-wasm, where the platform MD5 is unsupported.
+        using var hash = IncrementalMd5.Create();
         foreach (var payload in payloads)
         {
             hash.AppendData(payload);

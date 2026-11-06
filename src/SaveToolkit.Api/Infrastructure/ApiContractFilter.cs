@@ -1,3 +1,5 @@
+using SaveToolkit.LocalApi.Protocol;
+
 namespace SaveToolkit.Api.Infrastructure;
 
 /// <summary>Applies request validation and additive error metadata to every mapped API endpoint.</summary>

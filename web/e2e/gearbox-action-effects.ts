@@ -7,6 +7,8 @@ import path from "node:path";
 import type { ActionPreview } from "../src/api/actionReview";
 import type { EditResult, SaveDocument } from "../src/api/protocol";
 import { archive, expectFiles, exportFiles, home, upload, type SaveFiles } from "./helpers";
+import { waitForApiResponse } from "./apiRoutes";
+import { apiRequest } from "./apiRequest";
 
 export interface GearboxFixture { files: SaveFiles; serial: string; expected: Record<string, SaveFiles> }
 interface EncodedFixture { files: Record<string, string>; serial: string; expected: Record<string, Record<string, string>> }
@@ -33,7 +35,7 @@ async function openGearbox(page: Page, files: SaveFiles, name = "1") {
   await upload(page, archive(files), "authored-gearbox.zip");
   const rail = page.getByRole("navigation", { name: "Save directories" });
   await rail.getByRole("button").filter({ hasText: "EFFECTS" }).first().click();
-  const opening = page.waitForResponse(response => response.url().endsWith("/open") && response.request().method() === "POST");
+  const opening = waitForApiResponse(page, response => response.url().endsWith("/open") && response.request().method() === "POST");
   await rail.locator("button.file").filter({ has: page.getByText(name, { exact: true }) }).click();
   const response = await opening;
   expect(response.ok()).toBe(true);
@@ -47,7 +49,7 @@ async function previewImport(page: Page, serial: string) {
   await trigger.click();
   const dialog = page.getByRole("dialog", { name: `Preview: ${importAction}`, exact: true });
   await dialog.getByRole("textbox", { name: "Serial code for this game", exact: true }).fill(serial);
-  const planning = page.waitForResponse(response => response.url().endsWith("/actions/plan"));
+  const planning = waitForApiResponse(page, response => response.url().endsWith("/actions/plan"));
   await dialog.getByRole("button", { name: "Preview", exact: true }).click();
   const response = await planning;
   expect(response.status()).toBe(200);
@@ -98,13 +100,13 @@ async function assertResponsiveEffects(page: Page, dialog: Locator, serial: stri
 }
 
 async function history(page: Page, operation: "Undo" | "Redo") {
-  const response = page.waitForResponse(response => response.url().endsWith(`/${operation.toLowerCase()}`));
+  const response = waitForApiResponse(page, response => response.url().endsWith(`/${operation.toLowerCase()}`));
   await page.getByRole("button", { name: operation, exact: true }).click();
   expect((await response).ok()).toBe(true);
 }
 
 async function requestPlan(page: Page, document: string, actionId: string, rowKeys: string[], revision?: number) {
-  const response = await page.request.post(`${document}/actions/plan`, { data: { actionId, parameters: {}, scope: { rowKeys }, revision } });
+  const response = await apiRequest(page).post(`${document}/actions/plan`, { data: { actionId, parameters: {}, scope: { rowKeys }, revision } });
   return { response, preview: await response.json() as ActionPreview };
 }
 
@@ -119,7 +121,7 @@ export async function productionGearboxImport(page: Page, testInfo: TestInfo, fi
   expectFiles(await exportFiles(page, testInfo, "cancelled-import.zip"), fixture.files);
   const second = await previewImport(page, fixture.serial);
   expect(second.preview.plan).toEqual(first.preview.plan);
-  const applying = page.waitForResponse(response => response.url().endsWith("/actions/apply"));
+  const applying = waitForApiResponse(page, response => response.url().endsWith("/actions/apply"));
   await second.dialog.getByRole("button", { name: "Apply", exact: true }).click();
   const applied = await (await applying).json() as EditResult;
   expect(applied.ok).toBe(true);
@@ -127,7 +129,7 @@ export async function productionGearboxImport(page: Page, testInfo: TestInfo, fi
   await expect(second.dialog).not.toBeVisible();
   const exported = await exportFiles(page, testInfo, "imported.zip");
   expectFiles(exported, fixture.expected.import!);
-  const stale = await page.request.post(`${document}/actions/apply`, { data: { planId: second.preview.planId, revision: second.preview.revision } });
+  const stale = await apiRequest(page).post(`${document}/actions/apply`, { data: { planId: second.preview.planId, revision: second.preview.revision } });
   expect(stale.status()).toBe(409);
   expectFiles(await exportFiles(page, testInfo, "stale-import.zip"), exported);
   await history(page, "Undo");
@@ -157,7 +159,7 @@ async function previewTransfer(page: Page, fixture: GearboxFixture, transfer: Tr
   await page.getByRole("tab", { name: "Inventory", exact: true }).last().click();
   const table = page.getByRole("table", { name: transfer.table, exact: true });
   await table.getByRole("checkbox").nth(1).check();
-  const planning = page.waitForResponse(response => response.url().endsWith("/actions/plan"));
+  const planning = waitForApiResponse(page, response => response.url().endsWith("/actions/plan"));
   await page.getByRole("button", { name: transfer.button, exact: true }).click();
   const planned = await planning;
   expect(planned.status()).toBe(200);
@@ -179,7 +181,7 @@ async function previewTransfer(page: Page, fixture: GearboxFixture, transfer: Tr
 
 async function exerciseTransfer(page: Page, testInfo: TestInfo, fixture: GearboxFixture, document: string, transfer: Transfer) {
   const { dialog, preview, table } = await previewTransfer(page, fixture, transfer);
-  const applying = page.waitForResponse(response => response.url().endsWith("/actions/apply"));
+  const applying = waitForApiResponse(page, response => response.url().endsWith("/actions/apply"));
   await dialog.getByRole("button", { name: "Apply", exact: true }).click();
   const result = await (await applying).json() as EditResult;
   expect(result.ok).toBe(true);
@@ -196,7 +198,7 @@ async function exerciseTransfer(page: Page, testInfo: TestInfo, fixture: Gearbox
   const empty = await requestPlan(page, document, `transfer/${transfer.action}`, []);
   expect(empty.response.status()).toBe(200);
   expect(empty.preview.plan.changes).toEqual([]);
-  const noOp = await page.request.post(`${document}/actions/apply`, { data: { planId: empty.preview.planId, revision: empty.preview.revision } });
+  const noOp = await apiRequest(page).post(`${document}/actions/apply`, { data: { planId: empty.preview.planId, revision: empty.preview.revision } });
   expect(noOp.status()).toBe(200);
   expect(await noOp.json()).toMatchObject({ ok: true, changes: [], state: { canUndo: false } });
   const rejected = await requestPlan(page, document, `transfer/${transfer.action}`, [transfer.source, transfer.source]);
@@ -211,7 +213,7 @@ async function exerciseTransfer(page: Page, testInfo: TestInfo, fixture: Gearbox
 export async function productionGearboxTransfers(page: Page, testInfo: TestInfo, fixture: GearboxFixture, action: "deposit" | "withdraw" | "claim") {
   await openGearbox(page, fixture.files);
   await page.getByRole("button", { name: "Choose related files", exact: true }).click();
-  const opening = page.waitForResponse(response => response.url().endsWith("/document-groups"));
+  const opening = waitForApiResponse(page, response => response.url().endsWith("/document-groups"));
   await page.getByRole("button", { name: "Open group", exact: true }).click();
   const response = await opening;
   expect(response.ok()).toBe(true);

@@ -16,7 +16,8 @@ internal static class ReferencePackWorker
     {
         var catalog = PluginCatalog.Discover();
         var before = RetainedBytes();
-        var construction = Measure(() => new ReferencePackStore(catalog.Plugins), out var store);
+        // Packs are validated on first need; LoadErrors validates all of them, as construction once did.
+        var construction = Measure(() => Validated(new ReferencePackStore(catalog.Plugins)), out var store);
         var idleRetainedBytes = RetainedBytes() - before;
         if (store.Packs.Count != ExpectedPackCount || store.LoadErrors.Count != 0)
             throw new InvalidOperationException($"Expected all {ExpectedPackCount} shipped reference packs without errors.");
@@ -98,6 +99,12 @@ internal static class ReferencePackWorker
                     .Select(file => file.GetProperty("path").GetString()!).ToArray());
             }
         return result;
+    }
+
+    private static ReferencePackStore Validated(ReferencePackStore store)
+    {
+        _ = store.LoadErrors;
+        return store;
     }
 
     private static Measurement Measure<T>(Func<T> operation, out T result)

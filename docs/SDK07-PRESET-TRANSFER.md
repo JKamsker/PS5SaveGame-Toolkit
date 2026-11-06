@@ -133,7 +133,7 @@ is `Toolkit presets.toolkit-presets.json` and never derives from save paths.
 ## Published API contract
 
 `PresetPackageDto` and its transfer-only record/compatibility/action/reference graph in
-`src/SaveToolkit.Api/Contracts/PresetPackageDtos.cs` describe the stricter wire contract.
+`src/SaveToolkit.LocalApi/Contracts/PresetPackageDtos.cs` describe the stricter wire contract.
 Every compatibility member is required, including the six explicitly nullable boundaries;
 `instances` (including an empty array) and `scopeKind` are required for every action.
 Legacy CRUD schemas keep their optional/default fields. Version, cardinality and text

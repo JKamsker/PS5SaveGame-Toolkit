@@ -6,8 +6,9 @@ for HTTP contracts, and the [plugin guide](docs/PLUGIN_GUIDE.md) before plugin w
 
 ## Build and test
 
-Use PowerShell 7, the .NET 10 SDK selected by [global.json](global.json), Node.js 24
-and Python 3.10+ for documentation checks. From the repository root:
+Use PowerShell 7, the .NET 10 SDK selected by [global.json](global.json) with the
+`wasm-tools` workload (`dotnet workload install wasm-tools`, once; the web build compiles the
+browser runtime), Node.js 24 and Python 3.10+ for documentation checks. From the repository root:
 
 ```powershell
 $scratch = 'D:/Temp/saveeditor/test-scratch/contributing'
@@ -15,6 +16,7 @@ New-Item -ItemType Directory -Force $scratch | Out-Null
 $env:SAVETOOLKIT_TEST_TEMP = "$scratch/tests"
 $env:TEMP = $env:TMP = $env:TMPDIR = $scratch
 $env:npm_config_cache = "$scratch/npm-cache"
+$env:SAVETOOLKIT_DOTNET_ARTIFACTS = "$scratch/wasm-artifacts"
 dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj --configuration Release --warnaserror
 ./scripts/test.ps1 -Configuration Release -ResultsDirectory "$scratch/results"
 # Optional focused run: ./scripts/test.ps1 -Filter Pragmata
@@ -32,7 +34,8 @@ Tests use Microsoft.Testing.Platform: direct invocations require
 `dotnet test --project <test-project>`. Require zero warnings and failures.
 For local development, see [Run from source](README.md#run-from-source).
 
-After the Release API and UI builds above, run the synthetic browser smoke tests:
+After the static-site build above (`npm run build`: UI plus the .NET WebAssembly runtime in
+`web/dist`), run the synthetic browser smoke tests:
 
 ```powershell
 $env:SAVETOOLKIT_E2E_SCRATCH = "$scratch/e2e"
@@ -43,7 +46,7 @@ npm run e2e
 Pop-Location
 ```
 
-Playwright starts the built API automatically. See [e2e details](docs/RELEASING.md#built-app-browser-smoke-tests)
+Playwright serves `web/dist` with `vite preview`; no API process is involved. See [e2e details](docs/RELEASING.md#built-app-browser-smoke-tests)
 and [CI, coverage and packaging](docs/RELEASING.md) for prerequisites and reports.
 The optional real-save browser regression skips without the external Rebirth sample; the
 synthetic browser suite needs no private saves.
@@ -63,7 +66,7 @@ The linked pages own each tool's options, prerequisites and review procedure.
 
 | Tool | Purpose / authoritative instructions |
 | --- | --- |
-| [`scripts/test.ps1`](scripts/test.ps1) | API build and backend test projects; [parameters and coverage](docs/RELEASING.md#script-parameters). |
+| [`scripts/test.ps1`](scripts/test.ps1) | API build and backend test projects, including LocalApi parity; [parameters and coverage](docs/RELEASING.md#script-parameters). |
 | [`scripts/self-test.ps1`](scripts/self-test.ps1) | Script/scaffold regressions; [parameters](docs/RELEASING.md#script-parameters). |
 | [`scripts/check_csharp_size.py`](scripts/check_csharp_size.py) | C# source-size audit; [hook, CI and policy guidance](docs/CSHARP_SIZE_GUARD.md). |
 | [`scripts/build-docs.ps1`](scripts/build-docs.ps1) | Curated DocFX site, generated SDK/OpenAPI references and link checks; [local build and Pages deployment](docs-site/README.md). |
@@ -80,6 +83,7 @@ The view renderer delegates state and presentation to focused components/hooks u
 
 | Area | Implementation home |
 | --- | --- |
+| In-browser .NET runtime: worker, boot, framing and `/api` transport | [`runtime/`](web/src/runtime), [`api/http.ts`](web/src/api/http.ts); [architecture](docs/BROWSER_RUNTIME.md) |
 | Eager/server tables, query controllers, cells and selection | [`components/document/table/`](web/src/components/document/table) |
 | F6 preview and semantic changes, revision-aware Jump and revert | [`components/document/review/`](web/src/components/document/review) |
 | Reference labels, search and picker lifecycle | [`components/fields/reference/`](web/src/components/fields/reference) |

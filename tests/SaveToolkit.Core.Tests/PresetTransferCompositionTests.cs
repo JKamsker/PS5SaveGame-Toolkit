@@ -22,6 +22,32 @@ public sealed class PresetTransferCompositionTests
     }
 
     [Fact]
+    public void RefreshOfAnUnchangedFileKeepsTheIdentityButAChangedOneInvalidatesTheReview()
+    {
+        var root = TestZips.TempDir();
+        var store = PresetTransferFixture.Store(root);
+        var preset = PresetTransferFixture.Preset();
+        store.Create("Existing", preset.Compatibility, preset.Actions);
+        var identity = store.Snapshot().Identity;
+        var service = new PresetTransferService(store);
+        var review = PresetTransferFixture.Resolve(service, service.Preview(PresetPackageCodec.Encode([preset])));
+
+        // Another browser tab changed something else (a reference pack): the hosts refresh every store.
+        store.Refresh();
+        store.Refresh();
+        Assert.Equal(identity, store.Snapshot().Identity);
+        service.Commit(new(review.Token));
+        Assert.Equal(2, store.List().Count);
+
+        var stale = PresetTransferFixture.Resolve(service, service.Preview(PresetPackageCodec.Encode([preset with { Name = "Again" }])));
+        var other = PresetTransferFixture.Store(root);
+        other.Create("From another tab", preset.Compatibility, preset.Actions);
+        store.Refresh();
+        Assert.Equal(3, store.List().Count);
+        Assert.Equal("stalePresetImport", Assert.Throws<PresetTransferException>(() => service.Commit(new(stale.Token))).Code);
+    }
+
+    [Fact]
     public void FailedReloadPreservesLastGoodMapAndGenerationAndAllowsReviewedCommitAfterRepair()
     {
         var root = TestZips.TempDir();

@@ -1,6 +1,7 @@
 import { useId, useState, type ReactNode, type Ref } from "react";
 import type { Confidence, FieldNode, ImageNode, ViewNode } from "../../../api/protocol";
 import { api } from "../../../api/client";
+import { ApiImage } from "../../ui/ApiImage";
 import { useDocument } from "../../../state/documentStore";
 import { FieldControl } from "../../fields/FieldControl";
 import { UnavailableFieldReference } from "../../fields/UnavailableFieldReference";
@@ -143,7 +144,7 @@ function DetailsChip({ label, rowLabel, onOpen }: { label: string; rowLabel: str
 
 function CellImage({ node }: { node: ImageNode }) {
   const { workspaceId, documentId } = useDocument();
-  return <img className="cell-image" src={api.assetUrl(workspaceId, documentId, node.assetId)} alt={node.alt} title={node.alt} loading="lazy" width={32} height={32} />;
+  return <ApiImage className="cell-image" path={api.assetPath(workspaceId, documentId, node.assetId)} alt={node.alt} title={node.alt} loading="lazy" width={32} height={32} />;
 }
 
 /** Fields whose editor cannot fit one line are summarised and edited in the row details. */

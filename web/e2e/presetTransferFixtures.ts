@@ -1,7 +1,8 @@
-import { expect, type APIRequestContext, type Page, type TestInfo } from "@playwright/test";
-import { readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { expect, type Page, type TestInfo } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 import { importSave, openJson, loadJson, originalSave } from "./helpers";
+import { apiRequest } from "./apiRequest";
+import { presetLibraryPath, runtimeFiles } from "./runtimeFiles";
 
 export const transferPath = "/api/presets/transfer";
 const stamp = "2026-10-29T00:00:00Z";
@@ -26,23 +27,23 @@ export function file(records: RecordFixture[]) {
   })) };
 }
 
-export function libraryPath() {
-  const scratch = path.resolve(process.env.SAVETOOLKIT_E2E_SCRATCH!);
-  const durablePath = path.resolve(process.env.SAVETOOLKIT_E2E_RUN_DIRECTORY!, "presets", "presets.json");
-  const relative = path.relative(scratch, durablePath);
-  expect(relative !== "" && !path.isAbsolute(relative) && !relative.startsWith(`..${path.sep}`)).toBe(true);
-  return durablePath;
+/** The durable library file plays the old server's presets.json: tests replace it to model an external change. */
+export async function libraryFile(page: Page) {
+  const files = await runtimeFiles(page);
+  return { read: () => files.read(presetLibraryPath), write: (text: string) => files.change({ kind: "write", path: presetLibraryPath, text }) };
 }
 
-export async function clear(request: APIRequestContext) {
-  // Fixture cleanup uses this run's synthetic host file and bounded reload instead of 256 unrelated CRUD requests.
-  expect((await request.get("/api/presets")).ok()).toBe(true); // Initialize the lazily resolved host store on a fresh server.
-  await writeFile(libraryPath(), "[]");
+/** Empties the booted page's library through its file and a bounded reload instead of many unrelated CRUD requests. */
+export async function clear(page: Page) {
+  const request = apiRequest(page);
+  expect((await request.get("/api/presets")).ok()).toBe(true); // Initialize the lazily resolved store.
+  await (await libraryFile(page)).write("[]");
   expect((await request.post("/api/presets/reload")).ok()).toBe(true);
   expect(await request.get("/api/presets").then(response => response.json()) as unknown[]).toHaveLength(0);
 }
 
-export async function seed(request: APIRequestContext, records: RecordFixture[]) {
+export async function seed(page: Page, records: RecordFixture[]) {
+  const request = apiRequest(page);
   const response = await request.post(`${transferPath}/preview`, { data: file(records).buffer, headers: { "content-type": "application/json" } });
   expect(response.ok()).toBe(true);
   const preview = await response.json() as { token: string };
@@ -52,6 +53,8 @@ export async function seed(request: APIRequestContext, records: RecordFixture[])
   const ready = await reviewed.json() as { token: string };
   expect((await request.post(`${transferPath}/commit`, { data: { token: ready.token } })).ok()).toBe(true);
   expect((await request.delete(`${transferPath}/previews/${preview.token}`)).status()).toBe(204);
+  // The runtime persists each mutation before it answers the next request, so the library survives navigation.
+  expect(await request.get("/api/presets").then(response => response.json()) as unknown[]).toHaveLength(records.length);
 }
 
 export async function open(page: Page) {
@@ -64,7 +67,7 @@ export async function open(page: Page) {
 export async function unchangedSave(page: Page, info: TestInfo) {
   await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
   const downloading = page.waitForEvent("download");
-  await page.getByRole("link", { name: /Download file/ }).click();
+  await page.getByRole("button", { name: /Download file/ }).click();
   const download = await downloading; const destination = info.outputPath("unchanged-save.json");
   await download.saveAs(destination); expect(await readFile(destination)).toEqual(originalSave);
 }
