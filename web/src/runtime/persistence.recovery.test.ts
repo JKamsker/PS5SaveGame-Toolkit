@@ -68,6 +68,39 @@ describe("a mutation whose runtime never answers", () => {
   });
 });
 
+describe("a runtime that stops during a mutation", () => {
+  it("releases the lock at once when the runtime stops during a mutation, without waiting for the watchdog", async () => {
+    const site = new Site();
+    // The default watchdog (10 minutes) would outlast the test: only stop() can release the lock here.
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    await a.create("kept");
+    let started!: () => void;
+    const running = new Promise<void>(resolve => { started = resolve; });
+    // A trap in an async continuation: the .NET runtime never settles the dispatch's promise.
+    const trapped = a.coordinator.run("POST", "/api/presets", () => { started(); return new Promise<Uint8Array>(() => undefined); });
+    await running;
+    a.coordinator.stop("RuntimeError: memory access out of bounds");
+    await expect(trapped).rejects.toThrow("memory access out of bounds");
+    await expect(trapped).rejects.toBeInstanceOf(RuntimeHungError);
+
+    expect(await elapsed(async () => expect(read(await b.create("from B")).status).toBe(200))).toBeLessThan(1_000);
+    const save = vi.spyOn(a.storage, "save");
+    await expect(a.create("never")).rejects.toBeInstanceOf(RuntimeHungError);
+    expect(save).not.toHaveBeenCalled();
+    expect(library(site)).toEqual(["kept", "from B"]);
+  });
+
+  it("does not dispatch a mutation when the runtime stopped while the tree was reloading", async () => {
+    const site = new Site();
+    const a = await bootTab(site);
+    const load = a.storage.load.bind(a.storage);
+    vi.spyOn(a.storage, "load").mockImplementation(async () => { await load(); a.coordinator.stop("Aborted(OOM)"); });
+    const dispatch = vi.fn(async () => frame(200, {}));
+    await expect(a.coordinator.run("POST", "/api/presets", dispatch)).rejects.toBeInstanceOf(RuntimeHungError);
+    expect(dispatch).not.toHaveBeenCalled();
+  });
+});
+
 describe("site data cleared while the tab is open", () => {
   it("reloads on the next preset read and writes into what IndexedDB holds now", async () => {
     const site = new Site();

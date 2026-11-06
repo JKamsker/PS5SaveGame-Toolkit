@@ -75,8 +75,12 @@ internal sealed class PresetStorageIdentity(PresetStoreOptions options)
                 hash.AppendData(buffer.AsSpan(0, count));
             }
         }
-        catch (FileNotFoundException) { return Missing; }
-        catch (DirectoryNotFoundException) { return Missing; }
+        catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
+        {
+            if (PresetLibraryStorage.RootBlocked(Path.GetDirectoryName(path)!))
+                throw new IOException("The preset storage root is not a directory.", ex);
+            return Missing;
+        }
     }
 
     private const string ReloadRequiredCode = "presetLibraryReloadRequired";

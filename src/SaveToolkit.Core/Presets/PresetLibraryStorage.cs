@@ -34,13 +34,10 @@ internal sealed class PresetLibraryStorage(PresetStoreOptions options, JsonSeria
                 ?? throw new InvalidDataException("Preset storage must contain a record array."),
                 PresetStorageIdentity.Fingerprint(bytes));
         }
-        catch (FileNotFoundException ex)
+        catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
         {
-            if (allowMissing) return new([], PresetStorageIdentity.Missing);
-            throw new InvalidDataException("Preset storage disappeared during load.", ex);
-        }
-        catch (DirectoryNotFoundException ex)
-        {
+            if (RootBlocked(options.StorageRoot))
+                throw new PresetStorageException("Preset storage is temporarily unavailable. Retry the operation.", ex);
             if (allowMissing) return new([], PresetStorageIdentity.Missing);
             throw new InvalidDataException("Preset storage disappeared during load.", ex);
         }
@@ -50,6 +47,22 @@ internal sealed class PresetLibraryStorage(PresetStoreOptions options, JsonSeria
         {
             throw new PresetStorageException("Preset storage is temporarily unavailable. Retry the operation.", ex);
         }
+    }
+
+    /// <summary>
+    /// Whether a non-directory occupies the storage root or one of its ancestors. The OS reports that
+    /// (ENOTDIR, ERROR_PATH_NOT_FOUND) as <see cref="DirectoryNotFoundException"/>, exactly like a
+    /// missing root, but the library is then unreachable rather than absent: treating it as an empty
+    /// library would hide the stored presets and turn a storage failure into a reload conflict.
+    /// </summary>
+    internal static bool RootBlocked(string root)
+    {
+        for (var path = System.IO.Path.GetFullPath(root); !string.IsNullOrEmpty(path); path = System.IO.Path.GetDirectoryName(path))
+        {
+            if (Directory.Exists(path)) return false;
+            if (File.Exists(path)) return true;
+        }
+        return false;
     }
 
     internal byte[] Serialize(IEnumerable<ToolkitPreset> records)

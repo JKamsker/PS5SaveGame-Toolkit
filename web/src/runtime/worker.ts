@@ -35,6 +35,9 @@ let stopped: string | null = null;
 function stop(reason: string) {
   if (!running || stopped !== null) return;
   stopped = reason;
+  // A stopped runtime never settles the request in flight. If that is a change to presets or packs, it
+  // holds the cross-tab storage lock: release it now, so other tabs need not wait for the watchdog.
+  void runtime?.then(booted => booted.persistence.stop(reason), () => undefined);
   post({ type: "failed", message: reason });
 }
 

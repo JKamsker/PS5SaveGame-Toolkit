@@ -96,8 +96,9 @@ what another tab saved. `web/src/runtime/persistence.ts` prevents that:
   every mutation is refused with `503` until a reload succeeds, because the request would write that
   stale view back over the other tab's saves. As a second guard, `PresetStore` refuses create, rename
   and delete with `409 presetLibraryReloadRequired` when `presets.json` is no longer the file it last
-  read or wrote (both hosts). User reference packs need no such guard: each is its own file, and a
-  write never touches the others. A store reload keeps the preset library's identity when
+  read or wrote (both hosts); a storage root that cannot be reached (for example a file where its
+  directory should be) is a `503` storage failure there, not a missing library or a conflict. User
+  reference packs need no such guard: each is its own file, and a write never touches the others. A store reload keeps the preset library's identity when
   `presets.json` is byte-for-byte the file the store last read or wrote, so a reviewed preset-package
   import survives unrelated changes in other tabs (a pack import, say) and is refused only when the
   library really changed.
@@ -112,8 +113,9 @@ what another tab saved. `web/src/runtime/persistence.ts` prevents that:
   the mount with a sentinel time; afterwards, entries still carrying it (and the same node) get their
   stored time back, and all others count as changed and get a time strictly after the stored one
   (`web/src/runtime/idbfsTree.ts`).
-- **Reads** of presets and reference packs (their routes, a document's preset routes and opening a
-  document) after such an announcement reload the mount under a shared lock first, so another tab's
+- **Reads** of presets and reference packs (their routes, a document's preset routes, and opening a
+  document or a document group or proposing groups, which pin the current packs) after such an
+  announcement reload the mount under a shared lock first, so another tab's
   save is visible on the next such request once the announcement has arrived (milliseconds later). They
   wait at most 1 s for the lock: while another tab holds it (a long import, a frozen tab) they answer
   from the cached view, keep it marked stale and do not wait again until the lock is next granted. Other reads
@@ -130,7 +132,15 @@ what another tab saved. `web/src/runtime/persistence.ts` prevents that:
   open; after 10 minutes (twice the UI's longest request deadline) the worker releases it, stops
   touching storage for good and reports the runtime as crashed, and the page offers a reload. A
   synchronous hang also stops the worker's timers, so then only closing or reloading that tab helps;
-  other tabs' writes answer `503` after 30 s meanwhile, and their reads are not delayed.
+  other tabs' writes answer `503` after 30 s meanwhile, and their reads are not delayed. A runtime that
+  stops during a mutation (an abort, exit or trap, for example in an async continuation) never settles
+  that dispatch either: the worker releases the lock as soon as it reports the crash, without waiting
+  for the watchdog, and likewise never touches storage again.
+- **A flush is all or nothing.** Emscripten's IDBFS cancels the error of each failed write, so its
+  transaction would still commit the other writes (a new `.generation` among them) while the flush
+  reports failure. The worker replaces IDBFS' flush with one that aborts the transaction on any failed
+  write and reports only once the transaction has ended, so IndexedDB holds either the whole change or
+  none of it (`makeFlushAtomic` in `web/src/runtime/idbfsTree.ts`).
 - **A failed flush** (for example `QuotaExceededError`) is never a silent success: the worker reloads
   what IndexedDB really holds, so this tab's stores match it, and answers `507 Insufficient Storage`
   (`503` for other storage errors) as problem+json that the UI shows. A request that failed anyway keeps

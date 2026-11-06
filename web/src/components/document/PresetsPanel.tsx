@@ -1,9 +1,10 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { lazy, Suspense, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError, api, isStaleError } from "../../api/client";
 import type { ActionPreview } from "../../api/actionReview";
 import type { ActionNode, FieldValue, PresetActionCapability, PresetCapability, SaveDocument, ToolkitPreset } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
+import { WorkspaceActivityContext } from "../../state/workspaceActivity";
 import { ActionParameterFields } from "./ActionParameterFields";
 import { useActionSelection } from "./table/selectionBindings";
 import "./presets.css";
@@ -18,6 +19,7 @@ interface PresetsPanelProps { document: SaveDocument; onToast: (message: string,
 
 export function PresetsPanel({ document, onToast, children }: PresetsPanelProps) {
   const context = useDocument();
+  const activity = useContext(WorkspaceActivityContext);
   const client = useQueryClient();
   const actions = useMemo(() => collectActions(document.view), [document.view]);
   const capabilityMalformed = document.presetCapabilityStatus === "malformed";
@@ -135,10 +137,15 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
     }
   };
   const create = useMutation({
-    mutationFn: () => { requireSnapshot(); return api.capturePreset(context.workspaceId, context.documentId, name,
-      { actionId: activeActionId, parameters: parameters as Record<string, unknown>, scopeKind,
+    mutationFn: async () => {
+      requireSnapshot();
+      const request = { actionId: activeActionId, parameters: parameters as Record<string, unknown>, scopeKind,
         selectedRowKeys: scopeKind === "selected" ? [...(selection?.selectedKeys ?? [])] : undefined,
-        allMatches: scopeKind === "allEligible" || scopeKind === "allCopies" }); },
+        allMatches: scopeKind === "allEligible" || scopeKind === "allCopies" };
+      // Capture resolves the targets against the document: it must see the edits queued before this click.
+      if (activity) await activity.waitForMutations();
+      return api.capturePreset(context.workspaceId, context.documentId, name, request);
+    },
     onSuccess: result => { setName(""); showMessage(`Saved “${result.name}”.`); void client.invalidateQueries({ queryKey: ["presets"] }); },
     onError: error => showError(error),
   });
