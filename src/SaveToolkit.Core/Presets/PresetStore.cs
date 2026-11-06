@@ -132,6 +132,7 @@ public sealed class PresetStore
         ValidatePayload(compatibility, actions);
         lock (_gate)
         {
+            _identity.EnsureUnchanged();
             if (_presets.Count >= _options.MaxPresets) throw new InvalidOperationException("The preset limit has been reached.");
             var now = DateTimeOffset.UtcNow;
             var preset = ClonePreset(new ToolkitPreset(CurrentSchemaVersion, Guid.NewGuid().ToString("N"), name.Trim(), compatibility,
@@ -149,6 +150,7 @@ public sealed class PresetStore
         lock (_gate)
         {
             var current = FindRequired(id);
+            _identity.EnsureUnchanged();
             var updated = current with { Name = name.Trim(), UpdatedAt = DateTimeOffset.UtcNow };
             _presets[id] = updated;
             try { Persist(); }
@@ -162,6 +164,7 @@ public sealed class PresetStore
         lock (_gate)
         {
             if (!_presets.TryGetValue(id, out var removed)) return false;
+            _identity.EnsureUnchanged();
             _presets.Remove(id);
             try { Persist(); }
             catch

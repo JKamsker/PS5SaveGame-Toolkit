@@ -86,6 +86,51 @@ public sealed class PersistentReloadTests
     }
 
     [Fact]
+    public async Task A_library_this_host_cannot_read_is_never_overwritten_by_its_stale_view()
+    {
+        var roots = new Roots();
+        using var tabA = roots.Host();
+        using var tabB = roots.Host();
+        Assert.Equal(200, (await CreatePresetAsync(tabA, "From A")).Status);
+        var path = Path.Combine(roots.Presets, "presets.json");
+        // Another tab running a newer version of the site saved a record this version cannot stage.
+        const string Record = """{"schemaVersion":"2","id":"newer","name":"From newer tab","compatibility":{"pluginId":"p","pluginVersion":"1","titleIds":["T"]},"actions":[{"actionId":"x","parameters":{}}],"createdAt":"2026-01-01T00:00:00Z","updatedAt":"2026-01-01T00:00:00Z"}""";
+        var newer = File.ReadAllText(path).TrimEnd().TrimEnd(']') + "," + Record + "]";
+        await File.WriteAllTextAsync(path, newer, Ct);
+        Assert.Throws<InvalidDataException>(tabB.ReloadPersistentStores);
+
+        var created = await CreatePresetAsync(tabB, "From B");
+        Assert.Equal(409, created.Status);
+        Assert.Contains("presetLibraryReloadRequired", Encoding.UTF8.GetString(created.Body), StringComparison.Ordinal);
+        Assert.Equal(409, (await SendAsync(tabA, "PATCH", "/api/presets/" + await FirstIdAsync(tabA), """{"name":"Renamed"}""")).Status);
+        Assert.Equal(409, (await SendAsync(tabA, "DELETE", "/api/presets/" + await FirstIdAsync(tabA))).Status);
+        Assert.Equal(newer, await File.ReadAllTextAsync(path, Ct));
+    }
+
+    [Fact]
+    public async Task A_stale_view_is_refused_until_reloaded()
+    {
+        var roots = new Roots();
+        using var tabA = roots.Host();
+        using var tabB = roots.Host();
+        Assert.Equal(200, (await CreatePresetAsync(tabA, "From A")).Status);
+
+        Assert.Equal(409, (await CreatePresetAsync(tabB, "From B")).Status);
+        tabB.ReloadPersistentStores();
+        Assert.Equal(200, (await CreatePresetAsync(tabB, "From B")).Status);
+        using var fresh = roots.Host();
+        var names = await TextAsync(fresh, "GET", "/api/presets");
+        Assert.Contains("From A", names, StringComparison.Ordinal);
+        Assert.Contains("From B", names, StringComparison.Ordinal);
+    }
+
+    private static async Task<string> FirstIdAsync(LocalApiHost host)
+    {
+        using var list = JsonDocument.Parse(await TextAsync(host, "GET", "/api/presets"));
+        return list.RootElement[0].GetProperty("id").GetString()!;
+    }
+
+    [Fact]
     public async Task Unexpected_failures_use_the_hosts_description_without_changing_the_status()
     {
         LocalApiHost FailingHost(Func<Exception, string>? describe) => new(new LocalApiOptions

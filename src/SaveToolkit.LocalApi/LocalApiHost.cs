@@ -102,7 +102,8 @@ public sealed class LocalApiHost : IDisposable
     /// whose files can be replaced by another writer (the browser runtime, when another tab of the same
     /// site saved to the shared IndexedDB) calls this before relying on them again. Open documents keep
     /// the reference packs they pinned. Throws when the preset library on disk is malformed; the last
-    /// good view is kept and the user packs still reload.
+    /// good view is kept and the user packs still reload, and preset writes answer 409 until a reload
+    /// succeeds instead of writing that view over the newer file.
     /// </summary>
     public void ReloadPersistentStores()
     {

@@ -16,15 +16,18 @@ class Site {
   idb: Tree = new Map();
   failSave: Error | null = null;
   failLoad: Error | null = null;
+  failVerify: Error | null = null;
   lockUnavailable = false;
   readonly listeners = new Set<{ tab: Tab; onChange: () => void }>();
   private tail: Promise<unknown> = Promise.resolve();
+  private held = 0;
 
   tabs(tab: Tab, locks = true): TabCoordination {
     return {
-      lock: locks ? <T>(_mode: LockMode, task: () => Promise<T>) => {
-        if (this.lockUnavailable) return Promise.reject(new DOMException("Timed out", "TimeoutError"));
-        const run = this.tail.then(task);
+      lock: locks ? <T>(_mode: LockMode, task: () => Promise<T>, ifAvailable = false) => {
+        if (this.lockUnavailable || (ifAvailable && this.held > 0)) return Promise.reject(new DOMException("Timed out", "TimeoutError"));
+        this.held++;
+        const run = this.tail.then(task).finally(() => { this.held--; });
         this.tail = run.catch(() => undefined);
         return run;
       } : null,
@@ -37,6 +40,8 @@ class Site {
 class Tab {
   local: Tree;
   presets: string[];
+  /** What PresetStore.Refresh reports, e.g. a record from a newer version of the site. */
+  reloadError = "";
   readonly log = { error: vi.fn(), warn: vi.fn() };
   readonly coordinator: PersistenceCoordinator;
   readonly storage: PersistentStorage;
@@ -53,10 +58,18 @@ class Tab {
         if (site.failSave) throw site.failSave;
         site.idb = copy(this.local);
       },
-      fingerprint: () => [...this.local].map(([path, { content, mtime }]) => `${path} ${content.length} ${mtime}`).sort().join("\n"),
+      trackChanges: () => {
+        const before = this.fingerprint();
+        return () => this.fingerprint() !== before;
+      },
+      verifySaved: async () => { if (site.failVerify) throw site.failVerify; },
       readGeneration: () => this.local.get(".generation")?.content ?? "",
       writeGeneration: generation => this.write(".generation", generation),
-      reloadStores: () => { this.presets = this.readLibrary(); return ""; },
+      reloadStores: () => {
+        if (this.reloadError) return this.reloadError;
+        this.presets = this.readLibrary();
+        return "";
+      },
     };
     this.storage = storage;
     this.coordinator = new PersistenceCoordinator(storage, site.tabs(this, locks), this.log);
@@ -78,6 +91,10 @@ class Tab {
 
   list() {
     return this.coordinator.run("GET", "/api/presets", async () => frame(200, this.presets));
+  }
+
+  private fingerprint() {
+    return [...this.local].map(([path, { content, mtime }]) => `${path} ${content.length} ${mtime}`).sort().join("\n");
   }
 
   private write(path: string, content: string) {
@@ -149,6 +166,65 @@ describe("two tabs sharing IndexedDB", () => {
   });
 });
 
+describe("another tab's saves are never overwritten", () => {
+  it("refuses mutations while the stores cannot read another tab's files, then retries", async () => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    await a.create("A1");
+    await a.create("A2");
+    // For example tab A runs a newer version of the site and saved a record schema this tab cannot read.
+    b.reloadError = "Preset schema '2' is not supported.";
+
+    const refused = read(await b.create("B1"));
+    expect(refused.status).toBe(503);
+    expect(refused.body.detail).toMatch(/saved in another tab could not be read here \(Preset schema '2'.*not made/);
+    expect(library(site)).toEqual(["A1", "A2"]);
+    // Reads keep the last good view; the failure is logged, not retried on every read.
+    expect(read(await b.list()).body).toEqual([]);
+    expect(b.log.error).toHaveBeenCalled();
+    expect(read(await b.create("B2")).status).toBe(503);
+    expect(library(site)).toEqual(["A1", "A2"]);
+
+    b.reloadError = "";
+    expect(read(await b.create("B3")).status).toBe(200);
+    expect(library(site)).toEqual(["A1", "A2", "B3"]);
+  });
+
+  it("loads before its first write once the lock is free", async () => {
+    const site = new Site();
+    const a = await bootTab(site);
+    await a.create("saved earlier");
+    site.lockUnavailable = true;
+    const b = new Tab(site);
+    b.local = new Map();
+    b.presets = [];
+    expect(await b.coordinator.initialLoad()).toBe(false);
+    expect(read(await b.list()).body).toEqual([]);
+    expect(read(await b.create("refused")).status).toBe(503);
+
+    site.lockUnavailable = false;
+    expect(read(await b.list()).body).toEqual(["saved earlier"]);
+    expect(read(await b.create("from B")).status).toBe(200);
+    expect(library(site)).toEqual(["saved earlier", "from B"]);
+  });
+
+});
+
+describe("a tab that booted while another tab held the lock", () => {
+  it("does not wait for the lock on reads before the first load", async () => {
+    const site = new Site();
+    site.lockUnavailable = true;
+    const b = new Tab(site);
+    expect(await b.coordinator.initialLoad()).toBe(false);
+    site.lockUnavailable = false;
+    let release!: () => void;
+    const held = site.tabs(b).lock!("exclusive", () => new Promise<void>(resolve => { release = resolve; }));
+    expect(read(await b.list()).body).toEqual([]);
+    release();
+    await held;
+  });
+});
+
 describe("failures are never reported as saved", () => {
   it("answers a quota failure with 507 and shows what storage really holds", async () => {
     const site = new Site();
@@ -189,6 +265,44 @@ describe("failures are never reported as saved", () => {
     expect(dispatch).not.toHaveBeenCalled();
   });
 
+});
+
+describe("failed flushes", () => {
+  it("never saves a change answered as not saved, even when undoing it failed", async () => {
+    const site = new Site();
+    const a = await bootTab(site);
+    await a.create("kept");
+    vi.spyOn(a.storage, "save").mockImplementationOnce(async () => {
+      site.failLoad = new Error("IndexedDB closed");
+      throw new Error("transaction aborted");
+    });
+
+    const rejected = read(await a.create("rejected"));
+    expect(rejected.status).toBe(503);
+    expect(rejected.body.detail).toMatch(/not saved.*until the page is reloaded/);
+    expect(a.presets).toContain("rejected");
+    site.failLoad = null;
+
+    expect(read(await a.create("later")).status).toBe(200);
+    expect(library(site)).toEqual(["kept", "later"]);
+  });
+
+  it("reports a flush that IndexedDB did not store as a failure and reverts it", async () => {
+    const site = new Site();
+    const a = await bootTab(site);
+    // The flush "succeeds" but skips the file (what IDBFS does when modification times look equal).
+    vi.spyOn(a.storage, "save").mockImplementationOnce(async () => undefined);
+    site.failVerify = new Error("IndexedDB did not store 1 changed entry (presets/presets.json).");
+    const response = read(await a.create("unverified"));
+    expect(response.status).toBe(503);
+    expect(response.body.detail).toMatch(/did not store 1 changed entry/);
+    expect(a.presets).toEqual([]);
+    expect(library(site)).toEqual([]);
+  });
+
+});
+
+describe("failed requests", () => {
   it("reverts a durable change left behind by a request that threw", async () => {
     const site = new Site();
     const a = await bootTab(site);
@@ -206,12 +320,15 @@ it("describes other storage failures and a revert that failed", () => {
   expect(body.detail).toMatch(/TypeError: transaction aborted.*not saved.*until the page is reloaded/);
 });
 
-it("routes everything that may write presets or packs through the lock, but not workspace work", () => {
+it("routes everything that may write presets or packs through the lock, but not workspace work or preset reads", () => {
   for (const [method, url] of [["POST", "/api/presets"], ["PATCH", "/api/presets/p1"], ["DELETE", "/api/presets/p1"],
     ["POST", "/api/presets/transfer/commit"], ["POST", "/api/reference-packs"], ["DELETE", "/api/reference-packs/x"],
-    ["POST", "/api/workspaces/w/documents/d/presets/capture"], ["POST", "/api/anything-new?x=1"]] as const)
+    ["POST", "/api/workspaces/w/documents/d/presets/capture"], ["POST", "/api/workspaces/w/documents/d/presets/new-route"],
+    ["POST", "/api/anything-new?x=1"]] as const)
     expect(writesDurableData(method, url), `${method} ${url}`).toBe(true);
   for (const [method, url] of [["GET", "/api/presets"], ["HEAD", "/api/reference-packs"], ["POST", "/api/workspaces"],
-    ["POST", "/api/workspaces/w/documents/d/edits"], ["POST", "/api/workspaces/w/export?presets=1"], ["DELETE", "/api/workspaces/w"]] as const)
+    ["POST", "/api/workspaces/w/documents/d/edits"], ["POST", "/api/workspaces/w/export?presets=1"], ["DELETE", "/api/workspaces/w"],
+    ["POST", "/api/workspaces/w/documents/d/presets/p1/preview"], ["POST", "/api/workspaces/w/documents/d/presets/p1/apply"],
+    ["POST", "/api/workspaces/w/documents/d/presets/transfer/compatibility"]] as const)
     expect(writesDurableData(method, url), `${method} ${url}`).toBe(false);
 });

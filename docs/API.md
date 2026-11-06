@@ -266,6 +266,9 @@ Returns the host-owned `ToolkitPreset[]` list. Presets contain schema version, n
 plugin/version/title/build/variant/reference-pack compatibility and semantic action parameters;
 they never contain save bytes or local paths. All preset routes return a typed `503
 presetStorageUnavailable` when the host library cannot be read or written temporarily.
+Create, rename, delete and capture return `409 presetLibraryReloadRequired` without writing when
+the preset file changed on disk since the host last read or wrote it (another writer, or a file this
+version cannot read); `POST /api/presets/reload` first.
 
 ### `POST /api/presets/reload`
 

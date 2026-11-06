@@ -1,4 +1,5 @@
 import { createCompressedResourceLoader, type BootResourceLoader } from "./compressedResources";
+import { asError, trackTreeChanges, verifyMirrored, writeAfter, type IdbfsSets, type TreeFs } from "./idbfsTree";
 import { browserTabs, memoryOnly, PersistenceCoordinator, type Persistence, type PersistentStorage } from "./persistence";
 import type { BootInfo } from "./protocol";
 
@@ -10,14 +11,10 @@ interface DotnetHostBuilder {
   create(): Promise<DotnetRuntime>;
 }
 
-interface EmscriptenFs {
+interface EmscriptenFs extends TreeFs {
   mkdirTree(path: string): void;
   mount(type: unknown, options: object, mountpoint: string): void;
   syncfs(populate: boolean, callback: (error: unknown) => void): void;
-  readdir(path: string): string[];
-  /** `mtime` is a Date in .NET 10's Emscripten; newer Emscripten versions report milliseconds. */
-  stat(path: string): { mode: number; size: number; mtime: Date | number };
-  isDir(mode: number): boolean;
   analyzePath(path: string): { exists: boolean };
   readFile(path: string, options: { encoding: "utf8" }): string;
   writeFile(path: string, data: string): void;
@@ -94,10 +91,13 @@ async function mountPersistent(fs: EmscriptenFs, coordinator: PersistenceCoordin
   if (!idbfs || typeof indexedDB === "undefined") return false;
   try {
     fs.mount(idbfs, {}, PERSISTENT_ROOT);
-    await coordinator.initialLoad();
+    if (!await coordinator.initialLoad()) {
+      // eslint-disable-next-line no-console -- a delay, not a failure: the next request loads the data.
+      console.warn("Another tab held the storage lock during startup; presets and reference packs load on the next request.");
+    }
     return true;
   } catch (error) {
-    // Private browsing, blocked storage or a lock held too long: keep the plain in-memory directory.
+    // Private browsing or blocked storage: keep the plain in-memory directory.
     // eslint-disable-next-line no-console -- the UI shows `persistent: false`; the console keeps the cause.
     console.warn("Presets and reference packs will not be saved in this tab:", error);
     return false;
@@ -105,35 +105,20 @@ async function mountPersistent(fs: EmscriptenFs, coordinator: PersistenceCoordin
 }
 
 function persistentStorage(fs: EmscriptenFs, interop: InteropExports): PersistentStorage {
+  const idbfs = fs.filesystems.IDBFS as Partial<IdbfsSets>;
   return {
     load: () => syncfs(fs, true),
     save: () => syncfs(fs, false),
-    fingerprint: () => treeFingerprint(fs, PERSISTENT_ROOT),
+    trackChanges: () => trackTreeChanges(fs, PERSISTENT_ROOT),
+    // Reads back what IndexedDB holds after a flush (IDBFS' own listings; skipped if a runtime lacks them).
+    verifySaved: () => typeof idbfs.getLocalSet === "function" && typeof idbfs.getRemoteSet === "function"
+      ? verifyMirrored(idbfs as IdbfsSets, PERSISTENT_ROOT) : Promise.resolve(),
     readGeneration: () => fs.analyzePath(GENERATION_FILE).exists ? fs.readFile(GENERATION_FILE, { encoding: "utf8" }) : "",
-    writeGeneration: generation => fs.writeFile(GENERATION_FILE, generation),
+    writeGeneration: generation => writeAfter(fs, GENERATION_FILE, generation),
     reloadStores: () => interop.ReloadPersistent(),
   };
 }
 
-function treeFingerprint(fs: EmscriptenFs, root: string): string {
-  const entries: string[] = [];
-  const walk = (directory: string) => {
-    for (const name of fs.readdir(directory).sort()) {
-      if (name === "." || name === "..") continue;
-      const path = `${directory}/${name}`;
-      const { mode, size, mtime } = fs.stat(path);
-      if (fs.isDir(mode)) {
-        entries.push(`${path}/`);
-        walk(path);
-      } else {
-        entries.push(`${path} ${size} ${mtime instanceof Date ? mtime.getTime() : Number(mtime)}`);
-      }
-    }
-  };
-  walk(root);
-  return entries.join("\n");
-}
-
 function syncfs(fs: EmscriptenFs, populate: boolean): Promise<void> {
-  return new Promise((resolve, reject) => fs.syncfs(populate, error => error ? reject(error instanceof Error ? error : new Error(String(error))) : resolve()));
+  return new Promise((resolve, reject) => fs.syncfs(populate, error => error ? reject(asError(error)) : resolve()));
 }

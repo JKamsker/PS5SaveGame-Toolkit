@@ -104,7 +104,8 @@ internal static class BrowserHost
         }
         catch (Exception exception)
         {
-            // A malformed preset file keeps the last good view, exactly like POST /api/presets/reload.
+            // A malformed preset file keeps the last good view, exactly like POST /api/presets/reload. The
+            // worker then refuses mutations until a reload succeeds (web/src/runtime/persistence.ts).
             Console.Error.WriteLine($"Reloading presets and reference packs failed: {exception}");
             return exception.Message;
         }

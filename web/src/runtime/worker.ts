@@ -10,16 +10,20 @@ import type { FromWorker, ToWorker, WireRequest } from "./protocol";
 let runtime: Promise<BootedRuntime> | null = null;
 /** Serializes requests and the IndexedDB flushes that follow mutations. */
 let queue: Promise<void> = Promise.resolve();
-/** Requests cancelled by their caller before they started. */
-const cancelled = new Set<number>();
+/** Requests waiting in the queue; a cancel removes its id, so the request is dropped when its turn comes. */
+const queued = new Set<number>();
 
 const post = (message: FromWorker, transfer: Transferable[] = []) => self.postMessage(message, { transfer });
 
 self.onmessage = (event: MessageEvent<ToWorker>) => {
   const message = event.data;
   if (message.type === "boot") boot(message.frameworkUrl);
-  else if (message.type === "cancel") cancelled.add(message.id);
-  else queue = queue.then(() => handle(message.request));
+  // A cancel for a request that already started or finished has nothing left to drop.
+  else if (message.type === "cancel") queued.delete(message.id);
+  else {
+    queued.add(message.request.id);
+    queue = queue.then(() => handle(message.request));
+  }
 };
 
 function boot(frameworkUrl: string) {
@@ -35,7 +39,7 @@ function boot(frameworkUrl: string) {
 }
 
 async function handle(request: WireRequest) {
-  if (cancelled.delete(request.id)) return;
+  if (!queued.delete(request.id)) return;
   // Leaving the queue: the page starts the request's deadline now, not while it waited behind others.
   post({ type: "started", id: request.id });
   try {
@@ -57,8 +61,5 @@ async function handle(request: WireRequest) {
     // eslint-disable-next-line no-console -- the browser runtime has no server log; the console is where details go.
     console.error(`Runtime request ${request.method} ${request.url} failed:`, error);
     post({ type: "error", id: request.id, message: error instanceof Error ? error.message : String(error), outOfMemory: isOutOfMemory(error) });
-  } finally {
-    // A cancel that arrived while the request ran has nothing left to drop.
-    cancelled.delete(request.id);
   }
 }

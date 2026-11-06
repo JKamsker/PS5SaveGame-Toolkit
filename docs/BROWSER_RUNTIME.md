@@ -83,20 +83,40 @@ IndexedDB, deleting entries the copy lacks. A tab flushing a stale copy would th
 what another tab saved. `web/src/runtime/persistence.ts` prevents that:
 
 - **Durable mutations** (every non-GET request except workspace routes; a workspace's `presets/*`
-  routes are included because capture saves a preset) run under an exclusive
+  routes are included because capture saves a preset, except preview, apply and
+  `transfer/compatibility`, which only read the library and run as reads) run under an exclusive
   [Web Lock](https://developer.mozilla.org/docs/Web/API/Web_Locks_API) shared by all tabs. Inside it the
   worker reloads the mount from IndexedDB (`syncfs(true)`); if the `.generation` marker differs from the
   one this tab last saw, `ReloadPersistent()` makes the .NET stores re-read their files
   (`LocalApiHost.ReloadPersistentStores`). Then the request runs and, only if the tree changed, the
-  worker writes a new generation, flushes and announces the change on a `BroadcastChannel`.
+  worker writes a new generation, flushes, checks that IndexedDB now lists exactly the in-memory entries
+  and announces the change on a `BroadcastChannel`.
+- **A failed store reload** (for example another tab on a newer version of the site saved a preset
+  schema this version cannot read) is not adopted: the stores keep their last good view for reads, and
+  every mutation is refused with `503` until a reload succeeds, because the request would write that
+  stale view back over the other tab's saves. As a second guard, `PresetStore` refuses create, rename
+  and delete with `409 presetLibraryReloadRequired` when `presets.json` is no longer the file it last
+  read or wrote (both hosts). User reference packs need no such guard: each is its own file, and a
+  write never touches the others.
+- **Change detection does not use the clock.** IDBFS flushes an entry only when its modification time
+  differs from the stored one, and MEMFS stamps writes with `Date.now()`, which some browsers round to
+  100 ms (Firefox `privacy.resistFingerprinting`, Tor Browser), so a file rewritten within one tick of
+  its stored copy would silently not be saved. Before a mutation runs, the worker stamps every entry of
+  the mount with a sentinel time; afterwards, entries still carrying it (and the same node) get their
+  stored time back, and all others count as changed and get a time strictly after the stored one
+  (`web/src/runtime/idbfsTree.ts`).
 - **Reads** after such an announcement reload the mount under a shared lock first, so another tab's save
   is visible on the next request once the announcement has arrived (milliseconds later). Until then a
   read may be stale, but a write never is: it always reloads under the lock first.
 - **A failed flush** (for example `QuotaExceededError`) is never a silent success: the worker reloads
   what IndexedDB really holds, so this tab's stores match it, and answers `507 Insufficient Storage`
   (`503` for other storage errors) as problem+json that the UI shows. A request that failed anyway keeps
-  its own error. If IndexedDB cannot be read before a mutation, or another tab holds the lock for more
-  than 30 s, the mutation is refused with `503` without running.
+  its own error. If even that reload fails, the tab forgets which generation its stores reflect, so the
+  next request reloads them before anything is written (the rejected change is never flushed later).
+  If IndexedDB cannot be read before a mutation, or another tab holds the lock for more than 30 s, the
+  mutation is refused with `503` without running. A tab that boots while another holds the lock for
+  more than 30 s starts with an empty mount but stays persistent: reads try the lock without waiting
+  and load the data as soon as it is free, and a mutation always waits for the lock and loads first.
 - Without Web Locks (an insecure `http://` origin other than localhost, or an old browser) the same
   reload/flush sequence runs unserialized; boot info reports `tabCoordination: false` and the UI asks
   the user to change presets and packs in one tab at a time.

@@ -140,7 +140,7 @@ output-directory behavior, so the check never removes or rewrites output.
 | MapView.js | 2141 | 2350 |
 | SpatialShared.js | 1787 | 1970 |
 | SpatialShared.css | 911 | 1010 |
-| worker.js | 1646 | 1810 |
+| worker.js | 4240 | 4670 |
 
 The preset-transfer follow-up adds explicit lazy import/export dialogs and shared native-modal
 code/styles. These new chunks load only on the corresponding toolbar action; the existing
@@ -165,7 +165,9 @@ bytes, mainly because downloads, exports and reference images are produced in th
 **6980** (10% headroom). The worker client itself is part of initial `index.js` (122035 bytes initial JS,
 still within the unchanged 130500 limit). The new lazy `worker.js` chunk (1646 gzip bytes: boot,
 request queue, framing and `.gz` resource loading) loads once, when the runtime starts; its limit is
-**1810** (10% headroom). `values.js` is no longer emitted as a separate chunk in this build; its limit
+**1810** (10% headroom). Cross-tab persistence (Web Locks, IndexedDB reload/verification, coarse-clock
+safe timestamps and storage-failure handling) later grew it to 4240 gzip bytes; its limit is now
+**4670** (10% headroom). `values.js` is no longer emitted as a separate chunk in this build; its limit
 is retained for a future split. All other rows and limits are unchanged.
 
 CI `validate` runs `npm run check:bundle` immediately after its production build on **both Ubuntu
