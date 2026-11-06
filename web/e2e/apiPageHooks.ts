@@ -39,6 +39,20 @@ export function pageHooks() {
   const bodyOf = (reply: Reply & { type: "response" }) => encode(reply.frame.slice(reply.bodyOffset)) ?? "";
   // Tokens stay unique across reloads, which start a new realm with its own request ids.
   const realm = Math.random().toString(36).slice(2);
+  /**
+   * Request bodies being read. runtime/client.ts reserves a request's place in the worker's queue when
+   * the app calls it, then reads its body (`Request.prototype.arrayBuffer`, the app's only caller) before
+   * posting it: until then neither this request nor any the app called after it reached the worker.
+   */
+  const serializing = new Set<Promise<void>>();
+  const readBody = Request.prototype.arrayBuffer;
+  Request.prototype.arrayBuffer = function (this: Request) {
+    const reading = readBody.call(this);
+    const read = reading.then(() => undefined, () => undefined);
+    serializing.add(read);
+    void read.then(() => serializing.delete(read));
+    return reading;
+  };
   const Native = window.Worker;
   let tokens = 0;
   let directIds = 0;
@@ -83,10 +97,11 @@ export function pageHooks() {
      * QUIET_TURNS event-loop turns and QUIET_MS. Waiting only for the requests already handed to the
      * worker would not do: the app queues its own writes (a document's edits run one after another, each
      * sent once the previous answer was handled, web/src/components/document/useDocumentSession.ts), and
-     * serializes a request body before posting it, so a read sent then would overtake those writes and
-     * observe stale state. The app sends its next queued request within microtasks of handling an answer,
-     * which a quiet period of several turns outlasts. A request a route handler holds without deciding (or
-     * holds after route.fetch()) delays the read, like it would delay the app.
+     * serializes a request body before posting it (`serializing`; requests it called later wait for that
+     * one), so a read sent then would overtake those writes and observe stale state. The app sends its
+     * next queued request within microtasks of handling an answer or reading a body, which a quiet period
+     * of several turns outlasts. A request a route handler holds without deciding (or holds after
+     * route.fetch()) delays the read, like it would delay the app.
      */
     private async idle() {
       const limit = performance.now() + IDLE_LIMIT_MS;
@@ -95,13 +110,15 @@ export function pageHooks() {
       let turns = 0;
       for (;;) {
         const busy = [...this.requests.values()].filter(entry => !entry.done);
-        if (busy.length) {
+        const reading = [...serializing];
+        if (busy.length || reading.length) {
           const left = limit - performance.now();
           if (left <= 0) {
             throw new Error(`The app never became idle, so this test request was not sent; still waiting for: ${
-              busy.map(entry => entry.label).join(", ")}`);
+              [...busy.map(entry => entry.label), ...reading.map(() => "a request body being read")].join(", ")}`);
           }
-          await Promise.race([Promise.all(busy.map(entry => entry.finished)), new Promise(resolve => setTimeout(resolve, left))]);
+          await Promise.race([Promise.all([...busy.map(entry => entry.finished), ...reading]),
+            new Promise(resolve => setTimeout(resolve, left))]);
           seen = -1;
           continue;
         }
