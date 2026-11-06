@@ -1,11 +1,13 @@
 using K4os.Compression.LZ4;
 using K4os.Compression.LZ4.Streams;
+using SaveToolkit.Sdk.Compression;
 
 namespace SaveToolkit.Plugins.BaldursGate3.Tests;
 
 /// <summary>
-/// HC blocks and frames go through the SDK's managed LZ4 HC port (K4os' HC encoder traps the browser
-/// runtime). Written packages and LSF sections must keep K4os' exact bytes.
+/// Blocks and frames go through the SDK's managed LZ4 ports (K4os' HC encoder traps the browser runtime
+/// and its fast level is the 32-bit engine there). Written packages and LSF sections must keep the exact
+/// bytes of K4os' 64-bit engine, which this 64-bit test process runs.
 /// </summary>
 public sealed class Lz4EncoderParityTests
 {
@@ -15,7 +17,7 @@ public sealed class Lz4EncoderParityTests
     {
         var data = new TheoryData<byte, int>();
         foreach (var level in new byte[] { 0x00, 0x10, 0x20, 0x40 })
-        foreach (var size in new[] { 1, 100, 65_535, 65_536, 65_537, 131_105, 300_000 })
+        foreach (var size in new[] { 1, 100, 65_535, 65_536, 65_537, 65_547, 131_105, 262_144, 300_000 })
             data.Add(level, size);
         return data;
     }
@@ -24,6 +26,7 @@ public sealed class Lz4EncoderParityTests
     [MemberData(nameof(Cases))]
     public void BlocksAndFramesMatchK4os(byte level, int size)
     {
+        Assert.True(Environment.Is64BitProcess && !LZ4Codec.Enforce32, "K4os is the 64-bit oracle only in a 64-bit process.");
         var source = Input(size);
         var flags = (byte)(Lz4 | level);
         var lz4Level = level switch { 0x10 => LZ4Level.L00_FAST, 0x40 => LZ4Level.L12_MAX, _ => LZ4Level.L10_OPT };
@@ -45,12 +48,13 @@ public sealed class Lz4EncoderParityTests
     {
         // Partial blocks and ring-buffer wrap-around (the dictionary is moved after every second block).
         var source = Input(700_000);
-        foreach (var level in new[] { LZ4Level.L03_HC, LZ4Level.L09_HC, LZ4Level.L11_OPT, LZ4Level.L12_MAX })
+        foreach (var level in new[] { LZ4Level.L00_FAST, LZ4Level.L03_HC, LZ4Level.L09_HC, LZ4Level.L11_OPT, LZ4Level.L12_MAX })
         {
             var settings = new LZ4EncoderSettings { CompressionLevel = level };
+            ILz4CompressionChain Chain() => level == LZ4Level.L00_FAST ? new Lz4FastCompressionChain() : new Lz4HighCompressionChain((int)level);
             var expected = WritePieces(source, output => LZ4Stream.Encode(output, settings, leaveOpen: true));
             var actual = WritePieces(source, output => new LZ4EncoderStream(output, settings.CreateDescriptor(),
-                descriptor => new ManagedLz4HighChainEncoder(level, descriptor.BlockSize, extraBlocks: 0), leaveOpen: true));
+                descriptor => new ManagedLz4ChainEncoder(Chain(), descriptor.BlockSize, extraBlocks: 0), leaveOpen: true));
             Assert.True(expected.AsSpan().SequenceEqual(actual), $"Frame differs at {level}.");
         }
     }

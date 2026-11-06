@@ -23,6 +23,8 @@ Existing CSAV layout/facts research cites [WolvenKit/CyberCAT](https://github.co
 MIT; its full notice remains in [CyberCAT-LICENSE.txt](CyberCAT-LICENSE.txt).
 The plugin references `K4os.Compression.LZ4` 1.3.8, MIT:
 <https://github.com/MiloszKrajewski/K4os.Compression.LZ4/blob/master/LICENSE>.
+Edited chunks are encoded by the SDK's port of K4os' 64-bit fast encoder (MIT, from lz4, BSD-2-Clause);
+its notice is in the repository [THIRD-PARTY-NOTICES](../../THIRD-PARTY-NOTICES).
 WolvenKit GPL schemas are research references only, as documented in the README.
 
 ## Cyberpunk Wiki base-record labels
