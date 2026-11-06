@@ -25,8 +25,16 @@ export const runtimeCrashedMessage = "The in-browser editor runtime stopped unex
 export const runtimeCrashedOutOfMemoryMessage = "The in-browser editor ran out of memory and stopped, and the workspaces in this tab "
   + "were lost with it. Reload the page, then import fewer or smaller files at a time.";
 export const runtimeStalledMessage = "The editor runtime stopped loading. Check your connection, then reload the page and try again.";
-/** A boot that reports no progress for this long is treated as stalled; waiting requests fail instead of hanging. */
+/** A download that reports no progress for this long is treated as stalled; waiting requests fail instead of hanging. */
 export const RUNTIME_STALL_LIMIT_MS = 90_000;
+/**
+ * Once every runtime file has arrived, nothing reports progress until the runtime is ready: WebAssembly
+ * compiles and starts, the worker waits for another tab's storage lock (up to 30 s) and loads presets and
+ * reference packs, then the plugins load. That depends on the device, not the connection, so it gets a
+ * longer bound and its own message.
+ */
+export const RUNTIME_START_LIMIT_MS = 5 * 60_000;
+export const runtimeStartFailedMessage = "The editor runtime did not finish starting. Reload the page and try again.";
 export const timeoutMessage = "The request timed out. Check the current state before retrying.";
 export const cancelledMessage = "The request was cancelled. Check the current state before retrying.";
 export const outOfMemoryMessage = "The in-browser editor ran out of memory. Import fewer or smaller files at a time and "
@@ -103,13 +111,27 @@ function runtimeFailure(error?: unknown): string | undefined {
     ? runtimeCrashedOutOfMemoryMessage : runtimeCrashedMessage;
 }
 
-/** Waits for the boot; fails once it reports no progress for RUNTIME_STALL_LIMIT_MS instead of waiting forever. */
+/** True once every runtime file was downloaded (the file count can only grow while downloads continue). */
+function downloaded(state: ReturnType<typeof runtime.state>): boolean {
+  return state.status === "loading" && (state.starting === true || (state.total > 0 && state.loaded >= state.total));
+}
+
+/**
+ * Waits for the boot; fails instead of waiting forever once a download reports no progress for
+ * RUNTIME_STALL_LIMIT_MS, or the runtime is not ready RUNTIME_START_LIMIT_MS after the last progress.
+ */
 async function waitForRuntime(signal: AbortSignal | null | undefined) {
   const waiting = new AbortController();
-  let stalled = false;
-  const stall = () => { stalled = true; waiting.abort(); };
-  let timer = setTimeout(stall, RUNTIME_STALL_LIMIT_MS);
-  const unsubscribe = runtime.subscribe(() => { clearTimeout(timer); timer = setTimeout(stall, RUNTIME_STALL_LIMIT_MS); });
+  let stalled: string | undefined;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const arm = () => {
+    clearTimeout(timer);
+    const [limit, message] = downloaded(runtime.state())
+      ? [RUNTIME_START_LIMIT_MS, runtimeStartFailedMessage] : [RUNTIME_STALL_LIMIT_MS, runtimeStalledMessage];
+    timer = setTimeout(() => { stalled = message; waiting.abort(); }, limit);
+  };
+  arm();
+  const unsubscribe = runtime.subscribe(arm);
   const cancel = () => waiting.abort(signal?.reason);
   if (signal?.aborted) cancel();
   else signal?.addEventListener("abort", cancel, { once: true });
@@ -117,7 +139,7 @@ async function waitForRuntime(signal: AbortSignal | null | undefined) {
     await runtime.ready(waiting.signal);
   } catch {
     if (signal?.aborted) throw new ApiError(cancelledMessage, 0);
-    throw new ApiError(stalled ? runtimeStalledMessage : runtimeFailure() ?? runtimeFailedMessage, 0);
+    throw new ApiError(stalled ?? runtimeFailure() ?? runtimeFailedMessage, 0);
   } finally {
     clearTimeout(timer);
     unsubscribe();

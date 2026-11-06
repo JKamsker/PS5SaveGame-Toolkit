@@ -2,8 +2,8 @@ import { afterEach, expect, it, vi } from "vitest";
 import { runtime, type RuntimeState } from "../runtime";
 import { RuntimeRequestError } from "../runtime/client";
 import {
-  cancelledMessage, fetchApi, readJson, RUNTIME_STALL_LIMIT_MS, runtimeCrashedMessage, runtimeCrashedOutOfMemoryMessage,
-  runtimeFailedMessage, runtimeStalledMessage,
+  cancelledMessage, fetchApi, readJson, RUNTIME_START_LIMIT_MS, RUNTIME_STALL_LIMIT_MS, runtimeCrashedMessage,
+  runtimeCrashedOutOfMemoryMessage, runtimeFailedMessage, runtimeStalledMessage, runtimeStartFailedMessage,
 } from "./http";
 
 afterEach(() => { vi.restoreAllMocks(); vi.useRealTimers(); });
@@ -60,6 +60,25 @@ it("fails a request waiting for a boot that stopped making progress instead of w
   await vi.advanceTimersByTimeAsync(1_000);
   expect(await outcome).toMatchObject({ status: 0, message: runtimeStalledMessage });
   expect(fetch).not.toHaveBeenCalled();
+  expect(boot.listeners.size).toBe(0);
+  expect(vi.getTimerCount()).toBe(0);
+});
+
+it.each([
+  ["every file arrived", { status: "loading", loaded: 10, total: 10 }],
+  ["the plugins are loading", { status: "loading", loaded: 10, total: 10, starting: true }],
+] as const)("does not report a stalled download once %s, but still gives up eventually", async (_phase, state) => {
+  vi.useFakeTimers();
+  const boot = bootingRuntime();
+  const outcome = fetchApi("/presets", undefined, readJson).catch((error: unknown) => error);
+  await vi.advanceTimersByTimeAsync(1_000);
+  // The last file arrived: WebAssembly starts, the worker waits for the storage lock and loads presets.
+  vi.mocked(runtime.state).mockReturnValue(state);
+  boot.progress();
+  await vi.advanceTimersByTimeAsync(RUNTIME_STALL_LIMIT_MS * 2);
+  expect(boot.readySignal()?.aborted).toBe(false);
+  await vi.advanceTimersByTimeAsync(RUNTIME_START_LIMIT_MS - RUNTIME_STALL_LIMIT_MS * 2);
+  expect(await outcome).toMatchObject({ status: 0, message: runtimeStartFailedMessage });
   expect(boot.listeners.size).toBe(0);
   expect(vi.getTimerCount()).toBe(0);
 });
