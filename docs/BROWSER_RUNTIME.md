@@ -96,11 +96,12 @@ swept between requests with the same timeout as the Api host, so all work stays 
 - **One thread.** All requests run sequentially in one worker; a long import or export delays later
   requests, though the UI thread stays responsive. Code that blocks on a task cannot complete there.
 - **Framework APIs.** APIs annotated `[UnsupportedOSPlatform("browser")]` throw
-  `PlatformNotSupportedException`. In .NET 10 that includes `MD5` and `Aes.Create`, which some plugins
-  use (BaldursGate3 package integrity, GodOfWarRagnarok authentication, EldenRing regulation decoding,
-  Pragmata and TalesOfArise decryption). Those paths work in tests and under the Api host but need
-  managed implementations before they work in the browser; this has not yet been verified against
-  private samples in the browser. See [PLUGIN_GUIDE.md](PLUGIN_GUIDE.md#browser-runtime).
+  `PlatformNotSupportedException` (MD5 throws `CryptographicException`). In .NET 10 that includes `MD5`
+  and `Aes.Create`; SHA-1/SHA-2, HMAC-SHA and `RandomNumberGenerator` work. Plugins that need MD5 or
+  AES (BaldursGate3, GodOfWarRagnarok, EldenRing, Pragmata, TalesOfArise) use `SaveToolkit.Sdk.Crypto`
+  (`PortableMd5`, `IncrementalMd5`, `PortableAes`): the platform implementation natively, a managed
+  RFC 1321 / FIPS-197 implementation in the browser, tested against official vectors and the platform.
+  See [PLUGIN_GUIDE.md](PLUGIN_GUIDE.md#browser-runtime).
 - **No OpenAPI document or SPA fallback.** `/openapi/v1.json` exists only on the ASP.NET host. A static
   host returns its own 404 for a reloaded deep link; workspaces would be gone after a reload anyway.
 

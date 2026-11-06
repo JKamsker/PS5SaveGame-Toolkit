@@ -1095,8 +1095,10 @@ ASP.NET host and in the test projects, so a plugin passing its tests can still f
 - **APIs must exist on `browser-wasm`.** Unsupported framework APIs throw
   `PlatformNotSupportedException` at run time. In .NET 10 this includes `MD5` (`MD5.HashData`,
   `IncrementalHash` with `HashAlgorithmName.MD5`) and `Aes.Create`; SHA-1/SHA-2 hashing and HMAC are
-  available. Check the `[UnsupportedOSPlatform("browser")]` annotations before relying on an API, and
-  prefer an attributed managed implementation shared through Codecs (record it under `## SDK requests`).
+  available. Use `SaveToolkit.Sdk.Crypto` (`PortableMd5`, `IncrementalMd5`, `PortableAes` for raw
+  ECB/CBC) instead of MD5 and `Aes`. Check the `[UnsupportedOSPlatform("browser")]` annotations before
+  relying on any other API, and prefer an attributed managed implementation shared through Codecs
+  (record it under `## SDK requests`).
 - **Memory is bounded.** The 32-bit WebAssembly heap is shared by the runtime, every loaded plugin's
   embedded data and all open workspaces. Keep reference data compact (rule 9) and views bounded (rule 5).
 - **Discovery is automatic.** The browser host references `plugins/*/*/SaveToolkit.Plugins.*.csproj`
