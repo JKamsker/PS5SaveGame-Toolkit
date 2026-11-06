@@ -53,7 +53,17 @@ public sealed class LocalApiHost : IDisposable
     {
         ArgumentNullException.ThrowIfNull(request);
         ObjectDisposedException.ThrowIf(_disposed, this);
-        var (path, query) = RequestPath.Split(request.PathAndQuery);
+        string path, query;
+        try
+        {
+            (path, query) = RequestPath.Split(request.PathAndQuery);
+        }
+        catch (InvalidOperationException)
+        {
+            // An escaped NUL (%00) in the path: Kestrel answers a bare 400 without running the app.
+            return new LocalResponse(400, [], []);
+        }
+
         using var http = new LocalHttpContext(request, path, QueryValues.Parse(query), cancellationToken);
         var selection = _routes.Select(http.Method, http.Path, http.RouteValues);
         if (selection.Endpoint is not { } endpoint) return NoEndpoint(http, selection);

@@ -189,21 +189,14 @@ internal sealed class BufferedBody(ReadOnlyMemory<byte> body)
         bool foundCr = false, foundCrLf = false;
         while (!foundCrLf && EnsureBuffered(1))
         {
-            var taken = 0;
-            while (_count > 0 && !foundCrLf)
-            {
-                var value = body.Span[Position];
-                Consume(1);
-                taken++;
-                if (value == '\n' && foundCr)
-                {
-                    foundCrLf = true;
-                    continue;
-                }
-
-                foundCr = value == '\r';
-                if (taken > lengthLimit) throw new InvalidDataException($"Line length limit {lengthLimit} exceeded.");
-            }
+            var chunk = Buffered;
+            // The LF that ends the line (its CR may have ended the previous fill), or -1.
+            var lf = foundCr && chunk[0] == '\n' ? 0 : chunk.IndexOf("\r\n"u8) is >= 0 and var crlf ? crlf + 1 : -1;
+            // Every byte before that LF counts toward the limit.
+            if ((lf >= 0 ? lf : chunk.Length) > lengthLimit) throw new InvalidDataException($"Line length limit {lengthLimit} exceeded.");
+            foundCrLf = lf >= 0;
+            foundCr = !foundCrLf && chunk[^1] == '\r';
+            Consume(foundCrLf ? lf + 1 : chunk.Length);
         }
 
         var line = body.Span[start..Position];

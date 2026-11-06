@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using SaveToolkit.Core.Tests.Fakes;
 using SaveToolkit.LocalApi.Tests.Parity;
@@ -117,18 +118,19 @@ public sealed class HttpEdgeParityTests : IDisposable
     });
 
     /// <summary>
-    /// An escaped NUL never reaches routing: TestServer's path decoder throws (Kestrel answers a bare 400),
-    /// and the in-process host rejects it with the same exception.
+    /// An escaped NUL never reaches routing. TestServer's path decoder throws (a test-host artefact);
+    /// Kestrel, the real host, answers a bare 400 without running the app, which the in-process host matches.
     /// </summary>
     [Theory]
     [InlineData("/api/workspaces/%00")]
     [InlineData("/api/workspaces/a%00b/files/x/open")]
     [InlineData("/api/workspaces/%C3%00")]
-    public async Task Escaped_nul_paths_are_rejected_alike(string path)
+    public async Task Escaped_nul_paths_are_rejected_like_kestrel(string path)
     {
-        var expected = await Assert.ThrowsAsync<InvalidOperationException>(() => _hosts.AspNet.GetAsync(new Uri(path, UriKind.Relative), Transcript.Ct));
-        var actual = await Assert.ThrowsAsync<InvalidOperationException>(() => _hosts.Local.GetAsync(new Uri(path, UriKind.Relative), Transcript.Ct));
-        Assert.Equal(expected.Message, actual.Message);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _hosts.AspNet.GetAsync(new Uri(path, UriKind.Relative), Transcript.Ct));
+        using var actual = await _hosts.Local.GetAsync(new Uri(path, UriKind.Relative), Transcript.Ct);
+        Assert.Equal(HttpStatusCode.BadRequest, actual.StatusCode);
+        Assert.Empty(await actual.Content.ReadAsByteArrayAsync(Transcript.Ct));
     }
 
     public void Dispose() => _hosts.Dispose();
