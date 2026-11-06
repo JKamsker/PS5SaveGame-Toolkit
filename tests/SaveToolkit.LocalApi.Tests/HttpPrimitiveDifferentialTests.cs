@@ -1,6 +1,5 @@
 using System.Text;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Net.Http.Headers;
 using SaveToolkit.LocalApi.Http;
 using AspNetReasonPhrases = Microsoft.AspNetCore.WebUtilities.ReasonPhrases;
@@ -29,6 +28,8 @@ public sealed class HttpPrimitiveDifferentialTests
         "<none>", "", "application/json", "Application/JSON; charset=utf-8", "application/problem+json", "text/json", "text/x+json",
         "application/json;", "application/json; charset=\"utf-8\"", "multipart/form-data; boundary=x", "application/x-www-form-urlencoded",
         "text/plain", "application/jsonx", "application /json", "json", "application/json; =x", "MULTIPART/FORM-DATA",
+        "application/json; charset", "application/json; charset=", "application/json; charset=\"\"", "application/json ; charset=utf-16",
+        "application/json; charset=\"open", "application/json; charset= ; a=1", "multipart/form-data; boundary= ", "application/json; a=;b",
     };
 
     public static TheoryData<string> Queries => new()
@@ -43,6 +44,7 @@ public sealed class HttpPrimitiveDifferentialTests
         "form-data; name=\"f\"; filename=\"x.dat\"; filename*=UTF-8''%E4%BF%9D.dat", "form-data; name=\"f\"; filename=\"=?utf-8?B?5L+d5a2Y?=\"",
         "form-data; name=\"f\"; filename*=bogus''x", "form-data; name=\"f\"; filename=\"\"", "attachment; filename=x", "form-data;", "form-data",
         "form-data; name=\"a\\\"b\"", "form-data; name=\"f\"; filename*=utf-8'en'%41%42", "bad header value",
+        "form-data; name", "form-data; name=", "form-data; name=; filename=x", "form-data; filename*=", "form-data; name=\"open",
     };
 
     [Fact]
@@ -114,28 +116,11 @@ public sealed class HttpPrimitiveDifferentialTests
 
     [Theory]
     [MemberData(nameof(MultipartBodies))]
-    public async Task Multipart_forms_match(string contentType, string body)
-    {
-        var bytes = Encoding.UTF8.GetBytes(body);
-        var context = new DefaultHttpContext();
-        context.Request.ContentType = contentType;
-        context.Request.Body = new MemoryStream(bytes);
-        context.Request.ContentLength = bytes.Length;
-        var feature = new FormFeature(context.Request, new FormOptions { ValueCountLimit = 100_000 });
-        IFormCollection? expected = null;
-        try { expected = await feature.ReadFormAsync(TestContext.Current.CancellationToken); }
-        catch (Exception exception) when (exception is InvalidDataException or IOException) { }
+    public Task Multipart_forms_match(string contentType, string body) =>
+        FormOracle.AssertSameAsync(body.Length > 60 ? body[..60] : body, contentType, Encoding.UTF8.GetBytes(body));
 
-        FormData? actual = null;
-        try { actual = MultipartForm.Read(MediaType.Parse(contentType)!, bytes, long.MaxValue, 100_000, TestContext.Current.CancellationToken); }
-        catch (Exception exception) when (exception is InvalidDataException or IOException) { }
-
-        Assert.Equal(expected is null, actual is null);
-        if (expected is null || actual is null) return;
-        Assert.Equal(expected.Files.Select(f => (f.Name, f.FileName, f.Length)), actual.Files.Select(f => (f.Name, f.FileName, f.Length)));
-        Assert.Equal(expected.SelectMany(p => p.Value.Select(v => (p.Key, v))).OrderBy(p => p.Key, StringComparer.Ordinal),
-            actual.Values.Select(p => (p.Key, (string?)p.Value)).OrderBy(p => p.Key, StringComparer.Ordinal));
-    }
+    private const string Cd = "Content-Disposition: form-data; name=";
+    private const string FileCd = Cd + "\"f\"; filename=\"x\"";
 
     public static TheoryData<string, string> MultipartBodies => new()
     {
@@ -148,8 +133,73 @@ public sealed class HttpPrimitiveDifferentialTests
         { "multipart/form-data; boundary=b", "garbage" },
         { "multipart/form-data; boundary=b", "--b\r\nContent-Type: text/plain\r\n\r\nno disposition\r\n--b--" },
         { "multipart/form-data; boundary=b", "--b\r\nContent-Disposition: attachment; filename=\"x\"\r\n\r\nignored\r\n--b--" },
-        { "multipart/form-data; boundary=b", "--b\r\nContent-Disposition: form-data; name=\"a\"\r\n\r\n﻿bom\r\n--b\r\nContent-Disposition: form-data; name=\"a\"\r\n\r\n2\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\nContent-Disposition: form-data; name=\"a\"\r\n\r\n\ufeffbom\r\n--b\r\nContent-Disposition: form-data; name=\"a\"\r\n\r\n2\r\n--b--" },
         { "multipart/form-data; boundary=b", "--b--" },
         { "application/x-www-form-urlencoded", "name=x&files=y" },
+        // Review r1: preamble without CRLF (data loss), lenient boundary lines, header syntax and limits.
+        { "multipart/form-data; boundary=b", "xx--b\r\n" + Cd + "\"a\"\r\n\r\nv\r\n--b\r\n" + FileCd + "\r\n\r\nF\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + Cd + "\"a\"\r\n\r\nv\r\n--bX\r\n" + Cd + "\"c\"\r\n\r\nw\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + FileCd + "\r\n\r\nv\r\n--b --" },
+        { "multipart/form-data; boundary=b", "--b\r\nContent-Disposition : form-data; name=\"f\"; filename=\"x\"\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n:x\r\n" + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + string.Concat(Enumerable.Repeat("X-A: 1\r\n", 17)) + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + string.Concat(Enumerable.Range(0, 16).Select(i => $"X-{i}: 1\r\n")) + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + string.Concat(Enumerable.Range(0, 15).Select(i => $"X-{i}: 1\r\n")) + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + Cd + "\"" + new string('k', 3000) + "\"\r\n\r\nv\r\n--b\r\n" + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + Cd + "\"name\"\r\n\r\n" + new string('v', (4 * 1024 * 1024) + 1) + "\r\n--b\r\n" + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + Cd + "\"f\"; filename=\"a.dat\"; filename*=UTF-8''\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\n" + FileCd + "\n\nv\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + Cd + "\"name\"\r\nContent-Type: text/plain; charset=iso-8859-1\r\n\r\n\u00e9\r\n--b\r\n" + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=\" \"", "-- \r\n" + FileCd + "\r\n\r\nv\r\n-- --" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + FileCd + "\r\n" + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + FileCd + "\r\n\r\nv\r\n--b" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + FileCd + "\r\n\r\nv\r\n--b\r\n" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + FileCd + "\r\n\r\nv\r\n--" },
+        { "multipart/form-data; boundary=b", "--b" + new string(' ', 200) + "\r\n" + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b" + new string(' ', 99) + "\r\n" + FileCd + "\r\n\r\nv\r\n--b--" + new string(' ', 98) },
+        { "multipart/form-data; boundary=b", "--b" + new string(' ', 100) + "\r\n" + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + Cd + "\"f\"; filename*=\"UTF-8''q.dat\"\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\nContent-Disposition:\r\ncontent-disposition: " + FileCd[21..] + "\r\n\r\nv\r\n--b\t--  \r\n" },
+        { "multipart/form-data; boundary=b", "--b\r\nContent-Type: a\r\n" + Cd + "\"t\"\r\nContent-Type: text/plain; charset=utf-16\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + Cd + "\"t\"\r\nContent-Type: text/plain; charset=\"iso-8859-1\"\r\n\r\n\u00e9\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + Cd + "\"t\"\r\nContent-Type: text/plain; charset=bogus\r\n\r\n\u00e9\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + Cd + "\"t\"\r\nContent-Type: text/plain; charset=utf-7\r\n\r\n+AGEA-\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + Cd + "\"t\"\r\nContent-Type: text/plain; charset=us-ascii\r\n\r\n\u00e9\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + Cd + "\"t\"\r\nContent-Type: text/plain;charset=latin1 \r\n\r\n\u00e9\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + Cd + "\"t\"\r\nContent-Type: text/plain; charset\r\n\r\n\u00e9\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + Cd + "\"a\"\r\n\r\n1\r\n--b\r\n" + Cd + "\"A\"\r\n\r\n2\r\n--b\r\n" + Cd + "a\r\n\r\n3\r\n--b--" },
+        { "multipart/form-data; boundary=" + new string('b', 128), "--" + new string('b', 128) + "\r\n" + FileCd + "\r\n\r\nv\r\n--" + new string('b', 128) + "--" },
+        { "multipart/form-data; boundary=" + new string('b', 129), "--" + new string('b', 129) + "\r\n" + FileCd + "\r\n\r\nv\r\n--" + new string('b', 129) + "--" },
+        { "multipart/form-data; boundary=", "--\r\n\r\n" },
+        { "multipart/form-data; boundary", "--\r\n\r\n" },
+        { "multipart/form-data; boundary=\"\"", "--\r\n\r\n" },
+        { "multipart/form-data; boundary= ", "-- \r\n\r\n" },
+        { "multipart/form-data", "" },
+        { "multipart/form-data; boundary=b", new string('p', 16384) + "--b\r\n" + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", new string('p', 16385) + "--b\r\n" + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\n" + FileCd + "\r\n\r\nv\r\n--b--\r\n" + new string('e', 16382) },
+        { "multipart/form-data; boundary=b", "--b\r\n" + FileCd + "\r\n\r\nv\r\n--b--\r\n" + new string('e', 16385) },
+        { "multipart/form-data; boundary=b", "--b\r\nX: " + new string('h', 16384 - 3 - FileCd.Length) + "\r\n" + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\nX: " + new string('h', 16385 - 3 - FileCd.Length) + "\r\n" + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", "--b\r\nX: " + new string('h', 5000) + "\r\n" + FileCd + "\r\n\r\n" + new string('d', 9000) + "\r\n--b--" },
+        // Url-encoded bodies: FormPipeReader limits, empty pairs and UrlDecoder's form decoding.
+        { "application/x-www-form-urlencoded", "" },
+        { "application/x-www-form-urlencoded", "&" },
+        { "application/x-www-form-urlencoded", "&&a=1&" },
+        { "application/x-www-form-urlencoded", "=" },
+        { "application/x-www-form-urlencoded", "a&a=2&A=3&b" },
+        { "application/x-www-form-urlencoded", "a=%00" },
+        { "application/x-www-form-urlencoded", "%00=a" },
+        { "application/x-www-form-urlencoded", "a=%C3%28&b=%E2%82&c=%F0%90%80&d=%ED%A0%80&e=%C0%80&f=%F4%90%80%80&g=%E2%82%AC%F0%9F%98%80" },
+        { "application/x-www-form-urlencoded", "a=+%2B%20&b=%zz%&c=%&d=a%&e=%4&f=%c3%a9" },
+        { "application/x-www-form-urlencoded", new string('k', 2048) + "=v&" + new string('j', 2048) },
+        { "application/x-www-form-urlencoded", new string('k', 2049) },
+        { "application/x-www-form-urlencoded", new string('k', 3000) + "=v" },
+        { "application/x-www-form-urlencoded", "k=" + new string('v', 4 * 1024 * 1024) },
+        { "application/x-www-form-urlencoded", "k=" + new string('v', (4 * 1024 * 1024) + 1) },
+        { "application/x-www-form-urlencoded; charset=iso-8859-1", "n=%E9&m=\u00e9" },
+        { "application/x-www-form-urlencoded; charset=us-ascii", "n=%C3%A9&m=\u00e9" },
+        { "application/x-www-form-urlencoded; charset=\"utf-16\"", "n=%C3%A9" },
+        { "application/x-www-form-urlencoded; charset=utf-7", "n=%C3%A9" },
     };
 }

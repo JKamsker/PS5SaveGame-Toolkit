@@ -3,8 +3,9 @@ using System.Text;
 namespace SaveToolkit.LocalApi.Http;
 
 /// <summary>
-/// Decodes a raw request path like Kestrel: percent-escapes (including UTF-8 sequences) are decoded,
-/// except an encoded slash, which stays <c>%2F</c> so it can never split a route segment.
+/// Decodes a raw request path like ASP.NET's <c>UrlDecoder.DecodeRequestLine</c> (Kestrel and TestServer):
+/// percent-escapes forming valid UTF-8 are decoded, other escapes stay literal, and an encoded slash stays
+/// <c>%2F</c> so it can never split a route segment.
 /// </summary>
 internal static class RequestPath
 {
@@ -28,9 +29,14 @@ internal static class RequestPath
         return (RemoveDotSegments(Decode(rawPath)), query);
     }
 
+    /// <exception cref="InvalidOperationException">
+    /// The path has an escaped NUL (<c>%00</c>). The decoder rejects it before routing: TestServer throws this
+    /// same exception to the caller, while Kestrel answers a bare 400 without running the app.
+    /// </exception>
     public static string Decode(string raw)
     {
         if (raw.IndexOf('%', StringComparison.Ordinal) < 0) return raw;
+        if (raw.Contains("%00", StringComparison.Ordinal)) throw new InvalidOperationException("The path contains null characters.");
         var builder = new StringBuilder(raw.Length);
         var bytes = new List<byte>();
         var index = 0;

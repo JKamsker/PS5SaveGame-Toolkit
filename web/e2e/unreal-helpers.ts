@@ -18,12 +18,14 @@ export const wideTail = "unique-synthetic-tail";
 export const wideSummary = "雪".repeat(192) + "…";
 
 export async function generateUnrealFixtures(testInfo: TestInfo): Promise<string> {
+  // A cold build of the fixture generator into this run's isolated --artifacts-path can exceed the hook default.
+  testInfo.setTimeout(150_000);
   const directory = testInfo.outputPath("synthetic-gvas");
   await mkdir(directory, { recursive: true });
   const { stdout, stderr } = await promisify(execFile)("dotnet", ["run", "--project",
     "tests/fixtures/SaveToolkit.UnrealBrowserFixture", "--configuration", "Release",
     "--artifacts-path", path.join(tmpdir(), "unreal-fixture-build"), "--", directory],
-  { cwd: repositoryRoot, timeout: 60_000, maxBuffer: 2 * 1024 * 1024 });
+  { cwd: repositoryRoot, timeout: 120_000, maxBuffer: 2 * 1024 * 1024 });
   await testInfo.attach("fixture-generator.log", { body: stdout + stderr, contentType: "text/plain" });
   return directory;
 }

@@ -49,8 +49,11 @@ internal static class HttpSyntax
         value.Length >= 2 && value[0] == '"' && value[^1] == '"' ? value[1..^1] : value;
 }
 
-/// <summary>A parsed media type with its parameters (values keep their quotes).</summary>
-internal sealed record MediaType(string Type, string SubType, IReadOnlyList<KeyValuePair<string, string>> Parameters)
+/// <summary>
+/// A parsed media type with its parameters. Values keep their quotes; like <c>NameValueHeaderValue</c>, a
+/// parameter without <c>=</c> has a null value and one with an empty <c>=</c> has an empty value.
+/// </summary>
+internal sealed record MediaType(string Type, string SubType, IReadOnlyList<KeyValuePair<string, string?>> Parameters)
 {
     public string Value => Type + "/" + SubType;
 
@@ -79,10 +82,10 @@ internal sealed record MediaType(string Type, string SubType, IReadOnlyList<KeyV
         return parameters is null ? null : new MediaType(type, subType, parameters);
     }
 
-    /// <summary>Parses <c>*( OWS ";" OWS name [ "=" value ] )</c> to the end of the input.</summary>
-    internal static List<KeyValuePair<string, string>>? ParseParameters(string input, ref int index)
+    /// <summary>Parses <c>*( OWS ";" OWS name [ "=" [ value ] ] )</c> to the end of the input.</summary>
+    internal static List<KeyValuePair<string, string?>>? ParseParameters(string input, ref int index)
     {
-        var parameters = new List<KeyValuePair<string, string>>();
+        var parameters = new List<KeyValuePair<string, string?>>();
         while (true)
         {
             index += HttpSyntax.WhitespaceLength(input, index);
@@ -96,15 +99,15 @@ internal sealed record MediaType(string Type, string SubType, IReadOnlyList<KeyV
             var name = input.Substring(index, nameLength);
             index += nameLength;
             index += HttpSyntax.WhitespaceLength(input, index);
-            var value = string.Empty;
+            string? value = null;
             if (index < input.Length && input[index] == '=')
             {
                 index++;
                 index += HttpSyntax.WhitespaceLength(input, index);
+                // The value may be empty; an invalid one is empty too and fails at the next separator.
                 var length = index < input.Length && input[index] == '"'
                     ? HttpSyntax.QuotedStringLength(input, index)
                     : HttpSyntax.TokenLength(input, index);
-                if (length == 0) return null;
                 value = input.Substring(index, length);
                 index += length;
             }

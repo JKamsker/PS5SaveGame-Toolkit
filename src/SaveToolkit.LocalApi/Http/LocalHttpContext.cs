@@ -9,6 +9,11 @@ internal sealed class LocalHttpContext(LocalRequest request, string path, IQuery
 
     public LocalRequest Request { get; } = request;
 
+    /// <summary>
+    /// The method, upper-cased. ASP.NET routing matches methods case-insensitively (and TestServer
+    /// canonicalizes known ones), so <c>get</c> and <c>GET</c> behave alike there too; only Kestrel keeps a
+    /// lower-case <c>head</c> as a custom method, which routes the same way.
+    /// </summary>
     public string Method { get; } = request.Method.ToUpperInvariant();
 
     /// <summary>The decoded path (an encoded slash stays <c>%2F</c>).</summary>

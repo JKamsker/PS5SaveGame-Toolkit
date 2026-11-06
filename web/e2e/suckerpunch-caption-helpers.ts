@@ -31,12 +31,14 @@ export interface SuckerPunchFixture {
 }
 
 export async function generateSuckerPunchFixtures(testInfo: TestInfo): Promise<SuckerPunchFixture> {
+  // A cold build of the fixture generator into this run's isolated --artifacts-path can exceed the hook default.
+  testInfo.setTimeout(150_000);
   const directory = testInfo.outputPath("synthetic-suckerpunch");
   await mkdir(directory, { recursive: true });
   const { stdout, stderr } = await promisify(execFile)("dotnet", ["run", "--project",
     "tests/fixtures/SaveToolkit.SuckerPunchBrowserFixture", "--configuration", "Release",
     "--artifacts-path", path.join(tmpdir(), "suckerpunch-fixture-build"), "--", directory],
-  { cwd: repositoryRoot, timeout: 60_000, maxBuffer: 2 * 1024 * 1024 });
+  { cwd: repositoryRoot, timeout: 120_000, maxBuffer: 2 * 1024 * 1024 });
   await testInfo.attach("suckerpunch-fixture-generator.log", { body: stdout + stderr, contentType: "text/plain" });
   const manifest = JSON.parse(await readFile(path.join(directory, "manifest.json"), "utf8")) as Omit<SuckerPunchFixture, "files">;
   const files: SaveFiles = {

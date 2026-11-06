@@ -30,12 +30,14 @@ export interface SemanticPreview {
 }
 
 export async function generateFf7Fixtures(testInfo: TestInfo): Promise<string> {
+  // A cold build of the fixture generator into this run's isolated --artifacts-path can exceed the hook default.
+  testInfo.setTimeout(150_000);
   const directory = testInfo.outputPath("authored-ff7");
   await mkdir(directory, { recursive: true });
   const { stdout, stderr } = await promisify(execFile)("dotnet", ["run", "--project",
     "tests/fixtures/SaveToolkit.Ff7BrowserFixture", "--configuration", "Release",
     "--artifacts-path", path.join(tmpdir(), "ff7-fixture-build"), "--", directory], {
-    cwd: fileURLToPath(new URL("../..", import.meta.url)), timeout: 60_000, maxBuffer: 2 * 1024 * 1024,
+    cwd: fileURLToPath(new URL("../..", import.meta.url)), timeout: 120_000, maxBuffer: 2 * 1024 * 1024,
   });
   await testInfo.attach("ff7-generator.log", { body: stdout + stderr, contentType: "text/plain" });
   return directory;

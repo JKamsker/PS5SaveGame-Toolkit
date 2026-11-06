@@ -11,9 +11,9 @@ namespace SaveToolkit.LocalApi.Http;
 internal sealed class ContentDisposition
 {
     private const string AttrChars = "!#$&+-.^_`|~";
-    private readonly IReadOnlyList<KeyValuePair<string, string>> _parameters;
+    private readonly IReadOnlyList<KeyValuePair<string, string?>> _parameters;
 
-    private ContentDisposition(string type, IReadOnlyList<KeyValuePair<string, string>> parameters)
+    private ContentDisposition(string type, IReadOnlyList<KeyValuePair<string, string?>> parameters)
     {
         DispositionType = type;
         _parameters = parameters;

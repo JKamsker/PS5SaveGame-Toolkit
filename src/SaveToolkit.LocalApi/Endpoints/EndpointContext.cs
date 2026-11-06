@@ -43,7 +43,7 @@ internal sealed class EndpointContext(LocalHttpContext http, LocalServices servi
 
     /// <summary>
     /// Reads a JSON body like minimal APIs: an empty body is "absent" (no media-type check), otherwise
-    /// the content type must be JSON (415) and the payload must deserialize (400).
+    /// the content type must be JSON (415), its charset known (409) and the payload must deserialize (400).
     /// </summary>
     /// <param name="type">The parameter type as minimal APIs display it, e.g. <c>EditRequest</c>.</param>
     /// <param name="optional">A nullable parameter accepts an absent or <c>null</c> body.</param>
@@ -53,11 +53,13 @@ internal sealed class EndpointContext(LocalHttpContext http, LocalServices servi
         T? value = null;
         if (!Http.Body.IsEmpty)
         {
-            if (MediaType.Parse(Http.ContentType) is not { IsJson: true })
+            if (MediaType.Parse(Http.ContentType) is not { IsJson: true } mediaType)
                 throw new Protocol.ApiStatusException($"Expected a supported JSON media type but got \"{Http.ContentType}\".", 415);
+            // The charset is honoured like ReadFromJsonAsync; an unknown one escapes binding as a 409.
+            var json = Charsets.JsonUtf8(mediaType, Http.Body);
             try
             {
-                var span = Http.Body.Span;
+                var span = json.Span;
                 if (span.StartsWith(Utf8Bom)) span = span[Utf8Bom.Length..];
                 value = JsonSerializer.Deserialize<T>(span, ToolkitJson.Options);
             }
