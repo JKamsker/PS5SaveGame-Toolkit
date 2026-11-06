@@ -119,6 +119,27 @@ describe("a runtime that stops during a mutation", () => {
   });
 });
 
+describe("a runtime that traps inside a mutation's dispatch", () => {
+  it.each([
+    ["a WebAssembly trap", new WebAssembly.RuntimeError("unreachable")],
+    ["an aborted runtime", new Error("Aborted(OOM). Build with -sASSERTIONS for more info.")],
+  ])("neither reverts nor reloads the stores when a mutation's dispatch rejects with %s", async (_, failure) => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    await a.create("kept");
+    const load = vi.spyOn(a.storage, "load");
+    const reloadStores = vi.spyOn(a.storage, "reloadStores");
+    // The trap surfaces before the worker calls stop(): the dispatch changed the tree, then rejected.
+    const trapped = a.coordinator.run("POST", "/api/presets", async () => { a.storage.writeGeneration("partial"); throw failure; });
+    await expect(trapped).rejects.toBe(failure);
+    expect(reloadStores).not.toHaveBeenCalled();
+    expect(load).toHaveBeenCalledOnce(); // only the refresh before the dispatch, no revert
+    // The lock was released with the rejection.
+    expect(await elapsed(async () => expect(read(await b.create("from B")).status).toBe(200))).toBeLessThan(1_000);
+    expect(library(site)).toEqual(["kept", "from B"]);
+  });
+});
+
 describe("a runtime that stops while another tab's saves are reloaded", () => {
   it("reports a runtime that stops while a mutation reloads another tab's saves as hung, not as unreadable storage", async () => {
     const site = new Site();

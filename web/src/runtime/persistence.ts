@@ -24,6 +24,7 @@
  * and the page offers a reload. A synchronous hang blocks the worker's timers too; only closing or
  * reloading that tab releases the lock then.
  */
+import { isRuntimeStopped } from "./failures";
 import { decodeFrame, problemFrame } from "./framing";
 import { changedData, newTabNonce, PERSISTENT_CHANGES_CHANNEL, tabOfWorkerName, type PersistentChangeMessage,
   type PersistentData } from "./persistentChanges";
@@ -257,8 +258,9 @@ export class PersistenceCoordinator implements Persistence {
     try {
       frame = await this.watch(dispatch());
     } catch (error) {
-      // A hung runtime may still change the tree: it is never flushed (or reverted) again.
-      if (error instanceof RuntimeHungError) throw error;
+      // A hung runtime may still change the tree, and a trapped one (stopped only once this rejection
+      // reaches the worker) must not re-read its stores: neither is flushed or reverted again.
+      if (error instanceof RuntimeHungError || isRuntimeStopped(error)) throw error;
       // No answer reports this as saved: undo whatever the failed request left behind.
       if (changes()) await this.revert();
       throw error;
@@ -329,10 +331,7 @@ export class PersistenceCoordinator implements Persistence {
     for (const abandon of [...this.inFlight]) abandon(this.hung);
   }
 
-  /**
-   * Rejects with RuntimeHungError (releasing the lock) when `dispatch` outlives the watchdog, or at once
-   * when the runtime stops meanwhile.
-   */
+  /** Rejects with RuntimeHungError (releasing the lock) once `dispatch` outlives the watchdog or the runtime stops. */
   private watch(dispatch: Promise<Uint8Array>): Promise<Uint8Array> {
     let timer: ReturnType<typeof setTimeout> | undefined;
     let abandon: ((error: RuntimeHungError) => void) | undefined;
