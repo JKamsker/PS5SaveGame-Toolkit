@@ -79,6 +79,23 @@ it.each([404, 503])("distinguishes an initial HTTP %s failure and retries in pla
   expect(api.workspace).toHaveBeenCalledTimes(2);
 });
 
+it.each([404, 503])("explains why a missing workspace is gone (HTTP %s) and leads back to the import page", async status => {
+  vi.spyOn(api, "workspace").mockRejectedValue(new ApiError("Workspace not found.", status));
+  mount();
+  await screen.findByRole("heading", { name: status === 404 ? "This workspace is gone" : "Could not load this workspace" });
+  const explanation = screen.queryByText(/kept only in the memory of the browser tab that imported them/);
+  expect(explanation !== null).toBe(status === 404);
+  expect(screen.getByRole("link", { name: "Import a save dump" }).getAttribute("href")).toBe("/");
+});
+
+it("tells the user the workspace lives only in this tab, next to Export", async () => {
+  vi.spyOn(api, "workspace").mockResolvedValue({ id: "w", name: "Tab dump", createdAt: "2026-10-29", titles: [], documents: [] });
+  mount();
+  const exportButton = await screen.findByRole("button", { name: "Export" });
+  const hint = document.getElementById(exportButton.getAttribute("aria-describedby")!)!;
+  expect(hint.textContent).toMatch(/only in this tab.*Export to keep your changes.*reloading or closing the tab discards/i);
+});
+
 it.each([404, 503])("retains useful focus when retrying a workspace still returns HTTP %s", async status => {
   const pending = deferred<Workspace>();
   vi.spyOn(api, "workspace").mockRejectedValueOnce(new ApiError("Workspace unavailable", status))

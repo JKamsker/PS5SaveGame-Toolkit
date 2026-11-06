@@ -121,6 +121,13 @@ still fully checked exactly once; see `ReferencePackStore` and `EmbeddedPackSet`
   `dotnet.native.wasm` and IDBFS is linked in.
 - `SAVETOOLKIT_WEB_BASE` sets the base path, for example `/PS5SaveGame-Toolkit/app/` on GitHub Pages.
   The router, worker and `_framework` URLs all follow it. Release archives use `/`.
+- **SPA fallback.** The build also writes `dist/404.html`, a copy of `index.html`, which static hosts serve
+  for unknown paths, so a reloaded deep link such as `/w/<id>` loads the app and routes it (to "This
+  workspace is gone" after a reload). The copy works from any nested path because the base path is absolute
+  (`/` or `/<repo>/app/`); a relative base such as `./` would resolve `assets/` below the deep link, so the
+  build skips the fallback for it with a warning (`web/src/build/spaFallback.ts`). GitHub Pages only uses
+  the `404.html` at the site root, so the Pages workflow copies the app's file there; addresses outside
+  the app's base then show a plain not-found page without downloading the runtime.
 - Static hosts rarely negotiate precompressed files, so the worker fetches each runtime file's `.gz`
   sibling and decompresses it itself, falling back to the raw file. Brotli files are not shipped.
 - [RELEASING.md](RELEASING.md#github-pages) describes the Pages workflow and the release archive.
@@ -144,8 +151,16 @@ still fully checked exactly once; see `ReferencePackStore` and `EmbeddedPackSet`
   (`PortableMd5`, `IncrementalMd5`, `PortableAes`): the platform implementation natively, a managed
   RFC 1321 / FIPS-197 implementation in the browser, tested against official vectors and the platform.
   See [PLUGIN_GUIDE.md](PLUGIN_GUIDE.md#browser-runtime).
-- **No OpenAPI document or SPA fallback.** `/openapi/v1.json` exists only on the ASP.NET host. A static
-  host returns its own 404 for a reloaded deep link; workspaces would be gone after a reload anyway.
+- **No OpenAPI document.** `/openapi/v1.json` exists only on the ASP.NET host.
+- **Workspaces last as long as the tab.** While this tab holds a workspace, the page registers a
+  `beforeunload` handler so the browser asks before a reload or close discards it, and the workspace header
+  says that work is kept only in this tab until exported. A reloaded workspace link shows "This workspace
+  is gone" with that explanation. If the runtime crashes after booting (for example out of memory), the UI
+  says the tab's workspaces were lost, offers a reload and stops asking before unload. A request waiting for
+  a boot that reports no progress for 90 s fails with a message instead of waiting forever.
+- **Images share the single worker.** Icons and assets are fetched through the runtime, at most two at a
+  time, so a user action never waits behind more than two image requests; an image request whose last user
+  unmounted before it finished is aborted (dropped unstarted by the worker). Long lists load images lazily.
 
 ## Parity testing
 

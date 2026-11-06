@@ -601,8 +601,10 @@ organization members. Without Pages the `deploy` job fails while `docs` and `app
 build. A Pages site is public unless access control is available and enabled, so publishing it exposes
 the app and documentation even though the source stays private.
 
-GitHub Pages has no SPA fallback for the app's sub-path: reloading `/app/w/<id>` returns the site's
-404 page. Workspaces are held in memory, so a reload would lose them anyway; start again from `/app/`.
+GitHub Pages only serves the `404.html` at the site root, so `deploy` copies the app's `404.html` (a copy
+of its `index.html` with absolute asset URLs, see [SPA fallback](BROWSER_RUNTIME.md#build-and-deployment))
+there, refusing to replace one the documentation provides. Reloading `/app/w/<id>` therefore loads the app,
+which explains that the in-memory workspace is gone; other missing paths get a plain not-found page.
 
 ## Build and check bundles locally
 

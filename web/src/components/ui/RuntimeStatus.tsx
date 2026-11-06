@@ -32,8 +32,8 @@ function RuntimeFailure({ message, crashed }: { message: string; crashed: boolea
 /**
  * The runtime only learns how many files it needs while it downloads them, so the file total grows and
  * `loaded / total` can fall. The bar never moves backwards, the progressbar stays indeterminate for
- * assistive technology until the download is complete (no value it could later contradict), and the polite live region only changes
- * between its two phases rather than on every file.
+ * assistive technology until the download is complete (no value it could later contradict), and the
+ * polite live region only changes between its two phases rather than on every file.
  */
 function RuntimeLoading({ loaded, total, starting }: { loaded: number; total: number; starting: boolean }) {
   const fraction = starting ? 1 : total > 0 ? Math.min(1, loaded / total) : 0;
