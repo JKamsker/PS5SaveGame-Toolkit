@@ -504,7 +504,7 @@ canonical file allowlist plus each named feature partition (Unreal, text-capacit
 caption and action-effects) sequentially whenever its complete owned file inventory is present.
 Every available `.e2e.ts` file must be declared exactly once; an unknown file, overlapping pattern,
 missing required canonical file, partial feature inventory or present-but-empty discovery fails before
-any actual suite launch. Each selected suite retains the unchanged 180-second overall deadline,
+any actual suite launch. Each selected suite has a 30-minute overall deadline (each test boots a fresh WebAssembly runtime),
 30-second default test timeout, one worker, zero retries, traces and teardown. Existing spec-specific
 overrides, including the transfer library's 60-second test timeout, are unchanged. The aggregate allowance is
 additive across the partitions that are actually present; neither four-suite nor six-suite ceiling

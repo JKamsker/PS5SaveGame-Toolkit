@@ -54,4 +54,4 @@ Neither establishes console acceptance.
 
 Open the [rendered HTTP reference](http.md) for operation parameters, request bodies, response statuses and schemas. Its schema is exported from the current API's `/openapi/v1.json` using empty, isolated workspace and reference-pack roots, then compared with the existing reviewed contract. Only the variable server origin is replaced with the local default.
 
-The reference is read-only documentation. Run your own server at `http://127.0.0.1:5180` when writing a client. The [HTTP behavior guide](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/API.md) explains sessions, revisions, errors, export and other behavioral rules that need more context than a schema.
+The reference is read-only documentation. When writing a client, run the optional ASP.NET host at `http://127.0.0.1:5180`; the in-browser editor serves the same contract in-process. The [HTTP behavior guide](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/API.md) explains sessions, revisions, errors, export and other behavioral rules that need more context than a schema.

@@ -54,7 +54,7 @@ synchronization and console acceptance remain unproven.
 
 ## Before you begin
 
-The toolkit works with **already decrypted** saves. It does not decrypt or re-sign console containers. The editor runs on your computer at `http://127.0.0.1:5180`; this website contains documentation only.
+The toolkit works with **already decrypted** saves. It does not decrypt or re-sign console containers. The editor runs entirely in your browser (hosted under `app/` on this site, or from a release copy you serve locally); your saves are never uploaded.
 
 Keep an untouched backup and try edits on a disposable spare slot. Game plugins are experimental: a successful export does not establish that the console or game will accept the change.
 

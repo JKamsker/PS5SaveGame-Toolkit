@@ -4,9 +4,9 @@ title: Troubleshooting
 
 # Troubleshooting
 
-## The browser cannot connect
+## The editor does not load
 
-Keep the server terminal open. Use `http://127.0.0.1:5180`, rather than this documentation site's address. Extract the entire release into a writable folder and launch from its inner bundle folder. If port 5180 is occupied, follow [use another port](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/USER_GUIDE.md#use-another-port); the bundle launchers do not forward arguments.
+The editor is a static web app; nothing needs to stay running except, for a local release copy, the static file server. Serve the extracted `SaveToolkit-<version>-web` folder from its root and open its `http://127.0.0.1:<port>/` address; opening `index.html` from the file manager does not work. If the page reports that WebAssembly is unavailable, use a current desktop browser. If the runtime fails to start with a MIME-type error on Windows, the registry maps `.js` to the wrong type for Python's server; use another static server, for example `npx serve`. See [the user guide](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/USER_GUIDE.md#troubleshooting).
 
 ## My file is not recognized
 
@@ -18,7 +18,7 @@ The plugin may not understand that schema or may deliberately protect an unsafe 
 
 ## The workspace disappeared or a request is stale
 
-Workspaces do not persist across server restarts and can expire while idle. Reimport the original or a separately retained export. After a concurrent or structural change, refresh the document before submitting another request. HTTP clients should read the [revision and error contracts](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/API.md#shared-responses-and-errors).
+Workspaces live only in the browser tab: reloading or closing it discards them, and idle workspaces can expire. Reimport the original or a separately retained export. After a concurrent or structural change, refresh the document before submitting another request. Integrations should read the [revision and error contracts](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/API.md#shared-responses-and-errors).
 
 ## A preset cannot be applied or an import is stale
 

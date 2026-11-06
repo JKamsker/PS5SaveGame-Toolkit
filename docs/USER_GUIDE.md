@@ -349,6 +349,10 @@ stop it or follow [Use another port](#use-another-port) and open the new address
 server inside the extracted `SaveToolkit-<version>-web` folder so that `index.html` is at the
 site root. A server started in a parent folder shows a directory listing or a blank page instead.
 
+If the page stays on the runtime loader with a MIME-type or module-script error on Windows, the
+Windows registry maps `.js` to a type Python's server then sends; serve the folder with another
+static server instead, for example `npx serve -l 8080` (needs Node.js).
+
 ### Unsupported or corrupt save errors
 
 Check that you imported a complete decrypted dump zip, that it opens in an archive

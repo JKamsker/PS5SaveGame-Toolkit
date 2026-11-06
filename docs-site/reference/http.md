@@ -8,7 +8,7 @@ _disableNextArticle: true
 
 # Local HTTP API
 
-This reference is generated from the current server's OpenAPI 3.1 metadata. It describes your **local server**, normally `http://127.0.0.1:5180`. This documentation site does not host the editor or send API requests. Examples are for use in your own client after starting the toolkit locally.
+This reference is generated from the current server's OpenAPI 3.1 metadata. The in-browser editor serves this same contract in-process inside its web worker. For your own HTTP client, run the optional ASP.NET host (`dotnet run --project src/SaveToolkit.Api`), normally at `http://127.0.0.1:5180`. This reference page sends no API requests.
 
 Read the [HTTP behavior guide](https://github.com/JKamsker/PS5SaveGame-Toolkit/blob/main/docs/API.md) for shared errors, revision checks and export rules. Download the [generated OpenAPI JSON](openapi.json) if you need a machine-readable contract.
 
