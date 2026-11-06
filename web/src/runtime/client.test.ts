@@ -1,6 +1,6 @@
 // @vitest-environment node
 // Node supplies a coherent fetch/FormData/File stack (jsdom's File is opaque to undici's Request).
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createRuntimeClient, RuntimeRequestError } from "./client";
 import { decodeFrame } from "./framing";
 import type { FromWorker, ToWorker, WireRequest } from "./protocol";
@@ -108,38 +108,110 @@ it("runtime client: hands requests to the worker in order, matches replies by id
   expect(await (await second).json()).toEqual([]);
 });
 
-it("runtime client: a request with a body reaches the worker before a body-less request called after it", async () => {
-  const { worker, client } = setup();
-  worker.emit({ type: "ready", boot });
-  void client.fetch("/api/workspaces/w/documents/d/edits", {
-    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ edits: [] }),
+describe("runtime client: requests reach the worker in call order", () => {
+  afterEach(() => { vi.restoreAllMocks(); });
+
+  it("posts a body-less request only after a request called before it finished serializing its body", async () => {
+    const { worker, client } = setup();
+    worker.emit({ type: "ready", boot });
+    const finish = slowSerialization("/api/workspaces/w/documents/d/edits");
+    void client.fetch("/api/workspaces/w/documents/d/edits", {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ edits: [] }),
+    });
+    void client.fetch("/api/workspaces/w/documents/d/download");
+    void client.fetch("/api/workspaces/w/export", { method: "POST", body: new FormData() });
+    void client.fetch("/api/workspaces/w");
+    await flush(); await flush();
+    expect(worker.requests()).toEqual([]);
+    finish();
+    await vi.waitFor(() => expect(worker.requests()).toHaveLength(4));
+    expect(worker.requests().map(request => `${request.method} ${request.url}`)).toEqual([
+      "POST /api/workspaces/w/documents/d/edits", "GET /api/workspaces/w/documents/d/download",
+      "POST /api/workspaces/w/export", "GET /api/workspaces/w"]);
+    expect(worker.requests().map(request => request.id)).toEqual([1, 2, 3, 4]);
   });
-  void client.fetch("/api/workspaces/w/documents/d/download");
-  void client.fetch("/api/workspaces/w/export", { method: "POST", body: new FormData() });
-  void client.fetch("/api/workspaces/w");
-  await vi.waitFor(() => expect(worker.requests()).toHaveLength(4));
-  expect(worker.requests().map(request => `${request.method} ${request.url}`)).toEqual([
-    "POST /api/workspaces/w/documents/d/edits", "GET /api/workspaces/w/documents/d/download",
-    "POST /api/workspaces/w/export", "GET /api/workspaces/w"]);
-  expect(worker.requests().map(request => request.id)).toEqual([1, 2, 3, 4]);
+
+  it("rejects a request whose body cannot be serialized at once, without letting a later one overtake an earlier one", async () => {
+    const { worker, client } = setup();
+    worker.emit({ type: "ready", boot });
+    const finish = slowSerialization("/api/slow");
+    void client.fetch("/api/slow", { method: "POST", body: "{\"edits\":[]}" });
+    // A stream body without `duplex` is refused while the body is serialized (like a File changed on disk).
+    const unreadable = client.fetch("/api/unreadable", { method: "POST", body: new ReadableStream() });
+    void client.fetch("/api/download");
+    await expect(unreadable).rejects.toThrow();
+    await flush(); await flush();
+    expect(worker.requests()).toEqual([]);
+    finish();
+    await vi.waitFor(() => expect(worker.requests()).toHaveLength(2));
+    expect(worker.requests().map(request => request.url)).toEqual(["/api/slow", "/api/download"]);
+  });
 });
 
-it("runtime client: a request whose body cannot be serialized, or that is aborted meanwhile, does not hold up later ones", async () => {
-  const { worker, client } = setup();
-  worker.emit({ type: "ready", boot });
-  // A stream body without `duplex` is refused while the body is serialized.
-  const unreadable = client.fetch("/api/unreadable", { method: "POST", body: new ReadableStream() });
-  const controller = new AbortController();
-  const aborted = client.fetch("/api/aborted", { method: "POST", body: "x".repeat(1 << 20), signal: controller.signal });
-  controller.abort();
-  const later = client.fetch("/api/later");
-  await expect(unreadable).rejects.toThrow();
-  await expect(aborted).rejects.toMatchObject({ name: "AbortError" });
-  await vi.waitFor(() => expect(worker.requests()).toHaveLength(1));
-  expect(worker.requests()[0]!.url).toBe("/api/later");
-  worker.reply(worker.requests()[0]!, 200, "[]");
-  expect(await (await later).json()).toEqual([]);
+describe("runtime client: requests that end before they are posted", () => {
+  afterEach(() => { vi.restoreAllMocks(); });
+
+  it("rejects an aborted request at once, while an earlier body still serializes, and never sends it", async () => {
+    const { worker, client } = setup();
+    worker.emit({ type: "ready", boot });
+    const finish = slowSerialization("/api/slow");
+    void client.fetch("/api/slow", { method: "POST", body: "{}" });
+    const controller = new AbortController();
+    const aborted = client.fetch("/api/aborted", { method: "POST", body: "x".repeat(1 << 20), signal: controller.signal });
+    void client.fetch("/api/later");
+    controller.abort();
+    await expect(aborted).rejects.toMatchObject({ name: "AbortError" });
+    expect(worker.requests()).toEqual([]);
+    finish();
+    await vi.waitFor(() => expect(worker.requests()).toHaveLength(2));
+    expect(worker.requests().map(request => request.url)).toEqual(["/api/slow", "/api/later"]);
+  });
+
+  it("rejects requests waiting behind a body still serializing as soon as the runtime crashes", async () => {
+    const { worker, client } = setup();
+    worker.emit({ type: "ready", boot });
+    const finish = slowSerialization("/api/slow");
+    const slow = client.fetch("/api/slow", { method: "POST", body: "{}" });
+    const later = client.fetch("/api/later");
+    worker.emit({ type: "failed", message: "RuntimeError: unreachable" });
+    await expect(later).rejects.toThrow("unreachable");
+    await expect(slow).rejects.toThrow("unreachable");
+    finish();
+    await flush(); await flush();
+    expect(worker.requests()).toEqual([]);
+  });
+
+  it("does not let a failed or aborted request hold up later ones", async () => {
+    const { worker, client } = setup();
+    worker.emit({ type: "ready", boot });
+    const unreadable = client.fetch("/api/unreadable", { method: "POST", body: new ReadableStream() });
+    const controller = new AbortController();
+    const aborted = client.fetch("/api/aborted", { method: "POST", body: "x".repeat(1 << 20), signal: controller.signal });
+    controller.abort();
+    const later = client.fetch("/api/later");
+    await expect(unreadable).rejects.toThrow();
+    await expect(aborted).rejects.toMatchObject({ name: "AbortError" });
+    await vi.waitFor(() => expect(worker.requests()).toHaveLength(1));
+    expect(worker.requests()[0]!.url).toBe("/api/later");
+    worker.reply(worker.requests()[0]!, 200, "[]");
+    expect(await (await later).json()).toEqual([]);
+  });
 });
+
+/**
+ * Makes the bodies of requests to `path` finish serializing only when the test calls the returned
+ * function, like a large File (an import zip) that takes a while to read.
+ */
+function slowSerialization(path: string): () => void {
+  let finish!: () => void;
+  const gate = new Promise<void>(resolve => { finish = resolve; });
+  const original = Request.prototype.arrayBuffer;
+  vi.spyOn(Request.prototype, "arrayBuffer").mockImplementation(async function (this: Request) {
+    if (new URL(this.url).pathname === path) await gate;
+    return original.call(this);
+  });
+  return finish;
+}
 
 it("runtime client: cancels a request the worker has not started and rejects it with AbortError", async () => {
   const { worker, client } = setup();

@@ -69,6 +69,8 @@ class WorkerRuntimeClient {
   private nextId = 1;
   /** Settles once the most recently called request was posted to the worker (or failed before that). */
   private posted: Promise<void> = Promise.resolve();
+  /** Rejects the requests still serializing or waiting for their turn (on abort or a runtime failure). */
+  private readonly interrupts = new Set<(error: unknown) => void>();
 
   constructor(private readonly createWorker: () => Worker, private readonly frameworkUrl: string) {}
 
@@ -79,19 +81,40 @@ class WorkerRuntimeClient {
     if (this.current.status === "failed") throw new TypeError(this.current.message);
     // The request takes its place in the worker's queue now, in call order: serializing a body is
     // asynchronous, and a later request without one must not overtake it (a GET /download issued after
-    // a POST /edits must see the edit). Each request is posted only after the one called before it was
-    // posted or failed, so a failed or aborted request never holds up the next.
-    const serialized = serialize(url, init);
+    // a POST /edits must see the edit). Each request is posted only after every one called before it was
+    // posted or failed. A request that fails or is aborted rejects at once, but passes its turn on only
+    // once its predecessor did, so it never lets a later request overtake an earlier one still serializing.
     const turn = this.posted;
-    let posted!: () => void;
-    this.posted = new Promise<void>(resolve => { posted = resolve; });
+    let done!: () => void;
+    const mine = new Promise<void>(resolve => { done = resolve; });
+    this.posted = turn.then(() => mine);
     try {
-      const { headers, body } = await serialized;
-      await turn;
+      const { headers, body } = await this.interruptible(serialize(url, init), signal);
+      await this.interruptible(turn, signal);
       return this.post(url, init, events, headers, body);
     } finally {
-      posted();
+      done();
     }
+  }
+
+  /**
+   * Waits for `work`, but rejects as soon as `signal` aborts or the runtime fails: a request queued
+   * behind a large body still being read must not wait for it to learn that it will never be sent.
+   */
+  private interruptible<T>(work: Promise<T>, signal: AbortSignal | null | undefined): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      const stop = (error: unknown) => { cleanup(); reject(error); };
+      const aborted = () => stop(abortError());
+      const cleanup = () => {
+        this.interrupts.delete(stop);
+        signal?.removeEventListener("abort", aborted);
+      };
+      if (signal?.aborted) return aborted();
+      if (this.current.status === "failed") return stop(new TypeError(this.current.message));
+      this.interrupts.add(stop);
+      signal?.addEventListener("abort", aborted, { once: true });
+      work.then(value => { cleanup(); resolve(value); }, (error: unknown) => { cleanup(); reject(error); });
+    });
   }
 
   private post(url: string, init: RequestInit, events: RequestEvents, headers: HeaderPairs, body: ArrayBuffer | null): Promise<Response> {
@@ -162,6 +185,8 @@ class WorkerRuntimeClient {
     // A worker killed by an exhausted heap: say so for the request that triggered it.
     const error = () => isOutOfMemory(message) ? new RuntimeRequestError(message, true) : new TypeError(message);
     for (const request of pending) settle(request, () => request.reject(error()));
+    // Requests not posted yet were never sent: like a request made from now on, they fail plainly.
+    for (const interrupt of [...this.interrupts]) interrupt(new TypeError(message));
   }
 
   private receive(message: FromWorker) {
