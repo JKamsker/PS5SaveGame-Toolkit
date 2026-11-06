@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from "vitest";
-import { reconnectingSync, trackTreeChanges, verifyMirrored, writeAfter, type DatabaseConnection, type IdbfsConnections,
-  type IdbfsSets, type TreeFs } from "./idbfsTree";
+import { readStoredText, reconnectingSync, trackTreeChanges, verifyMirrored, writeAfter, type DatabaseConnection,
+  type IdbfsConnections, type IdbfsDatabase, type IdbfsSets, type TreeFs } from "./idbfsTree";
 
 /**
  * A model of MEMFS under a coarse clock (Firefox resistFingerprinting, Tor Browser: 100 ms) and of
@@ -217,5 +217,40 @@ describe("IDBFS connections the browser closed", () => {
     const attempt = vi.fn(model.sync);
     await expect(reconnectingSync(model.idbfs, ROOT, attempt, lost)(true)).rejects.toThrow(/opening IndexedDB failed/);
     expect(attempt).toHaveBeenCalledOnce();
+  });
+});
+
+describe("reading one stored file, as IDBFS stores it", () => {
+  /** IDBFS' store: entries by full path, a file's bytes as `contents`; `get` answers asynchronously. */
+  const stored = (entries: Record<string, unknown>, failure?: { open?: unknown; transaction?: Error }): IdbfsDatabase => ({
+    DB_STORE_NAME: "FILE_DATA",
+    getDB: (name, callback) => {
+      if (failure?.open !== undefined) return callback(failure.open);
+      expect(name).toBe(ROOT);
+      callback(null, {
+        transaction: (stores: string[], mode: string) => {
+          if (failure?.transaction) throw failure.transaction;
+          expect([stores, mode]).toEqual([["FILE_DATA"], "readonly"]);
+          return { objectStore: () => ({ get: (path: string) => {
+            const request = { result: entries[path], onsuccess: null as (() => void) | null };
+            setTimeout(() => request.onsuccess?.());
+            return request;
+          } }) };
+        },
+      } as unknown as IDBDatabase);
+    },
+  });
+  const marker = `${ROOT}/.generation`;
+
+  it("returns a file's text, and nothing for a missing file", async () => {
+    const idbfs = stored({ [marker]: { timestamp: 5, mode: 33206, contents: new TextEncoder().encode("gen-2") } });
+    expect(await readStoredText(idbfs, ROOT, marker)).toBe("gen-2");
+    expect(await readStoredText(idbfs, ROOT, `${ROOT}/missing`)).toBe("");
+  });
+
+  it("rejects when the database cannot be opened or read", async () => {
+    await expect(readStoredText(stored({}, { open: "Unable to connect to IndexedDB" }), ROOT, marker)).rejects.toThrow(/Unable to connect/);
+    await expect(readStoredText(stored({}, { transaction: new Error("InvalidStateError: closing") }), ROOT, marker))
+      .rejects.toThrow(/closing/);
   });
 });

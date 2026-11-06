@@ -116,7 +116,10 @@ what another tab saved. `web/src/runtime/persistence.ts` prevents that:
 - **Reads** of presets and reference packs (their routes, a document's preset routes, and opening a
   document or a document group or proposing groups, which pin the current packs) after such an
   announcement reload the mount under a shared lock first, so another tab's
-  save is visible on the next such request once the announcement has arrived (milliseconds later). They
+  save is visible on the next such request once the announcement has arrived (milliseconds later). An
+  announcement can be lost (its `postMessage` failed, or the browser has no `BroadcastChannel`), so such a
+  read also compares the `.generation` marker in IndexedDB (one small read, without the lock) with the one
+  its mount holds, and reloads when they differ or the marker cannot be read. They
   wait at most 1 s for the lock: while another tab holds it (a long import, a frozen tab) they answer
   from the cached view, keep it marked stale and do not wait again until the lock is next granted. Other reads
   never wait for or touch storage. Until then a read may be stale, but a write never is: it always

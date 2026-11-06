@@ -228,6 +228,31 @@ describe("a change that was saved but could not be announced", () => {
     expect(read(await b.create("from B")).status).toBe(200);
     expect(library(site)).toEqual(["from A", "from B"]);
   });
+
+  it("shows it to other tabs' preset reads too: they compare IndexedDB's generation marker first", async () => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    site.failAnnounce = new DOMException("The channel is closed.", "InvalidStateError");
+    expect(read(await a.create("from A")).status).toBe(200);
+    site.failAnnounce = null;
+    const load = vi.spyOn(b.storage, "load");
+    for (let i = 0; i < 3; i++) expect(read(await b.list()).body).toEqual(["from A"]);
+    // Only the first read reloads the tree; reads of anything else never check.
+    expect(load).toHaveBeenCalledOnce();
+    const marker = vi.spyOn(b.storage, "readStoredGeneration");
+    await b.coordinator.run("GET", "/api/plugins", async () => frame(200, []));
+    expect(marker).not.toHaveBeenCalled();
+  });
+
+  it("reloads before a preset read when IndexedDB's generation marker cannot be read", async () => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    site.failAnnounce = new DOMException("The channel is closed.", "InvalidStateError");
+    await a.create("from A");
+    site.failMarkerRead = new DOMException("The database connection is closing.", "InvalidStateError");
+    expect(read(await b.list()).body).toEqual(["from A"]);
+    expect(b.log.warn).not.toHaveBeenCalled();
+  });
 });
 
 describe("a runtime that stops while another tab's saves are reloaded", () => {
