@@ -1,6 +1,6 @@
 import { createCompressedResourceLoader, type BootResourceLoader } from "./compressedResources";
-import { asError, reconnectingSync, trackTreeChanges, verifyMirrored, writeAfter, type IdbfsConnections, type IdbfsSets,
-  type TreeFs } from "./idbfsTree";
+import { asError, makeFlushAtomic, reconnectingSync, trackTreeChanges, verifyMirrored, writeAfter, type IdbfsConnections,
+  type IdbfsReconcile, type IdbfsSets, type TreeFs } from "./idbfsTree";
 import { browserTabs, memoryOnly, PersistenceCoordinator, type Persistence, type PersistentStorage } from "./persistence";
 import type { BootInfo } from "./protocol";
 
@@ -105,6 +105,10 @@ async function mountPersistent(fs: EmscriptenFs, coordinator: PersistenceCoordin
   fs.mkdirTree(PERSISTENT_ROOT);
   const idbfs = fs.filesystems.IDBFS;
   if (!idbfs || typeof indexedDB === "undefined") return false;
+  // A failed flush must leave IndexedDB as it was, never holding part of the change (idbfsTree.ts).
+  const internals = idbfs as Partial<IdbfsReconcile>;
+  if (typeof internals.reconcile === "function" && typeof internals.loadLocalEntry === "function"
+    && typeof internals.DB_STORE_NAME === "string") makeFlushAtomic(internals as IdbfsReconcile);
   try {
     fs.mount(idbfs, {}, PERSISTENT_ROOT);
     if (!await coordinator.initialLoad()) {

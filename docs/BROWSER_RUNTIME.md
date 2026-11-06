@@ -135,6 +135,11 @@ what another tab saved. `web/src/runtime/persistence.ts` prevents that:
   stops during a mutation (an abort, exit or trap, for example in an async continuation) never settles
   that dispatch either: the worker releases the lock as soon as it reports the crash, without waiting
   for the watchdog, and likewise never touches storage again.
+- **A flush is all or nothing.** Emscripten's IDBFS cancels the error of each failed write, so its
+  transaction would still commit the other writes (a new `.generation` among them) while the flush
+  reports failure. The worker replaces IDBFS' flush with one that aborts the transaction on any failed
+  write and reports only once the transaction has ended, so IndexedDB holds either the whole change or
+  none of it (`makeFlushAtomic` in `web/src/runtime/idbfsTree.ts`).
 - **A failed flush** (for example `QuotaExceededError`) is never a silent success: the worker reloads
   what IndexedDB really holds, so this tab's stores match it, and answers `507 Insufficient Storage`
   (`503` for other storage errors) as problem+json that the UI shows. A request that failed anyway keeps
