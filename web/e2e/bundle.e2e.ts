@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { editCoins, importSave, loadJson, openJson } from "./helpers";
+import { editCoins, importSave, leavePage, loadJson, openJson } from "./helpers";
 
 test("downloads the editor only after file selection and reports an edited deep link as gone after reload", async ({ page }) => {
   const scripts: string[] = [];
@@ -24,7 +24,8 @@ test("downloads the editor only after file selection and reports an edited deep 
   const deepLink = page.url();
   // Workspaces live in the page's in-browser runtime memory, so a reload cannot restore the edited
   // dump. The app must boot cleanly on the deep link and say so, rather than show a blank or stale editor.
-  await page.reload();
+  // The app warns before the reload discards the tab's workspace; the test confirms leaving.
+  expect(await leavePage(page, () => page.reload())).toEqual(["beforeunload"]);
   expect(page.url()).toBe(deepLink);
   const gone = page.getByRole("heading", { name: "This workspace is gone", exact: true });
   // The reloaded page boots a new runtime (download + start) before it can answer.

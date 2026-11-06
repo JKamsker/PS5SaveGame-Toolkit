@@ -1,4 +1,4 @@
-import { expect, type Download, type Page, type TestInfo } from "@playwright/test";
+import { expect, type Dialog, type Download, type Page, type TestInfo } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { zipSync, unzipSync } from "fflate";
@@ -29,9 +29,30 @@ export function archive(files: SaveFiles = originalFiles) {
 export async function home(page: Page) {
   // The /api runs in the page's .NET worker; observe it before the app starts.
   await installApiHooks(page);
-  await page.goto("/");
+  // A new import starts over in a fresh page (and runtime): leave any open workspace deliberately.
+  await leavePage(page, () => page.goto("/"));
   await expect(page.getByRole("heading", { name: "Open a PS5 save dump" })).toBeVisible();
   await runtimeReady(page);
+}
+
+/**
+ * Runs a navigation that unloads the page. While the tab holds a workspace the app asks before leaving
+ * (beforeunload, since the work lives only in this tab); accept that prompt and return the prompts seen.
+ * Other dialogs are dismissed, as Playwright does by default.
+ */
+export async function leavePage(page: Page, navigate: () => Promise<unknown>): Promise<string[]> {
+  const seen: string[] = [];
+  const answer = (dialog: Dialog) => {
+    seen.push(dialog.type());
+    void (dialog.type() === "beforeunload" ? dialog.accept() : dialog.dismiss());
+  };
+  page.on("dialog", answer);
+  try {
+    await navigate();
+  } finally {
+    page.off("dialog", answer);
+  }
+  return seen;
 }
 
 /** Waits until the page's runtime has downloaded and started, so later expectations time real work only. */
