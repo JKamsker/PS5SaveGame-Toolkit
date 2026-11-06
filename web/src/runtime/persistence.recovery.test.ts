@@ -99,6 +99,24 @@ describe("a runtime that stops during a mutation", () => {
     await expect(a.coordinator.run("POST", "/api/presets", dispatch)).rejects.toBeInstanceOf(RuntimeHungError);
     expect(dispatch).not.toHaveBeenCalled();
   });
+
+  it("touches no storage for a mutation whose runtime stopped while it waited for the lock", async () => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    const release = site.hold(b);
+    await new Promise(resolve => setTimeout(resolve, 0));
+    const dispatch = vi.fn(async () => frame(200, {}));
+    const waiting = a.coordinator.run("POST", "/api/presets", dispatch);
+    a.coordinator.stop("Aborted(OOM)");
+    // A stopped runtime's file system cannot reload: that failure must not mask the stop as a 503.
+    const load = vi.spyOn(a.storage, "load").mockRejectedValue(new Error("runtime exited"));
+    const reloadStores = vi.spyOn(a.storage, "reloadStores");
+    await release();
+    await expect(waiting).rejects.toBeInstanceOf(RuntimeHungError);
+    expect(load).not.toHaveBeenCalled();
+    expect(reloadStores).not.toHaveBeenCalled();
+    expect(dispatch).not.toHaveBeenCalled();
+  });
 });
 
 describe("site data cleared while the tab is open", () => {
