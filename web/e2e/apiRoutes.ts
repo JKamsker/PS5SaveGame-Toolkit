@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { pageHooks } from "./apiPageHooks";
 
 /**
@@ -198,6 +198,25 @@ export function waitForApi<K extends keyof ApiEvents>(page: Page, event: K, pred
       resolve(value);
     });
   });
+}
+
+/**
+ * Resolves once every API request the page issued so far has reached these hooks (and so its route
+ * handlers and request listeners). Routing runs over async page bindings, which are slower than the old
+ * network round trip: use this before asserting that something was (not) requested.
+ */
+export async function apiFlush(page: Page) {
+  hooksOf(page);
+  // Binding calls and evaluate results share one ordered channel, after a macrotask in the page.
+  await page.evaluate(() => new Promise<void>(resolve => setTimeout(resolve, 0)));
+}
+
+/** Waits until no API request is in flight, except those a route handler is deliberately holding. */
+export async function apiSettled(page: Page, timeout = 10_000) {
+  await apiFlush(page);
+  const hooks = hooksOf(page);
+  const running = () => [...hooks.requests.keys()].filter(token => !hooks.routes.has(token)).length;
+  await expect.poll(running, { timeout, message: "In-flight API requests" }).toBe(0);
 }
 
 /** page.waitForResponse for the in-browser API. */

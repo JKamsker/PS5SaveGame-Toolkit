@@ -1,7 +1,7 @@
 import { test } from "./preset-library-test";
 import { expect } from "@playwright/test";
 import { editCoins, importSave, loadJson, openJson } from "./helpers";
-import { routeApi } from "./apiRoutes";
+import { apiFlush, routeApi } from "./apiRoutes";
 
 test("preset capture, compatibility summary and preview remain reachable", async ({ page }) => {
   await importSave(page);
@@ -48,9 +48,9 @@ for (const width of [375, 768, 1024, 1440]) {
     const refreshGate = new Promise<void>(resolve => { releaseRefresh = resolve; });
     let heldRefresh = false;
     await routeApi(page, "**/api/workspaces/*/documents/*/presets/*/preview", async route => {
+      stalePreviewRequests++;
       const response = await route.fetch();
       const body = await response.json() as { preview: { stale?: boolean; plan?: { errors?: unknown[] } } };
-      stalePreviewRequests++;
       body.preview.stale = true;
       body.preview.plan = { ...body.preview.plan, errors: [{ valueId: "", message: "The document is stale." }] };
       await route.fulfill({ status: 409, contentType: "application/json", body: JSON.stringify(body) });
@@ -83,10 +83,14 @@ for (const width of [375, 768, 1024, 1440]) {
     await expect(staleHeading).not.toBeVisible();
     await expect(opener).toBeFocused();
     await expect(panel.getByText("Refreshing the document before another preset preview…", { exact: true })).toBeVisible();
+    const refreshing = panel.getByText("Refreshing the document before another preset preview…", { exact: true });
     await opener.click();
+    await apiFlush(page);
     expect(stalePreviewRequests).toBe(1);
 
     releaseRefresh();
+    // Routed runtime requests answer a little later than the old server: wait for the refresh to finish.
+    await expect(refreshing).toHaveCount(0);
     await expect(opener).toBeEnabled();
     await opener.click();
     await expect(panel.getByRole("heading", { name: "Preset preview is stale", exact: true })).toBeVisible();

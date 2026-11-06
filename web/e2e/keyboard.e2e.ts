@@ -17,8 +17,10 @@ async function tabTo(page: Page, target: Locator) {
 
 test("imports, opens, edits and exports using only the keyboard", async ({ page }, testInfo) => {
   await home(page);
-  await tabTo(page, page.getByRole("button", { name: "Open zip", exact: true }));
+  // Register before the Tab walk: Playwright enables chooser interception asynchronously, and a bare
+  // Enter right after registering can race it (the app's input.click() then opens no observable chooser).
   const choosing = page.waitForEvent("filechooser");
+  await tabTo(page, page.getByRole("button", { name: "Open zip", exact: true }));
   const importing = waitForApiResponse(page, response => response.url().endsWith("/api/workspaces") && response.request().method() === "POST");
   await page.keyboard.press("Enter");
   // Playwright supplies the native chooser's file; all application interaction is keyboard-only.

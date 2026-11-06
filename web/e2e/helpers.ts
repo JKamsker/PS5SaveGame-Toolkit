@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { zipSync, unzipSync } from "fflate";
 import type { SaveDocument, Workspace } from "../src/api/protocol";
-import { installApiHooks, waitForApiResponse } from "./apiRoutes";
+import { apiSettled, installApiHooks, waitForApiResponse } from "./apiRoutes";
 import { apiRequest } from "./apiRequest";
 
 export type SaveFiles = Record<string, Uint8Array>;
@@ -87,6 +87,9 @@ export async function openJson(page: Page, name = "save.json") {
   await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
   await page.getByRole("combobox", { name: "Open with" }).selectOption({ label: "Open with Generic JSON" });
   await expect(page.getByRole("tab", { name: "JSON", exact: true })).toBeVisible();
+  // Choosing the plugin reopens the file; the JSON tab of the first open is already visible, so also
+  // wait for the reopen (slower through routed runtime messages than the old server) to finish.
+  await apiSettled(page);
 }
 
 export async function loadJson(page: Page) {

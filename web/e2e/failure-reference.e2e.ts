@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import type { FieldNode, ReferenceRecordPair, SaveDocument } from "../src/api/protocol";
 import { failures, test, expect } from "./failure-harness";
 import { importSave, openJson } from "./helpers";
-import { routeApi } from "./apiRoutes";
+import { apiSettled, routeApi } from "./apiRoutes";
 
 /** GenericJson has no catalog fields. Project a read-only synthetic field into its real
  * document view, exercising the built renderer, batch client and picker without samples. */
@@ -44,6 +44,8 @@ for (const failure of failures) {
     await expect(picker.getByText("Current ID:", { exact: false })).toContainText("1001");
     await picker.getByRole("button", { name: "Close", exact: true }).click();
     await expect(trigger).toBeFocused();
+    // Let label requests the picker started finish while still blocked, so only the explicit retry recovers.
+    await apiSettled(page);
     blocked.release();
     await page.getByRole("button", { name: "Retry reference label", exact: true }).click();
     await expect(trigger).toHaveText("Potion (1001)");
@@ -64,6 +66,7 @@ test("compact reference cells keep the failed label retry visible and clickable"
   await table.scrollIntoViewIfNeeded();
   const retry = table.getByRole("button", { name: "Retry reference label", exact: true });
   await expect(retry).toBeInViewport({ ratio: 1 });
+  await apiSettled(page);
   blocked.release();
   await retry.click();
   await expect(table.locator(".reference-trigger")).toHaveText("Potion (1001)");
