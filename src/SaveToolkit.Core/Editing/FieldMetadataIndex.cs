@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using SaveToolkit.Core.Sessions;
 using SaveToolkit.Sdk;
@@ -8,24 +8,28 @@ namespace SaveToolkit.Core.Editing;
 
 /// <summary>Targeted, bounded discovery against the current document, never a rendered page.</summary>
 internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetadataBytes = null,
-    Action<IReadOnlyDictionary<string, FieldMetadata>>? admitSemantic = null, Action? publishSemantic = null)
+    Action<IReadOnlyDictionary<string, FieldMetadata>, IReadOnlySet<string>>? admitSemantic = null, Action? publishSemantic = null)
 {
     internal const int BatchSize = 200;
-    private ImmutableDictionary<string, FieldMetadata> _fields = ImmutableDictionary.Create<string, FieldMetadata>(StringComparer.Ordinal);
+    private FieldMetadataCache _cache = FieldMetadataCache.Empty;
     private long? _maxMetadataBytes = maxMetadataBytes;
+    // Retained entries are detached snapshots, so an entry's cost never changes. Memoised per
+    // instance (weakly, so replaced entries are not kept alive): batched callers resolve a large
+    // closure one batch at a time, and re-estimating every retained entry per batch is quadratic.
+    private readonly ConditionalWeakTable<FieldMetadata, StrongBox<long>> _retainedCosts = new();
     public bool Enabled => document is IFieldMetadataDocument
         && (document is not SaveToolkit.Core.Sessions.Groups.StagedGroupDocument staged || staged.MetadataEnabled);
-    public IEnumerable<string> Ids => _fields.Keys;
-    public void Clear() => _fields = _fields.Clear();
+    public IEnumerable<string> Ids => _cache.Fields.Keys;
+    public void Clear() => _cache = FieldMetadataCache.Empty;
     internal void SetBudget(long? bytes) => _maxMetadataBytes = bytes;
     internal FieldMetadataIndex Copy(CancellationToken cancellationToken)
     {
         var copy = new FieldMetadataIndex(document, _maxMetadataBytes, admitSemantic, publishSemantic);
         cancellationToken.ThrowIfCancellationRequested();
-        copy._fields = _fields;
+        copy._cache = _cache;
         return copy;
     }
-    public FieldMetadata? Cached(string id) => _fields.GetValueOrDefault(id);
+    public FieldMetadata? Cached(string id) => _cache.Fields.GetValueOrDefault(id);
 
     internal IReadOnlyList<FieldMetadata> ResolveForPlanning(IReadOnlyList<string> ids, int maximumIds,
         long allowance, CancellationToken cancellationToken)
@@ -33,27 +37,29 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
         if (document is null || !Enabled) return [];
         var closure = PlanningMetadataAdmission.Resolve(document, ids, maximumIds, allowance, cancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
-        foreach (var id in ids) _fields = _fields.Remove(id);
-        foreach (var field in closure) _fields = _fields.SetItem(field.ValueId, field);
+        var cache = _cache.ToBuilder();
+        foreach (var id in ids) cache.Remove(id, out _);
+        foreach (var field in closure) cache.Set(field.ValueId, field);
+        _cache = cache.ToImmutable();
         return closure;
     }
 
     public FieldMetadata? Resolve(string id)
     {
         ResolveAll([id]);
-        return _fields.GetValueOrDefault(id);
+        return Cached(id);
     }
 
     /// <summary>Returns the explicitly published canonical primary for an ID, if one is known.</summary>
     public FieldMetadata? Canonical(string id)
     {
         ResolveAll([id]);
-        var field = _fields.GetValueOrDefault(id);
+        var field = Cached(id);
         var canonicalId = field is null || string.IsNullOrEmpty(field.CanonicalValueId)
             ? field?.ValueId : field.CanonicalValueId;
         if (field is null || canonicalId == field.ValueId) return field;
         ResolveAll([canonicalId!]);
-        return _fields.GetValueOrDefault(canonicalId!);
+        return Cached(canonicalId!);
     }
 
     public void ResolveAll(IEnumerable<string> ids, CancellationToken cancellationToken = default)
@@ -63,13 +69,15 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxInitialIds);
         var initial = MaterializeInitialIds(ids, maxInitialIds);
-        var working = new Dictionary<string, FieldMetadata>(_fields, StringComparer.Ordinal);
-        var retainedBytes = _maxMetadataBytes is null ? 0 : MetadataBytes(working.Values);
+        // Copy-on-write: a failed resolution discards the builder and leaves the cache untouched,
+        // and a successful one costs O(batch log n), not a copy of every field resolved so far.
+        var working = _cache.ToBuilder();
+        var retainedBytes = _maxMetadataBytes is null ? 0 : MetadataBytes(working.Fields.Values);
         ResolveAll(initial, working, ref retainedBytes, maxInitialIds, cancellationToken);
-        _fields = working.ToImmutableDictionary(StringComparer.Ordinal);
+        _cache = working.ToImmutable();
     }
 
-    private void ResolveAll(IReadOnlyList<string> ids, Dictionary<string, FieldMetadata> cache,
+    private void ResolveAll(IReadOnlyList<string> ids, FieldMetadataCache.Builder cache,
         ref long retainedBytes, int maxScheduledIds, CancellationToken cancellationToken)
     {
         if (document is not IFieldMetadataDocument source) return;
@@ -108,7 +116,7 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
             var admissions = new List<(string Id, FieldMetadata Field, long Delta, bool Changed)>(next.Count);
             foreach (var (id, field) in next)
             {
-                var previous = cache.GetValueOrDefault(id);
+                var previous = cache.Fields.GetValueOrDefault(id);
                 // Estimate the incoming graph before wire serialization/equality. A warm-cache
                 // replacement can be much larger than the retained descriptor, so Agree must not
                 // allocate its UTF-8 comparison buffers before aggregate admission.
@@ -130,7 +138,7 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
             foreach (var (id, field, _, changed) in admissions)
             {
                 if (changed)
-                    cache[id] = admitSemantic is null ? Snapshot(field) : field;
+                    cache.Set(id, admitSemantic is null ? Snapshot(field) : field);
                 touched.Add(id);
                 fetched.Add(id);
             }
@@ -150,21 +158,26 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
             // A target that has arrived can reject an alias-of-derived relationship immediately;
             // no recursive chain traversal is needed. Final agreement waits until all batches finish.
             if (admitSemantic is null)
-                foreach (var field in cache.Values.Where(field => touched.Contains(field.ValueId)))
-                    if (HasAvailableTarget(field, fetched)) ValidateCanonical(field, cache);
+                foreach (var id in touched)
+                    if (cache.Fields.TryGetValue(id, out var field) && HasAvailableTarget(field, fetched))
+                        ValidateCanonical(field, cache.Fields);
         }
         // Semantic callers have an immutable entry snapshot and a separate full-payload staging
         // cap. Admit the whole closure before equality buffers, getters, or detached copies.
-        admitSemantic?.Invoke(cache);
-        foreach (var field in cache.Values.Where(field => touched.Contains(field.ValueId)
-            || touched.Contains(Normalize(field).CanonicalValueId)))
-            ValidateCanonical(field, cache);
+        // The second argument names this resolution's fresh descriptors; all others are retained snapshots.
+        admitSemantic?.Invoke(cache.Fields, touched);
+        // Every touched entry, plus each cached alias whose canonical target was touched.
+        var revalidate = new HashSet<string>(touched, StringComparer.Ordinal);
+        foreach (var id in touched) revalidate.UnionWith(cache.AliasesOf(id));
+        foreach (var id in revalidate)
+            if (cache.Fields.TryGetValue(id, out var field))
+                ValidateCanonical(field, cache.Fields);
         if (admitSemantic is not null)
             foreach (var id in touched)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 _ = document.GetValue(id);
-                cache[id] = Snapshot(cache[id]);
+                cache.Set(id, Snapshot(cache.Fields[id]));
             }
         cancellationToken.ThrowIfCancellationRequested();
         publishSemantic?.Invoke();
@@ -206,11 +219,18 @@ internal sealed class FieldMetadataIndex(ISaveDocument? document, long? maxMetad
         return result.ToArray();
     }
 
-    private static long MetadataBytes(IEnumerable<FieldMetadata> fields)
+    private long MetadataBytes(IEnumerable<FieldMetadata> fields)
     {
         long total = 0;
         foreach (var field in fields)
-            total = checked(total + MetadataCost(field));
+        {
+            if (!_retainedCosts.TryGetValue(field, out var cost))
+            {
+                cost = new StrongBox<long>(MetadataCost(field));
+                _retainedCosts.AddOrUpdate(field, cost);
+            }
+            total = checked(total + cost.Value);
+        }
         return total;
     }
 

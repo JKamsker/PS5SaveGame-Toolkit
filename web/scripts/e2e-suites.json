@@ -46,6 +46,7 @@
       "role": "feature",
       "patterns": ["**/ff7-*.e2e.ts"],
       "files": [
+        "ff7-culture.e2e.ts",
         "ff7-forms.e2e.ts",
         "ff7-history.e2e.ts",
         "ff7-selection.e2e.ts",
