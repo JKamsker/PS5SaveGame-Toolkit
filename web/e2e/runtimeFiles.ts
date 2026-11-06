@@ -38,6 +38,36 @@ export async function stopRuntime(page: Page, reason: string) {
   }, reason);
 }
 
+/**
+ * Makes the next request the page's .NET runtime dispatches hit a genuine WebAssembly trap
+ * (`WebAssembly.RuntimeError`), as K4os' LZ4 HC encoder once did on a Witcher 3 download ("memory access
+ * out of bounds"). The trap comes from a one-instruction module (`unreachable`), raised inside the
+ * runtime's own dispatch call. Afterwards the runtime never answers again, like one whose managed locks
+ * the trap left held: the app must fail every pending and later request instead of waiting for it.
+ */
+export async function trapRuntime(page: Page) {
+  const worker = await runtimeWorker(page);
+  await worker.evaluate(async () => {
+    type Interop = { DispatchAsync(...args: unknown[]): Promise<number> };
+    const runtime = (globalThis as unknown as { getDotnetRuntime(id: number): { getAssemblyExports(name: string): Promise<unknown> } })
+      .getDotnetRuntime(0);
+    // The runtime caches each assembly's exports: this is the object the worker dispatches through.
+    const exports = await runtime.getAssemblyExports("SaveToolkit.Browser") as { SaveToolkit: { Browser: { Interop: Interop } } };
+    // (module (func (export "trap") unreachable))
+    const trapModule = new WebAssembly.Module(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 4, 1, 96, 0, 0, 3, 2, 1, 0,
+      7, 8, 1, 4, 116, 114, 97, 112, 0, 0, 10, 5, 1, 3, 0, 0, 11]));
+    const trap = new WebAssembly.Instance(trapModule).exports.trap as () => void;
+    let trapped = false;
+    exports.SaveToolkit.Browser.Interop.DispatchAsync = () => {
+      if (!trapped) {
+        trapped = true;
+        trap();
+      }
+      return new Promise<number>(() => undefined);
+    };
+  });
+}
+
 export async function runtimeFiles(page: Page) {
   const worker = await runtimeWorker(page);
   type Fs = { readFile(path: string, options: { encoding: "utf8" }): string; writeFile(path: string, data: string): void;

@@ -1,6 +1,6 @@
 import { expect, type Page } from "@playwright/test";
 import { pageHooks } from "./apiPageHooks";
-import { stopRuntime } from "./runtimeFiles";
+import { stopRuntime, trapRuntime } from "./runtimeFiles";
 
 /**
  * The app answers /api inside a Web Worker (the .NET runtime), so Playwright's network APIs
@@ -19,7 +19,7 @@ import { stopRuntime } from "./runtimeFiles";
 type Pairs = [string, string][];
 interface Wire { status: number; headers: Pairs; body: string }
 type Decision = { kind: "continue" } | { kind: "fallback" } | { kind: "abort"; errorText: string } | { kind: "fetch" } | ({ kind: "fulfill" } & Wire)
-  | { kind: "crash"; reason: string } | { kind: "hold" };
+  | { kind: "crash"; reason: string } | { kind: "trap" } | { kind: "hold" };
 type Message =
   | { phase: "request"; token: string; method: string; url: string; headers: Pairs; body: string | null }
   | { phase: "fetched"; token: string; response: Wire & { error?: string } }
@@ -97,6 +97,11 @@ export class ApiRoute {
    * posts its genuine failure, and the app's runtime client rejects this and every other pending request.
    */
   async crashRuntime(reason = "Aborted(e2e: injected runtime crash)") { this.decide({ kind: "crash", reason }); }
+  /**
+   * Runs this request into a genuine WebAssembly trap inside the runtime's dispatch (see runtimeFiles'
+   * trapRuntime); the runtime answers nothing afterwards, so only the app's crash handling ends the wait.
+   */
+  async trapRuntime() { this.decide({ kind: "trap" }); }
   async fallback() { this.decide({ kind: "fallback" }); }
   /** @internal */ next(): Promise<Decision> { return this.decided; }
   /** @internal */ deliver(response: ApiResponse | Error) {
@@ -169,8 +174,15 @@ async function decide(hooks: Hooks, token: string, request: ApiRequest): Promise
   return { kind: "continue" };
 }
 
-/** Carries out crashRuntime: the page keeps the request pending until the runtime's failure arrives. */
+/**
+ * Carries out crashRuntime (the page keeps the request pending until the runtime's failure arrives) and
+ * trapRuntime (the request runs into the trap).
+ */
 async function crashed(hooks: Hooks, decision: Decision): Promise<Decision> {
+  if (decision.kind === "trap") {
+    await trapRuntime(hooks.page);
+    return { kind: "continue" };
+  }
   if (decision.kind !== "crash") return decision;
   await stopRuntime(hooks.page, decision.reason);
   return { kind: "hold" };

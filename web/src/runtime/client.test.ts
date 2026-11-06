@@ -235,6 +235,26 @@ it("runtime client: a runtime the worker reports stopped after boot is a crash f
   await expect(client.fetch("/api/presets")).rejects.toThrow("Aborted(OOM)");
 });
 
+it("runtime client: a request that hit a WebAssembly trap crashes the runtime for every pending and later request", async () => {
+  const { worker, client } = setup();
+  void client.ready();
+  worker.emit({ type: "ready", boot });
+  const download = client.fetch("/api/workspaces/w/documents/d/download");
+  const queued = client.fetch("/api/workspaces/w");
+  await flush();
+  const sent = worker.requests().length;
+  // The trapped runtime may still answer, but its workspace state is suspect: do not wait for it.
+  worker.emit({ type: "error", id: worker.requests()[0]!.id, message: "memory access out of bounds" });
+  await expect(download).rejects.toThrow("memory access out of bounds");
+  await expect(queued).rejects.toThrow("memory access out of bounds");
+  expect(client.state()).toEqual({ status: "failed", message: "memory access out of bounds", crashed: true });
+  await expect(client.fetch("/api/workspaces/w")).rejects.toThrow("memory access out of bounds");
+  expect(worker.requests()).toHaveLength(sent);
+  // A late answer from the trapped runtime is ignored.
+  worker.reply(worker.requests()[1]!, 200, "{}");
+  expect(client.state()).toMatchObject({ status: "failed", crashed: true });
+});
+
 it("runtime client: reports downloaded bytes with the boot progress", () => {
   const { worker, client } = setup();
   void client.ready();

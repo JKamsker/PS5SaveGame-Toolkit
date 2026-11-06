@@ -29,12 +29,12 @@ self.onmessage = (event: MessageEvent<ToWorker>) => {
 
 /** Set once the runtime answered `ready`; a later stop is a crash that lost this tab's workspaces. */
 let running = false;
-let stopped = false;
+let stopped: string | null = null;
 
-/** The booted runtime aborted or exited: the page fails every pending request and stops guarding workspaces. */
+/** The booted runtime aborted, exited or trapped: the page fails every pending request and stops guarding workspaces. */
 function stop(reason: string) {
-  if (!running || stopped) return;
-  stopped = true;
+  if (!running || stopped !== null) return;
+  stopped = reason;
   post({ type: "failed", message: reason });
 }
 
@@ -83,6 +83,9 @@ function boot(frameworkUrl: string) {
 
 async function handle(request: WireRequest) {
   if (!queued.delete(request.id)) return;
+  // Requests queued before the page learned of the stop never run: a trapped runtime's memory may be
+  // corrupt, and a durable request would flush it to IndexedDB. The page has already failed them.
+  if (stopped !== null) return post({ type: "error", id: request.id, message: stopped });
   // Leaving the queue: the page starts the request's deadline now, not while it waited behind others.
   post({ type: "started", id: request.id });
   try {

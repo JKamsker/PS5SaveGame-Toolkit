@@ -150,3 +150,31 @@ test("a runtime crash during an edit fails the pending request, explains the los
   await runtimeReady(page);
   await expect(page.getByRole("alert").filter({ hasText: "The editor runtime stopped unexpectedly." })).toHaveCount(0);
 });
+
+test("a WebAssembly trap during a download fails it and every later request instead of hanging", async ({ page, faults }) => {
+  // The Witcher 3 symptom: an edited document's download trapped the runtime ("memory access out of
+  // bounds"), after which the runtime never answered a workspace request again.
+  await importSave(page);
+  await openJson(page);
+  await loadJson(page);
+  await editCoins(page);
+  faults.expectNetworkFailures(/\/download$/);
+  faults.expectConsoleErrors(/RuntimeError|unreachable/i);
+  await routeApi(page, "**/download", route => route.trapRuntime(), { times: 1 });
+  const download = page.getByRole("button", { name: "Download file", exact: true });
+  await download.click();
+  // The download fails at once with the crash explained (not after its 60 s deadline).
+  await expect(page.getByRole("alert").filter({ hasText: runtimeCrashed }).first()).toBeVisible({ timeout: 10_000 });
+  const runtimeAlert = page.getByRole("alert").filter({ hasText: "The editor runtime stopped unexpectedly." });
+  await expect(runtimeAlert).toContainText("lost with it");
+  await expect(runtimeAlert).toContainText("unreachable");
+  await expect(download).toHaveText("Download file");
+  const crashAlerts = page.getByRole("alert").filter({ hasText: runtimeCrashed });
+  await expect(crashAlerts).toHaveCount(1);
+  // A later request never reaches the trapped runtime: it fails at once (well inside its 60 s deadline).
+  await coinsField(page).fill(originalCoins);
+  await coinsField(page).press("Enter");
+  await expect(crashAlerts).toHaveCount(2, { timeout: 5_000 });
+  await expect(coinsField(page)).toHaveValue(originalCoins);
+  await apiSettled(page);
+});
