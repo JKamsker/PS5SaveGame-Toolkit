@@ -1,4 +1,5 @@
-import { test as base, expect, type Page, type Route } from "@playwright/test";
+import { test as base, expect, type Page } from "@playwright/test";
+import { routeApi, type ApiRoute } from "./apiRoutes";
 
 export const failures = [
   { name: "422 JSON", status: 422, message: "Synthetic request rejected. Please try again." },
@@ -7,8 +8,9 @@ export const failures = [
 ] as const;
 
 export type Failure = typeof failures[number] | { name: "network"; status: 0; message: string };
+/** A transport failure: the in-browser runtime did not answer (the network failure of the old server). */
 export const networkFailure: Failure = {
-  name: "network", status: 0, message: "The server could not be reached. Check that it is running and try again.",
+  name: "network", status: 0, message: "The in-browser editor runtime did not respond. Reload the page and try again.",
 };
 
 /** A failed-resource browser diagnostic is expected only for explicitly injected API faults. */
@@ -35,7 +37,7 @@ class FailureMonitor {
   async block(pattern: string | RegExp, failure: Failure, method?: string) {
     let blocked = true;
     let count = 0;
-    await this.page.route(pattern, async route => {
+    await routeApi(this.page, pattern, async route => {
       if (!blocked || (method && route.request().method() !== method)) return route.fallback();
       count++;
       this.expectedResources.add(route.request().url());
@@ -44,7 +46,7 @@ class FailureMonitor {
     return { release: () => { blocked = false; }, count: () => count };
   }
 
-  private async reject(route: Route, failure: Failure) {
+  private async reject(route: ApiRoute, failure: Failure) {
     if (failure.status === 0) return route.abort("failed");
     return route.fulfill(failure.name === "502 HTML"
       ? { status: 502, contentType: "text/html", body: "<!doctype html><h1>Proxy gateway failure</h1>" }

@@ -6,6 +6,8 @@ import {
   exportCaptionApi, generateSuckerPunchFixtures, isCaptionDocumentRequest, openSuckerPunch, type SuckerPunchFixture,
 } from "./suckerpunch-caption-helpers";
 import { expectFiles } from "./helpers";
+import { onApi, waitForApiResponse } from "./apiRoutes";
+import { apiRequest } from "./apiRequest";
 
 let fixture: SuckerPunchFixture;
 test.beforeAll(async ({ browserName }, testInfo) => {
@@ -31,7 +33,7 @@ function action(page: Page) { return page.getByRole("button", { name: /Set save 
 function dialog(page: Page) { return page.getByRole("dialog", { name: /Preview: Set save caption/ }); }
 
 async function responseTo(page: Page, documentPath: string, suffix: string, activate: () => Promise<unknown>) {
-  const pending = page.waitForResponse(response => response.request().method() === "POST" &&
+  const pending = waitForApiResponse(page, response => response.request().method() === "POST" &&
     isCaptionDocumentRequest(response.url(), documentPath, suffix));
   await activate();
   return pending;
@@ -99,7 +101,7 @@ test("real caption native UTF-8 drafts, counters and accepted values are exact w
   await page.setViewportSize({ width: 768, height: 900 });
   const documentPath = await openSuckerPunch(page, fixture.files);
   const plans: string[] = [];
-  page.on("request", request => { if (isCaptionDocumentRequest(request.url(), documentPath, "/actions/plan")) plans.push(request.url()); });
+  onApi(page, "request", request => { if (isCaptionDocumentRequest(request.url(), documentPath, "/actions/plan")) plans.push(request.url()); });
   for (const boundary of nativeCases) await nativeBoundary(page, documentPath, boundary, testInfo);
   expect(plans).toHaveLength(3); // The invalid 32-byte native draft never requests a token.
 });
@@ -120,7 +122,7 @@ test("real caption JSON boundary values preserve canonical diagnostics and bytes
   expectFiles(beforeFiles, fixture.files);
   // Raw JSON preserves values that single-line HTML sanitizes or cannot meaningfully fill.
   for (const boundary of rejectedCases) {
-    const response = await page.request.post(`${documentPath}/actions/plan`, {
+    const response = await apiRequest(page).post(`${documentPath}/actions/plan`, {
       data: { actionId: "metadata/set-save-caption", parameters: { caption: boundary.value }, scope: null, revision: before.state.revision },
     });
     expect(response.status()).toBe(422);

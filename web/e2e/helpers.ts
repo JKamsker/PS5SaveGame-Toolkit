@@ -2,7 +2,9 @@ import { expect, type Download, type Page, type TestInfo } from "@playwright/tes
 import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { zipSync, unzipSync } from "fflate";
+import type { SaveDocument, Workspace } from "../src/api/protocol";
 import { installApiHooks, waitForApiResponse } from "./apiRoutes";
+import { apiRequest } from "./apiRequest";
 
 export type SaveFiles = Record<string, Uint8Array>;
 export const savePath = "PPSA00000/sdimg_E2E/save.json";
@@ -29,10 +31,43 @@ export async function home(page: Page) {
   await installApiHooks(page);
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Open a PS5 save dump" })).toBeVisible();
+  await runtimeReady(page);
+}
+
+/** Waits until the page's runtime has downloaded and started, so later expectations time real work only. */
+export async function runtimeReady(page: Page) {
+  await expect(page.getByRole("progressbar", { name: "Editor runtime download" })).toHaveCount(0, { timeout: 30_000 });
+}
+
+/**
+ * Opens an app deep link inside the running page (client-side, like following an in-app link). A full
+ * page.goto would start a new runtime: workspaces only live in the current page's in-browser runtime.
+ */
+export async function followLink(page: Page, url: string) {
+  await page.evaluate(target => {
+    window.history.pushState(null, "", target);
+    window.dispatchEvent(new PopStateEvent("popstate", { state: null }));
+  }, url);
+}
+
+/**
+ * Imports a dump and opens one of its files through the page's runtime, without the UI, and returns the
+ * document's deep link (follow it with followLink: a full page load would start a new, empty runtime).
+ */
+export async function createDocumentLink(page: Page, buffer = archive(), name = "save.json", pluginId = "format.json") {
+  const api = apiRequest(page);
+  const imported = await api.post("/api/workspaces", { multipart: { files: { name: "synthetic-save.zip", mimeType: "application/zip", buffer } } });
+  expect(imported.ok()).toBe(true);
+  const workspace = await imported.json() as Workspace;
+  const files = workspace.titles.flatMap(title => title.directories.flatMap(directory => directory.files)).filter(file => file.path === name);
+  expect(files).toHaveLength(1);
+  const opened = await api.post(`/api/workspaces/${workspace.id}/files/${files[0]!.id}/open`, { data: { pluginId } });
+  expect(opened.ok()).toBe(true);
+  return `/w/${workspace.id}?doc=${(await opened.json() as SaveDocument).id}`;
 }
 
 export async function upload(page: Page, buffer = archive(), name = "synthetic-save.zip") {
-  const importing = waitForApiResponse(page, response => response.url.endsWith("/api/workspaces") && response.method === "POST");
+  const importing = waitForApiResponse(page, response => response.url().endsWith("/api/workspaces") && response.request().method() === "POST");
   const choosing = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: "Open zip", exact: true }).click();
   await (await choosing).setFiles({ name, mimeType: "application/zip", buffer });

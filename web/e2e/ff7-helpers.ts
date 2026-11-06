@@ -1,6 +1,7 @@
-import { expect, type APIRequestContext, type Page, type TestInfo } from "@playwright/test";
+import { expect, type Page, type TestInfo } from "@playwright/test";
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
+import { tmpdir } from "node:os";
 import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,6 +9,8 @@ import { promisify } from "node:util";
 import { unzipSync } from "fflate";
 import type { DocumentState, SaveDocument, ToolkitPreset } from "../src/api/protocol";
 import { archive, importSave, type SaveFiles } from "./helpers";
+import { onApi, waitForApiResponse } from "./apiRoutes";
+import { type ApiClient } from "./apiRequest";
 
 export const actions = {
   restock: "inventory/restock-existing", ap: "materia/set-ap-within-tier", stars: "materia/set-stars",
@@ -30,7 +33,8 @@ export async function generateFf7Fixtures(testInfo: TestInfo): Promise<string> {
   const directory = testInfo.outputPath("authored-ff7");
   await mkdir(directory, { recursive: true });
   const { stdout, stderr } = await promisify(execFile)("dotnet", ["run", "--project",
-    "tests/fixtures/SaveToolkit.Ff7BrowserFixture", "--configuration", "Release", "--", directory], {
+    "tests/fixtures/SaveToolkit.Ff7BrowserFixture", "--configuration", "Release",
+    "--artifacts-path", path.join(tmpdir(), "ff7-fixture-build"), "--", directory], {
     cwd: fileURLToPath(new URL("../..", import.meta.url)), timeout: 60_000, maxBuffer: 2 * 1024 * 1024,
   });
   await testInfo.attach("ff7-generator.log", { body: stdout + stderr, contentType: "text/plain" });
@@ -45,7 +49,7 @@ export async function fixture(directory: string, name: string): Promise<Ff7Fixtu
 
 export async function openFf7(page: Page, binary: Ff7Fixture, file = binary.gameplayName): Promise<string> {
   await importSave(page, binary.files);
-  const opening = page.waitForResponse(response => response.url().endsWith("/open") && response.request().method() === "POST");
+  const opening = waitForApiResponse(page, response => response.url().endsWith("/open") && response.request().method() === "POST");
   await page.getByRole("navigation", { name: "Save directories" }).getByRole("button")
     .filter({ has: page.getByText(file, { exact: true }) }).click();
   const response = await opening;
@@ -71,7 +75,7 @@ export async function capture(page: Page, name: string): Promise<ToolkitPreset> 
     observer.observe(element, { attributes: true, attributeFilter: ["aria-busy"], attributeOldValue: true });
     return { stop: () => { observer.disconnect(); return observed; } };
   });
-  const saving = page.waitForResponse(response => response.url().endsWith("/presets/capture"));
+  const saving = waitForApiResponse(page, response => response.url().endsWith("/presets/capture"));
   await panel.getByRole("button", { name: "Save preset", exact: true }).click();
   const response = await saving;
   expect(response.status()).toBe(200);
@@ -86,12 +90,12 @@ export function saved(page: Page, name: string) {
 }
 
 export async function preview(page: Page, name: string): Promise<SemanticPreview> {
-  const loading = page.waitForResponse(response => /\/presets\/[^/]+\/preview$/.test(response.url()));
+  const loading = waitForApiResponse(page, response => /\/presets\/[^/]+\/preview$/.test(response.url()));
   await saved(page, name).getByRole("button", { name: "Preview", exact: true }).click();
   return await (await loading).json() as SemanticPreview;
 }
 
-export async function snapshot(request: APIRequestContext, documentPath: string) {
+export async function snapshot(request: ApiClient, documentPath: string) {
   const state = (await (await request.get(documentPath)).json() as SaveDocument).state;
   const library = await (await request.get("/api/presets")).body();
   const response = await request.post(documentPath.replace(/\/documents\/[^/]+$/, "/export"), { data: { scope: "Everything", mirrorBackups: false } });
@@ -99,7 +103,7 @@ export async function snapshot(request: APIRequestContext, documentPath: string)
   return { state, library: library.toString(), files: unzipSync(await response.body()) };
 }
 
-export async function unchanged(request: APIRequestContext, documentPath: string, before: Awaited<ReturnType<typeof snapshot>>) {
+export async function unchanged(request: ApiClient, documentPath: string, before: Awaited<ReturnType<typeof snapshot>>) {
   const after = await snapshot(request, documentPath);
   expect(after.state).toEqual(before.state);
   expect(after.library).toEqual(before.library);
@@ -113,7 +117,7 @@ export function expectFiles(actual: SaveFiles, expected: SaveFiles) {
     expect(Buffer.from(actual[name]!).equals(Buffer.from(bytes)), `Exact complete member bytes: ${name}`).toBe(true);
 }
 
-export async function state(request: APIRequestContext, documentPath: string): Promise<DocumentState> {
+export async function state(request: ApiClient, documentPath: string): Promise<DocumentState> {
   return (await (await request.get(documentPath)).json() as SaveDocument).state;
 }
 
@@ -138,7 +142,7 @@ export async function manifest(testInfo: TestInfo, name: string, files: SaveFile
 export function recordApi(page: Page, testInfo: TestInfo) {
   const pending: Promise<void>[] = [];
   let sequence = 0;
-  page.on("response", response => {
+  onApi(page, "response", response => {
     if (!response.url().includes("/api/") || !response.headers()["content-type"]?.includes("json")) return;
     const id = ++sequence;
     pending.push((async () => {

@@ -2,11 +2,12 @@ import type { Page } from "@playwright/test";
 import type { FieldNode, ReferenceRecordPair, SaveDocument } from "../src/api/protocol";
 import { failures, test, expect } from "./failure-harness";
 import { importSave, openJson } from "./helpers";
+import { routeApi } from "./apiRoutes";
 
 /** GenericJson has no catalog fields. Project a read-only synthetic field into its real
  * document view, exercising the built renderer, batch client and picker without samples. */
 async function syntheticReference(page: Page, compact = false) {
-  await page.route(/\/api\/workspaces\/[^/]+\/(?:files\/[^/]+\/open|documents\/[^/]+)$/, async route => {
+  await routeApi(page, /\/api\/workspaces\/[^/]+\/(?:files\/[^/]+\/open|documents\/[^/]+)$/, async route => {
     const response = await route.fetch();
     const body = await response.json() as Partial<SaveDocument>;
     const field: FieldNode = { type: "field", valueId: "synthetic-reference", label: "Synthetic item", value: "1001",
@@ -19,11 +20,11 @@ async function syntheticReference(page: Page, compact = false) {
     await route.fulfill({ response, json: body });
   });
   const candidate = { rawId: "1001", label: "Potion", eligibility: { available: true, eligible: true, selectable: true, reasons: [] } };
-  await page.route("**/reference-fields/records", async route => {
+  await routeApi(page, "**/reference-fields/records", async route => {
     const body = route.request().postDataJSON() as { revision: number; pairs: ReferenceRecordPair[] };
     await route.fulfill({ json: { revision: body.revision, results: body.pairs.map(pair => ({ ...pair, status: 200, candidate })) } });
   });
-  await page.route("**/reference-fields/candidates?*", route => route.fulfill({ json: {
+  await routeApi(page, "**/reference-fields/candidates?*", route => route.fulfill({ json: {
     catalogId: "synthetic-items", revision: 0, items: [candidate], total: 1, offset: 0, limit: 50, categories: [],
   } }));
 }

@@ -1,128 +1,212 @@
 import type { Page } from "@playwright/test";
+import { pageHooks } from "./apiPageHooks";
 
 /**
  * The app answers /api inside a Web Worker (the .NET runtime), so Playwright's network APIs
- * (`page.route`, `waitForResponse`) never see those requests. These helpers observe and intercept the
- * runtime's request/response messages instead, with page.route-like semantics:
- * `fulfill` and `abort` answer without running the request; `fetch` runs it and lets the test hold
- * or replace the result; `fallback` defers to an earlier route; `continue` runs it normally.
- * Install them before the first navigation (helpers.home does this).
+ * (`page.route`, `waitForResponse`, `page.on("request")`, `page.request`) never see those requests.
+ * These helpers observe and intercept the runtime's request/response messages instead, with the same
+ * shapes and semantics as Playwright's: `fulfill` and `abort` answer without running the request;
+ * `fetch` runs it and lets the test hold or replace the result; `fallback` defers to an earlier route;
+ * `continue` runs it normally. Install them before the first navigation (helpers.home does this).
  */
 
-export interface ApiRequest { method: string; url: string; headers: Record<string, string>; postData: string | null }
-export interface ApiResponse { status: number; url: string; method: string; headers: Record<string, string>; body: Buffer; text(): string; json(): unknown }
-interface WireResponse { status: number; headers: [string, string][]; body: string }
-type Action = { kind: "continue" } | { kind: "fallback" } | { kind: "abort" } | { kind: "fetch" } | ({ kind: "fulfill" } & WireResponse);
-interface Fulfill { status?: number; contentType?: string; body?: string | Buffer; json?: unknown; headers?: Record<string, string>; response?: ApiResponse }
+type Pairs = [string, string][];
+interface Wire { status: number; headers: Pairs; body: string }
+type Decision = { kind: "continue" } | { kind: "fallback" } | { kind: "abort"; errorText: string } | { kind: "fetch" } | ({ kind: "fulfill" } & Wire);
 type Message =
-  | { phase: "request"; token: number; method: string; url: string; headers: [string, string][]; body: string | null }
-  | { phase: "fetched"; token: number; response: WireResponse }
-  | { phase: "response"; method: string; url: string; status: number };
+  | { phase: "request"; token: string; method: string; url: string; headers: Pairs; body: string | null }
+  | { phase: "fetched"; token: string; response: Wire }
+  | ({ phase: "response"; token: string } & Wire)
+  | { phase: "failed"; token: string; errorText: string };
+/** Matches Playwright's loosely typed `json()` / `postDataJSON()`, so specs can keep reading fields directly. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Same contract as Playwright's Response.json().
+type Json = any;
+
+export class ApiRequest {
+  private failed: string | null = null;
+  constructor(private readonly info: { method: string; url: string; headers: Record<string, string>; body: Buffer | null }) {}
+  method() { return this.info.method; }
+  url() { return this.info.url; }
+  headers() { return { ...this.info.headers }; }
+  postDataBuffer() { return this.info.body; }
+  postData() { return this.info.body?.toString("utf8") ?? null; }
+  postDataJSON(): Json { return this.info.body ? JSON.parse(this.info.body.toString("utf8")) : null; }
+  failure() { return this.failed === null ? null : { errorText: this.failed }; }
+  /** @internal */ fail(errorText: string) { this.failed = errorText; }
+}
+
+export class ApiResponse {
+  private readonly bytes: Buffer;
+  private readonly fields: Record<string, string>;
+  constructor(private readonly origin: ApiRequest, private readonly code: number, headers: Pairs, body: string | Buffer) {
+    this.bytes = typeof body === "string" ? Buffer.from(body, "base64") : body;
+    this.fields = Object.fromEntries(headers.map(([name, value]) => [name.toLowerCase(), value]));
+  }
+  url() { return this.origin.url(); }
+  request() { return this.origin; }
+  status() { return this.code; }
+  ok() { return this.code >= 200 && this.code < 300; }
+  headers() { return { ...this.fields }; }
+  async body() { return Buffer.from(this.bytes); }
+  async text() { return this.bytes.toString("utf8"); }
+  async json(): Promise<Json> { return JSON.parse(this.bytes.toString("utf8")); }
+  /** The runtime hands over complete bodies, so a response is always finished. */
+  async finished() { return null; }
+  /** @internal */ wire(): Wire { return { status: this.code, headers: Object.entries(this.fields), body: this.bytes.toString("base64") }; }
+}
+
+interface Fulfill { status?: number; contentType?: string; body?: string | Buffer; json?: unknown; headers?: Record<string, string>; response?: ApiResponse }
 
 export class ApiRoute {
-  private decide!: (action: Action) => void;
-  private decided: Promise<Action> = this.reset();
+  private decide!: (decision: Decision) => void;
+  private decided: Promise<Decision> = this.reset();
   private fetched: ((response: ApiResponse) => void) | null = null;
   constructor(private readonly info: ApiRequest) {}
-  request() { return { ...this.info, method: () => this.info.method, url: () => this.info.url, postDataJSON: () => JSON.parse(this.info.postData ?? "null") as unknown }; }
+  request() { return this.info; }
   async fetch(): Promise<ApiResponse> {
     const response = new Promise<ApiResponse>(resolve => { this.fetched = resolve; });
-    this.settle({ kind: "fetch" });
+    this.decide({ kind: "fetch" });
     return response;
   }
   async fulfill(options: Fulfill = {}) {
-    if (options.response) return this.settle({ kind: "continue" });
-    const body = options.json !== undefined ? JSON.stringify(options.json) : options.body ?? "";
-    const type = options.contentType ?? (options.json !== undefined ? "application/json" : "text/plain");
-    const headers = Object.entries({ "content-type": type, ...options.headers });
-    this.settle({ kind: "fulfill", status: options.status ?? 200, headers, body: Buffer.from(body).toString("base64") });
+    const { response } = options;
+    if (response && options.json === undefined && options.body === undefined && !options.status && !options.headers && !options.contentType)
+      return this.decide({ kind: "continue" });
+    const base = response?.wire() ?? { status: 200, headers: [], body: "" };
+    const replaced = options.json !== undefined || options.body !== undefined;
+    const body = options.json !== undefined ? Buffer.from(JSON.stringify(options.json))
+      : options.body !== undefined ? Buffer.from(options.body) : Buffer.from(base.body, "base64");
+    const type = options.contentType ?? (options.json !== undefined ? "application/json" : replaced || !response ? "text/plain" : undefined);
+    const headers = { ...Object.fromEntries(base.headers.filter(([name]) => name !== "content-length")), ...(type ? { "content-type": type } : {}), ...options.headers };
+    this.decide({ kind: "fulfill", status: options.status ?? base.status, headers: Object.entries(headers), body: body.toString("base64") });
   }
-  async abort() { this.settle({ kind: "abort" }); }
-  async continue() { this.settle({ kind: "continue" }); }
-  async fallback() { this.settle({ kind: "fallback" }); }
-  /** @internal */ next(): Promise<Action> { return this.decided; }
-  /** @internal */ deliver(response: WireResponse, method: string) {
-    const body = Buffer.from(response.body, "base64");
-    const headers = Object.fromEntries(response.headers.map(([name, value]) => [name.toLowerCase(), value]));
+  /** Playwright error codes: "failed" (default), "aborted", "timedout", ... */
+  async abort(errorCode = "failed") { this.decide({ kind: "abort", errorText: `net::ERR_${errorCode.toUpperCase()}` }); }
+  async continue() { this.decide({ kind: "continue" }); }
+  async fallback() { this.decide({ kind: "fallback" }); }
+  /** @internal */ next(): Promise<Decision> { return this.decided; }
+  /** @internal */ deliver(response: ApiResponse) {
     this.decided = this.reset();
-    this.fetched?.({ status: response.status, url: this.info.url, method, headers, body, text: () => body.toString("utf8"), json: () => JSON.parse(body.toString("utf8")) as unknown });
+    this.fetched?.(response);
   }
-  private reset() { return new Promise<Action>(resolve => { this.decide = resolve; }); }
-  private settle(action: Action) { this.decide(action); }
+  private reset() { return new Promise<Decision>(resolve => { this.decide = resolve; }); }
 }
 
 type Handler = (route: ApiRoute) => unknown;
-interface Rule { matches: (url: string) => boolean; handler: Handler; times: number }
-interface Hooks { rules: Rule[]; routes: Map<number, ApiRoute>; listeners: Set<(response: { method: string; url: string; status: number }) => void> }
+interface Rule { pattern: string | RegExp; matches: (url: string) => boolean; handler: Handler; times: number }
+export interface ApiEvents { request: ApiRequest; response: ApiResponse; requestfailed: ApiRequest; requestfinished: ApiRequest }
+type Listener = (event: keyof ApiEvents, value: ApiEvents[keyof ApiEvents]) => void;
+interface Hooks { rules: Rule[]; routes: Map<string, ApiRoute>; requests: Map<string, ApiRequest>; listeners: Set<Listener> }
 const installed = new WeakMap<Page, Hooks>();
 
 export async function installApiHooks(page: Page): Promise<void> {
   if (installed.has(page)) return;
-  const hooks: Hooks = { rules: [], routes: new Map(), listeners: new Set() };
+  const hooks: Hooks = { rules: [], routes: new Map(), requests: new Map(), listeners: new Set() };
   installed.set(page, hooks);
+  const emit = <K extends keyof ApiEvents>(event: K, value: ApiEvents[K]) => { for (const listener of [...hooks.listeners]) listener(event, value); };
   await page.exposeBinding("__savetoolkitApiHook", async ({ page: source }, message: Message) => {
-    const origin = new URL(source.url()).origin;
-    if (message.phase === "response") {
-      for (const listener of [...hooks.listeners]) listener({ ...message, url: origin + message.url });
-      return null;
+    if (message.phase === "request") {
+      const request = new ApiRequest({ method: message.method, url: new URL(source.url()).origin + message.url,
+        headers: Object.fromEntries(message.headers.map(([name, value]) => [name.toLowerCase(), value])),
+        body: message.body === null ? null : Buffer.from(message.body, "base64") });
+      hooks.requests.set(message.token, request);
+      emit("request", request);
+      return await decide(hooks, message.token, request);
     }
     if (message.phase === "fetched") {
+      // The page may have aborted the request meanwhile; the test still receives what it fetched.
       const route = hooks.routes.get(message.token)!;
-      route.deliver(message.response, route.request().method());
-      return await finish(hooks, message.token, route);
+      route.deliver(new ApiResponse(route.request(), message.response.status, message.response.headers, message.response.body));
+      const decision = await route.next();
+      hooks.routes.delete(message.token);
+      return decision.kind === "fallback" ? { kind: "continue" } : decision;
     }
-    const info: ApiRequest = { method: message.method, url: origin + message.url, postData: message.body === null ? null : Buffer.from(message.body, "base64").toString("utf8"),
-      headers: Object.fromEntries(message.headers) };
-    for (const rule of [...hooks.rules].reverse()) {
-      if (rule.times === 0 || !rule.matches(info.url)) continue;
-      rule.times--;
-      const route = new ApiRoute(info);
-      hooks.routes.set(message.token, route);
-      void Promise.resolve(rule.handler(route)).catch(() => route.continue());
-      const action = await route.next();
-      if (action.kind === "fallback") continue;
-      if (action.kind !== "fetch") hooks.routes.delete(message.token);
-      return action;
+    const request = hooks.requests.get(message.token);
+    if (!request) return null;
+    hooks.requests.delete(message.token);
+    if (message.phase === "failed") {
+      request.fail(message.errorText);
+      emit("requestfailed", request);
+    } else {
+      emit("response", new ApiResponse(request, message.status, message.headers, message.body));
+      emit("requestfinished", request);
     }
-    return { kind: "continue" } satisfies Action;
+    return null;
   });
   await page.addInitScript(pageHooks);
 }
 
-async function finish(hooks: Hooks, token: number, route: ApiRoute): Promise<Action> {
-  const action = await route.next();
-  hooks.routes.delete(token);
-  return action.kind === "fallback" ? { kind: "continue" } : action;
+async function decide(hooks: Hooks, token: string, request: ApiRequest): Promise<Decision> {
+  for (const rule of [...hooks.rules].reverse()) {
+    if (rule.times === 0 || !rule.matches(request.url())) continue;
+    rule.times--;
+    const route = new ApiRoute(request);
+    hooks.routes.set(token, route);
+    void Promise.resolve(rule.handler(route)).catch(() => route.continue());
+    const decision = await route.next();
+    if (decision.kind === "fallback") continue;
+    if (decision.kind !== "fetch") hooks.routes.delete(token);
+    return decision;
+  }
+  return { kind: "continue" };
 }
 
-/** page.route for the in-browser API. Glob (`**`, `*`) or RegExp, matched against the absolute URL. */
+function hooksOf(page: Page) {
+  const hooks = installed.get(page);
+  if (!hooks) throw new Error("Install the API hooks before navigation (installApiHooks or helpers.home).");
+  return hooks;
+}
+
+/** page.route for the in-browser API. Glob (`**`, `*`; `?` is literal) or RegExp, matched against the absolute URL. */
 export async function routeApi(page: Page, pattern: string | RegExp, handler: Handler, options: { times?: number } = {}) {
   await installApiHooks(page);
   const regex = typeof pattern === "string" ? globToRegex(pattern) : pattern;
-  const rule: Rule = { matches: url => regex.test(url), handler, times: options.times ?? -1 };
-  installed.get(page)!.rules.push(rule);
-  return () => { const rules = installed.get(page)!.rules; rules.splice(rules.indexOf(rule), 1); };
+  const rule: Rule = { pattern, matches: url => regex.test(url), handler, times: options.times ?? -1 };
+  hooksOf(page).rules.push(rule);
+  return () => { const rules = hooksOf(page).rules; if (rules.includes(rule)) rules.splice(rules.indexOf(rule), 1); };
+}
+
+/** page.unroute: removes every route registered with this exact pattern. */
+export function unrouteApi(page: Page, pattern: string | RegExp) {
+  const hooks = hooksOf(page);
+  const same = (rule: Rule) => typeof pattern === "string" ? rule.pattern === pattern : rule.pattern instanceof RegExp && rule.pattern.source === pattern.source;
+  hooks.rules = hooks.rules.filter(rule => !same(rule));
 }
 
 export function unrouteAllApi(page: Page) {
   installed.get(page)?.rules.splice(0);
 }
 
-/** Resolves with the next completed API response matching `predicate` (cf. page.waitForResponse). */
-export function waitForApiResponse(page: Page, predicate: (response: { method: string; url: string; status: number }) => boolean,
-  timeout = 30_000): Promise<{ method: string; url: string; status: number }> {
-  const hooks = installed.get(page);
-  if (!hooks) throw new Error("Install the API hooks before navigation (helpers.home).");
+/** page.on for the in-browser API's request lifecycle. Returns a function that removes the listener. */
+export function onApi<K extends keyof ApiEvents>(page: Page, event: K, listener: (value: ApiEvents[K]) => void): () => void {
+  const hooks = hooksOf(page);
+  const filtered: Listener = (name, value) => { if (name === event) listener(value as ApiEvents[K]); };
+  hooks.listeners.add(filtered);
+  return () => { hooks.listeners.delete(filtered); };
+}
+
+/** page.waitForEvent for the in-browser API ("request", "response", "requestfailed", "requestfinished"). */
+export function waitForApi<K extends keyof ApiEvents>(page: Page, event: K, predicate: (value: ApiEvents[K]) => boolean,
+  timeout = 30_000): Promise<ApiEvents[K]> {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => { hooks.listeners.delete(listener); reject(new Error("Timed out waiting for an API response.")); }, timeout);
-    const listener = (response: { method: string; url: string; status: number }) => {
-      if (!predicate(response)) return;
+    const timer = setTimeout(() => { stop(); reject(new Error(`Timed out waiting for an API ${event} event.`)); }, timeout);
+    const stop = onApi(page, event, value => {
+      if (!predicate(value)) return;
       clearTimeout(timer);
-      hooks.listeners.delete(listener);
-      resolve(response);
-    };
-    hooks.listeners.add(listener);
+      stop();
+      resolve(value);
+    });
   });
+}
+
+/** page.waitForResponse for the in-browser API. */
+export function waitForApiResponse(page: Page, predicate: (response: ApiResponse) => boolean, timeout?: number) {
+  return waitForApi(page, "response", predicate, timeout);
+}
+
+/** page.waitForRequest for the in-browser API. */
+export function waitForApiRequest(page: Page, predicate: (request: ApiRequest) => boolean, timeout?: number) {
+  return waitForApi(page, "request", predicate, timeout);
 }
 
 function globToRegex(glob: string): RegExp {
@@ -134,76 +218,4 @@ function globToRegex(glob: string): RegExp {
     else source += char.replace(/[.+?^${}()|[\]\\]/g, "\\$&");
   }
   return new RegExp(`^${source}$`);
-}
-
-/** Runs in the page before any app code: wraps Worker to route the runtime's messages through the hook binding. */
-// eslint-disable-next-line max-lines-per-function -- Serialized into the page by addInitScript, so it must stay self-contained.
-function pageHooks() {
-  type Hook = (message: unknown) => Promise<{ kind: string; status?: number; headers?: [string, string][]; body?: string } | null>;
-  const hook = (message: unknown) => (window as unknown as { __savetoolkitApiHook: Hook }).__savetoolkitApiHook(message);
-  const encode = (buffer: ArrayBuffer | null) => {
-    if (!buffer) return null;
-    let text = "";
-    const bytes = new Uint8Array(buffer);
-    for (let i = 0; i < bytes.length; i += 0x8000) text += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-    return btoa(text);
-  };
-  const decode = (text: string) => Uint8Array.from(atob(text), char => char.charCodeAt(0)).buffer;
-  const Native = window.Worker;
-  let tokens = 0;
-  window.Worker = class extends Native {
-    private listener: ((event: MessageEvent) => void) | null = null;
-    private readonly requests = new Map<number, { method: string; url: string; fetched?: (data: { status: number; headers: [string, string][]; frame: ArrayBuffer; bodyOffset: number } | null) => void }>();
-    constructor(url: string | URL, options?: WorkerOptions) {
-      super(url, options);
-      super.onmessage = event => this.receive(event);
-    }
-    override set onmessage(listener: ((event: MessageEvent) => void) | null) { this.listener = listener; }
-    override get onmessage() { return this.listener; }
-    override postMessage(message: unknown, transfer?: Transferable[] | StructuredSerializeOptions) {
-      const request = (message as { type?: string; request?: { id: number; method: string; url: string; headers: [string, string][]; body: ArrayBuffer | null } });
-      if (request.type !== "request" || !request.request) return super.postMessage(message, transfer as Transferable[]);
-      void this.route(request.request, message, transfer as Transferable[]);
-    }
-    private async route(request: { id: number; method: string; url: string; headers: [string, string][]; body: ArrayBuffer | null }, message: unknown, transfer: Transferable[]) {
-      const token = ++tokens;
-      this.requests.set(request.id, { method: request.method, url: request.url });
-      const action = await hook({ phase: "request", token, method: request.method, url: request.url, headers: request.headers, body: encode(request.body) });
-      if (!action || action.kind === "continue") return super.postMessage(message, transfer);
-      if (action.kind === "fetch") {
-        const entry = this.requests.get(request.id)!;
-        const fetched = new Promise<{ status: number; headers: [string, string][]; frame: ArrayBuffer; bodyOffset: number } | null>(resolve => { entry.fetched = resolve; });
-        super.postMessage(message, transfer);
-        const real = await fetched;
-        if (!real) {
-          // The runtime itself failed: report it to the handler, then surface the failure unchanged.
-          await hook({ phase: "fetched", token, response: { status: 0, headers: [], body: "" } });
-          return this.deliver({ type: "error", id: request.id, message: "Failed to fetch" });
-        }
-        const body = encode(real.frame.slice(real.bodyOffset));
-        const final = await hook({ phase: "fetched", token, response: { status: real.status, headers: real.headers, body } });
-        if (!final || final.kind === "continue") return this.deliver({ type: "response", id: request.id, ...real });
-        return this.synthetic(request.id, final);
-      }
-      return this.synthetic(request.id, action);
-    }
-    private synthetic(id: number, action: { kind: string; status?: number; headers?: [string, string][]; body?: string }) {
-      if (action.kind === "abort") return this.deliver({ type: "error", id, message: "Failed to fetch" });
-      this.deliver({ type: "response", id, status: action.status, headers: action.headers, frame: decode(action.body ?? ""), bodyOffset: 0 });
-    }
-    private deliver(data: { type: string; id: number; status?: number } & Record<string, unknown>) {
-      const request = this.requests.get(data.id);
-      this.requests.delete(data.id);
-      if (request) void hook({ phase: "response", method: request.method, url: request.url, status: data.type === "error" ? 0 : data.status });
-      this.listener?.(new MessageEvent("message", { data }));
-    }
-    private receive(event: MessageEvent) {
-      const data = event.data as { type: string; id: number; status: number; headers: [string, string][]; frame: ArrayBuffer; bodyOffset: number };
-      const request = (data.type === "response" || data.type === "error") ? this.requests.get(data.id) : undefined;
-      if (request?.fetched) return request.fetched(data.type === "response" ? data : null);
-      // Keep the runtime's own error text for unrouted failures.
-      if (request) return this.deliver(data);
-      this.listener?.(event);
-    }
-  };
 }

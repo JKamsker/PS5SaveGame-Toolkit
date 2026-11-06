@@ -27,9 +27,9 @@ const invalidArchives = [
 for (const invalid of invalidArchives) {
   test(`rejects ${invalid.name} with a specific error and recovers on the next import`, async ({ page }) => {
     await home(page);
-    const importing = waitForApiResponse(page, response => response.url.endsWith("/api/workspaces") && response.method === "POST");
+    const importing = waitForApiResponse(page, response => response.url().endsWith("/api/workspaces") && response.request().method() === "POST");
     await upload(page, invalid.bytes(), invalid.name);
-    expect((await importing).status).toBe(422);
+    expect((await importing).status()).toBe(422);
     await expect(page.getByRole("alert")).toHaveText(invalid.error);
     await expect(page.getByRole("button", { name: "Retry import", exact: true })).toBeEnabled();
     await expect(page.getByRole("button", { name: "Open zip", exact: true })).toBeEnabled();

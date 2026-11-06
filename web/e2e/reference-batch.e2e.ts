@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { unzipSync } from "fflate";
 import { archive, home, upload } from "./helpers";
+import { onApi } from "./apiRoutes";
 
 // Optional real-sample regression: samples stay external and read-only. Only the
 // selected entry is uploaded from memory; no extracted save is written by this test.
@@ -20,7 +21,7 @@ test("Rebirth coalesces reference labels across four pages and action parameters
   const pending = new Set<unknown>();
   const referenceFailures: number[] = [];
   let lastRequest = Date.now();
-  page.on("request", request => {
+  onApi(page, "request", request => {
     if (!new URL(request.url()).pathname.startsWith("/api/")) return;
     pending.add(request);
     lastRequest = Date.now();
@@ -30,9 +31,9 @@ test("Rebirth coalesces reference labels across four pages and action parameters
       phase.pairs += request.postDataJSON().pairs.length;
     }
   });
-  page.on("requestfinished", request => pending.delete(request));
-  page.on("requestfailed", request => pending.delete(request));
-  page.on("response", response => {
+  onApi(page, "requestfinished", request => pending.delete(request));
+  onApi(page, "requestfailed", request => pending.delete(request));
+  onApi(page, "response", response => {
     if (response.url().includes("/reference-fields/") && response.status() >= 400) referenceFailures.push(response.status());
   });
   const settle = async () => {

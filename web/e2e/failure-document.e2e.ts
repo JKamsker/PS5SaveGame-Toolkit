@@ -78,22 +78,25 @@ for (const failure of failures) {
   });
 }
 
-test("offline edit is actionable and the same draft commits after reconnection", async ({ page, context, faults }) => {
+test("a runtime transport failure during an edit is actionable and the same draft commits on retry, even offline", async ({ page, context, faults }) => {
   await importSave(page);
   await openJson(page);
   await loadJson(page);
-  faults.expectNetworkFailures(/\/edits$/);
-  await context.setOffline(true);
+  // The runtime runs in the page, so going offline cannot fail an edit; inject the transport failure instead.
+  const blocked = await faults.block("**/edits", networkFailure, "POST");
   await coinsField(page).fill(editedCoins);
   await coinsField(page).press("Enter");
   await expect(page.getByRole("alert").filter({ hasText: networkFailure.message }).first()).toBeVisible();
   await expect(coinsField(page)).toHaveValue(editedCoins);
   await expect(coinsField(page)).toBeFocused();
   await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
-  await context.setOffline(false);
+  expect(blocked.count()).toBe(1);
+  blocked.release();
+  await context.setOffline(true);
   await coinsField(page).press("Enter");
   await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeEnabled();
   await expect(coinsField(page)).toHaveAccessibleName(/modified/);
+  await context.setOffline(false);
 });
 
 test("network failure during import can retry the retained upload", async ({ page, faults }) => {

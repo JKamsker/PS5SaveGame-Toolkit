@@ -9,6 +9,8 @@ import {
 } from "./suckerpunch-caption-helpers";
 import { expectFiles } from "./helpers";
 import { exerciseCaptionKeyboardLayout } from "./suckerpunch-caption-keyboard";
+import { onApi, waitForApiResponse } from "./apiRoutes";
+import { apiRequest } from "./apiRequest";
 
 let fixture: SuckerPunchFixture;
 test.beforeAll(async ({ browserName }, testInfo) => {
@@ -27,7 +29,7 @@ async function previewCaption(page: Page, value = editedCaption, testInfo?: Test
   const input = dialog.getByRole("textbox", { name: "Caption" });
   await expect(input).toHaveValue(expectedCurrent);
   await input.fill(value);
-  const planning = page.waitForResponse(response => response.request().method() === "POST" &&
+  const planning = waitForApiResponse(page, response => response.request().method() === "POST" &&
     (documentPath ? isCaptionDocumentRequest(response.url(), documentPath, "/actions/plan") : response.url().endsWith("/actions/plan")));
   await dialog.getByRole("button", { name: "Preview", exact: true }).click();
   const response = await planning;
@@ -92,7 +94,7 @@ test("real original caption action is one whole-byte undo and redo unit", async 
   await page.setViewportSize({ width: 1024, height: 900 });
   const documentPath = await openSuckerPunch(page, fixture.files);
   const dialog = await previewCaption(page, editedCaption, undefined, undefined, documentPath);
-  const applying = page.waitForResponse(response => response.request().method() === "POST" &&
+  const applying = waitForApiResponse(page, response => response.request().method() === "POST" &&
     isCaptionDocumentRequest(response.url(), documentPath, "/actions/apply"));
   await dialog.getByRole("button", { name: "Apply", exact: true }).click();
   const applied = await applying;
@@ -106,7 +108,7 @@ test("real original caption action is one whole-byte undo and redo unit", async 
   expect((await documentSnapshot(page, documentPath)).state).toMatchObject({ revision: 1, canUndo: true, canRedo: false, isDirty: true });
   await expect(page.getByText(`param.sfo SUBTITLE: ${editedCaption}`, { exact: true })).toBeVisible();
 
-  const undoing = page.waitForResponse(response => response.request().method() === "POST" &&
+  const undoing = waitForApiResponse(page, response => response.request().method() === "POST" &&
     isCaptionDocumentRequest(response.url(), documentPath, "/undo"));
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   const undone = await undoing;
@@ -119,7 +121,7 @@ test("real original caption action is one whole-byte undo and redo unit", async 
   await expect(page.getByRole("button", { name: "Redo", exact: true })).toBeEnabled();
   expectFiles(await exportCaptionScope(page, testInfo, /Whole dump/, "caption-original-action-undo.zip"), fixture.files);
 
-  const redoing = page.waitForResponse(response => response.request().method() === "POST" &&
+  const redoing = waitForApiResponse(page, response => response.request().method() === "POST" &&
     isCaptionDocumentRequest(response.url(), documentPath, "/redo"));
   await page.getByRole("button", { name: "Redo", exact: true }).click();
   const redone = await redoing;
@@ -146,7 +148,7 @@ test("real caption no-op and cancel preserve bytes across clean, dirty and redo 
   expectFiles(await exportCaptionApi(page, documentPath), cleanBytes);
 
   const dirtyDialog = await previewCaption(page, editedCaption, undefined, undefined, documentPath);
-  const firstApply = page.waitForResponse(response => response.request().method() === "POST" &&
+  const firstApply = waitForApiResponse(page, response => response.request().method() === "POST" &&
     isCaptionDocumentRequest(response.url(), documentPath, "/actions/apply"));
   await dirtyDialog.getByRole("button", { name: "Apply", exact: true }).click();
   expect((await firstApply).status()).toBe(200);
@@ -163,7 +165,7 @@ test("real caption no-op and cancel preserve bytes across clean, dirty and redo 
   expect((await documentSnapshot(page, documentPath)).state).toEqual(dirty.state);
   expectFiles(await exportCaptionApi(page, documentPath), dirtyBytes);
 
-  const undoing = page.waitForResponse(response => response.request().method() === "POST" &&
+  const undoing = waitForApiResponse(page, response => response.request().method() === "POST" &&
     isCaptionDocumentRequest(response.url(), documentPath, "/undo"));
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   expect((await undoing).status()).toBe(200);
@@ -183,7 +185,7 @@ test("real caption no-op and cancel preserve bytes across clean, dirty and redo 
   expect((await documentSnapshot(page, documentPath)).state).toEqual(afterUndo.state);
   expectFiles(await exportCaptionApi(page, documentPath), undoBytes);
 
-  const redoing = page.waitForResponse(response => response.request().method() === "POST" &&
+  const redoing = waitForApiResponse(page, response => response.request().method() === "POST" &&
     isCaptionDocumentRequest(response.url(), documentPath, "/redo"));
   await page.getByRole("button", { name: "Redo", exact: true }).click();
   const redone = await redoing;
@@ -199,7 +201,7 @@ test("real caption apply, Changes revert, undo/redo, all export scopes and reimp
   await page.setViewportSize({ width: 1440, height: 900 });
   const documentPath = await openSuckerPunch(page, fixture.files);
   const dialog = await previewCaption(page, editedCaption, undefined, undefined, documentPath);
-  const applied = page.waitForResponse(response => response.url().endsWith("/actions/apply") && response.request().method() === "POST");
+  const applied = waitForApiResponse(page, response => response.url().endsWith("/actions/apply") && response.request().method() === "POST");
   await dialog.getByRole("button", { name: "Apply", exact: true }).click();
   expect((await applied).status()).toBe(200);
   await expect(dialog).not.toBeVisible();
@@ -223,12 +225,12 @@ test("real caption apply, Changes revert, undo/redo, all export scopes and reimp
   await expect(changes).toContainText(editedCaption);
   const revert = changes.getByRole("button", { name: `Revert ${captionLabel}`, exact: true });
   await expect(revert).toBeEnabled();
-  const reverting = page.waitForResponse(response => response.url().endsWith("/changes/revert") && response.request().method() === "POST");
+  const reverting = waitForApiResponse(page, response => response.url().endsWith("/changes/revert") && response.request().method() === "POST");
   await revert.click();
   const reverted = await reverting;
   expect(reverted.status()).toBe(200);
   expect((await reverted.json() as EditResult).ok).toBe(true);
-  const reviewResponse = await page.request.get(`${documentPath}/changes`);
+  const reviewResponse = await apiRequest(page).get(`${documentPath}/changes`);
   expect(reviewResponse.status()).toBe(200);
   const review = await reviewResponse.json() as SemanticChangeLog;
   await testInfo.attach("caption-reverted-review.json", { body: JSON.stringify(review, null, 2), contentType: "application/json" });
@@ -273,11 +275,11 @@ test("real stale caption apply preserves Unicode draft and uses the fresh docume
   const documentPath = await openSuckerPunch(page, fixture.files);
   const planRequests: Record<string, unknown>[] = [];
   const applyRequests: Record<string, unknown>[] = [];
-  page.on("request", request => {
+  onApi(page, "request", request => {
     if (isCaptionDocumentRequest(request.url(), documentPath, "/actions/plan")) planRequests.push(request.postDataJSON() as Record<string, unknown>);
     if (isCaptionDocumentRequest(request.url(), documentPath, "/actions/apply")) applyRequests.push(request.postDataJSON() as Record<string, unknown>);
   });
-  const initialPlanResponse = page.waitForResponse(response => response.request().method() === "POST" &&
+  const initialPlanResponse = waitForApiResponse(page, response => response.request().method() === "POST" &&
     isCaptionDocumentRequest(response.url(), documentPath, "/actions/plan"));
   const dialog = await previewCaption(page, editedCaption, testInfo, "caption-stale-initial-plan.json", documentPath);
   const initialPlan = await initialPlanResponse.then(response => response.json() as Promise<ActionPreview>);
@@ -285,12 +287,12 @@ test("real stale caption apply preserves Unicode draft and uses the fresh docume
   expect(planRequests).toHaveLength(1);
   expect(planRequests[0]).toMatchObject({ actionId: "metadata/set-save-caption", revision: before.state.revision, parameters: { caption: editedCaption }, scope: {} });
   expect(initialPlan.plan.changes[0]).toMatchObject({ valueId: captionValueId, label: captionLabel, oldValue: fixture.caption, newValue: editedCaption });
-  const independent = await page.request.post(`${documentPath}/edits`, {
+  const independent = await apiRequest(page).post(`${documentPath}/edits`, {
     data: { edits: [{ valueId: captionValueId, value: "Sun" }], revision: before.state.revision },
   });
   expect(independent.status()).toBe(200);
   expect((await independent.json() as EditResult).ok).toBe(true);
-  const applying = page.waitForResponse(response => response.request().method() === "POST" &&
+  const applying = waitForApiResponse(page, response => response.request().method() === "POST" &&
     isCaptionDocumentRequest(response.url(), documentPath, "/actions/apply"));
   await dialog.getByRole("button", { name: "Apply", exact: true }).click();
   const staleApply = await applying;
@@ -309,7 +311,7 @@ test("real stale caption apply preserves Unicode draft and uses the fresh docume
 
   const sunBeforePlan = await documentSnapshot(page, documentPath);
   const sunFilesBeforePlan = await exportCaptionApi(page, documentPath);
-  const freshPlanResponse = page.waitForResponse(response => response.request().method() === "POST" &&
+  const freshPlanResponse = waitForApiResponse(page, response => response.request().method() === "POST" &&
     isCaptionDocumentRequest(response.url(), documentPath, "/actions/plan"));
   await dialog.getByRole("button", { name: "Preview again", exact: true }).click();
   const freshPlan = await freshPlanResponse.then(response => response.json() as Promise<ActionPreview>);
@@ -328,7 +330,7 @@ test("real stale caption apply preserves Unicode draft and uses the fresh docume
   expect((await documentSnapshot(page, documentPath)).state).toEqual(sunBeforePlan.state);
   expectFiles(await exportCaptionApi(page, documentPath), sunFilesBeforePlan);
   await expect(dialog.getByRole("button", { name: "Apply", exact: true })).toBeEnabled();
-  const freshApplying = page.waitForResponse(response => response.request().method() === "POST" &&
+  const freshApplying = waitForApiResponse(page, response => response.request().method() === "POST" &&
     isCaptionDocumentRequest(response.url(), documentPath, "/actions/apply"));
   await dialog.getByRole("button", { name: "Apply", exact: true }).click();
   const applied = await freshApplying;

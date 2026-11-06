@@ -15,7 +15,14 @@ internal static class BrowserHost
     /// <summary>Same cadence as the Api's background sweeper, but run between requests (see DispatchAsync).</summary>
     private static readonly TimeSpan SweepInterval = TimeSpan.FromMinutes(10);
 
+    /// <summary>
+    /// Deferred startup work (validating embedded reference packs) waits this long after boot, so the
+    /// UI's first requests are answered first, then runs one pack at a time between requests.
+    /// </summary>
+    private static readonly TimeSpan IdleWorkDelay = TimeSpan.FromSeconds(1);
+
     private static LocalApiHost? _host;
+    private static int _inFlight;
     private static long _nextSweep;
     private static WireBootInfo? _boot;
 
@@ -44,6 +51,7 @@ internal static class BrowserHost
             OnError = (context, exception) => Console.Error.WriteLine($"{context}: {exception}"),
         });
         _nextSweep = Environment.TickCount64 + (long)SweepInterval.TotalMilliseconds;
+        _ = RunIdleWorkAsync(_host);
         _boot = new WireBootInfo(Version, [.. catalog.Plugins.Select(p => p.Info.Id).Order(StringComparer.Ordinal)], failed);
         return _boot;
     }
@@ -62,6 +70,7 @@ internal static class BrowserHost
             return Problem(400, "The request headers could not be read.");
         }
 
+        _inFlight++;
         try
         {
             var response = await _host.SendAsync(new LocalRequest(method, url, headers, body));
@@ -72,6 +81,39 @@ internal static class BrowserHost
             // The router maps domain failures itself; anything reaching here is a host bug.
             await Console.Error.WriteLineAsync($"Unhandled local API failure for {method} {url}: {exception}");
             return Problem(500, "An unexpected error occurred.");
+        }
+        finally
+        {
+            _inFlight--;
+        }
+    }
+
+    /// <summary>
+    /// Validates the remaining embedded reference packs in the background. Each step is one pack; the
+    /// timer turn between steps lets queued requests run first. Results never depend on this: anything a
+    /// request needs is validated on demand, with the same outcome.
+    /// </summary>
+    private static async Task RunIdleWorkAsync(LocalApiHost host)
+    {
+        try
+        {
+            await Task.Delay(IdleWorkDelay);
+            while (true)
+            {
+                if (_inFlight > 0)
+                {
+                    await Task.Delay(50);
+                    continue;
+                }
+
+                if (!host.RunIdleWork()) return;
+                await Task.Delay(1);
+            }
+        }
+        catch (Exception exception)
+        {
+            // Background work must never take the runtime down; requests still validate on demand.
+            await Console.Error.WriteLineAsync($"Background reference pack validation stopped: {exception}");
         }
     }
 

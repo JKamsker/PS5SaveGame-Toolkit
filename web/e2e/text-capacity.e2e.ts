@@ -1,34 +1,22 @@
 import { test, expect, type Page } from "@playwright/test";
-import type { SaveDocument, FieldNode, Workspace } from "../src/api/protocol";
-import { archive, importSave, openJson } from "./helpers";
+import type { SaveDocument, FieldNode } from "../src/api/protocol";
+import { createDocumentLink, followLink, home, importSave, openJson } from "./helpers";
 import { actionPreview, resetAction } from "./action-helpers";
+import { onApi, routeApi } from "./apiRoutes";
 
-async function createCaptionDocument(page: Page) {
-  const imported = await page.request.post("/api/workspaces", { multipart: {
-    files: { name: "synthetic-save.zip", mimeType: "application/zip", buffer: archive() },
-  } });
-  expect(imported.ok()).toBe(true);
-  const workspace = await imported.json() as Workspace;
-  const files = workspace.titles.flatMap(title => title.directories.flatMap(directory => directory.files))
-    .filter(file => file.path === "save.json");
-  expect(files).toHaveLength(1);
-  const opened = await page.request.post(`/api/workspaces/${workspace.id}/files/${files[0]!.id}/open`, { data: { pluginId: "format.json" } });
-  expect(opened.ok()).toBe(true);
-  const document = await opened.json() as SaveDocument;
-  return `/w/${workspace.id}?doc=${document.id}`;
-}
-
-// Real HTTP import/open followed by a browser deep link avoids repeating unrelated picker UI
+// Real runtime import/open followed by an in-app deep link avoids repeating unrelated picker UI
 // in each authored protocol case. Native UTF-8 enforcement is covered by Core, not this view.
 async function captionFixture(page: Page, maxUtf8Bytes: number | null = 4, canEdit = true) {
-  const url = await createCaptionDocument(page);
+  // The runtime (and so every workspace) lives in the page: boot the app before importing through it.
+  await home(page);
+  const url = await createDocumentLink(page);
   const field: FieldNode = { type: "field", valueId: "caption", label: "Caption", value: "old",
     description: "Synthetic UTF-8 caption", spec: { kind: "text", maxUtf8Bytes } };
   let serverRevision: number | undefined;
   let serverCaption = "🎮";
   let snapshotUnavailable = false;
   let snapshotGate: { started: () => void; wait: Promise<void> } | undefined;
-  await page.route(/\/api\/workspaces\/[^/]+\/documents\/[^/?]+$/, async route => {
+  await routeApi(page, /\/api\/workspaces\/[^/]+\/documents\/[^/?]+$/, async route => {
     if (snapshotGate) {
       const gate = snapshotGate;
       snapshotGate = undefined;
@@ -53,7 +41,7 @@ async function captionFixture(page: Page, maxUtf8Bytes: number | null = 4, canEd
     ] };
     await route.fulfill({ response, json: document });
   });
-  await page.goto(url);
+  await followLink(page, url);
   await expect(page.getByText("Synthetic caption controls", { exact: true })).toBeVisible();
   return {
     get revision() { return serverRevision!; },
@@ -174,7 +162,7 @@ async function expectNoPageOverflow(page: Page) {
 
 async function installCaptionPlans(page: Page, fixture: Awaited<ReturnType<typeof captionFixture>>) {
   const revisions: number[] = [];
-  await page.route("**/actions/plan", route => {
+  await routeApi(page, "**/actions/plan", route => {
     const request = route.request().postDataJSON() as { parameters: { caption: string }; revision: number };
     expect(request.parameters.caption).toBe("🎮");
     expect(request.revision).toBe(fixture.revision);
@@ -190,7 +178,7 @@ async function installCaptionPlans(page: Page, fixture: Awaited<ReturnType<typeo
 async function installStaleFlow(page: Page, failure: string, fixture: Awaited<ReturnType<typeof captionFixture>>) {
   const revisions = await installCaptionPlans(page, fixture);
   let applies = 0;
-  await page.route("**/actions/apply", route => {
+  await routeApi(page, "**/actions/apply", route => {
     applies++;
     fixture.advanceRevision();
     return route.fulfill({ status: 409, json: failure === "exception" ? { error: "Synthetic metadata changed", code: "stale" } : {
@@ -252,7 +240,7 @@ for (const code of [undefined, "conflict"]) {
     await page.setViewportSize({ width: 375, height: 900 });
     const fixture = await captionFixture(page);
     const revisions = await installCaptionPlans(page, fixture);
-    await page.route("**/actions/apply", route => route.fulfill({ status: 409,
+    await routeApi(page, "**/actions/apply", route => route.fulfill({ status: 409,
       json: { error: "Action conflicts with current settings", ...(code === undefined ? {} : { code }) } }));
     const trigger = page.getByRole("button", { name: "Preview caption", exact: true });
     await trigger.click();
@@ -277,7 +265,7 @@ test("explicit-null capacities remain legacy in document and planned-action cont
   await page.setViewportSize({ width: 375, height: 900 });
   await captionFixture(page, null);
   await expect(page.locator(".text-capacity")).toHaveCount(0);
-  await page.route("**/actions/plan", route => {
+  await routeApi(page, "**/actions/plan", route => {
     const request = route.request().postDataJSON() as { parameters: { caption: string }; revision: number };
     expect(request.parameters.caption).toBe("🎮🎮");
     return route.fulfill({ json: { planId: "legacy-plan", revision: request.revision, scope: {},
@@ -318,7 +306,7 @@ test("a real GenericJson no-op preview announces no changes and never applies", 
   await importSave(page);
   await openJson(page);
   let applies = 0;
-  page.on("request", request => { if (request.url().endsWith("/actions/apply")) applies++; });
+  onApi(page, "request", request => { if (request.url().endsWith("/actions/apply")) applies++; });
   const trigger = page.getByRole("button", { name: resetAction, exact: true });
   await trigger.click();
   const dialog = actionPreview(page);

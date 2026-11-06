@@ -1,11 +1,14 @@
 import { expect, type Locator, type Page, type TestInfo } from "@playwright/test";
 import { execFile } from "node:child_process";
 import { mkdir, readFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import type { FieldNode, QueryablePage, SaveDocument } from "../src/api/protocol";
 import { importSave, type SaveFiles } from "./helpers";
+import { waitForApiResponse } from "./apiRoutes";
+import { apiRequest } from "./apiRequest";
 
 const repositoryRoot = fileURLToPath(new URL("../..", import.meta.url));
 export const jediPath = "PPSA02199/sdimg_E2E/settings.sav";
@@ -18,7 +21,8 @@ export async function generateUnrealFixtures(testInfo: TestInfo): Promise<string
   const directory = testInfo.outputPath("synthetic-gvas");
   await mkdir(directory, { recursive: true });
   const { stdout, stderr } = await promisify(execFile)("dotnet", ["run", "--project",
-    "tests/fixtures/SaveToolkit.UnrealBrowserFixture", "--configuration", "Release", "--", directory],
+    "tests/fixtures/SaveToolkit.UnrealBrowserFixture", "--configuration", "Release",
+    "--artifacts-path", path.join(tmpdir(), "unreal-fixture-build"), "--", directory],
   { cwd: repositoryRoot, timeout: 60_000, maxBuffer: 2 * 1024 * 1024 });
   await testInfo.attach("fixture-generator.log", { body: stdout + stderr, contentType: "text/plain" });
   return directory;
@@ -30,7 +34,7 @@ export async function unrealBytes(directory: string, name: string): Promise<Buff
 
 export async function openUnreal(page: Page, files: SaveFiles, name: string): Promise<string> {
   await importSave(page, files);
-  const opening = page.waitForResponse(response => response.url().endsWith("/open") && response.request().method() === "POST");
+  const opening = waitForApiResponse(page, response => response.url().endsWith("/open") && response.request().method() === "POST");
   await page.getByRole("navigation", { name: "Save directories" }).getByRole("button")
     .filter({ has: page.getByText(name, { exact: true }) }).click();
   const response = await opening;
@@ -43,7 +47,7 @@ export async function openUnreal(page: Page, files: SaveFiles, name: string): Pr
 }
 
 export async function collection(page: Page, documentPath: string, id: string, q?: string): Promise<QueryablePage> {
-  const response = await page.request.get(`${documentPath}/collections`, { params: { collectionId: id, limit: 200, ...(q ? { q } : {}) } });
+  const response = await apiRequest(page).get(`${documentPath}/collections`, { params: { collectionId: id, limit: 200, ...(q ? { q } : {}) } });
   expect(response.ok()).toBe(true);
   expect((await response.body()).length).toBeLessThan(2 * 1024 * 1024);
   return await response.json() as QueryablePage;

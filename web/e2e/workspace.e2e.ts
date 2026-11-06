@@ -56,7 +56,7 @@ test("an in-flight edit cannot replace another document's values or history", as
   await routeApi(page, "**/documents/*/edits", async route => {
     // Execute the real mutation, but hold its response while the user switches files.
     const response = await route.fetch();
-    expect(response.status).toBe(200);
+    expect(response.status()).toBe(200);
     acknowledge();
     await released;
     await route.fulfill({ response });

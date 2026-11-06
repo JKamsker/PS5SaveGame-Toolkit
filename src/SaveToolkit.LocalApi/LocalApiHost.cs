@@ -76,6 +76,17 @@ public sealed class LocalApiHost : IDisposable
     /// <summary>Drops clean, unleased workspaces idle longer than the configured timeout; returns the count.</summary>
     public int SweepIdleWorkspaces() => _services.Workspaces.Sweep();
 
+    /// <summary>
+    /// Does one bounded piece of deferred startup work (validating one embedded reference pack nothing
+    /// has needed yet) and returns false once none is left. Responses are the same whether or not this
+    /// runs; calling it between requests only moves the cost away from the first document open.
+    /// </summary>
+    public bool RunIdleWork()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        return _services.Packs.ValidateNext();
+    }
+
     public void Dispose()
     {
         if (_disposed) return;

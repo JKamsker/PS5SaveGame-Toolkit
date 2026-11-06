@@ -2,6 +2,7 @@ import { test, expect, type Locator, type Page, type TestInfo } from "@playwrigh
 import { writeFile } from "node:fs/promises";
 import { fixture, importSave, loadJson, openJson } from "./helpers";
 import { generateGearboxFixtures, productionGearboxImport, productionGearboxTransfers, type GearboxFixture } from "./gearbox-action-effects";
+import { routeApi } from "./apiRoutes";
 
 test.describe("production Gearbox effects", () => {
   let gearboxFixtures: GearboxFixture[];
@@ -35,7 +36,7 @@ async function renderedEffectIds(region: Locator) {
 type Requests = { plan?: unknown; apply?: unknown };
 
 async function installSyntheticRoutes(page: Page, requests: Requests) {
-  await page.route("**/actions/plan", async route => {
+  await routeApi(page, "**/actions/plan", async route => {
     const upstream = await route.fetch();
     const original = await upstream.json();
     const changes = [
@@ -72,7 +73,7 @@ async function installSyntheticRoutes(page: Page, requests: Requests) {
     requests.plan = { request: route.request().postDataJSON(), response: plan };
     await route.fulfill({ response: upstream, json: plan });
   });
-  await page.route("**/actions/apply", async route => {
+  await routeApi(page, "**/actions/apply", async route => {
     requests.apply = route.request().postDataJSON();
     const upstream = await route.fetch();
     const original = await upstream.json();

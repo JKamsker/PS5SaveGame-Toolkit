@@ -39,7 +39,7 @@ async function freeLoopbackUrl(): Promise<string> {
 // the browser (in-memory workspaces, IndexedDB presets per fresh Playwright context), so the run
 // directory only isolates per-run artifacts.
 const baseURL = process.env.SAVETOOLKIT_E2E_URL ??= await freeLoopbackUrl();
-const runDirectory = process.env.SAVETOOLKIT_E2E_RUN_DIRECTORY ??= mkdtempSync(path.join(scratch, "run-"));
+process.env.SAVETOOLKIT_E2E_RUN_DIRECTORY ??= mkdtempSync(path.join(scratch, "run-"));
 
 export default defineConfig({
   testDir: "./e2e",
@@ -51,7 +51,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: 0,
   timeout: 30_000,
-  globalTimeout: 180_000,
+  // Every test boots its own in-browser .NET runtime (fresh context: download, compile, plugin discovery).
+  globalTimeout: 30 * 60_000,
   globalTeardown: "./e2e/teardown.ts",
   outputDir: path.join(scratch, "test-results"),
   reporter: [["list"], ["html", { outputFolder: process.env.PLAYWRIGHT_HTML_OUTPUT_DIR ?? path.join(scratch, "playwright-report"), open: "never" }],
