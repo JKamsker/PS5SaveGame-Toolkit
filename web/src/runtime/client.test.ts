@@ -1,5 +1,6 @@
 // @vitest-environment node
 // Node supplies a coherent fetch/FormData/File stack (jsdom's File is opaque to undici's Request).
+import { getEventListeners } from "node:events";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createRuntimeClient, RuntimeRequestError } from "./client";
 import { decodeFrame } from "./framing";
@@ -237,6 +238,27 @@ it("runtime client: ignores the late result of an aborted in-flight request", as
   worker.reply(worker.requests()[0]!, 200, "late");
   worker.reply(worker.requests()[1]!, 200, "\"b\"");
   expect(await (await next).json()).toBe("b");
+});
+
+it("runtime client: leaves no abort listener on a long-lived signal once its requests settle", async () => {
+  const { worker, client } = setup();
+  worker.emit({ type: "ready", boot });
+  const { signal } = new AbortController();
+  for (let i = 0; i < 5; i++) {
+    const answered = client.fetch("/api/a", { signal });
+    const failed = client.fetch("/api/b", { signal });
+    await flush();
+    expect(getEventListeners(signal, "abort")).toHaveLength(2);
+    const [a, b] = worker.requests().slice(-2);
+    worker.reply(a!, 200, "1");
+    worker.emit({ type: "error", id: b!.id, message: "interop failure" });
+    await answered; await failed.catch(() => undefined);
+  }
+  const crashed = client.fetch("/api/c", { signal });
+  await flush();
+  worker.emit({ type: "failed", message: "RuntimeError: unreachable" });
+  await expect(crashed).rejects.toThrow("unreachable");
+  expect(getEventListeners(signal, "abort")).toHaveLength(0);
 });
 
 it("runtime client: never sends a request whose signal is already aborted", async () => {

@@ -45,6 +45,8 @@ interface Pending {
   reject: (error: unknown) => void;
   settled: boolean;
   onStart?: () => void;
+  /** Detaches the abort listener, so a long-lived signal does not collect one per settled request. */
+  release?: () => void;
 }
 
 const abortError = () => new DOMException("The request was aborted.", "AbortError");
@@ -126,11 +128,15 @@ class WorkerRuntimeClient {
     return new Promise<Response>((resolve, reject) => {
       const pending: Pending = { id: request.id, resolve, reject, settled: false, onStart: events.onStart };
       this.pending.set(request.id, pending);
-      signal?.addEventListener("abort", () => {
-        if (!this.pending.delete(request.id)) return;
-        this.worker?.postMessage({ type: "cancel", id: request.id } satisfies ToWorker);
-        settle(pending, () => reject(abortError()));
-      }, { once: true });
+      if (signal) {
+        const aborted = () => {
+          if (!this.pending.delete(request.id)) return;
+          this.worker?.postMessage({ type: "cancel", id: request.id } satisfies ToWorker);
+          settle(pending, () => reject(abortError()));
+        };
+        signal.addEventListener("abort", aborted, { once: true });
+        pending.release = () => signal.removeEventListener("abort", aborted);
+      }
       this.start().postMessage({ type: "request", request } satisfies ToWorker, body ? [body] : []);
     });
   }
@@ -216,6 +222,7 @@ class WorkerRuntimeClient {
 function settle(pending: Pending, outcome: () => void) {
   if (pending.settled) return;
   pending.settled = true;
+  pending.release?.();
   outcome();
 }
 
