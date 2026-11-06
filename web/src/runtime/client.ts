@@ -67,7 +67,7 @@ class WorkerRuntimeClient {
   private readonly listeners = new Set<() => void>();
   private readonly pending = new Map<number, Pending>();
   private nextId = 1;
-  /** Settles once the most recently called request was posted to the worker (or failed before that). */
+  /** Settles once the most recently called request and every one before it were posted (or failed). */
   private posted: Promise<void> = Promise.resolve();
   /** Rejects the requests still serializing or waiting for their turn (on abort or a runtime failure). */
   private readonly interrupts = new Set<(error: unknown) => void>();
