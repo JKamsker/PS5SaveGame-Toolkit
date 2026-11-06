@@ -13,7 +13,8 @@ export const presetLibraryPath = `${persistentRoot}/presets/presets.json`;
 /** Must match LOCK_NAME in web/src/runtime/persistence.ts. */
 const storageLock = "savetoolkit-persistent-storage";
 
-type Change = { kind: "write"; path: string; text: string } | { kind: "rename"; path: string; to: string } | { kind: "unlink"; path: string };
+type Change = { kind: "write"; path: string; text: string } | { kind: "rename"; path: string; to: string } | { kind: "unlink"; path: string }
+  | { kind: "mkdir"; path: string } | { kind: "rmdir"; path: string };
 
 export async function runtimeFiles(page: Page) {
   const workers = page.workers();
@@ -21,7 +22,7 @@ export async function runtimeFiles(page: Page) {
   const worker = workers[hosts.indexOf(true)];
   if (!worker) throw new Error("The page has not booted its .NET runtime worker.");
   type Fs = { readFile(path: string, options: { encoding: "utf8" }): string; writeFile(path: string, data: string): void;
-    rename(from: string, to: string): void; unlink(path: string): void; syncfs(populate: boolean, done: (error: unknown) => void): void };
+    rename(from: string, to: string): void; unlink(path: string): void; mkdir(path: string): void; rmdir(path: string): void; syncfs(populate: boolean, done: (error: unknown) => void): void };
   return {
     read: (path: string) => worker.evaluate(file =>
       (globalThis as unknown as { getDotnetRuntime(id: number): { Module: { FS: Fs } } }).getDotnetRuntime(0).Module.FS
@@ -34,6 +35,8 @@ export async function runtimeFiles(page: Page) {
           for (const change of changes) {
             if (change.kind === "write") fs.writeFile(change.path, change.text);
             else if (change.kind === "rename") fs.rename(change.path, change.to);
+            else if (change.kind === "mkdir") fs.mkdir(change.path);
+            else if (change.kind === "rmdir") fs.rmdir(change.path);
             else fs.unlink(change.path);
           }
           await new Promise<void>((resolve, reject) => fs.syncfs(false, error => error ? reject(error as Error) : resolve()));

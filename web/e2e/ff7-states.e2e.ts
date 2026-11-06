@@ -81,18 +81,17 @@ test("actual storage failure preserves draft, history, whole bytes and library; 
   await panel.getByRole("button", { name: "Cancel", exact: true }).click();
   await panel.getByLabel("Name", { exact: true }).fill("Retain this draft after a real storage error");
   const before = await snapshot(apiRequest(page), documentPath);
-  // The runtime's preset store lives in the page's runtime worker; obstruct it there.
+  // The runtime's preset store lives in the page's runtime worker. Obstruct the store's atomic write
+  // (it writes presets.json.tmp, then renames it) with a directory, leaving the library itself intact.
   const files = await runtimeFiles(page);
-  const storage = `${persistentRoot}/presets`;
-  const retained = `${persistentRoot}/presets-retained`;
-  // Swap in one step each way, so the runtime never observes (or recreates) a missing store in between.
-  await files.change({ kind: "rename", path: storage, to: retained }, { kind: "write", path: storage, text: "Authored FF7 test storage obstacle." });
+  const obstacle = `${persistentRoot}/presets/presets.json.tmp`;
+  await files.change({ kind: "mkdir", path: obstacle });
   try {
     const saving = waitForApiResponse(page, response => response.url().endsWith("/presets/capture"));
     await panel.getByRole("button", { name: "Save preset", exact: true }).click();
     expect((await saving).status()).toBe(503);
   } finally {
-    await files.change({ kind: "unlink", path: storage }, { kind: "rename", path: retained, to: storage });
+    await files.change({ kind: "rmdir", path: obstacle });
   }
   await unchanged(apiRequest(page), documentPath, before);
   await expect(panel.getByLabel("Name", { exact: true })).toHaveValue("Retain this draft after a real storage error");
