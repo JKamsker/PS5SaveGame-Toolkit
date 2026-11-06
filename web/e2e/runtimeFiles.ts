@@ -16,7 +16,8 @@ const storageLock = "savetoolkit-persistent-storage";
 type Change = { kind: "write"; path: string; text: string } | { kind: "rename"; path: string; to: string } | { kind: "unlink"; path: string }
   | { kind: "mkdir"; path: string } | { kind: "rmdir"; path: string };
 
-async function runtimeWorker(page: Page) {
+/** The page's booted .NET runtime worker. */
+export async function runtimeWorker(page: Page) {
   const workers = page.workers();
   const hosts = await Promise.all(workers.map(worker => worker.evaluate(() => "getDotnetRuntime" in globalThis).catch(() => false)));
   const worker = workers[hosts.indexOf(true)];

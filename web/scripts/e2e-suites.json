@@ -19,6 +19,7 @@
         "import.e2e.ts",
         "keyboard.e2e.ts",
         "map-accessibility.e2e.ts",
+        "preset-tabs.e2e.ts",
         "presets.e2e.ts",
         "reference-batch.e2e.ts",
         "review.e2e.ts",
