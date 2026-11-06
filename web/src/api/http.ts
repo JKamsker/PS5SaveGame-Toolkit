@@ -1,6 +1,7 @@
 import { runtime } from "../runtime";
 // Not from "../runtime": component tests replace that module with a fetch-backed stand-in.
 import { RuntimeRequestError } from "../runtime/client";
+import { isOutOfMemory } from "../runtime/failures";
 
 export class ApiError extends Error {
   constructor(message: string, readonly status: number, readonly body?: unknown) {
@@ -97,7 +98,9 @@ function runtimeFailure(error?: unknown): string | undefined {
   const state = runtime.state();
   if (state.status !== "failed") return undefined;
   if (!state.crashed) return runtimeFailedMessage;
-  return error instanceof RuntimeRequestError && error.outOfMemory ? runtimeCrashedOutOfMemoryMessage : runtimeCrashedMessage;
+  // Requests sent after the crash learn the cause from the runtime state.
+  return (error instanceof RuntimeRequestError && error.outOfMemory) || isOutOfMemory(state.message)
+    ? runtimeCrashedOutOfMemoryMessage : runtimeCrashedMessage;
 }
 
 /** Waits for the boot; fails once it reports no progress for RUNTIME_STALL_LIMIT_MS instead of waiting forever. */

@@ -42,6 +42,10 @@ it("reports requests lost in a crash as a crash, out of memory when that was the
     return Promise.reject(new RuntimeRequestError("Aborted(OOM)", true));
   });
   await expect(fetchApi("/workspaces", { method: "POST" }, readJson)).rejects.toMatchObject({ message: runtimeCrashedOutOfMemoryMessage });
+  // A request sent after the runtime stopped out of memory says so too.
+  state.mockReturnValue({ status: "failed", message: "Aborted(OOM)", crashed: true });
+  vi.mocked(runtime.fetch).mockRejectedValue(new TypeError("Aborted(OOM)"));
+  await expect(fetchApi("/presets", undefined, readJson)).rejects.toMatchObject({ message: runtimeCrashedOutOfMemoryMessage });
 });
 
 it("fails a request waiting for a boot that stopped making progress instead of waiting forever", async () => {
