@@ -33,13 +33,16 @@ public sealed class LocalApiHost : IDisposable
             StorageRoot = options.ResolvedPackRoot,
             PreferredLocales = options.Locales.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
         });
-        var presets = new PresetStore(new PresetStoreOptions { StorageRoot = options.ResolvedPresetRoot });
+        // An unreadable library fails the preset requests (like the Api's lazily created singleton), not startup.
+        var presetRoot = options.ResolvedPresetRoot;
+        var presets = new PresetLibrary(() => new PresetStore(new PresetStoreOptions { StorageRoot = presetRoot }));
+        presets.TryLoad();
         var workspaces = new WorkspaceStore(catalog, new WorkspaceStoreOptions
         {
             DataRoot = options.ResolvedWorkspaceRoot,
             IdleTimeout = options.WorkspaceIdleTimeout,
         }, packs);
-        _services = new LocalServices(catalog, workspaces, packs, presets, new PresetTransferService(presets), options.Version);
+        _services = new LocalServices(catalog, workspaces, packs, presets, options.Version);
 
         WorkspaceRoutes.Map(_routes);
         DocumentRoutes.Map(_routes);
@@ -101,15 +104,17 @@ public sealed class LocalApiHost : IDisposable
     /// Makes the durable stores (presets and user reference packs) re-read their storage roots. A host
     /// whose files can be replaced by another writer (the browser runtime, when another tab of the same
     /// site saved to the shared IndexedDB) calls this before relying on them again. Open documents keep
-    /// the reference packs they pinned. Throws when the preset library on disk is malformed; the last
-    /// good view is kept and the user packs still reload, and preset writes answer 409 until a reload
-    /// succeeds instead of writing that view over the newer file.
+    /// the reference packs they pinned. A preset library identical to the one loaded keeps its identity,
+    /// so a reviewed preset import survives unrelated changes (for example a pack import in another tab).
+    /// Throws when the preset library on disk is malformed; the last good view is kept and the user packs
+    /// still reload, and preset writes answer 409 until a reload succeeds instead of writing that view
+    /// over the newer file. A library never loaded (unreadable since startup) is read on next use instead.
     /// </summary>
     public void ReloadPersistentStores()
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         _services.Packs.ReloadStored();
-        _services.Presets.Refresh();
+        _services.PresetLibrary.Refresh();
     }
 
     public void Dispose()

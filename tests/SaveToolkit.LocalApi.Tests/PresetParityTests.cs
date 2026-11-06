@@ -99,5 +99,36 @@ public sealed class PresetParityTests : IDisposable
         await t.GetAsync("/api/presets");
     });
 
+    /// <summary>A library saved by a newer version: both hosts start, and only preset requests report it.</summary>
+    [Fact]
+    public async Task An_unreadable_library_matches_and_is_left_untouched()
+    {
+        const string Newer = """[{"schemaVersion":"2","id":"newer","name":"Newer","compatibility":{"pluginId":"test.planning","pluginVersion":"1.0.0","titleIds":["PPSA99999"]},"actions":[{"actionId":"refill","parameters":{}}],"createdAt":"2026-01-01T00:00:00Z","updatedAt":"2026-01-01T00:00:00Z"}]""";
+        var roots = new List<string>();
+        using var hosts = new ParityHosts(seedPresets: root =>
+        {
+            Directory.CreateDirectory(root);
+            File.WriteAllText(Path.Combine(root, "presets.json"), Newer);
+            roots.Add(root);
+        });
+        await hosts.AssertParityAsync(async t =>
+        {
+            await t.GetAsync("/api/plugins");
+            var doc = await PlanningAsync(t);
+            await t.GetAsync("/api/presets");
+            await t.PostJsonAsync("/api/presets", Refill);
+            await t.SendAsync(HttpMethod.Patch, "/api/presets/newer", Raw("""{"name":"Renamed"}""", "application/json"));
+            await t.DeleteAsync("/api/presets/newer");
+            await t.PostJsonAsync("/api/presets/reload", "");
+            await t.PostJsonAsync("/api/presets/transfer/export", """{"ids":["newer"]}""");
+            await t.DeleteAsync("/api/presets/transfer/previews/unknown");
+            await t.GetAsync(doc + "/presets");
+            await t.PostJsonAsync($"{doc}/presets/capture", """{"name":"Captured","actionId":"refill","parameters":{"value":3}}""");
+            await t.GetAsync(doc);
+        });
+        Assert.Equal(2, roots.Count);
+        foreach (var root in roots) Assert.Equal(Newer, File.ReadAllText(Path.Combine(root, "presets.json")));
+    }
+
     public void Dispose() => _hosts.Dispose();
 }

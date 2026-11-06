@@ -58,6 +58,20 @@ it("announces boot phases once while file counts and a never-receding bar update
   emit({ status: "loading", loaded: 78, total: 78, starting: true });
   expect(live.textContent).toBe("Starting the editor and its game data…");
   expect(screen.getByRole("progressbar").getAttribute("aria-valuenow")).toBe("100");
+
+  // The banner goes away, but the same live region says once that the editor is ready.
+  emit({ status: "ready", boot: boot({}) });
+  expect(screen.getByRole("status")).toBe(live);
+  expect(live.textContent).toBe("The editor is ready.");
+  expect(live.parentElement!.className).toBe("visually-hidden");
+  expect(screen.queryByRole("progressbar")).toBeNull();
+  expect(document.querySelector(".runtime-status")).toBeNull();
+});
+
+it("says nothing about readiness when the runtime was already ready", () => {
+  controlledRuntime({ status: "ready", boot: boot({}) });
+  render(<RuntimeStatus />);
+  expect(screen.queryByRole("status")).toBeNull();
 });
 
 it.each([

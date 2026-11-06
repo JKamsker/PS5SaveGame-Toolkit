@@ -1,124 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from "vitest";
-import { decodeFrame, encodeFrame } from "./framing";
-import { PersistenceCoordinator, storageFailure, writesDurableData, type LockMode, type PersistentStorage, type TabCoordination } from "./persistence";
-
-/**
- * A model of the browser: one IndexedDB shared by tabs, each tab with its own in-memory copy of the
- * mount (IDBFS mirrors whole trees, exactly like FS.syncfs) and a .NET preset store that caches the
- * library and writes its whole cached view back (like PresetStore.Persist).
- */
-type Tree = Map<string, { content: string; mtime: number }>;
-let clock = 1;
-const copy = (tree: Tree): Tree => new Map([...tree].map(([path, entry]) => [path, { ...entry }]));
-
-class Site {
-  idb: Tree = new Map();
-  failSave: Error | null = null;
-  failLoad: Error | null = null;
-  failVerify: Error | null = null;
-  lockUnavailable = false;
-  readonly listeners = new Set<{ tab: Tab; onChange: () => void }>();
-  private tail: Promise<unknown> = Promise.resolve();
-  private held = 0;
-
-  tabs(tab: Tab, locks = true): TabCoordination {
-    return {
-      lock: locks ? <T>(_mode: LockMode, task: () => Promise<T>, ifAvailable = false) => {
-        if (this.lockUnavailable || (ifAvailable && this.held > 0)) return Promise.reject(new DOMException("Timed out", "TimeoutError"));
-        this.held++;
-        const run = this.tail.then(task).finally(() => { this.held--; });
-        this.tail = run.catch(() => undefined);
-        return run;
-      } : null,
-      announce: () => { for (const listener of this.listeners) if (listener.tab !== tab) listener.onChange(); },
-      listen: onChange => { this.listeners.add({ tab, onChange }); },
-    };
-  }
-}
-
-class Tab {
-  local: Tree;
-  presets: string[];
-  /** What PresetStore.Refresh reports, e.g. a record from a newer version of the site. */
-  reloadError = "";
-  readonly log = { error: vi.fn(), warn: vi.fn() };
-  readonly coordinator: PersistenceCoordinator;
-  readonly storage: PersistentStorage;
-
-  constructor(readonly site: Site, locks = true) {
-    this.local = copy(site.idb);
-    this.presets = this.readLibrary();
-    const storage: PersistentStorage = {
-      load: async () => {
-        if (site.failLoad) throw site.failLoad;
-        this.local = copy(site.idb);
-      },
-      save: async () => {
-        if (site.failSave) throw site.failSave;
-        site.idb = copy(this.local);
-      },
-      trackChanges: () => {
-        const before = this.fingerprint();
-        return () => this.fingerprint() !== before;
-      },
-      verifySaved: async () => { if (site.failVerify) throw site.failVerify; },
-      readGeneration: () => this.local.get(".generation")?.content ?? "",
-      writeGeneration: generation => this.write(".generation", generation),
-      reloadStores: () => {
-        if (this.reloadError) return this.reloadError;
-        this.presets = this.readLibrary();
-        return "";
-      },
-    };
-    this.storage = storage;
-    this.coordinator = new PersistenceCoordinator(storage, site.tabs(this, locks), this.log);
-  }
-
-  async boot() {
-    await this.coordinator.initialLoad();
-    this.presets = this.readLibrary();
-  }
-
-  /** POST /api/presets: adds to the cached library and writes the whole cached view. */
-  create(name: string) {
-    return this.coordinator.run("POST", "/api/presets", async () => {
-      this.presets = [...this.presets, name];
-      this.write("presets/presets.json", JSON.stringify(this.presets));
-      return frame(200, { name });
-    });
-  }
-
-  list() {
-    return this.coordinator.run("GET", "/api/presets", async () => frame(200, this.presets));
-  }
-
-  private fingerprint() {
-    return [...this.local].map(([path, { content, mtime }]) => `${path} ${content.length} ${mtime}`).sort().join("\n");
-  }
-
-  private write(path: string, content: string) {
-    this.local.set(path, { content, mtime: clock++ });
-  }
-
-  private readLibrary(): string[] {
-    const file = this.local.get("presets/presets.json");
-    return file ? JSON.parse(file.content) as string[] : [];
-  }
-}
-
-const frame = (status: number, body: unknown) => encodeFrame(status, [["Content-Type", "application/json"]], new TextEncoder().encode(JSON.stringify(body)));
-const read = (bytes: Uint8Array) => {
-  const { status, bodyOffset } = decodeFrame(bytes);
-  return { status, body: JSON.parse(new TextDecoder().decode(bytes.subarray(bodyOffset))) as Record<string, unknown> };
-};
-const library = (site: Site) => JSON.parse(site.idb.get("presets/presets.json")?.content ?? "[]") as string[];
-
-async function bootTab(site: Site, locks = true) {
-  const tab = new Tab(site, locks);
-  await tab.boot();
-  return tab;
-}
+import { bootTab, frame, library, read, Site, tick, Tab } from "../test/persistenceSite";
+import { storageFailure, writesDurableData } from "./persistence";
 
 describe("two tabs sharing IndexedDB", () => {
   it.each([true, false])("keeps both tabs' saves (Web Locks: %s)", async locks => {
@@ -246,7 +129,7 @@ describe("failures are never reported as saved", () => {
     const a = await bootTab(site);
     site.failSave = new Error("disk gone");
     const response = await a.coordinator.run("DELETE", "/api/presets/x", async () => {
-      a.local.set("presets/stray.tmp", { content: "x", mtime: clock++ });
+      a.local.set("presets/stray.tmp", { content: "x", mtime: tick() });
       return frame(404, { error: "Preset not found." });
     });
     expect(read(response)).toMatchObject({ status: 404, body: { error: "Preset not found." } });
@@ -307,7 +190,7 @@ describe("failed requests", () => {
     const site = new Site();
     const a = await bootTab(site);
     await expect(a.coordinator.run("POST", "/api/reference-packs", async () => {
-      a.local.set("reference-packs/pack-x.zip", { content: "zip", mtime: clock++ });
+      a.local.set("reference-packs/pack-x.zip", { content: "zip", mtime: tick() });
       throw new Error("interop failed");
     })).rejects.toThrow("interop failed");
     expect(a.local.has("reference-packs/pack-x.zip")).toBe(false);

@@ -94,6 +94,52 @@ export async function verifyMirrored(idbfs: IdbfsSets, mountpoint: string): Prom
     + `(${differing.slice(0, 3).join(", ")}${differing.length > 3 ? ", ..." : ""}).`);
 }
 
+/** One cached IndexedDB connection of IDBFS (an `IDBDatabase`). */
+export interface DatabaseConnection {
+  close(): void;
+  addEventListener(type: "close" | "versionchange", listener: () => void): void;
+}
+
+/** IDBFS' cache of open connections, by mount point. */
+export interface IdbfsConnections { dbs: Record<string, DatabaseConnection | undefined> }
+
+/**
+ * IDBFS opens its IndexedDB connection once and caches it for good. When the browser closes it ("Clear
+ * site data", the database deleted or upgraded elsewhere), every later `syncfs` would fail until a
+ * reload, even after another tab recreated the database. The returned function runs `sync`; when that
+ * fails on a cached connection, it drops the connection and tries once more on a new one. It also
+ * watches each connection, so `onLost` hears when the browser closes it (or another tab needs it closed
+ * to delete or upgrade the database): IndexedDB may then hold something else than this tab loaded.
+ */
+export function reconnectingSync(idbfs: IdbfsConnections, mountpoint: string, sync: (populate: boolean) => Promise<void>,
+  onLost: () => void): (populate: boolean) => Promise<void> {
+  const watched = new WeakSet<DatabaseConnection>();
+  const drop = (db: DatabaseConnection) => {
+    if (idbfs.dbs[mountpoint] === db) delete idbfs.dbs[mountpoint];
+  };
+  const watch = () => {
+    const db = idbfs.dbs[mountpoint];
+    if (!db || watched.has(db)) return;
+    watched.add(db);
+    db.addEventListener("close", () => { drop(db); onLost(); });
+    db.addEventListener("versionchange", () => { db.close(); drop(db); onLost(); });
+  };
+  return async populate => {
+    const cached = idbfs.dbs[mountpoint];
+    try {
+      await sync(populate);
+    } catch (error) {
+      // Opening failed (storage blocked, a newer database version): a new connection would fail too.
+      if (!cached) throw error;
+      drop(cached);
+      try { cached.close(); } catch { /* already closed */ }
+      await sync(populate);
+    } finally {
+      watch();
+    }
+  };
+}
+
 export function asError(error: unknown): Error {
   return error instanceof Error ? error : new Error(String(error));
 }

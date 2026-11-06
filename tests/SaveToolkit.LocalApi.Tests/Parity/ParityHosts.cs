@@ -15,20 +15,26 @@ internal sealed class ParityHosts : IDisposable
     private readonly WebApplicationFactory<Program> _factory;
     private readonly LocalApiHost _local;
 
-    public ParityHosts(Func<IGamePlugin[]>? plugins = null)
+    /// <param name="plugins">Plugin instances for each host (called once per host).</param>
+    /// <param name="seedPresets">Prepares each host's preset root before it starts (for example a stored library).</param>
+    public ParityHosts(Func<IGamePlugin[]>? plugins = null, Action<string>? seedPresets = null)
     {
         plugins ??= DefaultPlugins;
         var aspNetPlugins = plugins();
+        var (aspNetPresets, localPresets) = (TempDir(), TempDir());
+        seedPresets?.Invoke(aspNetPresets);
+        seedPresets?.Invoke(localPresets);
         _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseEnvironment("Production").UseSetting("Toolkit:DataRoot", TempDir())
                 .UseSetting("Toolkit:PackRoot", TempDir())
-                .UseSetting("Toolkit:PresetRoot", TempDir());
+                .UseSetting("Toolkit:PresetRoot", aspNetPresets);
             builder.ConfigureServices(services => services.AddSingleton(new PluginCatalog(aspNetPlugins)));
         });
         _local = new LocalApiHost(new LocalApiOptions
         {
             DataRoot = TempDir(),
+            PresetRoot = localPresets,
             Catalog = new PluginCatalog(plugins()),
             Version = ApiVersion,
             SweepInterval = null,

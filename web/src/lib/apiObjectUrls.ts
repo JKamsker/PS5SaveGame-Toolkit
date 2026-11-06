@@ -1,4 +1,4 @@
-import { fetchBinary } from "../api/client";
+import { fetchBinary, onApiChange } from "../api/client";
 import { RequestQueue } from "./RequestQueue";
 
 /**
@@ -11,6 +11,11 @@ import { RequestQueue } from "./RequestQueue";
  * IMAGE_CONCURRENCY image requests are handed to it at once (a user action waits behind at most that
  * many), and a fetch whose last user goes away before it finished is aborted. An aborted request that
  * the worker has not started yet is dropped without running.
+ *
+ * The cache is keyed by path, so a change that can alter the bytes behind a path drops the cached entries
+ * it affects (`staleAfter`): an imported or removed reference pack (in this or another tab of the site),
+ * an edit to a document (its own assets) and a closed document or workspace. Images showing a dropped
+ * entry fetch it again (`objectUrlStamp`) and keep the old picture until the new one arrives.
  */
 interface Entry {
   url: Promise<string>;
@@ -24,6 +29,10 @@ const RELEASE_DELAY_MS = 30_000;
 export const IMAGE_CONCURRENCY = 2;
 const entries = new Map<string, Entry>();
 const queue = new RequestQueue(IMAGE_CONCURRENCY);
+/** Bumped for each path whose cached entry was dropped as stale; images holding it re-acquire. */
+const stamps = new Map<string, number>();
+let lastStamp = 0;
+const listeners = new Set<() => void>();
 
 export interface ObjectUrlLease { url: Promise<string>; release: () => void }
 
@@ -47,6 +56,7 @@ function load(path: string): Entry {
 }
 
 export function acquireObjectUrl(path: string): ObjectUrlLease {
+  listenToOtherTabs();
   let entry = entries.get(path);
   if (!entry) {
     entry = load(path);
@@ -69,10 +79,70 @@ export function acquireObjectUrl(path: string): ObjectUrlLease {
         return;
       }
       held.timer = setTimeout(() => {
-        if (held.refs > 0 || entries.get(path) !== held) return;
-        entries.delete(path);
+        if (held.refs > 0) return;
+        // A stale entry was already dropped from the cache; its URL still needs revoking.
+        if (entries.get(path) === held) entries.delete(path);
         held.url.then(url => URL.revokeObjectURL(url), () => undefined);
       }, RELEASE_DELAY_MS);
     },
   };
+}
+
+/** Changes whenever the cached bytes for `path` were dropped as stale; an image re-acquires on change. */
+export function objectUrlStamp(path: string): number {
+  return stamps.get(path) ?? 0;
+}
+
+export function subscribeObjectUrls(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => { listeners.delete(listener); };
+}
+
+/** Drops the cached entries whose path matches; current users keep their URL until they re-acquire. */
+export function invalidateObjectUrls(matches: (path: string) => boolean): void {
+  let dropped = false;
+  for (const path of [...entries.keys()]) {
+    if (!matches(path)) continue;
+    entries.delete(path);
+    stamps.set(path, ++lastStamp);
+    dropped = true;
+  }
+  if (dropped) for (const listener of [...listeners]) listener();
+}
+
+const isReferenceAsset = (path: string) => /\/reference-assets\?/.test(path);
+
+/** Which cached paths a successful request makes stale, if any. Reads (including POST reads) change nothing. */
+export function staleAfter(method: string, path: string): ((cached: string) => boolean) | undefined {
+  if (path === "/reference-packs" || path.startsWith("/reference-packs/")) return isReferenceAsset;
+  const document = /^(\/workspaces\/[^/]+\/documents\/[^/?]+)(\/(?:edits|actions|undo|redo|presets\/[^/?]+\/apply))?$/.exec(path);
+  if (document) {
+    const [, prefix, change] = document;
+    if (method === "DELETE" && !change) return cached => cached.startsWith(`${prefix}/`);
+    if (method === "POST" && change) return cached => cached.startsWith(`${prefix}/assets?`);
+    return undefined;
+  }
+  if (method === "DELETE" && /^\/workspaces\/[^/?]+$/.test(path)) return cached => cached.startsWith(`${path}/`);
+  return undefined;
+}
+
+onApiChange((method, path) => {
+  const stale = staleAfter(method, path);
+  if (stale) invalidateObjectUrls(stale);
+});
+
+/**
+ * The runtime worker of every tab announces saved preset and reference-pack changes on this channel
+ * (runtime/persistence.ts, CHANNEL_NAME); a pack another tab imported or removed may change any asset.
+ */
+const PERSISTENT_CHANGES_CHANNEL = "savetoolkit-persistent-storage";
+let otherTabs: BroadcastChannel | null | undefined;
+
+function listenToOtherTabs() {
+  if (otherTabs !== undefined) return;
+  otherTabs = typeof BroadcastChannel === "function" ? new BroadcastChannel(PERSISTENT_CHANGES_CHANNEL) : null;
+  if (!otherTabs) return;
+  otherTabs.onmessage = () => invalidateObjectUrls(isReferenceAsset);
+  // Node (tests) would otherwise keep the process alive for the channel.
+  (otherTabs as { unref?: () => void }).unref?.();
 }

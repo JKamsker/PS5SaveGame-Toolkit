@@ -13,9 +13,25 @@ const GZIP_MAGIC_1 = 0x8b;
 
 export type BootResourceLoader = (type: string, name: string, defaultUri: string) => Promise<Response> | null;
 
-export function createCompressedResourceLoader(fetcher: typeof fetch = fetch): BootResourceLoader {
+/**
+ * `onBytes` reports every chunk of a runtime file as it arrives, so a slow download that is still moving
+ * counts as progress even while one large file takes minutes.
+ */
+export function createCompressedResourceLoader(fetcher: typeof fetch = fetch, onBytes?: (bytes: number) => void): BootResourceLoader {
+  const counted = onBytes ? countingFetch(fetcher, onBytes) : fetcher;
   if (typeof DecompressionStream === "undefined") return () => null;
-  return (type, name, defaultUri) => compressible.has(type) ? load(fetcher, name, defaultUri) : null;
+  return (type, name, defaultUri) => compressible.has(type) ? load(counted, name, defaultUri) : null;
+}
+
+function countingFetch(fetcher: typeof fetch, onBytes: (bytes: number) => void): typeof fetch {
+  return async (input, init) => {
+    const response = await fetcher(input, init);
+    if (!response.body || typeof TransformStream === "undefined") return response;
+    const counter = new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, controller) { onBytes(chunk.byteLength); controller.enqueue(chunk); },
+    });
+    return new Response(response.body.pipeThrough(counter), { status: response.status, statusText: response.statusText, headers: response.headers });
+  };
 }
 
 async function load(fetcher: typeof fetch, name: string, uri: string): Promise<Response> {

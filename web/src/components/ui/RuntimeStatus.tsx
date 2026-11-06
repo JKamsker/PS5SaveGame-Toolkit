@@ -9,10 +9,18 @@ export function RuntimeStatus() {
   const state = useSyncExternalStore(runtime.subscribe, runtime.state);
   // Start downloading immediately rather than on the first request.
   useEffect(() => { runtime.ready().catch(() => undefined); }, []);
+  // Whether this page showed the loading phase, so its live region also announces the end of it.
+  const [loadingShown, setLoadingShown] = useState(state.status === "loading");
+  if (state.status === "loading" && !loadingShown) setLoadingShown(true);
 
-  if (state.status === "ready") return <RuntimeNotices boot={state.boot} />;
   if (state.status === "failed") return <RuntimeFailure message={state.message} crashed={state.crashed === true} />;
-  return <RuntimeLoading loaded={state.loaded} total={state.total} starting={state.starting === true} />;
+  // The same element at the same place in both phases, so its live region is updated rather than replaced.
+  return <>
+    {state.status === "loading"
+      ? <RuntimeLoading loaded={state.loaded} total={state.total} starting={state.starting === true} />
+      : loadingShown && <RuntimeLoading loaded={0} total={0} starting={false} ready />}
+    {state.status === "ready" && <RuntimeNotices boot={state.boot} />}
+  </>;
 }
 
 function RuntimeFailure({ message, crashed }: { message: string; crashed: boolean }) {
@@ -33,20 +41,22 @@ function RuntimeFailure({ message, crashed }: { message: string; crashed: boolea
  * The runtime only learns how many files it needs while it downloads them, so the file total grows and
  * `loaded / total` can fall. The bar never moves backwards, the progressbar stays indeterminate for
  * assistive technology until the download is complete (no value it could later contradict), and the
- * polite live region only changes between its two phases rather than on every file.
+ * polite live region only changes between its phases rather than on every file. Once the runtime is
+ * ready the banner disappears, but its live region stays (visually hidden) to say so once.
  */
-function RuntimeLoading({ loaded, total, starting }: { loaded: number; total: number; starting: boolean }) {
+function RuntimeLoading({ loaded, total, starting, ready = false }: { loaded: number; total: number; starting: boolean; ready?: boolean }) {
   const fraction = starting ? 1 : total > 0 ? Math.min(1, loaded / total) : 0;
   const [peak, setPeak] = useState(fraction);
   if (fraction > peak) setPeak(fraction);
   const shown = Math.max(peak, fraction);
-  return <div className="runtime-status">
-    <span role="status" aria-live="polite">{starting ? "Starting the editor and its game data…" : "Loading the editor runtime…"}</span>
-    {!starting && total > 0 && <span className="runtime-status__files">{loaded} of {total} files</span>}
-    <span className="runtime-status__bar" role="progressbar" aria-label="Editor runtime download"
+  const phase = ready ? "The editor is ready." : starting ? "Starting the editor and its game data…" : "Loading the editor runtime…";
+  return <div className={ready ? "visually-hidden" : "runtime-status"}>
+    <span role="status" aria-live="polite">{phase}</span>
+    {!ready && !starting && total > 0 && <span className="runtime-status__files">{loaded} of {total} files</span>}
+    {!ready && <span className="runtime-status__bar" role="progressbar" aria-label="Editor runtime download"
       {...(starting ? { "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": 100 } : {})}>
       <span style={{ transform: `scaleX(${shown})` }} />
-    </span>
+    </span>}
   </div>;
 }
 

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type ImgHTMLAttributes, type RefObject } from "react";
-import { acquireObjectUrl } from "../../lib/apiObjectUrls";
+import { useEffect, useRef, useState, useSyncExternalStore, type ImgHTMLAttributes, type RefObject } from "react";
+import { acquireObjectUrl, objectUrlStamp, subscribeObjectUrls } from "../../lib/apiObjectUrls";
 
 type ApiImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "onError"> & {
   /** API-relative path, e.g. from `api.assetPath(...)`. */
@@ -8,10 +8,15 @@ type ApiImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "onError"
   onFailure?: () => void;
 };
 
-/** An image served by the in-browser runtime. `loading="lazy"` defers the fetch until it is near the viewport. */
+/**
+ * An image served by the in-browser runtime. `loading="lazy"` defers the fetch until it is near the
+ * viewport. When the cached bytes go stale (a re-imported reference pack, an edit), it fetches them again
+ * and shows the previous picture until the new one has arrived.
+ */
 export function ApiImage({ path, onFailure, loading, alt, ...props }: ApiImageProps) {
   const image = useRef<HTMLImageElement>(null);
   const visible = useNearViewport(image, loading === "lazy");
+  const stamp = useSyncExternalStore(subscribeObjectUrls, () => objectUrlStamp(path));
   const [loaded, setLoaded] = useState<{ path: string; url: string } | null>(null);
   const failure = useRef(onFailure);
   useEffect(() => { failure.current = onFailure; });
@@ -22,7 +27,7 @@ export function ApiImage({ path, onFailure, loading, alt, ...props }: ApiImagePr
     const lease = acquireObjectUrl(path);
     lease.url.then(url => { if (active) setLoaded({ path, url }); }, () => { if (active) failure.current?.(); });
     return () => { active = false; lease.release(); };
-  }, [path, visible]);
+  }, [path, visible, stamp]);
 
   const src = loaded?.path === path ? loaded.url : undefined;
   return <img ref={image} {...props} alt={alt} loading={loading} src={src} onError={() => failure.current?.()} />;

@@ -124,6 +124,58 @@ public sealed class PersistentReloadTests
         Assert.Contains("From B", names, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task A_reviewed_import_survives_a_reload_after_an_unrelated_change()
+    {
+        var roots = new Roots();
+        using var tabA = roots.Host();
+        using var tabB = roots.Host();
+        Assert.Equal(200, (await CreatePresetAsync(tabA, "X")).Status);
+        var package = await SendAsync(tabA, "POST", "/api/presets/transfer/export", $$"""{"ids":["{{await FirstIdAsync(tabA)}}"]}""");
+        var preview = await SendAsync(tabA, "POST", "/api/presets/transfer/preview", Encoding.UTF8.GetString(package.Body));
+        var resolved = await SendAsync(tabA, "POST", "/api/presets/transfer/resolve",
+            $$"""{"token":"{{Token(preview)}}","choices":[{"index":0,"decision":"keepBoth"}]}""");
+
+        // Tab B imports a reference pack; tab A then reloads every durable store, as the worker does.
+        var (contentType, body) = Multipart("pack", "user items.zip", PackBuilder.WithItems().Zip());
+        Assert.Equal(200, (await tabB.SendAsync(new LocalRequest("POST", "/api/reference-packs", [new("Content-Type", contentType)], body), Ct)).Status);
+        tabA.ReloadPersistentStores();
+        var commit = await SendAsync(tabA, "POST", "/api/presets/transfer/commit", $$"""{"token":"{{Token(resolved)}}"}""");
+        Assert.Equal(200, commit.Status);
+        Assert.Contains("user.items", await TextAsync(tabA, "GET", "/api/reference-packs"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task A_library_unreadable_at_startup_fails_only_preset_requests_until_repaired()
+    {
+        var roots = new Roots();
+        Directory.CreateDirectory(roots.Presets);
+        var path = Path.Combine(roots.Presets, "presets.json");
+        const string Newer = """[{"schemaVersion":"2","id":"newer","name":"From a newer version"}]""";
+        await File.WriteAllTextAsync(path, Newer, Ct);
+
+        using var host = roots.Host();
+        host.ReloadPersistentStores();
+        Assert.Equal(200, (await SendAsync(host, "GET", "/api/reference-packs")).Status);
+        var listed = await SendAsync(host, "GET", "/api/presets");
+        Assert.Equal(422, listed.Status);
+        using (var problem = JsonDocument.Parse(listed.Body))
+            Assert.Equal("Invalid data: Preset schema '2' is not supported.", problem.RootElement.GetProperty("error").GetString());
+        Assert.Equal(422, (await CreatePresetAsync(host, "Lost")).Status);
+        Assert.Equal(Newer, await File.ReadAllTextAsync(path, Ct));
+
+        File.Delete(path);
+        Assert.Equal("[]", await TextAsync(host, "GET", "/api/presets"));
+        Assert.Equal(200, (await CreatePresetAsync(host, "Works")).Status);
+    }
+
+    private static string Token(LocalResponse response)
+    {
+        Assert.Equal(200, response.Status);
+        using var json = JsonDocument.Parse(response.Body);
+        return json.RootElement.GetProperty("token").GetString()!;
+    }
+
     private static async Task<string> FirstIdAsync(LocalApiHost host)
     {
         using var list = JsonDocument.Parse(await TextAsync(host, "GET", "/api/presets"));

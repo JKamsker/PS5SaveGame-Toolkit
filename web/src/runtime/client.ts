@@ -12,7 +12,7 @@ import { isOutOfMemory } from "./failures";
 import type { BootInfo, FromWorker, HeaderPairs, ToWorker, WireRequest } from "./protocol";
 
 export type RuntimeState =
-  | { status: "loading"; loaded: number; total: number; starting?: boolean }
+  | { status: "loading"; loaded: number; total: number; received?: number; starting?: boolean }
   | { status: "ready"; boot: BootInfo }
   /** `crashed`: the runtime had booted and then stopped (for example out of memory), losing this tab's workspaces. */
   | { status: "failed"; message: string; crashed?: boolean };
@@ -145,8 +145,12 @@ class WorkerRuntimeClient {
   }
 
   private receive(message: FromWorker) {
-    if (message.type === "progress") this.setState({ status: "loading", loaded: message.loaded, total: message.total, starting: message.starting });
-    else if (message.type === "ready") this.setState({ status: "ready", boot: message.boot });
+    if (message.type === "progress") {
+      // A file loaded after boot (the runtime loads some lazily) does not make the runtime "loading" again.
+      if (this.current.status !== "loading") return;
+      const { loaded, total, received, starting } = message;
+      this.setState({ status: "loading", loaded, total, received, starting });
+    } else if (message.type === "ready") this.setState({ status: "ready", boot: message.boot });
     else if (message.type === "failed") this.fail(message.message);
     else if (message.type === "started") this.pending.get(message.id)?.onStart?.();
     else {

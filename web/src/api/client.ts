@@ -25,9 +25,9 @@ import type {
   DocumentPreset,
   PresetPreview,
 } from "./protocol";
-import { ApiError, fetchApi, readJson, responseError, TRANSFER_TIMEOUT_MS } from "./http";
+import { ApiError, fetchApi as fetchRuntime, readJson, responseError, TRANSFER_TIMEOUT_MS } from "./http";
 import { documentPath, postJson, workspacePath } from "./requests";
-import { workspaceClosed, workspaceOpened } from "../state/tabWorkspaces";
+import { workspaceClosed, workspaceOpened, workspacesListing } from "../state/tabWorkspaces";
 
 export { ApiError } from "./http";
 
@@ -36,6 +36,33 @@ export function isStaleError(error: unknown): boolean {
   if (!(error instanceof ApiError) || error.status !== 409) return false;
   const body = error.body;
   return typeof body === "object" && body !== null && "code" in body && (body as { code: unknown }).code === "stale";
+}
+
+const changeListeners = new Set<(method: string, path: string) => void>();
+
+/** Calls `listener` after every non-GET request the runtime answered (cached images drop stale bytes). */
+export function onApiChange(listener: (method: string, path: string) => void): () => void {
+  changeListeners.add(listener);
+  return () => { changeListeners.delete(listener); };
+}
+
+/**
+ * `fetchApi` that reports answered changes to `onApiChange` listeners and notices when the runtime no
+ * longer holds a workspace, so leaving the page cannot lose it: a 404 for `/workspaces/<id>` itself, or
+ * "Workspace not found" for any request below it.
+ */
+function fetchApi<T>(path: string, init: RequestInit | undefined, read: (response: Response) => Promise<T>, timeout?: number): Promise<T> {
+  const method = (init?.method ?? "GET").toUpperCase();
+  return fetchRuntime(path, init, read, timeout).then(result => {
+    if (method !== "GET") for (const listener of [...changeListeners]) listener(method, path);
+    return result;
+  }, (error: unknown) => {
+    const match = /^\/workspaces\/([^/?]+)(.?)/.exec(path);
+    if (match && error instanceof ApiError && error.status === 404 && (match[2] === "" || /^Workspace not found\b/.test(error.message))) {
+      workspaceClosed(decodeURIComponent(match[1]!));
+    }
+    throw error;
+  });
 }
 
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -65,18 +92,15 @@ export function fetchBinary(path: string, signal?: AbortSignal, timeout?: number
   }, timeout);
 }
 
-/** A 404 for a workspace means this tab no longer holds it, so leaving the page cannot lose it. */
-const forgetMissing = (id: string) => (error: unknown): never => {
-  if (error instanceof ApiError && error.status === 404) workspaceClosed(id);
-  throw error;
-};
-
 export const api = {
   plugins: () => request<Plugin[]>("/plugins"),
-  workspaces: () => request<WorkspaceSummary[]>("/workspaces"),
-  workspace: (id: string) => request<Workspace>(workspacePath(id)).catch(forgetMissing(id)),
-  deleteWorkspace: (id: string) => request<void>(workspacePath(id), { method: "DELETE" })
-    .then(() => workspaceClosed(id), forgetMissing(id)),
+  /** The runtime's whole workspace list; it also corrects which workspaces leaving the page would lose. */
+  workspaces: () => {
+    const listed = workspacesListing();
+    return request<WorkspaceSummary[]>("/workspaces").then(list => { listed(list.map(workspace => workspace.id)); return list; });
+  },
+  workspace: (id: string) => request<Workspace>(workspacePath(id)).then(workspace => { workspaceOpened(id); return workspace; }),
+  deleteWorkspace: (id: string) => request<void>(workspacePath(id), { method: "DELETE" }).then(() => workspaceClosed(id)),
 
   titles: () => request<TitleInfo[]>("/titles"),
   presets: () => request<ToolkitPreset[]>("/presets"),

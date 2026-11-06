@@ -2,7 +2,7 @@ import { act, cleanup, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { api } from "../api/client";
 import { ApiImage } from "../components/ui/ApiImage";
-import { acquireObjectUrl, IMAGE_CONCURRENCY } from "./apiObjectUrls";
+import { acquireObjectUrl, IMAGE_CONCURRENCY, invalidateObjectUrls, staleAfter } from "./apiObjectUrls";
 
 interface Call { url: string; signal: AbortSignal; answer: (response: Response) => void; fail: (error: unknown) => void }
 
@@ -130,4 +130,68 @@ it("lazy images fetch only once they come near the viewport", async () => {
   act(() => notify!([{ isIntersecting: true }]));
   await flush();
   expect(calls.map(call => call.url)).toEqual([`/api${path}`]);
+});
+
+const referenceAsset = () => `/workspaces/w${++sequence}/documents/d/reference-assets?id=pack%3Aicon.webp`;
+const answerJson = (call: Call, body: unknown) => call.answer(new Response(JSON.stringify(body), { headers: { "content-type": "application/json" } }));
+
+it("fetches reference assets again after a reference pack is re-imported, refreshing images on screen", async () => {
+  const path = referenceAsset();
+  const view = render(<ApiImage path={path} alt="icon" />);
+  await flush();
+  calls[0]!.answer(png());
+  await waitFor(() => expect(view.getByAltText("icon").getAttribute("src")).toBe("blob:test/1"));
+  const kept = acquireObjectUrl(path);
+  await expect(kept.url).resolves.toBe("blob:test/1");
+
+  // The same pack id imported again with new pictures.
+  const imported = api.importReferencePack(new File(["{}"], "pack.zip"));
+  await flush();
+  answerJson(calls[1]!, { id: "pack" });
+  await imported;
+  await flush();
+  expect(calls.map(call => call.url).slice(2)).toEqual([`/api${path}`]);
+  // The old picture stays until the new one has arrived.
+  expect(view.getByAltText("icon").getAttribute("src")).toBe("blob:test/1");
+  calls[2]!.answer(png());
+  await waitFor(() => expect(view.getByAltText("icon").getAttribute("src")).toBe("blob:test/2"));
+  const fresh = acquireObjectUrl(path);
+  await expect(fresh.url).resolves.toBe("blob:test/2");
+  expect(calls).toHaveLength(3);
+  fresh.release();
+  kept.release();
+});
+
+it("revokes a dropped entry's URL once its last user releases it", async () => {
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+  const path = referenceAsset();
+  const lease = acquireObjectUrl(path);
+  await vi.advanceTimersByTimeAsync(0);
+  calls[0]!.answer(png());
+  const url = await lease.url;
+  invalidateObjectUrls(cached => cached === path);
+  lease.release();
+  await vi.advanceTimersByTimeAsync(30_000);
+  expect(URL.revokeObjectURL).toHaveBeenCalledWith(url);
+});
+
+it("drops only what a change can affect", () => {
+  const doc = "/workspaces/w/documents/d";
+  const stale = (method: string, path: string, cached: string) => staleAfter(method, path)?.(cached) ?? false;
+  for (const path of ["/reference-packs", "/reference-packs/pack"]) {
+    expect(stale("POST", path, `${doc}/reference-assets?id=a`)).toBe(true);
+    expect(stale("DELETE", path, "/workspaces/w/directories/x/icon")).toBe(false);
+  }
+  for (const change of ["edits", "actions", "undo", "redo", "presets/p/apply"]) {
+    expect(stale("POST", `${doc}/${change}`, `${doc}/assets?id=a`)).toBe(true);
+    expect(stale("POST", `${doc}/${change}`, `${doc}/reference-assets?id=a`)).toBe(false);
+    expect(stale("POST", `${doc}/${change}`, "/workspaces/w/documents/other/assets?id=a")).toBe(false);
+  }
+  // Reads sent as POST change nothing.
+  expect(staleAfter("POST", `${doc}/reference-fields/records`)).toBeUndefined();
+  expect(staleAfter("POST", `${doc}/presets/p/preview`)).toBeUndefined();
+  expect(staleAfter("POST", "/workspaces")).toBeUndefined();
+  expect(stale("DELETE", doc, `${doc}/reference-assets?id=a`)).toBe(true);
+  expect(stale("DELETE", "/workspaces/w", "/workspaces/w/directories/x/icon")).toBe(true);
+  expect(stale("DELETE", "/workspaces/w", "/workspaces/w2/directories/x/icon")).toBe(false);
 });

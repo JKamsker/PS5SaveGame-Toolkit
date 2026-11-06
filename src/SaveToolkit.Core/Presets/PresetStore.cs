@@ -53,11 +53,20 @@ public sealed class PresetStore
     public IReadOnlyList<ToolkitPreset> Reload() => Reload(allowMissing: false);
 
     /// <summary>
-    /// Re-reads the library after another writer replaced the file (for example another browser tab
-    /// sharing the same storage). A missing file is an empty library; a malformed one throws and leaves
-    /// the last good view intact, like <see cref="Reload()"/>.
+    /// Re-reads the library after another writer may have replaced the file (for example another browser
+    /// tab sharing the same storage). A missing file is an empty library; a malformed one throws and
+    /// leaves the last good view intact, like <see cref="Reload()"/>. Unlike <see cref="Reload()"/>, a
+    /// file identical to the one this store last read or wrote changes nothing, so the library identity
+    /// (and with it any reviewed import) survives unrelated changes next to it.
     /// </summary>
-    public void Refresh() => _ = Reload(allowMissing: true);
+    public void Refresh()
+    {
+        lock (_gate)
+        {
+            if (_identity.Matches()) return;
+            _ = Reload(allowMissing: true);
+        }
+    }
 
     private IReadOnlyList<ToolkitPreset> Reload(bool allowMissing)
     {

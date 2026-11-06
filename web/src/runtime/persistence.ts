@@ -10,10 +10,19 @@
  * 3. run the request, and flush only if the tree changed,
  * 4. announce the change on a BroadcastChannel, so other tabs reload before their next request.
  *
- * Reads refresh under a shared lock after such an announcement. A failed flush is reported as an error
- * response (never a silent success), and the tab reloads what IndexedDB really holds. When the stores
- * cannot re-read another tab's files (for example a library saved by a newer version of the site), the
- * tab keeps its last good view for reads but refuses mutations, which would write that stale view back.
+ * After such an announcement (or when the browser closed the IndexedDB connection, for example "Clear
+ * site data"), reads of presets and reference packs refresh under a shared lock, waiting only briefly:
+ * while another tab holds the lock (a long import, a frozen tab) they answer from the cached view and
+ * retry later, and reads of anything else never wait. A failed flush is reported as an error response
+ * (never a silent success), and the tab reloads what IndexedDB really holds. When the stores cannot
+ * re-read another tab's files (for example a library saved by a newer version of the site), the tab
+ * keeps its last good view for reads but refuses mutations, which would write that stale view back.
+ *
+ * A mutation whose .NET dispatch never settles would hold the exclusive lock until the tab closes (Web
+ * Locks are released with the page and its workers). After MUTATION_WATCHDOG_MS the lock is released and
+ * this tab's persistence stops for good (`RuntimeHungError`): the worker reports the runtime as crashed,
+ * and the page offers a reload. A synchronous hang blocks the worker's timers too; only closing or
+ * reloading that tab releases the lock then.
  */
 import { decodeFrame, problemFrame } from "./framing";
 
@@ -43,9 +52,9 @@ export type LockMode = "shared" | "exclusive";
 export interface TabCoordination {
   /**
    * Runs `task` holding the site-wide lock; null when the browser has no Web Locks. Waits at most
-   * LOCK_WAIT_MS, or not at all with `ifAvailable`; rejects without running `task` when not granted.
+   * `waitMs` (default LOCK_WAIT_MS; 0: only if available now); rejects without running `task` when not granted.
    */
-  lock: (<T>(mode: LockMode, task: () => Promise<T>, ifAvailable?: boolean) => Promise<T>) | null;
+  lock: (<T>(mode: LockMode, task: () => Promise<T>, waitMs?: number) => Promise<T>) | null;
   /** Tells the other tabs that persistent data changed. */
   announce(): void;
   /** Registers the handler for the other tabs' announcements. */
@@ -63,6 +72,15 @@ const LOCK_NAME = "savetoolkit-persistent-storage";
 const CHANNEL_NAME = "savetoolkit-persistent-storage";
 /** Longest wait for another tab's write before giving up with an error (never a lost write). */
 export const LOCK_WAIT_MS = 30_000;
+/** Longest wait of a preset or pack read for fresh data; it answers from the cached view after that. */
+export const READ_LOCK_WAIT_MS = 1_000;
+/** A mutation still unanswered after this long (twice the UI's longest deadline) is treated as hung. */
+export const MUTATION_WATCHDOG_MS = 10 * 60_000;
+
+export interface CoordinatorTiming {
+  readLockWaitMs: number;
+  mutationWatchdogMs: number;
+}
 
 /** Without persistence (no IndexedDB) every request simply runs. */
 export const memoryOnly: Persistence = { coordinated: false, run: (_method, _url, dispatch) => dispatch() };
@@ -81,7 +99,21 @@ export function writesDurableData(method: string, url: string): boolean {
   return true;
 }
 
+/**
+ * Whether a read shows presets or reference packs (so it is worth refreshing them first): their own
+ * routes, a document's preset routes, and opening a document (which pins the current packs).
+ */
+export function readsDurableData(url: string): boolean {
+  const path = (url.split(/[?#]/, 1)[0] ?? "").toLowerCase();
+  return /\/(presets|reference-packs)(\/|$)/.test(path) || /\/open\/?$/.test(path);
+}
+
 class LockUnavailableError extends Error {}
+
+/** A mutation's dispatch never settled: this tab's runtime is unusable and must not touch storage again. */
+export class RuntimeHungError extends Error {
+  override name = "RuntimeHungError";
+}
 
 /** The .NET stores could not re-read the files another tab saved; they still hold their last good view. */
 class StoreReloadError extends Error {}
@@ -93,13 +125,24 @@ export class PersistenceCoordinator implements Persistence {
    */
   private generation: string | null = null;
   private stale = false;
+  /** A read found the lock held: later reads do not wait for it until a lock is granted again. */
+  private lockBusy = false;
+  private hung: RuntimeHungError | null = null;
+  private readonly timing: CoordinatorTiming;
 
   constructor(private readonly storage: PersistentStorage, private readonly tabs: TabCoordination,
-    private readonly log: Pick<Console, "error" | "warn"> = console) {
+    private readonly log: Pick<Console, "error" | "warn"> = console, timing: Partial<CoordinatorTiming> = {}) {
+    this.timing = { readLockWaitMs: READ_LOCK_WAIT_MS, mutationWatchdogMs: MUTATION_WATCHDOG_MS, ...timing };
     tabs.listen(() => { this.stale = true; });
   }
 
   get coordinated() { return this.tabs.lock !== null; }
+
+  /**
+   * IndexedDB may no longer hold what this tab loaded (its connection was closed, for example because
+   * the site's data was cleared): the next preset or pack read reloads, as after another tab's change.
+   */
+  invalidate() { this.stale = true; }
 
   /**
    * Boot: the first load from IndexedDB, before the .NET host reads the files. Throws when storage is
@@ -122,20 +165,9 @@ export class PersistenceCoordinator implements Persistence {
   }
 
   async run(method: string, url: string, dispatch: () => Promise<Uint8Array>): Promise<Uint8Array> {
+    if (this.hung) throw this.hung;
     if (!writesDurableData(method, url)) {
-      if (this.stale) {
-        // Another tab saved: serve this read from fresh data. On failure keep the cached view. Before the
-        // first load, do not wait: the tab that holds the lock may hold it for long.
-        await this.locked("shared", () => this.refresh(), this.generation === null).catch((error: unknown) => {
-          if (error instanceof StoreReloadError) {
-            // Retried by the next mutation, which is refused while it fails; reads keep the last good view.
-            this.log.error(`Reading presets and reference packs saved by another tab failed: ${error.message}`);
-            return;
-          }
-          this.stale = true;
-          this.log.warn("Reloading presets and reference packs from browser storage failed:", error);
-        });
-      }
+      if (this.stale && readsDurableData(url)) await this.refreshForRead();
       return dispatch();
     }
     try {
@@ -146,6 +178,29 @@ export class PersistenceCoordinator implements Persistence {
       return problemFrame(503, "Service Unavailable", "Another tab of this site is still saving presets or reference "
         + "packs, so this change was not made. Try again in a moment.");
     }
+  }
+
+  /**
+   * Another tab saved: serve this read from fresh data if the lock comes quickly, else from the cached
+   * view (still stale, so a later read tries again). Before the first load, or while the lock is known
+   * to be held, do not wait at all: the tab that holds it may hold it for long.
+   */
+  private async refreshForRead() {
+    const wait = this.generation === null || this.lockBusy ? 0 : this.timing.readLockWaitMs;
+    await this.locked("shared", () => this.refresh(), wait).catch((error: unknown) => {
+      if (error instanceof StoreReloadError) {
+        // Retried by the next mutation, which is refused while it fails; reads keep the last good view.
+        this.log.error(`Reading presets and reference packs saved by another tab failed: ${error.message}`);
+        return;
+      }
+      this.stale = true;
+      if (error instanceof LockUnavailableError) {
+        if (!this.lockBusy) this.log.warn("Another tab holds the storage lock; showing presets and reference packs as last loaded.");
+        this.lockBusy = true;
+        return;
+      }
+      this.log.warn("Reloading presets and reference packs from browser storage failed:", error);
+    });
   }
 
   private async mutate(dispatch: () => Promise<Uint8Array>): Promise<Uint8Array> {
@@ -166,8 +221,10 @@ export class PersistenceCoordinator implements Persistence {
     const changes = this.storage.trackChanges();
     let frame: Uint8Array;
     try {
-      frame = await dispatch();
+      frame = await this.watch(dispatch());
     } catch (error) {
+      // A hung runtime may still change the tree: it is never flushed (or reverted) again.
+      if (error instanceof RuntimeHungError) throw error;
       // No answer reports this as saved: undo whatever the failed request left behind.
       if (changes()) await this.revert();
       throw error;
@@ -230,11 +287,26 @@ export class PersistenceCoordinator implements Persistence {
     return true;
   }
 
-  private async locked<T>(mode: LockMode, task: () => Promise<T>, ifAvailable = false): Promise<T> {
+  /** Rejects with RuntimeHungError (releasing the lock) when `dispatch` outlives the watchdog. */
+  private watch(dispatch: Promise<Uint8Array>): Promise<Uint8Array> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const watchdog = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => {
+        this.hung = new RuntimeHungError(`The editor runtime did not finish a change to presets or reference packs within `
+          + `${Math.round(this.timing.mutationWatchdogMs / 60_000)} minutes and was stopped, so other tabs can save again. `
+          + "Reload the page.");
+        this.log.error(this.hung.message);
+        reject(this.hung);
+      }, this.timing.mutationWatchdogMs);
+    });
+    return Promise.race([dispatch, watchdog]).finally(() => clearTimeout(timer));
+  }
+
+  private async locked<T>(mode: LockMode, task: () => Promise<T>, waitMs?: number): Promise<T> {
     if (!this.tabs.lock) return task();
     let entered = false;
     try {
-      return await this.tabs.lock(mode, () => { entered = true; return task(); }, ifAvailable);
+      return await this.tabs.lock(mode, () => { entered = true; this.lockBusy = false; return task(); }, waitMs);
     } catch (error) {
       if (entered) throw error;
       throw new LockUnavailableError("The storage lock is unavailable.", { cause: error });
@@ -260,9 +332,9 @@ export function browserTabs(): TabCoordination {
   const channel = typeof BroadcastChannel === "function" ? new BroadcastChannel(CHANNEL_NAME) : null;
   return {
     lock: locks
-      ? (mode, task, ifAvailable) => ifAvailable
+      ? (mode, task, waitMs = LOCK_WAIT_MS) => waitMs <= 0
         ? locks.request(LOCK_NAME, { mode, ifAvailable: true }, lock => lock ? task() : Promise.reject(new DOMException("The storage lock is held by another tab.", "AbortError")))
-        : locks.request(LOCK_NAME, { mode, signal: AbortSignal.timeout(LOCK_WAIT_MS) }, task)
+        : locks.request(LOCK_NAME, { mode, signal: AbortSignal.timeout(waitMs) }, task)
       : null,
     announce: () => channel?.postMessage("changed"),
     listen: onChange => { if (channel) channel.onmessage = () => onChange(); },

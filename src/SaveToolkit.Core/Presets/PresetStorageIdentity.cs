@@ -45,6 +45,16 @@ internal sealed class PresetStorageIdentity(PresetStoreOptions options)
         }
     }
 
+    /// <summary>
+    /// Whether the file is still exactly the one this store last read or wrote. Unreadable, oversized
+    /// or unavailable files do not match; the caller's full reload then reports why.
+    /// </summary>
+    internal bool Matches()
+    {
+        try { return _publishedFingerprint == Read(Path.Combine(options.StorageRoot, PresetLibraryStorage.FileName), options.MaxPayloadBytes); }
+        catch (Exception ex) when (ex is PresetTransferException or IOException or UnauthorizedAccessException) { return false; }
+    }
+
     internal static string Fingerprint(ReadOnlySpan<byte> bytes) => Convert.ToHexString(SHA256.HashData(bytes));
 
     private static string Read(string path, int maxBytes)

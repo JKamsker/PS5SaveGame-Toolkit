@@ -37,7 +37,8 @@ export type ToWorker =
   | { type: "cancel"; id: number };
 
 export type FromWorker =
-  | { type: "progress"; loaded: number; total: number; starting?: boolean }
+  /** `received`: bytes of runtime files downloaded so far (also posted while one large file is still arriving). */
+  | { type: "progress"; loaded: number; total: number; received?: number; starting?: boolean }
   /** The worker began executing the request (it left the queue); request deadlines start here. */
   | { type: "started"; id: number }
   | { type: "ready"; boot: BootInfo }

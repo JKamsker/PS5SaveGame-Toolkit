@@ -1,5 +1,6 @@
 import { createCompressedResourceLoader, type BootResourceLoader } from "./compressedResources";
-import { asError, trackTreeChanges, verifyMirrored, writeAfter, type IdbfsSets, type TreeFs } from "./idbfsTree";
+import { asError, reconnectingSync, trackTreeChanges, verifyMirrored, writeAfter, type IdbfsConnections, type IdbfsSets,
+  type TreeFs } from "./idbfsTree";
 import { browserTabs, memoryOnly, PersistenceCoordinator, type Persistence, type PersistentStorage } from "./persistence";
 import type { BootInfo } from "./protocol";
 
@@ -7,7 +8,12 @@ import type { BootInfo } from "./protocol";
 interface DotnetHostBuilder {
   withResourceLoader(loader: BootResourceLoader): DotnetHostBuilder;
   /** Present at runtime though omitted from dotnet.d.ts since .NET 9. */
-  withModuleConfig(config: { onDownloadResourceProgress?: (loaded: number, total: number) => void }): DotnetHostBuilder;
+  withModuleConfig(config: {
+    onDownloadResourceProgress?: (loaded: number, total: number) => void;
+    /** Emscripten's hooks; dotnet.js calls them before it shuts the runtime down. */
+    onAbort?: (reason: unknown) => void;
+    onExit?: (code: unknown) => void;
+  }): DotnetHostBuilder;
   create(): Promise<DotnetRuntime>;
 }
 
@@ -53,6 +59,10 @@ export interface BootProgress {
   onDownload(loaded: number, total: number): void;
   /** Downloads are done; plugins and embedded reference data are being prepared. */
   onStarting(): void;
+  /** Bytes of runtime files received, reported per chunk while a file downloads. */
+  onBytes?(bytes: number): void;
+  /** The runtime aborted (for example out of memory) or exited; it cannot answer another request. */
+  onStopped?(reason: string): void;
 }
 
 export async function bootDotnet(frameworkUrl: string, progress: BootProgress): Promise<BootedRuntime> {
@@ -63,13 +73,19 @@ export async function bootDotnet(frameworkUrl: string, progress: BootProgress): 
   (globalThis as { dotnetSidecar?: boolean }).dotnetSidecar = true;
   const { dotnet } = await import(/* @vite-ignore */ `${frameworkUrl}dotnet.js`) as { dotnet: DotnetHostBuilder };
   const runtime = await dotnet
-    .withModuleConfig({ onDownloadResourceProgress: (loaded, total) => progress.onDownload(loaded, total) })
-    .withResourceLoader(createCompressedResourceLoader())
+    .withModuleConfig({
+      onDownloadResourceProgress: (loaded, total) => progress.onDownload(loaded, total),
+      onAbort: reason => progress.onStopped?.(`Aborted(${reason instanceof Error ? reason.message : String(reason ?? "")})`),
+      onExit: code => progress.onStopped?.(`The .NET runtime exited with code ${String(code)}.`),
+    })
+    .withResourceLoader(createCompressedResourceLoader(fetch, progress.onBytes))
     .create();
   const fs = runtime.Module.FS;
   const assembly = await runtime.getAssemblyExports("SaveToolkit.Browser") as { SaveToolkit: { Browser: { Interop: InteropExports } } };
   const interop = assembly.SaveToolkit.Browser.Interop;
-  const coordinator = new PersistenceCoordinator(persistentStorage(fs, interop), browserTabs());
+  // A closed IndexedDB connection (site data cleared) makes the next preset or pack read reload.
+  const coordinator: PersistenceCoordinator = new PersistenceCoordinator(
+    persistentStorage(fs, interop, () => coordinator.invalidate()), browserTabs());
   const persistent = await mountPersistent(fs, coordinator);
   progress.onStarting();
   const initializing = performance.now();
@@ -104,11 +120,15 @@ async function mountPersistent(fs: EmscriptenFs, coordinator: PersistenceCoordin
   }
 }
 
-function persistentStorage(fs: EmscriptenFs, interop: InteropExports): PersistentStorage {
-  const idbfs = fs.filesystems.IDBFS as Partial<IdbfsSets>;
+function persistentStorage(fs: EmscriptenFs, interop: InteropExports, onConnectionLost: () => void): PersistentStorage {
+  const idbfs = fs.filesystems.IDBFS as Partial<IdbfsSets & IdbfsConnections>;
+  const sync = (populate: boolean) => syncfs(fs, populate);
+  // IDBFS caches its connection forever; without its cache (another Emscripten), sync as it is.
+  const synced = typeof idbfs.dbs === "object" && idbfs.dbs !== null
+    ? reconnectingSync(idbfs as IdbfsConnections, PERSISTENT_ROOT, sync, onConnectionLost) : sync;
   return {
-    load: () => syncfs(fs, true),
-    save: () => syncfs(fs, false),
+    load: () => synced(true),
+    save: () => synced(false),
     trackChanges: () => trackTreeChanges(fs, PERSISTENT_ROOT),
     // Reads back what IndexedDB holds after a flush (IDBFS' own listings; skipped if a runtime lacks them).
     verifySaved: () => typeof idbfs.getLocalSet === "function" && typeof idbfs.getRemoteSet === "function"

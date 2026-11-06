@@ -97,7 +97,14 @@ what another tab saved. `web/src/runtime/persistence.ts` prevents that:
   stale view back over the other tab's saves. As a second guard, `PresetStore` refuses create, rename
   and delete with `409 presetLibraryReloadRequired` when `presets.json` is no longer the file it last
   read or wrote (both hosts). User reference packs need no such guard: each is its own file, and a
-  write never touches the others.
+  write never touches the others. A store reload keeps the preset library's identity when
+  `presets.json` is byte-for-byte the file the store last read or wrote, so a reviewed preset-package
+  import survives unrelated changes in other tabs (a pack import, say) and is refused only when the
+  library really changed.
+- **A library this version cannot read at startup** (malformed, or saved by a newer version) does not
+  stop the runtime from booting: like the Api, whose preset store is a lazily created singleton, only
+  preset requests fail (`422`, with the reason), the file is left untouched, and every later preset
+  request reads it again, so a repaired or removed file is picked up without a reload.
 - **Change detection does not use the clock.** IDBFS flushes an entry only when its modification time
   differs from the stored one, and MEMFS stamps writes with `Date.now()`, which some browsers round to
   100 ms (Firefox `privacy.resistFingerprinting`, Tor Browser), so a file rewritten within one tick of
@@ -105,9 +112,25 @@ what another tab saved. `web/src/runtime/persistence.ts` prevents that:
   the mount with a sentinel time; afterwards, entries still carrying it (and the same node) get their
   stored time back, and all others count as changed and get a time strictly after the stored one
   (`web/src/runtime/idbfsTree.ts`).
-- **Reads** after such an announcement reload the mount under a shared lock first, so another tab's save
-  is visible on the next request once the announcement has arrived (milliseconds later). Until then a
-  read may be stale, but a write never is: it always reloads under the lock first.
+- **Reads** of presets and reference packs (their routes, a document's preset routes and opening a
+  document) after such an announcement reload the mount under a shared lock first, so another tab's
+  save is visible on the next such request once the announcement has arrived (milliseconds later). They
+  wait at most 1 s for the lock: while another tab holds it (a long import, a frozen tab) they answer
+  from the cached view, keep it marked stale and do not wait again until the lock is next granted. Other reads
+  never wait for or touch storage. Until then a read may be stale, but a write never is: it always
+  reloads under the lock first.
+- **Cleared site data.** IDBFS opens its IndexedDB connection once and caches it, so after "Clear site
+  data" (or the database being deleted) every later sync would fail until a reload, even after another
+  tab recreated the database. The worker drops the cached connection when the browser closes it (or
+  another tab needs it closed) and marks the data stale, and when a sync fails on a cached connection it
+  retries once on a new one. The next preset or pack read, and any write, then reloads what IndexedDB
+  holds now: an emptied database means the presets and packs are gone, and the tab shows that.
+- **A hung mutation.** Web Locks are released when a tab (and its worker) closes or reloads. A mutation
+  whose .NET dispatch never settles would otherwise hold the exclusive lock for as long as the tab stays
+  open; after 10 minutes (twice the UI's longest request deadline) the worker releases it, stops
+  touching storage for good and reports the runtime as crashed, and the page offers a reload. A
+  synchronous hang also stops the worker's timers, so then only closing or reloading that tab helps;
+  other tabs' writes answer `503` after 30 s meanwhile, and their reads are not delayed.
 - **A failed flush** (for example `QuotaExceededError`) is never a silent success: the worker reloads
   what IndexedDB really holds, so this tab's stores match it, and answers `507 Insufficient Storage`
   (`503` for other storage errors) as problem+json that the UI shows. A request that failed anyway keeps

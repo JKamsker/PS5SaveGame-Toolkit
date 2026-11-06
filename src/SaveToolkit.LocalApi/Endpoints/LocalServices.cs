@@ -10,9 +10,14 @@ internal sealed record LocalServices(
     PluginCatalog Catalog,
     WorkspaceStore Workspaces,
     ReferencePackStore Packs,
-    PresetStore Presets,
-    PresetTransferService Transfers,
-    string Version);
+    PresetLibrary PresetLibrary,
+    string Version)
+{
+    /// <summary>Created on first use; throws (like the Api's DI resolution) while the library is unreadable.</summary>
+    public PresetStore Presets => PresetLibrary.Store;
+
+    public PresetTransferService Transfers => PresetLibrary.Transfers;
+}
 
 /// <summary>A route-bound workspace retained by a lease for the rest of the request.</summary>
 internal sealed record WorkspaceRef(Workspace Value);

@@ -217,3 +217,26 @@ it("runtime client: tells a crash after boot apart from a boot failure", () => {
   running.worker.onerror?.({ message: "Script error." } as ErrorEvent);
   expect(running.client.state()).toMatchObject({ crashed: true });
 });
+
+it("runtime client: a runtime the worker reports stopped after boot is a crash for every pending request", async () => {
+  const { worker, client } = setup();
+  worker.emit({ type: "ready", boot });
+  // A late download (a lazily loaded file) does not send the runtime back to loading.
+  worker.emit({ type: "progress", loaded: 1, total: 2, received: 4096 });
+  expect(client.state().status).toBe("ready");
+  const importing = client.fetch("/api/workspaces", { method: "POST" });
+  const queued = client.fetch("/api/presets");
+  await flush();
+  worker.emit({ type: "failed", message: "Aborted(OOM)" });
+  await expect(importing).rejects.toMatchObject({ name: "RuntimeRequestError", outOfMemory: true });
+  await expect(queued).rejects.toMatchObject({ outOfMemory: true });
+  expect(client.state()).toEqual({ status: "failed", message: "Aborted(OOM)", crashed: true });
+  await expect(client.fetch("/api/presets")).rejects.toThrow("Aborted(OOM)");
+});
+
+it("runtime client: reports downloaded bytes with the boot progress", () => {
+  const { worker, client } = setup();
+  void client.ready();
+  worker.emit({ type: "progress", loaded: 3, total: 9, received: 1_500_000 });
+  expect(client.state()).toEqual({ status: "loading", loaded: 3, total: 9, received: 1_500_000, starting: undefined });
+});

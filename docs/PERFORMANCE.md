@@ -140,7 +140,7 @@ output-directory behavior, so the check never removes or rewrites output.
 | MapView.js | 2141 | 2350 |
 | SpatialShared.js | 1787 | 1970 |
 | SpatialShared.css | 911 | 1010 |
-| worker.js | 4240 | 4670 |
+| worker.js | 5315 | 5850 |
 
 The preset-transfer follow-up adds explicit lazy import/export dialogs and shared native-modal
 code/styles. These new chunks load only on the corresponding toolbar action; the existing
@@ -168,7 +168,10 @@ request queue, framing and `.gz` resource loading) loads once, when the runtime 
 **1810** (10% headroom). Cross-tab persistence (Web Locks, IndexedDB reload/verification, coarse-clock
 safe timestamps and storage-failure handling) later grew it to 4240 gzip bytes; its limit is now
 **4670** (10% headroom). `values.js` is no longer emitted as a separate chunk in this build; its limit
-is retained for a future split. All other rows and limits are unchanged.
+is retained for a future split. All other rows and limits are unchanged. Recovering from cleared site
+data (IndexedDB reconnection), bounded read-lock waits and the hung-mutation watchdog then grew
+`worker.js` to 4818 gzip bytes, and the runtime crash reporting and byte-level download progress
+developed alongside to 5315; its limit is now **5850** (10% headroom).
 
 CI `validate` runs `npm run check:bundle` immediately after its production build on **both Ubuntu
 and Windows**. Synthetic Vitest regressions cover shared imports/cycles, lazy JS/CSS, aggregate

@@ -3,9 +3,12 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, Link, RouterProvider } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { retryRead } from "./api/http";
+import { refetchFailedWhenReady } from "./api/recoverOnReady";
 import { HomePage } from "./components/home/HomePage";
-import { NotFoundPage } from "./components/ui/NotFoundPage";
+import { NotFoundPage, SiteNotFoundPage } from "./components/ui/NotFoundPage";
 import { RuntimeStatus } from "./components/ui/RuntimeStatus";
+import { isOutsideApp, siteHome } from "./lib/sitePaths";
+import { runtime } from "./runtime";
 import "./styles/tokens.css";
 import "./styles/ui.css";
 import "./styles/home.css";
@@ -35,14 +38,15 @@ const router = createBrowserRouter([
 
 /**
  * A static host may serve the app's 404.html for any missing path on the site (GitHub Pages only uses
- * the site root's), including paths outside the app's base. Those get a plain not-found page and do not
- * download the editor runtime.
+ * the site root's), including documentation pages outside the app's base. Those get a not-found page
+ * that links to the documentation and the editor, and do not download the editor runtime.
  */
-const outsideApp = basename !== "/" && !`${window.location.pathname}/`.startsWith(`${basename}/`);
+const outsideApp = isOutsideApp(window.location.pathname, basename);
+if (!outsideApp) refetchFailedWhenReady(queryClient, runtime);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {outsideApp ? <NotFoundPage home={<a href={import.meta.env.BASE_URL}>Open the editor</a>} /> : (
+    {outsideApp ? <SiteNotFoundPage documentation={siteHome(import.meta.env.BASE_URL)} editor={import.meta.env.BASE_URL} /> : (
       <QueryClientProvider client={queryClient}>
         <RuntimeStatus />
         <RouterProvider router={router} />

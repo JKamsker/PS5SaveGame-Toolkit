@@ -3,8 +3,9 @@
  * request at a time, in arrival order; a cancel message drops a request that has not started.
  */
 import { bootDotnet, type BootedRuntime } from "./dotnetBoot";
-import { isOutOfMemory } from "./failures";
+import { isOutOfMemory, isRuntimeStopped } from "./failures";
 import { decodeFrame } from "./framing";
+import { RuntimeHungError } from "./persistence";
 import type { FromWorker, ToWorker, WireRequest } from "./protocol";
 
 let runtime: Promise<BootedRuntime> | null = null;
@@ -26,16 +27,58 @@ self.onmessage = (event: MessageEvent<ToWorker>) => {
   }
 };
 
+/** Set once the runtime answered `ready`; a later stop is a crash that lost this tab's workspaces. */
+let running = false;
+let stopped = false;
+
+/** The booted runtime aborted or exited: the page fails every pending request and stops guarding workspaces. */
+function stop(reason: string) {
+  if (!running || stopped) return;
+  stopped = true;
+  post({ type: "failed", message: reason });
+}
+
+const describe = (error: unknown) => error instanceof Error ? error.message : String(error);
+
+// An uncaught error the runtime survives must not reach the page, which would treat the worker as dead.
+self.addEventListener("error", event => {
+  const error: unknown = event.error ?? event.message;
+  if (isRuntimeStopped(error)) {
+    // Before `ready`, the page reports it as a failed boot.
+    if (!running) return;
+    stop(describe(error));
+  } else {
+    // eslint-disable-next-line no-console -- the browser runtime has no server log; the console is where details go.
+    console.error("Uncaught error in the editor runtime worker:", error);
+  }
+  event.preventDefault();
+});
+self.addEventListener("unhandledrejection", event => {
+  if (isRuntimeStopped(event.reason)) stop(describe(event.reason));
+});
+
+/** Byte progress is posted at most this often; any message counts as progress for waiting requests. */
+const BYTE_PROGRESS_INTERVAL_MS = 1_000;
+
 function boot(frameworkUrl: string) {
   if (runtime) return;
   let files = { loaded: 0, total: 0 };
+  let received = 0;
+  let reported = 0;
   runtime = bootDotnet(frameworkUrl, {
-    onDownload: (loaded, total) => { files = { loaded, total }; post({ type: "progress", loaded, total }); },
-    onStarting: () => post({ type: "progress", ...files, starting: true }),
+    onDownload: (loaded, total) => { files = { loaded, total }; post({ type: "progress", loaded, total, received }); },
+    onStarting: () => post({ type: "progress", ...files, received, starting: true }),
+    onBytes: bytes => {
+      received += bytes;
+      if (running || Date.now() - reported < BYTE_PROGRESS_INTERVAL_MS) return;
+      reported = Date.now();
+      post({ type: "progress", ...files, received });
+    },
+    onStopped: reason => stop(reason),
   });
   runtime.then(
-    booted => post({ type: "ready", boot: booted.boot }),
-    (error: unknown) => post({ type: "failed", message: error instanceof Error ? error.message : String(error) }));
+    ready => { running = true; post({ type: "ready", boot: ready.boot }); },
+    (error: unknown) => post({ type: "failed", message: describe(error) }));
 }
 
 async function handle(request: WireRequest) {
@@ -60,6 +103,12 @@ async function handle(request: WireRequest) {
   } catch (error) {
     // eslint-disable-next-line no-console -- the browser runtime has no server log; the console is where details go.
     console.error(`Runtime request ${request.method} ${request.url} failed:`, error);
+    // A change that never finished: the runtime is unusable (it released the storage lock); the page
+    // reports a crash for every pending request and offers a reload.
+    if (error instanceof RuntimeHungError) return stop(error.message);
+    // The .NET runtime aborted (an exhausted heap) or exited during the request: report a crash, not a
+    // failed request, since the workspaces in its memory are gone and no later request can succeed.
+    if (running && isRuntimeStopped(error)) return stop(describe(error));
     post({ type: "error", id: request.id, message: error instanceof Error ? error.message : String(error), outOfMemory: isOutOfMemory(error) });
   }
 }

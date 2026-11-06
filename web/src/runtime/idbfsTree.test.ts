@@ -1,6 +1,7 @@
 // @vitest-environment node
-import { describe, expect, it } from "vitest";
-import { trackTreeChanges, verifyMirrored, writeAfter, type IdbfsSets, type TreeFs } from "./idbfsTree";
+import { describe, expect, it, vi } from "vitest";
+import { reconnectingSync, trackTreeChanges, verifyMirrored, writeAfter, type DatabaseConnection, type IdbfsConnections,
+  type IdbfsSets, type TreeFs } from "./idbfsTree";
 
 /**
  * A model of MEMFS under a coarse clock (Firefox resistFingerprinting, Tor Browser: 100 ms) and of
@@ -150,5 +151,71 @@ describe("tracking removals, the generation marker and verification", () => {
     await expect(verifyMirrored(fs.sets(), ROOT)).rejects.toThrow(/did not store 1 changed entry \(\/persist\/presets\/presets.json\)/);
     fs.save();
     await expect(verifyMirrored(fs.sets(), ROOT)).resolves.toBeUndefined();
+  });
+});
+
+/** An IDBDatabase as IDBFS caches it: usable until the browser (or the tab) closes it. */
+class Connection implements DatabaseConnection {
+  closed = false;
+  private readonly listeners = new Map<string, (() => void)[]>();
+  close() { this.closed = true; }
+  addEventListener(type: "close" | "versionchange", listener: () => void) {
+    this.listeners.set(type, [...this.listeners.get(type) ?? [], listener]);
+  }
+  /** "Clear site data": the browser closes the connection and fires `close`. */
+  forceClose() { this.closed = true; for (const listener of this.listeners.get("close") ?? []) listener(); }
+  fire(type: "versionchange") { for (const listener of this.listeners.get(type) ?? []) listener(); }
+}
+
+/** IDBFS.syncfs: reuses the cached connection (failing once it is closed) or opens one. */
+function idbfsModel() {
+  const idbfs: IdbfsConnections = { dbs: {} };
+  const opened: Connection[] = [];
+  let openFails = false;
+  const sync = async () => {
+    let db = idbfs.dbs[ROOT] as Connection | undefined;
+    if (!db) {
+      if (openFails) throw new Error("UnknownError: opening IndexedDB failed");
+      db = new Connection();
+      opened.push(db);
+      idbfs.dbs[ROOT] = db;
+    }
+    if (db.closed) throw new DOMException("The database connection is closing.", "InvalidStateError");
+  };
+  return { idbfs, opened, sync, failOpening: () => { openFails = true; } };
+}
+
+describe("IDBFS connections the browser closed", () => {
+  it("reopen after site data was cleared, whether or not a close event came", async () => {
+    const model = idbfsModel();
+    const lost = vi.fn();
+    const sync = reconnectingSync(model.idbfs, ROOT, model.sync, lost);
+    await sync(true);
+    model.opened[0]!.forceClose();
+    expect(lost).toHaveBeenCalledOnce();
+    expect(model.idbfs.dbs[ROOT]).toBeUndefined();
+    await sync(false);
+    expect(model.opened).toHaveLength(2);
+
+    // Closed without an event: the failed sync drops the connection and succeeds on a new one.
+    model.opened[1]!.closed = true;
+    await sync(true);
+    expect(model.opened).toHaveLength(3);
+    expect(model.idbfs.dbs[ROOT]).toBe(model.opened[2]);
+  });
+
+  it("closes a connection another tab needs closed, and does not retry a failed open", async () => {
+    const model = idbfsModel();
+    const lost = vi.fn();
+    const sync = reconnectingSync(model.idbfs, ROOT, model.sync, lost);
+    await sync(true);
+    model.opened[0]!.fire("versionchange");
+    expect(model.opened[0]!.closed).toBe(true);
+    expect(lost).toHaveBeenCalledOnce();
+
+    model.failOpening();
+    const attempt = vi.fn(model.sync);
+    await expect(reconnectingSync(model.idbfs, ROOT, attempt, lost)(true)).rejects.toThrow(/opening IndexedDB failed/);
+    expect(attempt).toHaveBeenCalledOnce();
   });
 });
