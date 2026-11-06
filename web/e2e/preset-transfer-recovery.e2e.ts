@@ -12,6 +12,8 @@ test("external addition requires explicit reload before fresh preview and surviv
   const incoming = file([record(2)]);
   await dialog.getByLabel("Preset package").setInputFiles(incoming);
   await dialog.getByRole("button", { name: "Review resulting names" }).click();
+  // Change the library only after the review answered: file access runs between the runtime's requests.
+  await expect(dialog.getByRole("button", { name: "Confirm import", exact: true })).toBeVisible();
   const durable = await libraryFile(page);
   const records = JSON.parse(await durable.read()) as RecordFixture[];
   records.push(record(1)); await durable.write(JSON.stringify(records));
