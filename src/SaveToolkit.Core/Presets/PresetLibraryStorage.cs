@@ -66,6 +66,9 @@ internal sealed class PresetLibraryStorage(PresetStoreOptions options, JsonSeria
         var temp = Path + ".tmp";
         try
         {
+            // The root can disappear under a running store (a browser tab reloading IndexedDB drops
+            // empty directories it never flushed); recreate it like the reference pack store does.
+            Directory.CreateDirectory(options.StorageRoot);
             File.WriteAllBytes(temp, bytes);
             File.Move(temp, Path, overwrite: true);
             return PresetStorageIdentity.Fingerprint(bytes);

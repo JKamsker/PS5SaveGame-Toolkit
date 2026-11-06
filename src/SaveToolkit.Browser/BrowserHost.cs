@@ -49,6 +49,8 @@ internal static class BrowserHost
             // serialized in the worker's request order.
             SweepInterval = null,
             OnError = (context, exception) => Console.Error.WriteLine($"{context}: {exception}"),
+            // There is no server log here: say what failed and where the details went.
+            DescribeUnexpectedError = DescribeFailure,
         });
         _nextSweep = Environment.TickCount64 + (long)SweepInterval.TotalMilliseconds;
         _ = RunIdleWorkAsync(_host);
@@ -80,12 +82,47 @@ internal static class BrowserHost
         {
             // The router maps domain failures itself; anything reaching here is a host bug.
             await Console.Error.WriteLineAsync($"Unhandled local API failure for {method} {url}: {exception}");
-            return Problem(500, "An unexpected error occurred.");
+            return Problem(500, "Internal Server Error", DescribeFailure(exception));
         }
         finally
         {
             _inFlight--;
         }
+    }
+
+    /// <summary>
+    /// Makes the persistent stores re-read their files after the worker reloaded the IndexedDB mount
+    /// (another tab saved presets or reference packs). Returns an error message, or an empty string.
+    /// </summary>
+    public static string ReloadPersistent()
+    {
+        if (_host is null) return "The local runtime has not been initialized.";
+        try
+        {
+            _host.ReloadPersistentStores();
+            return "";
+        }
+        catch (Exception exception)
+        {
+            // A malformed preset file keeps the last good view, exactly like POST /api/presets/reload.
+            Console.Error.WriteLine($"Reloading presets and reference packs failed: {exception}");
+            return exception.Message;
+        }
+    }
+
+    /// <summary>Problem detail for an unexpected failure in the browser runtime (no server log exists).</summary>
+    internal static string DescribeFailure(Exception exception)
+    {
+        for (var current = exception; current is not null; current = current.InnerException)
+        {
+            if (current is OutOfMemoryException)
+            {
+                return "The in-browser editor ran out of memory. Import fewer or smaller files at a time and close "
+                    + "workspaces you no longer need. If later requests fail too, export your work and reload the page.";
+            }
+        }
+
+        return "Unexpected error in the in-browser editor runtime. Details are in the browser's developer console.";
     }
 
     /// <summary>
@@ -132,9 +169,11 @@ internal static class BrowserHost
         }
     }
 
-    private static byte[] Problem(int status, string title)
+    private static byte[] Problem(int status, string title, string? detail = null)
     {
-        var body = JsonSerializer.SerializeToUtf8Bytes(new Dictionary<string, object> { ["title"] = title, ["status"] = status });
+        var fields = new Dictionary<string, object> { ["title"] = title, ["status"] = status };
+        if (detail is not null) fields["detail"] = fields["error"] = detail;
+        var body = JsonSerializer.SerializeToUtf8Bytes(fields);
         return WireFormat.Frame(status, [new("Content-Type", ProblemJson)], body);
     }
 }

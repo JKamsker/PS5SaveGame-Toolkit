@@ -164,7 +164,21 @@ public sealed class ReferencePackStore
         }
     }
 
-    /// <summary>Validates the packs kept in <see cref="ReferencePackOptions.StorageRoot"/>; called once, under the gate.</summary>
+    /// <summary>
+    /// Forgets the stored user packs so the next operation re-reads <see cref="ReferencePackOptions.StorageRoot"/>,
+    /// after another writer (for example another browser tab sharing the same storage) changed it.
+    /// Documents keep the packs they already pinned.
+    /// </summary>
+    public void ReloadStored()
+    {
+        lock (_gate)
+        {
+            _userPacks = null;
+            _storedErrors = [];
+        }
+    }
+
+    /// <summary>Validates the packs kept in <see cref="ReferencePackOptions.StorageRoot"/>; called under the gate when not loaded.</summary>
     private ImmutableList<LoadedReferencePack> LoadStored()
     {
         var loaded = new List<LoadedReferencePack>();

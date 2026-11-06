@@ -98,6 +98,17 @@ public sealed class PortableMd5Tests
     }
 
     [Fact]
+    public void BothIncrementalPathsRejectUseAfterDispose()
+    {
+        foreach (var md5 in new[] { IncrementalMd5.Create(), IncrementalMd5.CreateManaged() })
+        {
+            md5.Dispose();
+            Assert.Throws<ObjectDisposedException>(() => md5.AppendData("abc"u8));
+            Assert.Throws<ObjectDisposedException>(() => md5.GetHashAndReset());
+        }
+    }
+
+    [Fact]
     public void PortableMd5UsesThePlatformOutsideTheBrowser()
     {
         Assert.Equal(OperatingSystem.IsBrowser(), PortableMd5.UsesManagedImplementation);

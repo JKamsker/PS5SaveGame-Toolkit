@@ -38,6 +38,13 @@ public sealed class LocalApiOptions
     /// <summary>Receives unexpected (500) request failures and sweep cleanup failures, e.g. for console logging.</summary>
     public Action<string, Exception>? OnError { get; init; }
 
+    /// <summary>
+    /// Replaces the problem detail of unexpected (500) request failures. The shared text points at a
+    /// server log; a host without one (the browser runtime) describes the failure and where its
+    /// diagnostics go instead. Null keeps the shared message, so status and shape never change.
+    /// </summary>
+    public Func<Exception, string>? DescribeUnexpectedError { get; init; }
+
     internal string ResolvedWorkspaceRoot => Resolve(WorkspaceRoot, "workspaces");
 
     internal string ResolvedPackRoot => Resolve(PackRoot, "reference-packs");

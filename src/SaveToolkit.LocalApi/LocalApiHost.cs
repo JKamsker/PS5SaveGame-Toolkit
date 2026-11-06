@@ -87,6 +87,20 @@ public sealed class LocalApiHost : IDisposable
         return _services.Packs.ValidateNext();
     }
 
+    /// <summary>
+    /// Makes the durable stores (presets and user reference packs) re-read their storage roots. A host
+    /// whose files can be replaced by another writer (the browser runtime, when another tab of the same
+    /// site saved to the shared IndexedDB) calls this before relying on them again. Open documents keep
+    /// the reference packs they pinned. Throws when the preset library on disk is malformed; the last
+    /// good view is kept and the user packs still reload.
+    /// </summary>
+    public void ReloadPersistentStores()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        _services.Packs.ReloadStored();
+        _services.Presets.Refresh();
+    }
+
     public void Dispose()
     {
         if (_disposed) return;
@@ -152,6 +166,8 @@ public sealed class LocalApiHost : IDisposable
         }
 
         var error = ErrorClassifier.Classify(exception);
+        if (error.Status == 500 && error.Body.Error == ErrorClassifier.UnexpectedMessage && _options.DescribeUnexpectedError is { } describe)
+            error = error with { Body = error.Body with { Error = describe(exception) } };
         if (error.RetryAfter is { } retryAfter) headers.Add(new("Retry-After", retryAfter));
         if (error.Log) _options.OnError?.Invoke($"Unhandled error for {http.Path}", exception);
         return ResponseWriter.Write(ExceptionProblem(error.Status, error.Body), headers);

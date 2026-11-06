@@ -30,6 +30,13 @@ public static partial class Interop
         return PendingResponses.Add(frame);
     }
 
+    /// <summary>
+    /// Re-reads presets and user reference packs after the worker refreshed the persistent IndexedDB
+    /// mount with another tab's changes. Returns an error message, or an empty string on success.
+    /// </summary>
+    [JSExport]
+    public static string ReloadPersistent() => BrowserHost.ReloadPersistent();
+
     /// <summary>Removes and returns a framed response (see <see cref="WireFormat"/>) for a handle from <see cref="DispatchAsync"/>.</summary>
     [JSExport]
     public static byte[] TakeResponse(int handle) => PendingResponses.Take(handle);

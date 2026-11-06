@@ -12,6 +12,7 @@ public sealed class IncrementalMd5 : IDisposable
 {
     private readonly IncrementalHash? _platform;
     private readonly ManagedMd5? _managed;
+    private bool _disposed;
 
     private IncrementalMd5(IncrementalHash? platform, ManagedMd5? managed)
     {
@@ -35,6 +36,7 @@ public sealed class IncrementalMd5 : IDisposable
     /// <summary>Appends <paramref name="data"/> to the running digest.</summary>
     public void AppendData(ReadOnlySpan<byte> data)
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
         if (_managed is not null)
         {
             _managed.Append(data);
@@ -63,6 +65,8 @@ public sealed class IncrementalMd5 : IDisposable
             throw new ArgumentException("Destination is too short for an MD5 digest.", nameof(destination));
         }
 
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         if (_managed is not null)
         {
             _managed.Finish(destination);
@@ -72,8 +76,12 @@ public sealed class IncrementalMd5 : IDisposable
         return _platform!.GetHashAndReset(destination);
     }
 
-    /// <summary>Releases the platform hash, if any.</summary>
-    public void Dispose() => _platform?.Dispose();
+    /// <summary>Releases the platform hash, if any. Both paths throw <see cref="ObjectDisposedException"/> afterwards.</summary>
+    public void Dispose()
+    {
+        _disposed = true;
+        _platform?.Dispose();
+    }
 
     [UnsupportedOSPlatform("browser")]
     private static IncrementalHash CreatePlatform()

@@ -50,11 +50,20 @@ public sealed class PresetStore
     }
 
     /// <summary>Reloads the external library atomically. A malformed replacement leaves the last good view intact.</summary>
-    public IReadOnlyList<ToolkitPreset> Reload()
+    public IReadOnlyList<ToolkitPreset> Reload() => Reload(allowMissing: false);
+
+    /// <summary>
+    /// Re-reads the library after another writer replaced the file (for example another browser tab
+    /// sharing the same storage). A missing file is an empty library; a malformed one throws and leaves
+    /// the last good view intact, like <see cref="Reload()"/>.
+    /// </summary>
+    public void Refresh() => _ = Reload(allowMissing: true);
+
+    private IReadOnlyList<ToolkitPreset> Reload(bool allowMissing)
     {
         lock (_gate)
         {
-            var snapshot = _storage.Read(allowMissing: false);
+            var snapshot = _storage.Read(allowMissing);
             var staged = _staging.Stage(snapshot.Records);
             _presets.Clear();
             foreach (var pair in staged) _presets.Add(pair.Key, pair.Value);
