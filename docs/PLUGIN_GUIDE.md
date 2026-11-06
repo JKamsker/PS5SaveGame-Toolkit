@@ -1104,6 +1104,12 @@ ASP.NET host and in the test projects, so a plugin passing its tests can still f
   LZ4 HC encoder (`LZ4Codec.Encode` or `LZ4Stream.Encode` at `L03_HC` and above) is affected: use
   `SaveToolkit.Sdk.Compression.Lz4HighCompression`, which writes the same bytes. See
   [BROWSER_RUNTIME.md](BROWSER_RUNTIME.md#limits).
+- **Pointer size changes K4os' fast LZ4 bytes.** In 32-bit WebAssembly K4os encodes `L00_FAST`
+  (`LZ4Codec.Encode`'s default, `LZ4Stream.Encode` frames) with its 32-bit engine: valid LZ4, but not
+  the native host's bytes for blocks over 64 KiB or for any frame. Use
+  `SaveToolkit.Sdk.Compression.Lz4FastCompression` (blocks) or `Lz4FastCompressionChain` (frames,
+  behind an `ILZ4Encoder` as in BaldursGate3's `ManagedLz4ChainEncoder`), which write the 64-bit bytes
+  everywhere. K4os decoding is unaffected.
 - **Memory is bounded.** The 32-bit WebAssembly heap is shared by the runtime, every loaded plugin's
   embedded data and all open workspaces. Keep reference data compact (rule 9) and views bounded (rule 5).
 - **Discovery is automatic.** The browser host references `plugins/*/*/SaveToolkit.Plugins.*.csproj`

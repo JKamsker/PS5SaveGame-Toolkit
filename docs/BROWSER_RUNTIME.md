@@ -210,9 +210,14 @@ still fully checked exactly once; see `ReferencePackStore` and `EmbeddedPackSet`
   high-compression state is such a struct, so its HC encoder (levels 3-12, blocks and frames) traps the
   runtime with `memory access out of bounds` or writes corrupt blocks. Witcher 3 and Baldur's Gate 3
   encode HC levels with `SaveToolkit.Sdk.Compression` (`Lz4HighCompression`, `Lz4HighCompressionChain`),
-  a managed port that writes K4os' exact bytes on every platform. K4os decoding and its fast level are
-  unaffected, but the fast level's output on 32-bit WebAssembly is K4os' 32-bit variant: valid LZ4,
-  though not the same bytes the native Api writes for inputs over 64 KiB.
+  a managed port that writes K4os' exact bytes on every platform. K4os decoding is unaffected.
+- **32-bit LZ4 fast engine.** K4os picks its engine by pointer size, so in 32-bit WebAssembly its fast
+  level (`L00_FAST`, the `LZ4Codec.Encode` default, and `LZ4Stream.Encode` frames) runs `LL32`: valid
+  LZ4, but not the bytes the native Api writes (other hashes for 32-bit index tables), for independent
+  blocks from 64 KiB + 11 bytes and for frames at any size. K4os cannot be told to use its 64-bit engine.
+  Cyberpunk 2077 and Baldur's Gate 3 encode the fast level with `SaveToolkit.Sdk.Compression`
+  (`Lz4FastCompression`, `Lz4FastCompressionChain`), a managed port of K4os' 64-bit fast encoder that
+  writes the native bytes on every platform (`Lz4FastCompressionTests`, `browser-codecs.e2e.ts`).
 - **Invariant culture.** The WebAssembly runtime would take its culture from the browser language, so
   plugin text such as `ToString("N0")` stats would read "9.434.752" in a German browser.
   `BrowserHost.Initialize` sets the current and default-thread cultures to the invariant culture before

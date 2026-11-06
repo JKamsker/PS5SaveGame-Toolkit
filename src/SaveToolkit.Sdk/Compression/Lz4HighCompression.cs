@@ -42,7 +42,7 @@ public static class Lz4HighCompression
 /// Linked-block LZ4 HC state for frame encoders (K4os <c>LZ4HighChainEncoder</c>'s engine): blocks are
 /// compressed in order inside one caller-owned window buffer and may reference up to 64 KiB of history.
 /// </summary>
-public sealed class Lz4HighCompressionChain
+public sealed class Lz4HighCompressionChain : ILz4CompressionChain
 {
     private readonly Lz4HcContext _context;
 

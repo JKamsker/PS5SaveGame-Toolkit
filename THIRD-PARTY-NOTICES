@@ -19,21 +19,30 @@ Huffman payload consumption; expose bounded Kraken/stored APIs. Original algorit
 format constants and arithmetic are retained to support comparison with upstream.
 No proprietary Oodle runtime, compressor or binaries are included.
 
-LZ4 high-compression encoder port
----------------------------------
+LZ4 high-compression and fast encoder ports
+-------------------------------------------
 K4os.Compression.LZ4 1.3.8: Copyright (c) 2017 Milosz Krajewski. Licence: MIT.
 Source: https://github.com/MiloszKrajewski/K4os.Compression.LZ4/tree/1.3.8/src/K4os.Compression.LZ4/Engine
-(LL.high.cs, x32/LL32.high.cs, Encoders/LZ4EncoderBase.cs, Encoders/LZ4HighChainEncoder.cs).
-Its upstream, LZ4 HC (lz4hc.c): Copyright (c) Yann Collet. Licence: BSD-2-Clause (lib/LICENSE).
+(LL.high.cs, x32/LL32.high.cs, Encoders/LZ4EncoderBase.cs, Encoders/LZ4HighChainEncoder.cs; for
+the fast encoder x64/LL64.fast.cs, x64/LL64.tools.cs, LL.tools.cs, LL.types.cs,
+Encoders/LZ4FastChainEncoder.cs).
+Its upstream, LZ4 and LZ4 HC (lz4.c, lz4hc.c): Copyright (c) Yann Collet. Licence: BSD-2-Clause (lib/LICENSE).
 Source: https://github.com/lz4/lz4/tree/dev/lib
 Retrieved: 2026-11-06.
 Location: src/SaveToolkit.Sdk/Compression/ and
-plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3/ManagedLz4HighChainEncoder.cs.
+plugins/BaldursGate3/SaveToolkit.Plugins.BaldursGate3/ManagedLz4ChainEncoder.cs.
 Changes: the LZ4_streamHC_t state becomes a class with separate hash/chain arrays and every pointer a
 bounds-checked position in one window buffer (the Mono WebAssembly interpreter mis-addresses fields
 past 64 KiB of the original struct, dotnet/runtime#46622); the price table moves from the stack to a
 reused array; the dictCtx, favorDecSpeed and fillOutput modes, which K4os' LZ4Codec.Encode and
-LZ4Stream.Encode never use, are omitted. Output is tested byte for byte against K4os 1.3.8.
+LZ4Stream.Encode never use, are omitted. The fast encoder (Lz4FastContext/Lz4FastGeneric) is K4os'
+64-bit engine only, so its bytes do not depend on the pointer size (K4os runs its 32-bit engine in
+32-bit WebAssembly); its LZ4_stream_t becomes a class with bounds-checked window positions, a null
+dictionary is a position below the window, literal and match-length wild copies become exact copies
+with the same kept bytes, LZ4_count becomes a span prefix comparison, and the dictCtx, fillOutput,
+byPtr-table and acceleration>1 paths, which K4os' LZ4Codec.Encode and LZ4FastChainEncoder never take
+in a 64-bit process, are omitted; streams over 1 GiB are refused instead of renormalised. Output is
+tested byte for byte against K4os 1.3.8 (64-bit engine).
 
 The MIT licence: Permission is hereby granted, free of charge, to any person obtaining a copy of this
 software and associated documentation files (the "Software"), to deal in the Software without
