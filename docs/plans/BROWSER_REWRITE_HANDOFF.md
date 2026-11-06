@@ -48,8 +48,8 @@ React UI (web/src) -> web/src/api/http.ts fetchApi -> web/src/runtime (Web Worke
 | Check | Result |
 | --- | --- |
 | Full e2e | 152 passed, 1 skipped on `1de61815`; on `dc1a7640` the 63 affected specs passed |
-| `npm run test` (web unit tests) | 1599 pass |
-| `npm run typecheck` / `lint` / `check:bundle` | pass / 0 errors (46 pre-existing warnings) / pass |
+| `npm run test` (web unit tests) | 1599 pass; 1638 on `b8087566` |
+| `npm run typecheck` / `lint` / `check:bundle` | pass / 0 errors (46 pre-existing warnings; 47 on `b8087566`) / pass |
 | `python3 -B docs/tests/test_documentation.py --code-ref HEAD` | OK |
 | `... --code-ref main` | fails only 5 checks, for files that are absent on main until this merges |
 | Native: all 24 test projects | 0 failures |
@@ -87,7 +87,7 @@ All items from the previous handoff are fixed. Repro scripts are in
 5. **e2e harness.** Weakening the harness is proven to fail tests; `apiRequest()` waits until the app
    is idle (including bodies still serializing); `runtime/client.ts` posts in call order (FIFO);
    `preset-tabs.e2e.ts` runs two real tabs.
-6. **Review loop.** Seven rounds were run. Notable fixes they produced:
+6. **Review loop.** Eleven rounds were run in this session. Notable fixes from the earlier rounds:
    - A download or preset capture waits for queued edits; capture re-checks the snapshot and the
      rendered document before sending row keys.
    - The `readsDurableData` route list is derived from the LocalApi route table (`durableRoutes.ts`,
@@ -104,7 +104,13 @@ All items from the previous handoff are fixed. Repro scripts are in
      the worker queue stays alive.
    - A failed cross-tab announcement after a successful save is logged, not reported as an error.
 
-   <!-- ROUND7_RESULT -->
+   Rounds 7–11 produced the later fixes: the worker owns the `stopped` flag; the error predicates are
+   total; crash prefixes are allow-listed; a stored-generation check notices another tab's save whose
+   announcement was lost, with a monotonic retry period; a durable read waits for its full reload;
+   `untilStopped` releases the reload, dispatch and flush waiters when the runtime stops; the
+   `worker.js` budget was raised to 7770 gzip bytes. Round 11 found only low-severity issues, all
+   fixed alongside this note. Per the owner's instruction no further round was run, so the
+   loop did not reach a fully clean round.
 
 ## Remaining known limits and follow-ups
 
@@ -114,8 +120,16 @@ All items from the previous handoff are fixed. Repro scripts are in
 - The image cache's "assets change only with structure" rule relies on the SDK's `StructureChanged`
   contract being honoured by every plugin.
 - The Api itself still formats with its process culture (invariant on CI); this was not changed.
-- The `worker.js` bundle budget was raised to 6670 gzip bytes
+- The `worker.js` bundle budget was raised to 7770 gzip bytes; it measures 7010
   ([PERFORMANCE.md](../PERFORMANCE.md)).
+- A hung IndexedDB blocks the tab's request queue until the page is reloaded (or the runtime stops):
+  see the "A hung IndexedDB" bullet in [BROWSER_RUNTIME.md's Limits](../BROWSER_RUNTIME.md#limits).
+- A bounded IndexedDB marker read that times out but later succeeds may leave an IDBFS connection
+  nobody watches (pre-existing, unproven).
+- A hung `initialLoad` at boot holds the shared storage lock until `RUNTIME_START_LIMIT_MS` (5 min)
+  fails the boot (pre-existing).
+- Web Locks are FIFO: another tab's queued exclusive request can delay a third tab's reads by up to
+  that request's 30 s lock timeout.
 
 ## Environment notes
 

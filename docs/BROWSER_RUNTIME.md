@@ -244,13 +244,16 @@ still fully checked exactly once; see `ReferencePackStore` and `EmbeddedPackSet`
 - **A hung IndexedDB.** A preset or pack read that must reload the mount (after another tab's save, or
   when IndexedDB's marker could not be read), and every mutation of presets or packs, waits for that
   reload with no time limit (see [Persistence](#persistence) for why a read cannot answer before it
-  finishes). If IndexedDB never answers it, the request holds the cross-tab lock (shared for a read,
-  exclusive for a mutation) and the worker's request queue until the page is reloaded or closed, or the
-  runtime stops; the mutation watchdog covers only the .NET dispatch, not this wait. The page gives up on
-  the request after its deadline (60 s for most requests, counted from when the worker started it) with
-  "The request timed out. Check the current state before retrying."; every later request of the tab,
-  including downloads and exports, waits behind it and fails the same way (after up to 30 minutes in the
-  queue, then its own deadline), so workspaces cannot be exported until the page is reloaded, which
+  finishes); so do a mutation's flush to IndexedDB and the check that it was stored. If IndexedDB
+  never answers one of these, the request holds the cross-tab lock (shared for a read, exclusive for a
+  mutation) and the worker's request queue until the page is reloaded or closed, or the runtime stops,
+  which releases the lock and the queue at once (the tab then never touches storage again); the mutation
+  watchdog covers only the .NET dispatch, not these waits. The page gives up on the request after its
+  deadline (60 s for most requests, counted from when the worker started it) with "The request timed
+  out. Check the current state before retrying.". Every later request of the tab, including downloads
+  and exports, never starts: the worker runs one request at a time, so the page never hears that it
+  started, and it fails with the same message exactly 30 minutes after it was sent (`QUEUE_WAIT_LIMIT_MS`
+  in `web/src/api/http.ts`). Workspaces therefore cannot be exported until the page is reloaded, which
   discards them. Meanwhile other tabs' changes to presets and packs fail after 30 s with "Another tab of
   this site is still saving presets or reference packs". Reads of IndexedDB that fail rather than hang
   are not affected: they answer from the cached view (see Persistence).
