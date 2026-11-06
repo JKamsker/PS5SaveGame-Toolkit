@@ -107,6 +107,12 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
     const state = client.getQueryState(["document", context.workspaceId, context.documentId]);
     return `${state?.dataUpdateCount ?? 0}:${state?.errorUpdateCount ?? 0}`;
   };
+  // This render's action, scope and selection were chosen in `document`. A click can land after a
+  // snapshot read put a newer document in the cache but before this panel re-rendered with it.
+  const viewReplaced = () => {
+    const cached = client.getQueryData(["document", context.workspaceId, context.documentId]);
+    return cached !== undefined && cached !== document;
+  };
   const recoverStalePreview = async (requestId: number) => {
     if (requestId !== review.current.generation) return;
     setStale(true);
@@ -151,7 +157,7 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
       // A queued edit may have failed or replaced the snapshot: the chosen action and row keys
       // then belong to an older view, so ask for a fresh choice instead of capturing other rows.
       requireSnapshot();
-      if (snapshotGeneration() !== view) throw new Error("The document changed. Review the action and selection, then save the preset again.");
+      if (snapshotGeneration() !== view || viewReplaced()) throw new Error("The document changed. Review the action and selection, then save the preset again.");
       const request = { actionId: activeActionId, parameters: parameters as Record<string, unknown>, scopeKind,
         selectedRowKeys: scopeKind === "selected" ? [...(selection?.selectedKeys ?? [])] : undefined,
         allMatches: scopeKind === "allEligible" || scopeKind === "allCopies" };

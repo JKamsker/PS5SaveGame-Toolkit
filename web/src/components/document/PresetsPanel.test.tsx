@@ -104,6 +104,20 @@ it("does not capture rows chosen in a view that a queued edit replaced", async (
   expect(capture).not.toHaveBeenCalled();
 });
 
+it("does not capture rows chosen in a view a snapshot replaced before the panel re-rendered", async () => {
+  const { capture, client } = renderQueuedCapture();
+  fireEvent.click(await screen.findByText("Toolkit presets"));
+  await screen.findByRole("button", { name: "Save preset" });
+  fireEvent.click(screen.getByRole("checkbox", { name: "Select all shown rows" }));
+  fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Queued" } });
+  fireEvent.change(screen.getByLabelText("Scope"), { target: { value: "selected" } });
+  // A structural snapshot read installs a new document; the click lands before React re-renders with it.
+  client.setQueryData(["document", "w1", "d1"], { ...document, state: { ...document.state, revision: 1 } });
+  fireEvent.click(screen.getByRole("button", { name: "Save preset" }));
+  expect((await screen.findByRole("alert", { name: "Preset save result" })).textContent).toMatch(/document changed/i);
+  expect(capture).not.toHaveBeenCalled();
+});
+
 it("re-checks the snapshot after waiting for queued edits", async () => {
   const { capture, activity, context, rerender } = renderQueuedCapture();
   const edit = await clickSaveSelectedBehindEdit(activity);
