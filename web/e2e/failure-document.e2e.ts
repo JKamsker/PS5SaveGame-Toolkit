@@ -1,5 +1,6 @@
 import { failures, test, expect, focusedControl, networkFailure } from "./failure-harness";
-import { archive, coinsField, editCoins, editedCoins, home, importSave, loadJson, openJson, originalCoins, upload } from "./helpers";
+import { archive, coinsField, editCoins, editedCoins, home, importSave, leavePage, loadJson, openJson, originalCoins, runtimeReady, upload } from "./helpers";
+import { apiSettled, onApi, routeApi } from "./apiRoutes";
 
 for (const failure of failures) {
   test(`import ${failure.name} retains upload for an explicit retry`, async ({ page, faults }) => {
@@ -110,4 +111,40 @@ test("network failure during import can retry the retained upload", async ({ pag
   blocked.release();
   await page.getByRole("button", { name: "Retry import", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Pick a save file" })).toBeVisible();
+});
+
+// web/src/api/http.ts runtimeCrashedMessage: what a request learns once the runtime stopped.
+const runtimeCrashed = "The in-browser editor runtime stopped unexpectedly, and the workspaces in this tab were lost with it. "
+  + "Reload the page and import your saves again.";
+
+test("a runtime crash during an edit fails the pending request, explains the loss and offers a reload", async ({ page, faults }) => {
+  await importSave(page);
+  await openJson(page);
+  await loadJson(page);
+  // The stopped runtime answers nothing: its pending requests fail, and it logs why it stopped.
+  faults.expectNetworkFailures(/\/edits$/);
+  faults.expectConsoleErrors(/injected runtime crash|exited with code|ExitStatus|program terminated/i);
+  const failed: string[] = [];
+  onApi(page, "requestfailed", request => failed.push(`${request.method()} ${new URL(request.url()).pathname}`));
+  await routeApi(page, "**/edits", route => route.crashRuntime(), { times: 1 });
+  await coinsField(page).fill(editedCoins);
+  await coinsField(page).press("Enter");
+  // The pending edit is rejected at once (not left to its 60 s deadline), with the crash explained.
+  const editFailure = page.getByRole("alert").filter({ hasText: runtimeCrashed }).first();
+  await expect(editFailure).toBeVisible();
+  const runtimeAlert = page.getByRole("alert").filter({ hasText: "The editor runtime stopped unexpectedly." });
+  await expect(runtimeAlert).toContainText("lost with it");
+  await apiSettled(page);
+  expect(failed.filter(request => request.startsWith("POST ") && request.endsWith("/edits"))).toHaveLength(1);
+  await expect(coinsField(page)).toHaveValue(editedCoins);
+  await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeDisabled();
+  // Later requests fail immediately with the same explanation instead of reaching the dead worker.
+  await coinsField(page).press("Enter");
+  await expect(editFailure).toBeVisible();
+  // Reload starts a new runtime; the workspace of the crashed one is gone.
+  faults.expectNetworkFailures(/\/api\/workspaces\/[^/]+$/);
+  await leavePage(page, () => runtimeAlert.getByRole("button", { name: "Reload", exact: true }).click());
+  await expect(page.getByRole("heading", { name: "This workspace is gone", exact: true })).toBeVisible({ timeout: 30_000 });
+  await runtimeReady(page);
+  await expect(page.getByRole("alert").filter({ hasText: "The editor runtime stopped unexpectedly." })).toHaveCount(0);
 });

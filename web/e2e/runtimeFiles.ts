@@ -16,11 +16,30 @@ const storageLock = "savetoolkit-persistent-storage";
 type Change = { kind: "write"; path: string; text: string } | { kind: "rename"; path: string; to: string } | { kind: "unlink"; path: string }
   | { kind: "mkdir"; path: string } | { kind: "rmdir"; path: string };
 
-export async function runtimeFiles(page: Page) {
+async function runtimeWorker(page: Page) {
   const workers = page.workers();
   const hosts = await Promise.all(workers.map(worker => worker.evaluate(() => "getDotnetRuntime" in globalThis).catch(() => false)));
   const worker = workers[hosts.indexOf(true)];
   if (!worker) throw new Error("The page has not booted its .NET runtime worker.");
+  return worker;
+}
+
+/**
+ * Stops the page's booted .NET runtime the way a fatal runtime failure does: the runtime exits, its exit
+ * hook makes the worker post its genuine `failed` message (web/src/runtime/worker.ts `stop`), and the
+ * page's runtime client fails every pending request and reports the runtime as crashed.
+ */
+export async function stopRuntime(page: Page, reason: string) {
+  const worker = await runtimeWorker(page);
+  await worker.evaluate(cause => {
+    const runtime = (globalThis as unknown as { getDotnetRuntime(id: number): { exit(code: number, reason?: unknown): void } }).getDotnetRuntime(0);
+    // Emscripten signals the exit by throwing ExitStatus after it ran the exit hooks.
+    try { runtime.exit(1, new Error(cause)); } catch { /* the runtime is stopped either way */ }
+  }, reason);
+}
+
+export async function runtimeFiles(page: Page) {
+  const worker = await runtimeWorker(page);
   type Fs = { readFile(path: string, options: { encoding: "utf8" }): string; writeFile(path: string, data: string): void;
     rename(from: string, to: string): void; unlink(path: string): void; mkdir(path: string): void; rmdir(path: string): void; syncfs(populate: boolean, done: (error: unknown) => void): void };
   return {

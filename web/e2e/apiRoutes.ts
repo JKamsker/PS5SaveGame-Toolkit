@@ -1,5 +1,6 @@
 import { expect, type Page } from "@playwright/test";
 import { pageHooks } from "./apiPageHooks";
+import { stopRuntime } from "./runtimeFiles";
 
 /**
  * The app answers /api inside a Web Worker (the .NET runtime), so Playwright's network APIs
@@ -8,14 +9,20 @@ import { pageHooks } from "./apiPageHooks";
  * shapes and semantics as Playwright's: `fulfill` and `abort` answer without running the request;
  * `fetch` runs it and lets the test hold or replace the result; `fallback` defers to an earlier route;
  * `continue` runs it normally. Install them before the first navigation (helpers.home does this).
+ *
+ * Two answers are not real runtime behaviour: `abort` hands the app the worker's per-request `error`
+ * reply with a fixed detail ("Failed to fetch"), and `fulfill` replaces the runtime's answer. `crashRuntime`
+ * instead stops the page's real .NET runtime, so the worker reports its genuine failure and the app's
+ * runtime client fails every pending request.
  */
 
 type Pairs = [string, string][];
 interface Wire { status: number; headers: Pairs; body: string }
-type Decision = { kind: "continue" } | { kind: "fallback" } | { kind: "abort"; errorText: string } | { kind: "fetch" } | ({ kind: "fulfill" } & Wire);
+type Decision = { kind: "continue" } | { kind: "fallback" } | { kind: "abort"; errorText: string } | { kind: "fetch" } | ({ kind: "fulfill" } & Wire)
+  | { kind: "crash"; reason: string } | { kind: "hold" };
 type Message =
   | { phase: "request"; token: string; method: string; url: string; headers: Pairs; body: string | null }
-  | { phase: "fetched"; token: string; response: Wire }
+  | { phase: "fetched"; token: string; response: Wire & { error?: string } }
   | ({ phase: "response"; token: string } & Wire)
   | { phase: "failed"; token: string; errorText: string };
 /** Matches Playwright's loosely typed `json()` / `postDataJSON()`, so specs can keep reading fields directly. */
@@ -60,11 +67,13 @@ interface Fulfill { status?: number; contentType?: string; body?: string | Buffe
 export class ApiRoute {
   private decide!: (decision: Decision) => void;
   private decided: Promise<Decision> = this.reset();
-  private fetched: ((response: ApiResponse) => void) | null = null;
+  private fetched: { resolve: (response: ApiResponse) => void; reject: (error: Error) => void } | null = null;
   constructor(private readonly info: ApiRequest) {}
   request() { return this.info; }
   async fetch(): Promise<ApiResponse> {
-    const response = new Promise<ApiResponse>(resolve => { this.fetched = resolve; });
+    // Rejects like Playwright's route.fetch when the request never got an answer (cancelled before the
+    // runtime started it, or the runtime stopped).
+    const response = new Promise<ApiResponse>((resolve, reject) => { this.fetched = { resolve, reject }; });
     this.decide({ kind: "fetch" });
     return response;
   }
@@ -83,11 +92,17 @@ export class ApiRoute {
   /** Playwright error codes: "failed" (default), "aborted", "timedout", ... */
   async abort(errorCode = "failed") { this.decide({ kind: "abort", errorText: `net::ERR_${errorCode.toUpperCase()}` }); }
   async continue() { this.decide({ kind: "continue" }); }
+  /**
+   * Stops the page's .NET runtime while this request is pending (see runtimeFiles' stopRuntime): the worker
+   * posts its genuine failure, and the app's runtime client rejects this and every other pending request.
+   */
+  async crashRuntime(reason = "Aborted(e2e: injected runtime crash)") { this.decide({ kind: "crash", reason }); }
   async fallback() { this.decide({ kind: "fallback" }); }
   /** @internal */ next(): Promise<Decision> { return this.decided; }
-  /** @internal */ deliver(response: ApiResponse) {
+  /** @internal */ deliver(response: ApiResponse | Error) {
     this.decided = this.reset();
-    this.fetched?.(response);
+    if (response instanceof Error) this.fetched?.reject(response);
+    else this.fetched?.resolve(response);
   }
   private reset() { return new Promise<Decision>(resolve => { this.decide = resolve; }); }
 }
@@ -96,12 +111,12 @@ type Handler = (route: ApiRoute) => unknown;
 interface Rule { pattern: string | RegExp; matches: (url: string) => boolean; handler: Handler; times: number }
 export interface ApiEvents { request: ApiRequest; response: ApiResponse; requestfailed: ApiRequest; requestfinished: ApiRequest }
 type Listener = (event: keyof ApiEvents, value: ApiEvents[keyof ApiEvents]) => void;
-interface Hooks { rules: Rule[]; routes: Map<string, ApiRoute>; requests: Map<string, ApiRequest>; listeners: Set<Listener> }
+interface Hooks { page: Page; rules: Rule[]; routes: Map<string, ApiRoute>; requests: Map<string, ApiRequest>; listeners: Set<Listener> }
 const installed = new WeakMap<Page, Hooks>();
 
 export async function installApiHooks(page: Page): Promise<void> {
   if (installed.has(page)) return;
-  const hooks: Hooks = { rules: [], routes: new Map(), requests: new Map(), listeners: new Set() };
+  const hooks: Hooks = { page, rules: [], routes: new Map(), requests: new Map(), listeners: new Set() };
   installed.set(page, hooks);
   const emit = <K extends keyof ApiEvents>(event: K, value: ApiEvents[K]) => { for (const listener of [...hooks.listeners]) listener(event, value); };
   await page.exposeBinding("__savetoolkitApiHook", async ({ page: source }, message: Message) => {
@@ -116,10 +131,12 @@ export async function installApiHooks(page: Page): Promise<void> {
     if (message.phase === "fetched") {
       // The page may have aborted the request meanwhile; the test still receives what it fetched.
       const route = hooks.routes.get(message.token)!;
-      route.deliver(new ApiResponse(route.request(), message.response.status, message.response.headers, message.response.body));
+      const { error, status, headers, body } = message.response;
+      route.deliver(error !== undefined ? new Error(`${route.request().method()} ${route.request().url()} got no answer: ${error}`)
+        : new ApiResponse(route.request(), status, headers, body));
       const decision = await route.next();
       hooks.routes.delete(message.token);
-      return decision.kind === "fallback" ? { kind: "continue" } : decision;
+      return decision.kind === "fallback" ? { kind: "continue" } : await crashed(hooks, decision);
     }
     const request = hooks.requests.get(message.token);
     if (!request) return null;
@@ -147,9 +164,16 @@ async function decide(hooks: Hooks, token: string, request: ApiRequest): Promise
     const decision = await route.next();
     if (decision.kind === "fallback") continue;
     if (decision.kind !== "fetch") hooks.routes.delete(token);
-    return decision;
+    return await crashed(hooks, decision);
   }
   return { kind: "continue" };
+}
+
+/** Carries out crashRuntime: the page keeps the request pending until the runtime's failure arrives. */
+async function crashed(hooks: Hooks, decision: Decision): Promise<Decision> {
+  if (decision.kind !== "crash") return decision;
+  await stopRuntime(hooks.page, decision.reason);
+  return { kind: "hold" };
 }
 
 function hooksOf(page: Page) {

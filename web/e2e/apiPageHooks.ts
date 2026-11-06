@@ -7,10 +7,14 @@
 // eslint-disable-next-line max-lines-per-function -- Serialized into the page; it cannot import helpers.
 export function pageHooks() {
   type Pairs = [string, string][];
-  type Decision = { kind: "continue" | "fetch" | "abort" | "fulfill"; errorText?: string; status?: number; headers?: Pairs; body?: string };
+  type Decision = { kind: "continue" | "fetch" | "abort" | "fulfill" | "hold"; errorText?: string; status?: number; headers?: Pairs; body?: string };
   type Reply = { type: "response"; id: number; status: number; headers: Pairs; frame: ArrayBuffer; bodyOffset: number } | { type: "error"; id: number; message: string };
   interface Wire { id: number; method: string; url: string; headers: Pairs; body: ArrayBuffer | null }
-  interface Entry { token: string; cancelled: boolean; forwarded: boolean; fetched?: (reply: Reply) => void }
+  interface Entry {
+    token: string; cancelled: boolean; forwarded: boolean; started: boolean; fetched?: (reply: Reply) => void;
+    /** Settles once the request was handed to the worker or answered without it (see `dispatch`). */
+    routed: Promise<void>; release: () => void;
+  }
   const scope = window as unknown as {
     __savetoolkitApiHook: (message: unknown) => Promise<Decision | null>;
     __savetoolkitApiDispatch: (method: string, url: string, headers: Pairs, body: string | null) => Promise<{ status: number; headers: Pairs; body: string }>;
@@ -42,18 +46,33 @@ export function pageHooks() {
     private listener: ((event: MessageEvent) => void) | null = null;
     private readonly requests = new Map<number, Entry>();
     private readonly direct = new Map<number, (reply: Reply) => void>();
+    /** Set once the runtime reported that it stopped (or the worker died): it answers nothing more. */
+    private dead: string | null = null;
     constructor(url: string | URL, options?: WorkerOptions) {
       super(url, options);
       super.onmessage = event => this.receive(event);
+      // A worker that fails to load or throws at top level: runtime/client.ts fails its pending requests.
+      this.addEventListener("error", event => this.stopped(event.message || "The runtime worker failed."));
       current = { dispatch: request => this.dispatch(request) };
     }
     override set onmessage(listener: ((event: MessageEvent) => void) | null) { this.listener = listener; }
     override get onmessage() { return this.listener; }
 
-    /** Test-owned request: negative ids never collide with the app's, and nothing observes or routes it. */
-    dispatch(request: Omit<Wire, "id">) {
+    /**
+     * Test-owned request: negative ids never collide with the app's, and nothing observes or routes it.
+     * It joins the worker's queue behind every request the app sent so far (once routing handed them to
+     * the worker or answered them), so a test's read observes the app's earlier writes, as the app's own
+     * next request would. A request a route handler holds without deciding delays it, like it would the app.
+     */
+    async dispatch(request: Omit<Wire, "id">) {
+      await Promise.all([...this.requests.values()].map(entry => entry.routed));
+      return this.post(request);
+    }
+
+    private post(request: Omit<Wire, "id">) {
       const id = -++directIds;
       return new Promise<Reply>(resolve => {
+        if (this.dead) return resolve({ type: "error", id, message: this.dead });
         this.direct.set(id, resolve);
         super.postMessage({ type: "request", request: { ...request, id } }, request.body ? [request.body] : []);
       });
@@ -66,25 +85,47 @@ export function pageHooks() {
       void this.route(data.request, message, transfer as Transferable[]);
     }
 
-    /** The app aborted the request: report it like a browser would, and keep a test-held fetch alive. */
+    /**
+     * The app aborted the request: report it like a browser would, and forward the cancel exactly as the app
+     * sent it, so the worker drops the request if it has not started it (the real app's semantics). A test
+     * holding the request with route.fetch() then learns that it never ran (the fetch rejects).
+     */
     private cancel(id: number, message: unknown) {
       const entry = this.requests.get(id)!;
       entry.cancelled = true;
+      entry.release();
       void hook({ phase: "failed", token: entry.token, errorText: "net::ERR_ABORTED" });
-      if (!entry.forwarded || entry.fetched) return;
-      this.requests.delete(id);
+      if (!entry.forwarded) return;
+      if (!entry.fetched) this.requests.delete(id);
       super.postMessage(message);
+      if (entry.fetched && !entry.started) void this.whenDropped(id, entry);
+    }
+
+    /**
+     * The worker drops a cancelled request silently when its turn comes. A probe queued behind the cancel
+     * answers after that turn: if the request had not started by then, it never will.
+     */
+    private async whenDropped(id: number, entry: Entry) {
+      await this.post({ method: "GET", url: "/api/version", headers: [], body: null });
+      if (!entry.started) entry.fetched?.({ type: "error", id, message: "The request was cancelled before the runtime started it." });
     }
 
     private async route(request: Wire, message: unknown, transfer: Transferable[]) {
-      const entry: Entry = { token: `${realm}:${++tokens}`, cancelled: false, forwarded: false };
+      let release!: () => void;
+      const routed = new Promise<void>(resolve => { release = resolve; });
+      const entry: Entry = { token: `${realm}:${++tokens}`, cancelled: false, forwarded: false, started: false, routed, release };
       this.requests.set(request.id, entry);
       const decision = await hook({ phase: "request", token: entry.token, method: request.method, url: request.url,
         headers: request.headers, body: encode(request.body) });
+      if (this.dead) return this.drop(request.id, entry);
       if (decision?.kind === "fetch") return this.fetch(request.id, entry, message, transfer);
       if (entry.cancelled) return this.requests.delete(request.id);
+      // The test stopped the runtime for this request (apiRoutes' crash): it stays pending until the
+      // runtime's failure reaches runtime/client.ts, which rejects it with every other pending request.
+      if (decision?.kind === "hold") return entry.release();
       if (!decision || decision.kind === "continue") {
         entry.forwarded = true;
+        entry.release();
         return super.postMessage(message, transfer);
       }
       this.settle(request.id, decision);
@@ -93,12 +134,19 @@ export function pageHooks() {
     private async fetch(id: number, entry: Entry, message: unknown, transfer: Transferable[]) {
       const real = new Promise<Reply>(resolve => { entry.fetched = resolve; });
       entry.forwarded = true;
-      super.postMessage(message, transfer);
+      entry.release();
+      // Cancelled while the test decided: the real app's request would have been dropped from the queue.
+      if (entry.cancelled) entry.fetched!({ type: "error", id, message: "The request was cancelled before the runtime started it." });
+      else super.postMessage(message, transfer);
       const reply = await real;
+      // Answered: from here on this request is no longer waiting for the worker.
+      entry.fetched = undefined;
       const response = reply.type === "response"
-        ? { status: reply.status, headers: reply.headers, body: bodyOf(reply) } : { status: 0, headers: [], body: "" };
+        ? { status: reply.status, headers: reply.headers, body: bodyOf(reply) } : { status: 0, headers: [], body: "", error: reply.message };
       const decision = await hook({ phase: "fetched", token: entry.token, response });
+      if (this.dead) return this.drop(id, entry);
       if (entry.cancelled) return this.requests.delete(id);
+      if (decision?.kind === "hold") return;
       if (!decision || decision.kind === "continue") return this.deliver(reply);
       this.settle(id, decision);
     }
@@ -111,6 +159,7 @@ export function pageHooks() {
     private deliver(reply: Reply, errorText = "net::ERR_FAILED") {
       const entry = this.requests.get(reply.id);
       this.requests.delete(reply.id);
+      entry?.release();
       if (entry?.cancelled) return;
       if (entry) {
         void hook(reply.type === "error" ? { phase: "failed", token: entry.token, errorText }
@@ -119,8 +168,34 @@ export function pageHooks() {
       this.listener?.(new MessageEvent("message", { data: reply }));
     }
 
+    /** A request the stopped runtime will never answer: runtime/client.ts rejects it, so report it failed. */
+    private drop(id: number, entry: Entry) {
+      entry.release();
+      if (!this.requests.delete(id)) return;
+      if (!entry.cancelled) void hook({ phase: "failed", token: entry.token, errorText: `net::ERR_FAILED (runtime stopped: ${this.dead})` });
+    }
+
+    /** The runtime stopped: every request it had not answered fails (runtime/client.ts `fail`). */
+    private stopped(reason: string) {
+      if (this.dead) return;
+      this.dead = reason;
+      for (const [id, entry] of [...this.requests]) {
+        // A held fetch learns that the request failed (route.fetch rejects), then reports it as dropped.
+        if (entry.fetched) entry.fetched({ type: "error", id, message: reason });
+        else this.drop(id, entry);
+      }
+      for (const [id, resolve] of [...this.direct]) resolve({ type: "error", id, message: reason });
+      this.direct.clear();
+    }
+
     private receive(event: MessageEvent) {
-      const data = event.data as Reply | { type: string; id?: undefined };
+      const data = event.data as Reply | { type: string; id?: number; message?: string };
+      if (data.type === "started" && data.id !== undefined) {
+        const entry = this.requests.get(data.id);
+        if (entry) entry.started = true;
+      }
+      // The worker's genuine failure message: before boot a failed start, after it a crash.
+      if (data.type === "failed") this.stopped(String(data.message));
       if (data.type !== "response" && data.type !== "error") return this.listener?.(event);
       const reply = data as Reply;
       const direct = this.direct.get(reply.id);
