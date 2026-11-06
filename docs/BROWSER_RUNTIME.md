@@ -195,6 +195,10 @@ still fully checked exactly once; see `ReferencePackStore` and `EmbeddedPackSet`
   (`PortableMd5`, `IncrementalMd5`, `PortableAes`): the platform implementation natively, a managed
   RFC 1321 / FIPS-197 implementation in the browser, tested against official vectors and the platform.
   See [PLUGIN_GUIDE.md](PLUGIN_GUIDE.md#browser-runtime).
+- **Invariant culture.** The WebAssembly runtime would take its culture from the browser language, so
+  plugin text such as `ToString("N0")` stats would read "9.434.752" in a German browser.
+  `BrowserHost.Initialize` sets the current and default-thread cultures to the invariant culture before
+  any plugin loads, so responses never depend on the viewer's language (`web/e2e/ff7-culture.e2e.ts`).
 - **No OpenAPI document.** `/openapi/v1.json` exists only on the ASP.NET host.
 - **Workspaces last as long as the tab.** While this tab's runtime holds a workspace, the page registers a
   `beforeunload` handler so the browser asks before a reload or close discards it, and the workspace header
