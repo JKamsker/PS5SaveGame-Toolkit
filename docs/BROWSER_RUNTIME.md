@@ -211,9 +211,12 @@ still fully checked exactly once; see `ReferencePackStore` and `EmbeddedPackSet`
 - **Images share the single worker.** Icons and assets are fetched through the runtime, at most two at a
   time, so a user action never waits behind more than two image requests; an image request whose last user
   unmounted before it finished is aborted (dropped unstarted by the worker). Long lists load images lazily.
-  Fetched images are cached by path until a change can alter them: importing or removing a reference pack
-  (in any tab of the site) drops cached reference assets, an edit drops its document's assets, and closing
-  a document or workspace drops everything below it; images on screen then fetch the new bytes.
+  Fetched images are cached by path until a change can alter them. Importing or removing a reference pack
+  in another tab of the site drops cached reference assets (a tab ignores its own broadcast echo). A
+  structural edit, an applied action or a revert drops its document's assets; a plain field edit keeps them,
+  because asset bytes change only with the view structure. Any other request that may write (including one
+  that failed without an answer) drops what it could affect, and closing a document or workspace drops
+  everything below it. Images on screen then fetch the new bytes.
 
 ## Parity testing
 
