@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from "vitest";
-import { bootTab, frame, library, read, Site } from "../test/persistenceSite";
+import { bootTab, frame, library, read, Site, type Tab } from "../test/persistenceSite";
 import { readsDurableData, RuntimeHungError } from "./persistence";
 
 const quick = { readLockWaitMs: 40, mutationWatchdogMs: 60 };
@@ -118,6 +118,43 @@ describe("a runtime that stops during a mutation", () => {
     expect(dispatch).not.toHaveBeenCalled();
   });
 });
+
+describe("a runtime that stops while another tab's saves are reloaded", () => {
+  it("reports a runtime that stops while a mutation reloads another tab's saves as hung, not as unreadable storage", async () => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    await b.create("from B"); // a must now make its stores re-read the files before its next write
+    stopWhileLoading(a);
+    const reloadStores = vi.spyOn(a.storage, "reloadStores");
+    const dispatch = vi.fn(async () => frame(200, {}));
+    await expect(a.coordinator.run("POST", "/api/presets", dispatch)).rejects.toBeInstanceOf(RuntimeHungError);
+    expect(reloadStores).not.toHaveBeenCalled();
+    expect(dispatch).not.toHaveBeenCalled();
+    expect(a.log.error).not.toHaveBeenCalled();
+  });
+
+  it("does not dispatch a preset read when the runtime stopped while the read refreshed another tab's saves", async () => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    await b.create("from B"); // a's next preset read refreshes first
+    stopWhileLoading(a);
+    const reloadStores = vi.spyOn(a.storage, "reloadStores");
+    const dispatch = vi.fn(async () => frame(200, []));
+    await expect(a.coordinator.run("GET", "/api/presets", dispatch)).rejects.toBeInstanceOf(RuntimeHungError);
+    expect(reloadStores).not.toHaveBeenCalled();
+    expect(dispatch).not.toHaveBeenCalled();
+  });
+});
+
+/** The runtime traps while IndexedDB is read; a .NET store reload would then fail too. */
+function stopWhileLoading(tab: Tab) {
+  const load = tab.storage.load.bind(tab.storage);
+  vi.spyOn(tab.storage, "load").mockImplementation(async () => {
+    await load();
+    tab.coordinator.stop("RuntimeError: unreachable");
+    tab.reloadError = "The runtime has stopped.";
+  });
+}
 
 describe("site data cleared while the tab is open", () => {
   it("reloads on the next preset read and writes into what IndexedDB holds now", async () => {

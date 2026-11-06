@@ -196,6 +196,8 @@ export class PersistenceCoordinator implements Persistence {
     if (this.hung) throw this.hung;
     if (!writesDurableData(method, url)) {
       if (this.stale && readsDurableData(url)) await this.refreshForRead();
+      // The runtime stopped while the read refreshed: its dispatch would never settle (or fail).
+      if (this.hung) throw this.hung;
       return dispatch();
     }
     try {
@@ -216,6 +218,7 @@ export class PersistenceCoordinator implements Persistence {
   private async refreshForRead() {
     const wait = this.generation === null || this.lockBusy ? 0 : this.timing.readLockWaitMs;
     await this.locked("shared", () => this.refresh(), wait).catch((error: unknown) => {
+      if (error instanceof RuntimeHungError) throw error;
       if (error instanceof StoreReloadError) {
         // Retried by the next mutation, which is refused while it fails; reads keep the last good view.
         this.log.error(`Reading presets and reference packs saved by another tab failed: ${error.message}`);
@@ -237,6 +240,7 @@ export class PersistenceCoordinator implements Persistence {
     try {
       await this.refresh();
     } catch (error) {
+      if (error instanceof RuntimeHungError) throw error; // stopped meanwhile: no storage failure
       if (error instanceof StoreReloadError) {
         this.log.error(`Reading presets and reference packs saved by another tab failed: ${error.message}`);
         // Running the request on the last good view could write it back over the other tab's saves.
@@ -248,8 +252,6 @@ export class PersistenceCoordinator implements Persistence {
       return problemFrame(503, "Service Unavailable", "Browser storage could not be read, so presets and reference "
         + "packs were not changed. Reload the page and try again.");
     }
-    // The runtime stopped while the tree was reloading: its dispatch would never settle (or fail).
-    if (this.hung) throw this.hung;
     const changes = this.storage.trackChanges();
     let frame: Uint8Array;
     try {
@@ -287,8 +289,10 @@ export class PersistenceCoordinator implements Persistence {
       await this.storage.load();
     } catch (error) {
       this.stale = true;
-      throw error;
+      throw this.hung ?? error;
     }
+    // The runtime stopped while the tree was loading (its dispatch would never settle): re-read nothing.
+    if (this.hung) throw this.hung;
     const generation = this.storage.readGeneration();
     if (generation === this.generation) return;
     const error = this.storage.reloadStores();
@@ -309,6 +313,7 @@ export class PersistenceCoordinator implements Persistence {
       this.log.error("Restoring presets and reference packs from browser storage failed:", error);
       return false;
     }
+    if (this.hung) throw this.hung;
     const generation = this.storage.readGeneration();
     const error = this.storage.reloadStores();
     if (error) {
