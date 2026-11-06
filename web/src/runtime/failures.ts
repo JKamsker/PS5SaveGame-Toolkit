@@ -13,6 +13,9 @@ export function isOutOfMemory(error: unknown): boolean {
  * Emscripten's abort (`Aborted(...)`), a WebAssembly trap or a .NET runtime that already exited: the
  * runtime cannot answer another request, and the workspaces in its memory are gone. Anything else (a
  * JavaScript error around a request, a failed buffer allocation for an upload) leaves it usable.
+ * Deep managed recursion is such an exit: Mono detects the stack overflow and calls `exit(1)` (an
+ * `ExitStatus`), so a `RangeError: Maximum call stack size exceeded` is a JavaScript-side overflow that
+ * unwound only JavaScript frames, and does not stop the runtime.
  */
 const stopped = /\bAborted\(|program has already aborted|runtime already exited|^ExitStatus\b|Program terminated with exit\(/;
 /**
