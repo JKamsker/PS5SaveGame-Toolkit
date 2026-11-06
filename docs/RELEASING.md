@@ -3,21 +3,27 @@
 The application version comes from **git tags**, through [MinVer](https://github.com/adamralph/minver).
 Use `vMAJOR.MINOR.PATCH` for stable releases and e.g. `v1.2.3-rc.1` for prereleases. Release
 inputs reject leading zeroes, a `v` prefix and build metadata. Plugin `PluginInfo.Version` values
-remain independent; only the API assembly uses MinVer. The web package.json version is npm
-metadata, not the application version.
+remain independent; only the browser host (`src/SaveToolkit.Browser`) and the API assembly use
+MinVer, with identical configuration. The web package.json version is npm metadata, not the
+application version.
 
 MinVer is a small build-only dependency with no version file to keep synchronized with tags.
 On an exact tag it uses that SemVer; after a stable tag it increments the patch and appends
 `alpha.0` plus commit height. Before the first tag it uses `0.0.0-alpha.0.<height>`.
 The informational version can also contain the source commit as `+` metadata. `GET /api/version`
-returns `{ "version": "..." }`; the home-page footer displays this running-server version. Always fetch
+returns `{ "version": "..." }`; the home-page footer displays this version, read from the browser
+runtime's `SaveToolkit.Browser` assembly. Always fetch
 full history and tags (`git fetch --tags`; Actions uses `fetch-depth: 0`). Shallow clones cannot
 reliably calculate a release version. Dirty source changes do not automatically change the version.
 
 ## Continuous integration
 
 `.github/workflows/ci.yml` validates pushes, pull requests and release candidates on Ubuntu and
-Windows. It builds with warnings as errors and runs **every** test project through `scripts/test.ps1`.
+Windows. It builds with warnings as errors and runs **every** test project through `scripts/test.ps1`,
+including the `tests/SaveToolkit.LocalApi.Tests` parity suite that compares the in-process `/api`
+router with the ASP.NET host. The web build publishes `src/SaveToolkit.Browser` (the .NET WebAssembly
+runtime, warnings as errors) on both platforms, so every job that builds the static site first runs
+`dotnet workload install wasm-tools`.
 Dependency-free PowerShell script regressions also run on Ubuntu, Windows and macOS. Run them
 locally with `./scripts/self-test.ps1 -ScratchDirectory <path>`. Superseded pull-request and non-main
 branch-push validations cancel running CI. Main pushes, tag pushes and reusable release validations
@@ -25,7 +31,8 @@ have run-specific CI concurrency groups so even pending gate runs cannot replace
 Release publication remains serialized by version and never cancels an in-progress run.
 Private samples are absent, so sample-dependent tests skip while synthetic tests still run.
 There is no sample download step. This validates the sample-free path, not gameplay or console
-compatibility. Web checks include ESLint, TypeScript, Vitest, the production build and gzip bundle budgets.
+compatibility. Web checks include ESLint, TypeScript, Vitest, the static-site build (UI plus .NET
+WebAssembly runtime) and gzip bundle budgets.
 NuGet/npm downloads are cached; per-project TRX and web JUnit results are uploaded even on failure.
 Test-count summaries parse those reports and show passed/failed/skipped counts, or explicitly say
 when reports are unavailable. Script jobs retain their log/counts, and e2e retains JUnit counts.
@@ -37,7 +44,7 @@ every project. Script, web and e2e gates always run. No path filters suppress re
 
 All external actions use major-version pins; none are unpinned. Workflow permissions default to
 `contents: read`; only release publication has `contents: write`. Every runner job has an explicit
-timeout (reusable-call jobs inherit the called jobs' limits). OS/RID matrices use `fail-fast: false`
+timeout (reusable-call jobs inherit the called jobs' limits). OS matrices use `fail-fast: false`
 so one failed platform does not hide the others' results.
 
 Every .NET job installs the SDK selected by `global.json`, including scaffold regressions.
@@ -45,8 +52,11 @@ Every .NET job installs the SDK selected by `global.json`, including scaffold re
 `Directory.Packages.props`, project files, `global.json`, build props/targets, the tool manifest and
 any `packages.lock.json`. There are currently no NuGet lockfiles; explicit paths avoid the action's
 root-lockfile requirement. `setup-node` caches npm downloads against `web/package-lock.json`.
+The `wasm-tools` workload is not cached: its packs install into the `setup-dotnet` installation
+root alongside the SDK, which a separate cache cannot restore reliably, and installation takes about
+a minute. Revisit this if workload installation becomes a significant part of job time.
 Restores and `npm ci` still run to resolve each job's own dependency graph; caches contain downloads,
-not build outputs. Independent OS/RID builds and the parallel e2e build remain intentional; backend
+not build outputs. Independent OS builds and the parallel e2e build remain intentional; backend
 tests already share one build per validation job. Sharing compiled outputs would couple those jobs
 and risk stale or platform-specific binaries.
 
@@ -55,7 +65,7 @@ checks in `tests/SaveToolkit.Api.Performance.Tests`. Contract drift fails normal
 re-pin only after reviewing an intentional API metadata/contract change using the
 [one-line workflow](API.md#openapi-contract-and-regression-guard). Documentation tests
 compare the checked-in contract's method/route inventory with `docs/API.md` in both
-directions. `/openapi/v1.json` is also available in packaged Production runs.
+directions. `/openapi/v1.json` is served only by the optional ASP.NET host, not by the browser app.
 
 Performance measurements are opt-in and documented in [PERFORMANCE.md](PERFORMANCE.md).
 `./scripts/bench.ps1` runs synthetic BenchmarkDotNet workloads and retains a Markdown summary;
@@ -85,7 +95,9 @@ plain `npm ci` must succeed without legacy peer-dependency flags.
 
 After the production build, the `validate` matrix runs the identical `npm run check:bundle` step
 on Ubuntu and Windows. It reads Vite's `.vite/manifest.json` and the actual JS/CSS files in the
-configured build output (`src/SaveToolkit.Api/wwwroot`, rather than `web/dist`). The check uses
+configured build output (`web/dist`; before the browser runtime it was `src/SaveToolkit.Api/wwwroot`).
+It measures the UI's JS/CSS only; the runtime in `web/dist/_framework` is outside the budget and is
+described in [PERFORMANCE.md](PERFORMANCE.md#browser-runtime-boot). The check uses
 Node's gzip level 6, sums the initial entry's static JS imports and CSS once, and checks every
 initial/lazy JS/CSS file against `web/bundle-budgets.json`. Missing builds/assets/imports,
 untracked files, unbudgeted chunks and exceeded limits fail the step. The script's synthetic
@@ -106,15 +118,17 @@ The job IDs below are the workflow keys, rather than matrix-expanded display nam
 | [ci.yml](../.github/workflows/ci.yml) | `validate` | Ubuntu/Windows backend and web checks; .NET coverage on Windows, web coverage and documentation/actionlint checks on Linux. |
 | [ci.yml](../.github/workflows/ci.yml) | `script-tests` | PowerShell script/scaffold regressions on Ubuntu, Windows and macOS. |
 | [ci.yml](../.github/workflows/ci.yml) | `csharp-size` | Exact PR/base-range C# size gate plus a full report-only debt audit. |
-| [ci.yml](../.github/workflows/ci.yml) | `e2e` | Ubuntu Chromium tests against the built API/UI. |
+| [ci.yml](../.github/workflows/ci.yml) | `e2e` | Ubuntu Chromium tests against the built static site (UI and .NET WebAssembly runtime), with no API process. |
 | [dependency-drift.yml](../.github/workflows/dependency-drift.yml) | `report` | Weekly/manual report-only NuGet/npm version drift; no secrets, updates or auto-merge. |
 | [nightly-stryker.yml](../.github/workflows/nightly-stryker.yml) | `mutation` | Informational Core/SDK production-code mutation testing through Core tests, with per-project scores and HTML reports. |
 | [nightly-fuzz.yml](../.github/workflows/nightly-fuzz.yml) | `fuzz` | Ubuntu scheduled/manual mutation sweep with synthetic seeds, reproducible seed/count overrides and metadata-only failure reports. |
-| [docs.yml](../.github/workflows/docs.yml) | `build` | Curated documentation, generated SDK/OpenAPI references and static links on PRs, main pushes and manual dispatch. |
-| [docs.yml](../.github/workflows/docs.yml) | `deploy` | Publish verified documentation to GitHub Pages on main only. |
+| [docs.yml](../.github/workflows/docs.yml) | `build` | Curated documentation, generated SDK/OpenAPI references and static links on PRs and manual dispatch; called by `pages.yml` on main pushes. |
+| [pages.yml](../.github/workflows/pages.yml) | `docs` | Call `docs.yml` and hand its verified site to the deployment. |
+| [pages.yml](../.github/workflows/pages.yml) | `app` | Build the static browser app with the project Pages base path. |
+| [pages.yml](../.github/workflows/pages.yml) | `deploy` | Combine documentation (root) and app (`app/`) and deploy GitHub Pages on main only. |
 | [release.yml](../.github/workflows/release.yml) | `resolve` | Validate the requested tag/version and pin the source commit. |
 | [release.yml](../.github/workflows/release.yml) | `validate` | Call the complete reusable CI workflow, including script tests and e2e. |
-| [release.yml](../.github/workflows/release.yml) | `package` | Package and smoke-test all four RIDs on matching runners. |
+| [release.yml](../.github/workflows/release.yml) | `package` | Package the static browser app as one archive and smoke-test it. |
 | [release.yml](../.github/workflows/release.yml) | `publish` | Verify checksums, upload a draft and publish it. |
 
 The inherited conformance `MutationFuzz` fact runs in ordinary backend test projects and the
@@ -197,8 +211,8 @@ are additional). All commands below run from the repository root in PowerShell 7
 | `self-test.ps1` | `-ScratchDirectory` | Defaults to system temp. Runs script and real scaffold build/test checks; requires the selected .NET SDK and restore access, no Pester or private saves. |
 | `install-hooks.ps1` | *(none)* | Opt-in repository-local C# size-hook installation. It supports PowerShell's common `-WhatIf`, preserves an existing hook chain, and never changes global Git configuration. |
 | `build-docs.ps1` | `-ScratchDirectory` | Required path outside the checkout. Builds and checks the public docs with generated SDK/OpenAPI references; restores pinned tools and renderer assets, retains each run under scratch. See [docs build and Pages setup](../docs-site/README.md). |
-| `package.ps1` | `-Runtime`, `-OutputDirectory`, `-SkipWebBuild` | Output directory is required. Runtime is an array defaulting to all four supported RIDs; web build is included by default. |
-| `smoke-package.ps1` | `-PackageDirectory`, `-Runtime`, `-ScratchDirectory`, `-ExpectedVersion` | First three are required; exactly one matching archive plus its `.sha256` must exist. Expected version is optional. |
+| `package.ps1` | `-OutputDirectory`, `-SkipWebBuild` | Output directory is required. Builds `SaveToolkit-<version>-web.zip` (static site, licences, README) plus `.sha256`; the web build (`npm ci`, `npm run build` with base `/`, needs `wasm-tools`) is included by default. |
+| `smoke-package.ps1` | `-PackageDirectory`, `-ScratchDirectory`, `-ExpectedVersion` | First two are required; exactly one `SaveToolkit-*-web.zip` plus its `.sha256` must exist. Expected version is optional. |
 | `new-plugin.ps1` | `-Name`, `-Id`, `-TitleIds`, `-GameName` | Name/ID are required; title IDs default to empty, game name to Name. See the [scaffold walkthrough](PLUGIN_GUIDE.md#scaffold) for format and name restrictions. |
 | `release-notes.ps1` | `-Version`, `-PreviousTag`, `-Force` | Version is required (SemVer without `v` or build metadata). Previous tag defaults to the nearest reachable `v*` tag on the first-parent history. Writes a draft; existing notes require Force. No network. |
 | `release-check.ps1` | `-Version` | Version is required in the same format. Read-only pre-tag checks require committed notes and a clean main branch; queries exact-HEAD main push CI through gh, or warns when gh is unavailable. |
@@ -232,11 +246,20 @@ hosted CI uses `runner.temp`. Create it before redirecting environment variables
 Set `SAVETOOLKIT_TEST_TEMP` for `TestScratch`/sample imports and `TEMP`, `TMP`, `TMPDIR` for other
 tools. The runner restores those three temp variables after each project; an ordinary direct
 `dotnet test` needs the environment set too. Direct source runs also put workspaces under the
-system temp directory unless `Toolkit:DataRoot` is configured. Bundle launchers use `./data`;
-see [user storage guidance](USER_GUIDE.md#where-your-data-lives).
+system temp directory unless `Toolkit:DataRoot` is configured. The browser app keeps workspaces in
+memory and presets/packs in IndexedDB; see [user storage guidance](USER_GUIDE.md#where-your-data-lives).
 
-Allow space for expanded samples, concurrent workers, coverage reports, npm cache, package staging
-and extracted smoke bundles; compressed archive size is not a sufficient disk estimate. Automatic
+Building the static site adds its own outputs. `npm run build:wasm` publishes `src/SaveToolkit.Browser`
+to `<temp>/savetoolkit-wasm-publish` (following `TEMP`/`TMPDIR`; override with
+`SAVETOOLKIT_WASM_PUBLISH_DIR`), copies about 100 MB of runtime files into the git-ignored
+`web/public/_framework`, and Vite copies them again into `web/dist`. The native relink keeps
+intermediate objects in the project's `obj/` (or `SAVETOOLKIT_DOTNET_ARTIFACTS`, passed to `dotnet` as
+`--artifacts-path`, which also isolates concurrent builds). The `wasm-tools` workload itself
+(Emscripten and runtime packs, about 1 GB) installs into the .NET SDK directory. Set
+`SAVETOOLKIT_SKIP_WASM_BUILD=1` to reuse an existing `web/public/_framework` instead of publishing.
+
+Allow space for expanded samples, concurrent workers, coverage reports, npm cache, the WebAssembly
+publish and relink outputs, package staging and extracted smoke bundles; compressed archive size is not a sufficient disk estimate. Automatic
 cleanup covers invocation-owned test/staging/extraction directories, not retained reports, caches,
 package archives or smoke logs. Inspect warnings and clean up known task-owned leftovers after
 review. Never recursively delete a sample directory or another task's scratch.
@@ -263,6 +286,8 @@ New-Item -ItemType Directory -Force $scratch | Out-Null
 $env:SAVETOOLKIT_TEST_TEMP = "$scratch/tests"
 $env:TEMP = $env:TMP = $env:TMPDIR = $scratch
 $env:npm_config_cache = "$scratch/npm-cache"
+$env:SAVETOOLKIT_DOTNET_ARTIFACTS = "$scratch/wasm-artifacts"
+dotnet workload install wasm-tools   # once per SDK installation (may need an elevated shell)
 ./scripts/self-test.ps1 -ScratchDirectory $scratch
 python -B docs/tests/test_documentation.py
 ./scripts/test.ps1 -Configuration Release -ResultsDirectory "$scratch/results"
@@ -291,7 +316,8 @@ With the variable absent, normal test behavior is unchanged. Individual regressi
 other tests run. Its theory cases cover de-AT, tr-TR, ja-JP and ar-SA, or the invariant culture alone
 when named cultures are unavailable. SDK tests live in the Core test project.
 
-Configure samples, `SAVETOOLKIT_TEST_BUNDLE` (an extracted native bundle), and D: scratch as
+Configure samples, `SAVETOOLKIT_TEST_BUNDLE` (a self-contained Api publish; see
+[optional ASP.NET host](#optional-aspnet-host)), and D: scratch as
 [above](#disk-and-scratch). Core's synthetic Counter conformance sample is `PPSA99999_saves_dec.zip`;
 for a strict zero-skip local audit, provide an authored Counter fixture alongside the private
 archives in an external sample overlay. Never add private saves to the checkout. Core also has an
@@ -470,7 +496,9 @@ by projects named `*.Tests` in `Directory.Packages.props`; new test projects sho
 
 ## Built app browser smoke tests
 
-The Ubuntu-only `e2e` CI job runs alongside validation with a 12-minute limit. The official
+The Ubuntu-only `e2e` CI job runs alongside validation with a 25-minute limit: it installs the
+`wasm-tools` workload, builds the complete static site (`npm run build`, including the Release
+WebAssembly publish) and then runs the suites against `web/dist`, with no API process. The official
 `npm run e2e` entry reads the schema-2 `web/scripts/e2e-suites.json` manifest and runs the explicit
 canonical file allowlist plus each named feature partition (Unreal, text-capacity, FF7, transfer,
 caption and action-effects) sequentially whenever its complete owned file inventory is present.
@@ -481,7 +509,7 @@ any actual suite launch. Each selected suite retains the unchanged 180-second ov
 overrides, including the transfer library's 60-second test timeout, are unchanged. The aggregate allowance is
 additive across the partitions that are actually present; neither four-suite nor six-suite ceiling
 arithmetic includes discovery, startup, reporting or teardown overhead or proves the complete run fits.
-The complete composed run still has to fit the unchanged 12-minute CI job.
+The complete composed run, together with the static-site build, has to fit the 25-minute CI job.
 The canonical allowlist explicitly marks `presets.e2e.ts` optional until its published feature is
 composed; when present, all its actual registrations participate in canonical discovery and execution.
 Optional means declared absence is allowed, never that a present file or its IDs may be skipped.
@@ -497,7 +525,8 @@ launch, nonzero/signal, or teardown failure fails the command while later select
 attempted. CLI file/grep filters remain supported, for example
 `npm run e2e -- unreal-reference.e2e.ts`.
 Chromium imports
-the committed synthetic fixtures through the bundled UI. The suite covers import errors and recovery,
+the committed synthetic fixtures through the built static site, so every request runs through the
+real .NET WebAssembly runtime in the page's worker. The suite covers import errors and recovery,
 raw read-only inspection, editing/review/undo, document isolation and redo, full-collection search/filter/
 sort/paging, bulk preview/cancel/apply, keyboard-only application interaction, and repeated exports.
 F6 actions cover selected-row and filtered-query scopes (including unloaded pages), empty table
@@ -521,7 +550,7 @@ clear-selection focus, map fallback focus and semantic-review navigation/revert 
 regressions. Component tests cover the extracted action/export dialogs, table controllers,
 reference controls and review panel, including accessible names, live announcements and contrast.
 
-Build the Release API and UI before running locally (Node.js 24):
+Build the static site before running locally (Node.js 24, `wasm-tools` installed):
 
 ```powershell
 $env:SAVETOOLKIT_E2E_SCRATCH = 'D:/Temp/saveeditor/test-scratch/e2e-smoke'
@@ -529,7 +558,6 @@ New-Item -ItemType Directory -Force $env:SAVETOOLKIT_E2E_SCRATCH | Out-Null
 $env:TEMP = $env:TMP = $env:TMPDIR = $env:SAVETOOLKIT_E2E_SCRATCH
 $env:PLAYWRIGHT_BROWSERS_PATH = "$env:SAVETOOLKIT_E2E_SCRATCH/browsers"
 $env:npm_config_cache = "$env:SAVETOOLKIT_E2E_SCRATCH/npm-cache"
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj --configuration Release
 Push-Location web
 npm ci --no-audit --no-fund
 npm run build
@@ -538,43 +566,83 @@ npm run e2e
 Pop-Location
 ```
 
-Playwright's `webServer` starts the real API with `--no-build` on a free loopback port and uses
-temporary workspace/reference-pack/preset directories, removed after the run. Test output and the HTML
-report remain under unique `invocation-*/<suite>` scratch directories, with separate JUnit/HTML
-reports, server ports and temporary workspaces. CI collects every nested report and the discovery
-manifest. `SAVETOOLKIT_E2E_SCRATCH` overrides the platform default (the D: path
-above on Windows, a directory under the system temp folder elsewhere).
+After UI-only changes, `npm run build:ui` rebuilds `web/dist` around the existing runtime. Playwright's
+`webServer` serves `web/dist` with `vite preview` on a free loopback port. The app keeps workspaces in
+memory and presets/reference packs in IndexedDB, and every test uses a fresh browser context, so no
+server-side data directories exist. Test output and the HTML report remain under unique
+`invocation-*/<suite>` scratch directories, with separate JUnit/HTML reports and ports. CI collects
+every nested report and the discovery manifest. `SAVETOOLKIT_E2E_SCRATCH` overrides the platform
+default (the D: path above on Windows, a directory under the system temp folder elsewhere).
+
+## GitHub Pages
+
+[pages.yml](../.github/workflows/pages.yml) runs on every push to `main` and on manual dispatch. A
+repository has a single Pages site, so the workflow publishes both parts in one deployment:
+
+- `docs` calls [docs.yml](../.github/workflows/docs.yml), which builds and checks the documentation
+  site exactly as on pull requests and uploads it as a short-lived artifact.
+- `app` installs `wasm-tools` and builds `web/dist` with `SAVETOOLKIT_WEB_BASE` set to
+  `/<repo>/app/` (`/app/` for an `<owner>.github.io` repository), then checks that `index.html`
+  references assets below that base.
+- `deploy` (main only) places the documentation at the site root and the app in `app/`, refusing to
+  overwrite a documentation path, and deploys through `actions/configure-pages`,
+  `actions/upload-pages-artifact` and `actions/deploy-pages`. Only this job has `pages: write` and
+  `id-token: write`; every other job reads repository contents only.
+
+The result is `https://<owner>.github.io/<repo>/` for the documentation and
+`https://<owner>.github.io/<repo>/app/` for the app. To serve the app at the root instead, move the
+documentation below a sub-path and change `APP_PATH`. A custom domain changes the base path too.
+
+An administrator enables **Settings → Pages → Source: GitHub Actions** once and should restrict the
+`github-pages` environment to `main`; `configure-pages` runs with `enablement: false`, so the workflow
+never turns Pages on itself. This repository is private: GitHub Pages for private repositories needs a
+paid plan (GitHub Pro, Team or Enterprise), and on Enterprise Cloud the site may be private to
+organization members. Without Pages the `deploy` job fails while `docs` and `app` still validate the
+build. A Pages site is public unless access control is available and enabled, so publishing it exposes
+the app and documentation even though the source stays private.
+
+GitHub Pages has no SPA fallback for the app's sub-path: reloading `/app/w/<id>` returns the site's
+404 page. Workspaces are held in memory, so a reload would lose them anyway; start again from `/app/`.
 
 ## Build and check bundles locally
 
 ```powershell
-./scripts/package.ps1 -Runtime win-x64 -OutputDirectory D:/Temp/saveeditor/test-scratch/framework-docs/packages
-./scripts/smoke-package.ps1 -Runtime win-x64 `
+./scripts/package.ps1 -OutputDirectory D:/Temp/saveeditor/test-scratch/framework-docs/packages
+./scripts/smoke-package.ps1 `
   -PackageDirectory D:/Temp/saveeditor/test-scratch/framework-docs/packages `
   -ScratchDirectory D:/Temp/saveeditor/test-scratch/framework-docs/smoke
 ```
 
-Omit `-Runtime` to build all four RIDs: win-x64, linux-x64, osx-arm64 and osx-x64. The script runs
-`npm ci` and builds the UI before self-contained Release publishes. `-SkipWebBuild` reuses an
-already built `wwwroot`; use this only when it matches the source being packaged. .NET and Node
-are build-time requirements; bundle users do not need either installed. Supply an explicit output
-directory outside private saves. Staging publish directories are removed even after failures.
-Keep package archives for distribution or delete them when local verification is complete.
-Test runs isolate and restore `TEMP`, `TMP` and Unix `TMPDIR`; cleanup failures produce a warning
-with the directory to remove. Relative scratch and package output paths resolve from the caller's
+Releases ship one platform-independent archive, `SaveToolkit-<version>-web.zip`: the static site
+(UI, .NET WebAssembly runtime and every plugin), a README, `LICENSE`, `THIRD-PARTY-NOTICES` and
+`licenses/`, under one top-level `SaveToolkit-<version>-web` folder. The earlier self-contained
+per-RID server bundles were dropped: the UI no longer calls a server, so they would only have been a
+large static file server, and four native publishes (plus their launchers and per-OS prerequisites)
+no longer bought anything.
+
+The script runs `npm ci` and `npm run build` with `SAVETOOLKIT_WEB_BASE=/` (restoring the caller's
+value), so the archive works when served from the root of any static server. `-SkipWebBuild` reuses an
+existing `web/dist`; use this only when it matches the source being packaged, and it must have been
+built with the root base path. .NET (with `wasm-tools`) and Node are build-time requirements; users
+need neither, only a static web server such as `python3 -m http.server`. Browsers do not run the app
+from `file://`. Supply an explicit output directory outside private saves. Staging directories are
+removed even after failures. Keep package archives for distribution or delete them when local
+verification is complete. Relative scratch and package output paths resolve from the caller's
 PowerShell location.
 
-Each zip (Windows) or tar.gz (Unix) contains a top-level version/RID directory, `wwwroot`,
-the platform `e_sqlite3` native library, launcher, README and licence notices. A missing native
-library or UI fails packaging. The launcher sets the content root, binds to `127.0.0.1:5180`,
-and stores workspaces/reference packs under `data/` beside it. It requires a writable extraction
-folder. Native platform prerequisites still apply (e.g. current supported .NET Linux/macOS OS
-versions and Linux ICU/OpenSSL). Bundles are not signed or notarized. Unix bundles made on
-Windows require `chmod +x start.sh SaveToolkit.Api`; releases package on their native OS.
+`smoke-package.ps1` verifies the archive checksum offline, extracts it into a unique scratch folder and
+checks the single top-level folder, the README and licence files, `index.html` with its application root,
+every entry JS/CSS asset it references, `_framework/dotnet.js` and the `SaveToolkit.Browser` assembly.
+Supply `-ExpectedVersion 1.2.3` to require that assembly's informational version, which is what
+`/api/version` reports in the browser (commit metadata is ignored). The extraction is removed afterwards.
+The real app is exercised in Chromium by the CI `e2e` job, which release validation includes.
 
-The API binds the `Toolkit` section to startup-only typed options. Command-line arguments override
-environment variables, which override `appsettings.json` (and its environment-specific variant).
-The three existing settings are:
+### Optional ASP.NET host
+
+`src/SaveToolkit.Api` still hosts the same `/api` contract over HTTP (and `/openapi/v1.json`) for
+tests, tooling and the parity suite; it is not shipped. It binds the `Toolkit` section to
+startup-only typed options. Command-line arguments override environment variables, which override
+`appsettings.json` (and its environment-specific variant). The three existing settings are:
 
 | Setting | Environment variable | Default for direct apphost/source runs |
 | --- | --- | --- |
@@ -586,28 +654,21 @@ Absent or empty values use these defaults. Whitespace-only locale lists yield no
 duplicates remain in order. Paths may be relative and need not exist yet. Whitespace-only or
 malformed paths fail startup with an error naming `Toolkit:DataRoot` or `Toolkit:PackRoot`.
 Settings are captured at startup; changes require a restart. Upload/form limits remain fixed constants.
+The standard URL default remains `http://127.0.0.1:5180`. The host serves `wwwroot` if present but
+does not build or copy the web app; use the static site instead.
 
-Launchers supply their own command-line settings and do not forward extra arguments. To change
-the URL or storage location, invoke the apphost directly, as in the
-[user guide](USER_GUIDE.md#where-your-data-lives), with `--urls`, `--Toolkit:DataRoot` and
-`--Toolkit:PackRoot`. The standard URL default remains `http://127.0.0.1:5180`.
-
-To test the real bundle's configuration providers and `--urls` override, extract a matching native
-archive into scratch, set `SAVETOOLKIT_TEST_BUNDLE` to its top-level bundle directory, and run:
+To test the configuration providers and `--urls` override against a real apphost, publish one into
+scratch (for example `dotnet publish src/SaveToolkit.Api/SaveToolkit.Api.csproj -c Release -r linux-x64
+--self-contained -o <scratch>/api-bundle`), copy a built `web/dist` into its `wwwroot` (the test also
+requests the UI page), set `SAVETOOLKIT_TEST_BUNDLE` to that directory, and run:
 
 ```powershell
 dotnet test --project tests/SaveToolkit.Core.Tests --configuration Release --filter-class '*ApiBundleConfigurationTests'
 ```
 
 These three cases exercise appsettings, environment and command-line storage settings through
-the packaged apphost, including actual workspace/pack writes. They skip explicitly when the bundle
+the apphost, including actual workspace/pack writes. They skip explicitly when the bundle
 variable is absent. Keep the [scratch environment](#disk-and-scratch) configured for this command.
-
-`smoke-package.ps1` verifies the archive checksum, extracts into a unique scratch folder, starts
-the actual apphost on a free loopback port, checks `/api/version`, HTML and its JavaScript entry
-point, stops the server and removes the extraction. Supply `-ExpectedVersion 1.2.3` to require a
-particular SemVer (commit metadata is ignored for that comparison). Each invocation retains uniquely
-named `smoke-<id>.stdout.log` and `smoke-<id>.stderr.log` files in scratch.
 
 ## Publish a release
 
@@ -682,7 +743,7 @@ Two entry paths run the same validation and release pipeline:
 
 1. **Tag:** tag the intended committed revision, then push that tag, e.g.
    `git tag v1.2.3 <commit>` and `git push origin v1.2.3`. The `v*.*.*` workflow validates the
-   version and runs the complete reusable CI workflow before packaging all four RIDs.
+   version and runs the complete reusable CI workflow before packaging the browser app.
 2. **Manual:** Actions → Release → Run workflow, select the intended branch/revision and enter
    `1.2.3` or `1.2.3-rc.1` (without `v`). Or use
    `gh workflow run release.yml --ref main -f version=1.2.3`. The workflow records the exact commit,
@@ -690,10 +751,10 @@ Two entry paths run the same validation and release pipeline:
    tag and publish in the **same run**. A tag created using `GITHUB_TOKEN` does not trigger another
    workflow, so this path does not depend on a second tag event. Existing tag names are rejected.
 
-Each RID is packaged and smoke-tested on its matching OS/architecture. Failure blocks publication.
-Package job summaries list archive names, byte sizes and SHA-256 values, alongside the recorded
-build/smoke-test outcome. Package workflow artifacts keep their `package-<rid>` names and seven-day
-retention; published release assets and notes are unchanged. Validation TRX/JUnit/timing artifacts
+The browser app is packaged and smoke-tested once, on Ubuntu (the archive is platform-independent).
+Failure blocks publication. The package job summary lists the archive name, byte size and SHA-256
+value, alongside the recorded build/smoke-test outcome. The workflow artifact is `package-web`, with
+seven-day retention. Validation TRX/JUnit/timing artifacts
 (`test-results-<OS>`), script logs (`test-results-scripts-<OS>`), e2e JUnit
 (`test-results-e2e-Linux`) and failure-only `playwright-report` are retained for 14 days. Coverage
 remains in separate `coverage-<OS>` artifacts rather than being duplicated inside test results.
@@ -709,8 +770,8 @@ job prepends that file to the git-cliff changelog with a blank line between them
 the file, the generated notes are unchanged. Use absolute GitHub links so citations also
 work in the release body.
 
-The publish job verifies all four checksums, creates a **draft**, uploads archives, per-archive
-`.sha256` files and combined `SHA256SUMS`, then publishes with the generated notes. Tags containing
+The publish job verifies the archive checksum, creates a **draft**, uploads the archive, its
+`.sha256` file and the combined `SHA256SUMS`, then publishes with the generated notes. Tags containing
 a prerelease suffix produce GitHub prereleases. Failed uploads leave a draft, not a partial public
 release. Re-run failed jobs to resume a draft; already-published releases are never overwritten.
 If a manual run created its remote tag before failing, re-run its failed publication job, not all jobs
@@ -725,9 +786,11 @@ against the adjacent `.sha256` file. The manifest covers archives, not checksum 
 
 Never move a published version tag or replace its assets. Withdraw a broken release (mark it as a
 prerelease or remove its release entry if necessary), document the fault, and publish a new patch
-tag containing the correction or reverted code. Users can extract a prior known-good bundle to a
-different directory and use their untouched save backups. Preserve the old `data/` directory before
-switching versions; no automatic data downgrade is promised. Private saves never belong in releases.
+tag containing the correction or reverted code. Users can serve a prior known-good archive and use
+their untouched save backups. Presets and reference packs live in the browser's IndexedDB for the
+serving address and are shared by every version served there; export presets before switching
+versions, or serve the old version on another port to keep its storage separate. No automatic data
+downgrade is promised. Private saves never belong in releases.
 
 Dependabot proposes weekly NuGet, npm (`/web`) and GitHub Actions version updates, grouping minor
 and patch updates per ecosystem while leaving major upgrades separate. The SQLitePCLRaw major-version

@@ -1,16 +1,18 @@
 name: Documentation
 
 on:
-  push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
+  # Pushes to main run this build through pages.yml, which deploys the combined Pages site.
+  workflow_call:
 
 permissions:
   contents: read
 
 concurrency:
-  group: docs-${{ github.ref }}
+  # A Pages call runs under the caller's workflow name, so it never queues behind (or replaces)
+  # a standalone validation of the same ref.
+  group: docs-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -75,29 +77,12 @@ jobs:
           ./scripts/build-docs.ps1 -ScratchDirectory $env:DOCS_SCRATCH
           $site = (Get-Content -LiteralPath "$env:DOCS_SCRATCH/latest-site.txt" -Raw).Trim()
           "DOCS_SITE=$site" >> $env:GITHUB_ENV
-      - name: Upload verified Pages artifact
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v5
+      - name: Upload verified site for the Pages deployment
+        if: github.workflow == 'Pages'
+        uses: actions/upload-artifact@v7
         with:
+          name: docs-site
           path: ${{ env.DOCS_SITE }}
-
-  deploy:
-    name: Deploy GitHub Pages
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Read Pages configuration
-        uses: actions/configure-pages@v6
-        with:
-          enablement: false
-      - name: Deploy verified artifact
-        id: deployment
-        uses: actions/deploy-pages@v5
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1

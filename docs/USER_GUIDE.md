@@ -1,7 +1,8 @@
 # PS5 Save Game Toolkit user guide
 
 Use the toolkit to inspect and edit a **decrypted PS5 save dump** in your browser. The
-browser interface is branded **Savebench**. The toolkit runs on your computer; it does
+browser interface is branded **Savebench**. The toolkit runs entirely in your browser:
+imported saves are processed in the open tab and never uploaded. It does
 not decrypt or re-sign console save containers. Use your save manager for those steps
 and for restoring the exported save to your console.
 
@@ -25,16 +26,14 @@ changes on a disposable spare slot first.
 
 ## Download and verify
 
-Open [GitHub Releases](https://github.com/JKamsker/PS5SaveGame-Toolkit/releases) and choose
-a release. Repository access is required while the project is private. Download a
-**release asset**, rather than GitHub's automatic source-code archive:
+If the project's [hosted build](https://jkamsker.github.io/PS5SaveGame-Toolkit/app/) is available
+to you, open it and skip to [Import and choose a document](#import-and-choose-a-document). It is the
+same app, built from `main`; saves still stay in your browser.
 
-| Your computer | Bundle name ends with |
-| --- | --- |
-| Windows, Intel/AMD 64-bit | `win-x64.zip` |
-| Linux, Intel/AMD 64-bit | `linux-x64.tar.gz` |
-| macOS, Apple silicon | `osx-arm64.tar.gz` |
-| macOS, Intel | `osx-x64.tar.gz` |
+Otherwise open [GitHub Releases](https://github.com/JKamsker/PS5SaveGame-Toolkit/releases) and choose
+a release. Repository access is required while the project is private. Download the
+**release asset** `SaveToolkit-<version>-web.zip`, rather than GitHub's automatic source-code
+archive. The same archive works on Windows, macOS and Linux.
 
 Also download the archive's matching `.sha256` file, or the release's combined
 `SHA256SUMS`. Keep them beside the archive. Checksums detect an incomplete or changed
@@ -44,7 +43,7 @@ On **Windows**, open PowerShell in your download directory. Replace `VERSION` be
 with the version in the downloaded filename, including any prerelease suffix:
 
 ```powershell
-$archive = 'SaveToolkit-VERSION-win-x64.zip'
+$archive = 'SaveToolkit-VERSION-web.zip'
 $expected = ((Get-Content -LiteralPath "$archive.sha256" -Raw).Trim() -split '\s+')[0]
 $actual = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash
 if ($actual -ine $expected) { throw 'Checksum mismatch. Download the archive again.' }
@@ -58,100 +57,77 @@ Uppercase and lowercase hexadecimal letters are equivalent.
 On **Linux**, in the download directory, substitute your actual filename:
 
 ```sh
-sha256sum --check SaveToolkit-VERSION-linux-x64.tar.gz.sha256
+sha256sum --check SaveToolkit-VERSION-web.zip.sha256
 ```
 
-For the combined manifest, this checks the archives you downloaded and skips the other
-platforms' missing archives:
+On **macOS**, use the built-in `shasum`:
 
 ```sh
-sha256sum --ignore-missing --check SHA256SUMS
+shasum -a 256 --check SaveToolkit-VERSION-web.zip.sha256
 ```
 
-On **macOS**, use the built-in `shasum` and your chosen architecture:
-
-```sh
-shasum -a 256 --check SaveToolkit-VERSION-osx-arm64.tar.gz.sha256
-```
-
-With all release archives downloaded, `sha256sum --check SHA256SUMS` on Linux or
-`shasum -a 256 --check SHA256SUMS` on macOS checks the whole manifest. Missing archives
-otherwise produce missing-file errors. Require `OK` for your archive. If its checksum
-fails, download it again before extracting or running it.
+`sha256sum --check SHA256SUMS` on Linux or `shasum -a 256 --check SHA256SUMS` on macOS checks
+the combined manifest. Require `OK` for your archive. If its checksum fails, download it again
+before extracting it.
 
 ## Extract and start
 
-Extract the **whole archive** to a writable folder of your own. It contains a top-level
-`SaveToolkit-<version>-<runtime>` folder. Open that inner folder, where `README.txt`,
-`appsettings.json`, the launcher and `wwwroot/` live. Keep these files together. No .NET
-or Node.js installation is needed, though your OS must support the bundled .NET runtime
-and its native dependencies (including Linux ICU/OpenSSL).
+Extract the **whole archive** to a folder of your own. It contains a top-level
+`SaveToolkit-<version>-web` folder with `README.txt`, `index.html`, `assets/` and `_framework/`
+(the editor's .NET runtime and game plugins). Keep these files together. No .NET or Node.js
+installation is needed.
 
-On **Windows**, use **Extract All**, then double-click `start.cmd`. From PowerShell
-in that same extracted folder, the equivalent is:
-
-```powershell
-.\start.cmd
-```
-
-On **macOS/Linux**, extract with your archive tool, or run this from the download
-directory with the actual filename (use your macOS filename on a Mac):
+Browsers do not run the app from a `file://` page, so serve that folder over HTTP from its root
+with any static web server. With [Python 3](https://www.python.org/downloads/), open a terminal
+**in the extracted `SaveToolkit-<version>-web` folder** and run:
 
 ```sh
-tar -xzf SaveToolkit-VERSION-linux-x64.tar.gz
-cd SaveToolkit-VERSION-linux-x64
-chmod +x start.sh SaveToolkit.Api
-./start.sh
+python3 -m http.server 8080 --bind 127.0.0.1
 ```
 
-Leave the terminal running and open **http://127.0.0.1:5180** in your browser. The home
-page footer shows the running version. Export anything you want to keep, then press
-**Ctrl+C** in the server terminal to stop it. The server has no authentication; keep
-the address on `127.0.0.1` for use on your own computer.
+On Windows, use `py -m http.server 8080 --bind 127.0.0.1` (or `python` instead of `py`).
+Leave the terminal running and open **http://127.0.0.1:8080/** in a current desktop browser
+(the project's automated tests use Chromium). The first load shows the editor runtime's download
+progress; later loads use the browser cache. The home page footer shows the running version.
+Export anything you want to keep, then close the tab and press **Ctrl+C** in the server terminal.
+The server only hands out the app's files; your saves are never sent to it.
 
 ### Use another port
 
-The launchers always use port 5180 and do **not** forward extra arguments. To use
-another port, stop the server and run its executable directly **from the extracted
-bundle folder**. These examples use 5181; replace it with an available port:
-
-```powershell
-.\SaveToolkit.Api.exe --urls http://127.0.0.1:5181 --contentRoot . `
-  --Toolkit:DataRoot ./data/workspaces --Toolkit:PackRoot ./data/reference-packs
-```
+If port 8080 is already in use, pick another number, for example 8081:
 
 ```sh
-./SaveToolkit.Api --urls http://127.0.0.1:5181 --contentRoot . \
-  --Toolkit:DataRoot ./data/workspaces --Toolkit:PackRoot ./data/reference-packs
+python3 -m http.server 8081 --bind 127.0.0.1
 ```
 
-Then open **http://127.0.0.1:5181**. In general the address option is
-`--urls http://127.0.0.1:<port>`. `appsettings.json` sets `Urls`, so setting
-`ASPNETCORE_URLS` alone is ignored. The commands above also retain the launchers'
-local data paths; running only the executable without those data options uses different
-default storage locations.
+Then open **http://127.0.0.1:8081/**. Presets and reference packs are stored per address, so a
+different port (or the hosted build) starts with its own empty preset and pack storage.
 
 ## Where your data lives
 
-When started with the launcher or the commands above, working data lives under **`./data`**
-beside the launcher: imported workspace files in `data/workspaces/` and reference-pack
-storage in `data/reference-packs/`. Choose a writable extraction folder with enough space
-for your dump. Imports use working copies; editing does not overwrite your original zip.
-Exports are downloaded through your browser to the location you choose.
-Allow additional free space for expanded imports and downloaded exports; a compressed dump's size
-does not indicate its working-space requirement. Release extraction, working data and backups each
-need space. Contributors running tests/builds should use the separate
+Everything stays in your browser:
+
+- **Imported dumps and workspaces** (working copies, edits and undo history) live in the memory of
+  the open tab. Editing never changes your original zip.
+- **Presets and imported reference packs** are kept in the browser's IndexedDB storage for the
+  address you opened, so they survive reloads. Clearing the site's data removes them, and private
+  windows or blocked storage may keep them only until the tab closes.
+- **Exports** are downloaded through your browser to the location you choose.
+
+Large dumps need browser memory: an import holds several copies of the data while it is
+extracted, and the editor's runtime can use at most 2 GiB. Import one title at a time and close
+dumps you have finished with. Contributors running tests/builds should use the separate
 [disk and scratch guidance](RELEASING.md#disk-and-scratch).
 
-**A workspace is temporary.** Edits and undo history live in the running server session.
-Closing a dump discards its workspace; restarting the server clears imported workspaces.
+**A workspace is temporary.** Edits and undo history live only in the open tab. Closing a dump
+discards its workspace; reloading or closing the tab clears every imported workspace.
 Clean workspaces idle for six hours expire by default. Workspaces with committed edits,
 including related-file groups and edits that cannot be undone, survive automatic idle
-cleanup while the server keeps running. Undoing all reversible edits allows expiry again.
+cleanup while the tab stays open. Undoing all reversible edits allows expiry again.
 Export and **Download file** leave edits marked dirty, so close finished documents or dumps
-to release their retained memory and working files. The home page's **Open dumps** list
+to release their retained memory. The home page's **Open dumps** list
 is for currently open workspaces, not saved editing projects. Export before closing or
-stopping the app. Keep originals and exported zips outside `data/`.
+reloading the tab. Keep originals and exported zips in your own backup folders.
 
 ## Import and choose a document
 
@@ -254,7 +230,7 @@ to its text editing; use the header buttons to undo a committed save edit.
 History belongs to the open document or related-file group. Making a new edit clears
 redo. The default limit is 200 undo entries, with a 256 MiB structural-snapshot memory
 budget; old history can be dropped, and an oversized change can apply without undo.
-Read history warnings. Undo history is not a backup and does not survive server restart.
+Read history warnings. Undo history is not a backup and does not survive reloading or closing the tab.
 
 ## Export your save
 
@@ -367,11 +343,11 @@ follow-up review of Pragmata found no defects.
 ### The page will not open or the port is in use
 
 Keep the server terminal open and check its error text. If it reports that the address
-is already in use, a toolkit instance may already be running. Stop that instance from
-its terminal or follow [Use another port](#use-another-port) and open the new address.
-Do not pass a port to `start.cmd`/`start.sh`; they ignore extra arguments. Use `--urls`
-on the executable. `ASPNETCORE_URLS` alone does not override the bundled `Urls` setting.
-If the server exited, resolve its startup error before retrying the browser.
+is already in use, another program (or another copy of the server) is using that port:
+stop it or follow [Use another port](#use-another-port) and open the new address. Open the
+`http://127.0.0.1:<port>/` address, not `index.html` from your file manager, and start the
+server inside the extracted `SaveToolkit-<version>-web` folder so that `index.html` is at the
+site root. A server started in a parent folder shows a directory listing or a blank page instead.
 
 ### Unsupported or corrupt save errors
 
@@ -388,44 +364,33 @@ refresh the document and preview again with the current selection. Clear a colum
 restore all rows; a blank sort selection uses the collection default.
 Report export failures with their error text and the smallest sequence of edits that triggers them.
 
-### macOS Gatekeeper or quarantine blocks launch
+### The editor runtime does not start
 
-Bundles are unsigned and not notarized. macOS may quarantine downloads and block the
-executable or a bundled native library. Verify the release checksum and correct Mac
-architecture first. After attempting to start, use **System Settings → Privacy & Security
-→ Open Anyway** for the blocked trusted component if macOS offers it, then retry
-`./start.sh`. Follow [Apple's instructions for opening trusted unsigned software](https://support.apple.com/en-gb/102445).
-If a specific component remains blocked, record its name and the exact message for an
-issue report. Avoid disabling Gatekeeper globally. An execute-permission error is
-handled separately below.
+If the page shows **The editor runtime could not be loaded**, note the error text below it and
+use **Reload** once to rule out an interrupted download. The browser must allow WebAssembly and module workers; some hardened or
+managed browser profiles disable them. Browser extensions that rewrite pages or block scripts can
+also interfere. Check the browser's developer console for the first error and include it in a
+report.
 
-### Linux or macOS says permission denied
+### The tab runs out of memory
 
-From the extracted bundle folder, restore execute permission to both launch files:
-
-```sh
-chmod +x start.sh SaveToolkit.Api
-./start.sh
-```
-
-If permission is still denied, extract to a writable location on a filesystem that
-allows execution. A `noexec` mount cannot be fixed with `chmod`. A missing ICU/OpenSSL
-or other native-library error requires a supported OS with those runtime dependencies;
-installing Node.js does not address it.
+Very large dumps can exceed the browser's memory for the editor (at most 2 GiB). Close other
+dumps, reload the page to start with a clean runtime and import a smaller zip containing only the
+title you need. Report the dump's compressed and extracted sizes if a single title still fails.
 
 ### Edits disappeared or the workspace is gone
 
-Closing a dump or restarting the server ends its workspace and discards remaining edits.
-Automatic idle expiration applies only to clean workspaces; committed dirty edits stay
-available while the server runs. Re-import your original or last exported zip if the
-workspace is gone. There is no persistent project/autosave recovery from
-`data/workspaces/`; export before ending a session.
+Closing a dump, or reloading or closing the tab, ends its workspace and discards remaining
+edits. Automatic idle expiration applies only to clean workspaces; committed dirty edits stay
+available while the tab stays open. Re-import your original or last exported zip if the
+workspace is gone. There is no persistent project/autosave recovery; export before ending a
+session.
 
 ## Report a problem
 
 Search existing [GitHub issues](https://github.com/JKamsker/PS5SaveGame-Toolkit/issues),
 then open an issue there (repository access is required while private). Include the
-version from the home-page footer, OS/architecture, plugin, title ID, game build/DLC if
+version from the home-page footer, browser and OS, plugin, title ID, game build/DLC if
 known, affected filename, exact error and steps to reproduce. For editing problems,
 record the field/action, original and requested gameplay values, preview scope, and
 whether undo, export/re-import or a console reload produced the problem.

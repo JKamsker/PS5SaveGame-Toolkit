@@ -460,7 +460,7 @@ class DocumentationTests(unittest.TestCase):
         self.assertNotIn("backend_filter", release)
 
     def test_ci_caches_match_dependency_inputs_and_keep_browser_system_dependencies(self):
-        for path in ("ci.yml", "nightly-fuzz.yml", "nightly-stryker.yml", "release.yml"):
+        for path in ("ci.yml", "nightly-fuzz.yml", "nightly-stryker.yml", "release.yml", "pages.yml"):
             workflow = document(f".github/workflows/{path}")
             for setup in workflow.split("uses: actions/setup-dotnet@v6")[1:]:
                 setup = setup.split("\n      - ", 1)[0]
@@ -594,7 +594,8 @@ class DocumentationTests(unittest.TestCase):
         self.assertLess(budgets["initial"]["css"], 50000)
         releasing = document("docs/RELEASING.md")
         for text in (releasing, performance):
-            for required in ("npm run check:bundle", "src/SaveToolkit.Api/wwwroot", "gzip level 6",
+            # Vite's output moved from src/SaveToolkit.Api/wwwroot to web/dist with the browser runtime.
+            for required in ("npm run check:bundle", "web/dist", "gzip level 6",
                              "web/bundle-budgets.json"):
                 self.assertIn(required, text)
         self.assertIn("PERFORMANCE.md#web-bundle-budgets", releasing)
@@ -948,23 +949,23 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("offer's `errors`", text)
         self.assertIn("listing still returns 200", text)
 
-    def test_quick_start_and_user_guide_match_packaged_launchers(self):
+    def test_quick_start_and_user_guide_match_packaged_static_site(self):
+        # Releases ship the browser app as one static-site archive (no server launchers since the
+        # in-browser runtime); users serve the extracted folder with any static web server.
         package = source("scripts/package.ps1")
-        launch_lines = [line for line in package.splitlines() if "--contentRoot" in line]
-        self.assertEqual(2, len(launch_lines))
-        for line in launch_lines:
-            self.assertIn("--urls http://127.0.0.1:5180", line)
-            self.assertIn("--Toolkit:DataRoot", line)
-            self.assertIn("--Toolkit:PackRoot", line)
-            self.assertNotIn("%*", line)
-            self.assertNotIn('$@', line)
+        self.assertIn('$name = "SaveToolkit-$version-web"', package)
+        self.assertIn("$env:SAVETOOLKIT_WEB_BASE = '/'", package)
+        self.assertIn("python3 -m http.server 8080 --bind 127.0.0.1", package)
+        self.assertNotIn("--contentRoot", package)
         for page in ("README.md", "docs/USER_GUIDE.md"):
             with self.subTest(page=page):
                 text = document(page)
-                for claim in ("http://127.0.0.1:5180", "start.cmd", "./start.sh",
-                              "chmod +x start.sh SaveToolkit.Api", "SaveToolkit-<version>-<runtime>"):
+                for claim in ("SaveToolkit-<version>-web", "python3 -m http.server 8080 --bind 127.0.0.1",
+                              "http://127.0.0.1:8080/", "file://"):
                     self.assertIn(claim, text)
-                self.assertIn("use-another-port", text)
+                for stale in ("start.cmd", "start.sh", "SaveToolkit-<version>-<runtime>"):
+                    self.assertNotIn(stale, text)
+        self.assertIn("use-another-port", heading_anchors(document("docs/USER_GUIDE.md")))
         user = " ".join(document("docs/USER_GUIDE.md").split())
         count = re.search(r"\*\*(\d+) game/format plugins\*\*", user)
         self.assertIsNotNone(count)
