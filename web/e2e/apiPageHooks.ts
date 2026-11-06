@@ -4,11 +4,14 @@
  * `__savetoolkitApiHook` binding (see apiRoutes.ts), and exposes `__savetoolkitApiDispatch` so tests can
  * send their own requests to the same runtime, in the same queue, without routing (see apiRequest.ts).
  */
+import type { FromWorker } from "../src/runtime/protocol";
+
 // eslint-disable-next-line max-lines-per-function -- Serialized into the page; it cannot import helpers.
 export function pageHooks() {
   type Pairs = [string, string][];
   type Decision = { kind: "continue" | "fetch" | "abort" | "fulfill" | "hold"; errorText?: string; status?: number; headers?: Pairs; body?: string };
-  type Reply = { type: "response"; id: number; status: number; headers: Pairs; frame: ArrayBuffer; bodyOffset: number } | { type: "error"; id: number; message: string };
+  /** The worker's answer to a request (runtime/protocol.ts); a type import is erased, so this stays self-contained. */
+  type Reply = Extract<FromWorker, { type: "response" | "error" }>;
   interface Wire { id: number; method: string; url: string; headers: Pairs; body: ArrayBuffer | null }
   interface Entry {
     token: string; label: string; cancelled: boolean; forwarded: boolean; started: boolean; fetched?: (reply: Reply) => void;
@@ -135,7 +138,7 @@ export function pageHooks() {
     private post(request: Omit<Wire, "id">) {
       const id = -++directIds;
       return new Promise<Reply>(resolve => {
-        if (this.dead) return resolve({ type: "error", id, message: this.dead });
+        if (this.dead) return resolve({ type: "error", id, message: this.dead, stopped: true });
         this.direct.set(id, resolve);
         super.postMessage({ type: "request", request: { ...request, id } }, request.body ? [request.body] : []);
       });
@@ -170,7 +173,7 @@ export function pageHooks() {
      */
     private async whenDropped(id: number, entry: Entry) {
       await this.post({ method: "GET", url: "/api/version", headers: [], body: null });
-      if (!entry.started) entry.fetched?.({ type: "error", id, message: "The request was cancelled before the runtime started it." });
+      if (!entry.started) entry.fetched?.({ type: "error", id, message: "The request was cancelled before the runtime started it.", stopped: false });
     }
 
     private async route(request: Wire, message: unknown, transfer: Transferable[]) {
@@ -199,7 +202,7 @@ export function pageHooks() {
       const real = new Promise<Reply>(resolve => { entry.fetched = resolve; });
       entry.forwarded = true;
       // Cancelled while the test decided: the real app's request would have been dropped from the queue.
-      if (entry.cancelled) entry.fetched!({ type: "error", id, message: "The request was cancelled before the runtime started it." });
+      if (entry.cancelled) entry.fetched!({ type: "error", id, message: "The request was cancelled before the runtime started it.", stopped: false });
       else super.postMessage(message, transfer);
       const reply = await real;
       // Answered: from here on this request is no longer waiting for the worker.
@@ -215,7 +218,7 @@ export function pageHooks() {
     }
 
     private settle(id: number, decision: Decision) {
-      if (decision.kind === "abort") return this.deliver({ type: "error", id, message: "Failed to fetch" }, decision.errorText);
+      if (decision.kind === "abort") return this.deliver({ type: "error", id, message: "Failed to fetch", stopped: false }, decision.errorText);
       this.deliver({ type: "response", id, status: decision.status!, headers: decision.headers!, frame: decode(decision.body ?? ""), bodyOffset: 0 });
     }
 
@@ -244,10 +247,10 @@ export function pageHooks() {
       this.dead = reason;
       for (const [id, entry] of [...this.requests]) {
         // A held fetch learns that the request failed (route.fetch rejects), then reports it as dropped.
-        if (entry.fetched) entry.fetched({ type: "error", id, message: reason });
+        if (entry.fetched) entry.fetched({ type: "error", id, message: reason, stopped: true });
         else this.drop(id, entry);
       }
-      for (const [id, resolve] of [...this.direct]) resolve({ type: "error", id, message: reason });
+      for (const [id, resolve] of [...this.direct]) resolve({ type: "error", id, message: reason, stopped: true });
       this.direct.clear();
     }
 
