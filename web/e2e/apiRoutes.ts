@@ -73,10 +73,10 @@ export class ApiRoute {
     if (response && options.json === undefined && options.body === undefined && !options.status && !options.headers && !options.contentType)
       return this.decide({ kind: "continue" });
     const base = response?.wire() ?? { status: 200, headers: [], body: "" };
-    const replaced = options.json !== undefined || options.body !== undefined;
     const body = options.json !== undefined ? Buffer.from(JSON.stringify(options.json))
       : options.body !== undefined ? Buffer.from(options.body) : Buffer.from(base.body, "base64");
-    const type = options.contentType ?? (options.json !== undefined ? "application/json" : replaced || !response ? "text/plain" : undefined);
+    // Like Playwright: `json` implies JSON; otherwise keep the fetched response's type.
+    const type = options.contentType ?? (options.json !== undefined ? "application/json" : response ? undefined : "text/plain");
     const headers = { ...Object.fromEntries(base.headers.filter(([name]) => name !== "content-length")), ...(type ? { "content-type": type } : {}), ...options.headers };
     this.decide({ kind: "fulfill", status: options.status ?? base.status, headers: Object.entries(headers), body: body.toString("base64") });
   }
@@ -142,7 +142,8 @@ async function decide(hooks: Hooks, token: string, request: ApiRequest): Promise
     rule.times--;
     const route = new ApiRoute(request);
     hooks.routes.set(token, route);
-    void Promise.resolve(rule.handler(route)).catch(() => route.continue());
+    // A throwing handler (e.g. a failed expect) lets the request run, then fails the test like page.route.
+    void Promise.resolve(rule.handler(route)).catch(async (error: unknown) => { await route.continue(); throw error; });
     const decision = await route.next();
     if (decision.kind === "fallback") continue;
     if (decision.kind !== "fetch") hooks.routes.delete(token);

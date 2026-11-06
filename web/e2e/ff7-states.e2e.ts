@@ -9,6 +9,8 @@ import { persistentRoot, runtimeFiles } from "./runtimeFiles";
 
 let directory: string;
 test.use({ trace: "on", screenshot: "on" });
+// Each FF7 case re-imports (a fresh page and in-browser runtime per import) and exports whole saves several times.
+test.describe.configure({ timeout: 60_000 });
 test.beforeAll(async ({ request }, testInfo) => { expect(request).toBeDefined(); directory = await generateFf7Fixtures(testInfo); });
 
 test("missing inventory and unsupported owned joins expose no clickable candidate", async ({ page }, testInfo) => {

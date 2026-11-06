@@ -35,26 +35,25 @@ function boot(frameworkUrl: string) {
 
 async function handle(request: WireRequest) {
   if (cancelled.delete(request.id)) return;
-  let booted: BootedRuntime;
   try {
     if (!runtime) throw new Error("The runtime has not been started.");
-    booted = await runtime;
+    const booted = await runtime;
     const handle = await booted.interop.DispatchAsync(request.method, request.url, JSON.stringify(request.headers),
       new Uint8Array(request.body ?? new ArrayBuffer(0)));
     const frame = booted.interop.TakeResponse(handle);
+    if (request.method !== "GET" && request.method !== "HEAD") {
+      // Presets and reference packs live on IDBFS. Flush every mutation before answering, so a result the
+      // UI reports as saved survives an immediate reload or closed tab.
+      await booted.persist().catch(() => undefined);
+    }
     const { status, headers, bodyOffset } = decodeFrame(frame);
     // The interop result is a JS-owned copy; transfer it rather than copying again.
     const owned = frame.byteOffset === 0 && frame.byteLength === frame.buffer.byteLength ? frame.buffer as ArrayBuffer : frame.slice().buffer;
     post({ type: "response", id: request.id, status, headers, frame: owned, bodyOffset: bodyOffset - frame.byteOffset }, [owned]);
   } catch (error) {
     post({ type: "error", id: request.id, message: error instanceof Error ? error.message : String(error) });
-    return;
   } finally {
     // A cancel that arrived while the request ran has nothing left to drop.
     cancelled.delete(request.id);
-  }
-  if (request.method !== "GET" && request.method !== "HEAD") {
-    // Presets and reference packs live on IDBFS; flush after every mutation, before the next request.
-    await booted.persist().catch(() => undefined);
   }
 }

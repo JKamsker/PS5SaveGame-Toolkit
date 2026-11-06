@@ -8,6 +8,8 @@ import { apiRequest } from "./apiRequest";
 
 let directory: string;
 test.use({ trace: "on", screenshot: "on" });
+// Each FF7 case re-imports (a fresh page and in-browser runtime per import) and exports whole saves several times.
+test.describe.configure({ timeout: 60_000 });
 test.beforeAll(async ({ request }, testInfo) => { expect(request).toBeDefined(); directory = await generateFf7Fixtures(testInfo); });
 
 test("FF7 preview cancel, one F6 history group, whole download and real UI reimport", async ({ page }, testInfo) => {
