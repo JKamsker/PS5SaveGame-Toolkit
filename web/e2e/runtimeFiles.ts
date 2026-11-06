@@ -10,7 +10,7 @@ import type { Page } from "@playwright/test";
  */
 export const persistentRoot = "/savetoolkit/persist";
 export const presetLibraryPath = `${persistentRoot}/presets/presets.json`;
-/** Must match LOCK_NAME in web/src/runtime/persistence.ts. */
+/** Must match LOCK_NAME in web/src/runtime/browserTabs.ts. */
 const storageLock = "savetoolkit-persistent-storage";
 
 type Change = { kind: "write"; path: string; text: string } | { kind: "rename"; path: string; to: string } | { kind: "unlink"; path: string }

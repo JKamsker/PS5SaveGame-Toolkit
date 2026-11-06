@@ -1,7 +1,8 @@
 import { createCompressedResourceLoader, type BootResourceLoader } from "./compressedResources";
 import { asError, makeFlushAtomic, reconnectingSync, trackTreeChanges, verifyMirrored, writeAfter, type IdbfsConnections,
   type IdbfsReconcile, type IdbfsSets, type TreeFs } from "./idbfsTree";
-import { browserTabs, memoryOnly, PersistenceCoordinator, type Persistence, type PersistentStorage } from "./persistence";
+import { browserTabs } from "./browserTabs";
+import { memoryOnly, PersistenceCoordinator, type Persistence, type PersistentStorage } from "./persistence";
 import type { BootInfo } from "./protocol";
 
 /** The subset of the .NET WebAssembly host API (`_framework/dotnet.js`) used here. */

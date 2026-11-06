@@ -1,7 +1,8 @@
 // @vitest-environment node
 import { afterEach, expect, it, vi } from "vitest";
 import { encodeFrame } from "./framing";
-import { browserTabs, PersistenceCoordinator, type PersistentStorage } from "./persistence";
+import { browserTabs } from "./browserTabs";
+import { PersistenceCoordinator, type PersistentStorage } from "./persistence";
 import { changedData, parsePersistentChange, PERSISTENT_CHANGES_CHANNEL, runtimeWorkerName, tabOfWorkerName } from "./persistentChanges";
 
 afterEach(() => { vi.unstubAllGlobals(); });

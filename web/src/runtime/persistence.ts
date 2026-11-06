@@ -26,8 +26,7 @@
  */
 import { isRuntimeStopped } from "./failures";
 import { decodeFrame, problemFrame } from "./framing";
-import { changedData, newTabNonce, PERSISTENT_CHANGES_CHANNEL, tabOfWorkerName, type PersistentChangeMessage,
-  type PersistentData } from "./persistentChanges";
+import { changedData, type PersistentData } from "./persistentChanges";
 
 /** The worker's view of the persistent mount and the .NET stores on top of it. */
 export interface PersistentStorage {
@@ -76,7 +75,6 @@ export interface Persistence {
   stop(reason: string): void;
 }
 
-const LOCK_NAME = "savetoolkit-persistent-storage";
 /** Longest wait for another tab's write before giving up with an error (never a lost write). */
 export const LOCK_WAIT_MS = 30_000;
 /** Longest wait of a preset or pack read for fresh data; it answers from the cached view after that. */
@@ -194,6 +192,17 @@ export class PersistenceCoordinator implements Persistence {
   }
 
   async run(method: string, url: string, dispatch: () => Promise<Uint8Array>): Promise<Uint8Array> {
+    try {
+      return await this.request(method, url, dispatch);
+    } catch (error) {
+      // A trap anywhere in the request (a store reload while reverting, a read's dispatch) stops this
+      // tab's storage here, whether or not the worker gets to call stop().
+      this.stopped(error);
+      throw error;
+    }
+  }
+
+  private async request(method: string, url: string, dispatch: () => Promise<Uint8Array>): Promise<Uint8Array> {
     if (this.hung) throw this.hung;
     if (!writesDurableData(method, url)) {
       if (this.stale && readsDurableData(url)) await this.refreshForRead();
@@ -219,7 +228,8 @@ export class PersistenceCoordinator implements Persistence {
   private async refreshForRead() {
     const wait = this.generation === null || this.lockBusy ? 0 : this.timing.readLockWaitMs;
     await this.locked("shared", () => this.refresh(), wait).catch((error: unknown) => {
-      if (error instanceof RuntimeHungError) throw error;
+      // Stopped meanwhile, or the stores' reload trapped: the read must not dispatch on that runtime.
+      if (error instanceof RuntimeHungError || this.stopped(error)) throw error;
       if (error instanceof StoreReloadError) {
         // Retried by the next mutation, which is refused while it fails; reads keep the last good view.
         this.log.error(`Reading presets and reference packs saved by another tab failed: ${error.message}`);
@@ -241,7 +251,8 @@ export class PersistenceCoordinator implements Persistence {
     try {
       await this.refresh();
     } catch (error) {
-      if (error instanceof RuntimeHungError) throw error; // stopped meanwhile: no storage failure
+      // Stopped meanwhile, or the stores' reload trapped: a crash, not a storage failure.
+      if (error instanceof RuntimeHungError || this.stopped(error)) throw error;
       if (error instanceof StoreReloadError) {
         this.log.error(`Reading presets and reference packs saved by another tab failed: ${error.message}`);
         // Running the request on the last good view could write it back over the other tab's saves.
@@ -258,9 +269,9 @@ export class PersistenceCoordinator implements Persistence {
     try {
       frame = await this.watch(dispatch());
     } catch (error) {
-      // A hung runtime may still change the tree, and a trapped one (stopped only once this rejection
-      // reaches the worker) must not re-read its stores: neither is flushed or reverted again.
-      if (error instanceof RuntimeHungError || isRuntimeStopped(error)) throw error;
+      // A hung runtime may still change the tree, and a trapped one must not re-read its stores: neither
+      // is flushed or reverted again. Latched before the lock is released, not when the worker stops.
+      if (error instanceof RuntimeHungError || this.stopped(error)) throw error;
       // No answer reports this as saved: undo whatever the failed request left behind.
       if (changes()) await this.revert();
       throw error;
@@ -331,6 +342,13 @@ export class PersistenceCoordinator implements Persistence {
     for (const abandon of [...this.inFlight]) abandon(this.hung);
   }
 
+  /** Whether the runtime stopped; a trap or an exit (`isRuntimeStopped`) stops this tab's storage now. */
+  private stopped(error: unknown): boolean {
+    if (!this.hung && isRuntimeStopped(error))
+      this.stop(String(typeof error === "object" && error !== null && "message" in error ? error.message : error));
+    return this.hung !== null;
+  }
+
   /** Rejects with RuntimeHungError (releasing the lock) once `dispatch` outlives the watchdog or the runtime stops. */
   private watch(dispatch: Promise<Uint8Array>): Promise<Uint8Array> {
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -374,24 +392,6 @@ export function storageFailure(error: unknown, reverted: boolean): Uint8Array {
     : `The browser could not store the change (${reason}), so it was not saved. Try again.`;
   if (!reverted) detail += " This tab may still show the change until the page is reloaded.";
   return quota ? problemFrame(507, "Insufficient Storage", detail) : problemFrame(503, "Service Unavailable", detail);
-}
-
-/**
- * Web Locks and a BroadcastChannel, where the browser has them. Announcements carry `tab` (the page's
- * nonce, from this worker's name) so that page can ignore the echo of its own change.
- */
-export function browserTabs(tab = tabOfWorkerName((globalThis as { name?: unknown }).name) ?? newTabNonce()): TabCoordination {
-  const locks = typeof navigator === "object" ? navigator.locks : undefined;
-  const channel = typeof BroadcastChannel === "function" ? new BroadcastChannel(PERSISTENT_CHANGES_CHANNEL) : null;
-  return {
-    lock: locks
-      ? (mode, task, waitMs = LOCK_WAIT_MS) => waitMs <= 0
-        ? locks.request(LOCK_NAME, { mode, ifAvailable: true }, lock => lock ? task() : Promise.reject(new DOMException("The storage lock is held by another tab.", "AbortError")))
-        : locks.request(LOCK_NAME, { mode, signal: AbortSignal.timeout(waitMs) }, task)
-      : null,
-    announce: changed => channel?.postMessage({ type: "persistentChange", tab, changed: [...changed] } satisfies PersistentChangeMessage),
-    listen: onChange => { if (channel) channel.onmessage = () => onChange(); },
-  };
 }
 
 function newGeneration(): string {

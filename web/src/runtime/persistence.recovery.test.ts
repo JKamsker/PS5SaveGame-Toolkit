@@ -140,6 +140,57 @@ describe("a runtime that traps inside a mutation's dispatch", () => {
   });
 });
 
+describe("a trap the worker has not reported yet", () => {
+  it("refuses every later request itself once a mutation's dispatch rejected with a trap", async () => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    await a.create("kept");
+    // The trapped dispatch changed the .NET store's cached view and the tree, then rejected; the worker's
+    // stop() is never called here, so only the coordinator can keep that view from being flushed.
+    const trapped = a.coordinator.run("POST", "/api/presets", async () => {
+      a.presets = [...a.presets, "ghost"];
+      a.storage.writeGeneration("partial");
+      throw new WebAssembly.RuntimeError("unreachable");
+    });
+    await expect(trapped).rejects.toBeInstanceOf(WebAssembly.RuntimeError);
+    const save = vi.spyOn(a.storage, "save");
+    await expect(a.create("next")).rejects.toThrow(new RuntimeHungError("unreachable"));
+    await expect(a.list()).rejects.toBeInstanceOf(RuntimeHungError);
+    expect(save).not.toHaveBeenCalled();
+    expect(read(await b.create("from B")).status).toBe(200);
+    expect(library(site)).toEqual(["kept", "from B"]);
+  });
+
+  it("reports a trap while a mutation makes the stores re-read another tab's saves as a crash, not a 503", async () => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    await b.create("from B"); // a must now reload its stores before its next mutation
+    const trap = new WebAssembly.RuntimeError("memory access out of bounds");
+    a.storage.reloadStores = () => { throw trap; };
+    const dispatch = vi.fn(async () => frame(200, {}));
+    // The worker reports the rethrown trap as a crash (isRuntimeStopped), never as a failed request.
+    await expect(a.coordinator.run("POST", "/api/presets", dispatch)).rejects.toBe(trap);
+    expect(dispatch).not.toHaveBeenCalled();
+    await expect(a.create("next")).rejects.toBeInstanceOf(RuntimeHungError);
+    // The lock was released with the rejection.
+    expect(await elapsed(async () => expect(read(await b.create("again")).status).toBe(200))).toBeLessThan(1_000);
+    expect(library(site)).toEqual(["from B", "again"]);
+  });
+
+  it("does not dispatch a preset read after a trap while it made the stores re-read another tab's saves", async () => {
+    const site = new Site();
+    const [a, b] = [await bootTab(site), await bootTab(site)];
+    await b.create("from B");
+    const trap = new WebAssembly.RuntimeError("unreachable");
+    a.storage.reloadStores = () => { throw trap; };
+    const dispatch = vi.fn(async () => frame(200, []));
+    await expect(a.coordinator.run("GET", "/api/presets", dispatch)).rejects.toBe(trap);
+    expect(dispatch).not.toHaveBeenCalled();
+    await expect(a.coordinator.run("GET", "/api/plugins", dispatch)).rejects.toBeInstanceOf(RuntimeHungError);
+    expect(dispatch).not.toHaveBeenCalled();
+  });
+});
+
 describe("a runtime that stops while another tab's saves are reloaded", () => {
   it("reports a runtime that stops while a mutation reloads another tab's saves as hung, not as unreadable storage", async () => {
     const site = new Site();
