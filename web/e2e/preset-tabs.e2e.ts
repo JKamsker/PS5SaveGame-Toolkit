@@ -1,6 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
+import { createHash } from "node:crypto";
+import { zipSync } from "fflate";
+import type { FieldNode, ReferenceRecordPair, SaveDocument } from "../src/api/protocol";
 import { apiRequest } from "./apiRequest";
-import { editCoins, home, loadJson, openJson, upload } from "./helpers";
+import { apiFlush, installApiHooks, onApi, routeApi } from "./apiRoutes";
+import { editCoins, home, importSave, loadJson, openJson, upload } from "./helpers";
 import { runtimeWorker } from "./runtimeFiles";
 
 /**
@@ -114,7 +118,7 @@ async function recoverFromFrozenTab(one: Page, two: Page) {
   expect(await lockState(two)).toEqual({ held: [], pending: [] });
 }
 
-test("two tabs share presets, the saving tab ignores its own echo, and closing a tab frozen mid-save frees the library", async ({ context }) => {
+test("two tabs share presets, the other tab reloads them, and closing a tab frozen mid-save frees the library", async ({ context }) => {
   // Three tabs boot their own runtime.
   test.setTimeout(120_000);
   const one = await context.newPage();
@@ -137,7 +141,8 @@ test("two tabs share presets, the saving tab ignores its own echo, and closing a
   const expected = { type: "persistentChange", tab: oneLocks.tab, changed: ["presets"] };
   await expect.poll(() => announcements(two)).toEqual([expected]);
   await expect.poll(() => announcements(one)).toEqual([expected]);
-  // Tab one ignores its own echo: its next library read does not reload storage (no shared lock).
+  // Tab one's worker never hears its own announcement (a BroadcastChannel skips its sender), so it
+  // still shows its library without reloading storage; the page-side echo filter has its own test below.
   expect(await libraryNames(one)).toEqual(["Saved in tab one"]);
   expect(await oneLocks.taken()).toEqual(["exclusive"]);
 
@@ -153,4 +158,79 @@ test("two tabs share presets, the saving tab ignores its own echo, and closing a
   const three = await context.newPage();
   await home(three);
   expect(await libraryNames(three)).toEqual(["Saved in tab one", "Saved in tab two"]);
+});
+
+const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=", "base64");
+const sha256 = (content: Uint8Array) => createHash("sha256").update(content).digest("hex");
+
+/** A valid user pack (the manifest of tests/SaveToolkit.Core.Tests/References/PackBuilder.cs) for no installed plugin. */
+function referencePack(): { name: string; mimeType: string; buffer: Buffer } {
+  const records = Buffer.from(JSON.stringify({ records: [{ id: "1001", name: "Potion", assetId: "icons/potion.png" }] }));
+  const attribution = { sourceUrl: "https://example.org/wiki/items", author: "Example wiki contributors", license: "CC-BY-SA-4.0",
+    licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", retrieved: "2026-10-01", modifications: "Synthetic e2e records." };
+  const manifest = { schema: 1, id: "e2e.tab-items", version: "1.0.0", title: "E2E tab items", plugins: ["e2e.no-plugin"],
+    titleIds: [], gameBuilds: [], locale: "en", datasets: [
+      { id: "items", kind: "records", files: [{ path: "items.json", sha256: sha256(records) }], attribution },
+      { id: "icons", kind: "assets", files: [{ path: "icons/potion.png", sha256: sha256(png) }], attribution }] };
+  const zip = zipSync({ "pack.json": Buffer.from(JSON.stringify(manifest)), "items.json": records, "icons/potion.png": png });
+  return { name: "e2e-tab-items.zip", mimeType: "application/zip", buffer: Buffer.from(zip) };
+}
+
+/**
+ * Projects a synthetic reference field (GenericJson has none) whose only candidate has an icon, opens
+ * its picker, and counts how often the page fetches that icon (apiObjectUrls caches it by path).
+ */
+async function referenceIcons(page: Page) {
+  await installApiHooks(page);
+  await routeApi(page, /\/api\/workspaces\/[^/]+\/(?:files\/[^/]+\/open|documents\/[^/]+)$/, async route => {
+    const response = await route.fetch();
+    const body = await response.json() as Partial<SaveDocument>;
+    const field: FieldNode = { type: "field", valueId: "synthetic-reference", label: "Synthetic item", value: "1001",
+      spec: { kind: "reference", catalogId: "synthetic-items", readOnly: true } };
+    if (body.view) body.view = { type: "section", title: "Synthetic reference fixture", children: [body.view, field] };
+    await route.fulfill({ response, json: body });
+  });
+  const candidate = { rawId: "1001", label: "Potion", assetId: "icons/potion.png",
+    eligibility: { available: true, eligible: true, selectable: true, reasons: [] } };
+  await routeApi(page, "**/reference-fields/records", async route => {
+    const body = route.request().postDataJSON() as { revision: number; pairs: ReferenceRecordPair[] };
+    await route.fulfill({ json: { revision: body.revision, results: body.pairs.map(pair => ({ ...pair, status: 200, candidate })) } });
+  });
+  await routeApi(page, "**/reference-fields/candidates?*", route => route.fulfill({ json: {
+    catalogId: "synthetic-items", revision: 0, items: [candidate], total: 1, offset: 0, limit: 50, categories: [],
+  } }));
+  await routeApi(page, "**/reference-assets?*", route => route.fulfill({ contentType: "image/png", body: png }));
+  let fetched = 0;
+  onApi(page, "request", request => { if (request.url().includes("/reference-assets?")) fetched++; });
+  await importSave(page);
+  await openJson(page);
+  await page.locator(".reference-trigger").click();
+  await expect(page.getByRole("dialog", { name: "Browse items", exact: true }).getByRole("option", { name: /Potion/ })).toBeVisible();
+  await expect.poll(() => fetched).toBe(1);
+  return () => fetched;
+}
+
+/**
+ * A pack imported in one tab may change any reference asset, so every other tab drops its cached icons
+ * when the import is announced (web/src/lib/apiObjectUrls.ts). The importing page ignores the echo of
+ * its own announcement: the answer to its request already dropped them. The import here bypasses the
+ * app (apiRequest), so only the announcement could make tab one fetch its icon again.
+ */
+test("a pack imported in one tab drops the other tab's cached reference icons, not its own", async ({ context }) => {
+  test.setTimeout(90_000);
+  const one = await context.newPage();
+  const two = await context.newPage();
+  for (const page of [one, two]) await page.addInitScript(recordAnnouncements, channelName);
+  const oneIcons = await referenceIcons(one);
+  const twoIcons = await referenceIcons(two);
+
+  const imported = await apiRequest(one).post("/api/reference-packs", { multipart: { pack: referencePack() } });
+  expect(imported.status()).toBe(200);
+  const tab = (await lockLog(one)).tab;
+  const expected = [{ type: "persistentChange", tab, changed: ["referencePacks"] }];
+  await expect.poll(() => announcements(two)).toEqual(expected);
+  await expect.poll(() => announcements(one)).toEqual(expected);
+  await expect.poll(twoIcons).toBe(2);
+  await apiFlush(one);
+  expect(oneIcons()).toBe(1);
 });
