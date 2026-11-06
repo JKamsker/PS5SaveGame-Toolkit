@@ -204,6 +204,10 @@ still fully checked exactly once; see `ReferencePackStore` and `EmbeddedPackSet`
   a managed port that writes K4os' exact bytes on every platform. K4os decoding and its fast level are
   unaffected, but the fast level's output on 32-bit WebAssembly is K4os' 32-bit variant: valid LZ4,
   though not the same bytes the native Api writes for inputs over 64 KiB.
+- **Invariant culture.** The WebAssembly runtime would take its culture from the browser language, so
+  plugin text such as `ToString("N0")` stats would read "9.434.752" in a German browser.
+  `BrowserHost.Initialize` sets the current and default-thread cultures to the invariant culture before
+  any plugin loads, so responses never depend on the viewer's language (`web/e2e/ff7-culture.e2e.ts`).
 - **No OpenAPI document.** `/openapi/v1.json` exists only on the ASP.NET host.
 - **Workspaces last as long as the tab.** While this tab's runtime holds a workspace, the page registers a
   `beforeunload` handler so the browser asks before a reload or close discards it, and the workspace header
