@@ -18,7 +18,7 @@ import { apiRequest } from "./apiRequest";
  * The authored saves and the bytes the native plugins write after the same edit come from
  * tests/fixtures/SaveToolkit.CodecBrowserFixture; the browser must reproduce them byte for byte.
  */
-interface CodecFixture { plugin: string; path: string; valueId: string; value: string; original: Buffer; edited: Buffer }
+interface CodecFixture { name: string; plugin: string; path: string; valueId: string; value: string; original: Buffer; edited: Buffer }
 
 let fixtures: CodecFixture[];
 
@@ -38,7 +38,7 @@ test.beforeAll(async ({ browserName }, testInfo) => {
   }));
 });
 
-const fixture = (plugin: string) => fixtures.find(entry => entry.plugin === plugin)!;
+const fixture = (name: string) => fixtures.find(entry => entry.name === name)!;
 
 async function open(page: Page, save: CodecFixture) {
   await importSave(page, { [save.path]: save.original });
@@ -53,10 +53,10 @@ async function open(page: Page, save: CodecFixture) {
   return new URL(response.url()).pathname.replace(/\/files\/[^/]+\/open$/, `/documents/${document.id}`);
 }
 
-async function edit(page: Page, field: Locator, value: string) {
+async function edit(page: Page, field: Locator, value: string, timeout?: number) {
   await field.fill(value);
   await field.press("Enter");
-  await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeEnabled({ timeout });
   await expect(field).toHaveValue(value);
 }
 
@@ -116,12 +116,14 @@ test("Baldur's Gate 3 fast-level entry over 64 KiB re-encodes exactly like the n
 });
 
 test("Cyberpunk 2077 fact edit re-encodes its 256 KiB chunk exactly like the native plugin", async ({ page }, testInfo) => {
+  // 40,000 facts: the interpreter needs longer than the default budgets to rebuild the views after the edit.
+  test.setTimeout(90_000);
   const save = fixture("cyberpunk2077");
   await open(page, save);
   await page.getByRole("tab", { name: "Facts", exact: true }).click();
   // Fact 0 is the first row; its value lies in the first CSAV chunk (256 KiB, LZ4 fast level).
   const facts = page.getByRole("table", { name: "Saved facts (raw experimental edits)", exact: true });
-  await edit(page, facts.getByRole("textbox", { name: /^Raw saved fact value/ }).first(), save.value);
+  await edit(page, facts.getByRole("textbox", { name: /^Raw saved fact value/ }).first(), save.value, 30_000);
   expect((await downloadFile(page, testInfo, "sav.dat")).equals(save.edited)).toBe(true);
   const exported = await exportFiles(page, testInfo);
   expect(Object.keys(exported)).toEqual([save.path]);

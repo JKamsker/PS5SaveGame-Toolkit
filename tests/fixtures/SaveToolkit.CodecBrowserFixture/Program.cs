@@ -28,16 +28,16 @@ internal static class FixtureProgram
         var fixtures = new[]
         {
             // Witcher 3 re-encodes the edited chunk at LZ4 L12_MAX.
-            Create("witcher3", "PPSA04018/sdimg_E2E/Manual.sav", SyntheticPlayerSave.Create(), new Witcher3Plugin(),
+            Create("witcher3", "witcher3", "PPSA04018/sdimg_E2E/Manual.sav", SyntheticPlayerSave.Create(), new Witcher3Plugin(),
                 "player/level", 2),
             // BG3 rewrites the package entry and file table as LZ4 L10_OPT blocks.
-            Create("bg3", "PPSA18463/sdimg_E2E/AutoSave_0.lsv", Bg3Package(method: 2, padding: 0), new BaldursGate3Plugin(),
+            Create("bg3", "bg3", "PPSA18463/sdimg_E2E/AutoSave_0.lsv", Bg3Package(method: 2, padding: 0), new BaldursGate3Plugin(),
                 "party/0/Level", 12),
             // BG3 fast-level (0x12) entry over 64 KiB: K4os' 32-bit engine (the browser's) writes other bytes.
-            Create("bg3-fast", "PPSA18463/sdimg_E2EFAST/AutoSave_1.lsv", Bg3Package(method: 0x12, padding: 120_000),
+            Create("bg3-fast", "bg3", "PPSA18463/sdimg_E2E/AutoSave_1.lsv", Bg3Package(method: 0x12, padding: 120_000),
                 new BaldursGate3Plugin(), "party/0/Level", 7),
             // Cyberpunk re-encodes the edited 256 KiB chunk at K4os' default (fast) level.
-            Create("cyberpunk2077", "PPSA04027/sdimg_E2E/sav.dat", SyntheticFactsSave.Create(), new Cyberpunk2077Plugin(),
+            Create("cyberpunk2077", "cyberpunk2077", "PPSA04027/sdimg_E2E/sav.dat", SyntheticFactsSave.Create(), new Cyberpunk2077Plugin(),
                 SyntheticFactsSave.FirstFactValueId, 0, document => _ = SyntheticFactsSave.FirstFactField(document)),
         };
         RequireThirtyTwoBitDifference(SyntheticFactsSave.Payload()[..SyntheticFactsSave.FirstChunkSize], "Cyberpunk");
@@ -78,7 +78,7 @@ internal static class FixtureProgram
         }
     }
 
-    private static object Create(string plugin, string path, byte[] original, IGamePlugin game, string valueId, long value,
+    private static object Create(string name, string plugin, string path, byte[] original, IGamePlugin game, string valueId, long value,
         Action<ISaveDocument>? prepare = null)
     {
         var parts = path.Split('/');
@@ -90,10 +90,10 @@ internal static class FixtureProgram
             throw new InvalidOperationException(string.Join("; ", applied.Errors.Select(e => $"{e.ValueId}: {e.Message}")));
         var edited = document.Serialize().Single().Content.ToArray();
         if (edited.AsSpan().SequenceEqual(original))
-            throw new InvalidOperationException($"The {plugin} edit did not change the save, so it would not exercise the encoder.");
+            throw new InvalidOperationException($"The {name} edit did not change the save, so it would not exercise the encoder.");
         return new
         {
-            plugin, path, valueId, value = value.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            name, plugin, path, valueId, value = value.ToString(System.Globalization.CultureInfo.InvariantCulture),
             original = Convert.ToBase64String(original), edited = Convert.ToBase64String(edited),
         };
     }
