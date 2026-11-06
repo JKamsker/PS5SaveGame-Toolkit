@@ -9,7 +9,8 @@
  *   after it, or after a read's reload that failed, reads do not touch storage for `retryMs` (measured on
  *   the monotonic clock). So while IndexedDB keeps failing a read reloads at most once per period, and
  *   another tab's unannounced save is still seen within about one period. An announcement or a new
- *   connection ends the period early: storage then likely works again.
+ *   connection ends the period early: storage then likely works again. Only this marker read is bounded:
+ *   the read waits for the reload itself (runtime/persistence.ts), however long IndexedDB takes.
  * - **A stored marker a reload did not bring into the tree.** `FS.syncfs(true)` replaces an entry only
  *   when its modification time differs from the stored one, so a marker with another content but the same
  *   time stays as it is however often the tree is reloaded. That stored marker is remembered and does
@@ -74,14 +75,11 @@ export class StoredGenerationCheck {
   }
 }
 
-/** Storage did not answer in time; the operation may still complete later. */
-export class StorageTimeoutError extends Error {}
-
-/** `promise`, or a StorageTimeoutError once it took longer than `ms`. */
-export function bounded<T>(promise: Promise<T>, ms: number): Promise<T> {
+/** `promise`, or a rejection once it took longer than `ms`. */
+function bounded<T>(promise: Promise<T>, ms: number): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new StorageTimeoutError(`Browser storage did not answer within ${ms} ms.`)), ms);
+    timer = setTimeout(() => reject(new Error(`Browser storage did not answer within ${ms} ms.`)), ms);
   });
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }

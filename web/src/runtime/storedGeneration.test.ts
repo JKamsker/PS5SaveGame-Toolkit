@@ -128,50 +128,6 @@ describe("a marker read that never settles", () => {
   });
 });
 
-describe("an IndexedDB that never answers", () => {
-  const answered = (request: Promise<unknown>, ms = 500) =>
-    Promise.race([request.then(() => "answered"), new Promise(resolve => setTimeout(() => resolve("pending"), ms))]);
-
-  it("answers a read after a bounded wait for the reload, and later reads neither wait nor reload again", async () => {
-    const site = new Site();
-    const b = await bootTab(site, true, { markerReadMs: 20, readLockWaitMs: 20 });
-    b.storage.readStoredGeneration = vi.fn(() => new Promise<string>(() => undefined));
-    const load = vi.spyOn(b.storage, "load").mockImplementation(() => new Promise<void>(() => undefined));
-    expect(await answered(b.list())).toBe("answered");
-    // A reload is still running: no other read starts one or waits for anything, announced or not.
-    b.coordinator.invalidate();
-    expect(await answered(b.list(), 15)).toBe("answered");
-    expect(load).toHaveBeenCalledOnce();
-    expect(b.storage.readStoredGeneration).toHaveBeenCalledOnce();
-    expect(b.log.warn).toHaveBeenCalledOnce();
-  });
-
-  it("makes a mutation wait for a reload a read gave up on, so its late completion cannot undo the change", async () => {
-    const site = new Site();
-    const [a, b] = [await bootTab(site), await bootTab(site, true, { readLockWaitMs: 20 })];
-    await a.create("first");
-    // The read's reload captures IndexedDB as it is now, and applies that only much later.
-    let finish!: () => void;
-    const load = vi.spyOn(b.storage, "load").mockImplementationOnce(() => {
-      const captured = site.idb;
-      return new Promise<void>(resolve => { finish = () => { b.local = new Map(captured); resolve(); }; });
-    });
-    expect(read(await b.list()).body).toEqual([]);
-    // The read released the shared lock: another tab can save meanwhile.
-    await a.create("second");
-    expect(read(await b.list()).body).toEqual([]);
-    expect(load).toHaveBeenCalledOnce();
-    let created = false;
-    const create = b.create("from B").then(() => { created = true; });
-    await new Promise(resolve => setTimeout(resolve, 50));
-    expect(created).toBe(false);
-    finish();
-    await create;
-    expect(library(site)).toEqual(["first", "second", "from B"]);
-    expect(read(await b.list()).body).toEqual(["first", "second", "from B"]);
-  });
-});
-
 /**
  * IDBFS' populate (`syncfs(true)`) replaces a local entry only when its timestamp differs from the stored
  * one, so a stored marker with other contents but the same timestamp is never loaded.

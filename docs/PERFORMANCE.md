@@ -140,7 +140,7 @@ output-directory behavior, so the check never removes or rewrites output.
 | MapView.js | 2141 | 2350 |
 | SpatialShared.js | 1787 | 1970 |
 | SpatialShared.css | 911 | 1010 |
-| worker.js | 7062 | 7770 |
+| worker.js | 7004 | 7770 |
 
 The preset-transfer follow-up adds explicit lazy import/export dialogs and shared native-modal
 code/styles. These new chunks load only on the corresponding toolbar action; the existing
@@ -183,7 +183,9 @@ failure throws) and noticing another tab's save whose announcement was lost (the
 `.generation` read and its convergence) grew `worker.js` to 6937 gzip bytes at `81f1b8fb`; bounding
 a read's reload against a hung IndexedDB (serialized loads, a monotonic retry period) then to 7062
 (Linux, Node 22.23.4, Vite 8.3.5, 2026-11-06). No helper was left duplicated to remove; its limit is
-now **7770** (10% headroom). All other rows and limits are unchanged.
+now **7770** (10% headroom). All other rows and limits are unchanged. Making a durable read wait for
+its reload again (no bounded reload, no serialized loads) and releasing requests waiting on a reload
+when the runtime stops shrank `worker.js` to 7004 gzip bytes; its limit stays **7770**.
 
 CI `validate` runs `npm run check:bundle` immediately after its production build on **both Ubuntu
 and Windows**. Synthetic Vitest regressions cover shared imports/cycles, lazy JS/CSS, aggregate

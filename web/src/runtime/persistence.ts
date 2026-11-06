@@ -12,26 +12,28 @@
  *
  * After such an announcement (or when the browser closed the IndexedDB connection, for example "Clear
  * site data", or IndexedDB's generation marker differs from the loaded one because an announcement was
- * lost), reads of presets and reference packs refresh under a shared lock, waiting only briefly:
- * while another tab holds the lock (a long import, a frozen tab) or IndexedDB does not answer the reload,
- * they answer from the cached view and retry later, and reads of anything else never wait. A failed
- * flush is reported as an error response (never a silent success), and the tab reloads what IndexedDB
- * really holds. When the stores cannot re-read another tab's files (for example a library saved by a
- * newer version of the site), the tab keeps its last good view for reads but refuses mutations, which
- * would write that stale view back.
+ * lost), reads of presets and reference packs refresh under a shared lock. They wait only briefly for
+ * the lock: while another tab holds it (a long import, a frozen tab) they answer from the cached view and
+ * retry later. Once they hold it they wait for the reload itself, since a read dispatched while
+ * `syncfs(true)` rewrites the tree could see neither tab's files. Reads of anything else never wait. A
+ * failed flush is reported as an error response (never a silent success), and the tab reloads what
+ * IndexedDB really holds. When the stores cannot re-read another tab's files (for example a library
+ * saved by a newer version of the site), the tab keeps its last good view for reads but refuses
+ * mutations, which would write that stale view back.
  *
  * A mutation whose .NET dispatch never settles would hold the exclusive lock until the tab closes (Web
  * Locks are released with the page and its workers). After MUTATION_WATCHDOG_MS the lock is released and
  * this tab's persistence stops for good (`RuntimeHungError`): the worker reports the runtime as crashed,
  * and the page offers a reload. A synchronous hang blocks the worker's timers too; only closing or
- * reloading that tab releases the lock then.
+ * reloading that tab releases the lock then. When the runtime stops, a request waiting for a reload of the
+ * tree stops waiting too (releasing its lock); the reload may still finish, but nothing is flushed after it.
  */
 import { readsDurableData, writesDurableData } from "./durableRoutes";
 import { describeError, isRuntimeStopped } from "./failures";
 import { decodeFrame, problemFrame } from "./framing";
 import { changedData, type PersistentData } from "./persistentChanges";
 import type { LockMode, PersistentStorage, TabCoordination } from "./storageContract";
-import { bounded, StorageTimeoutError, StoredGenerationCheck, type GenerationCheckTiming } from "./storedGeneration";
+import { StoredGenerationCheck, type GenerationCheckTiming } from "./storedGeneration";
 
 export interface Persistence {
   /** True when Web Locks keep tabs from overwriting each other's presets and packs. */
@@ -48,8 +50,8 @@ export interface Persistence {
 /** Longest wait for another tab's write before giving up with an error (never a lost write). */
 export const LOCK_WAIT_MS = 30_000;
 /**
- * Longest wait of a preset or pack read for the lock, and again for the reload of the tree; it answers
- * from the cached view after that.
+ * Longest wait of a preset or pack read for the lock (it answers from the cached view after that), and
+ * for IndexedDB's generation marker. A read holding the lock waits for the reload of the tree itself.
  */
 export const READ_LOCK_WAIT_MS = 1_000;
 /** A mutation still unanswered after this long (twice the UI's longest deadline) is treated as hung. */
@@ -92,10 +94,11 @@ export class PersistenceCoordinator implements Persistence {
   private lockBusy = false;
   /** A read's reload of the tree failed: later failures are not reported again until one works. */
   private loadFailing = false;
-  /** The `storage.load()` still running, if any; see load(). */
-  private loading: Promise<void> | null = null;
   private hung: RuntimeHungError | null = null;
-  /** Rejects the dispatch the running mutation waits for (it holds the exclusive lock until then). */
+  /**
+   * Rejects what a request waits for (a mutation's dispatch, a reload of the tree) once the runtime stops:
+   * the request holds a cross-tab lock until then.
+   */
   private readonly inFlight = new Set<(error: RuntimeHungError) => void>();
   private readonly timing: CoordinatorTiming;
   /** Notices a change another tab saved but could not announce. */
@@ -155,9 +158,9 @@ export class PersistenceCoordinator implements Persistence {
   private async request(method: string, url: string, dispatch: () => Promise<Uint8Array>): Promise<Uint8Array> {
     if (this.hung) throw this.hung;
     if (!writesDurableData(method, url)) {
-      // While a reload this tab gave up on still runs, or within the retry period after a storage failure,
-      // the read leaves storage alone and answers from the cached view (runtime/storedGeneration.ts).
-      if (readsDurableData(url) && !this.loading && this.storedGeneration.ready) {
+      // Within the retry period after a storage failure the read leaves storage alone and answers from the
+      // cached view (runtime/storedGeneration.ts).
+      if (readsDurableData(url) && this.storedGeneration.ready) {
         // A change another tab saved but could not announce gives no other sign.
         if (!this.stale && await this.storedGeneration.changed()) this.stale = true;
         if (this.stale) await this.refreshForRead();
@@ -177,13 +180,16 @@ export class PersistenceCoordinator implements Persistence {
   }
 
   /**
-   * Another tab saved: serve this read from fresh data if the lock and the reload come quickly, else from
-   * the cached view (still stale, so a later read tries again). Before the first load, or while the lock is
-   * known to be held, do not wait for it at all: the tab that holds it may hold it for long.
+   * Another tab saved: serve this read from fresh data if the lock comes quickly, else from the cached
+   * view (still stale, so a later read tries again). Before the first load, or while the lock is known to
+   * be held, do not wait for it at all: the tab that holds it may hold it for long. With the lock, the read
+   * waits for the reload: `syncfs(true)` removes entries at once and writes new ones later, and the stores
+   * read their files lazily, so a read answered meanwhile could list (and a document opened meanwhile pin)
+   * a mix of both tabs' files.
    */
   private async refreshForRead() {
     const wait = this.generation === null || this.lockBusy ? 0 : this.timing.readLockWaitMs;
-    await this.locked("shared", () => this.refresh(this.timing.readLockWaitMs), wait).catch((error: unknown) => {
+    await this.locked("shared", () => this.refresh(), wait).catch((error: unknown) => {
       // Stopped meanwhile, or the stores' reload trapped: the read must not dispatch on that runtime.
       if (error instanceof RuntimeHungError || this.stopped(error)) throw error;
       if (error instanceof StoreReloadError) {
@@ -197,9 +203,9 @@ export class PersistenceCoordinator implements Persistence {
         this.lockBusy = true;
         return;
       }
-      // A failed reload is retried by the first read after the retry period (and by every mutation); one
-      // that timed out by the first read after it settled. Either is reported once until a reload works.
-      if (!(error instanceof StorageTimeoutError)) this.storedGeneration.backOff();
+      // A failed reload is retried by the first read after the retry period (and by every mutation), and
+      // reported once until a reload works.
+      this.storedGeneration.backOff();
       if (!this.loadFailing) this.log.warn("Reloading presets and reference packs from browser storage failed:", error);
       this.loadFailing = true;
     });
@@ -264,12 +270,11 @@ export class PersistenceCoordinator implements Persistence {
   /**
    * Reloads the tree; the .NET stores re-read their files when another tab changed them. Adopts the new
    * generation only once they did, so a failed reload is retried (and mutations refused) until it works.
-   * A read waits at most `waitMs` for the tree (StorageTimeoutError); a mutation waits for it.
    */
-  private async refresh(waitMs?: number) {
+  private async refresh() {
     this.stale = false;
     try {
-      await (waitMs === undefined ? this.load() : bounded(this.load(), waitMs));
+      await this.load();
     } catch (error) {
       this.stale = true;
       throw this.hung ?? error;
@@ -294,6 +299,7 @@ export class PersistenceCoordinator implements Persistence {
     try {
       await this.load();
     } catch (error) {
+      if (this.hung) throw this.hung;
       this.stale = true;
       this.log.error("Restoring presets and reference packs from browser storage failed:", error);
       return false;
@@ -310,17 +316,12 @@ export class PersistenceCoordinator implements Persistence {
   }
 
   /**
-   * `storage.load()`, never two at once: a read that gave up on a reload leaves it running, and its late
-   * `syncfs(true)` still rewrites the tree. So the next load (a mutation's, a revert's) starts only once it
-   * settled; otherwise the late one could delete or revert files a mutation just wrote, before they are
-   * flushed. Reads do not start one meanwhile, and nothing but a new load relies on the late one's tree.
+   * `storage.load()`, given up on when the runtime stops. Every request waits for its load (the worker
+   * runs one request at a time, after boot's), so two never overlap; one given up on may still finish,
+   * but this tab never touches storage again.
    */
   private load(): Promise<void> {
-    const run = (this.loading ?? Promise.resolve()).catch(() => undefined).then(() => this.storage.load());
-    this.loading = run;
-    const settled = () => { if (this.loading === run) this.loading = null; };
-    run.then(settled, settled);
-    return run;
+    return this.untilStopped(this.storage.load());
   }
 
   stop(reason: string) {
@@ -341,23 +342,24 @@ export class PersistenceCoordinator implements Persistence {
 
   /** Rejects with RuntimeHungError (releasing the lock) once `dispatch` outlives the watchdog or the runtime stops. */
   private watch(dispatch: Promise<Uint8Array>): Promise<Uint8Array> {
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    let abandon: ((error: RuntimeHungError) => void) | undefined;
-    const watchdog = new Promise<never>((_, reject) => {
-      abandon = reject;
-      this.inFlight.add(reject);
-      timer = setTimeout(() => {
-        this.hung = new RuntimeHungError(`The editor runtime did not finish a change to presets or reference packs within `
-          + `${Math.round(this.timing.mutationWatchdogMs / 60_000)} minutes and was stopped, so other tabs can save again. `
-          + "Reload the page.");
-        this.log.error(this.hung.message);
-        reject(this.hung);
-      }, this.timing.mutationWatchdogMs);
-    });
-    return Promise.race([dispatch, watchdog]).finally(() => {
-      clearTimeout(timer);
-      if (abandon) this.inFlight.delete(abandon);
-    });
+    const timer = setTimeout(() => {
+      const message = `The editor runtime did not finish a change to presets or reference packs within `
+        + `${Math.round(this.timing.mutationWatchdogMs / 60_000)} minutes and was stopped, so other tabs can save again. `
+        + "Reload the page.";
+      this.log.error(message);
+      this.stop(message);
+    }, this.timing.mutationWatchdogMs);
+    return this.untilStopped(dispatch).finally(() => clearTimeout(timer));
+  }
+
+  /** `work`, or a rejection with RuntimeHungError as soon as the runtime stops (at once if it already did). */
+  private untilStopped<T>(work: Promise<T>): Promise<T> {
+    let abandon!: (error: RuntimeHungError) => void;
+    const stopped = new Promise<never>((_, reject) => { abandon = reject; });
+    if (this.hung) abandon(this.hung);
+    else this.inFlight.add(abandon);
+    // `work` is raced even then, so a late rejection of it is never unhandled.
+    return Promise.race([stopped, work]).finally(() => this.inFlight.delete(abandon));
   }
 
   private async locked<T>(mode: LockMode, task: () => Promise<T>, waitMs?: number): Promise<T> {

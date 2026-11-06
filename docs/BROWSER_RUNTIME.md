@@ -126,16 +126,15 @@ what another tab saved. `web/src/runtime/persistence.ts` prevents that:
   failing, reads therefore reload at most once per 30 s, and still see another tab's unannounced save
   within about that long. An announcement or a dropped connection ends that period early; a stored marker a
   reload could not bring in (IDBFS replaces an entry only when its timestamp differs) does not cause another
-  reload until IndexedDB holds a different one. After an announcement the next such read reloads
-  (unless a reload given up on still runs, below), and a mutation always does. Such reads wait at most 1 s for the lock: while another tab holds it (a long import, a frozen tab) they answer
-  from the cached view, keep it marked stale and do not wait again until the lock is next granted. They
-  also wait at most 1 s for the reload itself: a hung IndexedDB must not hold the lock and the worker's
-  request queue (which also serves downloads and exports of unsaved edits). The reload they gave up on
-  keeps running, and its late `syncfs(true)` still rewrites the mount, so loads never overlap: until it
-  settles reads start no other one (they answer from the cached view at once), and a mutation's reload
-  waits for it, so it cannot undo files the mutation writes before they are flushed (against a hung
-  IndexedDB the mutation waits as its own reload would). Other reads
-  never wait for or touch storage. Until then a read may be stale, but a write never is: it always
+  reload until IndexedDB holds a different one. After an announcement the next such read reloads, and a
+  mutation always does. Such reads wait at most 1 s for the lock: while another tab holds it (a long
+  import, a frozen tab) they answer from the cached view, keep it marked stale and do not wait again until
+  the lock is next granted. Once they hold the lock they wait for the reload itself, however long it
+  takes: IDBFS' `syncfs(true)` removes the entries IndexedDB no longer holds at once and writes new and
+  changed ones later, from IndexedDB's callbacks, and the reference-pack store re-reads its files lazily,
+  so a read answered during the reload could see neither tab's packs (only those both saves share), and a
+  document opened then would pin that set for its lifetime. Only the marker read above is bounded. Other
+  reads never wait for or touch storage. Until then a read may be stale, but a write never is: it always
   reloads under the lock first.
 - **Cleared site data.** IDBFS opens its IndexedDB connection once and caches it, so after "Clear site
   data" (or the database being deleted) every later sync would fail until a reload, even after another
@@ -146,7 +145,10 @@ what another tab saved. `web/src/runtime/persistence.ts` prevents that:
 - **A hung mutation.** Web Locks are released when a tab (and its worker) closes or reloads. A mutation
   whose .NET dispatch never settles would otherwise hold the exclusive lock for as long as the tab stays
   open; after 10 minutes (twice the UI's longest request deadline) the worker releases it, stops
-  touching storage for good and reports the runtime as crashed, and the page offers a reload. A
+  touching storage for good and reports the runtime as crashed, and the page offers a reload. When the
+  runtime stops (that watchdog, an abort, a trap), a read or mutation still waiting for its reload of the
+  mount stops waiting too and releases its lock; that reload may still finish, but nothing is flushed
+  after it. A
   synchronous hang also stops the worker's timers, so then only closing or reloading that tab helps;
   other tabs' writes answer `503` after 30 s meanwhile, and their reads are not delayed. A runtime that
   stops during a mutation (an abort, exit or trap, for example in an async continuation) never settles
@@ -239,6 +241,19 @@ still fully checked exactly once; see `ReferencePackStore` and `EmbeddedPackSet`
   plugin text such as `ToString("N0")` stats would read "9.434.752" in a German browser.
   `BrowserHost.Initialize` sets the current and default-thread cultures to the invariant culture before
   any plugin loads, so responses never depend on the viewer's language (`web/e2e/ff7-culture.e2e.ts`).
+- **A hung IndexedDB.** A preset or pack read that must reload the mount (after another tab's save, or
+  when IndexedDB's marker could not be read), and every mutation of presets or packs, waits for that
+  reload with no time limit (see [Persistence](#persistence) for why a read cannot answer before it
+  finishes). If IndexedDB never answers it, the request holds the cross-tab lock (shared for a read,
+  exclusive for a mutation) and the worker's request queue until the page is reloaded or closed, or the
+  runtime stops; the mutation watchdog covers only the .NET dispatch, not this wait. The page gives up on
+  the request after its deadline (60 s for most requests, counted from when the worker started it) with
+  "The request timed out. Check the current state before retrying."; every later request of the tab,
+  including downloads and exports, waits behind it and fails the same way (after up to 30 minutes in the
+  queue, then its own deadline), so workspaces cannot be exported until the page is reloaded, which
+  discards them. Meanwhile other tabs' changes to presets and packs fail after 30 s with "Another tab of
+  this site is still saving presets or reference packs". Reads of IndexedDB that fail rather than hang
+  are not affected: they answer from the cached view (see Persistence).
 - **No OpenAPI document.** `/openapi/v1.json` exists only on the ASP.NET host.
 - **Workspaces last as long as the tab.** While this tab's runtime holds a workspace, the page registers a
   `beforeunload` handler so the browser asks before a reload or close discards it, and the workspace header
