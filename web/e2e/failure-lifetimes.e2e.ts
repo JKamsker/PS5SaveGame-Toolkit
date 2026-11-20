@@ -3,7 +3,10 @@ import type { Page } from "@playwright/test";
 import type { ActionPreview } from "../src/api/actionReview";
 import { test, expect, focusedControl } from "./failure-harness";
 import { actionPreview, resetAction } from "./action-helpers";
-import { coinsField, editCoins, editedCoins, fixture, home, importSave, loadJson, openJson, originalCoins, savePath } from "./helpers";
+import {
+  coinsField, editCoins, editedCoins, fixture, followLink, home, importSave, loadJson, createDocumentLink, openJson, originalCoins, savePath,
+} from "./helpers";
+import { installApiHooks, routeApi, unrouteApi, waitForApi, waitForApiRequest, waitForApiResponse } from "./apiRoutes";
 
 // Let completed body parsing and React effects run before inspecting retired responses.
 async function settleUi(page: Page) {
@@ -13,12 +16,14 @@ async function settleUi(page: Page) {
 test("unknown workspace 404 offers retry and a focused import escape route", async ({ page, faults }) => {
   // Use the actual missing-workspace endpoint, without intercepting the static app.
   faults.expectNetworkFailures(/\/api\/workspaces\/missing-workspace$/);
+  await installApiHooks(page);
   await page.goto("/w/missing-workspace");
   const heading = page.getByRole("heading", { name: "This workspace is gone", exact: true });
-  await expect(heading).toBeVisible();
+  // The first answer waits for the page's runtime to download and start.
+  await expect(heading).toBeVisible({ timeout: 30_000 });
   await expect(heading).toBeFocused();
   await expect(page.getByRole("alert")).not.toBeEmpty();
-  const retrying = page.waitForResponse(response => response.url().endsWith("/api/workspaces/missing-workspace"));
+  const retrying = waitForApiResponse(page, response => response.url().endsWith("/api/workspaces/missing-workspace"));
   await page.getByRole("button", { name: "Retry workspace", exact: true }).click();
   await (await retrying).finished();
   await expect(heading).toBeVisible();
@@ -29,16 +34,16 @@ test("unknown workspace 404 offers retry and a focused import escape route", asy
 });
 
 test("an expired document read shows a retryable 404 instead of a blank editor", async ({ page, faults }) => {
-  await importSave(page);
-  await openJson(page);
-  const url = page.url();
+  await home(page);
+  // A deep link to an open document this page has not displayed yet (a full page load would start a new runtime).
+  const url = await createDocumentLink(page);
   faults.expectNetworkFailures(/\/api\/workspaces\/[^/]+\/documents\/[^/?]+$/);
   let expired = true;
-  await page.route(/\/api\/workspaces\/[^/]+\/documents\/[^/?]+$/, async route => {
+  await routeApi(page, /\/api\/workspaces\/[^/]+\/documents\/[^/?]+$/, async route => {
     if (!expired) return route.fallback();
     await route.fulfill({ status: 404, json: { error: "The editing session expired. Reopen the save file or retry." } });
   });
-  await page.goto(url);
+  await followLink(page, url);
   const heading = page.getByRole("heading", { name: "This file could not be opened", exact: true });
   await expect(heading).toBeVisible();
   await expect(heading).toBeFocused();
@@ -60,7 +65,7 @@ test("a late table query cannot replace a newer search or restore an old selecti
   let finish!: () => void;
   const delayed = new Promise<void>(resolve => { finish = resolve; });
   let oldResponse!: QueryablePage;
-  await page.route(/\/collections\?/, async route => {
+  await routeApi(page, /\/collections\?/, async route => {
     if (new URL(route.request().url()).searchParams.get("q") !== "score_0") return route.fallback();
     const response = await route.fetch();
     oldResponse = await response.json() as QueryablePage;
@@ -73,7 +78,7 @@ test("a late table query cannot replace a newer search or restore an old selecti
   await expect(page.getByText("1 of 64 rows", { exact: true })).toBeVisible();
   const table = page.getByRole("table", { name: "Whole-tree search", exact: true });
   await expect(table.getByRole("cell", { name: '$["score_55"]#1', exact: true })).toBeVisible();
-  const oldFinished = page.waitForResponse(response => new URL(response.url()).searchParams.get("q") === "score_0");
+  const oldFinished = waitForApiResponse(page, response => new URL(response.url()).searchParams.get("q") === "score_0");
   finish();
   await (await oldFinished).finished();
   await settleUi(page);
@@ -93,7 +98,7 @@ test("cancelled export ignores a late download failure and restores opener focus
   let started = false;
   const delayed = new Promise<void>(resolve => { finish = resolve; });
   faults.expectNetworkFailures(/\/export$/);
-  await page.route("**/export", async route => {
+  await routeApi(page, "**/export", async route => {
     started = true;
     await delayed;
     await route.fulfill({ status: 503, json: { error: "Late export failure must stay retired." } });
@@ -107,14 +112,14 @@ test("cancelled export ignores a late download failure and restores opener focus
   await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(dialog).not.toBeVisible();
   await expect(opener).toBeFocused();
-  const response = page.waitForResponse(response => response.url().endsWith("/export"));
+  const response = waitForApiResponse(page, response => response.url().endsWith("/export"));
   finish();
   await (await response).finished();
   await settleUi(page);
   await expect(page.getByRole("alert")).toHaveCount(0);
   await expect(coinsField(page)).toHaveValue(editedCoins);
   await expect(opener).toBeFocused();
-  await page.unroute("**/export");
+  await unrouteApi(page, "**/export");
   await opener.click();
   await expect(dialog.getByRole("button", { name: "Download zip", exact: true })).toBeEnabled();
   await expect(dialog.getByRole("alert")).toHaveCount(0);
@@ -126,7 +131,7 @@ test("navigating away while opening a file retires a late error without changing
   let started = false;
   const delayed = new Promise<void>(resolve => { finish = resolve; });
   faults.expectNetworkFailures(/\/files\/[^/]+\/open$/);
-  await page.route("**/files/*/open", async route => {
+  await routeApi(page, "**/files/*/open", async route => {
     started = true;
     await delayed;
     await route.fulfill({ status: 503, json: { error: "Late open failure must stay retired." } });
@@ -137,7 +142,7 @@ test("navigating away while opening a file retires a late error without changing
   // Close dump performs SPA navigation without discarding the pending fetch's JS realm.
   await page.getByRole("button", { name: "Close dump", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Open a PS5 save dump" })).toBeVisible();
-  const response = page.waitForResponse(response => response.url().endsWith("/open"));
+  const response = waitForApiResponse(page, response => response.url().endsWith("/open"));
   finish();
   await (await response).finished();
   await settleUi(page);
@@ -155,7 +160,7 @@ test("leaving a slow lazy view aborts its request and returning can load it agai
   let slow = true;
   const delayed = new Promise<void>(resolve => { finish = resolve; });
   faults.expectNetworkFailures(/\/nodes\?/);
-  await page.route("**/nodes?*", async route => {
+  await routeApi(page, "**/nodes?*", async route => {
     if (!slow) return route.fallback();
     started = true;
     await delayed;
@@ -164,7 +169,7 @@ test("leaving a slow lazy view aborts its request and returning can load it agai
   await page.getByRole("tab", { name: "JSON", exact: true }).click();
   await page.getByRole("button", { name: "Load Entries", exact: true }).click();
   await expect.poll(() => started).toBe(true);
-  const aborted = page.waitForEvent("requestfailed", request => request.url().includes("/nodes?"));
+  const aborted = waitForApi(page, "requestfailed", request => request.url().includes("/nodes?"));
   await page.getByRole("tab", { name: "Overview", exact: true }).click();
   expect((await aborted).failure()?.errorText).toContain("ERR_ABORTED");
   slow = false;
@@ -181,7 +186,7 @@ async function holdFirstPreview(page: Page, outcome: "failure" | "success") {
   let started = false;
   let requests = 0;
   const delayed = new Promise<void>(resolve => { finish = resolve; });
-  await page.route("**/actions/plan", async route => {
+  await routeApi(page, "**/actions/plan", async route => {
     if (++requests !== 1) return route.fallback();
     const response = await route.fetch();
     const originalPlan = await response.json() as ActionPreview;
@@ -215,12 +220,12 @@ for (const outcome of ["failure", "success"] as const) {
     let latest: ActionPreview | undefined;
     if (outcome === "success") {
       // A second request must start without waiting for the retired first response.
-      const response = page.waitForResponse(response => response.url().endsWith("/actions/plan"));
+      const response = waitForApiResponse(page, response => response.url().endsWith("/actions/plan"));
       await opener.click();
       latest = await (await response).json() as ActionPreview;
       await expect(dialog.getByRole("status")).toHaveText("1 field changes · 0 skipped rows · one undo step");
     }
-    const oldFinished = page.waitForResponse(response => response.url().endsWith("/actions/plan"));
+    const oldFinished = waitForApiResponse(page, response => response.url().endsWith("/actions/plan"));
     delayed.finish();
     await (await oldFinished).finished();
     await settleUi(page);
@@ -231,7 +236,7 @@ for (const outcome of ["failure", "success"] as const) {
       await expect(dialog.getByRole("button", { name: "Apply", exact: true })).toBeEnabled();
     } else {
       await expect(dialog.getByRole("status")).toHaveText("1 field changes · 0 skipped rows · one undo step");
-      const applying = page.waitForRequest(request => request.url().endsWith("/actions/apply"));
+      const applying = waitForApiRequest(page, request => request.url().endsWith("/actions/apply"));
       await dialog.getByRole("button", { name: "Apply", exact: true }).click();
       expect((await applying).postDataJSON().planId).toBe(latest!.planId);
       await expect(dialog).not.toBeVisible();

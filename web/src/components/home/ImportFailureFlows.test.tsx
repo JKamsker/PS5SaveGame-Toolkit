@@ -13,15 +13,9 @@ afterEach(() => {
   vi.restoreAllMocks(); vi.unstubAllGlobals(); notifyManager.setScheduler(defaultScheduler);
 });
 
-// Exercise the upload adapter's XHR response handling, including HTML parsed as null.
-class UploadRequest {
-  open = vi.fn(); send = vi.fn<(body: FormData) => void>(); upload = {}; responseType = ""; timeout = 0;
-  status = 0; response: unknown = null;
-  onload: (() => void) | null = null;
-  onerror: (() => void) | null = null;
-  onabort: (() => void) | null = null;
-  ontimeout: (() => void) | null = null;
-}
+// Exercise the upload adapter's response handling (through the runtime transport), including HTML bodies.
+interface UploadRequest { body: FormData; resolve: (response: Response) => void; reject: (error: unknown) => void }
+const json = (body: unknown, status: number) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 
 function mount() {
   vi.spyOn(api, "plugins").mockResolvedValue([]);
@@ -29,9 +23,9 @@ function mount() {
   vi.spyOn(api, "titles").mockResolvedValue([]);
   vi.spyOn(library, "restore").mockResolvedValue(undefined);
   const uploads: UploadRequest[] = [];
-  vi.stubGlobal("XMLHttpRequest", class extends UploadRequest {
-    constructor() { super(); uploads.push(this); }
-  });
+  vi.stubGlobal("fetch", vi.fn((url: string, init: RequestInit) => url !== "/api/workspaces"
+    ? Promise.resolve(new Response(null, { status: 503 }))
+    : new Promise<Response>((resolve, reject) => uploads.push({ body: init.body as FormData, resolve, reject }))));
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
   clients.push(client);
   render(<MemoryRouter><QueryClientProvider client={client}><Routes>
@@ -44,7 +38,8 @@ function mount() {
   return { uploads, choose, file };
 }
 
-const faults = [400, 404, 409, 422, 500, 503, "html502", "network", "abort", "timeout"] as const;
+// Deadline and cancellation normalization is covered by api/client.errors.test.ts.
+const faults = [400, 404, 409, 422, 500, 503, "html502", "network"] as const;
 it.each(faults)("retains the original upload after %s and explicitly retries once", async fault => {
   const { uploads, choose, file } = mount();
   const opener = screen.getByRole("button", { name: "Open zip" });
@@ -54,23 +49,18 @@ it.each(faults)("retains the original upload after %s and explicitly retries onc
   expect(opener).toHaveProperty("disabled", true);
   const failed = uploads[0]!;
   await act(async () => {
-    if (fault === "network") failed.onerror!();
-    else if (fault === "abort") failed.onabort!();
-    else if (fault === "timeout") failed.ontimeout!();
-    else {
-      failed.status = fault === "html502" ? 502 : fault;
-      failed.response = fault === "html502" ? null : { error: "Import refused. Try the same ZIP again." };
-      failed.onload!();
-    }
+    if (fault === "network") failed.reject(new TypeError("worker stopped"));
+    else if (fault === "html502") failed.resolve(new Response("<!doctype html><h1>Bad gateway</h1>", { status: 502, headers: { "content-type": "text/html" } }));
+    else failed.resolve(json({ error: "Import refused. Try the same ZIP again." }, fault));
   });
   expect(screen.getByRole("alert").textContent).toMatch(fault === "html502" ? /502.*try again/i :
-    typeof fault === "number" ? /Import refused/ : fault === "network" ? /server.*try again/i : /current state.*retry/i);
+    typeof fault === "number" ? /Import refused/ : /runtime did not respond.*try again/i);
   expect(opener).toHaveProperty("disabled", false);
   expect(document.activeElement).toBe(opener);
   expect(screen.queryByRole("heading", { name: "Recovered import" })).toBeNull();
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Retry import" })); });
   expect(uploads).toHaveLength(2);
-  const sent = uploads[1]!.send.mock.calls[0]![0];
+  const sent = uploads[1]!.body;
   expect(sent.getAll("files")).toHaveLength(1);
   const retryFile = sent.get("files") as File;
   expect(retryFile.name).toBe(file.name);
@@ -81,23 +71,18 @@ it.each(faults)("retains the original upload after %s and explicitly retries onc
     reader.readAsText(blob);
   });
   expect(await read(retryFile)).toBe(await read(file));
-  await act(async () => {
-    uploads[1]!.status = 201;
-    uploads[1]!.response = { id: "recovered" };
-    uploads[1]!.onload!();
-  });
+  await act(async () => { uploads[1]!.resolve(json({ id: "recovered" }, 201)); });
   expect(screen.getByRole("heading", { name: "Recovered import" })).toBeTruthy();
   expect(screen.queryByRole("alert")).toBeNull();
 });
 
-it.each(["error", "abort", "timeout"] as const)("ignores upload %s after navigating away", async event => {
+it.each(["network", "rejection"] as const)("ignores upload %s after navigating away", async event => {
   const { choose, uploads } = mount();
   await act(async () => { choose(); });
   fireEvent.click(screen.getByRole("link", { name: "Leave" }));
   await act(async () => {
-    if (event === "error") uploads[0]!.onerror!();
-    else if (event === "abort") uploads[0]!.onabort!();
-    else uploads[0]!.ontimeout!();
+    if (event === "network") uploads[0]!.reject(new TypeError("worker stopped"));
+    else uploads[0]!.resolve(json({ error: "Import refused." }, 422));
   });
   expect(screen.getByRole("heading", { name: "Away" })).toBeTruthy();
   expect(screen.queryByRole("alert")).toBeNull();
@@ -112,6 +97,6 @@ it.each([false, true])("restores lost import focus while respecting an intention
   const leave = screen.getByRole("link", { name: "Leave" });
   leave.focus();
   if (!movedFocus) leave.blur();
-  await act(async () => { uploads[0]!.onerror!(); });
+  await act(async () => { uploads[0]!.reject(new TypeError("worker stopped")); });
   expect(document.activeElement).toBe(movedFocus ? leave : screen.getByRole("button", { name: "Retry import" }));
 });

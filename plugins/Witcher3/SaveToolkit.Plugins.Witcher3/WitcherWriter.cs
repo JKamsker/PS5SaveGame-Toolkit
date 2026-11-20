@@ -1,6 +1,6 @@
 using System.Buffers.Binary;
-using K4os.Compression.LZ4;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Compression;
 
 namespace SaveToolkit.Plugins.Witcher3;
 
@@ -79,8 +79,9 @@ internal static class WitcherWriter
         {
             return container.Original.AsSpan(chunk.Offset, chunk.StoredSize).ToArray();
         }
-        var buffer = new byte[LZ4Codec.MaximumOutputSize(expanded)];
-        var stored = LZ4Codec.Encode(raw, buffer, LZ4Level.L12_MAX);
+        // Same bytes as K4os LZ4Codec.Encode(..., LZ4Level.L12_MAX); K4os' HC encoder traps the browser runtime.
+        var buffer = new byte[Lz4HighCompression.MaximumOutputSize(expanded)];
+        var stored = Lz4HighCompression.Encode(raw, buffer, Lz4HighCompression.MaximumLevel);
         if (stored <= 0)
         {
             throw new SaveFormatException("Could not LZ4-compress the edited Witcher chunk.");

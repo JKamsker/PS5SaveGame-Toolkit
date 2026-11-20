@@ -1,13 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
+import { fetchApi } from "../../api/http";
 
-async function loadVersion(signal: AbortSignal): Promise<string> {
-  const response = await fetch("/api/version", { signal });
-  if (!response.ok) throw new Error("Version unavailable");
-  const body: unknown = await response.json();
-  if (!body || typeof body !== "object" || !("version" in body) || typeof body.version !== "string") {
-    throw new Error("Invalid version response");
-  }
-  return body.version;
+/** Served by the in-browser runtime, so it reports the version of the loaded .NET bundle. */
+function loadVersion(signal: AbortSignal): Promise<string> {
+  return fetchApi("/version", { signal }, async response => {
+    if (!response.ok) throw new Error("Version unavailable");
+    const body: unknown = await response.json();
+    if (!body || typeof body !== "object" || !("version" in body) || typeof body.version !== "string") {
+      throw new Error("Invalid version response");
+    }
+    return body.version;
+  });
 }
 
 export function AppVersion() {

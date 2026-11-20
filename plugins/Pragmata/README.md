@@ -617,6 +617,10 @@ are inapplicable: strings use counted UTF-16LE and integrity uses CityHash64/Mur
 
 ## SDK requests
 
+**Browser runtime (resolved):** `Aes.Create` throws on browser-wasm, so `AesOfb` builds AES-128-OFB on
+the SDK's `SaveToolkit.Sdk.Crypto.PortableAes` (platform AES natively, managed FIPS-197 AES in the
+browser); output is byte-identical.
+
 Fixed round-3 metadata allocation finding: repeated `Collections` reads after
 view discovery now reuse snapshots, invalidated when an evidence collection is
 added/replaced. The combined inventory/evidence list reuses that snapshot too;

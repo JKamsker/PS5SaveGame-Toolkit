@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using SaveToolkit.Sdk.Crypto;
 
 namespace SaveToolkit.Plugins.TalesOfArise;
 
@@ -7,7 +8,6 @@ internal sealed class AriseCipher : IDisposable
 {
     private const int FeedbackSize = 64;
     private const byte ZeroKeyReplacement = 0x20;
-    private readonly Aes _aes = Aes.Create();
     private readonly byte[] _work = new byte[FeedbackSize];
     private readonly byte[] _key = Convert.FromHexString(
         "39514C4A5048585A556E47324C4A414858433677636648596B42567A53487942" +
@@ -18,12 +18,10 @@ internal sealed class AriseCipher : IDisposable
 
     public void Transform(ReadOnlySpan<byte> source, Span<byte> destination, bool encrypt)
     {
-        _aes.Key = _key.AsSpan(0, 32).ToArray();
-        _aes.Mode = CipherMode.ECB;
-        _aes.Padding = PaddingMode.None;
         // The key evolves once per section; feedback evolves once per 64-byte chunk.
-        // Keep one native AES transform for the section rather than recreating it for every chunk.
-        using var transform = encrypt ? _aes.CreateEncryptor() : _aes.CreateDecryptor();
+        // Keep one AES-256-ECB cipher for the section rather than recreating it for every chunk.
+        // PortableAes also works on browser-wasm, where Aes.Create is unsupported.
+        using var aes = PortableAes.Create(_key.AsSpan(0, 32));
         for (var offset = 0; offset < source.Length; offset += FeedbackSize)
         {
             var length = Math.Min(FeedbackSize, source.Length - offset);
@@ -34,13 +32,13 @@ internal sealed class AriseCipher : IDisposable
             if (encrypt)
             {
                 Xor(temporary);
-                transform.TransformBlock(_work, 0, length, _work, 0);
+                aes.EncryptEcb(temporary, temporary);
                 temporary.CopyTo(output);
                 output.CopyTo(_feedback);
             }
             else
             {
-                transform.TransformBlock(_work, 0, length, _work, 0);
+                aes.DecryptEcb(temporary, temporary);
                 Xor(temporary);
                 input.CopyTo(_feedback);
                 temporary.CopyTo(output);
@@ -72,5 +70,8 @@ internal sealed class AriseCipher : IDisposable
         }
     }
 
-    public void Dispose() => _aes.Dispose();
+    public void Dispose()
+    {
+        // Nothing to release: each Transform disposes its own cipher. Kept so callers can use 'using'.
+    }
 }

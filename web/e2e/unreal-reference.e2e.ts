@@ -4,6 +4,7 @@ import { expectFiles, exportFiles } from "./helpers";
 import { brightnessName, collection, consoleWarning, generateUnrealFixtures, jediPath, openUnreal,
   scalar, showSearch, unrealBytes } from "./unreal-helpers";
 import { downloadBrightness, editBrightness, proveScalarNoOp, proveUnchangedDraft, reviewBrightness } from "./unreal-reference-flow";
+import { apiRequest } from "./apiRequest";
 
 let fixtures: string;
 test.beforeAll(async ({ browserName }, testInfo) => {
@@ -16,7 +17,7 @@ test("real Unreal references share one scalar, review, no-op history, undo/redo 
   const edited = await unrealBytes(fixtures, "settings-edited.sav");
   const files = { [jediPath]: original, "PPSA02199/sdimg_E2E/nested/untouched.dat": Buffer.from([0, 255, 17, 42]) };
   const documentPath = await openUnreal(page, files, "settings.sav");
-  const initial = await (await page.request.get(documentPath)).json() as SaveDocument;
+  const initial = await (await apiRequest(page).get(documentPath)).json() as SaveDocument;
   expect(initial.state).toMatchObject({ canUndo: false, canRedo: false, isDirty: false });
   const raw = scalar(await collection(page, documentPath, "gvas/properties"), "property/0");
   const named = scalar(await collection(page, documentPath, "jedi/settings"), "property/0");
@@ -64,8 +65,8 @@ test("real Unreal references share one scalar, review, no-op history, undo/redo 
 test("real Unreal mixed scalar batch creates one history entry with exact output", async ({ page }, testInfo) => {
   const files = { [jediPath]: await unrealBytes(fixtures, "settings.sav") };
   const documentPath = await openUnreal(page, files, "settings.sav");
-  const before = await (await page.request.get(documentPath)).json() as SaveDocument;
-  const response = await page.request.post(`${documentPath}/edits`, {
+  const before = await (await apiRequest(page).get(documentPath)).json() as SaveDocument;
+  const response = await apiRequest(page).post(`${documentPath}/edits`, {
     data: { edits: [{ valueId: "property/0", value: 1.25 }, { valueId: "property/0", value: 1.75 }], revision: before.state.revision },
   });
   expect(response.ok()).toBe(true);
@@ -76,18 +77,18 @@ test("real Unreal mixed scalar batch creates one history entry with exact output
     { valueId: "property/0", oldValue: 1.25, newValue: 1.75 },
   ]);
   expect(result.state.revision).toBe((before.state.revision ?? 0) + 1);
-  const actual = await (await page.request.get(documentPath)).json() as SaveDocument;
+  const actual = await (await apiRequest(page).get(documentPath)).json() as SaveDocument;
   expect(actual.state).toEqual(result.state);
   await testInfo.attach("real-api-mixed-batch.json", { body: JSON.stringify({ before, result, actual }, null, 2), contentType: "application/json" });
   expect(scalar(await collection(page, documentPath, "jedi/settings"), "property/0").value).toBe(1.75);
   const expected = { [jediPath]: await unrealBytes(fixtures, "settings-edited.sav") };
   expectFiles(await exportFiles(page, testInfo, "mixed-edited.zip"), expected);
-  const undone = await (await page.request.post(`${documentPath}/undo`, { data: {} })).json() as EditResult;
+  const undone = await (await apiRequest(page).post(`${documentPath}/undo`, { data: {} })).json() as EditResult;
   expect(undone.ok).toBe(true);
   expect(undone.state).toMatchObject({ canUndo: false, canRedo: true, isDirty: false });
   expect(scalar(await collection(page, documentPath, "gvas/properties"), "property/0").value).toBe(1.25);
   expectFiles(await exportFiles(page, testInfo, "mixed-undone.zip"), files);
-  const redone = await (await page.request.post(`${documentPath}/redo`, { data: {} })).json() as EditResult;
+  const redone = await (await apiRequest(page).post(`${documentPath}/redo`, { data: {} })).json() as EditResult;
   expect(redone.ok).toBe(true);
   expect(redone.state).toMatchObject({ canUndo: true, canRedo: false, isDirty: true });
   expectFiles(await exportFiles(page, testInfo, "mixed-redone.zip"), expected);

@@ -414,7 +414,8 @@ The writers additionally compare every reopened attribute/payload to its expecte
 bytes before returning output.
 
 Original codec and level flags are retained. LSLib's fast/default/max mappings are
-used for recompression: zlib Fastest/Optimal/SmallestSize, LZ4 fast/10/12, zstd
+used for recompression: zlib Fastest/Optimal/SmallestSize, LZ4 fast/10/12 (through the SDK's
+managed fast and HC ports, which write the native 64-bit K4os bytes also in the browser), zstd
 3/9/22. Unknown high-nibble levels use the reference default while retaining the
 flag byte. Unchanged sections/entries are never passed through a compressor.
 
@@ -542,6 +543,10 @@ sample mutations, export/history checks, allocation evidence and exact validatio
 
 ## SDK requests
 
+**Browser runtime (resolved):** MD5 is unsupported on browser-wasm, so the LSPK header digest uses the
+SDK's `SaveToolkit.Sdk.Crypto.IncrementalMd5` (platform MD5 natively, managed RFC 1321 MD5 in the
+browser); digests are identical.
+
 **Resolved:** bounded binary reads/ranges (`BoundedBinaryCursor`), reference icon
 resolution (`ReferenceViews.Icon`), F12 bounded F8 semantic traversal, and F13
 browse-only references and catalog filtering/sorting are available and used.
@@ -611,7 +616,8 @@ and neither; they remain identical to the pre-migration baseline.
 | `bg3_classes` (12 base-class UUIDs) | [DanFinchUK gamedata.json, pinned 9578ff7c](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/data/gamedata.json), class icon files via bg3.wiki | No licence published; reused with attribution per owner decision 2026-10-28. Icons use the separate Larian asset notice above; retrieved 2026-10-29. | Selected GUID/name facts, linked local badges, original uncertainty notes; no implementation copied/executed, no party identity or class-authority inference. |
 | Independent LSMF directory/EntityId and PS5 live-storage reader/writer | [DanFinchUK format documentation, pinned revision](https://github.com/DanFinchUK/bg3-savefile-parser/blob/9578ff7c46a1aa40c805f6b7beecf907f10fb3b8/FORMAT.md), independently measured PS5 bytes | No licence published; reused with attribution per owner decision 2026-10-28 | Behaviour was reimplemented independently; no repository code, executable or save fragment was copied or run. PS5 directory, Creator/template, party, stacks, containers, Health/Stats/classes/spells were measured against bytes. See [LSMF.md](LSMF.md) and [NEWAGE.md](NEWAGE.md). |
 | Existing LSPK/LSF/LSX and UUID format ports | [Norbyte/LSLib](https://github.com/Norbyte/lslib/tree/6f5f6987d10d8485876b8368431c948e4dea4f83) | MIT; [licence notice](THIRD-PARTY-NOTICES.md) | Managed preservation-first implementations; format files listed below. |
-| Managed LZ4 codec | [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4), Milosz Krajewski | MIT; [notice](THIRD-PARTY-NOTICES.md) | Dependency, not copied source. |
+| Managed LZ4 codec | [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4), Milosz Krajewski | MIT; [notice](THIRD-PARTY-NOTICES.md) | Dependency, not copied source: decoding and the LZ4 frame writer. |
+| LZ4 encoders (fast level and HC levels 10/12, blocks and frames) | `SaveToolkit.Sdk.Compression` plus `ManagedLz4ChainEncoder`: port of [K4os 1.3.8 LL64 fast, HC and LZ4EncoderBase](https://github.com/MiloszKrajewski/K4os.Compression.LZ4/tree/1.3.8/src/K4os.Compression.LZ4) (MIT) and [lz4 / lz4 HC](https://github.com/lz4/lz4/tree/dev/lib) (BSD-2-Clause), retrieved 2026-11-06 | MIT / BSD-2-Clause; [repository notice](../../THIRD-PARTY-NOTICES) | K4os' HC state struct is mis-addressed by the browser runtime's interpreter (corrupt blocks, "Invalid LZ4 match offset"), and in 32-bit WebAssembly K4os' fast level is its 32-bit engine (other bytes for blocks over 64 KiB and for every frame); the ports use bounds-checked arrays and write the native 64-bit K4os bytes (`Lz4EncoderParityTests`, `browser-codecs.e2e.ts`). |
 | Managed zstd codec | [ZstdSharp](https://github.com/oleg-st/ZstdSharp), Oleg Stepanischev and contributors | MIT; [notice](THIRD-PARTY-NOTICES.md) | Dependency, not copied source. |
 | Raw LZ4 preflight format facts | [LZ4 Block Format](https://github.com/lz4/lz4/blob/dev/doc/lz4_Block_format.md), Yann Collet; document revision 2026-10-26 | Documentation GPL-2.0-or-later per [repository licence](https://github.com/lz4/lz4/blob/dev/LICENSE); reviewed 2026-10-29 | Original allocation-free length/reference/end-condition validator from documented format facts; no upstream decoder implementation or documentation text copied. K4os still performs decoding. |
 | Local zlib truncation handling | [.NET 10 DeflateStream](https://github.com/dotnet/runtime/blob/v10.0.0/src/libraries/System.IO.Compression/src/System/IO/Compression/DeflateZLib/DeflateStream.cs), .NET Foundation; [RFC 1950](https://www.rfc-editor.org/rfc/rfc1950), Deutsch and Gailly | Runtime MIT; RFC documentation permission notice; reviewed 2026-10-29 | Behavior research only. An original local input adapter rejects exhaustion while zlib still needs bytes; the library validates its checksum, and trailing residue remains accepted. No runtime implementation or RFC text copied. |

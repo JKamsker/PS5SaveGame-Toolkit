@@ -23,3 +23,6 @@ __pycache__/
 docs-site/_site/
 docs-site/api/
 docs-site/obj/
+
+# In-browser .NET runtime copied by `npm run build:wasm` (web/scripts/build-wasm.mjs).
+web/public/_framework/

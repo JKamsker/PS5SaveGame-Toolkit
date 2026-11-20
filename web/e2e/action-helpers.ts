@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page } from "@playwright/test";
+import { waitForApiResponse } from "./apiRoutes";
 
 export const resetAction = "Reset existing values to imported values";
 
@@ -24,7 +25,7 @@ export async function openTableReset(page: Page, key: string) {
 
 export async function editScalar(page: Page, field: Locator, value: string, multiline = false) {
   await field.fill(value);
-  const editing = page.waitForResponse(response => response.url().endsWith("/edits") && response.request().method() === "POST");
+  const editing = waitForApiResponse(page, response => response.url().endsWith("/edits") && response.request().method() === "POST");
   await field.press(multiline ? "Tab" : "Enter");
   expect((await editing).status()).toBe(200);
   await expect(field).toHaveAccessibleName(/modified/);

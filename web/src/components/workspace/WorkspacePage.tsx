@@ -45,10 +45,16 @@ function WorkspaceContent() {
 }
 
 function WorkspaceError({ controller: { workspace, focusHeading } }: { controller: Controller }) {
+  const gone = workspace.error instanceof ApiError && workspace.error.status === 404;
   return (
     <div className="empty">
-      <h2 ref={focusHeading} tabIndex={-1}>{workspace.error instanceof ApiError && workspace.error.status === 404 ? "This workspace is gone" : "Could not load this workspace"}</h2>
+      <h2 ref={focusHeading} tabIndex={-1}>{gone ? "This workspace is gone" : "Could not load this workspace"}</h2>
       <p role="alert">{workspace.error?.message}</p>
+      {gone && <p>
+        Imported saves are kept only in the memory of the browser tab that imported them, so a workspace does not
+        survive reloading or closing that tab, and a copied link does not open it elsewhere. Import the save dump again
+        to continue; export your changes before leaving the page next time.
+      </p>}
       <button type="button" className="btn btn--small" disabled={workspace.isFetching} onClick={() => void workspace.refetch()}>Retry workspace</button>
       <p>
         <Link to="/">Import a save dump</Link>

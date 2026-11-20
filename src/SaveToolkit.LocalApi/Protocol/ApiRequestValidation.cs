@@ -4,17 +4,16 @@ using SaveToolkit.Api.Endpoints;
 using SaveToolkit.Core.Presets;
 using SaveToolkit.Sdk;
 
-namespace SaveToolkit.Api.Infrastructure;
+namespace SaveToolkit.LocalApi.Protocol;
 
 /// <summary>Validates transport shape; field specs and plugin rules remain the session's responsibility.</summary>
 internal static class ApiRequestValidation
 {
-    internal static string? Error(object? request) => request switch
+    public static string? Error(object? request) => request switch
     {
         ReferenceRecordsRequest r when r.Pairs is null => "Pairs is required and must be an array.",
         ReferenceRecordsRequest r when r.Pairs.Count > ReferenceRecordsRequest.MaxPairs =>
-            throw new BadHttpRequestException($"At most {ReferenceRecordsRequest.MaxPairs} reference pairs are allowed.",
-                StatusCodes.Status413PayloadTooLarge),
+            throw new ApiStatusException($"At most {ReferenceRecordsRequest.MaxPairs} reference pairs are allowed.", 413),
         ReferenceRecordsRequest r when r.Pairs.Any(pair => pair is null || Missing(pair.FieldId)
             || pair.RecordKey is null || pair.ActionId is not null && Missing(pair.ActionId)) =>
             "Every reference pair requires a fieldId, a string recordKey, and a nonempty actionId when supplied.",

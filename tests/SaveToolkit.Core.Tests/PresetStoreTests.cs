@@ -185,4 +185,64 @@ public sealed class PresetStoreTests
 
         Assert.Throws<PresetStorageException>(() => store.Reload());
     }
+
+    [Fact]
+    public void CrudRefusesToOverwriteALibraryChangedOnDiskUntilReloaded()
+    {
+        var root = TestZips.TempDir();
+        var store = new PresetStore(new() { StorageRoot = root });
+        var other = new PresetStore(new() { StorageRoot = root });
+        var compatibility = new PresetCompatibility("p", "1", ["T"]);
+        PresetAction[] actions = [new("set", new Dictionary<string, JsonElement>())];
+        var kept = store.Create("kept", compatibility, actions);
+        var path = Path.Combine(root, "presets.json");
+        var onDisk = File.ReadAllBytes(path);
+
+        // The other store's view predates that write: writing it back would delete "kept".
+        Assert.Equal("presetLibraryReloadRequired", Assert.Throws<PresetTransferException>(() => other.Create("stale", compatibility, actions)).Code);
+        Assert.Empty(other.List());
+        File.WriteAllText(path, "[{\"schemaVersion\":\"99\",\"id\":\"future\"}]");
+        var unreadable = File.ReadAllBytes(path);
+        Assert.Equal(409, Assert.Throws<PresetTransferException>(() => store.Rename(kept.Id, "renamed")).StatusCode);
+        Assert.Throws<PresetTransferException>(() => store.Delete(kept.Id));
+        Assert.Throws<PresetTransferException>(() => store.Create("new", compatibility, actions));
+        Assert.Equal(unreadable, File.ReadAllBytes(path));
+        Assert.Equal("kept", Assert.Single(store.List()).Name);
+
+        File.WriteAllBytes(path, onDisk);
+        other.Refresh();
+        _ = other.Create("fresh", compatibility, actions);
+        Assert.Throws<PresetTransferException>(() => store.Delete(kept.Id));
+        store.Refresh();
+        Assert.True(store.Delete(kept.Id));
+        Assert.Equal("fresh", Assert.Single(new PresetStore(new() { StorageRoot = root }).List()).Name);
+    }
+
+    [Fact]
+    public void FileInPlaceOfStorageRootIsUnavailableNotAChangedOrEmptyLibrary()
+    {
+        var root = Path.Combine(TestZips.TempDir(), "presets");
+        var store = new PresetStore(new() { StorageRoot = root });
+        var compatibility = new PresetCompatibility("p", "1", ["T"]);
+        PresetAction[] actions = [new("set", new Dictionary<string, JsonElement>())];
+        var kept = store.Create("kept", compatibility, actions);
+        var retained = root + "-retained";
+        Directory.Move(root, retained);
+        File.WriteAllText(root, "not a directory");
+
+        // The OS reports this like a missing directory; it must stay a 503 storage failure, not a
+        // 409 reload conflict, and a refresh must not adopt an empty library.
+        Assert.Throws<PresetStorageException>(() => store.Create("blocked", compatibility, actions));
+        Assert.Throws<PresetStorageException>(() => store.Rename(kept.Id, "renamed"));
+        Assert.Throws<PresetStorageException>(() => store.Delete(kept.Id));
+        Assert.Throws<PresetStorageException>(() => store.Refresh());
+        Assert.Throws<PresetStorageException>(() => store.Reload());
+        Assert.Throws<PresetStorageException>(() => store.Snapshot());
+        Assert.Equal("kept", Assert.Single(store.List()).Name);
+
+        File.Delete(root);
+        Directory.Move(retained, root);
+        Assert.True(store.Delete(kept.Id));
+        Assert.Empty(new PresetStore(new() { StorageRoot = root }).List());
+    }
 }

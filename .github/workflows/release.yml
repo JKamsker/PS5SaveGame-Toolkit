@@ -54,17 +54,9 @@ jobs:
 
   package:
     needs: [resolve, validate]
-    name: Package (${{ matrix.rid }})
-    runs-on: ${{ matrix.os }}
+    name: Package browser app
+    runs-on: ubuntu-latest
     timeout-minutes: 35
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - {rid: win-x64, os: windows-latest}
-          - {rid: linux-x64, os: ubuntu-latest}
-          - {rid: osx-arm64, os: macos-latest}
-          - {rid: osx-x64, os: macos-15-intel}
     defaults:
       run:
         shell: pwsh
@@ -98,26 +90,28 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: web/package-lock.json
-      - name: Build bundle and checksum
-        run: ./scripts/package.ps1 -Runtime '${{ matrix.rid }}' -OutputDirectory "${{ runner.temp }}/packages"
-      - name: Launch extracted bundle and verify version and UI
+      - name: Install .NET WebAssembly build tools
+        run: dotnet workload install wasm-tools
+      - name: Build static-site archive and checksum
+        run: ./scripts/package.ps1 -OutputDirectory "${{ runner.temp }}/packages"
+      - name: Verify extracted archive, entry assets and runtime version
         env:
           RELEASE_TAG: ${{ needs.resolve.outputs.tag }}
-        run: ./scripts/smoke-package.ps1 -PackageDirectory "${{ runner.temp }}/packages" -Runtime '${{ matrix.rid }}' -ExpectedVersion $env:RELEASE_TAG.Substring(1) -ScratchDirectory "${{ runner.temp }}/package-smoke"
+        run: ./scripts/smoke-package.ps1 -PackageDirectory "${{ runner.temp }}/packages" -ExpectedVersion $env:RELEASE_TAG.Substring(1) -ScratchDirectory "${{ runner.temp }}/package-smoke"
       - uses: actions/upload-artifact@v7
         with:
-          name: package-${{ matrix.rid }}
+          name: package-web
           path: ${{ runner.temp }}/packages/*
           if-no-files-found: error
           retention-days: 7
-      - name: Bundle summary
+      - name: Archive summary
         if: always()
         env:
           JOB_STATUS: ${{ job.status }}
           RELEASE_TAG: ${{ needs.resolve.outputs.tag }}
         run: |
           $python = if ($IsWindows) { 'python' } else { 'python3' }
-          & $python -B .github/scripts/ci_summary.py --title "Package $env:RELEASE_TAG (${{ matrix.rid }})" --packages "${{ runner.temp }}/packages"
+          & $python -B .github/scripts/ci_summary.py --title "Package $env:RELEASE_TAG (browser app)" --packages "${{ runner.temp }}/packages"
 
   publish:
     needs: [resolve, package]
@@ -162,7 +156,7 @@ jobs:
         run: |
           $assets = '${{ runner.temp }}/release-assets'
           $checksums = @(Get-ChildItem -LiteralPath $assets -Filter '*.sha256')
-          if ($checksums.Count -ne 4) { throw 'Expected four per-RID checksums.' }
+          if ($checksums.Count -ne 1) { throw 'Expected one checksum, for the browser-app archive.' }
           foreach ($file in $checksums) {
             $line = (Get-Content -LiteralPath $file.FullName -Raw).Trim()
             $hash, $name = $line -split '  ', 2
@@ -192,4 +186,4 @@ jobs:
           $prerelease = if ($env:RELEASE_TAG.Contains('-')) { 'true' } else { 'false' }
           gh release edit $env:RELEASE_TAG --draft=false "--prerelease=$prerelease" --notes-file '${{ runner.temp }}/release-notes.md'
           if ($LASTEXITCODE -ne 0) { throw 'Release publication failed.' }
-          "### Released $env:RELEASE_TAG`nFour platform bundles, SHA-256 checksums and conventional-commit notes." >> $env:GITHUB_STEP_SUMMARY
+          "### Released $env:RELEASE_TAG`nBrowser-app archive (static site), SHA-256 checksums and conventional-commit notes." >> $env:GITHUB_STEP_SUMMARY

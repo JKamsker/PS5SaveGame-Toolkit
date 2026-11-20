@@ -5,7 +5,7 @@ const { createBrowserRouter, loadedWorkspace } = vi.hoisted(() => ({
   createBrowserRouter: vi.fn((routes: RouteObject[]) => routes), loadedWorkspace: vi.fn(),
 }));
 vi.mock("react-dom/client", () => ({ createRoot: () => ({ render: vi.fn() }) }));
-vi.mock("react-router", () => ({ createBrowserRouter, RouterProvider: () => null }));
+vi.mock("react-router", () => ({ createBrowserRouter, Link: () => null, RouterProvider: () => null }));
 vi.mock("./components/home/HomePage", () => ({ HomePage: () => null }));
 vi.mock("./components/workspace/WorkspacePage", () => {
   loadedWorkspace();
@@ -20,4 +20,7 @@ it("loads the editor code only when the workspace route is requested", async () 
   if (typeof workspace.lazy !== "function") throw new Error("Workspace route must load lazily");
   expect((await workspace.lazy()).Component).toBeTypeOf("function");
   expect(loadedWorkspace).toHaveBeenCalledTimes(1);
+  // Unknown in-app addresses (e.g. a reloaded deep link served from 404.html) get a not-found page.
+  expect(routes.at(-1)).toMatchObject({ path: "*" });
 });
+

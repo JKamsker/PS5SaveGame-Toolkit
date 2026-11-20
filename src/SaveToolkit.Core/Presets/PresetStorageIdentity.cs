@@ -30,6 +30,31 @@ internal sealed class PresetStorageIdentity(PresetStoreOptions options)
         }
     }
 
+    /// <summary>
+    /// Before a whole-library write: the file must still be the one this store last read or wrote.
+    /// Another writer's file (another browser tab, an external edit, a newer app version) is never
+    /// overwritten with this store's older view; the caller reloads first.
+    /// </summary>
+    internal void EnsureUnchanged()
+    {
+        try { _ = Verify(); }
+        catch (PresetTransferException ex) when (ex.Code == ReloadRequiredCode)
+        {
+            throw new PresetTransferException(ReloadRequiredCode,
+                "The preset library changed on disk since it was loaded, so this change was not saved. Reload the presets and try again.", 409);
+        }
+    }
+
+    /// <summary>
+    /// Whether the file is still exactly the one this store last read or wrote. Unreadable, oversized
+    /// or unavailable files do not match; the caller's full reload then reports why.
+    /// </summary>
+    internal bool Matches()
+    {
+        try { return _publishedFingerprint == Read(Path.Combine(options.StorageRoot, PresetLibraryStorage.FileName), options.MaxPayloadBytes); }
+        catch (Exception ex) when (ex is PresetTransferException or IOException or UnauthorizedAccessException) { return false; }
+    }
+
     internal static string Fingerprint(ReadOnlySpan<byte> bytes) => Convert.ToHexString(SHA256.HashData(bytes));
 
     private static string Read(string path, int maxBytes)
@@ -50,10 +75,16 @@ internal sealed class PresetStorageIdentity(PresetStoreOptions options)
                 hash.AppendData(buffer.AsSpan(0, count));
             }
         }
-        catch (FileNotFoundException) { return Missing; }
-        catch (DirectoryNotFoundException) { return Missing; }
+        catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
+        {
+            if (PresetLibraryStorage.RootBlocked(Path.GetDirectoryName(path)!))
+                throw new IOException("The preset storage root is not a directory.", ex);
+            return Missing;
+        }
     }
 
-    private static PresetTransferException Changed() => new("presetLibraryReloadRequired",
+    private const string ReloadRequiredCode = "presetLibraryReloadRequired";
+
+    private static PresetTransferException Changed() => new(ReloadRequiredCode,
         "The preset library changed on disk. Reload the library and preview the file again.", 409);
 }

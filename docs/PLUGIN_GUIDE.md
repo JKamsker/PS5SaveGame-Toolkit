@@ -10,10 +10,14 @@ The plugin never touches HTML, CSS, HTTP or the file system. It describes *what*
 (types, ranges, labels, grouping, confidence) and the framework decides *how* it looks.
 
 ```
-browser (React)  ──JSON──▶  Api  ──▶  Core: DocumentSession ──▶  your ISaveDocument
-   renders ViewNodes          validates every edit against the FieldSpec you published,
-   picks controls by spec     keeps undo/redo, verifies Serialize() output by re-opening it
+browser (React)  ──JSON──▶  web worker: LocalApi  ──▶  Core: DocumentSession ──▶  your ISaveDocument
+   renders ViewNodes          (.NET WebAssembly)        validates every edit against the FieldSpec you
+   picks controls by spec                               published, keeps undo/redo, verifies
+                                                        Serialize() output by re-opening it
 ```
+
+The same assemblies also run natively under the optional ASP.NET host and in tests. Read
+[Browser runtime](#browser-runtime) for the WebAssembly constraints.
 
 ## Scaffold
 
@@ -34,7 +38,8 @@ lowercase letters/digits separated by dots or hyphens. Title IDs have four upper
 and five digits (normally `PPSA` followed by five digits). Omit `-TitleIds` for a generic format
 plugin; its sample tests use `PPSA00000` until you choose a real sample title.
 
-This creates `plugins/<Name>/SaveToolkit.Plugins.<Name>/` (picked up by the app automatically)
+This creates `plugins/<Name>/SaveToolkit.Plugins.<Name>/` (picked up by the browser app and the
+optional Api automatically; see [Browser runtime](#browser-runtime))
 and `plugins/<Name>/SaveToolkit.Plugins.<Name>.Tests/`. The generated read-only plugin builds
 without warnings. Its **synthetic demonstration format is not a real game format**: `STKDEMO1`,
 a bounded little-endian record count and signed integer records, with unknown trailing bytes preserved.
@@ -1073,12 +1078,54 @@ BaldursGate3/Gearbox icons, AtomicHeart/TalesOfArise inspection, and FinalFantas
 IEEE CRC implementations. Migration should retain each caller's policies through the explicit adapters;
 the helper introduction does not migrate plugins.
 
+## Browser runtime
+
+The app runs Core, Codecs and every plugin as .NET assemblies compiled to WebAssembly
+(`src/SaveToolkit.Browser`, Mono interpreter) inside one web worker; see
+[BROWSER_RUNTIME.md](BROWSER_RUNTIME.md). The same assemblies run natively under the optional
+ASP.NET host and in the test projects, so a plugin passing its tests can still fail only in the browser.
+
+- **One thread, no blocking.** Do not start threads or rely on parallelism (`Thread`, `Parallel.*`,
+  `Task.Run` for concurrency), and never block on a task or timer (`.Result`, `.Wait()`,
+  `GetAwaiter().GetResult()`, `Thread.Sleep`, contended locks). The worker has no second thread to
+  complete the work, so the request hangs or throws. Do the work synchronously, or `await` it.
+- **Still no I/O.** Rules 6 and 8 are unchanged: plugins receive bytes and return bytes. Core's own
+  workspace files live on an in-memory file system in the browser; presets and reference packs are
+  persisted by the host, never by a plugin.
+- **APIs must exist on `browser-wasm`.** Unsupported framework APIs throw
+  `PlatformNotSupportedException` at run time. In .NET 10 this includes `MD5` (`MD5.HashData`,
+  `IncrementalHash` with `HashAlgorithmName.MD5`) and `Aes.Create`; SHA-1/SHA-2 hashing and HMAC are
+  available. Use `SaveToolkit.Sdk.Crypto` (`PortableMd5`, `IncrementalMd5`, `PortableAes` for raw
+  ECB/CBC) instead of MD5 and `Aes`. Check the `[UnsupportedOSPlatform("browser")]` annotations before
+  relying on any other API, and prefer an attributed managed implementation shared through Codecs
+  (record it under `## SDK requests`).
+- **No unsafe structs over 64 KiB.** The Mono interpreter truncates field offsets to 16 bits, so a field
+  more than 64 KiB into a struct (yours or a dependency's) is mis-addressed in the browser only. K4os'
+  LZ4 HC encoder (`LZ4Codec.Encode` or `LZ4Stream.Encode` at `L03_HC` and above) is affected: use
+  `SaveToolkit.Sdk.Compression.Lz4HighCompression`, which writes the same bytes. See
+  [BROWSER_RUNTIME.md](BROWSER_RUNTIME.md#limits).
+- **Pointer size changes K4os' fast LZ4 bytes.** In 32-bit WebAssembly K4os encodes `L00_FAST`
+  (`LZ4Codec.Encode`'s default, `LZ4Stream.Encode` frames) with its 32-bit engine: valid LZ4, but not
+  the native host's bytes for blocks over 64 KiB or for any frame. Use
+  `SaveToolkit.Sdk.Compression.Lz4FastCompression` (blocks) or `Lz4FastCompressionChain` (frames,
+  behind an `ILZ4Encoder` as in BaldursGate3's `ManagedLz4ChainEncoder`), which write the 64-bit bytes
+  everywhere. K4os decoding is unaffected.
+- **Memory is bounded.** The 32-bit WebAssembly heap is shared by the runtime, every loaded plugin's
+  embedded data and all open workspaces. Keep reference data compact (rule 9) and views bounded (rule 5).
+- **Discovery is automatic.** The browser host references `plugins/*/*/SaveToolkit.Plugins.*.csproj`
+  (excluding tests) with the same glob as the Api and generates the list of plugin assembly names at
+  build time; it loads each by name at boot, then `PluginCatalog.Discover()` finds the plugin types.
+  A new plugin needs **zero host, UI or manifest edits**: rebuild the static site
+  (`cd web; npm run build`) to include it. A plugin assembly that fails to load is reported in the
+  browser console and skipped, so the remaining plugins still work.
+
 ## Hard rules
 
-1. **Depend on `SaveToolkit.Sdk`, optionally `SaveToolkit.Codecs`.** Never reference Core/Api. Prefer
-   established libraries over hand-written implementations. NuGet packages are fine, including ones with
-   native components (e.g. `Microsoft.Data.Sqlite`) and GPL-compatible licences. Add the version to
-   `Directory.Packages.props`. For Oodle/Kraken and SQLite, use the shared bounded wrappers in
+1. **Depend on `SaveToolkit.Sdk`, optionally `SaveToolkit.Codecs`.** Never reference Core/Api/LocalApi.
+   Prefer established libraries over hand-written implementations. NuGet packages with GPL-compatible
+   licences are fine if they also load in browser WebAssembly: managed code, or native components with a
+   browser-wasm build relinked into the runtime (as `Microsoft.Data.Sqlite`'s SQLite is, through Codecs).
+   See [Browser runtime](#browser-runtime). Add the version to `Directory.Packages.props`. For Oodle/Kraken and SQLite, use the shared bounded wrappers in
    [`SaveToolkit.Codecs`](../src/SaveToolkit.Codecs/README.md); plugins still do no file or network I/O.
    Note third-party code and licences in the plugin README.
 2. **Never lose data.** Preserve unknown fields, padding, trailing data and metadata you don't understand.
@@ -1324,7 +1371,9 @@ the extension. SVG and anything else is rejected.
 </ItemGroup>
 ```
 
-Every `refpacks/<folder>/pack.json` in a plugin assembly is loaded at startup. The conformance suite
+Every `refpacks/<folder>/pack.json` in a plugin assembly is discovered at startup and fully validated
+(manifest, hashes, records, images) the first time it is needed: when a document of that plugin opens,
+when packs are listed, or by the browser host's idle warm-up. Validation is deferred, never skipped. The conformance suite
 test `EmbeddedReferencePacks_AreValid` fails with the loader's message if a pack is broken, for example
 on a hash mismatch. Keep a `*.source.md` next to the data and the README table from rule 9 as well.
 The pack attribution does not replace them.

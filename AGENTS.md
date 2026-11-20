@@ -1,18 +1,21 @@
 # PS5 Save Game Toolkit — agent instructions
 
-Web-based, plugin-driven editor for decrypted PS5 save games.
-Backend: ASP.NET Core (.NET 10). Frontend: React + TypeScript (Vite) in `web/`.
+Plugin-driven editor for decrypted PS5 save games that runs entirely in the browser (static site).
+Runtime: .NET 10 compiled to WebAssembly in a web worker. Frontend: React + TypeScript (Vite) in `web/`.
+Architecture: [BROWSER_RUNTIME.md](docs/BROWSER_RUNTIME.md).
 
 ## Layout
 
 ```
 src/SaveToolkit.Sdk       Plugin contract: IGamePlugin, ISaveDocument, ViewNode, FieldSpec, FieldValue
 src/SaveToolkit.Core      Import (zip → save set), plugin catalog, sessions, validation, undo, export
-src/SaveToolkit.Api       HTTP API + static hosting of the built web app
+src/SaveToolkit.LocalApi  The full /api contract, in-process and transport-independent (shared DTOs)
+src/SaveToolkit.Browser   WebAssembly host: loads every plugin, serves LocalApi to the web worker
+src/SaveToolkit.Api       Optional ASP.NET host of the same contract (parity oracle in tests)
 src/SaveToolkit.Testing   SampleSaves + PluginConformanceTests<T>
 plugins/<Name>/           One folder per game/engine plugin (+ its .Tests project)
 tests/                    Framework tests
-web/                      React UI (renders the abstract view protocol)
+web/                      React UI (renders the abstract view protocol); `npm run build` → web/dist
 docs/PLUGIN_GUIDE.md      How to write a plugin — read before touching plugins/
 docs/SAMPLES.md           Sample titles and what is known about them
 artifacts/                Sample saves (git-ignored, never commit, never copy into the repo)
@@ -21,14 +24,17 @@ artifacts/                Sample saves (git-ignored, never commit, never copy in
 ## Commands
 
 ```powershell
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj           # builds Core, Sdk and every plugin
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj           # builds Core, Sdk, LocalApi and every plugin
 dotnet test --project tests/SaveToolkit.Core.Tests                 # framework tests
+dotnet test --project tests/SaveToolkit.LocalApi.Tests             # in-process /api parity with the Api
 dotnet test --project plugins/<Name>/SaveToolkit.Plugins.<Name>.Tests
 ./scripts/test.ps1 -Filter <Name>                                  # API build + matching backend projects
 ./scripts/test.ps1 -Coverage -Configuration Release -ResultsDirectory <path>
 ./scripts/self-test.ps1 -ScratchDirectory <path>                    # script/scaffold regressions
-cd web; npm ci; npm run dev                                        # UI on :5173, proxies /api to :5180
-dotnet run --project src/SaveToolkit.Api                           # API on http://127.0.0.1:5180
+dotnet workload install wasm-tools                                 # once: needed to build src/SaveToolkit.Browser
+cd web; npm ci; npm run build; npm run preview                     # static site (web/dist) on :4173, no server
+cd web; npm run build:wasm; npm run dev                            # dev UI on :5173 (rerun build:wasm after C# edits)
+dotnet run --project src/SaveToolkit.Api                           # optional HTTP host on http://127.0.0.1:5180
 ```
 
 Tests use the MTP runner (`global.json`), so pass `--project`. Warnings are errors.
@@ -49,6 +55,9 @@ Read [PLUGIN_GUIDE.md](docs/PLUGIN_GUIDE.md) before touching a plugin. Its
   `## SDK requests` in the plugin README.
 - Hard rules: never lose data, fix integrity, honest confidence labels, bounded views, stateless
   plugin, no I/O. Licence policy: rule 9 in the guide.
+- Plugins also run in browser WebAssembly on one thread: no threads, blocking waits (`.Result`,
+  `.Wait()`) or native dependencies; see [browser runtime](docs/PLUGIN_GUIDE.md#browser-runtime).
+  A new plugin folder is picked up by the build-time glob; no host edits.
 - **Research before you implement**, cite every source in the plugin README, treat downloaded code as
   untrusted, and verify claims against the actual sample bytes (`Inferred`/`Unknown` otherwise).
 - Tests: conformance must pass; add format-specific tests; tests must skip, not fail, without samples.

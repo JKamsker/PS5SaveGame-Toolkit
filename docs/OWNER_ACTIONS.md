@@ -499,16 +499,15 @@ not relabelling rc assets or moving an existing tag. [Release policy](RELEASING.
   revision with `version=0.1.0` (no `v`); the manual path creates the remote tag only after package
   checks. Do not move the rc tag or merely uncheck its prerelease flag.
   [Tag/manual paths](RELEASING.md#publish-a-release).
-- [ ] **Verify the real hosted release run finishes successfully.** Check validation, native-OS package
-  and smoke results for win-x64, linux-x64, osx-arm64 and osx-x64, including `/api/version` reporting
-  0.1.0. Local checks cannot establish hosted permissions/runner behavior. If publication fails after
+- [ ] **Verify the real hosted release run finishes successfully.** Check validation, the browser-app
+  package and its smoke result, including the packaged runtime reporting version 0.1.0. Local checks cannot establish hosted permissions/runner behavior. If publication fails after
   tag creation, resume failed publication jobs/draft as documented, not a conflicting fresh run.
   [Pipeline/recovery](RELEASING.md#publish-a-release), [hosted verification](RELEASING.md#rollback-and-maintenance).
-- [ ] **Inspect the published stable release before announcing.** Confirm four archives, each `.sha256`,
-  combined `SHA256SUMS`, expected notes and normal stable status. Verify downloaded checksums and
-  extracted launcher/UI/version on the intended platforms; bundles are unsigned/unnotarized and
-  require writable supported systems. [Asset verification](RELEASING.md#publish-a-release),
+- [ ] **Inspect the published stable release before announcing.** Confirm the
+  `SaveToolkit-0.1.0-web.zip` archive, its `.sha256`, combined `SHA256SUMS`, expected notes and normal
+  stable status. Verify the downloaded checksum, serve the extracted folder as the user guide describes
+  and check the UI and footer version in the browsers you intend to support. [Asset verification](RELEASING.md#publish-a-release),
   [download/start checks](USER_GUIDE.md#download-and-verify).
-- [ ] **Keep rollback possible.** Preserve the last known-good bundle, untouched saves and old `data/`
-  before switching. Withdraw a broken release if necessary, document the fault and publish a corrective
+- [ ] **Keep rollback possible.** Preserve the last known-good archive and untouched saves; presets
+  and reference packs live in browser storage per serving address. Withdraw a broken release if necessary, document the fault and publish a corrective
   patch; never overwrite assets or move published tags. [Rollback policy](RELEASING.md#rollback-and-maintenance).

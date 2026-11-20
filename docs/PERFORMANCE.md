@@ -12,9 +12,11 @@ npm run build
 npm run check:bundle
 ```
 
-Vite's production output is `src/SaveToolkit.Api/wwwroot`, not `web/dist`.
-The check resolves that path from Vite config and reads `.vite/manifest.json` plus actual emitted
-files. All numbers below are **bytes**, with **gzip level 6** from Node `zlib`, measured separately
+Vite's production output is `web/dist`; before the browser runtime it was
+`src/SaveToolkit.Api/wwwroot`, which earlier measurements below refer to. The check resolves the
+output path from Vite config and reads `.vite/manifest.json` plus actual emitted files. It measures
+the UI's JS/CSS only: the .NET runtime in `dist/_framework` is not a Vite chunk and is described under
+[Browser runtime boot](#browser-runtime-boot). `npm run build:ui` is enough to remeasure the UI. All numbers below are **bytes**, with **gzip level 6** from Node `zlib`, measured separately
 per file; sums represent independently compressed HTTP resources, not a single combined archive.
 Vite 8's console gzip estimates use a different compressor and can differ slightly (the original
 console reported 119.96 kB for initial JS; this reproducible check measures 118.70 kB).
@@ -118,7 +120,7 @@ output-directory behavior, so the check never removes or rewrites output.
 | Initial CSS | 9943 | 11000 |
 | index.js | 118587 | 130500 |
 | index.css | 9943 | 11000 |
-| WorkspacePage.js | 5645 | 6210 |
+| WorkspacePage.js | 7350 | 8090 |
 | DocumentEditor.js | 45910 | 50500 |
 | DocumentEditor.css | 1655 | 1820 |
 | PresetsPanel.js | 5800 | 6380 |
@@ -138,6 +140,7 @@ output-directory behavior, so the check never removes or rewrites output.
 | MapView.js | 2141 | 2350 |
 | SpatialShared.js | 1787 | 1970 |
 | SpatialShared.css | 911 | 1010 |
+| worker.js | 7010 | 7770 |
 
 The preset-transfer follow-up adds explicit lazy import/export dialogs and shared native-modal
 code/styles. These new chunks load only on the corresponding toolbar action; the existing
@@ -155,6 +158,36 @@ DocumentEditor.js 45910, DocumentEditor.css 1655, PresetsPanel.js 5800 and Prese
 gzip bytes. Their table rows above show the new measurement; all other rows and limits are unchanged.
 No runtime dependency was added and the loading graph is unchanged.
 
+Remeasured on **2026-11-06** for the in-browser runtime (Linux, Node 22.23.4, Vite 8.3.5). The UI now
+sends `/api` requests to a module worker instead of the network. `WorkspacePage.js` grew to 6346 gzip
+bytes, mainly because downloads, exports and reference images are produced in the page from worker responses
+(object URLs and a save helper) instead of plain links to server URLs; its limit rises from 6210 to
+**6980** (10% headroom). The worker client itself is part of initial `index.js` (122035 bytes initial JS,
+still within the unchanged 130500 limit). The new lazy `worker.js` chunk (1646 gzip bytes: boot,
+request queue, framing and `.gz` resource loading) loads once, when the runtime starts; its limit is
+**1810** (10% headroom). Cross-tab persistence (Web Locks, IndexedDB reload/verification, coarse-clock
+safe timestamps and storage-failure handling) later grew it to 4240 gzip bytes; its limit is now
+**4670** (10% headroom). `values.js` is no longer emitted as a separate chunk in this build; its limit
+is retained for a future split. All other rows and limits are unchanged. Recovering from cleared site
+data (IndexedDB reconnection), bounded read-lock waits and the hung-mutation watchdog then grew
+`worker.js` to 4818 gzip bytes, and the runtime crash reporting and byte-level download progress
+developed alongside to 5315; its limit is now **5850** (10% headroom). Refreshing cached images after
+changes that alter them (reference-pack imports in any tab, document edits, closes) grew
+`WorkspacePage.js`, which holds the image cache, to 7350 gzip bytes; its limit is now **8090** (10% headroom).
+An all-or-nothing IndexedDB flush (replacing IDBFS' partial commit after a failed write) and releasing
+the storage lock when the runtime stops mid-mutation, together with the runtime work merged alongside,
+grew `worker.js` to 6066 gzip bytes; its limit is now **6670** (10% headroom).
+Hardening the runtime's failure handling (telling a .NET exception from a runtime trap or exit, the
+worker alone deciding that the runtime stopped, keeping the request queue alive when answering a
+failure throws) and noticing another tab's save whose announcement was lost (the bounded IndexedDB
+`.generation` read and its convergence) grew `worker.js` to 6937 gzip bytes at `81f1b8fb`; bounding
+a read's reload against a hung IndexedDB (serialized loads, a monotonic retry period) then to 7062
+(Linux, Node 22.23.4, Vite 8.3.5, 2026-11-06). No helper was left duplicated to remove; its limit is
+now **7770** (10% headroom). All other rows and limits are unchanged. Making a durable read wait for
+its reload again (no bounded reload, no serialized loads) and releasing requests waiting on a reload
+when the runtime stops shrank `worker.js` to 7004 gzip bytes; giving up on a hung flush or verification
+when the runtime stops brought it to 7010. Its limit stays **7770**.
+
 CI `validate` runs `npm run check:bundle` immediately after its production build on **both Ubuntu
 and Windows**. Synthetic Vitest regressions cover shared imports/cycles, lazy JS/CSS, aggregate
 and individual failures, exact limits, new chunks, missing builds/assets/imports and untracked
@@ -162,6 +195,31 @@ output. A built-app Playwright regression checks that the file picker does not d
 spatial chunks, holds the editor download to exercise Opening, then edits and reloads a deep link.
 After intentional output/dependency changes, review the loading graph and remeasure before updating
 both JSON limits and this table with a reason; see the [release checks](RELEASING.md#continuous-integration).
+
+## Browser runtime boot
+
+The static site's `_framework` holds the .NET WebAssembly runtime, ICU data, Core, Codecs, LocalApi
+and every plugin, including their embedded reference data. Measured on **2026-11-06** from a Release
+`npm run build` at `40cceaec` plus working-tree changes:
+
+| Measure | Value |
+| --- | ---: |
+| Runtime files (raw, excluding `.gz` siblings) | 83 files, 82,201,919 bytes |
+| `.gz` siblings actually transferred | 21,838,874 bytes (about 22 MB / 20.8 MiB) |
+| Largest file: `SaveToolkit.Plugins.Gearbox` assembly (embedded references) | 23,920,409 bytes raw |
+| Release archive (`SaveToolkit-<version>-web.zip`, raw and `.gz` files) | 44,054,080 bytes |
+| Cold first load to rendered plugin list (headless Chromium, loopback `http.server`, empty cache) | 6.6–7.2 s over three runs |
+
+The cold-load figure includes downloading and decompressing about 21 MiB in the worker, instantiating
+the runtime, loading all plugin assemblies and answering the first `/api/plugins` request. It was taken
+on a shared 4-vCPU Linux container under concurrent build load, so treat it as an upper bound; an
+earlier isolated proof of concept booted the downloaded runtime in about 0.8 s, of which plugin loading
+and discovery took about 110 ms. Real networks add transfer time for the 22 MB (about 18 s at 10 Mbit/s);
+repeat visits are served from the browser cache. The page starts the worker as soon as it loads and
+renders the UI shell immediately with a download/start progress bar; `/api` requests wait for the runtime.
+
+There is no CI gate on runtime size yet. Embedded reference data dominates; new plugin data should stay
+compact (see [plugin rule 9](PLUGIN_GUIDE.md#hard-rules)) and be remeasured here when it adds megabytes.
 
 ## Backend benchmarks
 
@@ -478,7 +536,9 @@ first use; these totals do not identify the cause. Compare the same boundary.
 
 ### Packaged win-x64 size and trimming candidates
 
-The official `scripts/package.ps1` produced `SaveToolkit-0.1.0-rc.2.42-win-x64.zip` at `ffebb3e5`:
+Historical: releases now ship the platform-independent browser app instead of per-RID server
+bundles; see [Browser runtime boot](#browser-runtime-boot) for its size. At the time, the official
+`scripts/package.ps1` produced `SaveToolkit-0.1.0-rc.2.42-win-x64.zip` at `ffebb3e5`:
 **69,474,718 bytes (66.26 MiB)** compressed; **185,340,676 bytes (176.75 MiB)** expanded,
 **432 files**. This is a descriptive after-change bundle measurement, not a before/after size claim.
 The unchanged web sources were built on D: and their generated wwwroot linked for packaging;

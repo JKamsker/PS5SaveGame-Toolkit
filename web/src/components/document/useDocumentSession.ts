@@ -120,7 +120,7 @@ function useDocumentMutation(workspaceId: string, documentId: string, query: Doc
         } catch (error) {
           // A failed/ambiguous write must not release already queued intents against an uncertain state.
           lifetime.generation++;
-          const message = error instanceof ApiError ? error.message : "The server could not be reached.";
+          const message = error instanceof ApiError ? error.message : "The editor runtime did not respond.";
           const stale = isStaleError(error);
           // Already inside the mutation queue: public refresh would enqueue behind this request.
           // Replace the revision/view before the dialog offers its first Preview again.

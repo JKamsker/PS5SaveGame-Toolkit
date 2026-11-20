@@ -10,6 +10,8 @@
     <PackageReference Include="MinVer" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <ProjectReference Include="..\SaveToolkit.Core\SaveToolkit.Core.csproj" />
+    <!-- Shared DTOs, validation, error classification and endpoint operations (also hosted in the browser). -->
+    <ProjectReference Include="..\SaveToolkit.LocalApi\SaveToolkit.LocalApi.csproj" />
     <ProjectReference Include="..\SaveToolkit.Codecs\SaveToolkit.Codecs.csproj" />
     <!-- Every plugin under plugins/<Name>/SaveToolkit.Plugins.<Name>/ is picked up automatically; no edits needed when adding one. -->
     <ProjectReference Include="..\..\plugins\*\*\SaveToolkit.Plugins.*.csproj" Exclude="..\..\plugins\**\*.Tests.csproj" />

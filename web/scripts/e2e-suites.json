@@ -8,6 +8,8 @@
       "patterns": [],
       "files": [
         "actions.e2e.ts",
+        "api-request-order.e2e.ts",
+        "browser-codecs.e2e.ts",
         "bundle.e2e.ts",
         "failure-document.e2e.ts",
         "failure-lifetimes.e2e.ts",
@@ -17,6 +19,7 @@
         "import.e2e.ts",
         "keyboard.e2e.ts",
         "map-accessibility.e2e.ts",
+        "preset-tabs.e2e.ts",
         "presets.e2e.ts",
         "reference-batch.e2e.ts",
         "review.e2e.ts",
@@ -45,6 +48,7 @@
       "role": "feature",
       "patterns": ["**/ff7-*.e2e.ts"],
       "files": [
+        "ff7-culture.e2e.ts",
         "ff7-forms.e2e.ts",
         "ff7-history.e2e.ts",
         "ff7-selection.e2e.ts",

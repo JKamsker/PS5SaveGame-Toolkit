@@ -3,11 +3,14 @@ import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 
 const isCode = file => /\.(js|css)$/.test(file);
+/** The .NET WebAssembly runtime (npm run build:wasm) is measured separately, like API responses. */
+const RUNTIME_DIRECTORY = "_framework";
 
 async function codeFiles(directory, prefix = "") {
   const files = [];
   for (const entry of await readdir(join(directory, prefix), { withFileTypes: true })) {
     const file = prefix + entry.name;
+    if (file === RUNTIME_DIRECTORY && entry.isDirectory()) continue;
     if (entry.isDirectory()) files.push(...await codeFiles(directory, `${file}/`));
     else if (isCode(file)) files.push(file);
   }
@@ -24,6 +27,11 @@ export async function measureBundle(directory) {
     names.set(chunk.file, `${chunk.name}.js`);
     for (const file of chunk.css ?? []) {
       if (!names.has(file)) names.set(file, `${chunk.name}.css`);
+    }
+    // Web workers are emitted as hashed JS assets of the chunk that starts them.
+    for (const file of chunk.assets ?? []) {
+      const worker = /(?:^|\/)([^/]+)-[\w-]{8}\.js$/.exec(file);
+      if (worker && !names.has(file)) names.set(file, `${worker[1]}.js`);
     }
   }
 

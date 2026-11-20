@@ -1,7 +1,7 @@
 using System.Buffers.Binary;
 using System.IO.Compression;
-using System.Security.Cryptography;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Crypto;
 
 namespace SaveToolkit.Plugins.EldenRing;
 
@@ -22,10 +22,11 @@ internal static class RegulationDecoder
         if (allocation.Length > EldenRingLayout.RegulationSize || allocation.Length < OpaquePrefixSize + CipherBlockSize * 2
             || (allocation.Length - OpaquePrefixSize - CipherBlockSize) % CipherBlockSize != 0)
             throw new SaveFormatException("Regulation allocation has invalid AES block framing.");
-        using var aes = Aes.Create();
-        aes.Key = Convert.FromHexString(PublicFormatKey);
-        var plaintext = aes.DecryptCbc(allocation[(OpaquePrefixSize + CipherBlockSize)..],
-            allocation.Slice(OpaquePrefixSize, CipherBlockSize), PaddingMode.None);
+        // PortableAes also works on browser-wasm, where Aes.Create is unsupported.
+        using var aes = PortableAes.Create(Convert.FromHexString(PublicFormatKey));
+        var ciphertext = allocation[(OpaquePrefixSize + CipherBlockSize)..];
+        var plaintext = new byte[ciphertext.Length];
+        aes.DecryptCbc(allocation.Slice(OpaquePrefixSize, CipherBlockSize), ciphertext, plaintext);
         return Inflate(plaintext);
     }
 

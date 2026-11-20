@@ -593,7 +593,11 @@ expanded/stored lengths, chunk file offsets and the final directory pointer are 
 chunks or CSAV nodes are inserted. Node IDs and links are unchanged.
 
 No-op serialization returns the original bytes, including after undo. Changed chunks are re-encoded
-with K4os raw LZ4. Unchanged compressed chunks, reserved bytes and inter-chunk gaps are retained.
+as raw LZ4 at K4os' default (fast) level by the SDK's `Lz4FastCompression`, a port of K4os 1.3.8's
+64-bit fast encoder that writes the native host's exact bytes on every platform: in 32-bit WebAssembly
+K4os runs its 32-bit engine, whose output differs for chunks over 64 KiB (see
+[BROWSER_RUNTIME.md](../../docs/BROWSER_RUNTIME.md#limits)). `CsavChunkEncodingTests` and the browser
+`browser-codecs.e2e.ts` suite compare edited 256 KiB chunks with K4os byte for byte. Unchanged compressed chunks, reserved bytes and inter-chunk gaps are retained.
 Fixed-size patches retain expanded chunk boundaries; growth is assigned at the end of the replaced
 node. Serialization re-decompresses and compares the complete intended payload, revalidates the
 node tree/inventory/facts, re-parses progression and checks edited points/attributes/proficiencies and stat mirrors.
@@ -755,7 +759,11 @@ is attributed to CP2077SaveEditor (MIT); its notice is retained in [CP2077SaveEd
 - [LZ4 block specification](https://github.com/lz4/lz4/blob/dev/doc/lz4_Block_format.md): block grammar
   underlying literal and overlap vectors.
 - [K4os.Compression.LZ4](https://github.com/MiloszKrajewski/K4os.Compression.LZ4): managed raw codec,
-  version 1.3.8 from the existing central package list, MIT.
+  version 1.3.8 from the existing central package list, MIT. It decodes; edited chunks are encoded by
+  `SaveToolkit.Sdk.Compression.Lz4FastCompression`, the SDK's port of [K4os 1.3.8's 64-bit fast
+  encoder](https://github.com/MiloszKrajewski/K4os.Compression.LZ4/tree/1.3.8/src/K4os.Compression.LZ4/Engine)
+  (MIT) and [lz4](https://github.com/lz4/lz4/tree/dev/lib) (BSD-2-Clause), retrieved 2026-11-06; notice
+  in the [repository THIRD-PARTY-NOTICES](../../THIRD-PARTY-NOTICES).
 - [Repository reconnaissance](../../docs/formats/PPSA04027.md): initial sample dimensions, independently
   rechecked against every supplied gameplay entry.
 

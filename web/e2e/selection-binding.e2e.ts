@@ -3,13 +3,14 @@ import type { ActionNode, ViewNode } from "../src/api/protocol";
 import { editCoins, exportFiles, expectArchiveBytes, fixture, importSave, loadJson, openJson,
   originalCoins, originalFiles, originalSave, savePath, withCoins, editedCoins } from "./helpers";
 import { editScalar, searchRow, resetAction } from "./action-helpers";
+import { routeApi, waitForApiRequest } from "./apiRoutes";
 
 const boundLabel = "Restore search selection";
 
 // No plugin opts into the new API yet. Add a synthetic sibling declaration to the real
 // GenericJson view response, keeping the actual collection, planner, edits and exports.
 async function bindSearchAction(page: Page) {
-  await page.route(/\/api\/workspaces\/[^/]+\/(?:files\/[^/]+\/open|documents\/[^/]+)$/, async route => {
+  await routeApi(page, /\/api\/workspaces\/[^/]+\/(?:files\/[^/]+\/open|documents\/[^/]+)$/, async route => {
     const response = await route.fetch();
     const body = await response.json() as { view?: ViewNode };
     if (body.view) {
@@ -35,7 +36,7 @@ async function bindSearchAction(page: Page) {
 }
 
 async function previewBound(page: Page) {
-  const request = page.waitForRequest(request => request.url().endsWith("/actions/plan"));
+  const request = waitForApiRequest(page, request => request.url().endsWith("/actions/plan"));
   await page.getByRole("button", { name: boundLabel, exact: true }).click();
   const dialog = page.getByRole("dialog", { name: `Preview: ${boundLabel}`, exact: true });
   await expect(dialog.getByRole("button", { name: "Apply", exact: true })).toBeEnabled();

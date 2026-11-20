@@ -1,5 +1,5 @@
 import type { GroupMember } from "./groups";
-// Mirror of src/SaveToolkit.Sdk (views/values) and src/SaveToolkit.Api/Contracts.
+// Mirror of src/SaveToolkit.Sdk (views/values) and src/SaveToolkit.LocalApi/Contracts.
 // Keep in sync with the C# records; JSON is camelCase, enums are strings, nulls are omitted.
 import type { GraphNode, MapNode } from "./spatial";
 import type { ActionPreview } from "./actionReview";
@@ -248,7 +248,7 @@ export interface DocumentPreset { preset: ToolkitPreset; compatibility: PresetCo
 export interface PresetResolutionItem { requested: PresetInstanceReference; status: "Resolved" | "Missing" | "Ambiguous" | "Unsupported"; candidates?: PresetInstanceReference[]; message?: string }
 export interface PresetPreview { preset: ToolkitPreset; preview: ActionPreview & { resolution?: { instances: PresetResolutionItem[]; succeeded: boolean } } }
 
-// ---- Reference packs (src/SaveToolkit.Sdk/References, src/SaveToolkit.Api/Contracts/ReferenceDtos.cs) ----
+// ---- Reference packs (src/SaveToolkit.Sdk/References, src/SaveToolkit.LocalApi/Contracts/ReferenceDtos.cs) ----
 
 type ReferencePackOrigin = "Embedded" | "User";
 type ReferenceDatasetKind = "Records" | "Assets";

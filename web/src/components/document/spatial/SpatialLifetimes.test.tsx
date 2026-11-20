@@ -1,9 +1,11 @@
 import { useState, type ReactNode } from "react";
-import { cleanup, fireEvent, screen } from "@testing-library/react";
-import { afterEach, expect, it } from "vitest";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { afterEach, expect, it, vi } from "vitest";
 import { GraphView } from "./GraphView";
 import { MapView } from "./MapView";
 import { graph, map, renderSpatial } from "./spatialTestUtils";
+
+vi.mock("../../../lib/apiObjectUrls", async () => (await import("../../../test/apiObjectUrls")).fakeObjectUrls);
 
 afterEach(cleanup);
 
@@ -41,7 +43,7 @@ it("retains map selection and zoom when filters temporarily hide the selected ma
   expect(screen.getByRole("button", { name: "Courtyard cache: Missing, Loot" }).getAttribute("aria-pressed")).toBe("true");
 });
 
-it("retains a failed background for the same asset, retries a new asset, and resets map state for a new title", () => {
+it("retains a failed background for the same asset, retries a new asset, and resets map state for a new title", async () => {
   const next = { ...map, background: { ...map.background!, assetId: "test.spatial:replacement.png" } };
   renderSpatial(<Snapshots nodes={[map, { ...map }, next, { ...next, title: "Other region" }]}>{node => <MapView node={node} />}</Snapshots>);
   fireEvent.error(screen.getByRole("img"));
@@ -51,7 +53,7 @@ it("retains a failed background for the same asset, retries a new asset, and res
   expect(screen.queryByRole("img")).toBeNull();
   expect(screen.getByRole("complementary")).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "Next snapshot" }));
-  expect(screen.getByRole("img").getAttribute("src")).toContain("replacement.png");
+  await waitFor(() => expect(screen.getByRole("img").getAttribute("src")).toContain("replacement.png"));
   expect(screen.getByLabelText("Zoom").textContent).toBe("125%");
   fireEvent.change(screen.getByRole("searchbox"), { target: { value: "cache" } });
   fireEvent.click(screen.getByRole("button", { name: "Next snapshot" }));

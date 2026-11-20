@@ -1,12 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using SaveToolkit.Api.Contracts;
-using SaveToolkit.Core.Export;
-using SaveToolkit.Core.Presets;
-using SaveToolkit.Core.Editing;
-using SaveToolkit.Core.References;
-using SaveToolkit.Core.Sessions;
-using SaveToolkit.Core.Storage;
-using SaveToolkit.Sdk;
+using SaveToolkit.LocalApi.Protocol;
 
 namespace SaveToolkit.Api.Infrastructure;
 
@@ -26,44 +20,14 @@ internal sealed partial class ToolkitExceptionHandler(ILogger<ToolkitExceptionHa
             return true;
         }
 
-        if (exception is StaleViewException stale)
-        {
-            await ApiProblem.WriteAsync(context, StatusCodes.Status409Conflict,
-                new ErrorDto(stale.Message, StaleViewException.Code), cancellationToken);
-            return true;
-        }
-
-        if (exception is PresetTransferException transfer)
-        {
-            if (transfer.StatusCode == StatusCodes.Status503ServiceUnavailable) context.Response.Headers.RetryAfter = "600";
-            await ApiProblem.WriteAsync(context, transfer.StatusCode, new ErrorDto(transfer.Message, transfer.Code), cancellationToken);
-            return true;
-        }
-
-        var (status, message) = exception switch
-        {
-            FieldReferenceResponseLimitException e => (StatusCodes.Status413PayloadTooLarge, e.Message),
-            PresetStorageException e => (StatusCodes.Status503ServiceUnavailable, e.Message),
-            KeyNotFoundException e => (StatusCodes.Status404NotFound, e.Message),
-            SaveFormatException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
-            ImportException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
-            ExportException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
-            ReferencePackException e => (StatusCodes.Status422UnprocessableEntity, e.Message),
-            InvalidDataException e => (StatusCodes.Status422UnprocessableEntity, $"Invalid data: {e.Message}"),
-            InvalidOperationException e when e.Message.Contains("configured size limit", StringComparison.Ordinal) => (StatusCodes.Status422UnprocessableEntity, e.Message),
-            ArgumentException e => (StatusCodes.Status400BadRequest, e.Message),
-            InvalidOperationException e => (StatusCodes.Status409Conflict, e.Message),
-            BadHttpRequestException e => (e.StatusCode, e.Message),
-            _ => (StatusCodes.Status500InternalServerError, "Unexpected server error. See the server log for details."),
-        };
-
-        if (status >= 500)
-        {
-            LogUnhandled(logger, exception, context.Request.Path);
-        }
-
-        var code = exception is PresetStorageException ? "presetStorageUnavailable" : null;
-        await ApiProblem.WriteAsync(context, status, new ErrorDto(message, code), cancellationToken);
+        // The domain mapping is shared with the in-process LocalApi host; only ASP.NET's own
+        // transport exception is classified here.
+        var error = exception is BadHttpRequestException bad
+            ? ErrorClassifier.General(exception, bad.StatusCode, bad.Message)
+            : ErrorClassifier.Classify(exception);
+        if (error.RetryAfter is { } retryAfter) context.Response.Headers.RetryAfter = retryAfter;
+        if (error.Log) LogUnhandled(logger, exception, context.Request.Path);
+        await ApiProblem.WriteAsync(context, error.Status, error.Body, cancellationToken);
         return true;
     }
 

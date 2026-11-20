@@ -1,11 +1,12 @@
 import { expect, test } from "@playwright/test";
 import type { ViewNode } from "../src/api/protocol";
 import { coinsField, exportFiles, expectArchiveBytes, importSave, loadJson, openJson, originalSave, originalCoins, withCoins } from "./helpers";
+import { routeApi } from "./apiRoutes";
 
 test("canonical presentations share keyboard edits and undo at 390px without changing untouched export bytes", async ({ page }, testInfo) => {
   // The framework owns normalization; add its ordinary-field output to a real GenericJson response.
   // Core fixtures separately exercise actual FieldReferenceNodes across eager/lazy/query boundaries.
-  await page.route(/\/api\/workspaces\/[^/]+\/documents\/[^/]+\/nodes\?/, async route => {
+  await routeApi(page, /\/api\/workspaces\/[^/]+\/documents\/[^/]+\/nodes\?/, async route => {
     const response = await route.fetch();
     const nodes = await response.json() as ViewNode[];
     function project(node: ViewNode): ViewNode[] {

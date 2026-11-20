@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "node scripts/build-wasm.mjs && tsc -b && vite build",
+    "build:wasm": "node scripts/build-wasm.mjs",
+    "build:ui": "tsc -b && vite build",
     "check:bundle": "node scripts/check-bundle-size.mjs",
     "typecheck": "tsc -b",
     "test": "vitest run",

@@ -1,18 +1,7 @@
-using SaveToolkit.Api.Contracts;
-
 namespace SaveToolkit.Api.Infrastructure;
 
 /// <summary>Route metadata for bounded preset JSON envelopes, applied before ASP.NET binding.</summary>
 internal sealed record PresetRequestBodyLimitMetadata(int MaxBytes);
-
-internal static class PresetRequestBodyLimits
-{
-    public const int CreateBytes = 512 * 1024;
-    public const int CaptureBytes = 256 * 1024;
-    public const int PreviewBytes = 256 * 1024;
-    public const int ApplyBytes = 64 * 1024;
-    public const int RenameBytes = 16 * 1024;
-}
 
 /// <summary>Buffers only the bounded request envelope so oversized JSON never reaches model binding.</summary>
 internal sealed class PresetRequestBodyLimitMiddleware(RequestDelegate next)
@@ -55,7 +44,6 @@ internal sealed class PresetRequestBodyLimitMiddleware(RequestDelegate next)
     }
 
     private static Task Reject(HttpContext context, int maxBytes) =>
-        ApiProblem.WriteAsync(context, StatusCodes.Status413PayloadTooLarge,
-            new ErrorDto($"Preset request body exceeds the {maxBytes} byte limit.", "presetPayloadTooLarge"),
+        ApiProblem.WriteAsync(context, StatusCodes.Status413PayloadTooLarge, PresetRequestBodyLimits.Rejection(maxBytes),
             context.RequestAborted);
 }

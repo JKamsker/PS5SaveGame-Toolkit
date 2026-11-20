@@ -2,8 +2,12 @@ import { test, expect, type Locator, type Page, type TestInfo } from "@playwrigh
 import { writeFile } from "node:fs/promises";
 import { fixture, importSave, loadJson, openJson } from "./helpers";
 import { generateGearboxFixtures, productionGearboxImport, productionGearboxTransfers, type GearboxFixture } from "./gearbox-action-effects";
+import { routeApi } from "./apiRoutes";
 
 test.describe("production Gearbox effects", () => {
+  // Real-sized Gearbox saves run every edit through the in-browser runtime: about 17 s per test on a
+  // typical hosted runner, but 29-32 s on a slow one (run 44774238184), past the 30 s default.
+  test.describe.configure({ timeout: 90_000 });
   let gearboxFixtures: GearboxFixture[];
   test.beforeAll(async () => {
     test.setTimeout(60_000);
@@ -35,7 +39,7 @@ async function renderedEffectIds(region: Locator) {
 type Requests = { plan?: unknown; apply?: unknown };
 
 async function installSyntheticRoutes(page: Page, requests: Requests) {
-  await page.route("**/actions/plan", async route => {
+  await routeApi(page, "**/actions/plan", async route => {
     const upstream = await route.fetch();
     const original = await upstream.json();
     const changes = [
@@ -72,7 +76,7 @@ async function installSyntheticRoutes(page: Page, requests: Requests) {
     requests.plan = { request: route.request().postDataJSON(), response: plan };
     await route.fulfill({ response: upstream, json: plan });
   });
-  await page.route("**/actions/apply", async route => {
+  await routeApi(page, "**/actions/apply", async route => {
     requests.apply = route.request().postDataJSON();
     const upstream = await route.fetch();
     const original = await upstream.json();

@@ -1,18 +1,20 @@
-import { cleanup, fireEvent, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MapView } from "./MapView";
 import { api } from "../../../api/client";
 import { map, renderSpatial } from "./spatialTestUtils";
 import { ExternalLink, httpsUrl } from "./SpatialShared";
 
+vi.mock("../../../lib/apiObjectUrls", async () => (await import("../../../test/apiObjectUrls")).fakeObjectUrls);
+
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe("map views", () => {
-  it("loads only a local F2 image, transforms markers and retains unpositioned text locations", () => {
+  it("loads only a local F2 image, transforms markers and retains unpositioned text locations", async () => {
     const fetch = vi.spyOn(globalThis, "fetch");
     const { container } = renderSpatial(<MapView node={map} />);
     const image = screen.getByRole("img", { name: "Original courtyard" });
-    expect(image.getAttribute("src")).toBe(api.referenceAssetUrl("w1", "d1", "test.spatial:schematic.png"));
+    await waitFor(() => expect(image.getAttribute("src")).toBe(`blob:${api.referenceAssetPath("w1", "d1", "test.spatial:schematic.png")}`));
     const marker = screen.getByRole("button", { name: "Courtyard cache: Missing, Loot" });
     expect(marker.style.left).toBe("20%");
     expect(parseFloat(marker.style.top)).toBeCloseTo(300 / 7);

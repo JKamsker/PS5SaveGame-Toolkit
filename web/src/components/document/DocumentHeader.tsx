@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { api } from "../../api/client";
 import type { SaveDocument, SaveFileInfo } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
+import { DownloadFileButton } from "./DownloadFileButton";
 import { HistoryButtons } from "./HistoryButtons";
 import { documentClosures } from "./documentClosures";
 
@@ -28,9 +29,7 @@ export function DocumentHeader({ document, file, focusHeading, onSwitchPlugin }:
         <span className="editor__file mono">{document.filePath}</span>
       </div>
       <HistoryButtons store={context.store} onUndo={() => history(() => api.undo(workspaceId, documentId))} onRedo={() => history(() => api.redo(workspaceId, documentId))} />
-      {!document.groupMembers && <a className="btn btn--small btn--quiet" href={api.downloadUrl(workspaceId, documentId)} download>
-        Download file
-      </a>}
+      {!document.groupMembers && <DownloadFileButton workspaceId={workspaceId} documentId={documentId} fallbackName={document.filePath} />}
       <div className="editor__plugin">
         <span>
           {document.plugin.name} <span className={`tag tag--${document.plugin.maturity.toLowerCase()}`}>{maturityText[document.plugin.maturity]}</span>

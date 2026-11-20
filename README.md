@@ -4,11 +4,13 @@
 
 [Documentation](https://jkamsker.github.io/PS5SaveGame-Toolkit/) ·
 [First plugin tutorial](https://jkamsker.github.io/PS5SaveGame-Toolkit/tutorials/first-plugin.html) ·
-[Generated API references](https://jkamsker.github.io/PS5SaveGame-Toolkit/reference/index.html)
+[Generated API references](https://jkamsker.github.io/PS5SaveGame-Toolkit/reference/index.html) ·
+[Browser app](https://jkamsker.github.io/PS5SaveGame-Toolkit/app/)
 
-A local, web-based editor for **decrypted** PS5 save games. Drop a save dump (zip or folder),
-the toolkit detects the game, and a game plugin describes the data as an abstract view that the
-browser renders: stats, typed fields, tables, actions. Edits are validated and can be undone within
+An editor for **decrypted** PS5 save games that runs entirely in your browser: no server, and saves
+never leave your computer. Drop a save dump (zip or folder), the toolkit detects the game, and a game
+plugin describes the data as an abstract view that the browser renders: stats, typed fields, tables,
+actions. Edits are validated and can be undone within
 the [history limits](docs/PLUGIN_GUIDE.md#structural-edits-add--remove--reorder). Export verifies output
 by re-opening it and retains recognized title/save-directory layouts, with optional backup mirroring where the twin held
 the same original bytes and ownership permits it. Explicit document groups manage their own backups.
@@ -32,7 +34,7 @@ See [owner actions](docs/OWNER_ACTIONS.md) for the prioritised console, capture,
 - **F5 — Structural undo:** reversible add/remove/reorder operations where a plugin implements them.
 - **F6 — Review before apply:** bulk-action previews, skipped rows, one-step undo within history limits and a Changes panel.
 - **F7 — Related files:** explicit document groups with coordinated edits, history and export.
-- **F8 — Large collections:** bounded server-side search/filter/sort and selection across unloaded pages.
+- **F8 — Large collections:** bounded runtime-side search/filter/sort and selection across unloaded pages.
 - **F9 — Maps and graphs:** read-only diagrams with text lists and external map links.
 - **F10 — Exact values:** JSON numbers without rounding, explicit nulls and typed alternatives.
 - **F11 — Shared codecs:** managed Kraken decoding/stored-block writing and in-memory SQLite images.
@@ -71,31 +73,41 @@ not imply support for every game build or region.
 
 ## Using the toolkit
 
-Download the bundle for your OS from [GitHub Releases](https://github.com/JKamsker/PS5SaveGame-Toolkit/releases)
-and verify its SHA-256 checksum. Extract
-the whole archive into a writable folder, open its inner `SaveToolkit-<version>-<runtime>` folder,
-and run `start.cmd` on Windows or `./start.sh` on macOS/Linux. Leave the server terminal running.
-On macOS/Linux, run `chmod +x start.sh SaveToolkit.Api` first if needed. Open
-http://127.0.0.1:5180. No .NET or Node.js installation is needed.
-The launchers use port 5180 and do not forward arguments; follow the
-[alternate-port instructions](docs/USER_GUIDE.md#use-another-port) to run the executable directly.
-The [user guide](docs/USER_GUIDE.md) covers checksum commands, other ports, importing,
-editing, review/undo, export, supported titles and troubleshooting. Keep backups;
-edits are experimental and not console-validated. Maintainers: see
-[release instructions](docs/RELEASING.md) for packaging and publishing.
+The toolkit is a static web app: the UI, the .NET runtime (compiled to WebAssembly) and every plugin
+are downloaded once and run in a browser tab. Use it in one of three ways:
+
+- **Hosted:** open the [GitHub Pages build](https://jkamsker.github.io/PS5SaveGame-Toolkit/app/) of
+  `main` (available once Pages is enabled for the repository; see
+  [Pages deployment](docs/RELEASING.md#github-pages)).
+- **Release archive:** download `SaveToolkit-<version>-web.zip` from
+  [GitHub Releases](https://github.com/JKamsker/PS5SaveGame-Toolkit/releases), verify its SHA-256
+  checksum, extract it and serve the inner folder with any static web server, for example
+  `python3 -m http.server 8080 --bind 127.0.0.1` inside that folder, then open http://127.0.0.1:8080/.
+  Browsers do not run the app from `file://`. No .NET or Node.js installation is needed.
+- **From source:** see below.
+
+The first visit downloads about 22 MB (gzip) of runtime and plugin code; later visits use the
+browser cache. Workspaces live only in the open tab, so export before closing or reloading it; presets
+and reference packs persist in the browser's IndexedDB. The [user guide](docs/USER_GUIDE.md) covers
+checksum commands, importing, editing, review/undo, export, supported titles and troubleshooting.
+Keep backups; edits are experimental and not console-validated. Maintainers: see
+[release instructions](docs/RELEASING.md) for packaging and publishing, and the
+[browser runtime note](docs/BROWSER_RUNTIME.md) for the architecture.
 
 ### Run from source
 
-Install the .NET 10 SDK selected by [global.json](global.json), Node.js 24 and npm.
-From the repository root:
+Install the .NET 10 SDK selected by [global.json](global.json) with the WebAssembly build tools
+(`dotnet workload install wasm-tools`), Node.js 24 and npm. From the repository root:
 
 ```powershell
-cd web; npm ci; npm run build; cd ..          # builds the UI into src/SaveToolkit.Api/wwwroot
-dotnet run --project src/SaveToolkit.Api      # http://127.0.0.1:5180
+cd web; npm ci; npm run build                # .NET WebAssembly runtime + UI into web/dist
+npm run preview                              # serves web/dist on http://localhost:4173
 ```
 
-For development, run the API above and `cd web; npm run dev` in a second terminal
-(http://localhost:5173, proxies `/api` to port 5180).
+For UI development, run `npm run build:wasm` once (and again after C# changes), then `npm run dev`
+(http://localhost:5173, hot reload). `npm run build:ui` rebuilds only the UI around an existing runtime.
+No API process is needed. The optional ASP.NET host (`dotnet run --project src/SaveToolkit.Api`)
+serves the same `/api` contract over HTTP for tests and tooling.
 
 ## Tests and private samples
 
@@ -103,9 +115,10 @@ Configure [disk and scratch](docs/RELEASING.md#disk-and-scratch) first, includin
 `dotnet test` commands. Keep private samples on their existing external drive.
 
 ```powershell
-dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj
+dotnet build src/SaveToolkit.Api/SaveToolkit.Api.csproj    # Core, LocalApi and every plugin
 $env:SAVETOOLKIT_ARTIFACTS = 'C:/path/to/private/artifacts'
 dotnet test --project tests/SaveToolkit.Core.Tests
+dotnet test --project tests/SaveToolkit.LocalApi.Tests        # in-process /api parity with the Api
 dotnet test --project plugins/Pragmata/SaveToolkit.Plugins.Pragmata.Tests
 ./scripts/test.ps1                           # API build + all backend test projects
 # ./scripts/test.ps1 -Filter Pragmata        # optional project-path substring filter
@@ -144,8 +157,12 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests, plugin rules and review
   ranges, labels, grouping, confidence — never *how* it looks.
 - **Core**: import, generations and backup pairing, plugin probing, edit validation against the
   plugin's own specs, undo/redo, export with verification.
-- **Api**: thin HTTP layer. **Web**: renders the view protocol.
-  See the [frontend component map](CONTRIBUTING.md#frontend-component-map) for contributor entry points.
+- **LocalApi** (`src/SaveToolkit.LocalApi`): the complete `/api` contract as a transport-independent,
+  in-process router. **Browser** (`src/SaveToolkit.Browser`): the WebAssembly host that loads every
+  plugin and serves LocalApi to the web worker. **Api**: optional ASP.NET host of the same contract,
+  used as the parity oracle in tests. **Web**: renders the view protocol.
+  See the [frontend component map](CONTRIBUTING.md#frontend-component-map) and the
+  [browser runtime note](docs/BROWSER_RUNTIME.md).
 - **Codecs**: bounded managed Kraken decoding/stored writes and native SQLite image operations
   entirely in memory. See [the codec contracts](src/SaveToolkit.Codecs/README.md).
 - **Plugins** (`plugins/`): one per game or engine format. See [docs/PLUGIN_GUIDE.md](docs/PLUGIN_GUIDE.md).
@@ -154,7 +171,8 @@ Session plugin calls are serialized. Closing a workspace disposes its documents 
 session/group opens through retained workspace references. Export verifies plugin output by reopening
 it; plugins remain responsible for atomic edits, format integrity and byte-identical no-op round trips.
 
-The server binds to 127.0.0.1 and has no authentication; it is meant to run on your own machine.
+Everything runs in the browser tab that opened the app; imported saves are never uploaded. The optional
+ASP.NET host binds to 127.0.0.1 and has no authentication; it is meant for local development only.
 
 Licensed under **GPL-3.0-or-later**; see [LICENSE](LICENSE) and [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES).
 Upstream components retain their own compatible licences and attribution.

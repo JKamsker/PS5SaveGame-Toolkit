@@ -50,11 +50,29 @@ public sealed class PresetStore
     }
 
     /// <summary>Reloads the external library atomically. A malformed replacement leaves the last good view intact.</summary>
-    public IReadOnlyList<ToolkitPreset> Reload()
+    public IReadOnlyList<ToolkitPreset> Reload() => Reload(allowMissing: false);
+
+    /// <summary>
+    /// Re-reads the library after another writer may have replaced the file (for example another browser
+    /// tab sharing the same storage). A missing file is an empty library; a malformed one throws and
+    /// leaves the last good view intact, like <see cref="Reload()"/>. Unlike <see cref="Reload()"/>, a
+    /// file identical to the one this store last read or wrote changes nothing, so the library identity
+    /// (and with it any reviewed import) survives unrelated changes next to it.
+    /// </summary>
+    public void Refresh()
     {
         lock (_gate)
         {
-            var snapshot = _storage.Read(allowMissing: false);
+            if (_identity.Matches()) return;
+            _ = Reload(allowMissing: true);
+        }
+    }
+
+    private IReadOnlyList<ToolkitPreset> Reload(bool allowMissing)
+    {
+        lock (_gate)
+        {
+            var snapshot = _storage.Read(allowMissing);
             var staged = _staging.Stage(snapshot.Records);
             _presets.Clear();
             foreach (var pair in staged) _presets.Add(pair.Key, pair.Value);
@@ -123,6 +141,7 @@ public sealed class PresetStore
         ValidatePayload(compatibility, actions);
         lock (_gate)
         {
+            _identity.EnsureUnchanged();
             if (_presets.Count >= _options.MaxPresets) throw new InvalidOperationException("The preset limit has been reached.");
             var now = DateTimeOffset.UtcNow;
             var preset = ClonePreset(new ToolkitPreset(CurrentSchemaVersion, Guid.NewGuid().ToString("N"), name.Trim(), compatibility,
@@ -140,6 +159,7 @@ public sealed class PresetStore
         lock (_gate)
         {
             var current = FindRequired(id);
+            _identity.EnsureUnchanged();
             var updated = current with { Name = name.Trim(), UpdatedAt = DateTimeOffset.UtcNow };
             _presets[id] = updated;
             try { Persist(); }
@@ -153,6 +173,7 @@ public sealed class PresetStore
         lock (_gate)
         {
             if (!_presets.TryGetValue(id, out var removed)) return false;
+            _identity.EnsureUnchanged();
             _presets.Remove(id);
             try { Persist(); }
             catch

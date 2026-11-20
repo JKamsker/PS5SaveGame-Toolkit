@@ -15,5 +15,3 @@ internal static class DocumentGroupEndpoints
             .WithApiErrors(Status400BadRequest, Status409Conflict, Status413PayloadTooLarge, Status415UnsupportedMediaType, Status422UnprocessableEntity);
     }
 }
-
-public sealed record OpenGroupRequest(string ProposalToken, string? ReleaseCleanDocumentId = null);

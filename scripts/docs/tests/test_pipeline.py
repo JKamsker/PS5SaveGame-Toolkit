@@ -148,26 +148,36 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(["#example", "main.js", "openapi.json"], page.links)
 
     def test_pages_deployment_is_main_only_and_permissions_are_separate(self):
+        # docs.yml validates pull requests; pages.yml calls it on main and deploys the docs site
+        # together with the browser app (one Pages site per repository).
         workflow = (ROOT / ".github/workflows/docs.yml").read_text(encoding="utf-8")
+        pages = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
         self.assertIn("pull_request:", workflow)
-        self.assertNotIn("pull_request_target", workflow)
-        self.assertIn("branches: [main]", workflow)
-        build, deploy = workflow.split("\n  deploy:\n")
-        gate = "if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'"
-        self.assertIn(gate, build)
-        self.assertIn(gate, deploy)
-        self.assertIn("needs: build", deploy)
+        self.assertIn("workflow_call:", workflow)
+        self.assertNotIn("\n  deploy:\n", workflow)
+        for text in (workflow, pages):
+            self.assertNotIn("pull_request_target", text)
+            self.assertNotIn("secrets.", text)
+            self.assertNotIn("pages: write", text.split("\n  deploy:\n", 1)[0])
+            self.assertNotIn("id-token: write", text.split("\n  deploy:\n", 1)[0])
+        self.assertIn("scripts/build-docs.ps1", workflow)
+        self.assertIn("path: ${{ env.DOCS_SITE }}", workflow)
+        self.assertIn("if: github.workflow == 'Pages'", workflow)
+        self.assertIn("name: Pages\n", pages)
+        self.assertNotIn("pull_request", pages)
+        self.assertIn("branches: [main]", pages)
+        self.assertIn("uses: ./.github/workflows/docs.yml", pages)
+        _, deploy = pages.split("\n  deploy:\n")
+        self.assertIn("if: github.ref == 'refs/heads/main'", deploy)
+        self.assertIn("needs: [docs, app]", deploy)
         self.assertIn("name: github-pages", deploy)
         self.assertIn("url: ${{ steps.deployment.outputs.page_url }}", deploy)
         self.assertIn("pages: write", deploy)
         self.assertIn("id-token: write", deploy)
-        self.assertNotIn("pages: write", build)
-        self.assertNotIn("id-token: write", build)
-        self.assertNotIn("secrets.", workflow)
         self.assertIn("enablement: false", deploy)
-        self.assertIn("path: ${{ env.DOCS_SITE }}", build)
-        self.assertIn("scripts/build-docs.ps1", build)
-
+        # The documentation keeps the project root; the app may not replace any of its files.
+        self.assertIn("name: docs-site\n          path: ${{ runner.temp }}/pages\n", deploy)
+        self.assertIn('test ! -e "$RUNNER_TEMP/pages/$APP_PATH"', deploy)
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,76 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <!--
+    In-browser host: Core, Codecs and every plugin compiled to WebAssembly (Mono interpreter).
+    The web UI's worker boots this app and sends every /api request to Interop.DispatchAsync.
+    Publish: dotnet publish src/SaveToolkit.Browser -c Release (web: npm run build:wasm).
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>SaveToolkit.Browser</RootNamespace>
+    <!-- Required by the JSExport/JSImport source generator. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <!-- Core and plugins serialize with reflection-based System.Text.Json, exactly like the Api. -->
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+    <!-- Trim only framework assemblies. Our assemblies and plugins keep reflection (plugin discovery, JSON). -->
+    <TrimMode>partial</TrimMode>
+    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+    <!-- Keep framework exception messages (e.g. ZIP errors shown to users) identical to the Api;
+         the WebAssembly default replaces them with bare resource keys such as "EOCDNotFound". -->
+    <UseSystemResourceKeys>false</UseSystemResourceKeys>
+    <!-- Microsoft.Data.Sqlite's native e_sqlite3 is relinked into dotnet.native.wasm, so emcc runs anyway.
+         IDBFS keeps presets and reference packs across page reloads (see the web runtime worker). -->
+    <WasmBuildNative>true</WasmBuildNative>
+    <EmccExtraLDFlags>-lidbfs.js</EmccExtraLDFlags>
+    <!-- WASM0001: e_sqlite3's sqlite3_config/sqlite3_db_config are C varargs functions, which the Mono
+         pinvoke generator cannot bind. Microsoft.Data.Sqlite never calls them through that path, and the
+         warning is emitted for every relink, so it would otherwise fail the build under warnings-as-errors. -->
+    <NoWarn>$(NoWarn);WASM0001</NoWarn>
+    <!-- Same informational version as the Api, so /api/version reports identical values. -->
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <MinVerDefaultPreReleaseIdentifiers>alpha.0</MinVerDefaultPreReleaseIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinVer" PrivateAssets="all" />
+    <ProjectReference Include="..\SaveToolkit.LocalApi\SaveToolkit.LocalApi.csproj" />
+    <ProjectReference Include="..\SaveToolkit.Core\SaveToolkit.Core.csproj" />
+    <ProjectReference Include="..\SaveToolkit.Codecs\SaveToolkit.Codecs.csproj" />
+    <!-- Same glob as the Api: every plugin folder is picked up automatically; no edits needed when adding one. -->
+    <ProjectReference Include="..\..\plugins\*\*\SaveToolkit.Plugins.*.csproj" Exclude="..\..\plugins\**\*.Tests.csproj"
+                      SaveToolkitPlugin="true" />
+  </ItemGroup>
+
+  <!--
+    WebAssembly loads assemblies lazily, so PluginCatalog.Discover() only sees plugin assemblies that
+    were loaded first. Generate the list of plugin assembly names from the resolved plugin references
+    (the glob above) so the host can Assembly.Load each one by name at startup.
+  -->
+  <Target Name="GenerateSaveToolkitPluginManifest" BeforeTargets="CoreCompile" DependsOnTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <!-- ProjectReference metadata (SaveToolkitPlugin) flows to the resolved reference. -->
+      <_SaveToolkitPluginAssembly Include="@(ReferencePath->'%(Filename)')"
+          Condition="'%(ReferencePath.ReferenceSourceTarget)' == 'ProjectReference' and '%(ReferencePath.SaveToolkitPlugin)' == 'true'" />
+    </ItemGroup>
+    <Error Condition="'@(_SaveToolkitPluginAssembly)' == ''" Text="No plugin assemblies were resolved for the browser plugin manifest." />
+    <PropertyGroup>
+      <_SaveToolkitPluginManifestFile>$(IntermediateOutputPath)SaveToolkitPluginManifest.g.cs</_SaveToolkitPluginManifestFile>
+    </PropertyGroup>
+    <ItemGroup>
+      <_SaveToolkitPluginManifestLine Include="// &lt;auto-generated/&gt; by GenerateSaveToolkitPluginManifest in SaveToolkit.Browser.csproj" />
+      <_SaveToolkitPluginManifestLine Include="namespace SaveToolkit.Browser%3B" />
+      <_SaveToolkitPluginManifestLine Include="internal static class PluginManifest" />
+      <_SaveToolkitPluginManifestLine Include="{" />
+      <_SaveToolkitPluginManifestLine Include="    internal static readonly string[] AssemblyNames =" />
+      <_SaveToolkitPluginManifestLine Include="    [" />
+      <_SaveToolkitPluginManifestLine Include="@(_SaveToolkitPluginAssembly->'        &quot;%(Identity)&quot;,')" />
+      <_SaveToolkitPluginManifestLine Include="    ]%3B" />
+      <_SaveToolkitPluginManifestLine Include="}" />
+    </ItemGroup>
+    <WriteLinesToFile File="$(_SaveToolkitPluginManifestFile)" Lines="@(_SaveToolkitPluginManifestLine)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <Compile Include="$(_SaveToolkitPluginManifestFile)" />
+      <FileWrites Include="$(_SaveToolkitPluginManifestFile)" />
+    </ItemGroup>
+  </Target>
+</Project>

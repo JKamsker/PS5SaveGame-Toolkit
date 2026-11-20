@@ -44,7 +44,7 @@ function useHomeUpload(beginSelection: () => () => boolean) {
     } catch (error) {
       if (!isCurrent()) return;
       setFailedUpload(files);
-      setStatus({ text: error instanceof ApiError ? error.message : "The import failed. Is the server running?", isError: true });
+      setStatus({ text: error instanceof ApiError ? error.message : "The import failed. Reload the page and try again.", isError: true });
     }
   };
   const upload = (files: UploadFile[]) => files.length > 0 ? startUpload(isCurrent => sendUpload(files, isCurrent)) : undefined;

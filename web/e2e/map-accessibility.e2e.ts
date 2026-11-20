@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { MapNode } from "../src/api/spatial";
 import { importSave, openJson } from "./helpers";
+import { routeApi } from "./apiRoutes";
 
 const map: MapNode = { type: "map", title: "Test locations", textAlternative: "A synthetic location list.",
   bounds: { minX: 0, minY: 0, maxX: 100, maxY: 100 }, coordinateSpace: "Unpositioned",
@@ -10,7 +11,7 @@ const map: MapNode = { type: "map", title: "Test locations", textAlternative: "A
 
 test("clearing map details falls back when the opener is inside a collapsed list (#40)", async ({ page }) => {
   // Exercise native details/focus behavior with an authored presentation on a real imported document.
-  await page.route(/\/api\/workspaces\/[^/]+\/files\/[^/]+\/open$/, async route => {
+  await routeApi(page, /\/api\/workspaces\/[^/]+\/files\/[^/]+\/open$/, async route => {
     const response = await route.fetch();
     const body = await response.json() as { view: unknown };
     await route.fulfill({ response, json: { ...body, view: { type: "tabs", tabs: [{ title: "JSON", children: [map] }] } } });

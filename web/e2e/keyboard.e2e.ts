@@ -3,6 +3,7 @@ import {
   archive, coinsField, downloadedFiles, editedCoins, expectArchiveBytes,
   home, originalCoins, originalSave, withCoins,
 } from "./helpers";
+import { waitForApiResponse } from "./apiRoutes";
 
 async function tabTo(page: Page, target: Locator) {
   await expect(target).toBeVisible();
@@ -16,9 +17,11 @@ async function tabTo(page: Page, target: Locator) {
 
 test("imports, opens, edits and exports using only the keyboard", async ({ page }, testInfo) => {
   await home(page);
-  await tabTo(page, page.getByRole("button", { name: "Open zip", exact: true }));
+  // Register before the Tab walk: Playwright enables chooser interception asynchronously, and a bare
+  // Enter right after registering can race it (the app's input.click() then opens no observable chooser).
   const choosing = page.waitForEvent("filechooser");
-  const importing = page.waitForResponse(response => response.url().endsWith("/api/workspaces") && response.request().method() === "POST");
+  await tabTo(page, page.getByRole("button", { name: "Open zip", exact: true }));
+  const importing = waitForApiResponse(page, response => response.url().endsWith("/api/workspaces") && response.request().method() === "POST");
   await page.keyboard.press("Enter");
   // Playwright supplies the native chooser's file; all application interaction is keyboard-only.
   await (await choosing).setFiles({ name: "keyboard.zip", mimeType: "application/zip", buffer: archive() });

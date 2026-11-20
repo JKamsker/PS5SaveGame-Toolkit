@@ -21,5 +21,11 @@ public class CatalogStartupBenchmarks
     public void PreparePackLoad() { }
 
     [Benchmark]
-    public ReferencePackStore LoadEmbeddedPacks() => new(_catalog.Plugins);
+    public ReferencePackStore LoadEmbeddedPacks()
+    {
+        // Packs are validated on first need; LoadErrors validates all of them, as construction once did.
+        var store = new ReferencePackStore(_catalog.Plugins);
+        _ = store.LoadErrors;
+        return store;
+    }
 }

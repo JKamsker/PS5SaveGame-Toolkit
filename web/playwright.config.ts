@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, devices } from "@playwright/test";
 
-const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
+const webRoot = fileURLToPath(new URL(".", import.meta.url));
 const suiteManifest = JSON.parse(readFileSync(new URL("./scripts/e2e-suites.json", import.meta.url), "utf8")) as {
   version: number;
   suites: { id: string; role: "feature" | "complement"; patterns: string[]; files: string[]; optionalFiles?: string[] }[];
@@ -35,9 +35,11 @@ async function freeLoopbackUrl(): Promise<string> {
   return `http://127.0.0.1:${address.port}`;
 }
 
-// Config is also loaded in workers. Reuse the run's URL and directory there.
+// Config is also loaded in workers. Reuse the run's URL and directory there. The app keeps its data in
+// the browser (in-memory workspaces, IndexedDB presets per fresh Playwright context), so the run
+// directory only isolates per-run artifacts.
 const baseURL = process.env.SAVETOOLKIT_E2E_URL ??= await freeLoopbackUrl();
-const runDirectory = process.env.SAVETOOLKIT_E2E_RUN_DIRECTORY ??= mkdtempSync(path.join(scratch, "run-"));
+process.env.SAVETOOLKIT_E2E_RUN_DIRECTORY ??= mkdtempSync(path.join(scratch, "run-"));
 
 export default defineConfig({
   testDir: "./e2e",
@@ -49,7 +51,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: 0,
   timeout: 30_000,
-  globalTimeout: 180_000,
+  // Every test boots its own in-browser .NET runtime (fresh context: download, compile, plugin discovery).
+  globalTimeout: 30 * 60_000,
   globalTeardown: "./e2e/teardown.ts",
   outputDir: path.join(scratch, "test-results"),
   reporter: [["list"], ["html", { outputFolder: process.env.PLAYWRIGHT_HTML_OUTPUT_DIR ?? path.join(scratch, "playwright-report"), open: "never" }],
@@ -60,10 +63,11 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  // The static build (npm run build: UI + .NET WebAssembly runtime in dist/_framework); no API server.
   webServer: {
-    command: `dotnet run --project src/SaveToolkit.Api --configuration Release --no-build --no-launch-profile --urls ${baseURL} -- --Toolkit:DataRoot="${path.join(runDirectory, "workspaces")}" --Toolkit:PackRoot="${path.join(runDirectory, "reference-packs")}" --Toolkit:PresetRoot="${path.join(runDirectory, "presets")}"`,
-    cwd: repositoryRoot,
-    url: `${baseURL}/api/version`,
+    command: `npx vite preview --host 127.0.0.1 --port ${new URL(baseURL).port} --strictPort`,
+    cwd: webRoot,
+    url: `${baseURL}/_framework/dotnet.js`,
     reuseExistingServer: false,
     timeout: 60_000,
     gracefulShutdown: { signal: "SIGTERM", timeout: 5_000 },

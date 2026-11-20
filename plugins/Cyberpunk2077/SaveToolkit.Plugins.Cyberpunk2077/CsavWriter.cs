@@ -1,6 +1,6 @@
 using System.Buffers.Binary;
-using K4os.Compression.LZ4;
 using SaveToolkit.Sdk;
+using SaveToolkit.Sdk.Compression;
 
 namespace SaveToolkit.Plugins.Cyberpunk2077;
 
@@ -95,8 +95,10 @@ internal static class CsavWriter
         }
         else
         {
-            var buffer = new byte[LZ4Codec.MaximumOutputSize(content.Length)];
-            var length = LZ4Codec.Encode(content, buffer);
+            // K4os' default (fast) level, through the SDK port: K4os itself runs its 32-bit engine in the
+            // browser, whose bytes differ from the native host's for chunks over 64 KiB.
+            var buffer = new byte[Lz4FastCompression.MaximumOutputSize(content.Length)];
+            var length = Lz4FastCompression.Encode(content, buffer);
             if (length <= 0)
             {
                 throw new SaveFormatException("Could not encode the edited CSAV LZ4 block.");

@@ -4,6 +4,7 @@ import path from "node:path";
 import type { SemanticChangeLog } from "../src/api/actionReview";
 import type { EditResult } from "../src/api/protocol";
 import { importSave, loadJson, openJson } from "./helpers";
+import { routeApi } from "./apiRoutes";
 
 type FixtureOptions = { incomplete?: boolean; failOnce?: boolean; mockRevert?: boolean };
 
@@ -13,7 +14,7 @@ async function installReviewFixture(page: Page, options: FixtureOptions = {}) {
   let failures = options.failOnce ? 4 : 0;
   let reverted = false;
   let revision = 0;
-  await page.route("**/changes", async route => {
+  await routeApi(page, "**/changes", async route => {
     if (route.request().method() !== "GET") return route.continue();
     if (failures > 0) {
       failures--;
@@ -33,7 +34,7 @@ async function installReviewFixture(page: Page, options: FixtureOptions = {}) {
     await route.fulfill({ response: upstream, json: log });
   });
   if (options.mockRevert) {
-    await page.route("**/changes/revert", async route => {
+    await routeApi(page, "**/changes/revert", async route => {
       if (route.request().method() !== "POST") return route.continue();
       reverted = true;
       const result: EditResult = {
