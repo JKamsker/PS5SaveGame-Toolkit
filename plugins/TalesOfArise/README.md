@@ -450,10 +450,8 @@ ownership, including the exact read-only packed-word aliases, and distinguishes
 Passed, Failed and NotEvaluated. Its explicit traversal budgets cover the full
 fixed-schema explorer and evidence views. Historical sample fingerprints normalize
 only the asserted SDK-41 binding/description change; their original hashes remain.
-**These new tests have not yet been executed.** No builds, test hosts, sample
-extraction or browser servers were started for this implementation. The existing
-quantity-boundary and eligibility tests remain applicable. Run the targeted classes
-and the complete plugin suite through the serial integration-validation workflow.
+These tests run with the plugin suite in CI; sample-backed cases skip there without samples. The
+existing quantity-boundary and eligibility tests remain applicable.
 Browser validation must still inspect the real bound control before/after expansion,
 its explicit/query request scope, exclusions, document fallback and apply/undo;
 backend/advisory tests do not establish browser wiring or console acceptance.
@@ -732,7 +730,7 @@ its per-section AES-256-ECB; output is byte-identical.
 Resolved and adopted: F12 native decoder hooks, F13 read-only inspection and
 browse/category/sort contracts, shared `ActionPlans.ApplyScalar` and
 `ReferenceInspection`, SDK-05 `ReferenceViews.Icon` with `ReferenceIconOptions`,
-and SDK-41 selection-table binding for Set quantities (validation pending above).
+and SDK-41 selection-table binding for Set quantities (browser validation pending above).
 Quantity application uses `ActionPlanWarningPolicy.Merge`;
 eligibility, scope validation, unopened bindings and preview-only derived aliases
 remain plugin policy. Fixed row actions encode their record key so

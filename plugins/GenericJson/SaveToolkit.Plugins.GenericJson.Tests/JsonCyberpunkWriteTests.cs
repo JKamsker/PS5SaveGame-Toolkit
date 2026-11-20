@@ -37,6 +37,25 @@ public sealed class JsonCyberpunkWriteTests
     }
 
     [Fact]
+    public void RepeatingAppliedDefaultsReportsNoStructureChangeAndLeavesTheSessionUntouched()
+    {
+        using var fixture = Open();
+        _ = JsonSemanticTestHelper.Actions(fixture);
+        JsonSemanticTestHelper.ApplyAndVerify(fixture, "semantic/defaults");
+        _ = JsonSemanticTestHelper.Actions(fixture);
+        var before = fixture.Bytes;
+        var state = fixture.Session.State;
+        var preview = fixture.Session.PlanAction("semantic/defaults", JsonArrayEditingTests.Parameters(), expectedRevision: state.Revision, scope: null, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Empty(preview.Plan.Changes);
+        var applied = fixture.Session.ApplyActionPlan(preview.PlanId!, preview.Revision);
+        Assert.True(applied.Ok);
+        Assert.Empty(applied.Changes);
+        Assert.False(applied.StructureChanged);
+        Assert.Equal(state, fixture.Session.State);
+        Assert.True(before.AsSpan().SequenceEqual(fixture.Bytes));
+    }
+
+    [Fact]
     public void SingleRecordedDefaultAndSelectedDefaultPresetPersistAndUndoTogether()
     {
         using var fixture = Open();

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ApiError, api, isStaleError } from "../../api/client";
+import { ApiError, api, editFailureText, isStaleError } from "../../api/client";
 import type { ActionPreview } from "../../api/actionReview";
 import type { ActionNode, FieldValue, PresetActionCapability, PresetCapability, SaveDocument, ToolkitPreset } from "../../api/protocol";
 import { useDocument } from "../../state/documentStore";
@@ -213,9 +213,12 @@ export function PresetsPanel({ document, onToast, children }: PresetsPanelProps)
         if (!result.refreshCompleted && !result.refreshFailed) await recoverStalePreview(intent.generation);
         return;
       }
-      if (result.ok) { closePreview(); onToast("Preset applied. Use Undo to reverse this one history step."); }
-      else setApplyError([...result.errors.map(error => error.message), result.message, ...result.warnings]
-        .filter(Boolean).join(" ") || "Preset was not applied.");
+      if (result.ok) {
+        closePreview();
+        onToast(!result.changes.length && !result.structureChanged ? "Preset changed nothing."
+          : result.state.canUndo ? "Preset applied. Use Undo to reverse it." : "Preset applied.");
+      }
+      else setApplyError(editFailureText(result, "Preset was not applied."));
     },
     onError: (error, intent) => {
       if (intent.generation !== review.current.generation) return;

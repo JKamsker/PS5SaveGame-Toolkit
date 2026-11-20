@@ -71,7 +71,7 @@ reports when more exist; that visible subset is not a full review of the larger 
 Select **Apply preset** only after checking the new plan. An effective application is one Undo
 step; use **Changes against original** to [review the result](metadata-review.md). A no-op has
 no effective edits and adds no history step. The preset Apply button can still be available for
-an empty valid plan; its success toast alone does not prove bytes changed.
+an empty valid plan; its success message then says the preset changed nothing.
 
 If the preview is stale, wait for document refresh and use **Preview again**. A changed document,
 preset or current target requires a new plan. Resolve any refresh error before applying; close

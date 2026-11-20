@@ -2,81 +2,92 @@ using SaveToolkit.Core.Editing;
 using SaveToolkit.Sdk;
 using SaveToolkit.Sdk.Values;
 using SaveToolkit.Sdk.Views;
+using SaveToolkit.Testing;
 
 namespace SaveToolkit.Core.Tests;
 
-/// <summary>
-/// The metadata cache revalidates only touched entries and the cached aliases of touched targets
-/// (a reverse index), instead of scanning every resolved field per resolution.
-/// </summary>
-public sealed class FieldMetadataCacheTests
+[Collection(typeof(AllocationTestCollection))]
+public sealed class FieldMetadataCacheTests(ITestOutputHelper output)
 {
-    [Fact]
-    public void RefreshingACanonicalTargetRevalidatesItsPreviouslyCachedAliasAndKeepsTheCacheOnFailure()
-    {
-        using var document = new AliasDocument();
-        var index = new FieldMetadataIndex(document);
-        index.ResolveAll(["alias"]);
-        Assert.Equal("primary", index.Cached("alias")!.CanonicalValueId);
-        var primary = index.Cached("primary");
-        Assert.NotNull(primary);
-
-        document.PrimaryMaximum = 20; // The cached alias (maximum 10) no longer agrees with its target.
-        var error = Assert.Throws<InvalidOperationException>(() => index.ResolveAll(["primary"]));
-        Assert.Equal("Invalid canonical alias 'alias'.", error.Message);
-        Assert.Same(primary, index.Cached("primary"));
-    }
+    private const int CachedFields = 5_000;
+    private const long LookupAllocationLimit = 32 * 1024;
+    private const int InitialFields = FieldMetadataIndex.BatchSize + 2;
 
     [Fact]
-    public void AnAliasThatMovesToAnotherTargetIsNoLongerRevalidatedForItsOldTarget()
+    public void RefreshingOneDescriptorDoesNotCopyFiveThousandUnrelatedDescriptors()
     {
-        using var document = new AliasDocument();
+        using var document = new CacheDocument(CachedFields);
         var index = new FieldMetadataIndex(document);
-        index.ResolveAll(["alias"]);
-        document.AliasTarget = "other";
-        index.ResolveAll(["alias"]);
-        Assert.Equal("other", index.Cached("alias")!.CanonicalValueId);
+        var ids = Enumerable.Range(0, CachedFields).Select(Id).ToArray();
+        foreach (var batch in ids.Chunk(FieldMetadataIndex.BatchSize)) index.ResolveAll(batch);
+        var first = index.Cached(ids[0]);
+        var allocated = AllocationProbe.Measure(() => index.ResolveAll([ids[^1]]));
 
-        document.PrimaryMaximum = 20;
-        index.ResolveAll(["primary"]);
-        Assert.Equal(new IntegerSpec(0, 20), index.Cached("primary")!.Spec);
+        output.WriteLine($"One metadata refresh with {CachedFields} cached fields: {allocated.MinimumBytes} B.");
+        allocated.AssertAtMost(LookupAllocationLimit, "Refreshing one descriptor must stage only its metadata closure.");
+        Assert.Equal(CachedFields, index.Ids.Count());
+        Assert.Same(first, index.Cached(ids[0]));
     }
 
-    [Fact]
-    public void ClearedEntriesLeaveNoStaleAlias()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void FailedLaterBatchPublishesNoEarlierReplacementsRemovalsOrNewDescriptors(bool cancel)
     {
-        using var document = new AliasDocument();
+        using var cancellation = new CancellationTokenSource();
+        using var document = new CacheDocument(InitialFields + 1);
         var index = new FieldMetadataIndex(document);
-        index.ResolveAll(["alias"]);
-        index.Clear();
-        Assert.Null(index.Cached("alias"));
-        document.PrimaryMaximum = 20;
-        index.ResolveAll(["primary"]);
-        Assert.Equal(new IntegerSpec(0, 20), index.Cached("primary")!.Spec);
-    }
-
-    private sealed class AliasDocument : BoundSaveDocument, IFieldMetadataDocument
-    {
-        public int PrimaryMaximum { get; set; } = 10;
-        public string AliasTarget { get; set; } = "primary";
-        public override string Title => "Aliases";
-        public override ViewNode BuildView() => new TextNode("Metadata only");
-        public override IReadOnlyList<FileOutput> Serialize() => [];
-
-        public AliasDocument()
+        var initialIds = Enumerable.Range(0, InitialFields).Select(Id).ToArray();
+        index.ResolveAll(initialIds);
+        var previous = initialIds.Select(index.Cached).ToArray();
+        document.LabelPrefix = "Updated ";
+        document.MissingId = Id(1);
+        document.OnGet = id =>
         {
-            RegisterField("primary", new IntegerSpec(0, 100), () => FieldValue.Of(1), _ => { });
-            RegisterField("other", new IntegerSpec(0, 10), () => FieldValue.Of(1), _ => { });
-            RegisterField("alias", new IntegerSpec(0, 10) with { ReadOnly = true }, () => FieldValue.Of(1));
+            if (id != Id(InitialFields)) return;
+            if (cancel) cancellation.Cancel();
+            else throw new InvalidOperationException("Later descriptor getter failed.");
+        };
+        var allIds = initialIds.Append(Id(InitialFields)).ToArray();
+        if (cancel) Assert.Throws<OperationCanceledException>(() => index.ResolveAll(allIds, cancellation.Token));
+        else Assert.Throws<InvalidOperationException>(() => index.ResolveAll(allIds));
+
+        Assert.Equal(InitialFields, index.Ids.Count());
+        for (var i = 0; i < initialIds.Length; i++) Assert.Same(previous[i], index.Cached(initialIds[i]));
+        Assert.Null(index.Cached(Id(InitialFields)));
+
+        document.OnGet = null;
+        index.ResolveAll(allIds);
+        Assert.Null(index.Cached(Id(1)));
+        Assert.Equal("Updated " + Id(InitialFields), index.Cached(Id(InitialFields))!.Label);
+        Assert.Equal(InitialFields, index.Ids.Count());
+    }
+
+    private static string Id(int index) => "field/" + index;
+
+    private sealed class CacheDocument : BoundSaveDocument, IFieldMetadataDocument
+    {
+        private static readonly IntegerSpec Spec = IntegerSpec.Int32 with { ReadOnly = true };
+        public string LabelPrefix { get; set; } = "Original ";
+        public string? MissingId { get; set; }
+        public Action<string>? OnGet { get; set; }
+        public override string Title => "Metadata cache fixture";
+
+        public CacheDocument(int count)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                var id = Id(i);
+                var value = FieldValue.Of(i);
+                RegisterField(new FieldMetadata(id, id, Spec), () => { OnGet?.Invoke(id); return value; });
+            }
         }
 
         public override IReadOnlyList<FieldMetadata> ResolveFieldMetadata(IReadOnlyList<string> valueIds) =>
-            valueIds.Select(id => id switch
-            {
-                "alias" => new FieldMetadata(id, "Alias", new IntegerSpec(0, 10) with { ReadOnly = true })
-                    { BindingKind = FieldBindingKind.Derived, CanonicalValueId = AliasTarget },
-                "primary" => new FieldMetadata(id, "Primary", new IntegerSpec(0, PrimaryMaximum)),
-                _ => new FieldMetadata(id, "Other", new IntegerSpec(0, 10)),
-            }).ToArray();
+            valueIds.Where(id => id != MissingId).Select(id => new FieldMetadata(id, LabelPrefix + id, Spec)
+            { CanonicalValueId = id }).ToArray();
+
+        public override ViewNode BuildView() => new SectionNode(Title, []);
+        public override IReadOnlyList<FileOutput> Serialize() => [];
     }
 }

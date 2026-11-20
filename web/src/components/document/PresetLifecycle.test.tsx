@@ -47,7 +47,8 @@ async function mount() {
   const editor = () => <QueryClientProvider client={client}><DocumentEditor workspaceId="w" documentId="d"
     file={undefined} onSwitchPlugin={vi.fn()} onToast={toast} /></QueryClientProvider>;
   const rendered = render(editor());
-  fireEvent.click(await screen.findByText("Toolkit presets"));
+  // The first mount in a file also waits for its cold lazy chunks, which is slow on a loaded machine.
+  fireEvent.click(await screen.findByText("Toolkit presets", undefined, { timeout: 4000 }));
   await screen.findByRole("button", { name: "Preview" });
   return { client, toast, rendered, editor };
 }

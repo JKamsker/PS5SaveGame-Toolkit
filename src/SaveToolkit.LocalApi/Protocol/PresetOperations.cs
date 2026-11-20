@@ -12,7 +12,7 @@ internal static class PresetOperations
     public static ApiOutcome Capture(DocumentSession document, CapturePresetRequest request, PresetStore store)
     {
         var capability = document.PresetCapability;
-        if (document.PresetDocument is not null && capability is null)
+        if (document.PresetCapabilityAdmission == PresetCapabilityAdmission.Malformed)
             return Rejected("The semantic preset capability is malformed.", "capabilityMalformed");
         var captureRequest = new PresetCaptureRequest(
             request.ActionId,
@@ -57,7 +57,7 @@ internal static class PresetOperations
         var preset = store.Find(presetId) ?? throw new KeyNotFoundException("Preset not found.");
         var compatibility = PresetStore.CheckCompatibility(preset, document);
         if (!compatibility.Compatible) return Rejected(compatibility.Message!, compatibility.Code);
-        if (document.PresetDocument is not null)
+        if (document.PresetCapabilityAdmission != PresetCapabilityAdmission.Absent)
         {
             if (PresetContractValidation.ValidateChoices(request.Choices) is { } choiceError)
                 return Rejected(choiceError, "presetContract");
@@ -89,7 +89,7 @@ internal static class PresetOperations
         var compatibility = PresetStore.CheckCompatibility(preset, document);
         if (!compatibility.Compatible) return Rejected(compatibility.Message!, compatibility.Code);
         var fingerprint = PresetStore.PayloadFingerprint(preset);
-        if (document.PresetDocument is not null)
+        if (document.PresetCapabilityAdmission != PresetCapabilityAdmission.Absent)
             return ApiOutcome.ForEdit(document.ApplyPresetPlan(request.PlanId, request.Revision, preset.Id, fingerprint, cancellationToken));
         if (preset.Actions.Count != 1)
             return Rejected("This document has no multi-action preset adapter yet.");

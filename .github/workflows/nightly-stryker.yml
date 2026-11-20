@@ -77,7 +77,7 @@ jobs:
             .config/dotnet-tools.json
             **/*.csproj
             **/packages.lock.json
-      - name: Restore pinned Stryker.NET 5.0.0
+      - name: Restore pinned Stryker.NET 5.1.0
         run: |
           # The manifest owns the exact version; restore never updates it.
           dotnet tool restore

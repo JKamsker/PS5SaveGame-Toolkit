@@ -325,3 +325,25 @@ it("closes the inline preview on Escape and restores the Preview opener", async 
   await waitFor(() => expect(screen.queryByRole("heading", { name: "Preset preview" })).toBeNull());
   await waitFor(() => expect(globalThis.document.activeElement).toBe(opener));
 });
+
+it.each([
+  { name: "promises Undo when the applied preset has a history step", changes: 1, canUndo: true, expected: "Preset applied. Use Undo to reverse it." },
+  { name: "does not promise Undo when history was discarded", changes: 1, canUndo: false, expected: "Preset applied." },
+  { name: "says nothing changed for an empty valid plan", changes: 0, canUndo: true, expected: "Preset changed nothing." },
+])("$name", async ({ changes, canUndo, expected }) => {
+  vi.spyOn(api, "documentPresets").mockResolvedValue([{
+    preset: { schemaVersion: "1", id: "p", name: "Saved", compatibility: { pluginId: "test", pluginVersion: "1", titleIds: ["PPSA00001"] },
+      actions: [{ actionId: "capture", parameters: {}, scopeKind: "document" }], createdAt: "", updatedAt: "" },
+    compatibility: { compatible: true, readOnly: false, canPreview: true, canApply: true, presetKind: "toolkit.action-parameters", savedPluginVersion: "1", currentPluginVersion: "1", unsupportedActions: [] },
+  }]);
+  vi.spyOn(api, "presetPreview").mockResolvedValue({ preset: {} as never, preview: { planId: "plan", revision: 0, scope: {}, plan: { changes: [], skippedRows: [], warnings: [], errors: [] } } });
+  vi.spyOn(api, "presetApply").mockResolvedValue({ ok: true, errors: [], warnings: [], structureChanged: false,
+    changes: Array.from({ length: changes }, () => ({ valueId: "x" })), state: { canUndo, canRedo: false, isDirty: true, revision: 0 } } as never);
+  const toast = vi.fn();
+  renderSpatial(<PresetsPanel document={document} onToast={toast} />);
+  fireEvent.click(screen.getByText("Toolkit presets"));
+  fireEvent.click(await screen.findByRole("button", { name: "Preview" }));
+  await screen.findByRole("heading", { name: "Preset preview" });
+  fireEvent.click(screen.getByRole("button", { name: "Apply preset" }));
+  await waitFor(() => expect(toast).toHaveBeenCalledWith(expected));
+});

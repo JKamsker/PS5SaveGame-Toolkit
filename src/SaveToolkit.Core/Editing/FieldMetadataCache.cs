@@ -27,7 +27,7 @@ internal sealed class FieldMetadataCache
 
     public ImmutableDictionary<string, FieldMetadata> Fields { get; }
 
-    public Builder ToBuilder() => new(Fields.ToBuilder(), _aliases.ToBuilder());
+    public Builder ToBuilder() => new(new FieldMetadataTransaction(Fields), _aliases.ToBuilder());
 
     /// <summary>The canonical target an entry aliases; an entry without one is its own canonical.</summary>
     internal static string CanonicalOf(FieldMetadata field) =>
@@ -35,10 +35,10 @@ internal sealed class FieldMetadataCache
 
     internal sealed class Builder
     {
-        private readonly ImmutableDictionary<string, FieldMetadata>.Builder _fields;
+        private readonly FieldMetadataTransaction _fields;
         private readonly ImmutableDictionary<string, ImmutableHashSet<string>>.Builder _aliases;
 
-        internal Builder(ImmutableDictionary<string, FieldMetadata>.Builder fields,
+        internal Builder(FieldMetadataTransaction fields,
             ImmutableDictionary<string, ImmutableHashSet<string>>.Builder aliases)
         {
             _fields = fields;
@@ -59,7 +59,7 @@ internal sealed class FieldMetadataCache
         {
             if (!_fields.TryGetValue(id, out removed)) return false;
             Unlink(id, removed);
-            _fields.Remove(id);
+            _fields.Remove(id, out _);
             return true;
         }
 
@@ -67,7 +67,7 @@ internal sealed class FieldMetadataCache
         public IEnumerable<string> AliasesOf(string canonicalId) =>
             _aliases.TryGetValue(canonicalId, out var aliases) ? aliases : [];
 
-        public FieldMetadataCache ToImmutable() => new(_fields.ToImmutable(), _aliases.ToImmutable());
+        public FieldMetadataCache ToImmutable() => new(_fields.Commit(), _aliases.ToImmutable());
 
         private void Link(string id, FieldMetadata field)
         {

@@ -15,10 +15,36 @@ public sealed class SemanticReviewPerformanceTests(ITestOutputHelper output) : I
     private const int Repetitions = 7;
     private const int WarmupIterations = 5;
     private const long AllocationLimit = 20_000_000;
+    private const long PageCancellationOverheadBytes = 64 * 1024;
     private readonly WorkspaceStore _store = new(new PluginCatalog([new CounterPlugin()]),
         new WorkspaceStoreOptions { DataRoot = TestZips.TempDir() });
 
     public void Dispose() => _store.Dispose();
+
+    [Fact]
+    public void CancellablePagingDoesNotCloneTheTenThousandRowReviewBaseline()
+    {
+        var workspace = _store.Create("paging-perf", [new ImportSource("save.dat",
+            () => new MemoryStream(CounterPlugin.Create(5)))]);
+        using var session = new DocumentSession("paging", workspace.Set.AllDiskFiles.Single(),
+            new CounterPlugin(), new SemanticQueryableDocument(Rows),
+            openOriginal: () => new SemanticQueryableDocument(Rows));
+        Assert.Empty(session.GetChanges().Changes);
+        var query = new QueryableCollectionQuery { Offset = Rows / 2, Limit = 50 };
+        var collection = SemanticQueryableDocument.Collection(0);
+        using var cancellation = new CancellationTokenSource();
+        var ordinary = AllocationProbe.Measure(() => session.QueryCollection(collection, query), out var expected);
+        var cancellable = AllocationProbe.Measure(() => session.QueryCollection(collection, query,
+            session.State.Revision, cancellation.Token), out var actual);
+
+        output.WriteLine($"Page after 10,000-row review: {ordinary.MinimumBytes} B without token; {cancellable.MinimumBytes} B with token.");
+        cancellable.AssertAtMost(ordinary.MinimumBytes + PageCancellationOverheadBytes,
+            "Read-only paging must not snapshot the semantic baseline.");
+        Assert.Equal(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(expected),
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(actual));
+        Assert.Empty(session.GetChanges().Changes);
+        Assert.False(session.State.IsDirty);
+    }
 
     [Theory]
     [InlineData(0)]

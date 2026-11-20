@@ -112,7 +112,7 @@ internal sealed class JsonSaveDocument(ISaveFile file, JsonTokenTree tree, IRefe
         if (actionId.StartsWith(JsonSemanticActions.Prefix, StringComparison.Ordinal))
         {
             var edited = ApplyEdits(fresh.Changes.Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray());
-            return edited with { Warnings = fresh.Warnings, StructureChanged = edited.Succeeded };
+            return edited with { Warnings = fresh.Warnings, StructureChanged = edited.Succeeded && edited.Changes.Count > 0 };
         }
         if (actionId == JsonResetActions.ActionId)
             return ApplyEdits(fresh.Changes.Select(c => new ValueEdit(c.ValueId, c.NewValue)).ToArray()) with { Warnings = fresh.Warnings };

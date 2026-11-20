@@ -103,6 +103,10 @@ export function fetchBinary(path: string, signal?: AbortSignal, timeout?: number
   }, timeout);
 }
 
+/** Everything a rejected edit reported, so rollback and history warnings are not dropped. */
+export const editFailureText = (result: EditResult, fallback: string) =>
+  [...result.errors.map(error => error.message), result.message, ...result.warnings].filter(Boolean).join(" ") || fallback;
+
 export const api = {
   plugins: () => request<Plugin[]>("/plugins"),
   /** The runtime's whole workspace list; it also corrects which workspaces leaving the page would lose. */
