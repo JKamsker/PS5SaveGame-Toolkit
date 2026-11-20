@@ -516,7 +516,8 @@ The complete composed run has to fit the 45-minute test step.
 Run 42302542228 took 25m00s in the test step, while run 42302537670 was terminated after
 25m12s at the former limit. The 45-minute bound adds 80% margin over the completed run;
 the job covers the 15-minute build, 10-minute dependency install and 45-minute tests plus setup/reporting.
-Suites remain sequential to preserve the runner contract and avoid concurrent WebAssembly heap pressure.
+The local Windows sample-backed composed run took 23m29s (152 passed; the optional reference test
+needed a test-hook setup fix and a focused rerun). Suites remain sequential to preserve the runner contract and avoid concurrent WebAssembly heap pressure.
 The canonical allowlist explicitly marks `presets.e2e.ts` optional until its published feature is
 composed; when present, all its actual registrations participate in canonical discovery and execution.
 Optional means declared absence is allowed, never that a present file or its IDs may be skipped.

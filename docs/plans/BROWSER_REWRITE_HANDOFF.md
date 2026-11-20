@@ -43,22 +43,30 @@ React UI (web/src) -> web/src/api/http.ts fetchApi -> web/src/runtime (Web Worke
 - The e2e suite runs against `web/dist`. Playwright's network hooks cannot see worker traffic, so they
   are replaced by `web/e2e/apiRoutes.ts`, `apiPageHooks.ts` and `apiRequest.ts`.
 
-## State at handoff (verified on `dc1a7640`)
+## State at handoff (2026-11-20, main `bb389d84` merged)
 
 | Check | Result |
 | --- | --- |
-| Full e2e | 152 passed, 1 skipped on `1de61815`; on `dc1a7640` the 63 affected specs passed |
-| `npm run test` (web unit tests) | 1599 pass; 1638 on `b8087566` |
-| `npm run typecheck` / `lint` / `check:bundle` | pass / 0 errors (46 pre-existing warnings; 47 on `b8087566`) / pass |
-| `python3 -B docs/tests/test_documentation.py --code-ref HEAD` | OK |
-| `... --code-ref main` | fails only 5 checks, for files that are absent on main until this merges |
-| Native: all 24 test projects | 0 failures |
-| `tests/SaveToolkit.Core.Tests` | 2355 total, 22 skipped |
-| `tests/SaveToolkit.LocalApi.Tests` | 319 pass |
-| `tests/SaveToolkit.Codecs.Tests`, Witcher3, BaldursGate3, Cyberpunk2077, Gearbox plugin tests | 0 failures |
+| Full e2e against built `web/dist` | 152 passed, 1 failed in 23m29s; optional private-sample reference test fixed and focused rerun passed (1/1): all 153 cases verified |
+| `npm run test` (web unit tests) | 1641 passed across 148 files |
+| `npm run typecheck` / `lint` / `check:bundle` | pass / 0 errors, 47 warnings / pass |
+| `npm ci` / `npm run build` | pass / pass in 81.5s, including native SQLite WASM relink |
+| `python -B docs/tests/test_documentation.py --code-ref HEAD` | 55 passed |
+| Native: all 24 test projects, private samples enabled | 10233 passed, 0 failed, 9 skipped (10242 total), Debug via `scripts/test.ps1` |
+| `tests/SaveToolkit.Core.Tests` | 2385 passed, 9 skipped (2394 total); cache allocation, alias rollback and preset session surface checks pass |
+| `tests/SaveToolkit.LocalApi.Tests` | 319 passed |
+| `tests/SaveToolkit.Api.Performance.Tests` | 75 passed, including large-save paging allocation checks |
+| C# size guard against `origin/main` | 0 errors, 1 existing warning (`PresetStore.cs`, 318 lines) |
 
-Every skip depends on private samples. The commit history contains many `wip: snapshot` commits
-(periodic saves of parallel agents' work). Squash on merge.
+Samples were read in place from the owner's external artifacts directory. Scratch was
+`D:/Temp/saveeditor/test-scratch/pr86`, with no junctions or symlinks. The nine backend skips
+are three optional packaged-apphost cases, five sample-less synthetic conformance facts and
+one explicit hash-printing diagnostic. The reference browser regression now installs worker
+hooks before registering observers and permits the table and action-parameter labels to be
+batched separately, retaining zero individual lookups and exact pair totals.
+CI smoke/job limits are now 45/80 minutes; see [the measured bounds](../RELEASING.md#built-app-browser-smoke-tests).
+Hosted CI is pending after push, deliberately not monitored by this finishing task.
+The commit history contains earlier `wip: snapshot` commits. Squash on merge.
 
 ## Open work: resolved
 
