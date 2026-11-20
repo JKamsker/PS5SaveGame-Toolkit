@@ -94,7 +94,7 @@ public sealed class PresetDocumentTests
         Assert.Null(dto.PresetCapability);
         Assert.Equal("malformed", dto.PresetCapabilityStatus);
         Assert.Contains("malformed", dto.PresetCapabilityReason, StringComparison.OrdinalIgnoreCase);
-        Assert.NotNull(fixture.Session.PresetDocument);
+        Assert.Equal(SaveToolkit.Core.Sessions.PresetCapabilityAdmission.Malformed, fixture.Session.PresetCapabilityAdmission);
         Assert.Equal(0, document.ResolveCalls);
     }
 

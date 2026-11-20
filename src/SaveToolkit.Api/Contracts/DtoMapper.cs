@@ -69,7 +69,7 @@ internal static class DtoMapper
         var unsupported = new List<string>();
         string? previewCode = null;
         string? previewReason = null;
-        if (capability is null && document.PresetDocument is not null)
+        if (document.PresetCapabilityAdmission == PresetCapabilityAdmission.Malformed)
         {
             unsupported.Add("capability");
             previewCode = "capabilityMalformed";

@@ -89,8 +89,6 @@ public sealed partial class DocumentSession : IDisposable
     public IGamePlugin Plugin { get; }
     public string Title => Locked(() => Document.Title);
     public bool CanEdit => Locked(() => !_unusable && Document.CanEdit);
-    /// <summary>Optional semantic preset capability published by the opened plugin document.</summary>
-    public IPresetDocument? PresetDocument => Locked(() => Document as IPresetDocument);
     /// <summary>Host-authoritative preset capability with the pinned reference identity applied.</summary>
     public PresetCapability? PresetCapability => Locked(() => EffectivePresetCapability());
     /// <summary>Whether this document has an admitted semantic preset capability.</summary>

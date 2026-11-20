@@ -14,7 +14,7 @@ record contains a human name, a compatibility boundary, and semantic action para
     "titleIds": ["PPSA00000"],
     "gameBuild": "1.03",
     "formatVariant": "retail",
-    "referencePackIdentity": "example-items@2026-10",
+    "referencePackIdentity": "selection:v1;locales=en;origin=user-over-embedded;build=exact-over-neutral|pack:example-items@2026-10;origin=User;locale=en;content=sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "capabilitySchemaVersion": "1",
     "requiresExplicitInstanceResolution": true
   },
@@ -27,10 +27,11 @@ record contains a human name, a compatibility boundary, and semantic action para
 preset; omission is incompatible. Unknown current build or reference identity remains unknown and
 blocks a preset that requires it. `CapabilitySchemaVersion` is persisted separately from the host
 storage `ToolkitPreset.SchemaVersion` and is compared exactly. The host owns the pinned reference
-identity and ignores an unverified plugin string. `ReferencePackInfo.ContentFingerprint` and
-`IReferenceContext.ContentIdentity` are host-computed SHA-256 identities over the validated manifest
-and every listed file hash; they distinguish same-id/version/locale overlays and embedded/user content
-without plugin I/O. A missing or ambiguous owned instance must return
+identity and ignores an unverified plugin string. `ReferencePackInfo.ContentFingerprint` is a
+host-computed SHA-256 fingerprint over the validated manifest and every listed file hash.
+`IReferenceContext.ContentIdentity` combines pack fingerprints with locale preferences, pack origins,
+and selection policy in a `selection:v1...` value. Together they distinguish same-id/version/locale
+overlays and embedded/user content without plugin I/O. A missing or ambiguous owned instance must return
 `PresetInstanceResolutionStatus.Missing` or `Ambiguous`; host code must not substitute by display name,
 type id, physical slot, or a session id. `PresetInstanceReference.StableId` is a semantic identifier,
 never an ephemeral document/session identifier.
@@ -84,8 +85,10 @@ outside this initial action contract.
 
 FF7 compatibility must pin title id, `formatVariant` (`Remake`, `Rebirth`, or `RebirthDemo`), plugin
 version, schema/file role, and `referencePackIdentity`. Retail and demo saves have shared dimensions but
-different variants and therefore cannot cross-apply. The reference identity is the host-generated
-`sha256:<hex>` content fingerprint, not a display-label hash and not a plugin-read manifest path.
+different variants and therefore cannot cross-apply. Copy the complete host-provided
+`IReferenceContext.ContentIdentity` (`selection:v1...`) into `referencePackIdentity`, as in the
+illustrative example above. A single pack's `sha256:<hex>` fingerprint is only one component of
+that identity; compatibility compares the complete value exactly.
 
 Accessibility guidance follows the [WAI-ARIA status message guidance](https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html)
 and [focus appearance guidance](https://www.w3.org/WAI/WCAG22/Understanding/focus-appearance). The
