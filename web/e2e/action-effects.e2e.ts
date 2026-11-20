@@ -5,6 +5,9 @@ import { generateGearboxFixtures, productionGearboxImport, productionGearboxTran
 import { routeApi } from "./apiRoutes";
 
 test.describe("production Gearbox effects", () => {
+  // Real-sized Gearbox saves run every edit through the in-browser runtime: about 17 s per test on a
+  // typical hosted runner, but 29-32 s on a slow one (run 44774238184), past the 30 s default.
+  test.describe.configure({ timeout: 90_000 });
   let gearboxFixtures: GearboxFixture[];
   test.beforeAll(async () => {
     test.setTimeout(60_000);

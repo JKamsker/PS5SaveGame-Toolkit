@@ -508,8 +508,10 @@ caption and action-effects) sequentially whenever its complete owned file invent
 Every available `.e2e.ts` file must be declared exactly once; an unknown file, overlapping pattern,
 missing required canonical file, partial feature inventory or present-but-empty discovery fails before
 any actual suite launch. Each selected suite has a 30-minute overall deadline (each test boots a fresh WebAssembly runtime),
-30-second default test timeout, one worker, zero retries, traces and teardown. Existing spec-specific
-overrides, including the transfer library's 60-second test timeout, are unchanged. The aggregate allowance is
+30-second default test timeout, one worker, zero retries, traces and teardown. Spec-specific overrides
+remain, including the transfer library's 60-second test timeout and 90 seconds for the production
+Gearbox action-effect tests, which take about 17 s on a typical hosted runner and up to 32 s on a slow
+one. The aggregate allowance is
 additive across the partitions that are actually present; neither four-suite nor six-suite ceiling
 arithmetic includes discovery, startup, reporting or teardown overhead or proves the complete run fits.
 The complete composed run has to fit the 45-minute test step.
