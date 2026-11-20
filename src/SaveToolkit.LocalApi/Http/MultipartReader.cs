@@ -123,6 +123,7 @@ internal sealed class MultipartReader
     private MultipartSection ReadHeaders()
     {
         var total = 0;
+        var lines = 0;
         var headers = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         var line = _body.ReadLine(HeadersLengthLimit);
         while (line.Length > 0)
@@ -136,7 +137,9 @@ internal sealed class MultipartReader
             var name = line[..split];
             if (!headers.TryGetValue(name, out var values)) headers[name] = values = [];
             values.Add(line[(split + 1)..].Trim());
-            if (headers.Count > HeadersCountLimit)
+            // ASP.NET Core 10.0.15 counts every header line, so repeating one name cannot bypass the
+            // limit; 10.0.14 and earlier counted distinct names only.
+            if (++lines > HeadersCountLimit)
                 throw new InvalidDataException($"Multipart headers count limit {HeadersCountLimit} exceeded.");
             line = _body.ReadLine(HeadersLengthLimit - total);
         }

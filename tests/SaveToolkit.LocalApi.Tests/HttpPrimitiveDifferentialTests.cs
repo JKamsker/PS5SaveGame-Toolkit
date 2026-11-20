@@ -116,11 +116,33 @@ public sealed class HttpPrimitiveDifferentialTests
 
     [Theory]
     [MemberData(nameof(MultipartBodies))]
-    public Task Multipart_forms_match(string contentType, string body) =>
-        FormOracle.AssertSameAsync(body.Length > 60 ? body[..60] : body, contentType, Encoding.UTF8.GetBytes(body));
+    public Task Multipart_forms_match(string contentType, string body)
+    {
+        // ASP.NET Core 10.0.14 and earlier counted distinct header names, so the oracle differs there;
+        // Multipart_header_count_limit_counts_every_line pins the local behaviour on every runtime.
+        if (body == RepeatedHeaderLines && Environment.Version < CountsEveryHeaderLine)
+            Assert.Skip($"ASP.NET Core {Environment.Version} counts distinct multipart header names; {CountsEveryHeaderLine} counts lines.");
+        return FormOracle.AssertSameAsync(body.Length > 60 ? body[..60] : body, contentType, Encoding.UTF8.GetBytes(body));
+    }
+
+    [Theory]
+    [InlineData(15, false)]
+    [InlineData(16, true)]
+    [InlineData(17, true)]
+    public void Multipart_header_count_limit_counts_every_line(int repeatedLines, bool rejected)
+    {
+        // repeatedLines identical "X-A" lines plus Content-Disposition: 16 lines pass, 17 exceed the limit.
+        var body = Encoding.UTF8.GetBytes("--b\r\n" + string.Concat(Enumerable.Repeat("X-A: 1\r\n", repeatedLines))
+            + FileCd + "\r\n\r\nv\r\n--b--");
+        var outcome = FormOracle.Local("multipart/form-data; boundary=b", body, 100_000, long.MaxValue);
+        Assert.Equal(rejected, outcome == "THROW InvalidDataException: Multipart headers count limit 16 exceeded.");
+    }
 
     private const string Cd = "Content-Disposition: form-data; name=";
     private const string FileCd = Cd + "\"f\"; filename=\"x\"";
+    private static readonly Version CountsEveryHeaderLine = new(10, 0, 15);
+    private static readonly string RepeatedHeaderLines =
+        "--b\r\n" + string.Concat(Enumerable.Repeat("X-A: 1\r\n", 17)) + FileCd + "\r\n\r\nv\r\n--b--";
 
     public static TheoryData<string, string> MultipartBodies => new()
     {
@@ -147,7 +169,7 @@ public sealed class HttpPrimitiveDifferentialTests
         { "multipart/form-data; boundary=b", "--b\r\n" + FileCd + "\r\n\r\nv\r\n--b --" },
         { "multipart/form-data; boundary=b", "--b\r\nContent-Disposition : form-data; name=\"f\"; filename=\"x\"\r\n\r\nv\r\n--b--" },
         { "multipart/form-data; boundary=b", "--b\r\n:x\r\n" + FileCd + "\r\n\r\nv\r\n--b--" },
-        { "multipart/form-data; boundary=b", "--b\r\n" + string.Concat(Enumerable.Repeat("X-A: 1\r\n", 17)) + FileCd + "\r\n\r\nv\r\n--b--" },
+        { "multipart/form-data; boundary=b", RepeatedHeaderLines },
         { "multipart/form-data; boundary=b", "--b\r\n" + string.Concat(Enumerable.Range(0, 16).Select(i => $"X-{i}: 1\r\n")) + FileCd + "\r\n\r\nv\r\n--b--" },
         { "multipart/form-data; boundary=b", "--b\r\n" + string.Concat(Enumerable.Range(0, 15).Select(i => $"X-{i}: 1\r\n")) + FileCd + "\r\n\r\nv\r\n--b--" },
         { "multipart/form-data; boundary=b", "--b\r\n" + Cd + "\"" + new string('k', 3000) + "\"\r\n\r\nv\r\n--b\r\n" + FileCd + "\r\n\r\nv\r\n--b--" },
