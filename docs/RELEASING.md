@@ -500,8 +500,8 @@ The Ubuntu-only `e2e` CI job runs alongside validation. It installs the `wasm-to
 builds the complete static site (`npm run build`, including the Release WebAssembly publish; bounded
 to 15 minutes), then runs the suites against `web/dist` with no API process. The Chromium
 system-dependency install is bounded separately (10 minutes), because slow apt mirrors once consumed
-the whole job budget before any test started; the test step has a 25-minute limit (every test boots
-its own WebAssembly runtime) and the job allows 55 minutes overall. The official
+the whole job budget before any test started; the test step has a 45-minute limit (every test boots
+its own WebAssembly runtime) and the job allows 80 minutes overall. The official
 `npm run e2e` entry reads the schema-2 `web/scripts/e2e-suites.json` manifest and runs the explicit
 canonical file allowlist plus each named feature partition (Unreal, text-capacity, FF7, transfer,
 caption and action-effects) sequentially whenever its complete owned file inventory is present.
@@ -512,7 +512,11 @@ any actual suite launch. Each selected suite has a 30-minute overall deadline (e
 overrides, including the transfer library's 60-second test timeout, are unchanged. The aggregate allowance is
 additive across the partitions that are actually present; neither four-suite nor six-suite ceiling
 arithmetic includes discovery, startup, reporting or teardown overhead or proves the complete run fits.
-The complete composed run has to fit the 25-minute test step.
+The complete composed run has to fit the 45-minute test step.
+Run 42302542228 took 25m00s in the test step, while run 42302537670 was terminated after
+25m12s at the former limit. The 45-minute bound adds 80% margin over the completed run;
+the job covers the 15-minute build, 10-minute dependency install and 45-minute tests plus setup/reporting.
+Suites remain sequential to preserve the runner contract and avoid concurrent WebAssembly heap pressure.
 The canonical allowlist explicitly marks `presets.e2e.ts` optional until its published feature is
 composed; when present, all its actual registrations participate in canonical discovery and execution.
 Optional means declared absence is allowed, never that a present file or its IDs may be skipped.

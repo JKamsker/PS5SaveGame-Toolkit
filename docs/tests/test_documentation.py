@@ -650,6 +650,13 @@ class DocumentationTests(unittest.TestCase):
 
     def test_built_app_smoke_docs_cover_shipped_flows_and_skipped_regressions(self):
         text = markdown_section(document("docs/RELEASING.md"), "## Built app browser smoke tests")
+        workflow = source(".github/workflows/ci.yml")
+        e2e_job = workflow.split("  e2e:", 1)[1].split("  script-tests:", 1)[0]
+        self.assertIn("    timeout-minutes: 80", e2e_job)
+        smoke_step = e2e_job.split("- name: Run built app smoke tests", 1)[1].split("- name:", 1)[0]
+        self.assertIn("timeout-minutes: 45", smoke_step)
+        self.assertIn("test step has a 45-minute limit", text)
+        self.assertIn("job allows 80 minutes overall", text)
         flows = {
             "import.e2e.ts": ("import errors and recovery", "raw read-only inspection"),
             "workspace.e2e.ts": ("document isolation and redo", "repeated exports"),
