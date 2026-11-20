@@ -133,7 +133,7 @@ no score gate (`thresholds.break = 0`); low scores and surviving mutants do not 
 Build/tool failures, missing reports and timeouts fail the workflow so GitHub Actions can surface
 execution failures; recipient delivery depends on maintainers' Actions notification settings.
 It never runs on pushes or pull requests and adds
-no work to CI or nightly fuzz. The local manifest pins **Stryker.NET 5.0.0**. The shared
+no work to CI or nightly fuzz. The local manifest pins **Stryker.NET 5.1.0**. The shared
 `tests/stryker-config.json` selects its native preview **MTP** runner, compatible with the
 `global.json` test runner; see [Stryker's MTP support announcement](https://stryker-mutator.io/blog/stryker-net-mtp-runner/).
 Stryker runs in [solution mode](https://stryker-mutator.io/docs/stryker-net/configuration/)
